@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2020 oshi</copyright>
     <item>
-      <title>File: 233,
-             Errors: 4874,
+      <title>File: 293,
+             Errors: 8918,
              Warnings: 0,
              Infos: 0
       </title>
@@ -46,6 +46,62 @@ under the License.
           <tbody>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.linux.ProcPath.java">oshi/util/platform/linux/ProcPath.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  22
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdVirtualMemory.java">oshi/hardware/platform/unix/freebsd/FreeBsdVirtualMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.DiskStats.java">oshi/driver/linux/proc/DiskStats.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsVirtualMemory.java">oshi/hardware/platform/windows/WindowsVirtualMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  19
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.MacNetworkParams.java">oshi/software/os/mac/MacNetworkParams.java</a>
                 </td>
                 <td>
@@ -55,7 +111,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.Dmidecode.java">oshi/driver/linux/Dmidecode.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
                 </td>
               </tr>
                           <tr>
@@ -69,7 +139,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  44
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32LogicalDiskToPartition.java">oshi/driver/windows/wmi/Win32LogicalDiskToPartition.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
                 </td>
               </tr>
                           <tr>
@@ -83,7 +167,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  3
                 </td>
               </tr>
                           <tr>
@@ -97,7 +181,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  16
                 </td>
               </tr>
                           <tr>
@@ -111,21 +195,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.HardwareAbstractionLayer.java">oshi/json/hardware/HardwareAbstractionLayer.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
@@ -139,7 +209,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  63
                 </td>
               </tr>
                           <tr>
@@ -153,49 +223,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.MapUtil.java">oshi/util/MapUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.data.windows.PerfCounterQuery.java">oshi/data/windows/PerfCounterQuery.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  63
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.HWPartition.java">oshi/json/hardware/HWPartition.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
                   38
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.perfmon.ProcessInformation.java">oshi/driver/windows/perfmon/ProcessInformation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  31
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32LogicalDisk.java">oshi/driver/windows/wmi/Win32LogicalDisk.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  19
                 </td>
               </tr>
                           <tr>
@@ -209,7 +265,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.MacInternetProtocolStats.java">oshi/software/os/mac/MacInternetProtocolStats.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
                 </td>
               </tr>
                           <tr>
@@ -223,12 +293,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  21
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.CfUtil.java">oshi/util/platform/mac/CfUtil.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition.java">oshi/driver/windows/wmi/Win32DiskDriveToDiskPartition.java</a>
                 </td>
                 <td>
                   0
@@ -237,7 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  9
                 </td>
               </tr>
                           <tr>
@@ -251,12 +321,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  65
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.ComputerSystem.java">oshi/json/hardware/ComputerSystem.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.freebsd.FreeBsdLibc.java">oshi/jna/platform/unix/freebsd/FreeBsdLibc.java</a>
                 </td>
                 <td>
                   0
@@ -265,7 +335,49 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  81
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.PhysicalMemory.java">oshi/hardware/PhysicalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  22
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.Memoizer.java">oshi/util/Memoizer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.ProcessorPanel.java">oshi/demo/gui/ProcessorPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
                 </td>
               </tr>
                           <tr>
@@ -279,7 +391,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  15
                 </td>
               </tr>
                           <tr>
@@ -293,49 +405,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.CentralProcessor.java">oshi/json/hardware/CentralProcessor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  6
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Disks.java">oshi/hardware/Disks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.StringUtil.java">oshi/util/StringUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
                   8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32PnPEntity.java">oshi/driver/windows/wmi/Win32PnPEntity.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
                 </td>
               </tr>
                           <tr>
@@ -349,7 +433,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
@@ -368,105 +452,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.solaris.SolarisFileSystem.java">oshi/software/os/unix/solaris/SolarisFileSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  22
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxSoundCard.java">oshi/hardware/platform/linux/LinuxSoundCard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  21
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdNetworks.java">oshi/hardware/platform/unix/freebsd/FreeBsdNetworks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  11
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractSoundCard.java">oshi/hardware/common/AbstractSoundCard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  27
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxDisks.java">oshi/hardware/platform/linux/LinuxDisks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  53
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.data.windows.PerfCounterWildcardQuery.java">oshi/data/windows/PerfCounterWildcardQuery.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  47
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisFirmware.java">oshi/hardware/platform/unix/solaris/SolarisFirmware.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxGlobalMemory.java">oshi/hardware/platform/linux/LinuxGlobalMemory.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.DiskStoreForPath.java">oshi/demo/DiskStoreForPath.java</a>
                 </td>
                 <td>
                   0
@@ -480,7 +466,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.impl.package-info.java">oshi/json/software/os/impl/package-info.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.solaris.SolarisFileSystem.java">oshi/software/os/unix/solaris/SolarisFileSystem.java</a>
                 </td>
                 <td>
                   0
@@ -489,7 +475,161 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  29
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxSoundCard.java">oshi/hardware/platform/linux/LinuxSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  31
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdNetworks.java">oshi/hardware/platform/unix/freebsd/FreeBsdNetworks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.annotation.concurrent.Immutable.java">oshi/annotation/concurrent/Immutable.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.tuples.Quintet.java">oshi/util/tuples/Quintet.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractSoundCard.java">oshi/hardware/common/AbstractSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxDisks.java">oshi/hardware/platform/linux/LinuxDisks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  50
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.CpuInfo.java">oshi/driver/linux/proc/CpuInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisFirmware.java">oshi/hardware/platform/unix/solaris/SolarisFirmware.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxGlobalMemory.java">oshi/hardware/platform/linux/LinuxGlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  20
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.Lshal.java">oshi/driver/linux/Lshal.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.annotation.concurrent.NotThreadSafe.java">oshi/annotation/concurrent/NotThreadSafe.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
                 </td>
               </tr>
                           <tr>
@@ -503,7 +643,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.annotation.concurrent.ThreadSafe.java">oshi/annotation/concurrent/ThreadSafe.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
                 </td>
               </tr>
                           <tr>
@@ -517,7 +671,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  26
                 </td>
               </tr>
                           <tr>
@@ -545,7 +699,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  54
+                  59
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.solaris.Who.java">oshi/driver/unix/solaris/Who.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
                 </td>
               </tr>
                           <tr>
@@ -559,12 +727,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.OSFileStore.java">oshi/json/software/os/OSFileStore.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.package-info.java">oshi/driver/linux/proc/package-info.java</a>
                 </td>
                 <td>
                   0
@@ -573,7 +741,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  5
                 </td>
               </tr>
                           <tr>
@@ -587,7 +755,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  40
                 </td>
               </tr>
                           <tr>
@@ -601,7 +769,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  40
                 </td>
               </tr>
                           <tr>
@@ -615,7 +783,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  18
                 </td>
               </tr>
                           <tr>
@@ -629,7 +797,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  45
                 </td>
               </tr>
                           <tr>
@@ -643,12 +811,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  13
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.DisplayImpl.java">oshi/json/hardware/impl/DisplayImpl.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.Constants.java">oshi/util/Constants.java</a>
                 </td>
                 <td>
                   0
@@ -657,7 +825,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  8
                 </td>
               </tr>
                           <tr>
@@ -685,21 +853,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.OperatingSystem.java">oshi/json/software/os/OperatingSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  8
+                  52
                 </td>
               </tr>
                           <tr>
@@ -713,7 +867,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  4
                 </td>
               </tr>
                           <tr>
@@ -727,7 +881,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  77
+                  148
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.perfmon.PhysicalDisk.java">oshi/driver/windows/perfmon/PhysicalDisk.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  19
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.Config.java">oshi/demo/gui/Config.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
                 </td>
               </tr>
                           <tr>
@@ -741,7 +923,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  42
                 </td>
               </tr>
                           <tr>
@@ -755,21 +937,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  81
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.PdhUtilXP.java">oshi/util/platform/windows/PdhUtilXP.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  18
+                  1201
                 </td>
               </tr>
                           <tr>
@@ -783,7 +951,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  57
+                  34
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32OperatingSystem.java">oshi/driver/windows/wmi/Win32OperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
                 </td>
               </tr>
                           <tr>
@@ -797,26 +979,26 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.impl.NetworkParamsImpl.java">oshi/json/software/os/impl/NetworkParamsImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  15
+                  11
                 </td>
               </tr>
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisSensors.java">oshi/hardware/platform/unix/solaris/SolarisSensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32Fan.java">oshi/driver/windows/wmi/Win32Fan.java</a>
                 </td>
                 <td>
                   0
@@ -839,12 +1021,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  26
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.GlobalMemoryImpl.java">oshi/json/hardware/impl/GlobalMemoryImpl.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisGraphicsCard.java">oshi/hardware/platform/unix/solaris/SolarisGraphicsCard.java</a>
                 </td>
                 <td>
                   0
@@ -853,7 +1035,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  23
                 </td>
               </tr>
                           <tr>
@@ -867,12 +1049,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.linux.Libc.java">oshi/jna/platform/linux/Libc.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32BaseBoard.java">oshi/driver/windows/wmi/Win32BaseBoard.java</a>
                 </td>
                 <td>
                   0
@@ -881,7 +1063,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  9
                 </td>
               </tr>
                           <tr>
@@ -895,7 +1077,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.GlobalConfig.java">oshi/util/GlobalConfig.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  23
                 </td>
               </tr>
                           <tr>
@@ -909,12 +1105,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  4
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.solaris.package-info.java">oshi/software/os/unix/solaris/package-info.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.InternetProtocolStats.java">oshi/software/os/InternetProtocolStats.java</a>
                 </td>
                 <td>
                   0
@@ -923,54 +1119,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  76
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.GlobalMemory.java">oshi/json/hardware/GlobalMemory.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OSUser.java">oshi/software/os/OSUser.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  14
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractCentralProcessor.java">oshi/hardware/common/AbstractCentralProcessor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  103
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.MacFileSystem.java">oshi/software/os/mac/MacFileSystem.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.tuples.Quartet.java">oshi/util/tuples/Quartet.java</a>
                 </td>
                 <td>
                   0
@@ -984,7 +1138,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractNetworks.java">oshi/hardware/common/AbstractNetworks.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxGraphicsCard.java">oshi/hardware/platform/linux/LinuxGraphicsCard.java</a>
                 </td>
                 <td>
                   0
@@ -993,7 +1147,119 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  19
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.linux.filename.properties">oshi.linux.filename.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.solaris.package-info.java">oshi/software/os/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.LogicalProcessorInformation.java">oshi/driver/windows/LogicalProcessorInformation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.registry.package-info.java">oshi/driver/windows/registry/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.vmmacaddr.properties">oshi.vmmacaddr.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractCentralProcessor.java">oshi/hardware/common/AbstractCentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  116
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.Lshw.java">oshi/driver/linux/Lshw.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.MacFileSystem.java">oshi/software/os/mac/MacFileSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  59
                 </td>
               </tr>
                           <tr>
@@ -1021,7 +1287,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  82
                 </td>
               </tr>
                           <tr>
@@ -1035,12 +1301,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  2
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Networks.java">oshi/hardware/Networks.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.annotation.concurrent.GuardedBy.java">oshi/annotation/concurrent/GuardedBy.java</a>
                 </td>
                 <td>
                   0
@@ -1049,12 +1315,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  4
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.OSProcess.java">oshi/json/software/os/OSProcess.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.OshiGui.java">oshi/demo/OshiGui.java</a>
                 </td>
                 <td>
                   0
@@ -1063,12 +1329,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  61
+                  33
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.HWDiskStore.java">oshi/json/hardware/HWDiskStore.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.perfmon.ProcessorInformation.java">oshi/driver/windows/perfmon/ProcessorInformation.java</a>
                 </td>
                 <td>
                   0
@@ -1077,7 +1343,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  49
+                  57
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.registry.ProcessPerformanceData.java">oshi/driver/windows/registry/ProcessPerformanceData.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  23
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStats.java">oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
                 </td>
               </tr>
                           <tr>
@@ -1091,7 +1385,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  61
                 </td>
               </tr>
                           <tr>
@@ -1105,7 +1399,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  108
+                  73
                 </td>
               </tr>
                           <tr>
@@ -1119,7 +1413,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  65
+                  66
                 </td>
               </tr>
                           <tr>
@@ -1138,7 +1432,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.linux.ProcUtil.java">oshi/util/platform/linux/ProcUtil.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.package-info.java">oshi/demo/package-info.java</a>
                 </td>
                 <td>
                   0
@@ -1147,21 +1441,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.NetworkIF.java">oshi/json/hardware/NetworkIF.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  32
+                  4
                 </td>
               </tr>
                           <tr>
@@ -1175,7 +1455,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
@@ -1189,21 +1469,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.Sensors.java">oshi/json/hardware/Sensors.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
+                  13
                 </td>
               </tr>
                           <tr>
@@ -1217,7 +1483,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.MemoryPanel.java">oshi/demo/gui/MemoryPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
                 </td>
               </tr>
                           <tr>
@@ -1231,7 +1511,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  23
                 </td>
               </tr>
                           <tr>
@@ -1245,26 +1525,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  4
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.Firmware.java">oshi/json/hardware/Firmware.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  7
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdFileSystem.java">oshi/software/os/unix/freebsd/FreeBsdFileSystem.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32DiskDrive.java">oshi/driver/windows/wmi/Win32DiskDrive.java</a>
                 </td>
                 <td>
                   0
@@ -1278,7 +1544,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsComputerSystem.java">oshi/hardware/platform/windows/WindowsComputerSystem.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.common.AbstractFileSystem.java">oshi/software/common/AbstractFileSystem.java</a>
                 </td>
                 <td>
                   0
@@ -1287,12 +1553,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  13
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacSensors.java">oshi/hardware/platform/mac/MacSensors.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisVirtualMemory.java">oshi/hardware/platform/unix/solaris/SolarisVirtualMemory.java</a>
                 </td>
                 <td>
                   0
@@ -1301,54 +1567,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  19
+                  22
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.solaris.SolarisNetworkParams.java">oshi/software/os/unix/solaris/SolarisNetworkParams.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.windows.package-info.java">oshi/software/os/windows/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.SystemInfo.java">oshi/json/SystemInfo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  10
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractGlobalMemory.java">oshi/hardware/common/AbstractGlobalMemory.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.perfmon.PagingFile.java">oshi/driver/windows/perfmon/PagingFile.java</a>
                 </td>
                 <td>
                   0
@@ -1362,329 +1586,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.package-info.java">oshi/json/hardware/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.GlobalMemory.java">oshi/hardware/GlobalMemory.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.package-info.java">oshi/hardware/platform/windows/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.solaris.package-info.java">oshi/jna/platform/unix/solaris/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.SysctlUtil.java">oshi/util/platform/mac/SysctlUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  20
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.Baseboard.java">oshi/json/hardware/Baseboard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractPowerSource.java">oshi/hardware/common/AbstractPowerSource.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  12
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacSoundCard.java">oshi/hardware/platform/mac/MacSoundCard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  8
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.linux.Udev.java">oshi/jna/platform/linux/Udev.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  61
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource.java">oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsDisks.java">oshi/hardware/platform/windows/WindowsDisks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  113
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacDisks.java">oshi/hardware/platform/mac/MacDisks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  78
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.util.package-info.java">oshi/json/util/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.package-info.java">oshi/hardware/platform/unix/freebsd/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.windows.WindowsOSVersionInfoEx.java">oshi/software/os/windows/WindowsOSVersionInfoEx.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  42
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisComputerSystem.java">oshi/hardware/platform/unix/solaris/SolarisComputerSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  12
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractDisplay.java">oshi/hardware/common/AbstractDisplay.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  7
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.mac.SystemB.java">oshi/jna/platform/mac/SystemB.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.PowerSourceImpl.java">oshi/json/hardware/impl/PowerSourceImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsNetworks.java">oshi/hardware/platform/windows/WindowsNetworks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  9
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.SensorsImpl.java">oshi/json/hardware/impl/SensorsImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacHardwareAbstractionLayer.java">oshi/hardware/platform/mac/MacHardwareAbstractionLayer.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.util.JsonUtil.java">oshi/json/util/JsonUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacPowerSource.java">oshi/hardware/platform/mac/MacPowerSource.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdFileSystem.java">oshi/software/os/unix/freebsd/FreeBsdFileSystem.java</a>
                 </td>
                 <td>
                   0
@@ -1698,7 +1600,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.WmiUtil.java">oshi/util/platform/windows/WmiUtil.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsComputerSystem.java">oshi/hardware/platform/windows/WindowsComputerSystem.java</a>
                 </td>
                 <td>
                   0
@@ -1707,12 +1609,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  76
+                  15
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.mac.IOKit.java">oshi/jna/platform/mac/IOKit.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32Processor.java">oshi/driver/windows/wmi/Win32Processor.java</a>
                 </td>
                 <td>
                   0
@@ -1721,12 +1623,166 @@ under the License.
                   0
                 </td>
                 <td>
-                  132
+                  22
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.unix.freebsd.BsdSysctlUtil.java">oshi/util/platform/unix/freebsd/BsdSysctlUtil.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacSensors.java">oshi/hardware/platform/mac/MacSensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.solaris.SolarisNetworkParams.java">oshi/software/os/unix/solaris/SolarisNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.Json.java">oshi/demo/Json.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.freebsd.package-info.java">oshi/driver/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.windows.package-info.java">oshi/software/os/windows/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractGlobalMemory.java">oshi/hardware/common/AbstractGlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.GlobalMemory.java">oshi/hardware/GlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.package-info.java">oshi/hardware/platform/windows/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.solaris.package-info.java">oshi/jna/platform/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32ComputerSystemProduct.java">oshi/driver/windows/wmi/Win32ComputerSystemProduct.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.DetectVM.java">oshi/demo/DetectVM.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  24
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.SysctlUtil.java">oshi/util/platform/mac/SysctlUtil.java</a>
                 </td>
                 <td>
                   0
@@ -1740,6 +1796,356 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractPowerSource.java">oshi/hardware/common/AbstractPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  115
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacSoundCard.java">oshi/hardware/platform/mac/MacSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.registry.HkeyPerformanceDataUtil.java">oshi/driver/windows/registry/HkeyPerformanceDataUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  73
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.solaris.SolarisInternetProtocolStats.java">oshi/software/os/unix/solaris/SolarisInternetProtocolStats.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  25
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.perfmon.SystemInformation.java">oshi/driver/windows/perfmon/SystemInformation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource.java">oshi/hardware/platform/unix/freebsd/FreeBsdPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  48
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsDisks.java">oshi/hardware/platform/windows/WindowsDisks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  68
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.UsbPanel.java">oshi/demo/gui/UsbPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacDisks.java">oshi/hardware/platform/mac/MacDisks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  94
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32USBController.java">oshi/driver/windows/wmi/Win32USBController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.package-info.java">oshi/hardware/platform/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.windows.WindowsOSVersionInfoEx.java">oshi/software/os/windows/WindowsOSVersionInfoEx.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  37
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisComputerSystem.java">oshi/hardware/platform/unix/solaris/SolarisComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  57
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractDisplay.java">oshi/hardware/common/AbstractDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.mac.SystemB.java">oshi/jna/platform/mac/SystemB.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.package-info.java">oshi/driver/unix/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsNetworks.java">oshi/hardware/platform/windows/WindowsNetworks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacHardwareAbstractionLayer.java">oshi/hardware/platform/mac/MacHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.mac.package-info.java">oshi/driver/mac/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacPowerSource.java">oshi/hardware/platform/mac/MacPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  59
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.WmiUtil.java">oshi/util/platform/windows/WmiUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  93
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.VirtualMemory.java">oshi/hardware/VirtualMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.mac.IOKit.java">oshi/jna/platform/mac/IOKit.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.unix.freebsd.BsdSysctlUtil.java">oshi/util/platform/unix/freebsd/BsdSysctlUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  22
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.windows.WindowsInternetProtocolStats.java">oshi/software/os/windows/WindowsInternetProtocolStats.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.linux.package-info.java">oshi/software/os/linux/package-info.java</a>
                 </td>
                 <td>
@@ -1749,7 +2155,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.linux.LinuxInternetProtocolStats.java">oshi/software/os/linux/LinuxInternetProtocolStats.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
                 </td>
               </tr>
                           <tr>
@@ -1763,7 +2183,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  50
                 </td>
               </tr>
                           <tr>
@@ -1777,12 +2197,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  48
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.json.package-info.java">oshi/json/json/package-info.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OSService.java">oshi/software/os/OSService.java</a>
                 </td>
                 <td>
                   0
@@ -1791,7 +2211,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.PerfCounterQuery.java">oshi/util/platform/windows/PerfCounterQuery.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  54
                 </td>
               </tr>
                           <tr>
@@ -1805,7 +2239,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  57
                 </td>
               </tr>
                           <tr>
@@ -1819,7 +2253,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  5
                 </td>
               </tr>
                           <tr>
@@ -1838,20 +2272,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.package-info.java">oshi/json/software/os/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OperatingSystem.java">oshi/software/os/OperatingSystem.java</a>
                 </td>
                 <td>
@@ -1861,278 +2281,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  66
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.ComputerSystemImpl.java">oshi/json/hardware/impl/ComputerSystemImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  16
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdBaseboard.java">oshi/hardware/platform/unix/freebsd/FreeBsdBaseboard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacNetworks.java">oshi/hardware/platform/mac/MacNetworks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  37
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.PowerSource.java">oshi/hardware/PowerSource.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer.java">oshi/hardware/platform/unix/freebsd/FreeBsdHardwareAbstractionLayer.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.package-info.java">oshi/jna/platform/windows/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.SoundCardImpl.java">oshi/json/hardware/impl/SoundCardImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  12
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsGlobalMemory.java">oshi/hardware/platform/windows/WindowsGlobalMemory.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  34
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractFirmware.java">oshi/hardware/common/AbstractFirmware.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  18
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.package-info.java">oshi/hardware/platform/linux/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacDisplay.java">oshi/hardware/platform/mac/MacDisplay.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  14
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxCentralProcessor.java">oshi/hardware/platform/linux/LinuxCentralProcessor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  19
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.EdidUtil.java">oshi/util/EdidUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  120
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.PowerSource.java">oshi/json/hardware/PowerSource.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.SoundCard.java">oshi/json/hardware/SoundCard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  5
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OperatingSystemVersion.java">oshi/software/os/OperatingSystemVersion.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.util.PropertiesUtil.java">oshi/json/util/PropertiesUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  27
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.json.NullAwareJsonObjectBuilder.java">oshi/json/json/NullAwareJsonObjectBuilder.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  28
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.Util.java">oshi/util/Util.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  25
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.CentralProcessor.java">oshi/hardware/CentralProcessor.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.properties">oshi.properties</a>
                 </td>
                 <td>
                   0
@@ -2146,7 +2300,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisGlobalMemory.java">oshi/hardware/platform/unix/solaris/SolarisGlobalMemory.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.registry.HkeyUserData.java">oshi/driver/windows/registry/HkeyUserData.java</a>
                 </td>
                 <td>
                   0
@@ -2155,12 +2309,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  20
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdFirmware.java">oshi/hardware/platform/unix/freebsd/FreeBsdFirmware.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.macos.versions.properties">oshi.macos.versions.properties</a>
                 </td>
                 <td>
                   0
@@ -2169,12 +2323,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.UsbDevice.java">oshi/json/hardware/UsbDevice.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.FileStorePanel.java">oshi/demo/gui/FileStorePanel.java</a>
                 </td>
                 <td>
                   0
@@ -2183,12 +2337,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  18
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractBaseboard.java">oshi/hardware/common/AbstractBaseboard.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.Sysfs.java">oshi/driver/linux/Sysfs.java</a>
                 </td>
                 <td>
                   0
@@ -2197,12 +2351,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  28
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.java">oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdBaseboard.java">oshi/hardware/platform/unix/freebsd/FreeBsdBaseboard.java</a>
                 </td>
                 <td>
                   0
@@ -2211,12 +2365,194 @@ under the License.
                   0
                 </td>
                 <td>
-                  46
+                  16
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.linux.package-info.java">oshi/util/platform/linux/package-info.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacNetworks.java">oshi/hardware/platform/mac/MacNetworks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  59
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.PowerSource.java">oshi/hardware/PowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer.java">oshi/hardware/platform/unix/freebsd/FreeBsdHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.package-info.java">oshi/jna/platform/windows/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.OshiJPanel.java">oshi/demo/gui/OshiJPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsGlobalMemory.java">oshi/hardware/platform/windows/WindowsGlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  83
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractFirmware.java">oshi/hardware/common/AbstractFirmware.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.solaris.SolarisLibc.java">oshi/jna/platform/unix/solaris/SolarisLibc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  53
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.package-info.java">oshi/hardware/platform/linux/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacDisplay.java">oshi/hardware/platform/mac/MacDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxCentralProcessor.java">oshi/hardware/platform/linux/LinuxCentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  47
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.EdidUtil.java">oshi/util/EdidUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  124
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdGraphicsCard.java">oshi/hardware/platform/unix/freebsd/FreeBsdGraphicsCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  26
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OperatingSystemVersion.java">oshi/software/os/OperatingSystemVersion.java</a>
                 </td>
                 <td>
                   0
@@ -2230,7 +2566,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.impl.FileSystemImpl.java">oshi/json/software/os/impl/FileSystemImpl.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsGraphicsCard.java">oshi/hardware/platform/windows/WindowsGraphicsCard.java</a>
                 </td>
                 <td>
                   0
@@ -2239,7 +2575,147 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  24
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.Util.java">oshi/util/Util.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.tuples.Pair.java">oshi/util/tuples/Pair.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.Who.java">oshi/driver/linux/Who.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.CentralProcessor.java">oshi/hardware/CentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  174
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisGlobalMemory.java">oshi/hardware/platform/unix/solaris/SolarisGlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdFirmware.java">oshi/hardware/platform/unix/freebsd/FreeBsdFirmware.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.OshiHTTPServer.java">oshi/demo/OshiHTTPServer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  25
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractBaseboard.java">oshi/hardware/common/AbstractBaseboard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.java">oshi/software/os/unix/freebsd/FreeBsdOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  90
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.linux.package-info.java">oshi/util/platform/linux/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
                 </td>
               </tr>
                           <tr>
@@ -2253,7 +2729,63 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.Devicetree.java">oshi/driver/linux/Devicetree.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.Networks.java">oshi/hardware/common/Networks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.solaris.package-info.java">oshi/driver/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.PerfCounterQueryHandler.java">oshi/util/platform/windows/PerfCounterQueryHandler.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
                 </td>
               </tr>
                           <tr>
@@ -2272,6 +2804,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32VideoController.java">oshi/driver/windows/wmi/Win32VideoController.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.linux.LinuxOperatingSystem.java">oshi/software/os/linux/LinuxOperatingSystem.java</a>
                 </td>
                 <td>
@@ -2281,754 +2827,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  106
+                  171
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.FileSystem.java">oshi/software/os/FileSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.FirmwareImpl.java">oshi/json/hardware/impl/FirmwareImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  15
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.json.OshiJsonObject.java">oshi/json/json/OshiJsonObject.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsDisplay.java">oshi/hardware/platform/windows/WindowsDisplay.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  14
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacBaseboard.java">oshi/hardware/platform/mac/MacBaseboard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.OperatingSystemVersion.java">oshi/json/software/os/OperatingSystemVersion.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.IOKitUtil.java">oshi/util/platform/mac/IOKitUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  48
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory.java">oshi/hardware/platform/unix/freebsd/FreeBsdGlobalMemory.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  7
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.package-info.java">oshi/util/platform/mac/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.common.AbstractOperatingSystem.java">oshi/software/common/AbstractOperatingSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  53
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.PowrProf.java">oshi/jna/platform/windows/PowrProf.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  29
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.NetworkIF.java">oshi/hardware/NetworkIF.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  36
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisBaseboard.java">oshi/hardware/platform/unix/solaris/SolarisBaseboard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.package-info.java">oshi/util/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisSoundCard.java">oshi/hardware/platform/unix/solaris/SolarisSoundCard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdSensors.java">oshi/hardware/platform/unix/freebsd/FreeBsdSensors.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.ParseUtil.java">oshi/util/ParseUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  194
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer.java">oshi/hardware/platform/windows/WindowsHardwareAbstractionLayer.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.package-info.java">oshi/software/os/mac/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.linux.LinuxUserGroupInfo.java">oshi/software/os/linux/LinuxUserGroupInfo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  21
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.NetworkParams.java">oshi/json/software/os/NetworkParams.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisDisks.java">oshi/hardware/platform/unix/solaris/SolarisDisks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  43
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor.java">oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  37
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.common.AbstractNetworkParams.java">oshi/software/common/AbstractNetworkParams.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  10
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.SmcUtil.java">oshi/util/platform/mac/SmcUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  52
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.impl.OperatingSystemImpl.java">oshi/json/software/os/impl/OperatingSystemImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  36
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.FileSystem.java">oshi/json/software/os/FileSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.mac.CoreFoundation.java">oshi/jna/platform/mac/CoreFoundation.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  43
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.freebsd.package-info.java">oshi/jna/platform/unix/freebsd/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Sensors.java">oshi/hardware/Sensors.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.data.windows.PerfCounterQueryHandler.java">oshi/data/windows/PerfCounterQueryHandler.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  30
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.UsbDeviceImpl.java">oshi/json/hardware/impl/UsbDeviceImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  18
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisCentralProcessor.java">oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  21
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxComputerSystem.java">oshi/hardware/platform/linux/LinuxComputerSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdOSVersionInfoEx.java">oshi/software/os/unix/freebsd/FreeBsdOSVersionInfoEx.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.package-info.java">oshi/hardware/platform/unix/solaris/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.MacOperatingSystem.java">oshi/software/os/mac/MacOperatingSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  58
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisPowerSource.java">oshi/hardware/platform/unix/solaris/SolarisPowerSource.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  20
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.windows.WindowsOperatingSystem.java">oshi/software/os/windows/WindowsOperatingSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  163
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.Display.java">oshi/json/hardware/Display.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxUsbDevice.java">oshi/hardware/platform/linux/LinuxUsbDevice.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  46
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.unix.solaris.KstatUtil.java">oshi/util/platform/unix/solaris/KstatUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  33
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.HardwareAbstractionLayerImpl.java">oshi/json/hardware/impl/HardwareAbstractionLayerImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  22
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsPowerSource.java">oshi/hardware/platform/windows/WindowsPowerSource.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  15
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.SystemInfo.java">oshi/SystemInfo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  6
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.software.os.impl.OperatingSystemVersionImpl.java">oshi/json/software/os/impl/OperatingSystemVersionImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  19
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.NetworkParams.java">oshi/software/os/NetworkParams.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.package-info.java">oshi/json/hardware/impl/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsSoundCard.java">oshi/hardware/platform/windows/WindowsSoundCard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  35
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Firmware.java">oshi/hardware/Firmware.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacCentralProcessor.java">oshi/hardware/platform/mac/MacCentralProcessor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  32
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystem.java">oshi/hardware/platform/unix/freebsd/FreeBsdComputerSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.freebsd.Libc.java">oshi/jna/platform/unix/freebsd/Libc.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  13
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdSoundCard.java">oshi/hardware/platform/unix/freebsd/FreeBsdSoundCard.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.OhmHardware.java">oshi/driver/windows/wmi/OhmHardware.java</a>
                 </td>
                 <td>
                   0
@@ -3042,217 +2846,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.common.package-info.java">oshi/software/common/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Baseboard.java">oshi/hardware/Baseboard.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.package-info.java">oshi/json/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacComputerSystem.java">oshi/hardware/platform/mac/MacComputerSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  6
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractHardwareAbstractionLayer.java">oshi/hardware/common/AbstractHardwareAbstractionLayer.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  10
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.mac.DiskArbitration.java">oshi/jna/platform/mac/DiskArbitration.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  9
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.linux.package-info.java">oshi/jna/platform/linux/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.json.AbstractOshiJsonObject.java">oshi/json/json/AbstractOshiJsonObject.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  7
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.package-info.java">oshi/util/platform/windows/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisNetworks.java">oshi/hardware/platform/unix/solaris/SolarisNetworks.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  4
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.unix.freebsd.package-info.java">oshi/util/platform/unix/freebsd/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractComputerSystem.java">oshi/hardware/common/AbstractComputerSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  16
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.CentralProcessorImpl.java">oshi/json/hardware/impl/CentralProcessorImpl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  53
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.ComputerSystem.java">oshi/hardware/ComputerSystem.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.LsofUtil.java">oshi/util/LsofUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  5
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.json.hardware.impl.BaseboardImpl.java">oshi/json/hardware/impl/BaseboardImpl.java</a>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.FileSystem.java">oshi/software/os/FileSystem.java</a>
                 </td>
                 <td>
                   0
@@ -3266,6 +2860,1252 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.linux.LinuxLibc.java">oshi/jna/platform/linux/LinuxLibc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  61
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsDisplay.java">oshi/hardware/platform/windows/WindowsDisplay.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.ComputerID.java">oshi/demo/ComputerID.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacBaseboard.java">oshi/hardware/platform/mac/MacBaseboard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32DiskPartition.java">oshi/driver/windows/wmi/Win32DiskPartition.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.package-info.java">oshi/driver/windows/wmi/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.perfmon.package-info.java">oshi/driver/windows/perfmon/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.Who.java">oshi/driver/unix/Who.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  29
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory.java">oshi/hardware/platform/unix/freebsd/FreeBsdGlobalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.package-info.java">oshi/util/platform/mac/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.PerfCounterWildcardQuery.java">oshi/util/platform/windows/PerfCounterWildcardQuery.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  52
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.common.AbstractOperatingSystem.java">oshi/software/common/AbstractOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  70
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32PhysicalMemory.java">oshi/driver/windows/wmi/Win32PhysicalMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.PowrProf.java">oshi/jna/platform/windows/PowrProf.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  142
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractGraphicsCard.java">oshi/hardware/common/AbstractGraphicsCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  26
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.NetworkIF.java">oshi/hardware/NetworkIF.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  96
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacGraphicsCard.java">oshi/hardware/platform/mac/MacGraphicsCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature.java">oshi/driver/windows/wmi/MSAcpiThermalZoneTemperature.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisBaseboard.java">oshi/hardware/platform/unix/solaris/SolarisBaseboard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.package-info.java">oshi/demo/gui/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.package-info.java">oshi/driver/linux/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32Bios.java">oshi/driver/windows/wmi/Win32Bios.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxVirtualMemory.java">oshi/hardware/platform/linux/LinuxVirtualMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractSensors.java">oshi/hardware/common/AbstractSensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.package-info.java">oshi/util/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.mac.Who.java">oshi/driver/mac/Who.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisSoundCard.java">oshi/hardware/platform/unix/solaris/SolarisSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdSensors.java">oshi/hardware/platform/unix/freebsd/FreeBsdSensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.ParseUtil.java">oshi/util/ParseUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  263
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer.java">oshi/hardware/platform/windows/WindowsHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.package-info.java">oshi/software/os/mac/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.linux.LinuxUserGroupInfo.java">oshi/software/os/linux/LinuxUserGroupInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.architecture.properties">oshi.architecture.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.GraphicsCard.java">oshi/hardware/GraphicsCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.ProcessStat.java">oshi/driver/linux/proc/ProcessStat.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  77
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisDisks.java">oshi/hardware/platform/unix/solaris/SolarisDisks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  46
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor.java">oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  54
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.common.AbstractNetworkParams.java">oshi/software/common/AbstractNetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.SmcUtil.java">oshi/util/platform/mac/SmcUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  120
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32Process.java">oshi/driver/windows/wmi/Win32Process.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  24
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.freebsd.package-info.java">oshi/jna/platform/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Sensors.java">oshi/hardware/Sensors.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  9
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.OhmSensor.java">oshi/driver/windows/wmi/OhmSensor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisCentralProcessor.java">oshi/hardware/platform/unix/solaris/SolarisCentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  26
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxComputerSystem.java">oshi/hardware/platform/linux/LinuxComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  21
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.CpuStat.java">oshi/driver/linux/proc/CpuStat.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.unix.freebsd.FreeBsdOSVersionInfoEx.java">oshi/software/os/unix/freebsd/FreeBsdOSVersionInfoEx.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacVirtualMemory.java">oshi/hardware/platform/mac/MacVirtualMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  15
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.package-info.java">oshi/hardware/platform/unix/solaris/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.mac.MacOperatingSystem.java">oshi/software/os/mac/MacOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  111
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisPowerSource.java">oshi/hardware/platform/unix/solaris/SolarisPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  58
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.windows.WindowsOperatingSystem.java">oshi/software/os/windows/WindowsOperatingSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  190
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.linux.LinuxUsbDevice.java">oshi/hardware/platform/linux/LinuxUsbDevice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  51
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.package-info.java">oshi/driver/windows/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.unix.solaris.KstatUtil.java">oshi/util/platform/unix/solaris/KstatUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  57
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsPowerSource.java">oshi/hardware/platform/windows/WindowsPowerSource.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  152
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.perfmon.MemoryInformation.java">oshi/driver/windows/perfmon/MemoryInformation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.SystemInfo.java">oshi/SystemInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.NetworkParams.java">oshi/software/os/NetworkParams.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.tuples.package-info.java">oshi/util/tuples/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.solaris.kstat.SystemPages.java">oshi/driver/unix/solaris/kstat/SystemPages.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsSoundCard.java">oshi/hardware/platform/windows/WindowsSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  18
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Firmware.java">oshi/hardware/Firmware.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.UpTime.java">oshi/driver/linux/proc/UpTime.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacCentralProcessor.java">oshi/hardware/platform/mac/MacCentralProcessor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystem.java">oshi/hardware/platform/unix/freebsd/FreeBsdComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractVirtualMemory.java">oshi/hardware/common/AbstractVirtualMemory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdSoundCard.java">oshi/hardware/platform/unix/freebsd/FreeBsdSoundCard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.common.package-info.java">oshi/software/common/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.Baseboard.java">oshi/hardware/Baseboard.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32ComputerSystem.java">oshi/driver/windows/wmi/Win32ComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.OsHwTextPanel.java">oshi/demo/gui/OsHwTextPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  33
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacComputerSystem.java">oshi/hardware/platform/mac/MacComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractHardwareAbstractionLayer.java">oshi/hardware/common/AbstractHardwareAbstractionLayer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  22
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.solaris.kstat.package-info.java">oshi/driver/unix/solaris/kstat/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.linux.package-info.java">oshi/jna/platform/linux/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.registry.NetSessionData.java">oshi/driver/windows/registry/NetSessionData.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.freebsd.Who.java">oshi/driver/unix/freebsd/Who.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  10
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.windows.package-info.java">oshi/util/platform/windows/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisNetworks.java">oshi/hardware/platform/unix/solaris/SolarisNetworks.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.ProcessPanel.java">oshi/demo/gui/ProcessPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  51
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.unix.freebsd.package-info.java">oshi/util/platform/unix/freebsd/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.common.AbstractComputerSystem.java">oshi/hardware/common/AbstractComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.tuples.Triplet.java">oshi/util/tuples/Triplet.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.windows.versions.properties">oshi.windows.versions.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OSSession.java">oshi/software/os/OSSession.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  27
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.ComputerSystem.java">oshi/hardware/ComputerSystem.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.registry.SessionWtsData.java">oshi/driver/windows/registry/SessionWtsData.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  38
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.LsofUtil.java">oshi/util/LsofUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  7
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.windows.WindowsUsbDevice.java">oshi/hardware/platform/windows/WindowsUsbDevice.java</a>
                 </td>
                 <td>
@@ -3275,7 +4115,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  79
+                  63
                 </td>
               </tr>
                           <tr>
@@ -3289,7 +4129,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  50
                 </td>
               </tr>
                           <tr>
@@ -3303,7 +4143,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  19
                 </td>
               </tr>
                       </tbody>
