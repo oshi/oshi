@@ -30,7 +30,7 @@
 	<parent>
 		<groupId>com.github.oshi</groupId>
 		<artifactId>oshi-parent</artifactId>
-		<version>4.9.1-SNAPSHOT</version>
+		<version>4.9.2-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>oshi-dist</artifactId>
