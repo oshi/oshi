@@ -37,6 +37,7 @@ import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.WinBase.FILETIME;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_BLOCK;
 import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_DEFINITION;
@@ -122,7 +123,8 @@ public final class HkeyPerformanceDataUtil {
         // Store timestamp
         PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));
         long perfTime100nSec = perfData.PerfTime100nSec.getValue(); // 1601
-        long now = System.currentTimeMillis(); // 1970 epoch
+        long now = FILETIME.filetimeToDate((int) (perfTime100nSec >> 32), (int) (perfTime100nSec & 0xffffffffL))
+                .getTime(); // 1970
 
         // Iterate object types.
         long perfObjectOffset = perfData.HeaderLength;
