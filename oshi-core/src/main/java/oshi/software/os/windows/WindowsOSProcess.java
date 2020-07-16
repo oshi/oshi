@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -237,11 +237,16 @@ public class WindowsOSProcess extends AbstractOSProcess {
     public long getAffinityMask() {
         final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandle != null) {
-            ULONG_PTRByReference processAffinity = new ULONG_PTRByReference();
-            ULONG_PTRByReference systemAffinity = new ULONG_PTRByReference();
-            if (Kernel32.INSTANCE.GetProcessAffinityMask(pHandle, processAffinity, systemAffinity)) {
-                return Pointer.nativeValue(processAffinity.getValue().toPointer());
+            try {
+                ULONG_PTRByReference processAffinity = new ULONG_PTRByReference();
+                ULONG_PTRByReference systemAffinity = new ULONG_PTRByReference();
+                if (Kernel32.INSTANCE.GetProcessAffinityMask(pHandle, processAffinity, systemAffinity)) {
+                    return Pointer.nativeValue(processAffinity.getValue().toPointer());
+                }
+            } finally {
+                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
+            Kernel32.INSTANCE.CloseHandle(pHandle);
         }
         return 0L;
     }
@@ -302,28 +307,31 @@ public class WindowsOSProcess extends AbstractOSProcess {
         // current user unless running as administrator
         final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandle != null) {
-            // Test for 32-bit process on 64-bit windows
-            if (IS_VISTA_OR_GREATER && this.bitness == 64) {
-                IntByReference wow64 = new IntByReference(0);
-                if (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64) && wow64.getValue() > 0) {
-                    this.bitness = 32;
+            try {
+                // Test for 32-bit process on 64-bit windows
+                if (IS_VISTA_OR_GREATER && this.bitness == 64) {
+                    IntByReference wow64 = new IntByReference(0);
+                    if (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64) && wow64.getValue() > 0) {
+                        this.bitness = 32;
+                    }
                 }
-            }
-            // Full path
-            final HANDLEByReference phToken = new HANDLEByReference();
-            try { // EXECUTABLEPATH
-                if (IS_WINDOWS7_OR_GREATER) {
-                    this.path = Kernel32Util.QueryFullProcessImageName(pHandle, 0);
+                // Full path
+                final HANDLEByReference phToken = new HANDLEByReference();
+                try { // EXECUTABLEPATH
+                    if (IS_WINDOWS7_OR_GREATER) {
+                        this.path = Kernel32Util.QueryFullProcessImageName(pHandle, 0);
+                    }
+                } catch (Win32Exception e) {
+                    this.state = INVALID;
+                } finally {
+                    final HANDLE token = phToken.getValue();
+                    if (token != null) {
+                        Kernel32.INSTANCE.CloseHandle(token);
+                    }
                 }
-            } catch (Win32Exception e) {
-                this.state = INVALID;
             } finally {
-                final HANDLE token = phToken.getValue();
-                if (token != null) {
-                    Kernel32.INSTANCE.CloseHandle(token);
-                }
+                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
-            Kernel32.INSTANCE.CloseHandle(pHandle);
         }
 
         return !this.state.equals(INVALID);

@@ -1,5 +1,6 @@
-5.3.0 (in progress)
+4.9.2 / 5.2.2 (in progress)
 ================
+* [#1302](https://github.com/oshi/oshi/pull/1302): More accurate process start times - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 4.9.1 / 5.2.1 (2020-07-14)
