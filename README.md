@@ -226,7 +226,6 @@ Projects using OSHI
 * [Dolphin Scheduler](https://dolphinscheduler.apache.org/)
 * [Guns](https://github.com/stylefeng/Guns)
 * [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
-* [ND4J](http://nd4j.org/) <!-- Note: Url is dead -->
 * [Apache Doris](https://doris.incubator.apache.org/)
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [PSI Probe](https://github.com/psi-probe/psi-probe)
