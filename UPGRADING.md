@@ -58,7 +58,7 @@ The deprecated `OSProcess` method `calculateCpuPercent()` was removed, replaced 
 OSHI 4.0 requires minimum Java 8 compatibility.
 
 The `oshi-json` artifact has been completely removed. It is trivial to obtain JSON output using the
-[Jackson ObjectMapper](http://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/).
+[Jackson ObjectMapper](https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/).
 
 There is a new `oshi-demo` artifact which will contain many "how to" classes
 to demonstrate OSHI's capabilities and integration with other libraries. These classes are intended

@@ -1,6 +1,6 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.oshi/oshi-core/badge.svg?)](https://search.maven.org/search?q=com.github.oshi)
 [![Tidelift](https://tidelift.com/badges/package/maven/com.github.oshi:oshi-core)](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&utm_medium=referral&utm_campaign=readme)
 [![Travis Build Status](https://travis-ci.org/oshi/oshi.svg)](https://travis-ci.org/oshi/oshi)
@@ -29,7 +29,7 @@ Windows • Linux • macOS • Unix (Solaris, FreeBSD, AIX)
 
 Essentials
 ----------
-* [API](http://oshi.github.io/oshi/apidocs/) (javadocs) - [Operating System](http://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html) / [Hardware](http://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html)
+* [API](https://oshi.github.io/oshi/apidocs/) (javadocs) - [Operating System](https://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html) / [Hardware](https://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
 * [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
 * [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
@@ -71,7 +71,7 @@ CentralProcessor cpu = hal.getProcessor();
 ```
 
 You can see more examples and run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
-and see the full output for your system by cloning the project and building it with [Maven](http://maven.apache.org/index.html):
+and see the full output for your system by cloning the project and building it with [Maven](https://maven.apache.org/index.html):
 
 ```
 git clone https://github.com/oshi/oshi.git && cd oshi
@@ -163,7 +163,7 @@ Disks:
 
 ```
 
-Sensor readings are available for some hardware (see notes in the [API](http://oshi.github.io/oshi/apidocs/oshi/hardware/Sensors.html)).
+Sensor readings are available for some hardware (see notes in the [API](https://oshi.github.io/oshi/apidocs/oshi/hardware/Sensors.html)).
 ```
 Sensors:
  CPU Temperature: 69.8°C
@@ -199,7 +199,7 @@ USB Devices:
 
 Where are we? How can I help?
 -----------------------------
-[OSHI originated](http://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
+[OSHI originated](https://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
 as a platform-independent library that did not require additional software and had a license compatible with 
 both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
 but we would love for *you* to help by:
@@ -226,8 +226,7 @@ Projects using OSHI
 * [Dolphin Scheduler](https://dolphinscheduler.apache.org/)
 * [Guns](https://github.com/stylefeng/Guns)
 * [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
-* [ND4J](http://nd4j.org/)
-* [Apache Doris](http://doris.incubator.apache.org/)
+* [Apache Doris](https://doris.incubator.apache.org/)
 * [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
 * [PSI Probe](https://github.com/psi-probe/psi-probe)
 * [JPPF](https://jppf.org/)
@@ -240,13 +239,13 @@ Projects using OSHI
 * [Hawkular Agent](https://github.com/hawkular/hawkular-agent)
 * [Dagr](https://github.com/fulcrumgenomics/dagr)
 * [sys-API](https://github.com/Krillsson/sys-API)
-* [NexCapMAT](http://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
+* [NexCapMAT](https://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
 * [360Suite](https://360suite.io/)
 * [GoMint](https://gomint.io/)
 * [Stefan's OS](https://BotCompany.de/)
 * [Eclipse Passage](https://projects.eclipse.org/projects/technology.passage)
 * [Eclipse Orbit](https://projects.eclipse.org/projects/tools.orbit)
-* [Ruoyi](http://www.ruoyi.vip/)
+* [Ruoyi](https://www.ruoyi.vip/)
 * [DataX](https://github.com/WeiYe-Jing/datax-web)
 
 License

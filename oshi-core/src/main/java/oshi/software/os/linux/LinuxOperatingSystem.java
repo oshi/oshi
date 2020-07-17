@@ -265,7 +265,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Some systems are still using the lsb standard which parses a
         // variety of /etc/*-release files and is most easily accessed via
         // the commandline lsb_release -a, see here:
-        // http://linux.die.net/man/1/lsb_release
+        // https://linux.die.net/man/1/lsb_release
         // In this case, the /etc/lsb-release file (if it exists) has
         // optional overrides to the information in the /etc/distrib-release
         // files, which show: "Distributor release x.x (Codename)"
