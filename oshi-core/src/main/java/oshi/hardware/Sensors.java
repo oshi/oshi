@@ -38,7 +38,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Windows information is retrieved via Windows Management Instrumentation
  * (WMI). Unfortunately, most hardware providers do not publish values to WMI.
  * Oshi attempts to retrieve values from
- * <a href="http://openhardwaremonitor.org/">Open Hardware Monitor</a> if it is
+ * <a href="https://openhardwaremonitor.org/">Open Hardware Monitor</a> if it is
  * running, in preference to the Microsoft API, which may require elevated
  * permissions and still may provide no results or unchanging results depending
  * on the motherboard manufacturer.

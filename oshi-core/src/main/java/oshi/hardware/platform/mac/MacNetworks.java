@@ -81,7 +81,9 @@ public final class MacNetworks extends Networks {
      * @return a map of {@link IFData} object indexed by the interface index,
      *         encapsulating the stats, or {@code null} if the query failed.
      */
-    private static Map<Integer, IFdata> queryIFdata(int index) {
+    public static Map<Integer, IFdata> queryIFdata(int index) {
+        // Ported from source code of "netstat -ir". See
+        // https://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c
         Map<Integer, IFdata> data = new HashMap<>();
         // Get buffer of all interface information
         int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };

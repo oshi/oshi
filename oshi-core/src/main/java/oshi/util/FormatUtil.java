@@ -37,7 +37,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 public final class FormatUtil {
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
-     * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
+     * (https://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
      *
      * Should be used for most representations of bytes
      */
