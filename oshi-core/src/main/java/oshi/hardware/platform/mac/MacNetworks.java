@@ -78,7 +78,7 @@ public final class MacNetworks extends Networks {
      *
      * @param index
      *            If nonnegative, returns results for only that index
-     * @return a map of {@link IFData} object indexed by the interface index,
+     * @return a map of {@link IFdata} object indexed by the interface index,
      *         encapsulating the stats, or {@code null} if the query failed.
      */
     public static Map<Integer, IFdata> queryIFdata(int index) {
