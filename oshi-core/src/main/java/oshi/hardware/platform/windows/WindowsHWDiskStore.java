@@ -36,9 +36,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.PhysicalDisk;
@@ -69,8 +67,6 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
 
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
-
-    private static final int BUFSIZE = 255;
 
     private long reads = 0L;
     private long readBytes = 0L;
@@ -300,34 +296,13 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             }
             for (int j = 0; j < logicalDrives.size(); j++) {
                 Pair<String, Long> logicalDrive = logicalDrives.get(j);
-                String uuid = "";
-                // FIXME: Remove the below conditional once it's confirmed volumeSize = size
-                long volumeSize;
                 if (logicalDrive != null && !logicalDrive.getA().isEmpty()) {
-                    // Get matching volume for UUID
-                    char[] volumeChr = new char[BUFSIZE];
-                    Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive.getA(), volumeChr, BUFSIZE);
-                    String volumeStr = new String(volumeChr);
-                    uuid = ParseUtil.parseUuidOrDefault(volumeStr.trim(), "");
-                    // Get volume size
-                    WinNT.LARGE_INTEGER totalBytes = new WinNT.LARGE_INTEGER(0L);
-                    Kernel32.INSTANCE.GetDiskFreeSpaceEx(volumeStr, null, totalBytes, null);
-                    volumeSize = totalBytes.getValue();
-                } else {
-                    volumeSize = WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i);
-                }
-                if (logicalDrive != null && !logicalDrive.getA().isEmpty()) {
-                    // FIXME: Remove this output and replace volumeSize in the below with
-                    // logicalDrive.getB()
-                    System.out.println(
-                            "CHECK: volumeSize=" + volumeSize + ", wmi address calulated size=" + logicalDrive.getB());
-                    System.out.println("Disk partition size = "
-                            + WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i));
                     HWPartition pt = new HWPartition(
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
-                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,
-                            volumeSize, WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
+                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), "",
+                            logicalDrive.getB(),
+                            WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i),
                             logicalDrive.getA());
                     if (maps.partitionMap.containsKey(deviceID)) {
