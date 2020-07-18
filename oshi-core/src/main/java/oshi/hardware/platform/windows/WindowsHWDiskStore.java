@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -38,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -281,7 +281,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
                if(maps.partitionToLogicalDriveMap.containsKey(mAnt.group(1))) {
                    maps.partitionToLogicalDriveMap.get(mAnt.group(1)).add(mDep.group(1)+ "\\");
                } else {
-                  List<String>  list  = new LinkedList<String>();
+                  List<String>  list  = new ArrayList<String>();
                   list.add(mDep.group(1)+ "\\");
                   maps.partitionToLogicalDriveMap.put(mAnt.group(1),list);
                }
@@ -299,24 +299,32 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             for (int j = 0; j < logicalDrives.size(); j++) {
                 String logicalDrive = logicalDrives.get(j);
                 String uuid = "";
+                long volumeSize = 0l;
                 if (logicalDrive != null && !logicalDrive.isEmpty()) {
                     // Get matching volume for UUID
                     char[] volumeChr = new char[BUFSIZE];
                     Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive, volumeChr, BUFSIZE);
-                    uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), "");
+                    String volumeStr = new String(volumeChr);
+                    uuid = ParseUtil.parseUuidOrDefault(volumeStr.trim(), "");
+                    // Get volume size 
+                    WinNT.LARGE_INTEGER  totalBytes = new WinNT.LARGE_INTEGER(0L);
+                    Kernel32.INSTANCE.GetDiskFreeSpaceEx(volumeStr, null, totalBytes, null);
+                    volumeSize = totalBytes.getValue();
+                } else {
+                    volumeSize = WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i);
                 }
                 
                 HWPartition pt =
                     new HWPartition(WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,
-                            WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i),
+                            volumeSize,
                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i), logicalDrive);
                if (maps.partitionMap.containsKey(deviceID)) {
                    maps.partitionMap.get(deviceID).add(pt);
                } else {
-                   List<HWPartition> ptlist = new LinkedList<HWPartition>();
+                   List<HWPartition> ptlist = new ArrayList<HWPartition>();
                    ptlist.add(pt);
                    maps.partitionMap.put(deviceID, ptlist);
                }
