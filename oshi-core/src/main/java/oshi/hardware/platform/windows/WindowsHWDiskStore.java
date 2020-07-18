@@ -321,6 +321,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
                     // logicalDrive.getB()
                     System.out.println(
                             "CHECK: volumeSize=" + volumeSize + ", wmi address calulated size=" + logicalDrive.getB());
+                    System.out.println("Disk partition size = "+WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i));
                     HWPartition pt = new HWPartition(
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
