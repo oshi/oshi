@@ -1,8 +1,11 @@
-4.9.2 / 5.2.2 (in progress)
+5.3.0 (in progress)
+================
+* Your contribution here
+
+4.9.2 / 5.2.2 (2020-07-20)
 ================
 * [#1302](https://github.com/oshi/oshi/pull/1302): More accurate process start times - [@dbwiddis](https://github.com/dbwiddis).
 * [#1307](https://github.com/oshi/oshi/pull/1307): Correctly fetch logical partitions on Windows - [@AnakinHou](https://github.com/AnakinHou).
-* Your contribution here
 
 4.9.1 / 5.2.1 (2020-07-14)
 ================
