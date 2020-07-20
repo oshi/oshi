@@ -96,310 +96,311 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     *            the arguments (unused)</em>
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          logger.info(<span class="jxr_string">"Initializing System..."</span>);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          HardwareAbstractionLayer hal = si.getHardware();
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          printOperatingSystem(os);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         logger.info(<span class="jxr_string">"Checking computer system..."</span>);
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         printComputerSystem(hal.getComputerSystem());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         logger.info(<span class="jxr_string">"Checking Processor..."</span>);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         printProcessor(hal.getProcessor());
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         logger.info(<span class="jxr_string">"Checking Memory..."</span>);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         printMemory(hal.getMemory());
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         logger.info(<span class="jxr_string">"Checking CPU..."</span>);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         printCpu(hal.getProcessor());
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         logger.info(<span class="jxr_string">"Checking Processes..."</span>);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         printProcesses(os, hal.getMemory());
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         logger.info(<span class="jxr_string">"Checking Services..."</span>);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         printServices(os);
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         logger.info(<span class="jxr_string">"Checking Sensors..."</span>);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         printSensors(hal.getSensors());
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         logger.info(<span class="jxr_string">"Checking Power sources..."</span>);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         printPowerSources(hal.getPowerSources());
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         logger.info(<span class="jxr_string">"Checking Disks..."</span>);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         printDisks(hal.getDiskStores());
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         logger.info(<span class="jxr_string">"Checking File System..."</span>);
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         printFileSystem(os.getFileSystem());
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         logger.info(<span class="jxr_string">"Checking Network interfaces..."</span>);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         printNetworkInterfaces(hal.getNetworkIFs());
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         logger.info(<span class="jxr_string">"Checking Network parameters..."</span>);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         printNetworkParameters(os.getNetworkParams());
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         logger.info(<span class="jxr_string">"Checking IP statistics..."</span>);
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         printInternetProtocolStats(os.getInternetProtocolStats());
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          logger.info(<span class="jxr_string">"Initializing System..."</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          HardwareAbstractionLayer hal = si.getHardware();
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          printOperatingSystem(os);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          logger.info(<span class="jxr_string">"Checking computer system..."</span>);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         printComputerSystem(hal.getComputerSystem());
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         logger.info(<span class="jxr_string">"Checking Processor..."</span>);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         printProcessor(hal.getProcessor());
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         logger.info(<span class="jxr_string">"Checking Memory..."</span>);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         printMemory(hal.getMemory());
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         logger.info(<span class="jxr_string">"Checking CPU..."</span>);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         printCpu(hal.getProcessor());
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         logger.info(<span class="jxr_string">"Checking Processes..."</span>);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         printProcesses(os, hal.getMemory());
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         logger.info(<span class="jxr_string">"Checking Services..."</span>);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         printServices(os);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         logger.info(<span class="jxr_string">"Checking Sensors..."</span>);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         printSensors(hal.getSensors());
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         logger.info(<span class="jxr_string">"Checking Power sources..."</span>);
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         printPowerSources(hal.getPowerSources());
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         logger.info(<span class="jxr_string">"Checking Disks..."</span>);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         printDisks(hal.getDiskStores());
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         logger.info(<span class="jxr_string">"Checking File System..."</span>);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         printFileSystem(os.getFileSystem());
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         logger.info(<span class="jxr_string">"Checking Network interfaces..."</span>);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         printNetworkInterfaces(hal.getNetworkIFs());
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         logger.info(<span class="jxr_string">"Checking Network parameters..."</span>);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         printNetworkParameters(os.getNetworkParams());
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         logger.info(<span class="jxr_string">"Checking IP statistics..."</span>);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         printInternetProtocolStats(os.getInternetProtocolStats());
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <em class="jxr_comment">// hardware: displays</em>
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         logger.info(<span class="jxr_string">"Checking Displays..."</span>);
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         printDisplays(hal.getDisplays());
 <a class="jxr_linenumber" name="L141" href="#L141">141</a> 
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         logger.info(<span class="jxr_string">"Checking USB Devices..."</span>);
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         printUsbDevices(hal.getUsbDevices(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         logger.info(<span class="jxr_string">"Checking Sound Cards..."</span>);
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         printSoundCards(hal.getSoundCards());
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         logger.info(<span class="jxr_string">"Checking Graphics Cards..."</span>);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         printGraphicsCards(hal.getGraphicsCards());
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         StringBuilder output = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; oshi.size(); i++) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             output.append(oshi.get(i));
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             <strong class="jxr_keyword">if</strong> (oshi.get(i) != <strong class="jxr_keyword">null</strong> &amp;&amp; !oshi.get(i).endsWith(<span class="jxr_string">"\n"</span>)) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 output.append('\n');
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         }
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         logger.info(<span class="jxr_string">"Printing Operating System and Hardware Info:{}{}"</span>, '\n', output);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printOperatingSystem(<strong class="jxr_keyword">final</strong> OperatingSystem os) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         oshi.add(String.valueOf(os));
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         oshi.add(<span class="jxr_string">"Booted: "</span> + Instant.ofEpochSecond(os.getSystemBootTime()));
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         oshi.add(<span class="jxr_string">"Uptime: "</span> + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         oshi.add(<span class="jxr_string">"Running with"</span> + (os.isElevated() ? <span class="jxr_string">""</span> : <span class="jxr_string">"out"</span>) + <span class="jxr_string">" elevated permissions."</span>);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         oshi.add(<span class="jxr_string">"Sessions:"</span>);
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">for</strong> (OSSession s : os.getSessions()) {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             oshi.add(<span class="jxr_string">" "</span> + s.toString());
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         }
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printComputerSystem(<strong class="jxr_keyword">final</strong> ComputerSystem computerSystem) {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         oshi.add(<span class="jxr_string">"System: "</span> + computerSystem.toString());
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         oshi.add(<span class="jxr_string">" Firmware: "</span> + computerSystem.getFirmware().toString());
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         oshi.add(<span class="jxr_string">" Baseboard: "</span> + computerSystem.getBaseboard().toString());
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printProcessor(CentralProcessor processor) {
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         oshi.add(processor.toString());
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printMemory(GlobalMemory memory) {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         oshi.add(<span class="jxr_string">"Physical Memory: \n "</span> + memory.toString());
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         VirtualMemory vm = memory.getVirtualMemory();
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         oshi.add(<span class="jxr_string">"Virtual Memory: \n "</span> + vm.toString());
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         List&lt;PhysicalMemory&gt; pmList = memory.getPhysicalMemory();
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">if</strong> (!pmList.isEmpty()) {
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>             oshi.add(<span class="jxr_string">"Physical Memory: "</span>);
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>             <strong class="jxr_keyword">for</strong> (PhysicalMemory pm : pmList) {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 oshi.add(<span class="jxr_string">" "</span> + pm.toString());
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>             }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         }
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     }
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printCpu(CentralProcessor processor) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         oshi.add(<span class="jxr_string">"Context Switches/Interrupts: "</span> + processor.getContextSwitches() + <span class="jxr_string">" / "</span> + processor.getInterrupts());
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">long</strong>[] prevTicks = processor.getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">long</strong>[][] prevProcTicks = processor.getProcessorCpuLoadTicks();
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         oshi.add(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 0 sec:"</span> + Arrays.toString(prevTicks));
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <em class="jxr_comment">// Wait a second...</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>         Util.sleep(1000);
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">long</strong>[] ticks = processor.getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         oshi.add(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 1 sec:"</span> + Arrays.toString(ticks));
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">long</strong> user = ticks[TickType.USER.getIndex()] - prevTicks[TickType.USER.getIndex()];
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">long</strong> nice = ticks[TickType.NICE.getIndex()] - prevTicks[TickType.NICE.getIndex()];
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">long</strong> sys = ticks[TickType.SYSTEM.getIndex()] - prevTicks[TickType.SYSTEM.getIndex()];
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">long</strong> idle = ticks[TickType.IDLE.getIndex()] - prevTicks[TickType.IDLE.getIndex()];
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">long</strong> iowait = ticks[TickType.IOWAIT.getIndex()] - prevTicks[TickType.IOWAIT.getIndex()];
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">long</strong> irq = ticks[TickType.IRQ.getIndex()] - prevTicks[TickType.IRQ.getIndex()];
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">long</strong> softirq = ticks[TickType.SOFTIRQ.getIndex()] - prevTicks[TickType.SOFTIRQ.getIndex()];
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">long</strong> steal = ticks[TickType.STEAL.getIndex()] - prevTicks[TickType.STEAL.getIndex()];
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">long</strong> totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> 
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         oshi.add(String.format(
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>                 <span class="jxr_string">"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%"</span>,
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu));
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         oshi.add(String.format(<span class="jxr_string">"CPU load: %.1f%%"</span>, processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">double</strong>[] loadAverage = processor.getSystemLoadAverage(3);
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         oshi.add(<span class="jxr_string">"CPU load averages:"</span> + (loadAverage[0] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[0]))
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                 + (loadAverage[1] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[1]))
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 + (loadAverage[2] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[2])));
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <em class="jxr_comment">// per core CPU</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         StringBuilder procCpu = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"CPU load per processor:"</span>);
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">double</strong>[] load = processor.getProcessorCpuLoadBetweenTicks(prevProcTicks);
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">double</strong> avg : load) {
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, avg * 100));
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         }
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         oshi.add(procCpu.toString());
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         <strong class="jxr_keyword">long</strong> freq = processor.getProcessorIdentifier().getVendorFreq();
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">if</strong> (freq &gt; 0) {
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>             oshi.add(<span class="jxr_string">"Vendor Frequency: "</span> + FormatUtil.formatHertz(freq));
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         }
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         freq = processor.getMaxFreq();
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">if</strong> (freq &gt; 0) {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>             oshi.add(<span class="jxr_string">"Max Frequency: "</span> + FormatUtil.formatHertz(freq));
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         }
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">long</strong>[] freqs = processor.getCurrentFreq();
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">if</strong> (freqs[0] &gt; 0) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Current Frequencies: "</span>);
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; freqs.length; i++) {
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                 <strong class="jxr_keyword">if</strong> (i &gt; 0) {
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>                     sb.append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 }
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 sb.append(FormatUtil.formatHertz(freqs[i]));
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             }
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             oshi.add(sb.toString());
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>     }
-<a class="jxr_linenumber" name="L251" href="#L251">251</a> 
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printProcesses(OperatingSystem os, GlobalMemory memory) {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         OSProcess myProc = os.getProcess(os.getProcessId());
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         oshi.add(
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 <span class="jxr_string">"My PID: "</span> + myProc.getProcessID() + <span class="jxr_string">" with affinity "</span> + Long.toBinaryString(myProc.getAffinityMask()));
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// hardware: USB devices</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         logger.info(<span class="jxr_string">"Checking USB Devices..."</span>);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         printUsbDevices(hal.getUsbDevices(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         logger.info(<span class="jxr_string">"Checking Sound Cards..."</span>);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         printSoundCards(hal.getSoundCards());
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         logger.info(<span class="jxr_string">"Checking Graphics Cards..."</span>);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         printGraphicsCards(hal.getGraphicsCards());
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         StringBuilder output = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; oshi.size(); i++) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             output.append(oshi.get(i));
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">if</strong> (oshi.get(i) != <strong class="jxr_keyword">null</strong> &amp;&amp; !oshi.get(i).endsWith(<span class="jxr_string">"\n"</span>)) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 output.append('\n');
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         }
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         logger.info(<span class="jxr_string">"Printing Operating System and Hardware Info:{}{}"</span>, '\n', output);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printOperatingSystem(<strong class="jxr_keyword">final</strong> OperatingSystem os) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         oshi.add(String.valueOf(os));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         oshi.add(<span class="jxr_string">"Booted: "</span> + Instant.ofEpochSecond(os.getSystemBootTime()));
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         oshi.add(<span class="jxr_string">"Uptime: "</span> + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         oshi.add(<span class="jxr_string">"Running with"</span> + (os.isElevated() ? <span class="jxr_string">""</span> : <span class="jxr_string">"out"</span>) + <span class="jxr_string">" elevated permissions."</span>);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         oshi.add(<span class="jxr_string">"Sessions:"</span>);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">for</strong> (OSSession s : os.getSessions()) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             oshi.add(<span class="jxr_string">" "</span> + s.toString());
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printComputerSystem(<strong class="jxr_keyword">final</strong> ComputerSystem computerSystem) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         oshi.add(<span class="jxr_string">"System: "</span> + computerSystem.toString());
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         oshi.add(<span class="jxr_string">" Firmware: "</span> + computerSystem.getFirmware().toString());
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         oshi.add(<span class="jxr_string">" Baseboard: "</span> + computerSystem.getBaseboard().toString());
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     }
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printProcessor(CentralProcessor processor) {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         oshi.add(processor.toString());
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     }
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printMemory(GlobalMemory memory) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         oshi.add(<span class="jxr_string">"Physical Memory: \n "</span> + memory.toString());
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         VirtualMemory vm = memory.getVirtualMemory();
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         oshi.add(<span class="jxr_string">"Virtual Memory: \n "</span> + vm.toString());
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         PhysicalMemory[] pmArray = memory.getPhysicalMemory();
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">if</strong> (pmArray.length &gt; 0) {
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             oshi.add(<span class="jxr_string">"Physical Memory: "</span>);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>             <strong class="jxr_keyword">for</strong> (PhysicalMemory pm : pmArray) {
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 oshi.add(<span class="jxr_string">" "</span> + pm.toString());
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         }
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printCpu(CentralProcessor processor) {
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         oshi.add(<span class="jxr_string">"Context Switches/Interrupts: "</span> + processor.getContextSwitches() + <span class="jxr_string">" / "</span> + processor.getInterrupts());
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">long</strong>[] prevTicks = processor.getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">long</strong>[][] prevProcTicks = processor.getProcessorCpuLoadTicks();
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         oshi.add(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 0 sec:"</span> + Arrays.toString(prevTicks));
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <em class="jxr_comment">// Wait a second...</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         Util.sleep(1000);
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">long</strong>[] ticks = processor.getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         oshi.add(<span class="jxr_string">"CPU, IOWait, and IRQ ticks @ 1 sec:"</span> + Arrays.toString(ticks));
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">long</strong> user = ticks[TickType.USER.getIndex()] - prevTicks[TickType.USER.getIndex()];
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">long</strong> nice = ticks[TickType.NICE.getIndex()] - prevTicks[TickType.NICE.getIndex()];
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">long</strong> sys = ticks[TickType.SYSTEM.getIndex()] - prevTicks[TickType.SYSTEM.getIndex()];
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">long</strong> idle = ticks[TickType.IDLE.getIndex()] - prevTicks[TickType.IDLE.getIndex()];
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">long</strong> iowait = ticks[TickType.IOWAIT.getIndex()] - prevTicks[TickType.IOWAIT.getIndex()];
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">long</strong> irq = ticks[TickType.IRQ.getIndex()] - prevTicks[TickType.IRQ.getIndex()];
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">long</strong> softirq = ticks[TickType.SOFTIRQ.getIndex()] - prevTicks[TickType.SOFTIRQ.getIndex()];
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">long</strong> steal = ticks[TickType.STEAL.getIndex()] - prevTicks[TickType.STEAL.getIndex()];
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">long</strong> totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         oshi.add(String.format(
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                 <span class="jxr_string">"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%"</span>,
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu));
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         oshi.add(String.format(<span class="jxr_string">"CPU load: %.1f%%"</span>, processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">double</strong>[] loadAverage = processor.getSystemLoadAverage(3);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         oshi.add(<span class="jxr_string">"CPU load averages:"</span> + (loadAverage[0] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[0]))
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 + (loadAverage[1] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[1]))
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 + (loadAverage[2] &lt; 0 ? <span class="jxr_string">" N/A"</span> : String.format(<span class="jxr_string">" %.2f"</span>, loadAverage[2])));
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <em class="jxr_comment">// per core CPU</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         StringBuilder procCpu = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"CPU load per processor:"</span>);
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">double</strong>[] load = processor.getProcessorCpuLoadBetweenTicks(prevProcTicks);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">double</strong> avg : load) {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             procCpu.append(String.format(<span class="jxr_string">" %.1f%%"</span>, avg * 100));
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         }
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         oshi.add(procCpu.toString());
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">long</strong> freq = processor.getProcessorIdentifier().getVendorFreq();
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">if</strong> (freq &gt; 0) {
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             oshi.add(<span class="jxr_string">"Vendor Frequency: "</span> + FormatUtil.formatHertz(freq));
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         }
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         freq = processor.getMaxFreq();
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (freq &gt; 0) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             oshi.add(<span class="jxr_string">"Max Frequency: "</span> + FormatUtil.formatHertz(freq));
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         }
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">long</strong>[] freqs = processor.getCurrentFreq();
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">if</strong> (freqs[0] &gt; 0) {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Current Frequencies: "</span>);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; freqs.length; i++) {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                 <strong class="jxr_keyword">if</strong> (i &gt; 0) {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                     sb.append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 }
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                 sb.append(FormatUtil.formatHertz(freqs[i]));
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             }
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             oshi.add(sb.toString());
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         }
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     }
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printProcesses(OperatingSystem os, GlobalMemory memory) {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         oshi.add(<span class="jxr_string">"My PID: "</span> + os.getProcessId() + <span class="jxr_string">" with affinity "</span>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 + Long.toBinaryString(os.getProcessAffinityMask(os.getProcessId())));
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>         oshi.add(<span class="jxr_string">"Processes: "</span> + os.getProcessCount() + <span class="jxr_string">", Threads: "</span> + os.getThreadCount());
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>         <em class="jxr_comment">// Sort by highest CPU</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>         List&lt;OSProcess&gt; procs = os.getProcesses(5, ProcessSort.CPU);
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         oshi.add(<span class="jxr_string">"   PID  %CPU %MEM       VSZ       RSS Name"</span>);
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procs.size() &amp;&amp; i &lt; 5; i++) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>             OSProcess p = procs.get(i);
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>             oshi.add(String.format(<span class="jxr_string">" %5d %5.1f %4.1f %9s %9s %s"</span>, p.getProcessID(),
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         }
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printServices(OperatingSystem os) {
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         oshi.add(<span class="jxr_string">"Services: "</span>);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         oshi.add(<span class="jxr_string">"   PID   State   Name"</span>);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <em class="jxr_comment">// DO 5 each of running and stopped</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">int</strong> i = 0;
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">for</strong> (OSService s : os.getServices()) {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>             <strong class="jxr_keyword">if</strong> (s.getState().equals(OSService.State.RUNNING) &amp;&amp; i++ &lt; 5) {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 oshi.add(String.format(<span class="jxr_string">" %5d  %7s  %s"</span>, s.getProcessID(), s.getState(), s.getName()));
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>             }
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         i = 0;
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">for</strong> (OSService s : os.getServices()) {
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>             <strong class="jxr_keyword">if</strong> (s.getState().equals(OSService.State.STOPPED) &amp;&amp; i++ &lt; 5) {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 oshi.add(String.format(<span class="jxr_string">" %5d  %7s  %s"</span>, s.getProcessID(), s.getState(), s.getName()));
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             }
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printSensors(Sensors sensors) {
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         oshi.add(<span class="jxr_string">"Sensors: "</span> + sensors.toString());
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     }
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> 
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printPowerSources(List&lt;PowerSource&gt; list) {
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Power Sources: "</span>);
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">if</strong> (list.isEmpty()) {
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>             sb.append(<span class="jxr_string">"Unknown"</span>);
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         }
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">for</strong> (PowerSource powerSource : list) {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>             sb.append(<span class="jxr_string">"\n "</span>).append(powerSource.toString());
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         oshi.add(sb.toString());
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>     }
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> 
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printDisks(List&lt;HWDiskStore&gt; list) {
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>         oshi.add(<span class="jxr_string">"Disks:"</span>);
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore disk : list) {
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>             oshi.add(<span class="jxr_string">" "</span> + disk.toString());
-<a class="jxr_linenumber" name="L306" href="#L306">306</a> 
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>             List&lt;HWPartition&gt; partitions = disk.getPartitions();
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">for</strong> (HWPartition part : partitions) {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 oshi.add(<span class="jxr_string">" |-- "</span> + part.toString());
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>             }
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     }
-<a class="jxr_linenumber" name="L314" href="#L314">314</a> 
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printFileSystem(FileSystem fileSystem) {
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         oshi.add(<span class="jxr_string">"File System:"</span>);
-<a class="jxr_linenumber" name="L317" href="#L317">317</a> 
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         oshi.add(String.format(<span class="jxr_string">" File Descriptors: %d/%d"</span>, fileSystem.getOpenFileDescriptors(),
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>                 fileSystem.getMaxFileDescriptors()));
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> 
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">for</strong> (OSFileStore fs : fileSystem.getFileStores()) {
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>             oshi.add(String.format(
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>                     <span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "</span>
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>                             + (fs.getLogicalVolume() != <strong class="jxr_keyword">null</strong> &amp;&amp; fs.getLogicalVolume().length() &gt; 0 ? <span class="jxr_string">"[%s]"</span> : <span class="jxr_string">"%s"</span>)
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>                             + <span class="jxr_string">" and is mounted at %s"</span>,
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>                     fs.getName(), fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>                     FormatUtil.formatValue(fs.getFreeInodes(), <span class="jxr_string">""</span>), FormatUtil.formatValue(fs.getTotalInodes(), <span class="jxr_string">""</span>),
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                     100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>                     fs.getMount()));
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         }
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>     }
-<a class="jxr_linenumber" name="L335" href="#L335">335</a> 
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printNetworkInterfaces(List&lt;NetworkIF&gt; list) {
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Network Interfaces:"</span>);
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">if</strong> (list.isEmpty()) {
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>             sb.append(<span class="jxr_string">" Unknown"</span>);
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>             <strong class="jxr_keyword">for</strong> (NetworkIF net : list) {
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>                 sb.append(<span class="jxr_string">"\n "</span>).append(net.toString());
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>             }
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         }
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>         oshi.add(sb.toString());
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>     }
-<a class="jxr_linenumber" name="L347" href="#L347">347</a> 
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printNetworkParameters(NetworkParams networkParams) {
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         oshi.add(<span class="jxr_string">"Network parameters:\n "</span> + networkParams.toString());
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>     }
-<a class="jxr_linenumber" name="L351" href="#L351">351</a> 
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printInternetProtocolStats(InternetProtocolStats ip) {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         oshi.add(<span class="jxr_string">"Internet Protocol statistics:"</span>);
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         oshi.add(<span class="jxr_string">" TCPv4: "</span> + ip.getTCPv4Stats());
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         oshi.add(<span class="jxr_string">" TCPv6: "</span> + ip.getTCPv6Stats());
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>         oshi.add(<span class="jxr_string">" UDPv4: "</span> + ip.getUDPv4Stats());
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>         oshi.add(<span class="jxr_string">" UDPv6: "</span> + ip.getUDPv6Stats());
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>     }
-<a class="jxr_linenumber" name="L359" href="#L359">359</a> 
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printDisplays(List&lt;Display&gt; list) {
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>         oshi.add(<span class="jxr_string">"Displays:"</span>);
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <strong class="jxr_keyword">int</strong> i = 0;
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>         <strong class="jxr_keyword">for</strong> (Display display : list) {
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>             oshi.add(<span class="jxr_string">" Display "</span> + i + <span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>             oshi.add(String.valueOf(display));
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>             i++;
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         }
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>     }
-<a class="jxr_linenumber" name="L369" href="#L369">369</a> 
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printUsbDevices(List&lt;UsbDevice&gt; list) {
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         oshi.add(<span class="jxr_string">"USB Devices:"</span>);
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : list) {
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>             oshi.add(String.valueOf(usbDevice));
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         }
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printSoundCards(List&lt;SoundCard&gt; list) {
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         oshi.add(<span class="jxr_string">"Sound Cards:"</span>);
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">for</strong> (SoundCard card : list) {
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>             oshi.add(<span class="jxr_string">" "</span> + String.valueOf(card));
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>         }
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>     }
-<a class="jxr_linenumber" name="L383" href="#L383">383</a> 
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printGraphicsCards(List&lt;GraphicsCard&gt; list) {
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         oshi.add(<span class="jxr_string">"Graphics Cards:"</span>);
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">if</strong> (list.isEmpty()) {
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>             oshi.add(<span class="jxr_string">" None detected."</span>);
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>             <strong class="jxr_keyword">for</strong> (GraphicsCard card : list) {
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>                 oshi.add(<span class="jxr_string">" "</span> + String.valueOf(card));
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>             }
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> }
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         List&lt;OSProcess&gt; procs = Arrays.asList(os.getProcesses(5, ProcessSort.CPU));
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         oshi.add(<span class="jxr_string">"   PID  %CPU %MEM       VSZ       RSS Name"</span>);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procs.size() &amp;&amp; i &lt; 5; i++) {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             OSProcess p = procs.get(i);
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             oshi.add(String.format(<span class="jxr_string">" %5d %5.1f %4.1f %9s %9s %s"</span>, p.getProcessID(),
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printServices(OperatingSystem os) {
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         oshi.add(<span class="jxr_string">"Services: "</span>);
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         oshi.add(<span class="jxr_string">"   PID   State   Name"</span>);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <em class="jxr_comment">// DO 5 each of running and stopped</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">for</strong> (OSService s : os.getServices()) {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             <strong class="jxr_keyword">if</strong> (s.getState().equals(OSService.State.RUNNING) &amp;&amp; i++ &lt; 5) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 oshi.add(String.format(<span class="jxr_string">" %5d  %7s  %s"</span>, s.getProcessID(), s.getState(), s.getName()));
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         }
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         i = 0;
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">for</strong> (OSService s : os.getServices()) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             <strong class="jxr_keyword">if</strong> (s.getState().equals(OSService.State.STOPPED) &amp;&amp; i++ &lt; 5) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 oshi.add(String.format(<span class="jxr_string">" %5d  %7s  %s"</span>, s.getProcessID(), s.getState(), s.getName()));
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>             }
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printSensors(Sensors sensors) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         oshi.add(<span class="jxr_string">"Sensors: "</span> + sensors.toString());
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printPowerSources(PowerSource[] powerSources) {
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Power Sources: "</span>);
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">if</strong> (powerSources.length == 0) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>             sb.append(<span class="jxr_string">"Unknown"</span>);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         }
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">for</strong> (PowerSource powerSource : powerSources) {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>             sb.append(<span class="jxr_string">"\n "</span>).append(powerSource.toString());
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         }
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         oshi.add(sb.toString());
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     }
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printDisks(HWDiskStore[] diskStores) {
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         oshi.add(<span class="jxr_string">"Disks:"</span>);
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">for</strong> (HWDiskStore disk : diskStores) {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>             oshi.add(<span class="jxr_string">" "</span> + disk.toString());
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>             HWPartition[] partitions = disk.getPartitions();
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>             <strong class="jxr_keyword">for</strong> (HWPartition part : partitions) {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                 oshi.add(<span class="jxr_string">" |-- "</span> + part.toString());
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>             }
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     }
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printFileSystem(FileSystem fileSystem) {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         oshi.add(<span class="jxr_string">"File System:"</span>);
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> 
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         oshi.add(String.format(<span class="jxr_string">" File Descriptors: %d/%d"</span>, fileSystem.getOpenFileDescriptors(),
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>                 fileSystem.getMaxFileDescriptors()));
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         OSFileStore[] fsArray = fileSystem.getFileStores();
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">for</strong> (OSFileStore fs : fsArray) {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>             oshi.add(String.format(
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                     <span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "</span>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                             + (fs.getLogicalVolume() != <strong class="jxr_keyword">null</strong> &amp;&amp; fs.getLogicalVolume().length() &gt; 0 ? <span class="jxr_string">"[%s]"</span> : <span class="jxr_string">"%s"</span>)
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                             + <span class="jxr_string">" and is mounted at %s"</span>,
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>                     fs.getName(), fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                     FormatUtil.formatValue(fs.getFreeInodes(), <span class="jxr_string">""</span>), FormatUtil.formatValue(fs.getTotalInodes(), <span class="jxr_string">""</span>),
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                     100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                     fs.getMount()));
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         }
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>     }
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printNetworkInterfaces(NetworkIF[] networkIFs) {
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"Network Interfaces:"</span>);
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">if</strong> (networkIFs.length == 0) {
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>             sb.append(<span class="jxr_string">" Unknown"</span>);
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         }
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : networkIFs) {
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>             sb.append(<span class="jxr_string">"\n "</span>).append(net.toString());
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         }
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         oshi.add(sb.toString());
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>     }
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printNetworkParameters(NetworkParams networkParams) {
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         oshi.add(<span class="jxr_string">"Network parameters:\n "</span> + networkParams.toString());
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> 
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printInternetProtocolStats(InternetProtocolStats ip) {
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         oshi.add(<span class="jxr_string">"Internet Protocol statistics:"</span>);
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         oshi.add(<span class="jxr_string">" TCPv4: "</span> + ip.getTCPv4Stats());
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         oshi.add(<span class="jxr_string">" TCPv6: "</span> + ip.getTCPv6Stats());
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         oshi.add(<span class="jxr_string">" UDPv4: "</span> + ip.getUDPv4Stats());
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         oshi.add(<span class="jxr_string">" UDPv6: "</span> + ip.getUDPv6Stats());
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>     }
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printDisplays(Display[] displays) {
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         oshi.add(<span class="jxr_string">"Displays:"</span>);
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">for</strong> (Display display : displays) {
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>             oshi.add(<span class="jxr_string">" Display "</span> + i + <span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>             oshi.add(String.valueOf(display));
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>             i++;
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         }
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>     }
+<a class="jxr_linenumber" name="L370" href="#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printUsbDevices(UsbDevice[] usbDevices) {
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         oshi.add(<span class="jxr_string">"USB Devices:"</span>);
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : usbDevices) {
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>             oshi.add(String.valueOf(usbDevice));
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>     }
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printSoundCards(SoundCard[] cards) {
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         oshi.add(<span class="jxr_string">"Sound Cards:"</span>);
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <strong class="jxr_keyword">for</strong> (SoundCard card : cards) {
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             oshi.add(<span class="jxr_string">" "</span> + String.valueOf(card));
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>     }
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> 
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printGraphicsCards(GraphicsCard[] cards) {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         oshi.add(<span class="jxr_string">"Graphics Cards:"</span>);
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">if</strong> (cards.length == 0) {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             oshi.add(<span class="jxr_string">" None detected."</span>);
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>             <strong class="jxr_keyword">for</strong> (GraphicsCard card : cards) {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 oshi.add(<span class="jxr_string">" "</span> + String.valueOf(card));
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>             }
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         }
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>     }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

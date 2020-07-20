@@ -40,13 +40,6 @@ a[href]:hover, a[href]:focus {
 a[name] {
     color:#353833;
 }
-a[name]:before, a[name]:target, a[id]:before, a[id]:target {
-    content:"";
-    display:inline-block;
-    position:relative;
-    padding-top:129px;
-    margin-top:-129px;
-}
 pre {
     font-family:'DejaVu Sans Mono', monospace;
     font-size:14px;
@@ -121,13 +114,6 @@ button {
 .legalCopy {
     margin-left:.5em;
 }
-.bar a, .bar a:link, .bar a:visited, .bar a:active {
-    color:#FFFFFF;
-    text-decoration:none;
-}
-.bar a:hover, .bar a:focus {
-    color:#bb7a2a;
-}
 .tab {
     background-color:#0066FF;
     color:#ffffff;
@@ -138,22 +124,21 @@ button {
 /*
  * Styles for navigation bar.
  */
-.bar {
-    background-color:#4D7A97;
-    color:#FFFFFF;
-    padding:.8em .5em .4em .8em;
-    height:auto;/*height:1.8em;*/
-    font-size:11px;
-    margin:0;
-}
-.navPadding {
-    padding-top: 107px;
-}
-.fixedNav {
-    position:fixed;
-    width:100%;
-    z-index:999;
-    background-color:#ffffff;
+@media screen {
+    .flexBox {
+        position:fixed;
+        display:flex;
+        flex-direction:column;
+        height: 100%;
+        width: 100%;
+    }
+    .flexHeader {
+        flex: 0 0 auto;
+    }
+    .flexContent {
+        flex: 1 1 auto;
+        overflow-y: auto;
+    }
 }
 .topNav {
     background-color:#4D7A97;
@@ -244,30 +229,20 @@ ul.subNavList li {
     overflow:hidden;
 }
 /*
+ * Hide navigation links and search box in print layout
+ */
+@media print {
+    ul.navList, div.subNav  {
+        display:none;
+    }
+}
+/*
  * Styles for page header and footer.
  */
-.header, .footer {
+.header {
     clear:both;
     margin:0 20px;
     padding:5px 0 0 0;
-}
-.indexNav {
-    position:relative;
-    font-size:12px;
-    background-color:#dee3e9;
-}
-.indexNav ul {
-    margin-top:0;
-    padding:5px;
-}
-.indexNav ul li {
-    display:inline;
-    list-style-type:none;
-    padding-right:10px;
-    text-transform:uppercase;
-}
-.indexNav h1 {
-    font-size:13px;
 }
 .title {
     color:#2c4557;
@@ -279,9 +254,6 @@ ul.subNavList li {
 .header ul {
     margin:0 0 15px 0;
     padding:0;
-}
-.footer ul {
-    margin:20px 0 5px 0;
 }
 .header ul li, .footer ul li {
     list-style:none;
@@ -310,27 +282,10 @@ body.class-declaration .summary .inheritedList h2 {
  * Styles for page layout containers.
  */
 .contentContainer, .sourceContainer, .classUseContainer, .serializedFormContainer, .constantValuesContainer,
-.allClassesContainer, .allPackagesContainer {
+.allClassesContainer, .allPackagesContainer, .systemPropertiesContainer {
     clear:both;
     padding:10px 20px;
     position:relative;
-}
-.indexContainer {
-    margin:10px;
-    position:relative;
-    font-size:12px;
-}
-.indexContainer h2 {
-    font-size:13px;
-    padding:0 0 3px 0;
-}
-.indexContainer ul {
-    margin:0;
-    padding:0;
-}
-.indexContainer ul li {
-    list-style:none;
-    padding-top:2px;
 }
 .contentContainer .description dl dt, .contentContainer .details dl dt, .serializedFormContainer dl dt {
     font-size:12px;
@@ -388,19 +343,21 @@ table tr td dl, table tr td dl dt, table tr td dl dd {
  * Styles for tables.
  */
 .overviewSummary table, .memberSummary table, .typeSummary table, .useSummary table, .constantsSummary table, .deprecatedSummary table,
-.requiresSummary table, .packagesSummary table, .providesSummary table, .usesSummary table {
+.requiresSummary table, .packagesSummary table, .providesSummary table, .usesSummary table, .systemPropertiesSummary table {
     width:100%;
     border-spacing:0;
     border-left:1px solid #EEE;
     border-right:1px solid #EEE;
     border-bottom:1px solid #EEE;
 }
-.overviewSummary table, .memberSummary table, .requiresSummary table, .packagesSummary table, .providesSummary table, .usesSummary table {
+.overviewSummary table, .memberSummary table, .requiresSummary table, .packagesSummary table,
+.providesSummary table, .usesSummary table, .systemPropertiesSummary table {
     padding:0px;
 }
 .overviewSummary caption, .memberSummary caption, .typeSummary caption,
 .useSummary caption, .constantsSummary caption, .deprecatedSummary caption,
-.requiresSummary caption, .packagesSummary caption, .providesSummary caption, .usesSummary caption {
+.requiresSummary caption, .packagesSummary caption, .providesSummary caption,
+.usesSummary caption, .systemPropertiesSummary caption {
     position:relative;
     text-align:left;
     background-repeat:no-repeat;
@@ -439,7 +396,7 @@ table tr td dl, table tr td dl dt, table tr td dl dd {
 .overviewSummary caption span, .memberSummary caption span, .typeSummary caption span,
 .useSummary caption span, .constantsSummary caption span, .deprecatedSummary caption span,
 .requiresSummary caption span, .packagesSummary caption span, .providesSummary caption span,
-.usesSummary caption span {
+.usesSummary caption span, .systemPropertiesSummary caption span {
     white-space:nowrap;
     padding-top:5px;
     padding-left:12px;
@@ -483,13 +440,14 @@ table tr td dl, table tr td dl dt, table tr td dl dd {
 }
 .overviewSummary td, .memberSummary td, .typeSummary td,
 .useSummary td, .constantsSummary td, .deprecatedSummary td,
-.requiresSummary td, .packagesSummary td, .providesSummary td, .usesSummary td {
+.requiresSummary td, .packagesSummary td, .providesSummary td,
+.usesSummary td, .systemPropertiesSummary td {
     text-align:left;
     padding:0px 0px 12px 10px;
 }
 th.colFirst, th.colSecond, th.colLast, th.colConstructorName, th.colDeprecatedItemName, .useSummary th,
 .constantsSummary th, .packagesSummary th, td.colFirst, td.colSecond, td.colLast, .useSummary td,
-.constantsSummary td {
+.constantsSummary td, .systemPropertiesSummary th {
     vertical-align:top;
     padding-right:0px;
     padding-top:8px;
@@ -558,9 +516,6 @@ th.colDeprecatedItemName a:link, th.colDeprecatedItemName a:visited,
     margin:0;
     padding:10px 0;
 }
-.docSummary {
-    padding:0;
-}
 div.block {
     font-size:14px;
     font-family:'DejaVu Serif', Georgia, "Times New Roman", Times, serif;
@@ -604,7 +559,7 @@ h1.hidden {
 }
 .block {
     display:block;
-    margin:3px 10px 2px 0px;
+    margin:0 10px 5px 0;
     color:#474747;
 }
 .deprecatedLabel, .descfrmTypeLabel, .implementationLabel, .memberNameLabel, .memberNameLink,
@@ -630,61 +585,6 @@ h1.hidden {
 div.block div.deprecationComment, div.block div.block span.emphasizedPhrase,
 div.block div.block span.interfaceName {
     font-style:normal;
-}
-/*
- * Styles for IFRAME.
- */
-.mainContainer {
-    margin:0 auto;
-    padding:0;
-    height:100%;
-    width:100%;
-    position:fixed;
-    top:0;
-    left:0;
-}
-.leftContainer {
-    height:100%;
-    position:fixed;
-    width:320px;
-}
-.leftTop {
-    position:relative;
-    float:left;
-    width:315px;
-    top:0;
-    left:0;
-    height:30%;
-    border-right:6px solid #ccc;
-    border-bottom:6px solid #ccc;
-}
-.leftBottom {
-    position:relative;
-    float:left;
-    width:315px;
-    bottom:0;
-    left:0;
-    height:70%;
-    border-right:6px solid #ccc;
-    border-top:1px solid #000;
-}
-.rightContainer {
-    position:absolute;
-    left:320px;
-    top:0;
-    bottom:0;
-    height:100%;
-    right:0;
-    border-left:1px solid #000;
-}
-.rightIframe {
-    margin:0;
-    padding:0;
-    height:100%;
-    right:30px;
-    width:100%;
-    overflow:visible;
-    margin-bottom:30px;
 }
 /*
  * Styles specific to HTML5 elements.
@@ -743,7 +643,7 @@ ul.ui-autocomplete  li {
     background-size:12px;
     border:0 none;
     width:16px;
-    height:17px;
+    height:16px;
     position:relative;
     left:-4px;
     top:-4px;
@@ -760,8 +660,8 @@ ul.ui-autocomplete  li {
     font-style:italic;
     font-size:12px;
 }
-.searchTagResult:before, .searchTagResult:target {
-    color:red;
+.searchTagResult:target {
+    background-color:yellow;
 }
 .moduleGraph span {
     display:none;
@@ -771,9 +671,6 @@ ul.ui-autocomplete  li {
     display:block;
     margin: -100px 0 0 100px;
     z-index: 1;
-}
-.methodSignature {
-    white-space:normal;
 }
 .inheritedList {
     margin: 10px 0 10px 0;
@@ -791,6 +688,34 @@ section.description {
     padding:0 0 5px 8px;
     background-color:#ffffff;
     border:none;
+}
+.verticalSeparator {
+    padding: 0 5px;
+}
+/*
+ * Indicator icon for external links.
+ */
+main a[href*="://"]::after {
+    content:"";
+    display:inline-block;
+    background-image:url('data:image/svg+xml; utf8, \
+      <svg xmlns="http://www.w3.org/2000/svg" width="768" height="768">\
+        <path d="M584 664H104V184h216V80H0v688h688V448H584zM384 0l132 \
+        132-240 240 120 120 240-240 132 132V0z" fill="%234a6782"/>\
+      </svg>');
+    background-size:100% 100%;
+    width:7px;
+    height:7px;
+    margin-left:2px;
+    margin-bottom:4px;
+}
+main a[href*="://"]:hover::after,
+main a[href*="://"]:focus::after {
+    background-image:url('data:image/svg+xml; utf8, \
+      <svg xmlns="http://www.w3.org/2000/svg" width="768" height="768">\
+        <path d="M584 664H104V184h216V80H0v688h688V448H584zM384 0l132 \
+        132-240 240 120 120 240-240 132 132V0z" fill="%23bb7a2a"/>\
+      </svg>');
 }
 
 /*
