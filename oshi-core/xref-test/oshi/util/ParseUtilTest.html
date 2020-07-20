@@ -437,109 +437,94 @@
 <a class="jxr_linenumber" name="L429" href="#L429">429</a>         assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1 kB"</span>));
 <a class="jxr_linenumber" name="L430" href="#L430">430</a>         assertEquals(1024, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1 KB"</span>));
 <a class="jxr_linenumber" name="L431" href="#L431">431</a>         assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1 MB"</span>));
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>         assertEquals(1_048_576, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1MB"</span>));
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         assertEquals(1_073_741_824, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1 GB"</span>));
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>         assertEquals(1_099_511_627_776L, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1 TB"</span>));
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>     }
-<a class="jxr_linenumber" name="L436" href="#L436">436</a> 
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>     @Test
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParsePnPDeviceIdToVendorProductId() {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         Pair&lt;String, String&gt; idPair = ParseUtil
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 .parsePnPDeviceIdToVendorProductId(<span class="jxr_string">"PCI&#92;&#92;VEN_10DE&amp;DEV_134B&amp;SUBSYS_00081414&amp;REV_A2&#92;&#92;4&amp;25BACB6&amp;0&amp;00E0"</span>);
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>         assertNotNull(idPair);
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         assertEquals(<span class="jxr_string">"0x10de"</span>, idPair.getA());
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         assertEquals(<span class="jxr_string">"0x134b"</span>, idPair.getB());
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>         idPair = ParseUtil
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>                 .parsePnPDeviceIdToVendorProductId(<span class="jxr_string">"PCI&#92;&#92;VEN_80286&amp;DEV_19116&amp;SUBSYS_00141414&amp;REV_07&#92;&#92;3&amp;11583659&amp;0&amp;10"</span>);
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         assertNull(idPair);
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>     }
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> 
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>     @Test
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLshwResourceString() {
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         assertEquals(268_435_456L + 65_536L, ParseUtil.parseLshwResourceString(
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>                 <span class="jxr_string">"irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:e2000000-e200ffff"</span>));
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         assertEquals(268_435_456L, ParseUtil.parseLshwResourceString(
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>                 <span class="jxr_string">"irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:x2000000-e200ffff"</span>));
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         assertEquals(65_536L, ParseUtil.parseLshwResourceString(
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>                 <span class="jxr_string">"irq:46 ioport:6000(size=32) memory:x0000000-bfffffff memory:e2000000-e200ffff"</span>));
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         assertEquals(0, ParseUtil.parseLshwResourceString(<span class="jxr_string">"some random string"</span>));
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>     }
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> 
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>     @Test
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLspciMachineReadable() {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         Pair&lt;String, String&gt; pair = ParseUtil.parseLspciMachineReadable(<span class="jxr_string">"foo [bar]"</span>);
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         assertEquals(<span class="jxr_string">"foo"</span>, pair.getA());
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         assertEquals(<span class="jxr_string">"bar"</span>, pair.getB());
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         assertNull(ParseUtil.parseLspciMachineReadable(<span class="jxr_string">"Bad format"</span>));
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
-<a class="jxr_linenumber" name="L468" href="#L468">468</a> 
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>     @Test
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLspciMemorySize() {
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>         assertEquals(0, ParseUtil.parseLspciMemorySize(<span class="jxr_string">"Doesn't parse"</span>));
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>         assertEquals(64 * 1024, ParseUtil.parseLspciMemorySize(<span class="jxr_string">"Foo [size=64K]"</span>));
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>         assertEquals(256 * 1024 * 1024, ParseUtil.parseLspciMemorySize(<span class="jxr_string">"Foo [size=256M]"</span>));
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>     }
-<a class="jxr_linenumber" name="L475" href="#L475">475</a> 
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>     @Test
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseHyphenatedIntList() {
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         String s = <span class="jxr_string">"1"</span>;
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>         List&lt;Integer&gt; parsed = ParseUtil.parseHyphenatedIntList(s);
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>         assertFalse(parsed.contains(0));
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>         assertTrue(parsed.contains(1));
-<a class="jxr_linenumber" name="L482" href="#L482">482</a> 
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         s = <span class="jxr_string">"0 2-5 7"</span>;
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         parsed = ParseUtil.parseHyphenatedIntList(s);
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>         assertTrue(parsed.contains(0));
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         assertFalse(parsed.contains(1));
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>         assertTrue(parsed.contains(2));
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>         assertTrue(parsed.contains(3));
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>         assertTrue(parsed.contains(4));
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         assertTrue(parsed.contains(5));
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         assertFalse(parsed.contains(6));
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         assertTrue(parsed.contains(7));
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>     }
-<a class="jxr_linenumber" name="L494" href="#L494">494</a> 
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>     @Test
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseMmDdYyyyToYyyyMmDD() {
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>         assertEquals(<span class="jxr_string">"Unable to parse MM-DD-YYYY date string into YYYY-MM-DD date string"</span>, <span class="jxr_string">"2222-00-11"</span>,
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>                 ParseUtil.parseMmDdYyyyToYyyyMmDD(<span class="jxr_string">"00-11-2222"</span>));
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>         assertEquals(<span class="jxr_string">"Date string should not be parsed"</span>, <span class="jxr_string">"badstr"</span>, ParseUtil.parseMmDdYyyyToYyyyMmDD(<span class="jxr_string">"badstr"</span>));
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>     }
-<a class="jxr_linenumber" name="L501" href="#L501">501</a> 
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>     @Test
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseUtAddrV6toIP() {
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">int</strong>[] zero = { 0, 0, 0, 0 };
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>         <strong class="jxr_keyword">int</strong>[] loopback = { 0, 0, 0, 1 };
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>         String v6test = <span class="jxr_string">"2001:db8:85a3::8a2e:370:7334"</span>;
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>         <strong class="jxr_keyword">int</strong>[] v6 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         v6[0] = Integer.parseUnsignedInt(<span class="jxr_string">"20010db8"</span>, 16);
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>         v6[1] = Integer.parseUnsignedInt(<span class="jxr_string">"85a30000"</span>, 16);
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>         v6[2] = Integer.parseUnsignedInt(<span class="jxr_string">"00008a2e"</span>, 16);
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>         v6[3] = Integer.parseUnsignedInt(<span class="jxr_string">"03707334"</span>, 16);
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>         String v4test = <span class="jxr_string">"127.0.0.1"</span>;
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>         <strong class="jxr_keyword">int</strong>[] v4 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>         v4[0] = (127 &lt;&lt; 24) + 1;
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>         assertEquals(<span class="jxr_string">"Unspecified address failed"</span>, <span class="jxr_string">"::"</span>, ParseUtil.parseUtAddrV6toIP(zero));
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>         assertEquals(<span class="jxr_string">"Loopback address failed"</span>, <span class="jxr_string">"::1"</span>, ParseUtil.parseUtAddrV6toIP(loopback));
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>         assertEquals(<span class="jxr_string">"V6 parsing failed"</span>, v6test, ParseUtil.parseUtAddrV6toIP(v6));
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>         assertEquals(<span class="jxr_string">"V4 parsig failed"</span>, v4test, ParseUtil.parseUtAddrV6toIP(v4));
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>     }
-<a class="jxr_linenumber" name="L520" href="#L520">520</a> 
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     @Test
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testHexStringToLong() {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         assertEquals(255L, ParseUtil.hexStringToLong(<span class="jxr_string">"ff"</span>, 0L));
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>         assertEquals(-2096147552L, ParseUtil.hexStringToLong(<span class="jxr_string">"ffffffff830f53a0"</span>, 0L));
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>         assertEquals(0L, ParseUtil.hexStringToLong(<span class="jxr_string">"pqwe"</span>, 0L));
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>     }
-<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>     @Test
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRemoveLeadingDots() {
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>         assertEquals(<span class="jxr_string">"foo"</span>, ParseUtil.removeLeadingDots(<span class="jxr_string">"foo"</span>));
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>         assertEquals(<span class="jxr_string">"bar"</span>, ParseUtil.removeLeadingDots(<span class="jxr_string">"...bar"</span>));
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>         assertEquals(<span class="jxr_string">""</span>, ParseUtil.removeLeadingDots(<span class="jxr_string">"..."</span>));
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>     }
-<a class="jxr_linenumber" name="L534" href="#L534">534</a> }
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         assertEquals(1_073_741_824, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1 GB"</span>));
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         assertEquals(1_099_511_627_776L, ParseUtil.parseDecimalMemorySizeToBinary(<span class="jxr_string">"1 TB"</span>));
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     }
+<a class="jxr_linenumber" name="L435" href="#L435">435</a> 
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>     @Test
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParsePnPDeviceIdToVendorProductId() {
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         Pair&lt;String, String&gt; idPair = ParseUtil
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>                 .parsePnPDeviceIdToVendorProductId(<span class="jxr_string">"PCI&#92;&#92;VEN_10DE&amp;DEV_134B&amp;SUBSYS_00081414&amp;REV_A2&#92;&#92;4&amp;25BACB6&amp;0&amp;00E0"</span>);
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         assertNotNull(idPair);
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         assertEquals(<span class="jxr_string">"0x10de"</span>, idPair.getA());
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>         assertEquals(<span class="jxr_string">"0x134b"</span>, idPair.getB());
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> 
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>         idPair = ParseUtil
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                 .parsePnPDeviceIdToVendorProductId(<span class="jxr_string">"PCI&#92;&#92;VEN_80286&amp;DEV_19116&amp;SUBSYS_00141414&amp;REV_07&#92;&#92;3&amp;11583659&amp;0&amp;10"</span>);
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         assertNull(idPair);
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     @Test
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLshwResourceString() {
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         assertEquals(268_435_456L + 65_536L, ParseUtil.parseLshwResourceString(
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>                 <span class="jxr_string">"irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:e2000000-e200ffff"</span>));
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         assertEquals(268_435_456L, ParseUtil.parseLshwResourceString(
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>                 <span class="jxr_string">"irq:46 ioport:6000(size=32) memory:b0000000-bfffffff memory:x2000000-e200ffff"</span>));
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         assertEquals(65_536L, ParseUtil.parseLshwResourceString(
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>                 <span class="jxr_string">"irq:46 ioport:6000(size=32) memory:x0000000-bfffffff memory:e2000000-e200ffff"</span>));
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         assertEquals(0, ParseUtil.parseLshwResourceString(<span class="jxr_string">"some random string"</span>));
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     }
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     @Test
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLspciMachineReadable() {
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         Pair&lt;String, String&gt; pair = ParseUtil.parseLspciMachineReadable(<span class="jxr_string">"foo [bar]"</span>);
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         assertEquals(<span class="jxr_string">"foo"</span>, pair.getA());
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         assertEquals(<span class="jxr_string">"bar"</span>, pair.getB());
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         assertNull(ParseUtil.parseLspciMachineReadable(<span class="jxr_string">"Bad format"</span>));
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     }
+<a class="jxr_linenumber" name="L467" href="#L467">467</a> 
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>     @Test
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseLspciMemorySize() {
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         assertEquals(0, ParseUtil.parseLspciMemorySize(<span class="jxr_string">"Doesn't parse"</span>));
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         assertEquals(64 * 1024, ParseUtil.parseLspciMemorySize(<span class="jxr_string">"Foo [size=64K]"</span>));
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         assertEquals(256 * 1024 * 1024, ParseUtil.parseLspciMemorySize(<span class="jxr_string">"Foo [size=256M]"</span>));
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>     }
+<a class="jxr_linenumber" name="L474" href="#L474">474</a> 
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>     @Test
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseHyphenatedIntList() {
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>         String s = <span class="jxr_string">"1"</span>;
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         List&lt;Integer&gt; parsed = ParseUtil.parseHyphenatedIntList(s);
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         assertFalse(parsed.contains(0));
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         assertTrue(parsed.contains(1));
+<a class="jxr_linenumber" name="L481" href="#L481">481</a> 
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         s = <span class="jxr_string">"0 2-5 7"</span>;
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         parsed = ParseUtil.parseHyphenatedIntList(s);
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         assertTrue(parsed.contains(0));
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         assertFalse(parsed.contains(1));
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         assertTrue(parsed.contains(2));
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         assertTrue(parsed.contains(3));
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         assertTrue(parsed.contains(4));
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         assertTrue(parsed.contains(5));
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         assertFalse(parsed.contains(6));
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         assertTrue(parsed.contains(7));
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>     }
+<a class="jxr_linenumber" name="L493" href="#L493">493</a> 
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>     @Test
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseMmDdYyyyToYyyyMmDD() {
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         assertEquals(<span class="jxr_string">"Unable to parse MM-DD-YYYY date string into YYYY-MM-DD date string"</span>, <span class="jxr_string">"2222-00-11"</span>,
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>                 ParseUtil.parseMmDdYyyyToYyyyMmDD(<span class="jxr_string">"00-11-2222"</span>));
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         assertEquals(<span class="jxr_string">"Date string should not be parsed"</span>, <span class="jxr_string">"badstr"</span>, ParseUtil.parseMmDdYyyyToYyyyMmDD(<span class="jxr_string">"badstr"</span>));
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>     }
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> 
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>     @Test
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testParseUtAddrV6toIP() {
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">int</strong>[] zero = { 0, 0, 0, 0 };
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">int</strong>[] loopback = { 0, 0, 0, 1 };
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         String v6test = <span class="jxr_string">"2001:db8:85a3::8a2e:370:7334"</span>;
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         <strong class="jxr_keyword">int</strong>[] v6 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>         v6[0] = Integer.parseUnsignedInt(<span class="jxr_string">"20010db8"</span>, 16);
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>         v6[1] = Integer.parseUnsignedInt(<span class="jxr_string">"85a30000"</span>, 16);
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>         v6[2] = Integer.parseUnsignedInt(<span class="jxr_string">"00008a2e"</span>, 16);
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         v6[3] = Integer.parseUnsignedInt(<span class="jxr_string">"03707334"</span>, 16);
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>         String v4test = <span class="jxr_string">"127.0.0.1"</span>;
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>         <strong class="jxr_keyword">int</strong>[] v4 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>         v4[0] = (127 &lt;&lt; 24) + 1;
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>         assertEquals(<span class="jxr_string">"Unspecified address failed"</span>, <span class="jxr_string">"::"</span>, ParseUtil.parseUtAddrV6toIP(zero));
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         assertEquals(<span class="jxr_string">"Loopback address failed"</span>, <span class="jxr_string">"::1"</span>, ParseUtil.parseUtAddrV6toIP(loopback));
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>         assertEquals(<span class="jxr_string">"V6 parsing failed"</span>, v6test, ParseUtil.parseUtAddrV6toIP(v6));
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         assertEquals(<span class="jxr_string">"V4 parsig failed"</span>, v4test, ParseUtil.parseUtAddrV6toIP(v4));
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>     }
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

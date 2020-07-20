@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">return</strong> parseIpv6Route();
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> 
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String parseIpv4Route() {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">private</strong> String parseIpv4Route() {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         List&lt;String&gt; lines = ExecutingCommand.runNative(<span class="jxr_string">"route print -4 0.0.0.0"</span>);
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             String[] fields = ParseUtil.whitespaces.split(line.trim());
@@ -132,7 +132,7 @@
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>     }
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String parseIpv6Route() {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">private</strong> String parseIpv6Route() {
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         List&lt;String&gt; lines = ExecutingCommand.runNative(<span class="jxr_string">"route print -6 ::/0"</span>);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             String[] fields = ParseUtil.whitespaces.split(line.trim());

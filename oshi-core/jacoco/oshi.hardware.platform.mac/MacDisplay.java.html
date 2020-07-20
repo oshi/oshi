@@ -24,7 +24,6 @@
 package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ import oshi.hardware.common.AbstractDisplay;
 @Immutable
 final class MacDisplay extends AbstractDisplay {
 
-<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);</span>
+<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);</span>
 
     /**
      * Constructor for MacDisplay.
@@ -57,46 +56,46 @@ final class MacDisplay extends AbstractDisplay {
      *            a byte array representing a display EDID
      */
     MacDisplay(byte[] edid) {
-<span class="nc" id="L60">        super(edid);</span>
-<span class="nc" id="L61">        LOG.debug(&quot;Initialized MacDisplay&quot;);</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L59">        super(edid);</span>
+<span class="nc" id="L60">        LOG.debug(&quot;Initialized MacDisplay&quot;);</span>
+<span class="nc" id="L61">    }</span>
 
     /**
      * Gets Display Information
      *
      * @return An array of Display objects representing monitors, etc.
      */
-    public static List&lt;Display&gt; getDisplays() {
-<span class="nc" id="L70">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
+    public static Display[] getDisplays() {
+<span class="nc" id="L69">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
         // Iterate IO Registry IODisplayConnect
-<span class="nc" id="L72">        IOIterator serviceIterator = IOKitUtil.getMatchingServices(&quot;IODisplayConnect&quot;);</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (serviceIterator != null) {</span>
-<span class="nc" id="L74">            CFStringRef cfEdid = CFStringRef.createCFString(&quot;IODisplayEDID&quot;);</span>
-<span class="nc" id="L75">            IORegistryEntry sdService = serviceIterator.next();</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">            while (sdService != null) {</span>
+<span class="nc" id="L71">        IOIterator serviceIterator = IOKitUtil.getMatchingServices(&quot;IODisplayConnect&quot;);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (serviceIterator != null) {</span>
+<span class="nc" id="L73">            CFStringRef cfEdid = CFStringRef.createCFString(&quot;IODisplayEDID&quot;);</span>
+<span class="nc" id="L74">            IORegistryEntry sdService = serviceIterator.next();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            while (sdService != null) {</span>
                 // Display properties are in a child entry
-<span class="nc" id="L78">                IORegistryEntry properties = sdService.getChildEntry(&quot;IOService&quot;);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">                if (properties != null) {</span>
+<span class="nc" id="L77">                IORegistryEntry properties = sdService.getChildEntry(&quot;IOService&quot;);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if (properties != null) {</span>
                     // look up the edid by key
-<span class="nc" id="L81">                    CFTypeRef edidRaw = properties.createCFProperty(cfEdid);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">                    if (edidRaw != null) {</span>
-<span class="nc" id="L83">                        CFDataRef edid = new CFDataRef(edidRaw.getPointer());</span>
+<span class="nc" id="L80">                    CFTypeRef edidRaw = properties.createCFProperty(cfEdid);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                    if (edidRaw != null) {</span>
+<span class="nc" id="L82">                        CFDataRef edid = new CFDataRef(edidRaw.getPointer());</span>
                         // Edid is a byte array of 128 bytes
-<span class="nc" id="L85">                        int length = edid.getLength();</span>
-<span class="nc" id="L86">                        Pointer p = edid.getBytePtr();</span>
-<span class="nc" id="L87">                        displays.add(new MacDisplay(p.getByteArray(0, length)));</span>
-<span class="nc" id="L88">                        edid.release();</span>
+<span class="nc" id="L84">                        int length = edid.getLength();</span>
+<span class="nc" id="L85">                        Pointer p = edid.getBytePtr();</span>
+<span class="nc" id="L86">                        displays.add(new MacDisplay(p.getByteArray(0, length)));</span>
+<span class="nc" id="L87">                        edid.release();</span>
                     }
-<span class="nc" id="L90">                    properties.release();</span>
+<span class="nc" id="L89">                    properties.release();</span>
                 }
                 // iterate
-<span class="nc" id="L93">                sdService.release();</span>
-<span class="nc" id="L94">                sdService = serviceIterator.next();</span>
-<span class="nc" id="L95">            }</span>
-<span class="nc" id="L96">            serviceIterator.release();</span>
-<span class="nc" id="L97">            cfEdid.release();</span>
+<span class="nc" id="L92">                sdService.release();</span>
+<span class="nc" id="L93">                sdService = serviceIterator.next();</span>
+<span class="nc" id="L94">            }</span>
+<span class="nc" id="L95">            serviceIterator.release();</span>
+<span class="nc" id="L96">            cfEdid.release();</span>
         }
-<span class="nc" id="L99">        return Collections.unmodifiableList(displays);</span>
+<span class="nc" id="L98">        return displays.toArray(new Display[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -78,50 +78,52 @@ import oshi.hardware.common.Networks;
      *
      * @param index
      *            If nonnegative, returns results for only that index
-     * @return a map of {@link IFData} object indexed by the interface index,
+     * @return a map of {@link IFdata} object indexed by the interface index,
      *         encapsulating the stats, or {@code null} if the query failed.
      */
-    private static Map&lt;Integer, IFdata&gt; queryIFdata(int index) {
-<span class="nc" id="L85">        Map&lt;Integer, IFdata&gt; data = new HashMap&lt;&gt;();</span>
+    public static Map&lt;Integer, IFdata&gt; queryIFdata(int index) {
+        // Ported from source code of &quot;netstat -ir&quot;. See
+        // https://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c
+<span class="nc" id="L87">        Map&lt;Integer, IFdata&gt; data = new HashMap&lt;&gt;();</span>
         // Get buffer of all interface information
-<span class="nc" id="L87">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
-<span class="nc" id="L88">        IntByReference len = new IntByReference();</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
-<span class="nc" id="L90">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
-<span class="nc" id="L91">            return data;</span>
+<span class="nc" id="L89">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
+<span class="nc" id="L90">        IntByReference len = new IntByReference();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
+<span class="nc" id="L92">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
+<span class="nc" id="L93">            return data;</span>
         }
-<span class="nc" id="L93">        Memory buf = new Memory(len.getValue());</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
-<span class="nc" id="L95">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
-<span class="nc" id="L96">            return data;</span>
+<span class="nc" id="L95">        Memory buf = new Memory(len.getValue());</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
+<span class="nc" id="L97">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
+<span class="nc" id="L98">            return data;</span>
         }
 
         // Iterate offset from buf's pointer up to limit of buf
-<span class="nc" id="L100">        int lim = (int) (buf.size() - new IFmsgHdr().size());</span>
-<span class="nc" id="L101">        int offset = 0;</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        while (offset &lt; lim) {</span>
+<span class="nc" id="L102">        int lim = (int) (buf.size() - new IFmsgHdr().size());</span>
+<span class="nc" id="L103">        int offset = 0;</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        while (offset &lt; lim) {</span>
             // Get pointer to current native part of buf
-<span class="nc" id="L104">            Pointer p = buf.share(offset);</span>
+<span class="nc" id="L106">            Pointer p = buf.share(offset);</span>
             // Cast pointer to if_msghdr
-<span class="nc" id="L106">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
-<span class="nc" id="L107">            ifm.read();</span>
+<span class="nc" id="L108">            IFmsgHdr ifm = new IFmsgHdr(p);</span>
+<span class="nc" id="L109">            ifm.read();</span>
             // Advance next
-<span class="nc" id="L109">            offset += ifm.ifm_msglen;</span>
+<span class="nc" id="L111">            offset += ifm.ifm_msglen;</span>
             // Skip messages which are not the right format
-<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (ifm.ifm_type == RTM_IFINFO2) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (ifm.ifm_type == RTM_IFINFO2) {</span>
                 // Cast pointer to if_msghdr2
-<span class="nc" id="L113">                IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
-<span class="nc" id="L114">                if2m.read();</span>
-<span class="nc bnc" id="L115" title="All 4 branches missed.">                if (index &lt; 0 || index == if2m.ifm_index) {</span>
-<span class="nc" id="L116">                    data.put((int) if2m.ifm_index,</span>
+<span class="nc" id="L115">                IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
+<span class="nc" id="L116">                if2m.read();</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">                if (index &lt; 0 || index == if2m.ifm_index) {</span>
+<span class="nc" id="L118">                    data.put((int) if2m.ifm_index,</span>
                             new IFdata(if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets,
                                     if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors,
                                     if2m.ifm_data.ifi_ierrors, if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops,
-<span class="nc" id="L120">                                    if2m.ifm_data.ifi_baudrate, System.currentTimeMillis()));</span>
+<span class="nc" id="L122">                                    if2m.ifm_data.ifi_baudrate, System.currentTimeMillis()));</span>
                 }
             }
-<span class="nc" id="L123">        }</span>
-<span class="nc" id="L124">        return data;</span>
+<span class="nc" id="L125">        }</span>
+<span class="nc" id="L126">        return data;</span>
     }
 
     /**
@@ -133,8 +135,8 @@ import oshi.hardware.common.Networks;
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     public static boolean updateNetworkStats(NetworkIF netIF) {
-<span class="nc" id="L136">        int index = netIF.queryNetworkInterface().getIndex();</span>
-<span class="nc" id="L137">        return updateNetworkStats(netIF, queryIFdata(index));</span>
+<span class="nc" id="L138">        int index = netIF.queryNetworkInterface().getIndex();</span>
+<span class="nc" id="L139">        return updateNetworkStats(netIF, queryIFdata(index));</span>
     }
 
     /**
@@ -148,24 +150,24 @@ import oshi.hardware.common.Networks;
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     private static boolean updateNetworkStats(NetworkIF netIF, Map&lt;Integer, IFdata&gt; data) {
-<span class="nc" id="L151">        int index = netIF.queryNetworkInterface().getIndex();</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (data.containsKey(index)) {</span>
-<span class="nc" id="L153">            IFdata ifData = data.get(index);</span>
+<span class="nc" id="L153">        int index = netIF.queryNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (data.containsKey(index)) {</span>
+<span class="nc" id="L155">            IFdata ifData = data.get(index);</span>
             // Update data
-<span class="nc" id="L155">            netIF.setIfType(ifData.ifType);</span>
-<span class="nc" id="L156">            netIF.setBytesSent(ifData.oBytes);</span>
-<span class="nc" id="L157">            netIF.setBytesRecv(ifData.iBytes);</span>
-<span class="nc" id="L158">            netIF.setPacketsSent(ifData.oPackets);</span>
-<span class="nc" id="L159">            netIF.setPacketsRecv(ifData.iPackets);</span>
-<span class="nc" id="L160">            netIF.setOutErrors(ifData.oErrors);</span>
-<span class="nc" id="L161">            netIF.setInErrors(ifData.iErrors);</span>
-<span class="nc" id="L162">            netIF.setCollisions(ifData.collisions);</span>
-<span class="nc" id="L163">            netIF.setInDrops(ifData.iDrops);</span>
-<span class="nc" id="L164">            netIF.setSpeed(ifData.speed);</span>
-<span class="nc" id="L165">            netIF.setTimeStamp(ifData.timeStamp);</span>
-<span class="nc" id="L166">            return true;</span>
+<span class="nc" id="L157">            netIF.setIfType(ifData.ifType);</span>
+<span class="nc" id="L158">            netIF.setBytesSent(ifData.oBytes);</span>
+<span class="nc" id="L159">            netIF.setBytesRecv(ifData.iBytes);</span>
+<span class="nc" id="L160">            netIF.setPacketsSent(ifData.oPackets);</span>
+<span class="nc" id="L161">            netIF.setPacketsRecv(ifData.iPackets);</span>
+<span class="nc" id="L162">            netIF.setOutErrors(ifData.oErrors);</span>
+<span class="nc" id="L163">            netIF.setInErrors(ifData.iErrors);</span>
+<span class="nc" id="L164">            netIF.setCollisions(ifData.collisions);</span>
+<span class="nc" id="L165">            netIF.setInDrops(ifData.iDrops);</span>
+<span class="nc" id="L166">            netIF.setSpeed(ifData.speed);</span>
+<span class="nc" id="L167">            netIF.setTimeStamp(ifData.timeStamp);</span>
+<span class="nc" id="L168">            return true;</span>
         }
-<span class="nc" id="L168">        return false;</span>
+<span class="nc" id="L170">        return false;</span>
     }
 
     /**
@@ -186,19 +188,19 @@ import oshi.hardware.common.Networks;
 
         IFdata(int ifType, // NOSONAR squid:S00107
                 long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long collisions,
-<span class="nc" id="L189">                long iDrops, long speed, long timeStamp) {</span>
-<span class="nc" id="L190">            this.ifType = ifType;</span>
-<span class="nc" id="L191">            this.oPackets = oPackets;</span>
-<span class="nc" id="L192">            this.iPackets = iPackets;</span>
-<span class="nc" id="L193">            this.oBytes = oBytes;</span>
-<span class="nc" id="L194">            this.iBytes = iBytes;</span>
-<span class="nc" id="L195">            this.oErrors = oErrors;</span>
-<span class="nc" id="L196">            this.iErrors = iErrors;</span>
-<span class="nc" id="L197">            this.collisions = collisions;</span>
-<span class="nc" id="L198">            this.iDrops = iDrops;</span>
-<span class="nc" id="L199">            this.speed = speed;</span>
-<span class="nc" id="L200">            this.timeStamp = timeStamp;</span>
-<span class="nc" id="L201">        }</span>
+<span class="nc" id="L191">                long iDrops, long speed, long timeStamp) {</span>
+<span class="nc" id="L192">            this.ifType = ifType;</span>
+<span class="nc" id="L193">            this.oPackets = oPackets;</span>
+<span class="nc" id="L194">            this.iPackets = iPackets;</span>
+<span class="nc" id="L195">            this.oBytes = oBytes;</span>
+<span class="nc" id="L196">            this.iBytes = iBytes;</span>
+<span class="nc" id="L197">            this.oErrors = oErrors;</span>
+<span class="nc" id="L198">            this.iErrors = iErrors;</span>
+<span class="nc" id="L199">            this.collisions = collisions;</span>
+<span class="nc" id="L200">            this.iDrops = iDrops;</span>
+<span class="nc" id="L201">            this.speed = speed;</span>
+<span class="nc" id="L202">            this.timeStamp = timeStamp;</span>
+<span class="nc" id="L203">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
