@@ -75,7 +75,7 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, IFdata&gt; queryIFdata(<strong class="jxr_keyword">int</strong> index) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// Ported from source code of "netstat -ir". See</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <em class="jxr_comment">// http://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <em class="jxr_comment">// https://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          Map&lt;Integer, IFdata&gt; data = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// Get buffer of all interface information</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">int</strong>[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
