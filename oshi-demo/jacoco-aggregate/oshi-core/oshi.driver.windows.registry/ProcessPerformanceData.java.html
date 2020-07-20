@@ -28,19 +28,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.WinBase.FILETIME;
+import com.sun.jna.platform.win32.WinBase; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.ProcessInformation;
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
-import oshi.software.os.OSProcess;
-import oshi.software.os.OperatingSystem;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Utility to read process data from HKEY_PERFORMANCE_DATA information.
+ * Utility to read process data from HKEY_PERFORMANCE_DATA information with
+ * backup from Performance Counters or WMI
  */
 @ThreadSafe
 public final class ProcessPerformanceData {
@@ -53,57 +52,51 @@ public final class ProcessPerformanceData {
     /**
      * Query the registry for process performance counters
      *
-     * @param os
-     *            The OperatingSystem object
      * @param pids
      *            An optional collection of process IDs to filter the list to. May
      *            be null for no filtering.
-     * @return A map with Process ID as the key and an OSProcess object populated
-     *         with performance counter information if successful, or null
-     *         otherwise.
+     * @return A map with Process ID as the key and a {@link PerfCounterBlock}
+     *         object populated with performance counter information if successful,
+     *         or null otherwise.
      */
-    public static Map&lt;Integer, OSProcess&gt; buildProcessMapFromRegistry(OperatingSystem os, Collection&lt;Integer&gt; pids) {
+    public static Map&lt;Integer, PerfCounterBlock&gt; buildProcessMapFromRegistry(Collection&lt;Integer&gt; pids) {
         // Grab the data from the registry.
-<span class="nc" id="L67">        Triplet&lt;List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt;, Long, Long&gt; processData = HkeyPerformanceDataUtil</span>
-<span class="nc" id="L68">                .readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (processData == null) {</span>
-<span class="nc" id="L70">            return null;</span>
+<span class="nc" id="L64">        Triplet&lt;List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt;, Long, Long&gt; processData = HkeyPerformanceDataUtil</span>
+<span class="nc" id="L65">                .readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (processData == null) {</span>
+<span class="nc" id="L67">            return null;</span>
         }
-<span class="nc" id="L72">        List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt; processInstanceMaps = processData.getA();</span>
-<span class="nc" id="L73">        long now = processData.getC(); // 1970 epoch</span>
+<span class="nc" id="L69">        List&lt;Map&lt;ProcessPerformanceProperty, Object&gt;&gt; processInstanceMaps = processData.getA();</span>
+<span class="nc" id="L70">        long now = processData.getC(); // 1970 epoch</span>
 
         // Create a map and fill it
-<span class="nc" id="L76">        Map&lt;Integer, OSProcess&gt; processMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L73">        Map&lt;Integer, PerfCounterBlock&gt; processMap = new HashMap&lt;&gt;();</span>
         // Iterate instances.
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (Map&lt;ProcessPerformanceProperty, Object&gt; processInstanceMap : processInstanceMaps) {</span>
-<span class="nc" id="L79">            int pid = ((Integer) processInstanceMap.get(ProcessPerformanceProperty.PROCESSID)).intValue();</span>
-<span class="nc" id="L80">            String name = (String) processInstanceMap.get(ProcessPerformanceProperty.NAME);</span>
-<span class="nc bnc" id="L81" title="All 6 branches missed.">            if ((pids == null || pids.contains(pid)) &amp;&amp; !&quot;_Total&quot;.equals(name)) {</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (Map&lt;ProcessPerformanceProperty, Object&gt; processInstanceMap : processInstanceMaps) {</span>
+<span class="nc" id="L76">            int pid = ((Integer) processInstanceMap.get(ProcessPerformanceProperty.PROCESSID)).intValue();</span>
+<span class="nc" id="L77">            String name = (String) processInstanceMap.get(ProcessPerformanceProperty.NAME);</span>
+<span class="nc bnc" id="L78" title="All 6 branches missed.">            if ((pids == null || pids.contains(pid)) &amp;&amp; !&quot;_Total&quot;.equals(name)) {</span>
                 // if creation time value is less than current millis, it's in 1970 epoch,
                 // otherwise it's 1601 epoch and we must convert
-<span class="nc" id="L84">                long ctime = (Long) processInstanceMap.get(ProcessPerformanceProperty.CREATIONDATE);</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">                if (ctime &gt; now) {</span>
-<span class="nc" id="L86">                    ctime = FILETIME.filetimeToDate((int) (ctime &gt;&gt; 32), (int) (ctime &amp; 0xffffffffL)).getTime();</span>
+<span class="nc" id="L81">                long ctime = (Long) processInstanceMap.get(ProcessPerformanceProperty.CREATIONDATE);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                if (ctime &gt; now) {</span>
+<span class="nc" id="L83">                    ctime = WinBase.FILETIME.filetimeToDate((int) (ctime &gt;&gt; 32), (int) (ctime &amp; 0xffffffffL)).getTime();</span>
                 }
-<span class="nc" id="L88">                long upTime = now - ctime;</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">                if (upTime &lt; 1L) {</span>
-<span class="nc" id="L90">                    upTime = 1L;</span>
+<span class="nc" id="L85">                long upTime = now - ctime;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                if (upTime &lt; 1L) {</span>
+<span class="nc" id="L87">                    upTime = 1L;</span>
                 }
-<span class="nc" id="L92">                OSProcess proc = new OSProcess(os);</span>
-<span class="nc" id="L93">                proc.setProcessID(pid);</span>
-<span class="nc" id="L94">                proc.setName(name);</span>
-<span class="nc" id="L95">                proc.setUpTime(upTime);</span>
-<span class="nc" id="L96">                proc.setStartTime(ctime);</span>
-<span class="nc" id="L97">                proc.setBytesRead((Long) processInstanceMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT));</span>
-<span class="nc" id="L98">                proc.setBytesWritten((Long) processInstanceMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT));</span>
-<span class="nc" id="L99">                proc.setResidentSetSize((Long) processInstanceMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT));</span>
-<span class="nc" id="L100">                proc.setParentProcessID((Integer) processInstanceMap.get(ProcessPerformanceProperty.PARENTPROCESSID));</span>
-<span class="nc" id="L101">                proc.setPriority((Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITY));</span>
-
-<span class="nc" id="L103">                processMap.put(pid, proc);</span>
+<span class="nc" id="L89">                processMap.put(pid,</span>
+                        new PerfCounterBlock(name,
+<span class="nc" id="L91">                                (Integer) processInstanceMap.get(ProcessPerformanceProperty.PARENTPROCESSID),</span>
+<span class="nc" id="L92">                                (Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITY),</span>
+<span class="nc" id="L93">                                (Long) processInstanceMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT), ctime,</span>
+<span class="nc" id="L94">                                upTime, (Long) processInstanceMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT),</span>
+<span class="nc" id="L95">                                (Long) processInstanceMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT),</span>
+<span class="nc" id="L96">                                (Integer) processInstanceMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC)));</span>
             }
-<span class="nc" id="L105">        }</span>
-<span class="nc" id="L106">        return processMap;</span>
+<span class="nc" id="L98">        }</span>
+<span class="nc" id="L99">        return processMap;</span>
     }
 
     /**
@@ -116,41 +109,41 @@ public final class ProcessPerformanceData {
      *         object populated with performance counter information.
      */
     public static Map&lt;Integer, PerfCounterBlock&gt; buildProcessMapFromPerfCounters(Collection&lt;Integer&gt; pids) {
-<span class="nc" id="L119">        Map&lt;Integer, PerfCounterBlock&gt; processMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L112">        Map&lt;Integer, PerfCounterBlock&gt; processMap = new HashMap&lt;&gt;();</span>
         Pair&lt;List&lt;String&gt;, Map&lt;ProcessPerformanceProperty, List&lt;Long&gt;&gt;&gt; instanceValues = ProcessInformation
-<span class="nc" id="L121">                .queryProcessCounters();</span>
-<span class="nc" id="L122">        long now = System.currentTimeMillis(); // 1970 epoch</span>
-<span class="nc" id="L123">        List&lt;String&gt; instances = instanceValues.getA();</span>
-<span class="nc" id="L124">        Map&lt;ProcessPerformanceProperty, List&lt;Long&gt;&gt; valueMap = instanceValues.getB();</span>
-<span class="nc" id="L125">        List&lt;Long&gt; pidList = valueMap.get(ProcessPerformanceProperty.PROCESSID);</span>
-<span class="nc" id="L126">        List&lt;Long&gt; ppidList = valueMap.get(ProcessPerformanceProperty.PARENTPROCESSID);</span>
-<span class="nc" id="L127">        List&lt;Long&gt; priorityList = valueMap.get(ProcessPerformanceProperty.PRIORITY);</span>
-<span class="nc" id="L128">        List&lt;Long&gt; ioReadList = valueMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT);</span>
-<span class="nc" id="L129">        List&lt;Long&gt; ioWriteList = valueMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT);</span>
-<span class="nc" id="L130">        List&lt;Long&gt; workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT);</span>
-<span class="nc" id="L131">        List&lt;Long&gt; creationTimeList = valueMap.get(ProcessPerformanceProperty.CREATIONDATE);</span>
-<span class="nc" id="L132">        List&lt;Long&gt; pageFaultsList = valueMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC);</span>
+<span class="nc" id="L114">                .queryProcessCounters();</span>
+<span class="nc" id="L115">        long now = System.currentTimeMillis(); // 1970 epoch</span>
+<span class="nc" id="L116">        List&lt;String&gt; instances = instanceValues.getA();</span>
+<span class="nc" id="L117">        Map&lt;ProcessPerformanceProperty, List&lt;Long&gt;&gt; valueMap = instanceValues.getB();</span>
+<span class="nc" id="L118">        List&lt;Long&gt; pidList = valueMap.get(ProcessPerformanceProperty.PROCESSID);</span>
+<span class="nc" id="L119">        List&lt;Long&gt; ppidList = valueMap.get(ProcessPerformanceProperty.PARENTPROCESSID);</span>
+<span class="nc" id="L120">        List&lt;Long&gt; priorityList = valueMap.get(ProcessPerformanceProperty.PRIORITY);</span>
+<span class="nc" id="L121">        List&lt;Long&gt; ioReadList = valueMap.get(ProcessPerformanceProperty.READTRANSFERCOUNT);</span>
+<span class="nc" id="L122">        List&lt;Long&gt; ioWriteList = valueMap.get(ProcessPerformanceProperty.WRITETRANSFERCOUNT);</span>
+<span class="nc" id="L123">        List&lt;Long&gt; workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PRIVATEPAGECOUNT);</span>
+<span class="nc" id="L124">        List&lt;Long&gt; creationTimeList = valueMap.get(ProcessPerformanceProperty.CREATIONDATE);</span>
+<span class="nc" id="L125">        List&lt;Long&gt; pageFaultsList = valueMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC);</span>
 
-<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (int inst = 0; inst &lt; instances.size(); inst++) {</span>
-<span class="nc" id="L135">            int pid = pidList.get(inst).intValue();</span>
-<span class="nc bnc" id="L136" title="All 4 branches missed.">            if (pids == null || pids.contains(pid)) {</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        for (int inst = 0; inst &lt; instances.size(); inst++) {</span>
+<span class="nc" id="L128">            int pid = pidList.get(inst).intValue();</span>
+<span class="nc bnc" id="L129" title="All 4 branches missed.">            if (pids == null || pids.contains(pid)) {</span>
                 // if creation time value is less than current millis, it's in 1970 epoch,
                 // otherwise it's 1601 epoch and we must convert
-<span class="nc" id="L139">                long ctime = creationTimeList.get(inst);</span>
-<span class="nc bnc" id="L140" title="All 2 branches missed.">                if (ctime &gt; now) {</span>
-<span class="nc" id="L141">                    ctime = FILETIME.filetimeToDate((int) (ctime &gt;&gt; 32), (int) (ctime &amp; 0xffffffffL)).getTime();</span>
+<span class="nc" id="L132">                long ctime = creationTimeList.get(inst);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                if (ctime &gt; now) {</span>
+<span class="nc" id="L134">                    ctime = WinBase.FILETIME.filetimeToDate((int) (ctime &gt;&gt; 32), (int) (ctime &amp; 0xffffffffL)).getTime();</span>
                 }
-<span class="nc" id="L143">                long upTime = now - ctime;</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (upTime &lt; 1L) {</span>
-<span class="nc" id="L145">                    upTime = 1L;</span>
+<span class="nc" id="L136">                long upTime = now - ctime;</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                if (upTime &lt; 1L) {</span>
+<span class="nc" id="L138">                    upTime = 1L;</span>
                 }
-<span class="nc" id="L147">                processMap.put(pid,</span>
-<span class="nc" id="L148">                        new PerfCounterBlock(instances.get(inst), ppidList.get(inst).intValue(),</span>
-<span class="nc" id="L149">                                priorityList.get(inst).intValue(), workingSetSizeList.get(inst), ctime, upTime,</span>
-<span class="nc" id="L150">                                ioReadList.get(inst), ioWriteList.get(inst), pageFaultsList.get(inst).intValue()));</span>
+<span class="nc" id="L140">                processMap.put(pid,</span>
+<span class="nc" id="L141">                        new PerfCounterBlock(instances.get(inst), ppidList.get(inst).intValue(),</span>
+<span class="nc" id="L142">                                priorityList.get(inst).intValue(), workingSetSizeList.get(inst), ctime, upTime,</span>
+<span class="nc" id="L143">                                ioReadList.get(inst), ioWriteList.get(inst), pageFaultsList.get(inst).intValue()));</span>
             }
         }
-<span class="nc" id="L153">        return processMap;</span>
+<span class="nc" id="L146">        return processMap;</span>
     }
 
     /**
@@ -169,79 +162,79 @@ public final class ProcessPerformanceData {
         private final int pageFaults;
 
         public PerfCounterBlock(String name, int parentProcessID, int priority, long residentSetSize, long startTime,
-<span class="nc" id="L172">                long upTime, long bytesRead, long bytesWritten, int pageFaults) {</span>
-<span class="nc" id="L173">            this.name = name;</span>
-<span class="nc" id="L174">            this.parentProcessID = parentProcessID;</span>
-<span class="nc" id="L175">            this.priority = priority;</span>
-<span class="nc" id="L176">            this.residentSetSize = residentSetSize;</span>
-<span class="nc" id="L177">            this.startTime = startTime;</span>
-<span class="nc" id="L178">            this.upTime = upTime;</span>
-<span class="nc" id="L179">            this.bytesRead = bytesRead;</span>
-<span class="nc" id="L180">            this.bytesWritten = bytesWritten;</span>
-<span class="nc" id="L181">            this.pageFaults = pageFaults;</span>
-<span class="nc" id="L182">        }</span>
+<span class="nc" id="L165">                long upTime, long bytesRead, long bytesWritten, int pageFaults) {</span>
+<span class="nc" id="L166">            this.name = name;</span>
+<span class="nc" id="L167">            this.parentProcessID = parentProcessID;</span>
+<span class="nc" id="L168">            this.priority = priority;</span>
+<span class="nc" id="L169">            this.residentSetSize = residentSetSize;</span>
+<span class="nc" id="L170">            this.startTime = startTime;</span>
+<span class="nc" id="L171">            this.upTime = upTime;</span>
+<span class="nc" id="L172">            this.bytesRead = bytesRead;</span>
+<span class="nc" id="L173">            this.bytesWritten = bytesWritten;</span>
+<span class="nc" id="L174">            this.pageFaults = pageFaults;</span>
+<span class="nc" id="L175">        }</span>
 
         /**
          * @return the name
          */
         public String getName() {
-<span class="nc" id="L188">            return name;</span>
+<span class="nc" id="L181">            return name;</span>
         }
 
         /**
          * @return the parentProcessID
          */
         public int getParentProcessID() {
-<span class="nc" id="L195">            return parentProcessID;</span>
+<span class="nc" id="L188">            return parentProcessID;</span>
         }
 
         /**
          * @return the priority
          */
         public int getPriority() {
-<span class="nc" id="L202">            return priority;</span>
+<span class="nc" id="L195">            return priority;</span>
         }
 
         /**
          * @return the residentSetSize
          */
         public long getResidentSetSize() {
-<span class="nc" id="L209">            return residentSetSize;</span>
+<span class="nc" id="L202">            return residentSetSize;</span>
         }
 
         /**
          * @return the startTime
          */
         public long getStartTime() {
-<span class="nc" id="L216">            return startTime;</span>
+<span class="nc" id="L209">            return startTime;</span>
         }
 
         /**
          * @return the upTime
          */
         public long getUpTime() {
-<span class="nc" id="L223">            return upTime;</span>
+<span class="nc" id="L216">            return upTime;</span>
         }
 
         /**
          * @return the bytesRead
          */
         public long getBytesRead() {
-<span class="nc" id="L230">            return bytesRead;</span>
+<span class="nc" id="L223">            return bytesRead;</span>
         }
 
         /**
          * @return the bytesWritten
          */
         public long getBytesWritten() {
-<span class="nc" id="L237">            return bytesWritten;</span>
+<span class="nc" id="L230">            return bytesWritten;</span>
         }
 
         /**
          * @return the pageFaults
          */
         public long getPageFaults() {
-<span class="nc" id="L244">            return pageFaults;</span>
+<span class="nc" id="L237">            return pageFaults;</span>
         }
     }
 }
