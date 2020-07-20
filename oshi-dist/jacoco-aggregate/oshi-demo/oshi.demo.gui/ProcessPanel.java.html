@@ -140,12 +140,12 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L140">        timer.start();</span>
 <span class="nc" id="L141">    }</span>
 
-    private Object[][] parseProcesses(OSProcess[] procs, SystemInfo si) {
+    private Object[][] parseProcesses(List&lt;OSProcess&gt; list, SystemInfo si) {
 <span class="nc" id="L144">        long totalMem = si.getHardware().getMemory().getTotal();</span>
 <span class="nc" id="L145">        int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();</span>
         // Build a map with a value for each process to control the sort
 <span class="nc" id="L147">        Map&lt;OSProcess, Double&gt; processSortValueMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        for (OSProcess p : procs) {</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        for (OSProcess p : list) {</span>
 <span class="nc" id="L149">            int pid = p.getProcessID();</span>
             // Ignore the Idle process on Windows
 <span class="nc bnc" id="L151" title="All 4 branches missed.">            if (pid &gt; 0 || !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {</span>
@@ -158,7 +158,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L158">                    processSortValueMap.put(p, (double) p.getResidentSetSize());</span>
                 }
             }
-        }
+<span class="nc" id="L161">        }</span>
         // Now sort the list by the values
 <span class="nc" id="L163">        List&lt;Entry&lt;OSProcess, Double&gt;&gt; procList = new ArrayList&lt;&gt;(processSortValueMap.entrySet());</span>
 <span class="nc" id="L164">        procList.sort(Entry.comparingByValue());</span>
@@ -190,13 +190,13 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L190">        }</span>
         // Re-populate snapshot map
 <span class="nc" id="L192">        priorSnapshotMap.clear();</span>
-<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (OSProcess p : procs) {</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (OSProcess p : list) {</span>
 <span class="nc" id="L194">            priorSnapshotMap.put(p.getProcessID(), p);</span>
-        }
+<span class="nc" id="L195">        }</span>
 <span class="nc" id="L196">        return procArr;</span>
     }
 
-    private void resizeColumns(TableColumnModel tableColumnModel) {
+    private static void resizeColumns(TableColumnModel tableColumnModel) {
         TableColumn column;
 <span class="nc" id="L201">        int tW = tableColumnModel.getTotalColumnWidth();</span>
 <span class="nc" id="L202">        int cantCols = tableColumnModel.getColumnCount();</span>

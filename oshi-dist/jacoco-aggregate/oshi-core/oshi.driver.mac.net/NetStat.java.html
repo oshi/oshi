@@ -67,7 +67,7 @@ public final class NetStat {
      */
     public static Map&lt;Integer, IFdata&gt; queryIFdata(int index) {
         // Ported from source code of &quot;netstat -ir&quot;. See
-        // http://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c
+        // https://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c
 <span class="nc" id="L71">        Map&lt;Integer, IFdata&gt; data = new HashMap&lt;&gt;();</span>
         // Get buffer of all interface information
 <span class="nc" id="L73">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>

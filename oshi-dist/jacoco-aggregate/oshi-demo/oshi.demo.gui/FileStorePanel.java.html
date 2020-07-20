@@ -65,8 +65,8 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L65">    }</span>
 
     private void init(FileSystem fs) {
-<span class="nc" id="L68">        OSFileStore[] fileStores = fs.getFileStores();</span>
-<span class="nc" id="L69">        DefaultPieDataset[] fsData = new DefaultPieDataset[fileStores.length];</span>
+<span class="nc" id="L68">        List&lt;OSFileStore&gt; fileStores = fs.getFileStores();</span>
+<span class="nc" id="L69">        DefaultPieDataset[] fsData = new DefaultPieDataset[fileStores.size()];</span>
 <span class="nc" id="L70">        JFreeChart[] fsCharts = new JFreeChart[fsData.length];</span>
 
 <span class="nc" id="L72">        JPanel fsPanel = new JPanel();</span>
@@ -76,9 +76,9 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L76">        fsConstraints.weighty = 1d;</span>
 <span class="nc" id="L77">        fsConstraints.fill = GridBagConstraints.BOTH;</span>
 
-<span class="nc" id="L79">        int modBase = (int) (fileStores.length * (Config.GUI_HEIGHT + Config.GUI_WIDTH)</span>
-<span class="nc" id="L80">                / (Config.GUI_WIDTH * Math.sqrt(fileStores.length)));</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (int i = 0; i &lt; fileStores.length; i++) {</span>
+<span class="nc" id="L79">        int modBase = (int) (fileStores.size() * (Config.GUI_HEIGHT + Config.GUI_WIDTH)</span>
+<span class="nc" id="L80">                / (Config.GUI_WIDTH * Math.sqrt(fileStores.size())));</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (int i = 0; i &lt; fileStores.size(); i++) {</span>
 <span class="nc" id="L82">            fsData[i] = new DefaultPieDataset();</span>
 <span class="nc" id="L83">            fsCharts[i] = ChartFactory.createPieChart(null, fsData[i], true, true, false);</span>
 <span class="nc" id="L84">            configurePlot(fsCharts[i]);</span>
@@ -103,38 +103,40 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L103">    }</span>
 
     private static boolean updateDatasets(FileSystem fs, DefaultPieDataset[] fsData, JFreeChart[] fsCharts) {
-<span class="nc" id="L106">        OSFileStore[] fileStores = fs.getFileStores();</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (fileStores.length != fsData.length) {</span>
+<span class="nc" id="L106">        List&lt;OSFileStore&gt; fileStores = fs.getFileStores();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (fileStores.size() != fsData.length) {</span>
 <span class="nc" id="L108">            return false;</span>
         }
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        for (int i = 0; i &lt; fsData.length; i++) {</span>
-<span class="nc" id="L111">            fsCharts[i].setTitle(fileStores[i].getName());</span>
-<span class="nc" id="L112">            List&lt;TextTitle&gt; subtitles = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {</span>
-<span class="nc" id="L114">                subtitles.add(new TextTitle(fileStores[i].getLabel()));</span>
+<span class="nc" id="L110">        int i = 0;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (OSFileStore store : fileStores) {</span>
+<span class="nc" id="L112">            fsCharts[i].setTitle(store.getName());</span>
+<span class="nc" id="L113">            List&lt;TextTitle&gt; subtitles = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {</span>
+<span class="nc" id="L115">                subtitles.add(new TextTitle(store.getLabel()));</span>
             }
-<span class="nc" id="L116">            long usable = fileStores[i].getUsableSpace();</span>
-<span class="nc" id="L117">            long total = fileStores[i].getTotalSpace();</span>
-<span class="nc" id="L118">            subtitles.add(new TextTitle(</span>
-<span class="nc" id="L119">                    &quot;Available: &quot; + FormatUtil.formatBytes(usable) + &quot;/&quot; + FormatUtil.formatBytes(total)));</span>
-<span class="nc" id="L120">            fsCharts[i].setSubtitles(subtitles);</span>
-<span class="nc" id="L121">            fsData[i].setValue(USED, (double) total - usable);</span>
-<span class="nc" id="L122">            fsData[i].setValue(AVAILABLE, usable);</span>
-        }
-<span class="nc" id="L124">        return true;</span>
+<span class="nc" id="L117">            long usable = store.getUsableSpace();</span>
+<span class="nc" id="L118">            long total = store.getTotalSpace();</span>
+<span class="nc" id="L119">            subtitles.add(new TextTitle(</span>
+<span class="nc" id="L120">                    &quot;Available: &quot; + FormatUtil.formatBytes(usable) + &quot;/&quot; + FormatUtil.formatBytes(total)));</span>
+<span class="nc" id="L121">            fsCharts[i].setSubtitles(subtitles);</span>
+<span class="nc" id="L122">            fsData[i].setValue(USED, (double) total - usable);</span>
+<span class="nc" id="L123">            fsData[i].setValue(AVAILABLE, usable);</span>
+<span class="nc" id="L124">            i++;</span>
+<span class="nc" id="L125">        }</span>
+<span class="nc" id="L126">        return true;</span>
     }
 
     private static void configurePlot(JFreeChart chart) {
-<span class="nc" id="L128">        PiePlot plot = (PiePlot) chart.getPlot();</span>
-<span class="nc" id="L129">        plot.setSectionPaint(USED, Color.red);</span>
-<span class="nc" id="L130">        plot.setSectionPaint(AVAILABLE, Color.green);</span>
-<span class="nc" id="L131">        plot.setExplodePercent(USED, 0.10);</span>
-<span class="nc" id="L132">        plot.setSimpleLabels(true);</span>
+<span class="nc" id="L130">        PiePlot plot = (PiePlot) chart.getPlot();</span>
+<span class="nc" id="L131">        plot.setSectionPaint(USED, Color.red);</span>
+<span class="nc" id="L132">        plot.setSectionPaint(AVAILABLE, Color.green);</span>
+<span class="nc" id="L133">        plot.setExplodePercent(USED, 0.10);</span>
+<span class="nc" id="L134">        plot.setSimpleLabels(true);</span>
 
-<span class="nc" id="L134">        PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator(&quot;{0}: {1} ({2})&quot;,</span>
+<span class="nc" id="L136">        PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator(&quot;{0}: {1} ({2})&quot;,</span>
                 new DecimalFormat(&quot;0&quot;), new DecimalFormat(&quot;0%&quot;));
-<span class="nc" id="L136">        plot.setLabelGenerator(labelGenerator);</span>
-<span class="nc" id="L137">    }</span>
+<span class="nc" id="L138">        plot.setLabelGenerator(labelGenerator);</span>
+<span class="nc" id="L139">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
