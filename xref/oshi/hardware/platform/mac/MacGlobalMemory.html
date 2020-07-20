@@ -93,7 +93,7 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      @Override
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> <a name="PhysicalMemory" href="../../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>[] getPhysicalMemory() {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> List&lt;PhysicalMemory&gt; getPhysicalMemory() {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          List&lt;PhysicalMemory&gt; pmList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          List&lt;String&gt; sp = ExecutingCommand.runNative(<span class="jxr_string">"system_profiler SPMemoryDataType"</span>);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">int</strong> bank = 0;
@@ -137,7 +137,7 @@
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         }
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         pmList.add(<strong class="jxr_keyword">new</strong> <a name="PhysicalMemory" href="../../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>(bankLabel, capacity, speed, manufacturer, memoryType));
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> 
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">return</strong> pmList.toArray(<strong class="jxr_keyword">new</strong> <a name="PhysicalMemory" href="../../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>[0]);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">return</strong> pmList;
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>     }
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> 
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> queryVmStats() {

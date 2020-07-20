@@ -55,24 +55,24 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          Quintet&lt;String, Integer, Long, Character, BigInteger&gt; quintet = <strong class="jxr_keyword">new</strong> Quintet&lt;&gt;(<span class="jxr_string">"D"</span>, 4, Long.valueOf(<span class="jxr_string">"0"</span>), 'd',
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>                  BigInteger.ZERO);
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertEquals(<span class="jxr_string">"A"</span>, pair.getA());
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertEquals(<span class="jxr_string">"B"</span>, triplet.getA());
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertEquals(<span class="jxr_string">"C"</span>, quartet.getA());
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertEquals(<span class="jxr_string">"D"</span>, quintet.getA());
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertEquals(<span class="jxr_string">"pair.getA() should be A"</span>, <span class="jxr_string">"A"</span>, pair.getA());
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertEquals(<span class="jxr_string">"triplet.getA() should be B"</span>, <span class="jxr_string">"B"</span>, triplet.getA());
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertEquals(<span class="jxr_string">"quartet.getA() should be C"</span>, <span class="jxr_string">"C"</span>, quartet.getA());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertEquals(<span class="jxr_string">"quintet.getA() should be D"</span>, <span class="jxr_string">"D"</span>, quintet.getA());
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertEquals(1, pair.getB().intValue());
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertEquals(2, triplet.getB().intValue());
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertEquals(3, quartet.getB().intValue());
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertEquals(4, quintet.getB().intValue());
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertEquals(<span class="jxr_string">"pair.getB().intValue() should be 1"</span>, 1, pair.getB().intValue());
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertEquals(<span class="jxr_string">"triplet.getB().intValue() should be 2"</span>, 2, triplet.getB().intValue());
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertEquals(<span class="jxr_string">"quartet.getB().intValue() should be 3"</span>, 3, quartet.getB().intValue());
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertEquals(<span class="jxr_string">"quintet.getB().intValue() should be 4"</span>, 4, quintet.getB().intValue());
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertEquals(Long.MAX_VALUE, triplet.getC().longValue());
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertEquals(Long.MIN_VALUE, quartet.getC().longValue());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertEquals(0L, quintet.getC().longValue());
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertEquals(<span class="jxr_string">"triplet.getC().longValue() should be Long.MAX_VALUE"</span>, Long.MAX_VALUE, triplet.getC().longValue());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertEquals(<span class="jxr_string">"quartet.getC().longValue() should be Long.MIN_VALUE"</span>, Long.MIN_VALUE, quartet.getC().longValue());
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertEquals(<span class="jxr_string">"quintet.getC().longValue() should be 0L"</span>, 0L, quintet.getC().longValue());
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertEquals('c', quartet.getD().charValue());
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertEquals('d', quintet.getD().charValue());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertEquals(<span class="jxr_string">"quartet.getD().charValue() should be c"</span>, 'c', quartet.getD().charValue());
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertEquals(<span class="jxr_string">"quintet.getD().charValue() should be d"</span>, 'd', quintet.getD().charValue());
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertEquals(BigInteger.ZERO, quintet.getE());
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertEquals(<span class="jxr_string">"quintet.getE() should be BigInteger.ZERO"</span>, BigInteger.ZERO, quintet.getE());
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  }
 </pre>
