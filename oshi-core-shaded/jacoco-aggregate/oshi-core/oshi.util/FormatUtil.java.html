@@ -37,7 +37,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 public final class FormatUtil {
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
-     * (http://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
+     * (https://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
      *
      * Should be used for most representations of bytes
      */
@@ -219,7 +219,7 @@ public final class FormatUtil {
      * @return long value of x unsigned
      */
     public static long getUnsignedInt(int x) {
-<span class="fc" id="L222">        return x &amp; 0x0000_0000_ffff_ffffL;</span>
+<span class="fc" id="L222">        return x &amp; 0x00000000ffffffffL;</span>
     }
 
     /**

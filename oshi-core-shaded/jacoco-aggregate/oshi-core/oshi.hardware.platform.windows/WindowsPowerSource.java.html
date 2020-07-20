@@ -25,9 +25,6 @@ package oshi.hardware.platform.windows;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import com.sun.jna.Memory; // NOSONAR
 import com.sun.jna.Platform;
@@ -59,9 +56,9 @@ import oshi.util.Constants;
 @ThreadSafe
 public final class WindowsPowerSource extends AbstractPowerSource {
 
-<span class="nc" id="L62">    private static final GUID GUID_DEVCLASS_BATTERY = GUID.fromString(&quot;{72631E54-78A4-11D0-BCF7-00AA00B7B32A}&quot;);</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">    private static final int CHAR_WIDTH = W32APITypeMapper.DEFAULT == W32APITypeMapper.UNICODE ? 2 : 1;</span>
-<span class="nc" id="L64">    private static final boolean X64 = Platform.is64Bit();</span>
+<span class="nc" id="L59">    private static final GUID GUID_DEVCLASS_BATTERY = GUID.fromString(&quot;{72631E54-78A4-11D0-BCF7-00AA00B7B32A}&quot;);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    private static final int CHAR_WIDTH = W32APITypeMapper.DEFAULT == W32APITypeMapper.UNICODE ? 2 : 1;</span>
+<span class="nc" id="L61">    private static final boolean X64 = Platform.is64Bit();</span>
 
     private static final int BATTERY_SYSTEM_BATTERY = 0x80000000;
     private static final int BATTERY_IS_SHORT_TERM = 0x20000000;
@@ -80,19 +77,22 @@ public final class WindowsPowerSource extends AbstractPowerSource {
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
             int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
-<span class="nc" id="L83">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
+<span class="nc" id="L80">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
                 psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
                 psManufacturer, psSerialNumber, psTemperature);
-<span class="nc" id="L87">    }</span>
+<span class="nc" id="L84">    }</span>
 
     /**
      * Gets Battery Information.
      *
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static List&lt;PowerSource&gt; getPowerSources() {
-<span class="nc" id="L95">        return Collections.unmodifiableList(Arrays.asList(getPowerSource(&quot;System Battery&quot;)));</span>
+    public static PowerSource[] getPowerSources() {
+        // Windows provides a single unnamed battery
+<span class="nc" id="L93">        WindowsPowerSource[] psArray = new WindowsPowerSource[1];</span>
+<span class="nc" id="L94">        psArray[0] = getPowerSource(&quot;System Battery&quot;);</span>
+<span class="nc" id="L95">        return psArray;</span>
     }
 
     private static WindowsPowerSource getPowerSource(String name) {
