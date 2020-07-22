@@ -142,7 +142,7 @@
 		<git-commit-id-plugin.version>4.0.1</git-commit-id-plugin.version>
 		<build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
 		<maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-		<bnd-maven-plugin.version>5.1.1</bnd-maven-plugin.version>
+		<bnd-maven-plugin.version>5.1.2</bnd-maven-plugin.version>
 		<maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
 		<!-- reporting plugins -->
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
