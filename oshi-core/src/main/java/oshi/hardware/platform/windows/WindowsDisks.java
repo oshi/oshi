@@ -211,8 +211,8 @@ public final class WindowsDisks {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
             if (mAnt.matches() && mDep.matches()) {
-                maps.driveToPartitionMap
-                        .computeIfAbsent(mAnt.group(1).replaceAll("\\\\\\\\", "\\\\"), x -> new ArrayList<>())
+                maps.driveToPartitionMap.computeIfAbsent(mAnt.group(1).replace("\\\\", "\\"),
+                        x -> new ArrayList<>())
                         .add(mDep.group(1));
             }
         }
