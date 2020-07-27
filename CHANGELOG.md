@@ -1,4 +1,9 @@
-4.9.2 / 5.2.2 (in progress)
+4.9.3 / 5.2.3 (in progress)
+================
+* [#1310](https://github.com/oshi/oshi/pull/1310): Use fragment size in Linux FileStore size calculation - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
+
+4.9.2 / 5.2.2 (2020-07-20)
 ================
 * [#1302](https://github.com/oshi/oshi/pull/1302): More accurate process start times - [@dbwiddis](https://github.com/dbwiddis).
 * [#1307](https://github.com/oshi/oshi/pull/1307): Correctly fetch logical partitions on Windows - [@AnakinHou](https://github.com/AnakinHou).
