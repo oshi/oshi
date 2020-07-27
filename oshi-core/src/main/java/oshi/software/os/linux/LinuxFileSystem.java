@@ -172,9 +172,10 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 if (0 == LibC.INSTANCE.statvfs(path, vfsStat)) {
                     totalInodes = vfsStat.f_files.longValue();
                     freeInodes = vfsStat.f_ffree.longValue();
-                    totalSpace = vfsStat.f_blocks.longValue() * vfsStat.f_bsize.longValue();
-                    usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_bsize.longValue();
-                    freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_bsize.longValue();
+                    // Per stavfs, these units are in fragments
+                    totalSpace = vfsStat.f_blocks.longValue() * vfsStat.f_frsize.longValue();
+                    usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();
+                    freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();
                 } else {
                     File tmpFile = new File(path);
                     totalSpace = tmpFile.getTotalSpace();

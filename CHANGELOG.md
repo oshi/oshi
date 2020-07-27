@@ -1,5 +1,6 @@
-5.3.0 (in progress)
+4.9.3 / 5.2.3 (in progress)
 ================
+* [#1310](https://github.com/oshi/oshi/pull/1310): Use fragment size in Linux FileStore size calculation - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 4.9.2 / 5.2.2 (2020-07-20)
