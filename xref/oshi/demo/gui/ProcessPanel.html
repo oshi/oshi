@@ -148,12 +148,12 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         timer.start();
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">private</strong> Object[][] parseProcesses(List&lt;OSProcess&gt; list, <a name="SystemInfo" href="../../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a> si) {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">private</strong> Object[][] parseProcesses(<a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a>[] procs, <a name="SystemInfo" href="../../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a> si) {
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">long</strong> totalMem = si.getHardware().getMemory().getTotal();
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">int</strong> cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>         <em class="jxr_comment">// Build a map with a value for each process to control the sort</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>         Map&lt;OSProcess, Double&gt; processSortValueMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> p : list) {
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> p : procs) {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>             <strong class="jxr_keyword">int</strong> pid = p.getProcessID();
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>             <em class="jxr_comment">// Ignore the Idle process on Windows</em>
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>             <strong class="jxr_keyword">if</strong> (pid &gt; 0 || !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
@@ -198,13 +198,13 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>         }
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>         <em class="jxr_comment">// Re-populate snapshot map</em>
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>         priorSnapshotMap.clear();
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> p : list) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> p : procs) {
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>             priorSnapshotMap.put(p.getProcessID(), p);
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> procArr;
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> 
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> resizeColumns(TableColumnModel tableColumnModel) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> resizeColumns(TableColumnModel tableColumnModel) {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>         TableColumn column;
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">int</strong> tW = tableColumnModel.getTotalColumnWidth();
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>         <strong class="jxr_keyword">int</strong> cantCols = tableColumnModel.getColumnCount();
