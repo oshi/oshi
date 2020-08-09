@@ -51,12 +51,12 @@ import oshi.util.tuples.Pair;
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L54">        return availTotal.get().getA() * getPageSize();</span>
+<span class="nc" id="L54">        return availTotal.get().getA();</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L59">        return availTotal.get().getB() * getPageSize();</span>
+<span class="nc" id="L59">        return availTotal.get().getB();</span>
     }
 
     @Override
