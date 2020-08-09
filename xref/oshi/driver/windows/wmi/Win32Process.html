@@ -69,50 +69,54 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * Returns process command lines</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * @param pidsToQuery</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     *            Process IDs to query for command lines.</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @return Command line used to start the provided processes.</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;CommandLineProperty&gt; queryCommandLines(Set&lt;Integer&gt; pidsToQuery) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(WIN32_PROCESS);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">for</strong> (Integer pid : pidsToQuery) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">if</strong> (first) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  sb.append(<span class="jxr_string">" WHERE ProcessID="</span>);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  first = false;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  sb.append(<span class="jxr_string">" OR ProcessID="</span>);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              sb.append(pid);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          WmiQuery&lt;CommandLineProperty&gt; commandLineQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(sb.toString(), CommandLineProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">return</strong> WmiQueryHandler.createInstance().queryWMI(commandLineQuery);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * Returns process info</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * @param pids</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     *            Process IDs to query.</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     * @return Information on the provided processes.</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;ProcessXPProperty&gt; queryProcesses(Collection&lt;Integer&gt; pids) {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(WIN32_PROCESS);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">if</strong> (pids != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <strong class="jxr_keyword">for</strong> (Integer pid : pids) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  <strong class="jxr_keyword">if</strong> (first) {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                      sb.append(<span class="jxr_string">" WHERE ProcessID="</span>);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                      first = false;
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>                  } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      sb.append(<span class="jxr_string">" OR ProcessID="</span>);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                 }
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 sb.append(pid);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         WmiQuery&lt;ProcessXPProperty&gt; processQueryXP = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(sb.toString(), ProcessXPProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> WmiQueryHandler.createInstance().queryWMI(processQueryXP);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     *            Process IDs to query for command lines. Pass {@code null} to query</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     *            all processes.</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     * @return A {@link WmiResult} containing process IDs and command lines used to</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     *         start the provided processes.</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;CommandLineProperty&gt; queryCommandLines(Set&lt;Integer&gt; pidsToQuery) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(WIN32_PROCESS);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">if</strong> (pidsToQuery != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">for</strong> (Integer pid : pidsToQuery) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <strong class="jxr_keyword">if</strong> (first) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      sb.append(<span class="jxr_string">" WHERE ProcessID="</span>);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      first = false;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      sb.append(<span class="jxr_string">" OR ProcessID="</span>);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  sb.append(pid);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          WmiQuery&lt;CommandLineProperty&gt; commandLineQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(sb.toString(), CommandLineProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">return</strong> WmiQueryHandler.createInstance().queryWMI(commandLineQuery);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     * Returns process info</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     * @param pids</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     *            Process IDs to query.</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * @return Information on the provided processes.</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;ProcessXPProperty&gt; queryProcesses(Collection&lt;Integer&gt; pids) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(WIN32_PROCESS);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">if</strong> (pids != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              <strong class="jxr_keyword">for</strong> (Integer pid : pids) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  <strong class="jxr_keyword">if</strong> (first) {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                     sb.append(<span class="jxr_string">" WHERE ProcessID="</span>);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                     first = false;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                     sb.append(<span class="jxr_string">" OR ProcessID="</span>);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 sb.append(pid);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         WmiQuery&lt;ProcessXPProperty&gt; processQueryXP = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(sb.toString(), ProcessXPProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">return</strong> WmiQueryHandler.createInstance().queryWMI(processQueryXP);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
