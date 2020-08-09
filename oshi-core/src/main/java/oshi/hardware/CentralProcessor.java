@@ -679,18 +679,21 @@ public interface CentralProcessor {
         }
 
         private String queryMicroarchitecture() {
+            String arch = null;
             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
             // Intel is default, no prefix
             StringBuilder sb = new StringBuilder();
             // AMD and ARM properties have prefix
-            if (this.cpuVendor.contains("AMD")) {
+            if (this.cpuVendor.toUpperCase().contains("AMD")) {
                 sb.append("amd.");
-            } else if (this.getVendor().contains("ARM")) {
+            } else if (this.getVendor().toUpperCase().contains("ARM")) {
                 sb.append("arm.");
             }
-            sb.append(this.cpuFamily);
-            // Check for match with only family
-            String arch = archProps.getProperty(sb.toString());
+            if (!sb.toString().equals("arm.")) {
+                // Append family
+                sb.append(this.cpuFamily);
+                arch = archProps.getProperty(sb.toString());
+            }
 
             if (Util.isBlank(arch)) {
                 // Append model
