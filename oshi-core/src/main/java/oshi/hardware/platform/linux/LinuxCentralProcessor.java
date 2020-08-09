@@ -68,6 +68,10 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {
+                // special case
+                if (line.startsWith("CPU architecture: ")) {
+                    cpuFamily = line.replace("CPU architecture: ", "").trim();
+                }
                 continue;
             }
             switch (splitLine[0]) {
@@ -91,17 +95,20 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 cpuStepping = splitLine[1];
                 break;
             case "CPU variant":
-                armStepping.insert(0, "r" + splitLine[1]);
+                if (!armStepping.toString().startsWith("r")) {
+                    armStepping.insert(0, "r" + splitLine[1]);
+                }
                 break;
             case "CPU revision":
-                armStepping.append('p').append(splitLine[1]);
+                if (!armStepping.toString().contains("p")) {
+                    armStepping.append('p').append(splitLine[1]);
+                }
                 break;
             case "model":
             case "CPU part":
                 cpuModel = splitLine[1];
                 break;
             case "cpu family":
-            case "CPU architecture":
                 cpuFamily = splitLine[1];
                 break;
             default:
