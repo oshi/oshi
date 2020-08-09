@@ -262,8 +262,8 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
 <span class="nc" id="L262">            mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));</span>
 <span class="nc" id="L263">            mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));</span>
 <span class="nc bnc" id="L264" title="All 4 branches missed.">            if (mAnt.matches() &amp;&amp; mDep.matches()) {</span>
-<span class="nc" id="L265">                maps.driveToPartitionMap</span>
-<span class="nc" id="L266">                        .computeIfAbsent(mAnt.group(1).replaceAll(&quot;\\\\\\\\&quot;, &quot;\\\\&quot;), x -&gt; new ArrayList&lt;&gt;())</span>
+<span class="nc" id="L265">                maps.driveToPartitionMap.computeIfAbsent(mAnt.group(1).replace(&quot;\\\\&quot;, &quot;\\&quot;),</span>
+<span class="nc" id="L266">                        x -&gt; new ArrayList&lt;&gt;())</span>
 <span class="nc" id="L267">                        .add(mDep.group(1));</span>
             }
         }
