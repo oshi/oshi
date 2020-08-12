@@ -1,5 +1,6 @@
 4.9.4 / 5.2.4 (in progress)
 ================
+* [#1320](https://github.com/oshi/oshi/pull/1320): Avoid NPE for failed Windows registry counter size - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 4.9.3 / 5.2.3 (2020-08-09)
