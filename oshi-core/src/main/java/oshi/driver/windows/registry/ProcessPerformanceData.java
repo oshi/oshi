@@ -34,6 +34,7 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.ProcessInformation;
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
+import oshi.util.GlobalConfig;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -45,6 +46,8 @@ import oshi.util.tuples.Triplet;
 public final class ProcessPerformanceData {
 
     private static final String PROCESS = "Process";
+    public static final String WIN_HKEY_PERFDATA = "oshi.os.windows.hkeyperfdata";
+    private static final boolean PERFDATA = GlobalConfig.get(WIN_HKEY_PERFDATA, true);
 
     private ProcessPerformanceData() {
     }
@@ -61,8 +64,10 @@ public final class ProcessPerformanceData {
      */
     public static Map<Integer, PerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids) {
         // Grab the data from the registry.
-        Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = HkeyPerformanceDataUtil
-                .readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);
+        Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = null;
+        if (PERFDATA) {
+            processData = HkeyPerformanceDataUtil.readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);
+        }
         if (processData == null) {
             return null;
         }
