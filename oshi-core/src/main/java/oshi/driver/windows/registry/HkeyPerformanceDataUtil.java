@@ -183,7 +183,8 @@ public final class HkeyPerformanceDataUtil {
                             counterMap.put(key,
                                     pPerfData.getLong(perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));
                         } else {
-                            counterMap.put(key, null);
+                            // If counter defined in enum isn't in registry, fail
+                            return null;
                         }
                     }
                     counterMaps.add(counterMap);
