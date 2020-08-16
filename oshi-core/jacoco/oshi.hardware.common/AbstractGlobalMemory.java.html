@@ -41,7 +41,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L41">public abstract class AbstractGlobalMemory implements GlobalMemory {</span>
 
     @Override
-    public List&lt;PhysicalMemory&gt; getPhysicalMemory() {
+    public PhysicalMemory[] getPhysicalMemory() {
         // dmidecode requires sudo permission but is the only option on Linux
         // and Unix
 <span class="nc" id="L47">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
@@ -96,7 +96,7 @@ import oshi.util.ParseUtil;
 <span class="nc bnc" id="L96" title="All 2 branches missed.">        if (capacity &gt; 0) {</span>
 <span class="nc" id="L97">            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));</span>
         }
-<span class="nc" id="L99">        return pmList;</span>
+<span class="nc" id="L99">        return pmList.toArray(new PhysicalMemory[0]);</span>
     }
 
     @Override

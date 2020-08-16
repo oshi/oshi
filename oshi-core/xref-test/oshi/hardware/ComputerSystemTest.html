@@ -50,28 +50,27 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testComputerSystem() {
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          ComputerSystem cs = si.getHardware().getComputerSystem();
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertNotNull(<span class="jxr_string">"Computer System's manufacturer shouldn't be null"</span>, cs.getManufacturer());
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertNotNull(<span class="jxr_string">"Computer System's model shouldn't be null"</span>, cs.getModel());
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertNotNull(<span class="jxr_string">"Computer System's serial number shouldn't be null"</span>, cs.getSerialNumber());
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertNotNull(cs.getManufacturer());
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertNotNull(cs.getModel());
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertNotNull(cs.getSerialNumber());
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          Firmware fw = cs.getFirmware();
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertNotNull(<span class="jxr_string">"Firmware shouldn't be null"</span>, fw);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertNotNull(<span class="jxr_string">"Firmware's manufacturer shouldn't be null"</span>, fw.getManufacturer());
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertNotNull(<span class="jxr_string">"Firmware's name shouldn't be null"</span>, fw.getName());
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertNotNull(<span class="jxr_string">"Firmware's description shouldn't be null"</span>, fw.getDescription());
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertNotNull(<span class="jxr_string">"Firmware's version shouldn't be null"</span>, fw.getVersion());
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertNotNull(<span class="jxr_string">"Firmware's release date shouldn't be null"</span>, fw.getReleaseDate());
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(<span class="jxr_string">"Firmware's tostring value should contain manufacturer's name"</span>,
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  fw.toString().contains(fw.getManufacturer()));
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          Baseboard bb = cs.getBaseboard();
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertNotNull(<span class="jxr_string">"Baseboard shouldn't be null"</span>, bb);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertNotNull(<span class="jxr_string">"Baseboard's manufacturer shouldn't be null"</span>, bb.getManufacturer());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertNotNull(<span class="jxr_string">"Baseboard's model shouldn't be null"</span>, bb.getModel());
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertNotNull(<span class="jxr_string">"Baseboard's version shouldn't be null"</span>, bb.getVersion());
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertNotNull(<span class="jxr_string">"Baseboard's serial number shouldn't be null"</span>, bb.getSerialNumber());
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertNotNull(fw);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertNotNull(fw.getManufacturer());
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertNotNull(fw.getName());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertNotNull(fw.getDescription());
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertNotNull(fw.getVersion());
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertNotNull(fw.getReleaseDate());
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(fw.toString().contains(fw.getManufacturer()));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          Baseboard bb = cs.getBaseboard();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertNotNull(bb);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertNotNull(bb.getManufacturer());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertNotNull(bb.getModel());
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertNotNull(bb.getVersion());
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertNotNull(bb.getSerialNumber());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
