@@ -70,34 +70,5 @@ public final class LsofUtil {
 <span class="nc" id="L70">        }</span>
 <span class="nc" id="L71">        return cwdMap;</span>
     }
-
-    /**
-     * Gets current working directory info
-     *
-     * @param pid
-     *            a process ID
-     * @return the current working directory for that process.
-     */
-    public static String getCwd(int pid) {
-<span class="nc" id="L82">        List&lt;String&gt; lsof = ExecutingCommand.runNative(&quot;lsof -Fn -d cwd -p &quot; + pid);</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (String line : lsof) {</span>
-<span class="nc bnc" id="L84" title="All 4 branches missed.">            if (!line.isEmpty() &amp;&amp; line.charAt(0) == 'n') {</span>
-<span class="nc" id="L85">                return line.substring(1).trim();</span>
-            }
-<span class="nc" id="L87">        }</span>
-<span class="nc" id="L88">        return &quot;&quot;;</span>
-    }
-
-    /**
-     * Gets open files
-     *
-     * @param pid
-     *            The process ID
-     * @return the number of open files.
-     */
-    public static long getOpenFiles(int pid) {
-        // subtract 1 from size for header
-<span class="nc" id="L100">        return ExecutingCommand.runNative(String.format(&quot;lsof -p %d&quot;, pid)).size() - 1L;</span>
-    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

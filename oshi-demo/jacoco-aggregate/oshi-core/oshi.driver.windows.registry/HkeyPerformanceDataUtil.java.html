@@ -130,61 +130,64 @@ public final class HkeyPerformanceDataUtil {
 <span class="nc" id="L130">        long perfObjectOffset = perfData.HeaderLength;</span>
 <span class="nc bnc" id="L131" title="All 2 branches missed.">        for (int obj = 0; obj &lt; perfData.NumObjectTypes; obj++) {</span>
 <span class="nc" id="L132">            PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));</span>
-            // Some counters will require multiple objects so we iterate until we find the
-            // right one. e.g. Process (230) is by iteself but Thread (232) has Process
-            // object first
-<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (perfObject.ObjectNameTitleIndex == COUNTER_INDEX_MAP.get(objectName).intValue()) {</span>
+
+            // Assume here only the object we're looking for is in this data block and
+            // doesn't require reference to other objects. This is true for the Process
+            // object. Some counters will require multiple objects and this code is not set
+            // up to handle those yet.
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (perfObject.ObjectNameTitleIndex == COUNTER_INDEX_MAP.get(objectName).intValue()) {</span>
                 // We found a matching object.
 
                 // Counter definitions start after the object header
-<span class="nc" id="L140">                long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;</span>
+<span class="nc" id="L142">                long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;</span>
                 // Iterate counter definitions and fill maps with counter offsets and sizes
-<span class="nc" id="L142">                Map&lt;Integer, Integer&gt; counterOffsetMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L143">                Map&lt;Integer, Integer&gt; counterSizeMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                for (int counter = 0; counter &lt; perfObject.NumCounters; counter++) {</span>
-<span class="nc" id="L145">                    PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(</span>
-<span class="nc" id="L146">                            pPerfData.share(perfCounterOffset));</span>
-<span class="nc" id="L147">                    counterOffsetMap.put(perfCounter.CounterNameTitleIndex, perfCounter.CounterOffset);</span>
-<span class="nc" id="L148">                    counterSizeMap.put(perfCounter.CounterNameTitleIndex, perfCounter.CounterSize);</span>
+<span class="nc" id="L144">                Map&lt;Integer, Integer&gt; counterOffsetMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L145">                Map&lt;Integer, Integer&gt; counterSizeMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                for (int counter = 0; counter &lt; perfObject.NumCounters; counter++) {</span>
+<span class="nc" id="L147">                    PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(</span>
+<span class="nc" id="L148">                            pPerfData.share(perfCounterOffset));</span>
+<span class="nc" id="L149">                    counterOffsetMap.put(perfCounter.CounterNameTitleIndex, perfCounter.CounterOffset);</span>
+<span class="nc" id="L150">                    counterSizeMap.put(perfCounter.CounterNameTitleIndex, perfCounter.CounterSize);</span>
                     // Increment for next Counter
-<span class="nc" id="L150">                    perfCounterOffset += perfCounter.ByteLength;</span>
+<span class="nc" id="L152">                    perfCounterOffset += perfCounter.ByteLength;</span>
                 }
 
                 // Instances start after all the object definitions. The DefinitionLength
                 // includes both the header and all the definitions.
-<span class="nc" id="L155">                long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;</span>
+<span class="nc" id="L157">                long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;</span>
 
                 // Iterate instances and fill map
-<span class="nc" id="L158">                List&lt;Map&lt;T, Object&gt;&gt; counterMaps = new ArrayList&lt;&gt;(perfObject.NumInstances);</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                for (int inst = 0; inst &lt; perfObject.NumInstances; inst++) {</span>
-<span class="nc" id="L160">                    PERF_INSTANCE_DEFINITION perfInstance = new PERF_INSTANCE_DEFINITION(</span>
-<span class="nc" id="L161">                            pPerfData.share(perfInstanceOffset));</span>
-<span class="nc" id="L162">                    long perfCounterBlockOffset = perfInstanceOffset + perfInstance.ByteLength;</span>
+<span class="nc" id="L160">                List&lt;Map&lt;T, Object&gt;&gt; counterMaps = new ArrayList&lt;&gt;(perfObject.NumInstances);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                for (int inst = 0; inst &lt; perfObject.NumInstances; inst++) {</span>
+<span class="nc" id="L162">                    PERF_INSTANCE_DEFINITION perfInstance = new PERF_INSTANCE_DEFINITION(</span>
+<span class="nc" id="L163">                            pPerfData.share(perfInstanceOffset));</span>
+<span class="nc" id="L164">                    long perfCounterBlockOffset = perfInstanceOffset + perfInstance.ByteLength;</span>
                     // Populate the enumMap
-<span class="nc" id="L164">                    Map&lt;T, Object&gt; counterMap = new EnumMap&lt;&gt;(counterEnum);</span>
-<span class="nc" id="L165">                    T[] counterKeys = counterEnum.getEnumConstants();</span>
+<span class="nc" id="L166">                    Map&lt;T, Object&gt; counterMap = new EnumMap&lt;&gt;(counterEnum);</span>
+<span class="nc" id="L167">                    T[] counterKeys = counterEnum.getEnumConstants();</span>
                     // First enum index is the name, ignore the counter text which is used for other
                     // purposes
-<span class="nc" id="L168">                    counterMap.put(counterKeys[0],</span>
-<span class="nc" id="L169">                            pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));</span>
-<span class="nc bnc" id="L170" title="All 2 branches missed.">                    for (int i = 1; i &lt; counterKeys.length; i++) {</span>
-<span class="nc" id="L171">                        T key = counterKeys[i];</span>
-<span class="nc" id="L172">                        int keyIndex = COUNTER_INDEX_MAP.get(key.getCounter());</span>
+<span class="nc" id="L170">                    counterMap.put(counterKeys[0],</span>
+<span class="nc" id="L171">                            pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                    for (int i = 1; i &lt; counterKeys.length; i++) {</span>
+<span class="nc" id="L173">                        T key = counterKeys[i];</span>
+<span class="nc" id="L174">                        int keyIndex = COUNTER_INDEX_MAP.get(key.getCounter());</span>
                         // All entries in size map have corresponding entry in offset map
-<span class="nc" id="L174">                        int size = counterSizeMap.getOrDefault(keyIndex, 0);</span>
+<span class="nc" id="L176">                        int size = counterSizeMap.getOrDefault(keyIndex, 0);</span>
                         // Currently, only DWORDs (4 bytes) and ULONGLONGs (8 bytes) are used to provide
                         // counter values.
-<span class="nc bnc" id="L177" title="All 2 branches missed.">                        if (size == 4) {</span>
-<span class="nc" id="L178">                            counterMap.put(key,</span>
-<span class="nc" id="L179">                                    pPerfData.getInt(perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">                        } else if (size == 8) {</span>
-<span class="nc" id="L181">                            counterMap.put(key,</span>
-<span class="nc" id="L182">                                    pPerfData.getLong(perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                        if (size == 4) {</span>
+<span class="nc" id="L180">                            counterMap.put(key,</span>
+<span class="nc" id="L181">                                    pPerfData.getInt(perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                        } else if (size == 8) {</span>
+<span class="nc" id="L183">                            counterMap.put(key,</span>
+<span class="nc" id="L184">                                    pPerfData.getLong(perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));</span>
                         } else {
-<span class="nc" id="L184">                            counterMap.put(key, null);</span>
+                            // If counter defined in enum isn't in registry, fail
+<span class="nc" id="L187">                            return null;</span>
                         }
                     }
-<span class="nc" id="L187">                    counterMaps.add(counterMap);</span>
+<span class="nc" id="L190">                    counterMaps.add(counterMap);</span>
 
                     // counters at perfCounterBlockOffset + appropriate offset per enum
                     // use pPerfData.getInt or getLong as determined by counter size
@@ -192,27 +195,24 @@ public final class HkeyPerformanceDataUtil {
                     // counter values.
 
                     // Increment to next instance
-<span class="nc" id="L195">                    perfInstanceOffset = perfCounterBlockOffset</span>
-<span class="nc" id="L196">                            + new PERF_COUNTER_BLOCK(pPerfData.share(perfCounterBlockOffset)).ByteLength;</span>
+<span class="nc" id="L198">                    perfInstanceOffset = perfCounterBlockOffset</span>
+<span class="nc" id="L199">                            + new PERF_COUNTER_BLOCK(pPerfData.share(perfCounterBlockOffset)).ByteLength;</span>
                 }
                 // We've found the necessary object and are done, no need to look at any other
                 // objects (shouldn't be any). Return results
-<span class="nc" id="L200">                return new Triplet&lt;&gt;(counterMaps, perfTime100nSec, now);</span>
+<span class="nc" id="L203">                return new Triplet&lt;&gt;(counterMaps, perfTime100nSec, now);</span>
             }
-            // Increment for next object
-<span class="nc" id="L203">            perfObjectOffset += perfObject.TotalByteLength;</span>
+            // Increment for next object (should never need this)
+<span class="nc" id="L206">            perfObjectOffset += perfObject.TotalByteLength;</span>
         }
         // Failed, return null
-<span class="nc" id="L206">        return null;</span>
+<span class="nc" id="L209">        return null;</span>
     }
 
     /**
      * Looks up the counter index values for the given counter object and the enum
      * of counter names.
      *
-     * @param &lt;T&gt;
-     *            An enum containing the counters, whose class is passed as
-     *            {@code counterEnum}
      * @param objectName
      *            The counter object to look up the index for
      * @param counterEnum
@@ -300,7 +300,7 @@ public final class HkeyPerformanceDataUtil {
 <span class="nc" id="L300">            String[] counterText = Advapi32Util.registryGetStringArray(WinReg.HKEY_LOCAL_MACHINE, HKEY_PERFORMANCE_TEXT,</span>
                     COUNTER);
 <span class="nc bnc" id="L302" title="All 2 branches missed.">            for (int i = 1; i &lt; counterText.length; i += 2) {</span>
-<span class="nc" id="L303">                indexMap.putIfAbsent(counterText[i], Integer.parseInt(counterText[i - 1]));</span>
+<span class="nc" id="L303">                indexMap.put(counterText[i], Integer.parseInt(counterText[i - 1]));</span>
             }
 <span class="nc" id="L305">        } catch (Win32Exception we) {</span>
 <span class="nc" id="L306">            LOG.error(</span>
