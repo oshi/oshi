@@ -24,8 +24,6 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,19 +48,21 @@ public final class FreeBsdPowerSource extends AbstractPowerSource {
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
             int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
-<span class="nc" id="L53">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
+<span class="nc" id="L51">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
                 psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
                 psManufacturer, psSerialNumber, psTemperature);
-<span class="nc" id="L57">    }</span>
+<span class="nc" id="L55">    }</span>
 
     /**
      * Gets Battery Information
      *
      * @return An array of PowerSource objects representing batteries, etc.
      */
-    public static List&lt;PowerSource&gt; getPowerSources() {
-<span class="nc" id="L65">        return Collections.unmodifiableList(Arrays.asList(getPowerSource(&quot;BAT0&quot;)));</span>
+    public static PowerSource[] getPowerSources() {
+<span class="nc" id="L63">        FreeBsdPowerSource[] ps = new FreeBsdPowerSource[1];</span>
+<span class="nc" id="L64">        ps[0] = getPowerSource(&quot;BAT0&quot;);</span>
+<span class="nc" id="L65">        return ps;</span>
     }
 
     private static FreeBsdPowerSource getPowerSource(String name) {

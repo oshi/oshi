@@ -113,7 +113,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L113">        return parseIpv6Route();</span>
     }
 
-    private static String parseIpv4Route() {
+    private String parseIpv4Route() {
 <span class="nc" id="L117">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -4 0.0.0.0&quot;);</span>
 <span class="nc bnc" id="L118" title="All 2 branches missed.">        for (String line : lines) {</span>
 <span class="nc" id="L119">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
@@ -124,7 +124,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L124">        return &quot;&quot;;</span>
     }
 
-    private static String parseIpv6Route() {
+    private String parseIpv6Route() {
 <span class="nc" id="L128">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -6 ::/0&quot;);</span>
 <span class="nc bnc" id="L129" title="All 2 branches missed.">        for (String line : lines) {</span>
 <span class="nc" id="L130">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
