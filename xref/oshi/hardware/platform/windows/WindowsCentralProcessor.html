@@ -137,7 +137,7 @@
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     *            the key to retrieve</em>
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @return the string following id</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String parseIdentifier(String identifier, String key) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">private</strong> String parseIdentifier(String identifier, String key) {
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         String[] idSplit = ParseUtil.whitespaces.split(identifier);
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">boolean</strong> found = false;
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">for</strong> (String s : idSplit) {
@@ -152,7 +152,7 @@
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> 
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>     @Override
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">protected</strong> List&lt;LogicalProcessor&gt; initProcessorCounts() {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">protected</strong> LogicalProcessor[] initProcessorCounts() {
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">if</strong> (VersionHelpers.IsWindows7OrGreater()) {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>             List&lt;LogicalProcessor&gt; logProcs = LogicalProcessorInformation.getLogicalProcessorInformationEx();
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>             <em class="jxr_comment">// Save numaNode,Processor lookup for future PerfCounter instance lookup</em>
@@ -162,9 +162,9 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                 numaNodeProcToLogicalProcMap
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>                         .put(String.format(<span class="jxr_string">"%d,%d"</span>, logProc.getNumaNode(), logProc.getProcessorNumber()), lp++);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>             }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">return</strong> logProcs;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">return</strong> logProcs.toArray(<strong class="jxr_keyword">new</strong> LogicalProcessor[0]);
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">return</strong> LogicalProcessorInformation.getLogicalProcessorInformation();
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">return</strong> LogicalProcessorInformation.getLogicalProcessorInformation().toArray(<strong class="jxr_keyword">new</strong> LogicalProcessor[0]);
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         }
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     }
 <a class="jxr_linenumber" name="L162" href="#L162">162</a> 

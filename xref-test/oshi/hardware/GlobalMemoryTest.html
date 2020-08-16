@@ -50,16 +50,15 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          HardwareAbstractionLayer hal = si.getHardware();
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          GlobalMemory memory = hal.getMemory();
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertNotNull(<span class="jxr_string">"Memory shouldn't be null"</span>, memory);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertNotNull(memory);
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertTrue(<span class="jxr_string">"Total memory should be greater than zero"</span>, memory.getTotal() &gt; 0);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertTrue(<span class="jxr_string">"Available memory should be greater than or equal to zero"</span>, memory.getAvailable() &gt;= 0);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(<span class="jxr_string">"Available memory should be less than or equal to total memory"</span>,
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  memory.getAvailable() &lt;= memory.getTotal());
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(<span class="jxr_string">"Memory page size should be greater than zero"</span>, memory.getPageSize() &gt; 0);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertTrue(<span class="jxr_string">"Memory should contain the substring \&quot;Available\&quot;"</span>, memory.toString().contains(<span class="jxr_string">"Available"</span>));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertTrue(memory.getTotal() &gt; 0);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertTrue(memory.getAvailable() &gt;= 0);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(memory.getAvailable() &lt;= memory.getTotal());
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertTrue(memory.getPageSize() &gt; 0);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(memory.toString().contains(<span class="jxr_string">"Available"</span>));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
