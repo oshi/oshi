@@ -85,7 +85,7 @@ import oshi.util.platform.mac.SysctlUtil;
     }
 
     @Override
-    public List&lt;PhysicalMemory&gt; getPhysicalMemory() {
+    public PhysicalMemory[] getPhysicalMemory() {
 <span class="nc" id="L89">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L90">        List&lt;String&gt; sp = ExecutingCommand.runNative(&quot;system_profiler SPMemoryDataType&quot;);</span>
 <span class="nc" id="L91">        int bank = 0;</span>
@@ -129,7 +129,7 @@ import oshi.util.platform.mac.SysctlUtil;
 <span class="nc" id="L129">        }</span>
 <span class="nc" id="L130">        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
 
-<span class="nc" id="L132">        return pmList;</span>
+<span class="nc" id="L132">        return pmList.toArray(new PhysicalMemory[0]);</span>
     }
 
     private long queryVmStats() {
