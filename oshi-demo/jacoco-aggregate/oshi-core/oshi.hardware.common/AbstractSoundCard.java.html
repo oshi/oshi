@@ -38,7 +38,7 @@ public abstract class AbstractSoundCard implements SoundCard {
 
     /**
      * Abstract Sound Card Constructor
-     * 
+     *
      * @param kernelVersion
      *            The version
      * @param name
@@ -72,10 +72,10 @@ public abstract class AbstractSoundCard implements SoundCard {
 <span class="nc" id="L72">        StringBuilder builder = new StringBuilder();</span>
 <span class="nc" id="L73">        builder.append(&quot;SoundCard@&quot;);</span>
 <span class="nc" id="L74">        builder.append(Integer.toHexString(hashCode()));</span>
-<span class="nc" id="L75">        builder.append(&quot; [kernelVersion=&quot;);</span>
-<span class="nc" id="L76">        builder.append(this.kernelVersion);</span>
-<span class="nc" id="L77">        builder.append(&quot;, name=&quot;);</span>
-<span class="nc" id="L78">        builder.append(this.name);</span>
+<span class="nc" id="L75">        builder.append(&quot; [name=&quot;);</span>
+<span class="nc" id="L76">        builder.append(this.name);</span>
+<span class="nc" id="L77">        builder.append(&quot;, kernelVersion=&quot;);</span>
+<span class="nc" id="L78">        builder.append(this.kernelVersion);</span>
 <span class="nc" id="L79">        builder.append(&quot;, codec=&quot;);</span>
 <span class="nc" id="L80">        builder.append(this.codec);</span>
 <span class="nc" id="L81">        builder.append(']');</span>
