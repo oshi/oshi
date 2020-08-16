@@ -48,9 +48,9 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
 * macOS version 10.6 (Snow Leopard) and higher.
 * Linux (Most major distributions) Kernel 2.6 and higher
-* Solaris 11 (SunOS 5.11) 
-* FreeBSD 10 
 * AIX 7.1 (POWER4)
+* FreeBSD 10 
+* Solaris 11 (SunOS 5.11) 
 
 How do I resolve JNA `NoClassDefFound` errors?
 ========
@@ -70,7 +70,7 @@ with nearly all SIGAR functions. Key differences include:
 operating systems. It therefore requires users to download an additional DLL specific to their operating
 system. This does have a few advantages for specific, targeted use cases, including faster native code routines,
 and availability of some native compiler intrinsics. In contrast, OSHI accesses native APIs using JNA, which
-does not require installation of any additional platform-specific DLLs.
+does not require user installation of any additional platform-specific DLLs.
  - **Corporate Development / Abandonment** SIGAR was developed commercially at Hyperic to support monitoring of
 their HQ product. Hyperic's products were later acquired by VMWare, which has transitioned away from Hyperic
 products and have completely abandoned SIGAR. The [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4)
@@ -86,10 +86,6 @@ Does OSHI work on Raspberry Pi hardware?
 Yes, most of the Linux code works here and other Pi-specific code has been implemented but has seen 
 limited testing.  As the developers do not have a Pi to test on, users reporting issues should be 
 prepared to help test solutions.
-
-Will you do a HP-UX port? OpenBSD? How about Android?
-========
-OSHI depends on JNA, which does not produce a native binary for HP-UX.  Support for OpenBSD or Android is unlikely, unless paid to do so.  But happy to advise someone else!
 
 Will you implement ... ?
 ========

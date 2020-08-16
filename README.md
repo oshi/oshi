@@ -25,7 +25,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 Supported platforms 
 --------------------------- 
-Windows • Linux • macOS • Unix (Solaris, FreeBSD, AIX) 
+Windows • Linux • macOS • Unix (AIX, FreeBSD, Solaris) 
 
 Essentials
 ----------
@@ -54,11 +54,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.2.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.2.3&e=jar)  | [oshi-core-5.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.3.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.2.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.2.4&e=jar)  | [oshi-core-5.3.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.3.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.3/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.2.4/jar). 
 
 2. Create a new instance of `SystemInfo` 
 
@@ -70,16 +70,7 @@ HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```
 
-You can see more examples and run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
-and see the full output for your system by cloning the project and building it with [Maven](https://maven.apache.org/index.html):
-
-```
-git clone https://github.com/oshi/oshi.git && cd oshi
-
-./mvnw test-compile -pl oshi-core exec:java \
-  -Dexec.mainClass="oshi.SystemInfoTest" \
-  -Dexec.classpathScope="test"
-```
+The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
 
 Note: OSHI uses the latest version of [JNA](https://github.com/java-native-access/jna), which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
@@ -102,8 +93,16 @@ Output
 OSHI provides output directly via Java methods for each of its interfaces.  
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
-The `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) 
-provides sample code demonstrating the use of `oshi-core` interfaces to retrieve information and calculate additional metrics shown in the examples below.
+You can see more examples and run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
+and see the full output for your system by cloning the project and building it with [Maven](https://maven.apache.org/index.html):
+
+```
+git clone https://github.com/oshi/oshi.git && cd oshi
+
+./mvnw test-compile -pl oshi-core exec:java \
+  -Dexec.mainClass="oshi.SystemInfoTest" \
+  -Dexec.classpathScope="test"
+```
 
 In addition, the `oshi-demo` project includes an [OshiGui](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/OshiGui.java) class implementing a basic Swing GUI offering suggestions for potential visualizations using OSHI in a UI, monitoring, or alerting application, as shown below:
 
