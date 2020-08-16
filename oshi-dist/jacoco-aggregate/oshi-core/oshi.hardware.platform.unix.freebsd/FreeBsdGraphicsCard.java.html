@@ -24,9 +24,11 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -55,8 +57,8 @@ final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
      *            The VRAM
      */
     FreeBsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
-<span class="nc" id="L58">        super(name, deviceId, vendor, versionInfo, vram);</span>
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L60">        super(name, deviceId, vendor, versionInfo, vram);</span>
+<span class="nc" id="L61">    }</span>
 
     /**
      * public method used by
@@ -67,68 +69,68 @@ final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
      *         {@link oshi.hardware.platform.unix.freebsd.FreeBsdGraphicsCard}
      *         objects.
      */
-    public static List&lt;FreeBsdGraphicsCard&gt; getGraphicsCards() {
-<span class="nc" id="L71">        List&lt;FreeBsdGraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
+    public static List&lt;GraphicsCard&gt; getGraphicsCards() {
+<span class="nc" id="L73">        List&lt;FreeBsdGraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
         // Enumerate all devices and add if required
-<span class="nc" id="L73">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;pciconf -lv&quot;);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
-<span class="nc" id="L75">            return cardList;</span>
+<span class="nc" id="L75">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;pciconf -lv&quot;);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
+<span class="nc" id="L77">            return Collections.emptyList();</span>
         }
-<span class="nc" id="L77">        String name = Constants.UNKNOWN;</span>
-<span class="nc" id="L78">        String vendorId = Constants.UNKNOWN;</span>
-<span class="nc" id="L79">        String productId = Constants.UNKNOWN;</span>
-<span class="nc" id="L80">        String classCode = &quot;&quot;;</span>
-<span class="nc" id="L81">        String versionInfo = Constants.UNKNOWN;</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (String line : devices) {</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (line.contains(&quot;class=0x&quot;)) {</span>
+<span class="nc" id="L79">        String name = Constants.UNKNOWN;</span>
+<span class="nc" id="L80">        String vendorId = Constants.UNKNOWN;</span>
+<span class="nc" id="L81">        String productId = Constants.UNKNOWN;</span>
+<span class="nc" id="L82">        String classCode = &quot;&quot;;</span>
+<span class="nc" id="L83">        String versionInfo = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (String line : devices) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (line.contains(&quot;class=0x&quot;)) {</span>
                 // Identifies start of a new device. Save previous if it's a graphics card
-<span class="nc bnc" id="L85" title="All 2 branches missed.">                if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">                    cardList.add(new FreeBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">                            productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">                            vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                    cardList.add(new FreeBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                            productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                            vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
                 }
                 // Parse this line
-<span class="nc" id="L92">                String[] split = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">                for (String s : split) {</span>
-<span class="nc" id="L94">                    String[] keyVal = s.split(&quot;=&quot;);</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                    if (keyVal.length &gt; 1) {</span>
-<span class="nc bnc" id="L96" title="All 4 branches missed.">                        if (keyVal[0].equals(&quot;class&quot;) &amp;&amp; keyVal[1].length() &gt;= 4) {</span>
+<span class="nc" id="L94">                String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                for (String s : split) {</span>
+<span class="nc" id="L96">                    String[] keyVal = s.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                    if (keyVal.length &gt; 1) {</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">                        if (keyVal[0].equals(&quot;class&quot;) &amp;&amp; keyVal[1].length() &gt;= 4) {</span>
                             // class=0x030000
-<span class="nc" id="L98">                            classCode = keyVal[1].substring(0, 4);</span>
-<span class="nc bnc" id="L99" title="All 4 branches missed.">                        } else if (keyVal[0].equals(&quot;chip&quot;) &amp;&amp; keyVal[1].length() &gt;= 10) {</span>
+<span class="nc" id="L100">                            classCode = keyVal[1].substring(0, 4);</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">                        } else if (keyVal[0].equals(&quot;chip&quot;) &amp;&amp; keyVal[1].length() &gt;= 10) {</span>
                             // chip=0x3ea08086
-<span class="nc" id="L101">                            productId = keyVal[1].substring(0, 6);</span>
-<span class="nc" id="L102">                            vendorId = &quot;0x&quot; + keyVal[1].substring(6, 10);</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">                        } else if (keyVal[0].contains(&quot;rev&quot;)) {</span>
+<span class="nc" id="L103">                            productId = keyVal[1].substring(0, 6);</span>
+<span class="nc" id="L104">                            vendorId = &quot;0x&quot; + keyVal[1].substring(6, 10);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                        } else if (keyVal[0].contains(&quot;rev&quot;)) {</span>
                             // rev=0x00
-<span class="nc" id="L105">                            versionInfo = s;</span>
+<span class="nc" id="L107">                            versionInfo = s;</span>
                         }
                     }
                 }
                 // Reset name
-<span class="nc" id="L110">                name = Constants.UNKNOWN;</span>
-<span class="nc" id="L111">            } else {</span>
-<span class="nc" id="L112">                String[] split = line.trim().split(&quot;=&quot;, 2);</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (split.length == 2) {</span>
-<span class="nc" id="L114">                    String key = split[0].trim();</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">                    if (key.equals(&quot;vendor&quot;)) {</span>
-<span class="nc" id="L116">                        vendorId = ParseUtil.getSingleQuoteStringValue(line)</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">                                + (vendorId.equals(Constants.UNKNOWN) ? &quot;&quot; : &quot; (&quot; + vendorId + &quot;)&quot;);</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                    } else if (key.equals(&quot;device&quot;)) {</span>
-<span class="nc" id="L119">                        name = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc" id="L112">                name = Constants.UNKNOWN;</span>
+<span class="nc" id="L113">            } else {</span>
+<span class="nc" id="L114">                String[] split = line.trim().split(&quot;=&quot;, 2);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                if (split.length == 2) {</span>
+<span class="nc" id="L116">                    String key = split[0].trim();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                    if (key.equals(&quot;vendor&quot;)) {</span>
+<span class="nc" id="L118">                        vendorId = ParseUtil.getSingleQuoteStringValue(line)</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                                + (vendorId.equals(Constants.UNKNOWN) ? &quot;&quot; : &quot; (&quot; + vendorId + &quot;)&quot;);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                    } else if (key.equals(&quot;device&quot;)) {</span>
+<span class="nc" id="L121">                        name = ParseUtil.getSingleQuoteStringValue(line);</span>
                     }
                 }
             }
-<span class="nc" id="L123">        }</span>
+<span class="nc" id="L125">        }</span>
         // In case we reached end before saving
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">            cardList.add(new FreeBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                    productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">                    versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            cardList.add(new FreeBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                    productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                    versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
         }
-<span class="nc" id="L131">        return cardList;</span>
+<span class="nc" id="L133">        return Collections.unmodifiableList(cardList);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
