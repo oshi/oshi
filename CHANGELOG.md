@@ -1,5 +1,6 @@
 4.9.5 / 5.2.5 (in progress)
 ================
+* [#1327](https://github.com/oshi/oshi/pull/1327): Fix Raspberry Pi sensor parsing - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16)
