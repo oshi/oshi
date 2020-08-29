@@ -178,8 +178,8 @@ final class LinuxSensors extends AbstractSensors {
     private static double queryCpuTemperatureFromVcGenCmd() {
         String tempStr = ExecutingCommand.getFirstAnswer("vcgencmd measure_temp");
         // temp=50.8'C
-        if (tempStr.startsWith("temp=") && tempStr.endsWith("'C")) {
-            return ParseUtil.parseDoubleOrDefault(tempStr.replaceAll("\\^[0-9]+(\\.[0-9]{1,4})?$", ""), 0d);
+        if (tempStr.startsWith("temp=")) {
+            return ParseUtil.parseDoubleOrDefault(tempStr.replaceAll("[^\\d|\\.]+", ""), 0d);
         }
         return 0d;
     }
@@ -234,10 +234,9 @@ final class LinuxSensors extends AbstractSensors {
         // For raspberry pi
         String voltageStr = ExecutingCommand.getFirstAnswer("vcgencmd measure_volts core");
         // volt=1.20V
-        if (voltageStr.startsWith("volt=") && voltageStr.endsWith("V")) {
-            return ParseUtil.parseDoubleOrDefault(voltageStr.replaceAll("\\^[0-9]+(\\.[0-9]{1,4})?$", ""), 0d);
+        if (voltageStr.startsWith("volt=")) {
+            return ParseUtil.parseDoubleOrDefault(voltageStr.replaceAll("[^\\d|\\.]+", ""), 0d);
         }
         return 0d;
     }
-
 }
