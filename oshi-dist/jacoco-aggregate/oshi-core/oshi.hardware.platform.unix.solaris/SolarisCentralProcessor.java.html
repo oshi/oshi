@@ -74,7 +74,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
     }
 
     @Override
-    protected List&lt;LogicalProcessor&gt; initProcessorCounts() {
+    protected LogicalProcessor[] initProcessorCounts() {
 <span class="nc" id="L78">        Map&lt;Integer, Integer&gt; numaNodeMap = mapNumaNodes();</span>
 <span class="nc" id="L79">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L80">        try (KstatChain kc = KstatUtil.openChain()) {</span>
@@ -94,7 +94,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc bnc" id="L94" title="All 2 branches missed.">        if (logProcs.isEmpty()) {</span>
 <span class="nc" id="L95">            logProcs.add(new LogicalProcessor(0, 0, 0));</span>
         }
-<span class="nc" id="L97">        return logProcs;</span>
+<span class="nc" id="L97">        return logProcs.toArray(new LogicalProcessor[0]);</span>
     }
 
     private static Map&lt;Integer, Integer&gt; mapNumaNodes() {
@@ -212,44 +212,41 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
      * flags.
      *
      * @param stepping
-     *            The stepping
      * @param model
-     *            The model
      * @param family
-     *            The family
      * @return The Processor ID string
      */
     private static String getProcessorID(String stepping, String model, String family) {
-<span class="nc" id="L223">        List&lt;String&gt; isainfo = ExecutingCommand.runNative(&quot;isainfo -v&quot;);</span>
-<span class="nc" id="L224">        StringBuilder flags = new StringBuilder();</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">        for (String line : isainfo) {</span>
-<span class="nc bnc" id="L226" title="All 2 branches missed.">            if (line.startsWith(&quot;32-bit&quot;)) {</span>
-<span class="nc" id="L227">                break;</span>
-<span class="nc bnc" id="L228" title="All 2 branches missed.">            } else if (!line.startsWith(&quot;64-bit&quot;)) {</span>
-<span class="nc" id="L229">                flags.append(' ').append(line.trim());</span>
+<span class="nc" id="L220">        List&lt;String&gt; isainfo = ExecutingCommand.runNative(&quot;isainfo -v&quot;);</span>
+<span class="nc" id="L221">        StringBuilder flags = new StringBuilder();</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        for (String line : isainfo) {</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            if (line.startsWith(&quot;32-bit&quot;)) {</span>
+<span class="nc" id="L224">                break;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">            } else if (!line.startsWith(&quot;64-bit&quot;)) {</span>
+<span class="nc" id="L226">                flags.append(' ').append(line.trim());</span>
             }
-<span class="nc" id="L231">        }</span>
-<span class="nc" id="L232">        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));</span>
+<span class="nc" id="L228">        }</span>
+<span class="nc" id="L229">        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));</span>
     }
 
     @Override
     public long queryContextSwitches() {
-<span class="nc" id="L237">        long swtch = 0;</span>
-<span class="nc" id="L238">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/&quot;);</span>
-<span class="nc bnc" id="L239" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L240">            swtch += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L241">        }</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">        return swtch &gt; 0 ? swtch : -1L;</span>
+<span class="nc" id="L234">        long swtch = 0;</span>
+<span class="nc" id="L235">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/&quot;);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L237">            swtch += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L238">        }</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">        return swtch &gt; 0 ? swtch : -1L;</span>
     }
 
     @Override
     public long queryInterrupts() {
-<span class="nc" id="L247">        long intr = 0;</span>
-<span class="nc" id="L248">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/intr/&quot;);</span>
-<span class="nc bnc" id="L249" title="All 2 branches missed.">        for (String s : kstat) {</span>
-<span class="nc" id="L250">            intr += ParseUtil.parseLastLong(s, 0L);</span>
-<span class="nc" id="L251">        }</span>
-<span class="nc bnc" id="L252" title="All 2 branches missed.">        return intr &gt; 0 ? intr : -1L;</span>
+<span class="nc" id="L244">        long intr = 0;</span>
+<span class="nc" id="L245">        List&lt;String&gt; kstat = ExecutingCommand.runNative(&quot;kstat -p cpu_stat:::/intr/&quot;);</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        for (String s : kstat) {</span>
+<span class="nc" id="L247">            intr += ParseUtil.parseLastLong(s, 0L);</span>
+<span class="nc" id="L248">        }</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">        return intr &gt; 0 ? intr : -1L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

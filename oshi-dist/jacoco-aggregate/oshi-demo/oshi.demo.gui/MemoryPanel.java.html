@@ -29,7 +29,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
 import java.util.Collections;
-import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -63,90 +62,92 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String AVAILABLE = &quot;Available&quot;;
 
     public MemoryPanel(SystemInfo si) {
-<span class="nc" id="L66">        super();</span>
-<span class="nc" id="L67">        init(si.getHardware().getMemory());</span>
-<span class="nc" id="L68">    }</span>
+<span class="nc" id="L65">        super();</span>
+<span class="nc" id="L66">        init(si.getHardware().getMemory());</span>
+<span class="nc" id="L67">    }</span>
 
     private void init(GlobalMemory memory) {
-<span class="nc" id="L71">        DefaultPieDataset physMemData = new DefaultPieDataset();</span>
-<span class="nc" id="L72">        DefaultPieDataset virtMemData = new DefaultPieDataset();</span>
-<span class="nc" id="L73">        updateDatasets(memory, physMemData, virtMemData);</span>
+<span class="nc" id="L70">        DefaultPieDataset physMemData = new DefaultPieDataset();</span>
+<span class="nc" id="L71">        DefaultPieDataset virtMemData = new DefaultPieDataset();</span>
+<span class="nc" id="L72">        updateDatasets(memory, physMemData, virtMemData);</span>
 
-<span class="nc" id="L75">        JFreeChart physMem = ChartFactory.createPieChart(PHYSICAL_MEMORY, physMemData, true, true, false);</span>
-<span class="nc" id="L76">        JFreeChart virtMem = ChartFactory.createPieChart(VIRTUAL_MEMORY, virtMemData, true, true, false);</span>
-<span class="nc" id="L77">        configurePlot(physMem);</span>
-<span class="nc" id="L78">        configurePlot(virtMem);</span>
-<span class="nc" id="L79">        physMem.setSubtitles(Collections.singletonList(new TextTitle(updatePhysTitle(memory))));</span>
-<span class="nc" id="L80">        virtMem.setSubtitles(Collections.singletonList(new TextTitle(updateVirtTitle(memory))));</span>
+<span class="nc" id="L74">        JFreeChart physMem = ChartFactory.createPieChart(PHYSICAL_MEMORY, physMemData, true, true, false);</span>
+<span class="nc" id="L75">        JFreeChart virtMem = ChartFactory.createPieChart(VIRTUAL_MEMORY, virtMemData, true, true, false);</span>
+<span class="nc" id="L76">        configurePlot(physMem);</span>
+<span class="nc" id="L77">        configurePlot(virtMem);</span>
+<span class="nc" id="L78">        physMem.setSubtitles(Collections.singletonList(new TextTitle(updatePhysTitle(memory))));</span>
+<span class="nc" id="L79">        virtMem.setSubtitles(Collections.singletonList(new TextTitle(updateVirtTitle(memory))));</span>
 
-<span class="nc" id="L82">        GridBagConstraints pmConstraints = new GridBagConstraints();</span>
-<span class="nc" id="L83">        pmConstraints.weightx = 1d;</span>
-<span class="nc" id="L84">        pmConstraints.weighty = 1d;</span>
-<span class="nc" id="L85">        pmConstraints.fill = GridBagConstraints.BOTH;</span>
-<span class="nc" id="L86">        GridBagConstraints vmConstraints = (GridBagConstraints) pmConstraints.clone();</span>
-<span class="nc" id="L87">        vmConstraints.gridx = 1;</span>
-<span class="nc" id="L88">        GridBagConstraints textConstraints = new GridBagConstraints();</span>
-<span class="nc" id="L89">        textConstraints.gridy = 1;</span>
-<span class="nc" id="L90">        textConstraints.gridwidth = 2;</span>
-<span class="nc" id="L91">        textConstraints.fill = GridBagConstraints.BOTH;</span>
+<span class="nc" id="L81">        GridBagConstraints pmConstraints = new GridBagConstraints();</span>
+<span class="nc" id="L82">        pmConstraints.weightx = 1d;</span>
+<span class="nc" id="L83">        pmConstraints.weighty = 1d;</span>
+<span class="nc" id="L84">        pmConstraints.fill = GridBagConstraints.BOTH;</span>
+<span class="nc" id="L85">        GridBagConstraints vmConstraints = (GridBagConstraints) pmConstraints.clone();</span>
+<span class="nc" id="L86">        vmConstraints.gridx = 1;</span>
+<span class="nc" id="L87">        GridBagConstraints textConstraints = new GridBagConstraints();</span>
+<span class="nc" id="L88">        textConstraints.gridy = 1;</span>
+<span class="nc" id="L89">        textConstraints.gridwidth = 2;</span>
+<span class="nc" id="L90">        textConstraints.fill = GridBagConstraints.BOTH;</span>
 
-<span class="nc" id="L93">        JPanel memoryPanel = new JPanel();</span>
-<span class="nc" id="L94">        memoryPanel.setLayout(new GridBagLayout());</span>
-<span class="nc" id="L95">        memoryPanel.add(new ChartPanel(physMem), pmConstraints);</span>
-<span class="nc" id="L96">        memoryPanel.add(new ChartPanel(virtMem), vmConstraints);</span>
+<span class="nc" id="L92">        JPanel memoryPanel = new JPanel();</span>
+<span class="nc" id="L93">        memoryPanel.setLayout(new GridBagLayout());</span>
+<span class="nc" id="L94">        memoryPanel.add(new ChartPanel(physMem), pmConstraints);</span>
+<span class="nc" id="L95">        memoryPanel.add(new ChartPanel(virtMem), vmConstraints);</span>
 
-<span class="nc" id="L98">        JTextArea textArea = new JTextArea(60, 20);</span>
-<span class="nc" id="L99">        textArea.setText(updateMemoryText(memory));</span>
-<span class="nc" id="L100">        memoryPanel.add(textArea, textConstraints);</span>
+<span class="nc" id="L97">        JTextArea textArea = new JTextArea(60, 20);</span>
+<span class="nc" id="L98">        textArea.setText(updateMemoryText(memory));</span>
+<span class="nc" id="L99">        memoryPanel.add(textArea, textConstraints);</span>
 
-<span class="nc" id="L102">        add(memoryPanel, BorderLayout.CENTER);</span>
+<span class="nc" id="L101">        add(memoryPanel, BorderLayout.CENTER);</span>
 
-<span class="nc" id="L104">        Timer timer = new Timer(Config.REFRESH_SLOW, e -&gt; {</span>
-<span class="nc" id="L105">            updateDatasets(memory, physMemData, virtMemData);</span>
-<span class="nc" id="L106">            physMem.setSubtitles(Collections.singletonList(new TextTitle(updatePhysTitle(memory))));</span>
-<span class="nc" id="L107">            virtMem.setSubtitles(Collections.singletonList(new TextTitle(updateVirtTitle(memory))));</span>
-<span class="nc" id="L108">            textArea.setText(updateMemoryText(memory));</span>
-<span class="nc" id="L109">        });</span>
-<span class="nc" id="L110">        timer.start();</span>
-<span class="nc" id="L111">    }</span>
+<span class="nc" id="L103">        Timer timer = new Timer(Config.REFRESH_SLOW, e -&gt; {</span>
+<span class="nc" id="L104">            updateDatasets(memory, physMemData, virtMemData);</span>
+<span class="nc" id="L105">            physMem.setSubtitles(Collections.singletonList(new TextTitle(updatePhysTitle(memory))));</span>
+<span class="nc" id="L106">            virtMem.setSubtitles(Collections.singletonList(new TextTitle(updateVirtTitle(memory))));</span>
+<span class="nc" id="L107">            textArea.setText(updateMemoryText(memory));</span>
+<span class="nc" id="L108">        });</span>
+<span class="nc" id="L109">        timer.start();</span>
+<span class="nc" id="L110">    }</span>
 
     private static String updatePhysTitle(GlobalMemory memory) {
-<span class="nc" id="L114">        return memory.toString();</span>
+<span class="nc" id="L113">        return memory.toString();</span>
     }
 
     private static String updateVirtTitle(GlobalMemory memory) {
-<span class="nc" id="L118">        return memory.getVirtualMemory().toString();</span>
+<span class="nc" id="L117">        return memory.getVirtualMemory().toString();</span>
     }
 
     private static String updateMemoryText(GlobalMemory memory) {
-<span class="nc" id="L122">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L123">        List&lt;PhysicalMemory&gt; pmList = memory.getPhysicalMemory();</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        for (PhysicalMemory pm : pmList) {</span>
-<span class="nc" id="L125">            sb.append('\n').append(pm.toString());</span>
-<span class="nc" id="L126">        }</span>
-<span class="nc" id="L127">        return sb.toString();</span>
+<span class="nc" id="L121">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L122">        PhysicalMemory[] pmArray = memory.getPhysicalMemory();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (pmArray.length &gt; 0) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            for (PhysicalMemory pm : pmArray) {</span>
+<span class="nc" id="L125">                sb.append('\n').append(pm.toString());</span>
+            }
+        }
+<span class="nc" id="L128">        return sb.toString();</span>
     }
 
     private static void updateDatasets(GlobalMemory memory, DefaultPieDataset physMemData,
             DefaultPieDataset virtMemData) {
-<span class="nc" id="L132">        physMemData.setValue(USED, (double) memory.getTotal() - memory.getAvailable());</span>
-<span class="nc" id="L133">        physMemData.setValue(AVAILABLE, memory.getAvailable());</span>
+<span class="nc" id="L133">        physMemData.setValue(USED, (double) memory.getTotal() - memory.getAvailable());</span>
+<span class="nc" id="L134">        physMemData.setValue(AVAILABLE, memory.getAvailable());</span>
 
-<span class="nc" id="L135">        VirtualMemory virtualMemory = memory.getVirtualMemory();</span>
-<span class="nc" id="L136">        virtMemData.setValue(USED, virtualMemory.getSwapUsed());</span>
-<span class="nc" id="L137">        virtMemData.setValue(AVAILABLE, (double) virtualMemory.getSwapTotal() - virtualMemory.getSwapUsed());</span>
-<span class="nc" id="L138">    }</span>
+<span class="nc" id="L136">        VirtualMemory virtualMemory = memory.getVirtualMemory();</span>
+<span class="nc" id="L137">        virtMemData.setValue(USED, virtualMemory.getSwapUsed());</span>
+<span class="nc" id="L138">        virtMemData.setValue(AVAILABLE, (double) virtualMemory.getSwapTotal() - virtualMemory.getSwapUsed());</span>
+<span class="nc" id="L139">    }</span>
 
     private static void configurePlot(JFreeChart chart) {
-<span class="nc" id="L141">        PiePlot plot = (PiePlot) chart.getPlot();</span>
-<span class="nc" id="L142">        plot.setSectionPaint(USED, Color.red);</span>
-<span class="nc" id="L143">        plot.setSectionPaint(AVAILABLE, Color.green);</span>
-<span class="nc" id="L144">        plot.setExplodePercent(USED, 0.10);</span>
-<span class="nc" id="L145">        plot.setSimpleLabels(true);</span>
+<span class="nc" id="L142">        PiePlot plot = (PiePlot) chart.getPlot();</span>
+<span class="nc" id="L143">        plot.setSectionPaint(USED, Color.red);</span>
+<span class="nc" id="L144">        plot.setSectionPaint(AVAILABLE, Color.green);</span>
+<span class="nc" id="L145">        plot.setExplodePercent(USED, 0.10);</span>
+<span class="nc" id="L146">        plot.setSimpleLabels(true);</span>
 
-<span class="nc" id="L147">        PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator(&quot;{0}: {1} ({2})&quot;,</span>
+<span class="nc" id="L148">        PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator(&quot;{0}: {1} ({2})&quot;,</span>
                 new DecimalFormat(&quot;0&quot;), new DecimalFormat(&quot;0%&quot;));
-<span class="nc" id="L149">        plot.setLabelGenerator(labelGenerator);</span>
-<span class="nc" id="L150">    }</span>
+<span class="nc" id="L150">        plot.setLabelGenerator(labelGenerator);</span>
+<span class="nc" id="L151">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

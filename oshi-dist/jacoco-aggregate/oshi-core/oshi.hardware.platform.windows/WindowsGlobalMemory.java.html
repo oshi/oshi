@@ -26,8 +26,6 @@ package oshi.hardware.platform.windows;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -53,57 +51,59 @@ import oshi.util.tuples.Triplet;
  * Memory obtained by Performance Info.
  */
 @ThreadSafe
-<span class="nc" id="L56">final class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L54">final class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L58">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
+<span class="nc" id="L56">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L60">    private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();</span>
+<span class="nc" id="L58">    private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();</span>
 
-<span class="nc" id="L62">    private final Supplier&lt;Triplet&lt;Long, Long, Long&gt;&gt; availTotalSize = memoize(WindowsGlobalMemory::readPerfInfo,</span>
-<span class="nc" id="L63">            defaultExpiration());</span>
+<span class="nc" id="L60">    private final Supplier&lt;Triplet&lt;Long, Long, Long&gt;&gt; availTotalSize = memoize(WindowsGlobalMemory::readPerfInfo,</span>
+<span class="nc" id="L61">            defaultExpiration());</span>
 
-<span class="nc" id="L65">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L63">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L69">        return availTotalSize.get().getA();</span>
+<span class="nc" id="L67">        return availTotalSize.get().getA();</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L74">        return availTotalSize.get().getB();</span>
+<span class="nc" id="L72">        return availTotalSize.get().getB();</span>
     }
 
     @Override
     public long getPageSize() {
-<span class="nc" id="L79">        return availTotalSize.get().getC();</span>
+<span class="nc" id="L77">        return availTotalSize.get().getC();</span>
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L84">        return vm.get();</span>
+<span class="nc" id="L82">        return vm.get();</span>
     }
 
     private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L88">        return new WindowsVirtualMemory(this);</span>
+<span class="nc" id="L86">        return new WindowsVirtualMemory(this);</span>
     }
 
     @Override
-    public List&lt;PhysicalMemory&gt; getPhysicalMemory() {
-<span class="nc" id="L93">        List&lt;PhysicalMemory&gt; physicalMemoryList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (IS_WINDOWS10_OR_GREATER) {</span>
-<span class="nc" id="L95">            WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = Win32PhysicalMemory.queryphysicalMemory();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
-<span class="nc" id="L97">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
-<span class="nc" id="L98">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
-<span class="nc" id="L99">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;</span>
-<span class="nc" id="L100">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
-<span class="nc" id="L101">                String memoryType = smBiosMemoryType(</span>
-<span class="nc" id="L102">                        WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));</span>
-<span class="nc" id="L103">                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+    public PhysicalMemory[] getPhysicalMemory() {
+        PhysicalMemory[] physicalMemoryArray;
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (IS_WINDOWS10_OR_GREATER) {</span>
+<span class="nc" id="L93">            WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = Win32PhysicalMemory.queryphysicalMemory();</span>
+<span class="nc" id="L94">            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
+<span class="nc" id="L96">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
+<span class="nc" id="L97">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
+<span class="nc" id="L98">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;</span>
+<span class="nc" id="L99">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
+<span class="nc" id="L100">                String memoryType = smBiosMemoryType(</span>
+<span class="nc" id="L101">                        WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));</span>
+<span class="nc" id="L102">                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);</span>
             }
-<span class="nc" id="L105">        } else {</span>
-<span class="nc" id="L106">            WmiResult&lt;PhysicalMemoryPropertyWin8&gt; bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();</span>
+<span class="nc" id="L104">        } else {</span>
+<span class="nc" id="L105">            WmiResult&lt;PhysicalMemoryPropertyWin8&gt; bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();</span>
+<span class="nc" id="L106">            physicalMemoryArray = new PhysicalMemory[bankMap.getResultCount()];</span>
 <span class="nc bnc" id="L107" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
 <span class="nc" id="L108">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);</span>
 <span class="nc" id="L109">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);</span>
@@ -111,10 +111,10 @@ import oshi.util.tuples.Triplet;
 <span class="nc" id="L111">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);</span>
 <span class="nc" id="L112">                String memoryType = memoryType(</span>
 <span class="nc" id="L113">                        WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));</span>
-<span class="nc" id="L114">                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+<span class="nc" id="L114">                physicalMemoryArray[index] = new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType);</span>
             }
         }
-<span class="nc" id="L117">        return physicalMemoryList;</span>
+<span class="nc" id="L117">        return physicalMemoryArray;</span>
     }
 
     /**
