@@ -129,7 +129,7 @@ import oshi.util.tuples.Pair;
      *            the key to retrieve
      * @return the string following id
      */
-    private String parseIdentifier(String identifier, String key) {
+    private static String parseIdentifier(String identifier, String key) {
 <span class="nc" id="L133">        String[] idSplit = ParseUtil.whitespaces.split(identifier);</span>
 <span class="nc" id="L134">        boolean found = false;</span>
 <span class="nc bnc" id="L135" title="All 2 branches missed.">        for (String s : idSplit) {</span>
@@ -144,7 +144,7 @@ import oshi.util.tuples.Pair;
     }
 
     @Override
-    protected LogicalProcessor[] initProcessorCounts() {
+    protected List&lt;LogicalProcessor&gt; initProcessorCounts() {
 <span class="nc bnc" id="L148" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
 <span class="nc" id="L149">            List&lt;LogicalProcessor&gt; logProcs = LogicalProcessorInformation.getLogicalProcessorInformationEx();</span>
             // Save numaNode,Processor lookup for future PerfCounter instance lookup
@@ -154,9 +154,9 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L154">                numaNodeProcToLogicalProcMap</span>
 <span class="nc" id="L155">                        .put(String.format(&quot;%d,%d&quot;, logProc.getNumaNode(), logProc.getProcessorNumber()), lp++);</span>
 <span class="nc" id="L156">            }</span>
-<span class="nc" id="L157">            return logProcs.toArray(new LogicalProcessor[0]);</span>
+<span class="nc" id="L157">            return logProcs;</span>
         } else {
-<span class="nc" id="L159">            return LogicalProcessorInformation.getLogicalProcessorInformation().toArray(new LogicalProcessor[0]);</span>
+<span class="nc" id="L159">            return LogicalProcessorInformation.getLogicalProcessorInformation();</span>
         }
     }
 
