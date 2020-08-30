@@ -82,7 +82,7 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Override
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">protected</strong> List&lt;LogicalProcessor&gt; initProcessorCounts() {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">protected</strong> LogicalProcessor[] initProcessorCounts() {
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          Map&lt;Integer, Integer&gt; numaNodeMap = mapNumaNodes();
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          List&lt;LogicalProcessor&gt; logProcs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
@@ -102,7 +102,7 @@
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">if</strong> (logProcs.isEmpty()) {
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              logProcs.add(<strong class="jxr_keyword">new</strong> LogicalProcessor(0, 0, 0));
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">return</strong> logProcs;
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">return</strong> logProcs.toArray(<strong class="jxr_keyword">new</strong> LogicalProcessor[0]);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, Integer&gt; mapNumaNodes() {
@@ -220,46 +220,43 @@
 <a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     * flags.</em>
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     * @param stepping</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     *            The stepping</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     * @param model</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">     *            The model</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">     * @param family</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">     *            The family</em>
-<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getProcessorID(String stepping, String model, String family) {
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         List&lt;String&gt; isainfo = ExecutingCommand.runNative(<span class="jxr_string">"isainfo -v"</span>);
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         StringBuilder flags = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">for</strong> (String line : isainfo) {
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"32-bit"</span>)) {
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!line.startsWith(<span class="jxr_string">"64-bit"</span>)) {
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>                 flags.append(' ').append(line.trim());
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>             }
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     }
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     @Override
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">long</strong> swtch = 0;
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         List&lt;String&gt; kstat = ExecutingCommand.runNative(<span class="jxr_string">"kstat -p cpu_stat:::/pswitch&#92;&#92;&#92;&#92;|inv_swtch/"</span>);
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">for</strong> (String s : kstat) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             swtch += ParseUtil.parseLastLong(s, 0L);
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">return</strong> swtch &gt; 0 ? swtch : -1L;
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     }
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> 
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     @Override
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">long</strong> intr = 0;
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>         List&lt;String&gt; kstat = ExecutingCommand.runNative(<span class="jxr_string">"kstat -p cpu_stat:::/intr/"</span>);
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">for</strong> (String s : kstat) {
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             intr += ParseUtil.parseLastLong(s, 0L);
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         }
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">return</strong> intr &gt; 0 ? intr : -1L;
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     * @param model</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     * @param family</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getProcessorID(String stepping, String model, String family) {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         List&lt;String&gt; isainfo = ExecutingCommand.runNative(<span class="jxr_string">"isainfo -v"</span>);
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         StringBuilder flags = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">for</strong> (String line : isainfo) {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"32-bit"</span>)) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!line.startsWith(<span class="jxr_string">"64-bit"</span>)) {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 flags.append(' ').append(line.trim());
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>             }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     }
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     @Override
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <strong class="jxr_keyword">long</strong> swtch = 0;
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         List&lt;String&gt; kstat = ExecutingCommand.runNative(<span class="jxr_string">"kstat -p cpu_stat:::/pswitch&#92;&#92;&#92;&#92;|inv_swtch/"</span>);
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">for</strong> (String s : kstat) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>             swtch += ParseUtil.parseLastLong(s, 0L);
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         }
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">return</strong> swtch &gt; 0 ? swtch : -1L;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     @Override
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <strong class="jxr_keyword">long</strong> intr = 0;
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         List&lt;String&gt; kstat = ExecutingCommand.runNative(<span class="jxr_string">"kstat -p cpu_stat:::/intr/"</span>);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">for</strong> (String s : kstat) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             intr += ParseUtil.parseLastLong(s, 0L);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         }
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">return</strong> intr &gt; 0 ? intr : -1L;
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     }
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

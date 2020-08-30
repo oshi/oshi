@@ -51,17 +51,15 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGraphicsCards() {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          SystemInfo info = <strong class="jxr_keyword">new</strong> SystemInfo();
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">for</strong> (GraphicsCard graphicsCard : info.getHardware().getGraphicsCards()) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              assertNotNull(<span class="jxr_string">"Graphics card's name should not be null"</span>, graphicsCard.getName());
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              assertNotNull(<span class="jxr_string">"Graphics card's vendor should not be null"</span>, graphicsCard.getVendor());
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>              assertTrue(<span class="jxr_string">"Graphics card's VRAM should be at least zero"</span>, graphicsCard.getVRam() &gt;= 0);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              assertEquals(<span class="jxr_string">"Graphics card's VRAM should be divisible by 1024"</span>, 0, graphicsCard.getVRam() % 1024);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              assertTrue(<span class="jxr_string">"Graphics card's id number length should be at least 6"</span>,
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>                      graphicsCard.getDeviceId().length() &gt;= 6);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              assertTrue(<span class="jxr_string">"Graphics card's version information length should be at least 2"</span>,
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                      graphicsCard.getVersionInfo().length() &gt;= 2);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              assertNotNull(graphicsCard.getName());
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              assertNotNull(graphicsCard.getVendor());
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              assertTrue(graphicsCard.getVRam() &gt;= 0);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              assertEquals(0, graphicsCard.getVRam() % 1024);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              assertTrue(graphicsCard.getDeviceId().length() &gt;= 6);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              assertTrue(graphicsCard.getVersionInfo().length() &gt;= 2);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
