@@ -186,8 +186,8 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> queryCpuTemperatureFromVcGenCmd() {
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         String tempStr = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"vcgencmd measure_temp"</span>);
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// temp=50.8'C</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">if</strong> (tempStr.startsWith(<span class="jxr_string">"temp="</span>) &amp;&amp; tempStr.endsWith(<span class="jxr_string">"'C"</span>)) {
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">return</strong> ParseUtil.parseDoubleOrDefault(tempStr.replaceAll(<span class="jxr_string">"&#92;&#92;^[0-9]+(&#92;&#92;.[0-9]{1,4})?$"</span>, <span class="jxr_string">""</span>), 0d);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">if</strong> (tempStr.startsWith(<span class="jxr_string">"temp="</span>)) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             <strong class="jxr_keyword">return</strong> ParseUtil.parseDoubleOrDefault(tempStr.replaceAll(<span class="jxr_string">"[^&#92;&#92;d|&#92;&#92;.]+"</span>, <span class="jxr_string">""</span>), 0d);
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>         }
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">return</strong> 0d;
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
@@ -242,13 +242,12 @@
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>         <em class="jxr_comment">// For raspberry pi</em>
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>         String voltageStr = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"vcgencmd measure_volts core"</span>);
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>         <em class="jxr_comment">// volt=1.20V</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (voltageStr.startsWith(<span class="jxr_string">"volt="</span>) &amp;&amp; voltageStr.endsWith(<span class="jxr_string">"V"</span>)) {
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">return</strong> ParseUtil.parseDoubleOrDefault(voltageStr.replaceAll(<span class="jxr_string">"&#92;&#92;^[0-9]+(&#92;&#92;.[0-9]{1,4})?$"</span>, <span class="jxr_string">""</span>), 0d);
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">if</strong> (voltageStr.startsWith(<span class="jxr_string">"volt="</span>)) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">return</strong> ParseUtil.parseDoubleOrDefault(voltageStr.replaceAll(<span class="jxr_string">"[^&#92;&#92;d|&#92;&#92;.]+"</span>, <span class="jxr_string">""</span>), 0d);
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>         }
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">return</strong> 0d;
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>     }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> 
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> }
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
