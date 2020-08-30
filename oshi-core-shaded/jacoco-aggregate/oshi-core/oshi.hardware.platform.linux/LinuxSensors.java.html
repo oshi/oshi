@@ -178,8 +178,8 @@ final class LinuxSensors extends AbstractSensors {
     private static double queryCpuTemperatureFromVcGenCmd() {
 <span class="nc" id="L179">        String tempStr = ExecutingCommand.getFirstAnswer(&quot;vcgencmd measure_temp&quot;);</span>
         // temp=50.8'C
-<span class="nc bnc" id="L181" title="All 4 branches missed.">        if (tempStr.startsWith(&quot;temp=&quot;) &amp;&amp; tempStr.endsWith(&quot;'C&quot;)) {</span>
-<span class="nc" id="L182">            return ParseUtil.parseDoubleOrDefault(tempStr.replaceAll(&quot;\\^[0-9]+(\\.[0-9]{1,4})?$&quot;, &quot;&quot;), 0d);</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (tempStr.startsWith(&quot;temp=&quot;)) {</span>
+<span class="nc" id="L182">            return ParseUtil.parseDoubleOrDefault(tempStr.replaceAll(&quot;[^\\d|\\.]+&quot;, &quot;&quot;), 0d);</span>
         }
 <span class="nc" id="L184">        return 0d;</span>
     }
@@ -234,11 +234,10 @@ final class LinuxSensors extends AbstractSensors {
         // For raspberry pi
 <span class="nc" id="L235">        String voltageStr = ExecutingCommand.getFirstAnswer(&quot;vcgencmd measure_volts core&quot;);</span>
         // volt=1.20V
-<span class="nc bnc" id="L237" title="All 4 branches missed.">        if (voltageStr.startsWith(&quot;volt=&quot;) &amp;&amp; voltageStr.endsWith(&quot;V&quot;)) {</span>
-<span class="nc" id="L238">            return ParseUtil.parseDoubleOrDefault(voltageStr.replaceAll(&quot;\\^[0-9]+(\\.[0-9]{1,4})?$&quot;, &quot;&quot;), 0d);</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (voltageStr.startsWith(&quot;volt=&quot;)) {</span>
+<span class="nc" id="L238">            return ParseUtil.parseDoubleOrDefault(voltageStr.replaceAll(&quot;[^\\d|\\.]+&quot;, &quot;&quot;), 0d);</span>
         }
 <span class="nc" id="L240">        return 0d;</span>
     }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
