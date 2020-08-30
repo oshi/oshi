@@ -1,9 +1,8 @@
-4.9.5 / 5.2.5 (in progress)
+5.3.0 (in progress)
 ================
-* [#1327](https://github.com/oshi/oshi/pull/1327): Fix Raspberry Pi sensor parsing - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
-4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16)
+4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16), 4.9.5 / 5.2.5 (2020-08-30)
 ================
 * [#1282](https://github.com/oshi/oshi/pull/1282): (5.x) AIX Port - [@tausiflife](https://github.com/tausiflife), [@dbwiddis](https://github.com/dbwiddis).
 * [#1285](https://github.com/oshi/oshi/pull/1285): Fallback to read properties file from classloader of the class - [@ngyukman](https://github.com/ngyukman).
@@ -15,6 +14,7 @@
 * [#1310](https://github.com/oshi/oshi/pull/1310): Use fragment size in Linux FileStore size calculation - [@dbwiddis](https://github.com/dbwiddis).
 * [#1316](https://github.com/oshi/oshi/pull/1316): Fix ARM architecture parsing - [@dbwiddis](https://github.com/dbwiddis).
 * [#1320](https://github.com/oshi/oshi/pull/1320): Avoid NPE for failed Windows registry counter size - [@dbwiddis](https://github.com/dbwiddis).
+* [#1327](https://github.com/oshi/oshi/pull/1327): Fix Raspberry Pi sensor parsing - [@dbwiddis](https://github.com/dbwiddis).
 
 4.9.0 / 5.2.0 (2020-06-25)
 ================
