@@ -24,6 +24,7 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
 
     /**
      * Constructor for FreeBsdSoundCard.
-     * 
+     *
      * @param kernelVersion
      *            The version
      * @param name
@@ -53,8 +54,8 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
      *            The codec
      */
     FreeBsdSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L56">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L57">    }</span>
+<span class="nc" id="L57">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L58">    }</span>
 
     /**
      * &lt;p&gt;
@@ -64,33 +65,33 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
      * @return a {@link java.util.List} object.
      */
     public static List&lt;SoundCard&gt; getSoundCards() {
-<span class="nc" id="L67">        Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L68">        Map&lt;String, String&gt; productMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L69">        vendorMap.clear();</span>
-<span class="nc" id="L70">        productMap.clear();</span>
-<span class="nc" id="L71">        List&lt;String&gt; sounds = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L72">        String key = &quot;&quot;;</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(LSHAL)) {</span>
-<span class="nc" id="L74">            line = line.trim();</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
+<span class="nc" id="L68">        Map&lt;String, String&gt; vendorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L69">        Map&lt;String, String&gt; productMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L70">        vendorMap.clear();</span>
+<span class="nc" id="L71">        productMap.clear();</span>
+<span class="nc" id="L72">        List&lt;String&gt; sounds = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L73">        String key = &quot;&quot;;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(LSHAL)) {</span>
+<span class="nc" id="L75">            line = line.trim();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (line.startsWith(&quot;udi =&quot;)) {</span>
                 // we have the key.
-<span class="nc" id="L77">                key = ParseUtil.getSingleQuoteStringValue(line);</span>
-<span class="nc bnc" id="L78" title="All 4 branches missed.">            } else if (!key.isEmpty() &amp;&amp; !line.isEmpty()) {</span>
-<span class="nc bnc" id="L79" title="All 4 branches missed.">                if (line.contains(&quot;freebsd.driver =&quot;) &amp;&amp; &quot;pcm&quot;.equals(ParseUtil.getSingleQuoteStringValue(line))) {</span>
-<span class="nc" id="L80">                    sounds.add(key);</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">                } else if (line.contains(&quot;info.product&quot;)) {</span>
-<span class="nc" id="L82">                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">                } else if (line.contains(&quot;info.vendor&quot;)) {</span>
-<span class="nc" id="L84">                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
+<span class="nc" id="L78">                key = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">            } else if (!key.isEmpty() &amp;&amp; !line.isEmpty()) {</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">                if (line.contains(&quot;freebsd.driver =&quot;) &amp;&amp; &quot;pcm&quot;.equals(ParseUtil.getSingleQuoteStringValue(line))) {</span>
+<span class="nc" id="L81">                    sounds.add(key);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                } else if (line.contains(&quot;info.product&quot;)) {</span>
+<span class="nc" id="L83">                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                } else if (line.contains(&quot;info.vendor&quot;)) {</span>
+<span class="nc" id="L85">                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));</span>
                 }
             }
-<span class="nc" id="L87">        }</span>
-<span class="nc" id="L88">        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (String _key : sounds) {</span>
-<span class="nc" id="L90">            soundCards.add(new FreeBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + &quot; &quot; + productMap.get(_key),</span>
-<span class="nc" id="L91">                    productMap.get(_key)));</span>
-<span class="nc" id="L92">        }</span>
-<span class="nc" id="L93">        return soundCards;</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        for (String _key : sounds) {</span>
+<span class="nc" id="L91">            soundCards.add(new FreeBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + &quot; &quot; + productMap.get(_key),</span>
+<span class="nc" id="L92">                    productMap.get(_key)));</span>
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">        return Collections.unmodifiableList(soundCards);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
