@@ -153,7 +153,7 @@
 		<maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+		<jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
