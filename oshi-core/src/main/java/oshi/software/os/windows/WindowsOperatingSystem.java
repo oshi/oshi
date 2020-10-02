@@ -58,6 +58,7 @@ import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.W32ServiceManager;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinDef.DWORD;
+import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
@@ -423,29 +424,37 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     /**
      * Enables debug privileges for this process, required for OpenProcess() to get
      * processes other than the current user
+     *
+     * @return {@code true} if debug privileges were successfully enabled.
      */
-    private static void enableDebugPrivilege() {
+    private static boolean enableDebugPrivilege() {
         HANDLEByReference hToken = new HANDLEByReference();
         boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
                 WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
         if (!success) {
             LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
-            return;
+            return false;
         }
-        WinNT.LUID luid = new WinNT.LUID();
-        success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
-        if (!success) {
-            LOG.error("LookupprivilegeValue failed. Error: {}", Native.getLastError());
+        try {
+            WinNT.LUID luid = new WinNT.LUID();
+            success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
+            if (!success) {
+                LOG.error("LookupPrivilegeValue failed. Error: {}", Native.getLastError());
+                return false;
+            }
+            WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
+            tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));
+            success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);
+            // Possible to partially succeed, only need to check LastError
+            int err = Native.getLastError();
+            if (err != WinError.ERROR_SUCCESS) {
+                LOG.error("AdjustTokenPrivileges failed. Error: {}", err);
+                return false;
+            }
+        } finally {
             Kernel32.INSTANCE.CloseHandle(hToken.getValue());
-            return;
         }
-        WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
-        tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));
-        success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);
-        if (!success) {
-            LOG.error("AdjustTokenPrivileges failed. Error: {}", Native.getLastError());
-        }
-        Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+        return true;
     }
 
     @Override
