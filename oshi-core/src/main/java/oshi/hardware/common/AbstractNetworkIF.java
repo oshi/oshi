@@ -31,6 +31,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -68,8 +69,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * Construct a {@link NetworkIF} object backed by the specified
      * {@link NetworkInterface}.
      *
-     * @param netint
-     *            The core java {@link NetworkInterface} backing this object.
+     * @param netint The core java {@link NetworkInterface} backing this object.
      */
     protected AbstractNetworkIF(NetworkInterface netint) {
         this.networkInterface = netint;
@@ -121,29 +121,37 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      *
      * @return A list of network interfaces
      */
-    protected static List<NetworkInterface> getNetworkInterfaces() {
+    protected static List<NetworkInterface> getInetNetworkInterfaces() {
         List<NetworkInterface> result = new ArrayList<>();
-        Enumeration<NetworkInterface> interfaces = null;
+        List<NetworkInterface> interfaces = getAllNetworkInterfaces();
 
-        try {
-            interfaces = NetworkInterface.getNetworkInterfaces(); // can return null
-        } catch (SocketException ex) {
-            LOG.error("Socket exception when retrieving interfaces: {}", ex.getMessage());
-        }
-        if (interfaces != null) {
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface netint = interfaces.nextElement();
-                try {
-                    if (!netint.isLoopback() && netint.getHardwareAddress() != null) {
-                        result.add(netint);
-                    }
-                } catch (SocketException ex) {
-                    LOG.error("Socket exception when retrieving interface \"{}\": {}", netint.getName(),
-                            ex.getMessage());
+        for (NetworkInterface iface : interfaces) {
+            try {
+                if (!iface.isLoopback() && iface.getHardwareAddress() != null) {
+                    result.add(iface);
                 }
+            } catch (SocketException ex) {
+                LOG.error("Socket exception when retrieving interface \"{}\": {}", iface.getName(),
+                        ex.getMessage());
             }
         }
         return result;
+    }
+
+    /**
+     * Returns all network interfaces.
+     *
+     * @return A list of network interfaces
+     */
+    protected static List<NetworkInterface> getAllNetworkInterfaces() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            return Collections.list(interfaces);
+        } catch (SocketException ex) {
+            LOG.error("Socket exception when retrieving interfaces: {}", ex.getMessage());
+        }
+
+        return new ArrayList<>();
     }
 
     @Override

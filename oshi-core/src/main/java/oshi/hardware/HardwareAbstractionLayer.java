@@ -77,12 +77,21 @@ public interface HardwareAbstractionLayer {
     List<HWDiskStore> getDiskStores();
 
     /**
-     * Gets a list of {@link NetworkIF} objects, representing a network interface
+     * Gets a list of inet {@link NetworkIF} objects, representing a network interface
+     * The list excludes local interfaces.
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
     List<NetworkIF> getNetworkIFs();
+
+    /**
+     * Gets a list of all {@link NetworkIF} objects, representing a network interface
+     *
+     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
+     *         the interfaces
+     */
+    List<NetworkIF> getAllNetworkIFs();
 
     /**
      * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.Display}

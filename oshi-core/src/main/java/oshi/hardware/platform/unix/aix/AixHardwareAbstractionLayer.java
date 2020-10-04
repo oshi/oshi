@@ -98,6 +98,11 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
+    public List<NetworkIF> getAllNetworkIFs() {
+        return AixNetworkIF.getAllNetworks();
+    }
+
+    @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return AixUsbDevice.getUsbDevices(tree, lscfg);
     }

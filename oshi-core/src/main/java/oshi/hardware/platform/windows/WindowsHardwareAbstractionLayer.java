@@ -86,6 +86,11 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
+    public List<NetworkIF> getAllNetworkIFs() {
+        return WindowsNetworkIF.getAllNetworks();
+    }
+
+    @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return WindowsUsbDevice.getUsbDevices(tree);
     }

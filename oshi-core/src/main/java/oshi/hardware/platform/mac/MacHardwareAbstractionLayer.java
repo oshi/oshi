@@ -86,6 +86,11 @@ public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
+    public List<NetworkIF> getAllNetworkIFs() {
+        return MacNetworkIF.getAllNetworks();
+    }
+
+    @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return MacUsbDevice.getUsbDevices(tree);
     }

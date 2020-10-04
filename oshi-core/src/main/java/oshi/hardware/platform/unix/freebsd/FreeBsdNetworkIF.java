@@ -56,14 +56,25 @@ public final class FreeBsdNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Gets the network interfaces on this machine
+     * Gets inet network interfaces on this machine
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
-                getNetworkInterfaces().stream().map(FreeBsdNetworkIF::new).collect(Collectors.toList()));
+                getInetNetworkInterfaces().stream().map(FreeBsdNetworkIF::new).collect(Collectors.toList()));
+    }
+
+    /**
+     * Gets all network interfaces on this machine
+     *
+     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
+     *         the interfaces
+     */
+    public static List<NetworkIF> getAllNetworks() {
+        return Collections.unmodifiableList(
+                getAllNetworkInterfaces().stream().map(FreeBsdNetworkIF::new).collect(Collectors.toList()));
     }
 
     @Override

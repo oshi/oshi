@@ -86,6 +86,11 @@ public final class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstrac
     }
 
     @Override
+    public List<NetworkIF> getAllNetworkIFs() {
+        return LinuxNetworkIF.getAllNetworks();
+    }
+
+    @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return LinuxUsbDevice.getUsbDevices(tree);
     }

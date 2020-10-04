@@ -86,6 +86,11 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
+    public List<NetworkIF> getAllNetworkIFs() {
+        return FreeBsdNetworkIF.getAllNetworks();
+    }
+
+    @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return FreeBsdUsbDevice.getUsbDevices(tree);
     }

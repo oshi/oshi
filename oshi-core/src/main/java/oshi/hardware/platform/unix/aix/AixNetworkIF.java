@@ -66,7 +66,7 @@ public final class AixNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Gets the network interfaces on this machine
+     * Gets inet network interfaces on this machine
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
@@ -75,7 +75,20 @@ public final class AixNetworkIF extends AbstractNetworkIF {
         Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterface::queryNetInterfaces,
                 defaultExpiration());
         return Collections.unmodifiableList(
-                getNetworkInterfaces().stream().map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
+                getInetNetworkInterfaces().stream().map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
+    }
+
+    /**
+     * Gets all network interfaces on this machine
+     *
+     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
+     *         the interfaces
+     */
+    public static List<NetworkIF> getAllNetworks() {
+        Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterface::queryNetInterfaces,
+                defaultExpiration());
+        return Collections.unmodifiableList(
+                getAllNetworkInterfaces().stream().map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
     }
 
     @Override

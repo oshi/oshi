@@ -86,6 +86,11 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
+    public List<NetworkIF> getAllNetworkIFs() {
+        return SolarisNetworkIF.getAllNetworks();
+    }
+
+    @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return SolarisUsbDevice.getUsbDevices(tree);
     }

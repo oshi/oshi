@@ -59,7 +59,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Gets the network interfaces on this machine
+     * Gets inet network interfaces on this machine
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
@@ -68,7 +68,20 @@ public final class MacNetworkIF extends AbstractNetworkIF {
         // One time fetch of stats
         final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
         return Collections.unmodifiableList(
-                getNetworkInterfaces().stream().map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
+                getInetNetworkInterfaces().stream().map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
+    }
+
+    /**
+     * Gets all network interfaces on this machine
+     *
+     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
+     *         the interfaces
+     */
+    public static List<NetworkIF> getAllNetworks() {
+        // One time fetch of stats
+        final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
+        return Collections.unmodifiableList(
+                getAllNetworkInterfaces().stream().map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
     }
 
     @Override
