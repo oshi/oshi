@@ -43,16 +43,16 @@ public class VirtualMemoryTest {
         HardwareAbstractionLayer hal = si.getHardware();
         GlobalMemory memory = hal.getMemory();
         VirtualMemory vm = memory.getVirtualMemory();
-        assertNotNull(vm);
+        assertNotNull("VM object shouldn't be null", vm);
 
         // Swap tests
-        assertTrue(vm.getSwapPagesIn() >= 0);
-        assertTrue(vm.getSwapPagesOut() >= 0);
-        assertTrue(vm.getSwapTotal() >= 0);
-        assertTrue(vm.getSwapUsed() >= 0);
-        assertTrue(vm.getSwapUsed() <= vm.getSwapTotal());
-        assertTrue(vm.getVirtualMax() >= vm.getSwapTotal());
-        assertTrue(vm.getVirtualInUse() >= 0);
-        assertTrue(vm.toString().contains("Used"));
+        assertTrue("VM's swap pages in shouldn't be negative", vm.getSwapPagesIn() >= 0);
+        assertTrue("VM's swap pages out shouldn't be negative", vm.getSwapPagesOut() >= 0);
+        assertTrue("VM's swap total shouldn't be negative", vm.getSwapTotal() >= 0);
+        assertTrue("VM's swap used shouldn't be negative", vm.getSwapUsed() >= 0);
+        assertTrue("VM's swap used should be less than or equal to VM swap total", vm.getSwapUsed() <= vm.getSwapTotal());
+        assertTrue("VM's max should be greater than or qual to VM swap total", vm.getVirtualMax() >= vm.getSwapTotal());
+        assertTrue("VM's virtual in use shouldn't be negative", vm.getVirtualInUse() >= 0);
+        assertTrue("VM's toString contains 'Used'", vm.toString().contains("Used"));
     }
 }

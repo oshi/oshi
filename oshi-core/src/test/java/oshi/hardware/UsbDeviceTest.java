@@ -44,17 +44,17 @@ public class UsbDeviceTest {
         SystemInfo si = new SystemInfo();
         List<UsbDevice> usbList = si.getHardware().getUsbDevices(true);
         for (UsbDevice usb : usbList) {
-            assertNotNull(usb);
+            assertNotNull("USB object shouldn't be null", usb);
             testUsbRecursive(usb);
         }
     }
 
     private void testUsbRecursive(UsbDevice usb) {
-        assertTrue(usb.getName().length() > 0);
-        assertNotNull(usb.getVendor());
-        assertNotNull(usb.getProductId());
-        assertNotNull(usb.getVendorId());
-        assertNotNull(usb.getSerialNumber());
+        assertTrue("USB name shouldn't be blank", usb.getName().length() > 0);
+        assertNotNull("USB vendor shouldn't be null", usb.getVendor());
+        assertNotNull("USB product ID shouldn't be null", usb.getProductId());
+        assertNotNull("USB vendor ID shouldn't be null", usb.getVendorId());
+        assertNotNull("USB serial number shouldn't be null", usb.getSerialNumber());
 
         for (UsbDevice nested : usb.getConnectedDevices()) {
             testUsbRecursive(nested);

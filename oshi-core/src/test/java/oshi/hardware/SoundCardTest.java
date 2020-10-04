@@ -41,9 +41,9 @@ public class SoundCardTest {
     public void testSoundCards() {
         SystemInfo info = new SystemInfo();
         for (SoundCard soundCard : info.getHardware().getSoundCards()) {
-            assertNotNull(soundCard.getCodec());
-            assertNotNull(soundCard.getDriverVersion());
-            assertNotNull(soundCard.getName());
+            assertNotNull("Sound card's codec should not be null", soundCard.getCodec());
+            assertNotNull("Sound card's driver should not be null", soundCard.getDriverVersion());
+            assertNotNull("Sound card's name should not be null", soundCard.getName());
         }
     }
 
