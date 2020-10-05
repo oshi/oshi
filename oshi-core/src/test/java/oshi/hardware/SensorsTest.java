@@ -41,15 +41,15 @@ public class SensorsTest {
      */
     @Test
     public void testSensors() {
-        assertTrue(s.getCpuTemperature() == Double.NaN || s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
-        assertTrue(s.getCpuVoltage() >= 0);
+        assertTrue("CPU Temperature should be NaN or between 0 and 100", s.getCpuTemperature() == Double.NaN || s.getCpuTemperature() >= 0d && s.getCpuTemperature() <= 100d);
+        assertTrue("CPU voltage shouldn't be negative", s.getCpuVoltage() >= 0);
     }
 
     @Test
     public void testFanSpeeds() {
         int[] speeds = s.getFanSpeeds();
         for (int speed : speeds) {
-            assertTrue(speed >= 0);
+            assertTrue("Fan Speed shouldn't be negative", speed >= 0);
         }
     }
 }
