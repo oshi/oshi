@@ -22,8 +22,24 @@
 # SOFTWARE.
 #
 
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
 root = true
 
-[*.java]
-ij_java_class_count_to_use_import_on_demand = 1000
-ij_java_names_count_to_use_import_on_demand = 1000
+# Global editorconfig settings
+[*]
+end_of_line = lf
+insert_final_newline = true # Insert a newline at the end of a file
+charset = utf-8 # Set default charset
+indent_style = space # Use spaces for indents
+indent_size = 4
+trim_trailing_whitespace = true # delete whitespace at the end of each line
+
+# 2 space indentation for yaml
+[*.{yml, yaml}]
+indent_size = 2
+
+# IntelliJ specific settings
+ij_java_class_count_to_use_import_on_demand = 1000 # Do not group imports with an asterisk
+ij_java_names_count_to_use_import_on_demand = 1000 # Do not group imports with an asterisk
