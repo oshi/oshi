@@ -151,7 +151,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             LOG.error("Socket exception when retrieving interfaces: {}", ex.getMessage());
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override
