@@ -121,7 +121,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      *
      * @return A list of network interfaces
      */
-    protected static List<NetworkInterface> getInetNetworkInterfaces() {
+    protected static List<NetworkInterface> getNonLocalNetworkInterfaces() {
         List<NetworkInterface> result = new ArrayList<>();
         List<NetworkInterface> interfaces = getAllNetworkInterfaces();
 

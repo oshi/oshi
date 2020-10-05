@@ -63,7 +63,7 @@ public final class FreeBsdNetworkIF extends AbstractNetworkIF {
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
-                getInetNetworkInterfaces().stream().map(FreeBsdNetworkIF::new).collect(Collectors.toList()));
+                getNonLocalNetworkInterfaces().stream().map(FreeBsdNetworkIF::new).collect(Collectors.toList()));
     }
 
     /**

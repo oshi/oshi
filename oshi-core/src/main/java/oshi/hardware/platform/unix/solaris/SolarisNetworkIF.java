@@ -66,7 +66,7 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
-                getInetNetworkInterfaces().stream().map(SolarisNetworkIF::new).collect(Collectors.toList()));
+                getNonLocalNetworkInterfaces().stream().map(SolarisNetworkIF::new).collect(Collectors.toList()));
     }
 
     /**

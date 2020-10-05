@@ -79,7 +79,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
-                getInetNetworkInterfaces().stream().map(WindowsNetworkIF::new).collect(Collectors.toList()));
+                getNonLocalNetworkInterfaces().stream().map(WindowsNetworkIF::new).collect(Collectors.toList()));
     }
 
     /**

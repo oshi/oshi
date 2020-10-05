@@ -66,7 +66,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
-                getInetNetworkInterfaces().stream().map(LinuxNetworkIF::new).collect(Collectors.toList()));
+                getNonLocalNetworkInterfaces().stream().map(LinuxNetworkIF::new).collect(Collectors.toList()));
     }
 
     /**

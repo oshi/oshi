@@ -77,7 +77,7 @@ public interface HardwareAbstractionLayer {
     List<HWDiskStore> getDiskStores();
 
     /**
-     * Gets a list of inet {@link NetworkIF} objects, representing a network interface
+     * Gets a list of non-local {@link NetworkIF} objects, representing a network interface
      * The list excludes local interfaces.
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing

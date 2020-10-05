@@ -75,7 +75,7 @@ public final class AixNetworkIF extends AbstractNetworkIF {
         Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterface::queryNetInterfaces,
                 defaultExpiration());
         return Collections.unmodifiableList(
-                getInetNetworkInterfaces().stream().map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
+                getNonLocalNetworkInterfaces().stream().map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
     }
 
     /**

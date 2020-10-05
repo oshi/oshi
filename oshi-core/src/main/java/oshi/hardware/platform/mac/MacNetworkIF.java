@@ -68,7 +68,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
         // One time fetch of stats
         final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
         return Collections.unmodifiableList(
-                getInetNetworkInterfaces().stream().map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
+                getNonLocalNetworkInterfaces().stream().map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
     }
 
     /**
