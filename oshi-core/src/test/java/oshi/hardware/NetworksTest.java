@@ -68,7 +68,6 @@ public class NetworksTest {
             assertTrue("NetworkIF in drops should not be negative", net.getInDrops() >= 0);
             assertTrue("NetworkIF collisions should not be negative", net.getCollisions() >= 0);
             assertTrue("NetworkIF speed should not be negative", net.getSpeed() >= 0);
-            assertTrue("NetworkIF MTU should not be negative", net.getMTU() >= 0);
             assertTrue("NetworkIF time stamp should be positive", net.getTimeStamp() > 0);
 
             net.updateAttributes();
@@ -105,6 +104,8 @@ public class NetworksTest {
 
             assertFalse("Network interface is not localhost " + net.getDisplayName(), net.queryNetworkInterface().isLoopback() );
             assertNotNull("Network interface has a hardware address", net.queryNetworkInterface().getHardwareAddress());
+
+            assertTrue("NetworkIF MTU should not be negative", net.getMTU() >= 0);
         }
     }
 }
