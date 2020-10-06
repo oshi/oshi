@@ -48,7 +48,7 @@ public class NetworksTest {
     public void testAllNetworkInterfaces() throws IOException {
         SystemInfo si = new SystemInfo();
 
-        for (NetworkIF net : si.getHardware().getAllNetworkIFs()) {
+        for (NetworkIF net : si.getHardware().getNetworkIFs(true)) {
             assertNotNull("NetworkIF should not be null", net.queryNetworkInterface());
             assertNotNull("NetworkIF name should not be null", net.getName());
             assertNotNull("NetworkIF display name should not be null", net.getDisplayName());
@@ -99,7 +99,7 @@ public class NetworksTest {
     public void testNonLocalNetworkInterfaces() throws IOException {
         SystemInfo si = new SystemInfo();
 
-        for (NetworkIF net : si.getHardware().getNetworkIFs()) {
+        for (NetworkIF net : si.getHardware().getNetworkIFs(false)) {
             assertNotNull("NetworkIF should not be null", net.queryNetworkInterface());
 
             assertFalse("Network interface is not localhost " + net.getDisplayName(), net.queryNetworkInterface().isLoopback() );

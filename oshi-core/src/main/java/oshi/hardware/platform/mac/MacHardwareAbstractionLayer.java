@@ -38,6 +38,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxNetworkIF;
 
 /**
  * MacHardwareAbstractionLayer class.
@@ -86,8 +87,8 @@ public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
-    public List<NetworkIF> getAllNetworkIFs() {
-        return MacNetworkIF.getAllNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return MacNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

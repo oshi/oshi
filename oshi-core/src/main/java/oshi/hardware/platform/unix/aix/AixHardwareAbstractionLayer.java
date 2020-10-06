@@ -44,6 +44,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxNetworkIF;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 /**
@@ -98,8 +99,8 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
-    public List<NetworkIF> getAllNetworkIFs() {
-        return AixNetworkIF.getAllNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return AixNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

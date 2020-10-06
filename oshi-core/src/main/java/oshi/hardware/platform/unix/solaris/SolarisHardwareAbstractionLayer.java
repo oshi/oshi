@@ -38,6 +38,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxNetworkIF;
 
 /**
  * SolarisHardwareAbstractionLayer class.
@@ -86,8 +87,8 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public List<NetworkIF> getAllNetworkIFs() {
-        return SolarisNetworkIF.getAllNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return SolarisNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

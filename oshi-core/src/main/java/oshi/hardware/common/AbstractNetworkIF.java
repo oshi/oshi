@@ -116,18 +116,18 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     }
 
     /**
-     * Returns network interfaces that are not Loopback, and have a hardware
-     * address.
+     * Returns network interfaces on this machine.
      *
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return A list of network interfaces
      */
-    protected static List<NetworkInterface> getNonLocalNetworkInterfaces() {
+    protected static List<NetworkInterface> getNetworkInterfaces(boolean includeLocalInterfaces) {
         List<NetworkInterface> result = new ArrayList<>();
         List<NetworkInterface> interfaces = getAllNetworkInterfaces();
 
         for (NetworkInterface iface : interfaces) {
             try {
-                if (!iface.isLoopback() && iface.getHardwareAddress() != null) {
+                if (!isLocalInterface(iface) || includeLocalInterfaces) {
                     result.add(iface);
                 }
             } catch (SocketException ex) {
@@ -143,7 +143,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      *
      * @return A list of network interfaces
      */
-    protected static List<NetworkInterface> getAllNetworkInterfaces() {
+    private static List<NetworkInterface> getAllNetworkInterfaces() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             return Collections.list(interfaces);
@@ -152,6 +152,10 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         }
 
         return Collections.emptyList();
+    }
+
+    private static boolean isLocalInterface(NetworkInterface networkInterface) throws SocketException {
+        return networkInterface.isLoopback() || networkInterface.getHardwareAddress() == null;
     }
 
     @Override

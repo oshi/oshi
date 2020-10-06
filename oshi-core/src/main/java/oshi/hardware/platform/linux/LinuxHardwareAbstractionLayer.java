@@ -86,8 +86,8 @@ public final class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstrac
     }
 
     @Override
-    public List<NetworkIF> getAllNetworkIFs() {
-        return LinuxNetworkIF.getAllNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return LinuxNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

@@ -38,6 +38,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxNetworkIF;
 
 /**
  * FreeBsdHardwareAbstractionLayer class.
@@ -86,8 +87,8 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public List<NetworkIF> getAllNetworkIFs() {
-        return FreeBsdNetworkIF.getAllNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return FreeBsdNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

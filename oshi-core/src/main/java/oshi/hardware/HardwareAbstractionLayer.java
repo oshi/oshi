@@ -86,12 +86,13 @@ public interface HardwareAbstractionLayer {
     List<NetworkIF> getNetworkIFs();
 
     /**
-     * Gets a list of all {@link NetworkIF} objects, representing a network interface
+     * Gets a list {@link NetworkIF} objects, representing a network interface
      *
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
-    List<NetworkIF> getAllNetworkIFs();
+    List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces);
 
     /**
      * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.Display}

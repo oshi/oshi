@@ -59,25 +59,26 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Gets inet network interfaces on this machine
+     * Gets non-local network interfaces on this machine
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks() {
         return Collections.unmodifiableList(
-                getNonLocalNetworkInterfaces().stream().map(LinuxNetworkIF::new).collect(Collectors.toList()));
+            getNetworkInterfaces(false).stream().map(LinuxNetworkIF::new).collect(Collectors.toList()));
     }
 
     /**
-     * Gets all network interfaces on this machine
+     * Gets network interfaces on this machine
      *
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
-    public static List<NetworkIF> getAllNetworks() {
+    public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         return Collections.unmodifiableList(
-                getAllNetworkInterfaces().stream().map(LinuxNetworkIF::new).collect(Collectors.toList()));
+                getNetworkInterfaces(includeLocalInterfaces).stream().map(LinuxNetworkIF::new).collect(Collectors.toList()));
     }
 
     @Override

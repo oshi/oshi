@@ -59,25 +59,25 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Gets inet network interfaces on this machine
+     * Gets non-local network interfaces on this machine
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks() {
-        return Collections.unmodifiableList(
-                getNonLocalNetworkInterfaces().stream().map(SolarisNetworkIF::new).collect(Collectors.toList()));
+        return getNetworks(false);
     }
 
     /**
      * Gets all network interfaces on this machine
      *
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
-    public static List<NetworkIF> getAllNetworks() {
+    public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         return Collections.unmodifiableList(
-                getAllNetworkInterfaces().stream().map(SolarisNetworkIF::new).collect(Collectors.toList()));
+                getNetworkInterfaces(includeLocalInterfaces).stream().map(SolarisNetworkIF::new).collect(Collectors.toList()));
     }
 
     @Override
