@@ -34,6 +34,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.PlatformEnum;
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -81,7 +83,16 @@ public final class ExecutingCommand {
     public static List<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(cmdToRunWithArgs);
+            PlatformEnum platform = SystemInfo.getCurrentPlatformEnum();
+            if (platform == PlatformEnum.WINDOWS) {
+                p = Runtime.getRuntime().exec(cmdToRunWithArgs, new String[]{"LANGUAGE=C"});
+            } else if (platform == PlatformEnum.LINUX || platform == PlatformEnum.FREEBSD
+                    || platform == PlatformEnum.SOLARIS || platform == PlatformEnum.AIX
+                    || platform == PlatformEnum.MACOSX) {
+                p = Runtime.getRuntime().exec(cmdToRunWithArgs, new String[]{"LC_ALL=C"});
+            } else {
+                p = Runtime.getRuntime().exec(cmdToRunWithArgs);
+            }
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
             return new ArrayList<>(0);
