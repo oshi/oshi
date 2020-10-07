@@ -36,6 +36,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,20 +123,11 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * @return A list of network interfaces
      */
     protected static List<NetworkInterface> getNetworkInterfaces(boolean includeLocalInterfaces) {
-        List<NetworkInterface> result = new ArrayList<>();
         List<NetworkInterface> interfaces = getAllNetworkInterfaces();
 
-        for (NetworkInterface iface : interfaces) {
-            try {
-                if (!isLocalInterface(iface) || includeLocalInterfaces) {
-                    result.add(iface);
-                }
-            } catch (SocketException ex) {
-                LOG.error("Socket exception when retrieving interface \"{}\": {}", iface.getName(),
-                        ex.getMessage());
-            }
-        }
-        return result;
+        return includeLocalInterfaces ? interfaces : getAllNetworkInterfaces().stream()
+            .filter(networkInterface1 -> !isLocalInterface(networkInterface1))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -154,8 +146,14 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         return Collections.emptyList();
     }
 
-    private static boolean isLocalInterface(NetworkInterface networkInterface) throws SocketException {
-        return networkInterface.isLoopback() || networkInterface.getHardwareAddress() == null;
+    private static boolean isLocalInterface(NetworkInterface networkInterface) {
+        try {
+            return networkInterface.isLoopback() || networkInterface.getHardwareAddress() == null;
+        } catch (SocketException e) {
+            LOG.error("Socket exception when retrieving interface information for {}: {}", networkInterface,
+                e.getMessage());
+        }
+        return false;
     }
 
     @Override
