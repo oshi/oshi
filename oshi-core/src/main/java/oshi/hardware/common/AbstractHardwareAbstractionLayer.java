@@ -25,6 +25,7 @@ package oshi.hardware.common;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -32,6 +33,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.Sensors;
 
 /**
@@ -96,4 +98,9 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      * @return platform-specific {@link Sensors} object
      */
     protected abstract Sensors createSensors();
+
+    @Override
+    public List<NetworkIF> getNetworkIFs() {
+        return getNetworkIFs(false);
+    }
 }

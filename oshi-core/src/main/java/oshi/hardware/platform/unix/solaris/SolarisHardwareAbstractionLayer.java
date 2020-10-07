@@ -82,11 +82,6 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public List<NetworkIF> getNetworkIFs() {
-        return SolarisNetworkIF.getNetworks();
-    }
-
-    @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
         return SolarisNetworkIF.getNetworks(includeLocalInterfaces);
     }
