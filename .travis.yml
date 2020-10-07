@@ -92,8 +92,12 @@ jobs:
       jdk: openjdk16
       dist: bionic
 # Uncomment if external issue
-#  allow_failures:
+  allow_failures:
 #    - name: "Linux JDK16 EA"
 #      os: linux
 #      jdk: openjdk16
 #      dist: bionic
+    - name: "Mac JDK14"
+      if: branch = master
+      os: osx
+      osx_image: xcode12
