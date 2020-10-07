@@ -44,7 +44,6 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.platform.linux.LinuxNetworkIF;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 /**

@@ -69,7 +69,7 @@ public interface HardwareAbstractionLayer {
 
     /**
      * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.HWDiskStore}
-     * objects, representing physical hard disks or other similar storage devices
+     * objects, representing physical hard disks or other similar storage devices.
      *
      * @return An {@code UnmodifiableList} of HWDiskStore objects or an empty list
      *         if none are present.
@@ -77,8 +77,8 @@ public interface HardwareAbstractionLayer {
     List<HWDiskStore> getDiskStores();
 
     /**
-     * Gets a list of non-local {@link NetworkIF} objects, representing a network interface
-     * The list excludes local interfaces.
+     * Gets a list of non-local {@link NetworkIF} objects, representing a network
+     * interface. The list excludes local interfaces.
      *
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
@@ -86,9 +86,11 @@ public interface HardwareAbstractionLayer {
     List<NetworkIF> getNetworkIFs();
 
     /**
-     * Gets a list {@link NetworkIF} objects, representing a network interface
+     * Gets a list {@link NetworkIF} objects, representing a network interface.
      *
-     * @param includeLocalInterfaces include local interfaces in the result
+     * @param includeLocalInterfaces
+     *            whether to include local interfaces (loopback or no hardware
+     *            address) in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
@@ -105,7 +107,7 @@ public interface HardwareAbstractionLayer {
 
     /**
      * Instantiates a {@link oshi.hardware.Sensors} object, representing CPU
-     * temperature and fan speed
+     * temperature and fan speed.
      *
      * @return A Sensors object
      */

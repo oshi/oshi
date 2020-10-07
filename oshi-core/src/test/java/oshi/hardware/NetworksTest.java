@@ -23,15 +23,15 @@
  */
 package oshi.hardware;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import org.junit.Test;
 
 import oshi.SystemInfo;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test Networks
@@ -69,6 +69,7 @@ public class NetworksTest {
             assertTrue("NetworkIF collisions should not be negative", net.getCollisions() >= 0);
             assertTrue("NetworkIF speed should not be negative", net.getSpeed() >= 0);
             assertTrue("NetworkIF time stamp should be positive", net.getTimeStamp() > 0);
+            // MTU can be negative for non-local so test separately
 
             net.updateAttributes();
             assertTrue("NetworkIF bytes received after update attr should not be negative", net.getBytesRecv() >= 0);
@@ -102,7 +103,8 @@ public class NetworksTest {
         for (NetworkIF net : si.getHardware().getNetworkIFs(false)) {
             assertNotNull("NetworkIF should not be null", net.queryNetworkInterface());
 
-            assertFalse("Network interface is not localhost " + net.getDisplayName(), net.queryNetworkInterface().isLoopback() );
+            assertFalse("Network interface is not localhost " + net.getDisplayName(),
+                    net.queryNetworkInterface().isLoopback());
             assertNotNull("Network interface has a hardware address", net.queryNetworkInterface().getHardwareAddress());
 
             assertTrue("NetworkIF MTU should not be negative", net.getMTU() >= 0);

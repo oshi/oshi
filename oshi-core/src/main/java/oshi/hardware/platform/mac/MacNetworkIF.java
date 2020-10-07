@@ -59,27 +59,18 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Gets non-local network interfaces on this machine
-     *
-     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
-     *         the interfaces
-     */
-    public static List<NetworkIF> getNetworks() {
-        return getNetworks(false);
-    }
-
-    /**
      * Gets all network interfaces on this machine
      *
-     * @param includeLocalInterfaces include local interfaces in the result
+     * @param includeLocalInterfaces
+     *            include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         // One time fetch of stats
         final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
-        return Collections.unmodifiableList(
-                getNetworkInterfaces(includeLocalInterfaces).stream().map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
+        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()
+                .map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
     }
 
     @Override
