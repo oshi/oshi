@@ -81,8 +81,8 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public List<NetworkIF> getNetworkIFs() {
-        return FreeBsdNetworkIF.getNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return FreeBsdNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

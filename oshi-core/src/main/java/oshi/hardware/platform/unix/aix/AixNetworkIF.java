@@ -66,16 +66,18 @@ public final class AixNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Gets the network interfaces on this machine
+     * Gets all network interfaces on this machine
      *
+     * @param includeLocalInterfaces
+     *            include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
-    public static List<NetworkIF> getNetworks() {
+    public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterface::queryNetInterfaces,
                 defaultExpiration());
-        return Collections.unmodifiableList(
-                getNetworkInterfaces().stream().map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
+        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()
+                .map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
     }
 
     @Override

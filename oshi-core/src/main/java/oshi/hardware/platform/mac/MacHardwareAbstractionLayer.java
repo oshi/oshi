@@ -81,8 +81,8 @@ public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
-    public List<NetworkIF> getNetworkIFs() {
-        return MacNetworkIF.getNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return MacNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

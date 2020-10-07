@@ -93,8 +93,8 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
     }
 
     @Override
-    public List<NetworkIF> getNetworkIFs() {
-        return AixNetworkIF.getNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return AixNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override

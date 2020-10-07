@@ -81,8 +81,8 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     }
 
     @Override
-    public List<NetworkIF> getNetworkIFs() {
-        return WindowsNetworkIF.getNetworks();
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return WindowsNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override
