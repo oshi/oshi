@@ -55,11 +55,11 @@ public final class ExecutingCommand {
     private static String[] getDefaultEnv() {
         PlatformEnum platform = SystemInfo.getCurrentPlatformEnum();
         if (platform == PlatformEnum.WINDOWS) {
-            return new String[]{"LANGUAGE=C"};
+            return new String[] { "LANGUAGE=C" };
         } else if (platform != PlatformEnum.UNKNOWN) {
-            return new String[]{"LC_ALL=C"};
+            return new String[] { "LC_ALL=C" };
         } else {
-            return null;
+            return null; // NOSONAR squid:S1168
         }
     }
 
