@@ -1,6 +1,7 @@
 5.3.0 (in progress)
 ================
 * [#1350](https://github.com/oshi/oshi/pull/1350): Optionally list loopback and virtual network interfaces - [@zalintyre](https://github.com/zalintyre).
+* [#1347](https://github.com/oshi/oshi/pull/1353): runNative locale issues on linux - [@dmitraver](https://github.com/dmitraver)
 * Your contribution here
 
 4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16), 4.9.5 / 5.2.5 (2020-08-30)
