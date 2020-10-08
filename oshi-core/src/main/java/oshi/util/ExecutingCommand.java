@@ -47,7 +47,20 @@ public final class ExecutingCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);
 
+    private static final String[] DEFAULT_ENV = getDefaultEnv();
+
     private ExecutingCommand() {
+    }
+
+    private static String[] getDefaultEnv() {
+        PlatformEnum platform = SystemInfo.getCurrentPlatformEnum();
+        if (platform == PlatformEnum.WINDOWS) {
+            return new String[]{"LANGUAGE=C"};
+        } else if (platform != PlatformEnum.UNKNOWN) {
+            return new String[]{"LC_ALL=C"};
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -83,16 +96,7 @@ public final class ExecutingCommand {
     public static List<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
         try {
-            PlatformEnum platform = SystemInfo.getCurrentPlatformEnum();
-            if (platform == PlatformEnum.WINDOWS) {
-                p = Runtime.getRuntime().exec(cmdToRunWithArgs, new String[]{"LANGUAGE=C"});
-            } else if (platform == PlatformEnum.LINUX || platform == PlatformEnum.FREEBSD
-                    || platform == PlatformEnum.SOLARIS || platform == PlatformEnum.AIX
-                    || platform == PlatformEnum.MACOSX) {
-                p = Runtime.getRuntime().exec(cmdToRunWithArgs, new String[]{"LC_ALL=C"});
-            } else {
-                p = Runtime.getRuntime().exec(cmdToRunWithArgs);
-            }
+            p = Runtime.getRuntime().exec(cmdToRunWithArgs, DEFAULT_ENV);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
             return new ArrayList<>(0);
