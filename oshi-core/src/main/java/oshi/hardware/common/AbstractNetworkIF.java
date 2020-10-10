@@ -70,7 +70,8 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * Construct a {@link NetworkIF} object backed by the specified
      * {@link NetworkInterface}.
      *
-     * @param netint The core java {@link NetworkInterface} backing this object.
+     * @param netint
+     *            The core java {@link NetworkInterface} backing this object.
      */
     protected AbstractNetworkIF(NetworkInterface netint) {
         this.networkInterface = netint;
@@ -119,15 +120,16 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     /**
      * Returns network interfaces on this machine.
      *
-     * @param includeLocalInterfaces include local interfaces in the result
+     * @param includeLocalInterfaces
+     *            include local interfaces in the result
      * @return A list of network interfaces
      */
     protected static List<NetworkInterface> getNetworkInterfaces(boolean includeLocalInterfaces) {
         List<NetworkInterface> interfaces = getAllNetworkInterfaces();
 
-        return includeLocalInterfaces ? interfaces : getAllNetworkInterfaces().stream()
-            .filter(networkInterface1 -> !isLocalInterface(networkInterface1))
-            .collect(Collectors.toList());
+        return includeLocalInterfaces ? interfaces
+                : getAllNetworkInterfaces().stream().filter(networkInterface1 -> !isLocalInterface(networkInterface1))
+                        .collect(Collectors.toList());
     }
 
     /**
@@ -138,11 +140,10 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private static List<NetworkInterface> getAllNetworkInterfaces() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            return Collections.list(interfaces);
+            return interfaces == null ? Collections.emptyList() : Collections.list(interfaces);
         } catch (SocketException ex) {
             LOG.error("Socket exception when retrieving interfaces: {}", ex.getMessage());
         }
-
         return Collections.emptyList();
     }
 
@@ -151,7 +152,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             return networkInterface.isLoopback() || networkInterface.getHardwareAddress() == null;
         } catch (SocketException e) {
             LOG.error("Socket exception when retrieving interface information for {}: {}", networkInterface,
-                e.getMessage());
+                    e.getMessage());
         }
         return false;
     }
