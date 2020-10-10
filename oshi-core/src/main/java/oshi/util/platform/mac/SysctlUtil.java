@@ -128,4 +128,26 @@ public final class SysctlUtil {
         struct.read();
         return true;
     }
+
+    /**
+     * Executes a sysctl call with a Pointer result
+     *
+     * @param name
+     *            name of the sysctl
+     * @return An allocated memory buffer containing the result on success, null
+     *         otherwise. Its value on failure is undefined.
+     */
+    public static Memory sysctl(String name) {
+        IntByReference size = new IntByReference();
+        if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, 0)) {
+            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+            return null;
+        }
+        Memory m = new Memory(size.getValue());
+        if (0 != SystemB.INSTANCE.sysctlbyname(name, m, size, null, 0)) {
+            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+            return null;
+        }
+        return m;
+    }
 }
