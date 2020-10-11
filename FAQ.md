@@ -14,6 +14,16 @@ rarely, change between minor versions, usually associated with organizing packag
 
 Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
+I'm trying to optimize performance. What CPU/Memory trade-offs are key?
+========
+OSHI avoids caching large amount of information and the use of `static` variables.  Memoized suppliers are used in many classes to avoid repeated operating system calls, but these will be garbage collected with their containing classes.  Users with memory constrants should consider periodically creating a new `SystemInfo` object to enable this.
+
+Many of the individual objects returned by lists, such as `OSProcess`, `NetworkIF`, `OSFileStore`, and others, have an `updateAttributes()` method that operates only on that object. These are intended for use primarily if that individual process is the only one being updated, but in many cases gather data for the entire list.  Users updating multiple objects in a list should simply re-query the list and correlate the results in their own application.
+
+On Windows, fetching command lines requires WMI overhead. By default, each process command line will execute a separate query. For better CPU performance, it is possible to query all command lines and cache the results, but this must be enabled in the configuration file, or by calling `GlobalConfig.set(WindowsOSProcess.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, true);` shortly after startup.
+
+Updates of disks, filestores, and USB devices tend to be slower than other native calls, and should be polled less frequently.
+
 Is OSHI Thread Safe?
 ========
 OSHI 5.X is thread safe with the exceptions noted below. `@Immutable`, `@ThreadSafe`, and `@NotThreadSafe` document

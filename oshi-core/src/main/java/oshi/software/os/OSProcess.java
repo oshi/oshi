@@ -27,6 +27,7 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32ProcessCached;
+import oshi.util.GlobalConfig;
 
 /**
  * Represents a Process on the operating system, which may contain multiple
@@ -72,7 +73,9 @@ public interface OSProcess {
      *         with some latency. If this method will be frequently called for
      *         multiple processes, see the configuration file to enable a batch
      *         query mode leveraging {@link Win32ProcessCached#getCommandLine} to
-     *         improve performance.
+     *         improve performance, or setting that parameter via
+     *         {@link GlobalConfig#set()} before instantiating any {@link OSProcess}
+     *         object.
      */
     String getCommandLine();
 
