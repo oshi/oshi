@@ -51,19 +51,20 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          HardwareAbstractionLayer hal = si.getHardware();
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          GlobalMemory memory = hal.getMemory();
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          VirtualMemory vm = memory.getVirtualMemory();
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertNotNull(vm);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertNotNull(<span class="jxr_string">"VM object shouldn't be null"</span>, vm);
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          <em class="jxr_comment">// Swap tests</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(vm.getSwapPagesIn() &gt;= 0);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertTrue(vm.getSwapPagesOut() &gt;= 0);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(vm.getSwapTotal() &gt;= 0);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertTrue(vm.getSwapUsed() &gt;= 0);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertTrue(vm.getSwapUsed() &lt;= vm.getSwapTotal());
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertTrue(vm.getVirtualMax() &gt;= vm.getSwapTotal());
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(vm.getVirtualInUse() &gt;= 0);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(vm.toString().contains(<span class="jxr_string">"Used"</span>));
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(<span class="jxr_string">"VM's swap pages in shouldn't be negative"</span>, vm.getSwapPagesIn() &gt;= 0);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertTrue(<span class="jxr_string">"VM's swap pages out shouldn't be negative"</span>, vm.getSwapPagesOut() &gt;= 0);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(<span class="jxr_string">"VM's swap total shouldn't be negative"</span>, vm.getSwapTotal() &gt;= 0);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertTrue(<span class="jxr_string">"VM's swap used shouldn't be negative"</span>, vm.getSwapUsed() &gt;= 0);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertTrue(<span class="jxr_string">"VM's swap used should be less than or equal to VM swap total"</span>,
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  vm.getSwapUsed() &lt;= vm.getSwapTotal());
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(<span class="jxr_string">"VM's max should be greater than or qual to VM swap total"</span>, vm.getVirtualMax() &gt;= vm.getSwapTotal());
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(<span class="jxr_string">"VM's virtual in use shouldn't be negative"</span>, vm.getVirtualInUse() &gt;= 0);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertTrue(<span class="jxr_string">"VM's toString contains 'Used'"</span>, vm.toString().contains(<span class="jxr_string">"Used"</span>));
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
