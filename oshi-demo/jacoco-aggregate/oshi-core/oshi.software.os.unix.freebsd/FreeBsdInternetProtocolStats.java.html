@@ -28,65 +28,89 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.NetStatTcp;
-import oshi.jna.platform.unix.CLibrary.Tcpstat;
-import oshi.jna.platform.unix.CLibrary.Udpstat;
+import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
+import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
 import oshi.software.os.InternetProtocolStats;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
-<span class="nc" id="L41">public class FreeBsdInternetProtocolStats implements InternetProtocolStats {</span>
+<span class="nc" id="L43">public class FreeBsdInternetProtocolStats implements InternetProtocolStats {</span>
 
-<span class="nc" id="L43">    private Supplier&lt;Pair&lt;Long, Long&gt;&gt; establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat, defaultExpiration());</span>
-<span class="nc" id="L44">    private Supplier&lt;Tcpstat&gt; tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());</span>
-<span class="nc" id="L45">    private Supplier&lt;Udpstat&gt; udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());</span>
+<span class="nc" id="L45">    private Supplier&lt;Pair&lt;Long, Long&gt;&gt; establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat, defaultExpiration());</span>
+<span class="nc" id="L46">    private Supplier&lt;BsdTcpstat&gt; tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());</span>
+<span class="nc" id="L47">    private Supplier&lt;BsdUdpstat&gt; udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());</span>
 
     @Override
     public TcpStats getTCPv4Stats() {
-<span class="nc" id="L49">        Tcpstat tcp = tcpstat.get();</span>
-<span class="nc" id="L50">        return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),</span>
-<span class="nc" id="L51">                ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),</span>
-<span class="nc" id="L52">                ParseUtil.unsignedIntToLong(tcp.tcps_drops),</span>
-<span class="nc" id="L53">                ParseUtil.unsignedIntToLong(tcp.tcps_snd_swcsum - tcp.tcps_sndrexmitpack),</span>
-<span class="nc" id="L54">                ParseUtil.unsignedIntToLong(tcp.tcps_rcv_swcsum), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),</span>
-<span class="nc" id="L55">                ParseUtil.unsignedIntToLong(</span>
+<span class="nc" id="L51">        BsdTcpstat tcp = tcpstat.get();</span>
+<span class="nc" id="L52">        return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),</span>
+<span class="nc" id="L53">                ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),</span>
+<span class="nc" id="L54">                ParseUtil.unsignedIntToLong(tcp.tcps_drops), ParseUtil.unsignedIntToLong(tcp.tcps_sndpack),</span>
+<span class="nc" id="L55">                ParseUtil.unsignedIntToLong(tcp.tcps_rcvpack), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),</span>
+<span class="nc" id="L56">                ParseUtil.unsignedIntToLong(</span>
                         tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
                 0L);
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-<span class="nc" id="L62">        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);</span>
+<span class="nc" id="L63">        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);</span>
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-<span class="nc" id="L67">        Udpstat stat = udpstat.get();</span>
-<span class="nc" id="L68">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd_swcsum),</span>
-<span class="nc" id="L69">                ParseUtil.unsignedIntToLong(stat.udps_rcv_swcsum), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),</span>
-<span class="nc" id="L70">                ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));</span>
+<span class="nc" id="L68">        BsdUdpstat stat = udpstat.get();</span>
+<span class="nc" id="L69">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),</span>
+<span class="nc" id="L70">                ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),</span>
+<span class="nc" id="L71">                ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));</span>
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-<span class="nc" id="L75">        Udpstat stat = udpstat.get();</span>
-<span class="nc" id="L76">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),</span>
-<span class="nc" id="L77">                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);</span>
+<span class="nc" id="L76">        BsdUdpstat stat = udpstat.get();</span>
+<span class="nc" id="L77">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),</span>
+<span class="nc" id="L78">                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);</span>
     }
 
-    private static Tcpstat queryTcpstat() {
-<span class="nc" id="L81">        Tcpstat tcpstat = new Tcpstat();</span>
-<span class="nc" id="L82">        BsdSysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;, tcpstat);</span>
-<span class="nc" id="L83">        return tcpstat;</span>
+    private static BsdTcpstat queryTcpstat() {
+<span class="nc" id="L82">        BsdTcpstat ft = new BsdTcpstat();</span>
+<span class="nc" id="L83">        Memory m = SysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;);</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 128) {</span>
+<span class="nc" id="L85">            ft.tcps_connattempt = m.getInt(0);</span>
+<span class="nc" id="L86">            ft.tcps_accepts = m.getInt(4);</span>
+<span class="nc" id="L87">            ft.tcps_drops = m.getInt(12);</span>
+<span class="nc" id="L88">            ft.tcps_conndrops = m.getInt(16);</span>
+<span class="nc" id="L89">            ft.tcps_sndpack = m.getInt(64);</span>
+<span class="nc" id="L90">            ft.tcps_sndrexmitpack = m.getInt(72);</span>
+<span class="nc" id="L91">            ft.tcps_rcvpack = m.getInt(104);</span>
+<span class="nc" id="L92">            ft.tcps_rcvbadsum = m.getInt(112);</span>
+<span class="nc" id="L93">            ft.tcps_rcvbadoff = m.getInt(116);</span>
+<span class="nc" id="L94">            ft.tcps_rcvmemdrop = m.getInt(120);</span>
+<span class="nc" id="L95">            ft.tcps_rcvshort = m.getInt(124);</span>
+        }
+<span class="nc" id="L97">        return ft;</span>
     }
 
-    private static Udpstat queryUdpstat() {
-<span class="nc" id="L87">        Udpstat udpstat = new Udpstat();</span>
-<span class="nc" id="L88">        BsdSysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;, udpstat);</span>
-<span class="nc" id="L89">        return udpstat;</span>
+    private static BsdUdpstat queryUdpstat() {
+<span class="nc" id="L101">        BsdUdpstat ut = new BsdUdpstat();</span>
+<span class="nc" id="L102">        Memory m = SysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;);</span>
+<span class="nc bnc" id="L103" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 1644) {</span>
+<span class="nc" id="L104">            ut.udps_ipackets = m.getInt(0);</span>
+<span class="nc" id="L105">            ut.udps_hdrops = m.getInt(4);</span>
+<span class="nc" id="L106">            ut.udps_badsum = m.getInt(8);</span>
+<span class="nc" id="L107">            ut.udps_badlen = m.getInt(12);</span>
+<span class="nc" id="L108">            ut.udps_opackets = m.getInt(36);</span>
+<span class="nc" id="L109">            ut.udps_noportmcast = m.getInt(48);</span>
+<span class="nc" id="L110">            ut.udps_rcv6_swcsum = m.getInt(64);</span>
+<span class="nc" id="L111">            ut.udps_snd6_swcsum = m.getInt(80);</span>
+        }
+<span class="nc" id="L113">        return ut;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -67,7 +67,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     private String serialNumber;
     private double temperature;
 
-    public AbstractPowerSource(String name, String deviceName, double remainingCapacityPercent,
+    protected AbstractPowerSource(String name, String deviceName, double remainingCapacityPercent,
             double timeRemainingEstimated, double timeRemainingInstant, double powerUsageRate, double voltage,
             double amperage, boolean powerOnLine, boolean charging, boolean discharging, CapacityUnits capacityUnits,
             int currentCapacity, int maxCapacity, int designCapacity, int cycleCount, String chemistry,
@@ -307,4 +307,4 @@ public abstract class AbstractPowerSource implements PowerSource {
 <span class="nc" id="L307">        return formattedTimeRemaining;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -27,6 +27,7 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32ProcessCached;
+import oshi.util.GlobalConfig;
 
 /**
  * Represents a Process on the operating system, which may contain multiple
@@ -72,7 +73,9 @@ public interface OSProcess {
      *         with some latency. If this method will be frequently called for
      *         multiple processes, see the configuration file to enable a batch
      *         query mode leveraging {@link Win32ProcessCached#getCommandLine} to
-     *         improve performance.
+     *         improve performance, or setting that parameter via
+     *         {@link GlobalConfig#set(String, Object)} before instantiating any
+     *         {@link OSProcess} object.
      */
     String getCommandLine();
 
@@ -400,40 +403,40 @@ public interface OSProcess {
     /**
      * Process Execution States
      */
-<span class="fc" id="L403">    enum State {</span>
+<span class="fc" id="L406">    enum State {</span>
         /**
          * Intermediate state in process creation
          */
-<span class="fc" id="L407">        NEW,</span>
+<span class="fc" id="L410">        NEW,</span>
         /**
          * Actively executing process
          */
-<span class="fc" id="L411">        RUNNING,</span>
+<span class="fc" id="L414">        RUNNING,</span>
         /**
          * Interruptible sleep state
          */
-<span class="fc" id="L415">        SLEEPING,</span>
+<span class="fc" id="L418">        SLEEPING,</span>
         /**
          * Blocked, uninterruptible sleep state
          */
-<span class="fc" id="L419">        WAITING,</span>
+<span class="fc" id="L422">        WAITING,</span>
         /**
          * Intermediate state in process termination
          */
-<span class="fc" id="L423">        ZOMBIE,</span>
+<span class="fc" id="L426">        ZOMBIE,</span>
         /**
          * Stopped by the user, such as for debugging
          */
-<span class="fc" id="L427">        STOPPED,</span>
+<span class="fc" id="L430">        STOPPED,</span>
         /**
          * Other or unknown states not defined
          */
-<span class="fc" id="L431">        OTHER,</span>
+<span class="fc" id="L434">        OTHER,</span>
         /**
          * The state resulting if the process fails to update statistics, probably due
          * to termination.
          */
-<span class="fc" id="L436">        INVALID</span>
+<span class="fc" id="L439">        INVALID</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

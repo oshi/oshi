@@ -66,89 +66,91 @@ public final class AixNetworkIF extends AbstractNetworkIF {
 <span class="nc" id="L66">    }</span>
 
     /**
-     * Gets the network interfaces on this machine
+     * Gets all network interfaces on this machine
      *
+     * @param includeLocalInterfaces
+     *            include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
-    public static List&lt;NetworkIF&gt; getNetworks() {
-<span class="nc" id="L75">        Supplier&lt;perfstat_netinterface_t[]&gt; netstats = memoize(PerfstatNetInterface::queryNetInterfaces,</span>
-<span class="nc" id="L76">                defaultExpiration());</span>
-<span class="nc" id="L77">        return Collections.unmodifiableList(</span>
-<span class="nc" id="L78">                getNetworkInterfaces().stream().map(n -&gt; new AixNetworkIF(n, netstats)).collect(Collectors.toList()));</span>
+    public static List&lt;NetworkIF&gt; getNetworks(boolean includeLocalInterfaces) {
+<span class="nc" id="L77">        Supplier&lt;perfstat_netinterface_t[]&gt; netstats = memoize(PerfstatNetInterface::queryNetInterfaces,</span>
+<span class="nc" id="L78">                defaultExpiration());</span>
+<span class="nc" id="L79">        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()</span>
+<span class="nc" id="L80">                .map(n -&gt; new AixNetworkIF(n, netstats)).collect(Collectors.toList()));</span>
     }
 
     @Override
     public long getBytesRecv() {
-<span class="nc" id="L83">        return this.bytesRecv;</span>
+<span class="nc" id="L85">        return this.bytesRecv;</span>
     }
 
     @Override
     public long getBytesSent() {
-<span class="nc" id="L88">        return this.bytesSent;</span>
+<span class="nc" id="L90">        return this.bytesSent;</span>
     }
 
     @Override
     public long getPacketsRecv() {
-<span class="nc" id="L93">        return this.packetsRecv;</span>
+<span class="nc" id="L95">        return this.packetsRecv;</span>
     }
 
     @Override
     public long getPacketsSent() {
-<span class="nc" id="L98">        return this.packetsSent;</span>
+<span class="nc" id="L100">        return this.packetsSent;</span>
     }
 
     @Override
     public long getInErrors() {
-<span class="nc" id="L103">        return this.inErrors;</span>
+<span class="nc" id="L105">        return this.inErrors;</span>
     }
 
     @Override
     public long getOutErrors() {
-<span class="nc" id="L108">        return this.outErrors;</span>
+<span class="nc" id="L110">        return this.outErrors;</span>
     }
 
     @Override
     public long getInDrops() {
-<span class="nc" id="L113">        return this.inDrops;</span>
+<span class="nc" id="L115">        return this.inDrops;</span>
     }
 
     @Override
     public long getCollisions() {
-<span class="nc" id="L118">        return this.collisions;</span>
+<span class="nc" id="L120">        return this.collisions;</span>
     }
 
     @Override
     public long getSpeed() {
-<span class="nc" id="L123">        return this.speed;</span>
+<span class="nc" id="L125">        return this.speed;</span>
     }
 
     @Override
     public long getTimeStamp() {
-<span class="nc" id="L128">        return this.timeStamp;</span>
+<span class="nc" id="L130">        return this.timeStamp;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L133">        perfstat_netinterface_t[] stats = netstats.get();</span>
-<span class="nc" id="L134">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (perfstat_netinterface_t stat : stats) {</span>
-<span class="nc" id="L136">            String name = Native.toString(stat.name);</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (name.equals(this.getName())) {</span>
-<span class="nc" id="L138">                this.bytesSent = stat.obytes;</span>
-<span class="nc" id="L139">                this.bytesRecv = stat.ibytes;</span>
-<span class="nc" id="L140">                this.packetsSent = stat.opackets;</span>
-<span class="nc" id="L141">                this.packetsRecv = stat.ipackets;</span>
-<span class="nc" id="L142">                this.outErrors = stat.oerrors;</span>
-<span class="nc" id="L143">                this.inErrors = stat.ierrors;</span>
-<span class="nc" id="L144">                this.collisions = stat.collisions;</span>
-<span class="nc" id="L145">                this.inDrops = stat.if_iqdrops;</span>
-<span class="nc" id="L146">                this.speed = stat.bitrate;</span>
-<span class="nc" id="L147">                this.timeStamp = now;</span>
-<span class="nc" id="L148">                return true;</span>
+<span class="nc" id="L135">        perfstat_netinterface_t[] stats = netstats.get();</span>
+<span class="nc" id="L136">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        for (perfstat_netinterface_t stat : stats) {</span>
+<span class="nc" id="L138">            String name = Native.toString(stat.name);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (name.equals(this.getName())) {</span>
+<span class="nc" id="L140">                this.bytesSent = stat.obytes;</span>
+<span class="nc" id="L141">                this.bytesRecv = stat.ibytes;</span>
+<span class="nc" id="L142">                this.packetsSent = stat.opackets;</span>
+<span class="nc" id="L143">                this.packetsRecv = stat.ipackets;</span>
+<span class="nc" id="L144">                this.outErrors = stat.oerrors;</span>
+<span class="nc" id="L145">                this.inErrors = stat.ierrors;</span>
+<span class="nc" id="L146">                this.collisions = stat.collisions;</span>
+<span class="nc" id="L147">                this.inDrops = stat.if_iqdrops;</span>
+<span class="nc" id="L148">                this.speed = stat.bitrate;</span>
+<span class="nc" id="L149">                this.timeStamp = now;</span>
+<span class="nc" id="L150">                return true;</span>
             }
         }
-<span class="nc" id="L151">        return false;</span>
+<span class="nc" id="L153">        return false;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
