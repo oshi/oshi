@@ -43,10 +43,13 @@ public class PowerSourceTest {
         SystemInfo si = new SystemInfo();
         List<PowerSource> psArr = si.getHardware().getPowerSources();
         for (PowerSource ps : psArr) {
-            assertTrue("Power Source's remaining capacity shouldn't be negative", ps.getRemainingCapacityPercent() >= 0);
+            assertTrue("Power Source's remaining capacity shouldn't be negative",
+                    ps.getRemainingCapacityPercent() >= 0);
             double epsilon = 1E-6;
-            assertTrue("Power Source's estimated remaining time should be greater than zero or within error margin of -1 or within error margin of -2", ps.getTimeRemainingEstimated() > 0 || Math.abs(ps.getTimeRemainingEstimated() - -1) < epsilon
-                    || Math.abs(ps.getTimeRemainingEstimated() - -2) < epsilon);
+            assertTrue(
+                    "Power Source's estimated remaining time should be greater than zero or within error margin of -1 or within error margin of -2",
+                    ps.getTimeRemainingEstimated() > 0 || Math.abs(ps.getTimeRemainingEstimated() - -1) < epsilon
+                            || Math.abs(ps.getTimeRemainingEstimated() - -2) < epsilon);
         }
     }
 }

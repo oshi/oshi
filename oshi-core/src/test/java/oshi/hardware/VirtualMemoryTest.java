@@ -50,7 +50,8 @@ public class VirtualMemoryTest {
         assertTrue("VM's swap pages out shouldn't be negative", vm.getSwapPagesOut() >= 0);
         assertTrue("VM's swap total shouldn't be negative", vm.getSwapTotal() >= 0);
         assertTrue("VM's swap used shouldn't be negative", vm.getSwapUsed() >= 0);
-        assertTrue("VM's swap used should be less than or equal to VM swap total", vm.getSwapUsed() <= vm.getSwapTotal());
+        assertTrue("VM's swap used should be less than or equal to VM swap total",
+                vm.getSwapUsed() <= vm.getSwapTotal());
         assertTrue("VM's max should be greater than or qual to VM swap total", vm.getVirtualMax() >= vm.getSwapTotal());
         assertTrue("VM's virtual in use shouldn't be negative", vm.getVirtualInUse() >= 0);
         assertTrue("VM's toString contains 'Used'", vm.toString().contains("Used"));
