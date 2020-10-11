@@ -56,84 +56,86 @@ public final class FreeBsdNetworkIF extends AbstractNetworkIF {
 <span class="nc" id="L56">    }</span>
 
     /**
-     * Gets the network interfaces on this machine
+     * Gets all network interfaces on this machine
      *
+     * @param includeLocalInterfaces
+     *            include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
-    public static List&lt;NetworkIF&gt; getNetworks() {
-<span class="nc" id="L65">        return Collections.unmodifiableList(</span>
-<span class="nc" id="L66">                getNetworkInterfaces().stream().map(FreeBsdNetworkIF::new).collect(Collectors.toList()));</span>
+    public static List&lt;NetworkIF&gt; getNetworks(boolean includeLocalInterfaces) {
+<span class="nc" id="L67">        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()</span>
+<span class="nc" id="L68">                .map(FreeBsdNetworkIF::new).collect(Collectors.toList()));</span>
     }
 
     @Override
     public long getBytesRecv() {
-<span class="nc" id="L71">        return this.bytesRecv;</span>
+<span class="nc" id="L73">        return this.bytesRecv;</span>
     }
 
     @Override
     public long getBytesSent() {
-<span class="nc" id="L76">        return this.bytesSent;</span>
+<span class="nc" id="L78">        return this.bytesSent;</span>
     }
 
     @Override
     public long getPacketsRecv() {
-<span class="nc" id="L81">        return this.packetsRecv;</span>
+<span class="nc" id="L83">        return this.packetsRecv;</span>
     }
 
     @Override
     public long getPacketsSent() {
-<span class="nc" id="L86">        return this.packetsSent;</span>
+<span class="nc" id="L88">        return this.packetsSent;</span>
     }
 
     @Override
     public long getInErrors() {
-<span class="nc" id="L91">        return this.inErrors;</span>
+<span class="nc" id="L93">        return this.inErrors;</span>
     }
 
     @Override
     public long getOutErrors() {
-<span class="nc" id="L96">        return this.outErrors;</span>
+<span class="nc" id="L98">        return this.outErrors;</span>
     }
 
     @Override
     public long getInDrops() {
-<span class="nc" id="L101">        return this.inDrops;</span>
+<span class="nc" id="L103">        return this.inDrops;</span>
     }
 
     @Override
     public long getCollisions() {
-<span class="nc" id="L106">        return this.collisions;</span>
+<span class="nc" id="L108">        return this.collisions;</span>
     }
 
     @Override
     public long getSpeed() {
-<span class="nc" id="L111">        return 0;</span>
+<span class="nc" id="L113">        return 0;</span>
     }
 
     @Override
     public long getTimeStamp() {
-<span class="nc" id="L116">        return this.timeStamp;</span>
+<span class="nc" id="L118">        return this.timeStamp;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L121">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + getName(), 1);</span>
-<span class="nc" id="L122">        this.timeStamp = System.currentTimeMillis();</span>
-<span class="nc" id="L123">        String[] split = ParseUtil.whitespaces.split(stats);</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
+<span class="nc" id="L123">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + getName(), 1);</span>
+<span class="nc" id="L124">        this.timeStamp = System.currentTimeMillis();</span>
+<span class="nc" id="L125">        String[] split = ParseUtil.whitespaces.split(stats);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
             // No update
-<span class="nc" id="L126">            return false;</span>
+<span class="nc" id="L128">            return false;</span>
         }
-<span class="nc" id="L128">        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);</span>
-<span class="nc" id="L129">        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);</span>
-<span class="nc" id="L130">        this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);</span>
-<span class="nc" id="L131">        this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);</span>
-<span class="nc" id="L132">        this.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);</span>
-<span class="nc" id="L133">        this.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);</span>
-<span class="nc" id="L134">        this.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);</span>
-<span class="nc" id="L135">        this.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);</span>
-<span class="nc" id="L136">        return true;</span>
+<span class="nc" id="L130">        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);</span>
+<span class="nc" id="L131">        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);</span>
+<span class="nc" id="L132">        this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);</span>
+<span class="nc" id="L133">        this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);</span>
+<span class="nc" id="L134">        this.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);</span>
+<span class="nc" id="L135">        this.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);</span>
+<span class="nc" id="L136">        this.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);</span>
+<span class="nc" id="L137">        this.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);</span>
+<span class="nc" id="L138">        return true;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

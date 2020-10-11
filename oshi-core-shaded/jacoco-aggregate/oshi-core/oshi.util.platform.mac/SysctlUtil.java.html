@@ -128,5 +128,27 @@ public final class SysctlUtil {
 <span class="nc" id="L128">        struct.read();</span>
 <span class="nc" id="L129">        return true;</span>
     }
+
+    /**
+     * Executes a sysctl call with a Pointer result
+     *
+     * @param name
+     *            name of the sysctl
+     * @return An allocated memory buffer containing the result on success, null
+     *         otherwise. Its value on failure is undefined.
+     */
+    public static Memory sysctl(String name) {
+<span class="nc" id="L141">        IntByReference size = new IntByReference();</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, 0)) {</span>
+<span class="nc" id="L143">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L144">            return null;</span>
+        }
+<span class="nc" id="L146">        Memory m = new Memory(size.getValue());</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctlbyname(name, m, size, null, 0)) {</span>
+<span class="nc" id="L148">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L149">            return null;</span>
+        }
+<span class="nc" id="L151">        return m;</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

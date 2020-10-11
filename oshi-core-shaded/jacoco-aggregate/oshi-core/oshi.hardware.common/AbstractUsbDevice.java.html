@@ -43,7 +43,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     private final String uniqueDeviceId;
     private final List&lt;UsbDevice&gt; connectedDevices;
 
-    public AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+    protected AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
 <span class="nc" id="L47">            String uniqueDeviceId, List&lt;UsbDevice&gt; connectedDevices) {</span>
 <span class="nc" id="L48">        this.name = name;</span>
 <span class="nc" id="L49">        this.vendor = vendor;</span>
@@ -125,4 +125,4 @@ public abstract class AbstractUsbDevice implements UsbDevice {
 <span class="nc" id="L125">        return sb.toString();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
