@@ -28,30 +28,31 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import com.sun.jna.Memory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.NetStatTcp;
-import oshi.jna.platform.unix.CLibrary.Tcpstat;
-import oshi.jna.platform.unix.CLibrary.Udpstat;
+import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
+import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
 import oshi.software.os.InternetProtocolStats;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
 public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
 
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat, defaultExpiration());
-    private Supplier<Tcpstat> tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());
-    private Supplier<Udpstat> udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());
+    private Supplier<BsdTcpstat> tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());
+    private Supplier<BsdUdpstat> udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());
 
     @Override
     public TcpStats getTCPv4Stats() {
-        Tcpstat tcp = tcpstat.get();
+        BsdTcpstat tcp = tcpstat.get();
         return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
                 ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
-                ParseUtil.unsignedIntToLong(tcp.tcps_drops),
-                ParseUtil.unsignedIntToLong(tcp.tcps_snd_swcsum - tcp.tcps_sndrexmitpack),
-                ParseUtil.unsignedIntToLong(tcp.tcps_rcv_swcsum), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
+                ParseUtil.unsignedIntToLong(tcp.tcps_drops), ParseUtil.unsignedIntToLong(tcp.tcps_sndpack),
+                ParseUtil.unsignedIntToLong(tcp.tcps_rcvpack), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
                 ParseUtil.unsignedIntToLong(
                         tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
                 0L);
@@ -64,28 +65,51 @@ public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
 
     @Override
     public UdpStats getUDPv4Stats() {
-        Udpstat stat = udpstat.get();
-        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd_swcsum),
-                ParseUtil.unsignedIntToLong(stat.udps_rcv_swcsum), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
+        BsdUdpstat stat = udpstat.get();
+        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
+                ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
                 ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-        Udpstat stat = udpstat.get();
+        BsdUdpstat stat = udpstat.get();
         return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
                 ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
     }
 
-    private static Tcpstat queryTcpstat() {
-        Tcpstat tcpstat = new Tcpstat();
-        BsdSysctlUtil.sysctl("net.inet.tcp.stats", tcpstat);
-        return tcpstat;
+    private static BsdTcpstat queryTcpstat() {
+        BsdTcpstat ft = new BsdTcpstat();
+        Memory m = SysctlUtil.sysctl("net.inet.tcp.stats");
+        if (m != null && m.size() >= 128) {
+            ft.tcps_connattempt = m.getInt(0);
+            ft.tcps_accepts = m.getInt(4);
+            ft.tcps_drops = m.getInt(12);
+            ft.tcps_conndrops = m.getInt(16);
+            ft.tcps_sndpack = m.getInt(64);
+            ft.tcps_sndrexmitpack = m.getInt(72);
+            ft.tcps_rcvpack = m.getInt(104);
+            ft.tcps_rcvbadsum = m.getInt(112);
+            ft.tcps_rcvbadoff = m.getInt(116);
+            ft.tcps_rcvmemdrop = m.getInt(120);
+            ft.tcps_rcvshort = m.getInt(124);
+        }
+        return ft;
     }
 
-    private static Udpstat queryUdpstat() {
-        Udpstat udpstat = new Udpstat();
-        BsdSysctlUtil.sysctl("net.inet.udp.stats", udpstat);
-        return udpstat;
+    private static BsdUdpstat queryUdpstat() {
+        BsdUdpstat ut = new BsdUdpstat();
+        Memory m = SysctlUtil.sysctl("net.inet.udp.stats");
+        if (m != null && m.size() >= 1644) {
+            ut.udps_ipackets = m.getInt(0);
+            ut.udps_hdrops = m.getInt(4);
+            ut.udps_badsum = m.getInt(8);
+            ut.udps_badlen = m.getInt(12);
+            ut.udps_opackets = m.getInt(36);
+            ut.udps_noportmcast = m.getInt(48);
+            ut.udps_rcv6_swcsum = m.getInt(64);
+            ut.udps_snd6_swcsum = m.getInt(80);
+        }
+        return ut;
     }
 }

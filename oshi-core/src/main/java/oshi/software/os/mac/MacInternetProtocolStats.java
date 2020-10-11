@@ -32,6 +32,10 @@ import com.sun.jna.Memory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.NetStatTcp;
+import oshi.jna.platform.unix.CLibrary.BsdIp6stat;
+import oshi.jna.platform.unix.CLibrary.BsdIpstat;
+import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
+import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
 import oshi.software.os.InternetProtocolStats;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -47,16 +51,16 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
     }
 
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat, defaultExpiration());
-    private Supplier<MacTcpstat> tcpstat = memoize(MacInternetProtocolStats::queryTcpstat, defaultExpiration());
-    private Supplier<MacUdpstat> udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());
+    private Supplier<BsdTcpstat> tcpstat = memoize(MacInternetProtocolStats::queryTcpstat, defaultExpiration());
+    private Supplier<BsdUdpstat> udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());
     // With elevated permissions use tcpstat only
     // Backup estimate get ipstat and subtract off udp
-    private Supplier<MacIpstat> ipstat = memoize(MacInternetProtocolStats::queryIpstat, defaultExpiration());
-    private Supplier<MacIp6stat> ip6stat = memoize(MacInternetProtocolStats::queryIp6stat, defaultExpiration());
+    private Supplier<BsdIpstat> ipstat = memoize(MacInternetProtocolStats::queryIpstat, defaultExpiration());
+    private Supplier<BsdIp6stat> ip6stat = memoize(MacInternetProtocolStats::queryIp6stat, defaultExpiration());
 
     @Override
     public TcpStats getTCPv4Stats() {
-        MacTcpstat tcp = tcpstat.get();
+        BsdTcpstat tcp = tcpstat.get();
         if (this.isElevated) {
             return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
                     ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
@@ -66,8 +70,8 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
                             tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
                     0L);
         }
-        MacIpstat ip = ipstat.get();
-        MacUdpstat udp = udpstat.get();
+        BsdIpstat ip = ipstat.get();
+        BsdUdpstat udp = udpstat.get();
         return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
                 ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
                 ParseUtil.unsignedIntToLong(tcp.tcps_drops),
@@ -81,8 +85,8 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
 
     @Override
     public TcpStats getTCPv6Stats() {
-        MacIp6stat ip6 = ip6stat.get();
-        MacUdpstat udp = udpstat.get();
+        BsdIp6stat ip6 = ip6stat.get();
+        BsdUdpstat udp = udpstat.get();
         return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
                 ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum),
                 ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);
@@ -90,7 +94,7 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
 
     @Override
     public UdpStats getUDPv4Stats() {
-        MacUdpstat stat = udpstat.get();
+        BsdUdpstat stat = udpstat.get();
         return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
                 ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
                 ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
@@ -98,7 +102,7 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
 
     @Override
     public UdpStats getUDPv6Stats() {
-        MacUdpstat stat = udpstat.get();
+        BsdUdpstat stat = udpstat.get();
         return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
                 ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
     }
@@ -110,8 +114,8 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
      * which are consistent across the structure.
      */
 
-    private static MacTcpstat queryTcpstat() {
-        MacTcpstat mt = new MacTcpstat();
+    private static BsdTcpstat queryTcpstat() {
+        BsdTcpstat mt = new BsdTcpstat();
         Memory m = SysctlUtil.sysctl("net.inet.tcp.stats");
         if (m != null && m.size() >= 128) {
             mt.tcps_connattempt = m.getInt(0);
@@ -129,8 +133,8 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
         return mt;
     }
 
-    private static MacIpstat queryIpstat() {
-        MacIpstat mi = new MacIpstat();
+    private static BsdIpstat queryIpstat() {
+        BsdIpstat mi = new BsdIpstat();
         Memory m = SysctlUtil.sysctl("net.inet.ip.stats");
         if (m != null && m.size() >= 60) {
             mi.ips_total = m.getInt(0);
@@ -144,8 +148,8 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
         return mi;
     }
 
-    private static MacIp6stat queryIp6stat() {
-        MacIp6stat mi6 = new MacIp6stat();
+    private static BsdIp6stat queryIp6stat() {
+        BsdIp6stat mi6 = new BsdIp6stat();
         Memory m = SysctlUtil.sysctl("net.inet6.ip6.stats");
         if (m != null && m.size() >= 96) {
             mi6.ip6s_total = m.getLong(0);
@@ -154,8 +158,8 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
         return mi6;
     }
 
-    private static MacUdpstat queryUdpstat() {
-        MacUdpstat ut = new MacUdpstat();
+    public static BsdUdpstat queryUdpstat() {
+        BsdUdpstat ut = new BsdUdpstat();
         Memory m = SysctlUtil.sysctl("net.inet.udp.stats");
         if (m != null && m.size() >= 1644) {
             ut.udps_ipackets = m.getInt(0);
@@ -169,45 +173,4 @@ public class MacInternetProtocolStats implements InternetProtocolStats {
         }
         return ut;
     }
-
-    private static class MacTcpstat {
-        public int tcps_connattempt; // 0
-        public int tcps_accepts; // 4
-        public int tcps_drops; // 12
-        public int tcps_conndrops; // 16
-        public int tcps_sndpack; // 64
-        public int tcps_sndrexmitpack; // 72
-        public int tcps_rcvpack; // 104
-        public int tcps_rcvbadsum; // 112
-        public int tcps_rcvbadoff; // 116
-        public int tcps_rcvmemdrop; // 120
-        public int tcps_rcvshort; // 124
-    }
-
-    private static class MacUdpstat {
-        public int udps_ipackets; // 0
-        public int udps_hdrops; // 4
-        public int udps_badsum; // 8
-        public int udps_badlen; // 12
-        public int udps_opackets; // 36
-        public int udps_noportmcast; // 48
-        public int udps_rcv6_swcsum; // 64
-        public int udps_snd6_swcsum; // 89
-    }
-
-    private static class MacIpstat {
-        public int ips_total; // 0
-        public int ips_badsum; // 4
-        public int ips_tooshort; // 8
-        public int ips_toosmall; // 12
-        public int ips_badhlen; // 16
-        public int ips_badlen; // 20
-        public int ips_delivered; // 56
-    }
-
-    private static class MacIp6stat {
-        public long ip6s_total; // 0
-        public long ip6s_localout; // 88
-    }
-
 }
