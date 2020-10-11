@@ -46,7 +46,7 @@ public abstract class AbstractSoundCard implements SoundCard {
      * @param codec
      *            The codec
      */
-    public AbstractSoundCard(String kernelVersion, String name, String codec) {
+    protected AbstractSoundCard(String kernelVersion, String name, String codec) {
         this.kernelVersion = kernelVersion;
         this.name = name;
         this.codec = codec;

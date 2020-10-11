@@ -74,8 +74,8 @@ public interface OSProcess {
      *         multiple processes, see the configuration file to enable a batch
      *         query mode leveraging {@link Win32ProcessCached#getCommandLine} to
      *         improve performance, or setting that parameter via
-     *         {@link GlobalConfig#set()} before instantiating any {@link OSProcess}
-     *         object.
+     *         {@link GlobalConfig#set(String, Object)} before instantiating any
+     *         {@link OSProcess} object.
      */
     String getCommandLine();
 
