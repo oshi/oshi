@@ -111,7 +111,7 @@ public interface CLibrary extends LibCAPI, Library {
         public int udps_snd6_swcsum; // 89
     }
 
-    public class BsdIpstat {
+    class BsdIpstat {
         public int ips_total; // 0
         public int ips_badsum; // 4
         public int ips_tooshort; // 8
@@ -121,7 +121,7 @@ public interface CLibrary extends LibCAPI, Library {
         public int ips_delivered; // 56
     }
 
-    public class BsdIp6stat {
+    class BsdIp6stat {
         public long ip6s_total; // 0
         public long ip6s_localout; // 88
     }
