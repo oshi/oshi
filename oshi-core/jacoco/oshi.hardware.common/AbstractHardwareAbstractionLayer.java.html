@@ -25,6 +25,7 @@ package oshi.hardware.common;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -32,6 +33,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.Sensors;
 
 /**
@@ -39,19 +41,19 @@ import oshi.hardware.Sensors;
  * HardwareAbstractionLayer
  */
 @ThreadSafe
-<span class="nc" id="L42">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
+<span class="nc" id="L44">public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;ComputerSystem&gt; computerSystem = memoize(this::createComputerSystem);</span>
+<span class="nc" id="L46">    private final Supplier&lt;ComputerSystem&gt; computerSystem = memoize(this::createComputerSystem);</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;CentralProcessor&gt; processor = memoize(this::createProcessor);</span>
+<span class="nc" id="L48">    private final Supplier&lt;CentralProcessor&gt; processor = memoize(this::createProcessor);</span>
 
-<span class="nc" id="L48">    private final Supplier&lt;GlobalMemory&gt; memory = memoize(this::createMemory);</span>
+<span class="nc" id="L50">    private final Supplier&lt;GlobalMemory&gt; memory = memoize(this::createMemory);</span>
 
-<span class="nc" id="L50">    private final Supplier&lt;Sensors&gt; sensors = memoize(this::createSensors);</span>
+<span class="nc" id="L52">    private final Supplier&lt;Sensors&gt; sensors = memoize(this::createSensors);</span>
 
     @Override
     public ComputerSystem getComputerSystem() {
-<span class="nc" id="L54">        return computerSystem.get();</span>
+<span class="nc" id="L56">        return computerSystem.get();</span>
     }
 
     /**
@@ -63,7 +65,7 @@ import oshi.hardware.Sensors;
 
     @Override
     public CentralProcessor getProcessor() {
-<span class="nc" id="L66">        return processor.get();</span>
+<span class="nc" id="L68">        return processor.get();</span>
     }
 
     /**
@@ -75,7 +77,7 @@ import oshi.hardware.Sensors;
 
     @Override
     public GlobalMemory getMemory() {
-<span class="nc" id="L78">        return memory.get();</span>
+<span class="nc" id="L80">        return memory.get();</span>
     }
 
     /**
@@ -87,7 +89,7 @@ import oshi.hardware.Sensors;
 
     @Override
     public Sensors getSensors() {
-<span class="nc" id="L90">        return sensors.get();</span>
+<span class="nc" id="L92">        return sensors.get();</span>
     }
 
     /**
@@ -96,5 +98,10 @@ import oshi.hardware.Sensors;
      * @return platform-specific {@link Sensors} object
      */
     protected abstract Sensors createSensors();
+
+    @Override
+    public List&lt;NetworkIF&gt; getNetworkIFs() {
+<span class="nc" id="L104">        return getNetworkIFs(false);</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

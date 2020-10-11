@@ -57,31 +57,38 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFileSystem() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          FileSystem filesystem = si.getOperatingSystem().getFileSystem();
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertTrue(filesystem.getOpenFileDescriptors() &gt;= 0L);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertTrue(filesystem.getMaxFileDescriptors() &gt;= 0L);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">for</strong> (OSFileStore store : filesystem.getFileStores()) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              assertNotNull(store.getName());
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              assertNotNull(store.getVolume());
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              assertNotNull(store.getLabel());
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              assertNotNull(store.getLogicalVolume());
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              assertNotNull(store.getDescription());
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              assertNotNull(store.getType());
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              assertFalse(store.getOptions().isEmpty());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              assertNotNull(store.getMount());
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              assertNotNull(store.getUUID());
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              assertTrue(store.getTotalSpace() &gt;= 0);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              assertTrue(store.getUsableSpace() &gt;= 0);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              assertTrue(store.getFreeSpace() &gt;= 0);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  assertTrue(store.getFreeInodes() &gt;= 0);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  assertTrue(store.getTotalInodes() &gt;= store.getFreeInodes());
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">if</strong> (!store.getDescription().equals(<span class="jxr_string">"Network drive"</span>)) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  assertTrue(store.getUsableSpace() &lt;= store.getTotalSpace());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertTrue(<span class="jxr_string">"File system open file descriptors should be 0 or higher"</span>,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  filesystem.getOpenFileDescriptors() &gt;= 0L);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertTrue(<span class="jxr_string">"File system max open file descriptors should be 0 or higher"</span>,
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>                  filesystem.getMaxFileDescriptors() &gt;= 0L);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">for</strong> (OSFileStore store : filesystem.getFileStores()) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              assertNotNull(<span class="jxr_string">"File store name shouldn't be null"</span>, store.getName());
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              assertNotNull(<span class="jxr_string">"File store volume shouldn't be null"</span>, store.getVolume());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              assertNotNull(<span class="jxr_string">"File store label shouldn't be null"</span>, store.getLabel());
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              assertNotNull(<span class="jxr_string">"File store logical volume shouldn't be null"</span>, store.getLogicalVolume());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              assertNotNull(<span class="jxr_string">"File store description shouldn't be null"</span>, store.getDescription());
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              assertNotNull(<span class="jxr_string">"File store type shouldn't be null"</span>, store.getType());
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              assertFalse(<span class="jxr_string">"File store options shouldn't be empty"</span>, store.getOptions().isEmpty());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              assertNotNull(<span class="jxr_string">"File store mount shouldn't be null"</span>, store.getMount());
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              assertNotNull(<span class="jxr_string">"File store UUID shouldn't be null"</span>, store.getUUID());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              assertTrue(<span class="jxr_string">"File store total space should be 0 or higher"</span>, store.getTotalSpace() &gt;= 0);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              assertTrue(<span class="jxr_string">"File store usable space should be 0 or higher"</span>, store.getUsableSpace() &gt;= 0);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              assertTrue(<span class="jxr_string">"File store free space should be 0 or higher"</span>, store.getFreeSpace() &gt;= 0);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  assertTrue(<span class="jxr_string">"Number of free inodes should be 0 or higher on non-Windows systems"</span>,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          store.getFreeInodes() &gt;= 0);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  assertTrue(
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                          <span class="jxr_string">"Total number of inodes should be greater than or equal to number of free inodes on non-Windows systems"</span>,
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          store.getTotalInodes() &gt;= store.getFreeInodes());
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">if</strong> (!store.getDescription().equals(<span class="jxr_string">"Network drive"</span>)) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  assertTrue(
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                          <span class="jxr_string">"File store's usable space should be less than or equal to the total space on non-network drives"</span>,
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                          store.getUsableSpace() &lt;= store.getTotalSpace());
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

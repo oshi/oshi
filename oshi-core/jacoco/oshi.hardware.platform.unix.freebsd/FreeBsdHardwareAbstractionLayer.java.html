@@ -81,8 +81,8 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
     }
 
     @Override
-    public List&lt;NetworkIF&gt; getNetworkIFs() {
-<span class="nc" id="L85">        return FreeBsdNetworkIF.getNetworks();</span>
+    public List&lt;NetworkIF&gt; getNetworkIFs(boolean includeLocalInterfaces) {
+<span class="nc" id="L85">        return FreeBsdNetworkIF.getNetworks(includeLocalInterfaces);</span>
     }
 
     @Override
@@ -100,4 +100,4 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 <span class="nc" id="L100">        return FreeBsdGraphicsCard.getGraphicsCards();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

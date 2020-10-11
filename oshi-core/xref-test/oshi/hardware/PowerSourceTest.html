@@ -51,13 +51,16 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          List&lt;PowerSource&gt; psArr = si.getHardware().getPowerSources();
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">for</strong> (PowerSource ps : psArr) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              assertTrue(ps.getRemainingCapacityPercent() &gt;= 0);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">double</strong> epsilon = 1E-6;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>              assertTrue(ps.getTimeRemainingEstimated() &gt; 0 || Math.abs(ps.getTimeRemainingEstimated() - -1) &lt; epsilon
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                      || Math.abs(ps.getTimeRemainingEstimated() - -2) &lt; epsilon);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              assertTrue(<span class="jxr_string">"Power Source's remaining capacity shouldn't be negative"</span>,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                      ps.getRemainingCapacityPercent() &gt;= 0);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">double</strong> epsilon = 1E-6;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              assertTrue(
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                      <span class="jxr_string">"Power Source's estimated remaining time should be greater than zero or within error margin of -1 or within error margin of -2"</span>,
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                      ps.getTimeRemainingEstimated() &gt; 0 || Math.abs(ps.getTimeRemainingEstimated() - -1) &lt; epsilon
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                              || Math.abs(ps.getTimeRemainingEstimated() - -2) &lt; epsilon);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

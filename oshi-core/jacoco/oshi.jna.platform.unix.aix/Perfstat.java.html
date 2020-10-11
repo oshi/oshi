@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.jna.Library;
+import com.sun.jna.Library; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
@@ -1056,4 +1056,4 @@ public interface Perfstat extends Library {
      */
     int perfstat_protocol(perfstat_id_t name, perfstat_protocol_t[] protocols, int sizeof_struct, int desired_number);
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

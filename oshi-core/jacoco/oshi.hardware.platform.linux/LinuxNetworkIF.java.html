@@ -59,114 +59,116 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
 <span class="nc" id="L59">    }</span>
 
     /**
-     * Gets the network interfaces on this machine
+     * Gets network interfaces on this machine
      *
+     * @param includeLocalInterfaces
+     *            include local interfaces in the result
      * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
      *         the interfaces
      */
-    public static List&lt;NetworkIF&gt; getNetworks() {
-<span class="nc" id="L68">        return Collections.unmodifiableList(</span>
-<span class="nc" id="L69">                getNetworkInterfaces().stream().map(LinuxNetworkIF::new).collect(Collectors.toList()));</span>
+    public static List&lt;NetworkIF&gt; getNetworks(boolean includeLocalInterfaces) {
+<span class="nc" id="L70">        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()</span>
+<span class="nc" id="L71">                .map(LinuxNetworkIF::new).collect(Collectors.toList()));</span>
     }
 
     @Override
     public int getIfType() {
-<span class="nc" id="L74">        return this.ifType;</span>
+<span class="nc" id="L76">        return this.ifType;</span>
     }
 
     @Override
     public boolean isConnectorPresent() {
-<span class="nc" id="L79">        return this.connectorPresent;</span>
+<span class="nc" id="L81">        return this.connectorPresent;</span>
     }
 
     @Override
     public long getBytesRecv() {
-<span class="nc" id="L84">        return this.bytesRecv;</span>
+<span class="nc" id="L86">        return this.bytesRecv;</span>
     }
 
     @Override
     public long getBytesSent() {
-<span class="nc" id="L89">        return this.bytesSent;</span>
+<span class="nc" id="L91">        return this.bytesSent;</span>
     }
 
     @Override
     public long getPacketsRecv() {
-<span class="nc" id="L94">        return this.packetsRecv;</span>
+<span class="nc" id="L96">        return this.packetsRecv;</span>
     }
 
     @Override
     public long getPacketsSent() {
-<span class="nc" id="L99">        return this.packetsSent;</span>
+<span class="nc" id="L101">        return this.packetsSent;</span>
     }
 
     @Override
     public long getInErrors() {
-<span class="nc" id="L104">        return this.inErrors;</span>
+<span class="nc" id="L106">        return this.inErrors;</span>
     }
 
     @Override
     public long getOutErrors() {
-<span class="nc" id="L109">        return this.outErrors;</span>
+<span class="nc" id="L111">        return this.outErrors;</span>
     }
 
     @Override
     public long getInDrops() {
-<span class="nc" id="L114">        return this.inDrops;</span>
+<span class="nc" id="L116">        return this.inDrops;</span>
     }
 
     @Override
     public long getCollisions() {
-<span class="nc" id="L119">        return this.collisions;</span>
+<span class="nc" id="L121">        return this.collisions;</span>
     }
 
     @Override
     public long getSpeed() {
-<span class="nc" id="L124">        return this.speed;</span>
+<span class="nc" id="L126">        return this.speed;</span>
     }
 
     @Override
     public long getTimeStamp() {
-<span class="nc" id="L129">        return this.timeStamp;</span>
+<span class="nc" id="L131">        return this.timeStamp;</span>
     }
 
     @Override
     public boolean updateAttributes() {
         try {
-<span class="nc" id="L135">            File ifDir = new File(String.format(&quot;/sys/class/net/%s/statistics&quot;, getName()));</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (!ifDir.isDirectory()) {</span>
-<span class="nc" id="L137">                return false;</span>
+<span class="nc" id="L137">            File ifDir = new File(String.format(&quot;/sys/class/net/%s/statistics&quot;, getName()));</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (!ifDir.isDirectory()) {</span>
+<span class="nc" id="L139">                return false;</span>
             }
-<span class="nc" id="L139">        } catch (SecurityException e) {</span>
-<span class="nc" id="L140">            return false;</span>
-<span class="nc" id="L141">        }</span>
-<span class="nc" id="L142">        String ifTypePath = String.format(&quot;/sys/class/net/%s/type&quot;, getName());</span>
-<span class="nc" id="L143">        String carrierPath = String.format(&quot;/sys/class/net/%s/carrier&quot;, getName());</span>
-<span class="nc" id="L144">        String txBytesPath = String.format(&quot;/sys/class/net/%s/statistics/tx_bytes&quot;, getName());</span>
-<span class="nc" id="L145">        String rxBytesPath = String.format(&quot;/sys/class/net/%s/statistics/rx_bytes&quot;, getName());</span>
-<span class="nc" id="L146">        String txPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_packets&quot;, getName());</span>
-<span class="nc" id="L147">        String rxPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_packets&quot;, getName());</span>
-<span class="nc" id="L148">        String txErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_errors&quot;, getName());</span>
-<span class="nc" id="L149">        String rxErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_errors&quot;, getName());</span>
-<span class="nc" id="L150">        String collisionsPath = String.format(&quot;/sys/class/net/%s/statistics/collisions&quot;, getName());</span>
-<span class="nc" id="L151">        String rxDropsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_dropped&quot;, getName());</span>
-<span class="nc" id="L152">        String ifSpeed = String.format(&quot;/sys/class/net/%s/speed&quot;, getName());</span>
+<span class="nc" id="L141">        } catch (SecurityException e) {</span>
+<span class="nc" id="L142">            return false;</span>
+<span class="nc" id="L143">        }</span>
+<span class="nc" id="L144">        String ifTypePath = String.format(&quot;/sys/class/net/%s/type&quot;, getName());</span>
+<span class="nc" id="L145">        String carrierPath = String.format(&quot;/sys/class/net/%s/carrier&quot;, getName());</span>
+<span class="nc" id="L146">        String txBytesPath = String.format(&quot;/sys/class/net/%s/statistics/tx_bytes&quot;, getName());</span>
+<span class="nc" id="L147">        String rxBytesPath = String.format(&quot;/sys/class/net/%s/statistics/rx_bytes&quot;, getName());</span>
+<span class="nc" id="L148">        String txPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_packets&quot;, getName());</span>
+<span class="nc" id="L149">        String rxPacketsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_packets&quot;, getName());</span>
+<span class="nc" id="L150">        String txErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/tx_errors&quot;, getName());</span>
+<span class="nc" id="L151">        String rxErrorsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_errors&quot;, getName());</span>
+<span class="nc" id="L152">        String collisionsPath = String.format(&quot;/sys/class/net/%s/statistics/collisions&quot;, getName());</span>
+<span class="nc" id="L153">        String rxDropsPath = String.format(&quot;/sys/class/net/%s/statistics/rx_dropped&quot;, getName());</span>
+<span class="nc" id="L154">        String ifSpeed = String.format(&quot;/sys/class/net/%s/speed&quot;, getName());</span>
 
-<span class="nc" id="L154">        this.timeStamp = System.currentTimeMillis();</span>
-<span class="nc" id="L155">        this.ifType = FileUtil.getIntFromFile(ifTypePath);</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        this.connectorPresent = FileUtil.getIntFromFile(carrierPath) &gt; 0;</span>
-<span class="nc" id="L157">        this.bytesSent = FileUtil.getUnsignedLongFromFile(txBytesPath);</span>
-<span class="nc" id="L158">        this.bytesRecv = FileUtil.getUnsignedLongFromFile(rxBytesPath);</span>
-<span class="nc" id="L159">        this.packetsSent = FileUtil.getUnsignedLongFromFile(txPacketsPath);</span>
-<span class="nc" id="L160">        this.packetsRecv = FileUtil.getUnsignedLongFromFile(rxPacketsPath);</span>
-<span class="nc" id="L161">        this.outErrors = FileUtil.getUnsignedLongFromFile(txErrorsPath);</span>
-<span class="nc" id="L162">        this.inErrors = FileUtil.getUnsignedLongFromFile(rxErrorsPath);</span>
-<span class="nc" id="L163">        this.collisions = FileUtil.getUnsignedLongFromFile(collisionsPath);</span>
-<span class="nc" id="L164">        this.inDrops = FileUtil.getUnsignedLongFromFile(rxDropsPath);</span>
-<span class="nc" id="L165">        long speedMiB = FileUtil.getUnsignedLongFromFile(ifSpeed);</span>
+<span class="nc" id="L156">        this.timeStamp = System.currentTimeMillis();</span>
+<span class="nc" id="L157">        this.ifType = FileUtil.getIntFromFile(ifTypePath);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        this.connectorPresent = FileUtil.getIntFromFile(carrierPath) &gt; 0;</span>
+<span class="nc" id="L159">        this.bytesSent = FileUtil.getUnsignedLongFromFile(txBytesPath);</span>
+<span class="nc" id="L160">        this.bytesRecv = FileUtil.getUnsignedLongFromFile(rxBytesPath);</span>
+<span class="nc" id="L161">        this.packetsSent = FileUtil.getUnsignedLongFromFile(txPacketsPath);</span>
+<span class="nc" id="L162">        this.packetsRecv = FileUtil.getUnsignedLongFromFile(rxPacketsPath);</span>
+<span class="nc" id="L163">        this.outErrors = FileUtil.getUnsignedLongFromFile(txErrorsPath);</span>
+<span class="nc" id="L164">        this.inErrors = FileUtil.getUnsignedLongFromFile(rxErrorsPath);</span>
+<span class="nc" id="L165">        this.collisions = FileUtil.getUnsignedLongFromFile(collisionsPath);</span>
+<span class="nc" id="L166">        this.inDrops = FileUtil.getUnsignedLongFromFile(rxDropsPath);</span>
+<span class="nc" id="L167">        long speedMiB = FileUtil.getUnsignedLongFromFile(ifSpeed);</span>
         // speed may be -1 from file.
-<span class="nc bnc" id="L167" title="All 2 branches missed.">        this.speed = speedMiB &lt; 0 ? 0 : speedMiB &lt;&lt; 20;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        this.speed = speedMiB &lt; 0 ? 0 : speedMiB &lt;&lt; 20;</span>
 
-<span class="nc" id="L169">        return true;</span>
+<span class="nc" id="L171">        return true;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

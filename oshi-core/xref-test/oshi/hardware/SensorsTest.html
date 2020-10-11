@@ -49,18 +49,19 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Test
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSensors() {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertTrue(s.getCpuTemperature() == Double.NaN || s.getCpuTemperature() &gt;= 0d &amp;&amp; s.getCpuTemperature() &lt;= 100d);
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertTrue(s.getCpuVoltage() &gt;= 0);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Test
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFanSpeeds() {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">int</strong>[] speeds = s.getFanSpeeds();
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> speed : speeds) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              assertTrue(speed &gt;= 0);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertTrue(<span class="jxr_string">"CPU Temperature should be NaN or between 0 and 100"</span>,
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  s.getCpuTemperature() == Double.NaN || s.getCpuTemperature() &gt;= 0d &amp;&amp; s.getCpuTemperature() &lt;= 100d);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertTrue(<span class="jxr_string">"CPU voltage shouldn't be negative"</span>, s.getCpuVoltage() &gt;= 0);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      @Test
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testFanSpeeds() {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">int</strong>[] speeds = s.getFanSpeeds();
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> speed : speeds) {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              assertTrue(<span class="jxr_string">"Fan Speed shouldn't be negative"</span>, speed &gt;= 0);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
