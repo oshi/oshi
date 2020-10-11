@@ -49,27 +49,34 @@ public class FileSystemTest {
     public void testFileSystem() throws IOException {
         SystemInfo si = new SystemInfo();
         FileSystem filesystem = si.getOperatingSystem().getFileSystem();
-        assertTrue(filesystem.getOpenFileDescriptors() >= 0L);
-        assertTrue(filesystem.getMaxFileDescriptors() >= 0L);
+        assertTrue("File system open file descriptors should be 0 or higher",
+                filesystem.getOpenFileDescriptors() >= 0L);
+        assertTrue("File system max open file descriptors should be 0 or higher",
+                filesystem.getMaxFileDescriptors() >= 0L);
         for (OSFileStore store : filesystem.getFileStores()) {
-            assertNotNull(store.getName());
-            assertNotNull(store.getVolume());
-            assertNotNull(store.getLabel());
-            assertNotNull(store.getLogicalVolume());
-            assertNotNull(store.getDescription());
-            assertNotNull(store.getType());
-            assertFalse(store.getOptions().isEmpty());
-            assertNotNull(store.getMount());
-            assertNotNull(store.getUUID());
-            assertTrue(store.getTotalSpace() >= 0);
-            assertTrue(store.getUsableSpace() >= 0);
-            assertTrue(store.getFreeSpace() >= 0);
+            assertNotNull("File store name shouldn't be null", store.getName());
+            assertNotNull("File store volume shouldn't be null", store.getVolume());
+            assertNotNull("File store label shouldn't be null", store.getLabel());
+            assertNotNull("File store logical volume shouldn't be null", store.getLogicalVolume());
+            assertNotNull("File store description shouldn't be null", store.getDescription());
+            assertNotNull("File store type shouldn't be null", store.getType());
+            assertFalse("File store options shouldn't be empty", store.getOptions().isEmpty());
+            assertNotNull("File store mount shouldn't be null", store.getMount());
+            assertNotNull("File store UUID shouldn't be null", store.getUUID());
+            assertTrue("File store total space should be 0 or higher", store.getTotalSpace() >= 0);
+            assertTrue("File store usable space should be 0 or higher", store.getUsableSpace() >= 0);
+            assertTrue("File store free space should be 0 or higher", store.getFreeSpace() >= 0);
             if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
-                assertTrue(store.getFreeInodes() >= 0);
-                assertTrue(store.getTotalInodes() >= store.getFreeInodes());
+                assertTrue("Number of free inodes should be 0 or higher on non-Windows systems",
+                        store.getFreeInodes() >= 0);
+                assertTrue(
+                        "Total number of inodes should be greater than or equal to number of free inodes on non-Windows systems",
+                        store.getTotalInodes() >= store.getFreeInodes());
             }
             if (!store.getDescription().equals("Network drive")) {
-                assertTrue(store.getUsableSpace() <= store.getTotalSpace());
+                assertTrue(
+                        "File store's usable space should be less than or equal to the total space on non-network drives",
+                        store.getUsableSpace() <= store.getTotalSpace());
             }
         }
     }
