@@ -66,13 +66,14 @@ public class OperatingSystemTest {
         assertTrue("OS should have 1 or more currently running processes", os.getProcessCount() >= 1);
         assertTrue("OS should have 1 or more currently running threads", os.getThreadCount() >= 1);
         assertTrue("OS bitness should either be 32 or 64 ", os.getBitness() == 32 || os.getBitness() == 64);
-        assertTrue("The current process id should be greater than 0",os.getProcessId() > 0);
-        assertEquals("The current process' permissions (if has sudo or Administrator privileges) should be determined correctly",
+        assertTrue("The current process id should be greater than 0", os.getProcessId() > 0);
+        assertEquals(
+                "The current process' permissions (if has sudo or Administrator privileges) should be determined correctly",
                 os.isElevated(), os.isElevated());
 
         assertFalse("OS should have at least 1 currently running process", os.getProcesses(0, null).isEmpty());
         OSProcess proc = os.getProcess(os.getProcessId());
-        assertTrue("Current running process name shouldn't be empty",proc.getName().length() > 0);
+        assertTrue("Current running process name shouldn't be empty", proc.getName().length() > 0);
         assertTrue("Current running process path name shouldn't be empty", proc.getPath().length() > 0);
         assertNotNull("Current running process command line shouldn't be null", proc.getCommandLine());
         assertNotNull("Current running process working directory shouldn't be null", proc.getCurrentWorkingDirectory());
@@ -85,18 +86,22 @@ public class OperatingSystemTest {
                 proc.getProcessID(), os.getProcessId());
         assertTrue("Current running process parent process id should be 0 or higher", proc.getParentProcessID() >= 0);
         assertTrue("Current running process thread count should be greater than 0", proc.getThreadCount() > 0);
-        assertTrue("Current running process priority should be between -20 and 128", proc.getPriority() >= -20 && proc.getPriority() <= 128);
+        assertTrue("Current running process priority should be between -20 and 128",
+                proc.getPriority() >= -20 && proc.getPriority() <= 128);
         assertTrue("Current running process virtual memory size should be 0 or higher", proc.getVirtualSize() >= 0);
         assertTrue("Current running process resident set size should be 0 or higher", proc.getResidentSetSize() >= 0);
-        assertTrue("Current running process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime() >= 0);
+        assertTrue("Current running process time elapsed in system/kernel should be 0 or higher",
+                proc.getKernelTime() >= 0);
         assertTrue("Current running process time elapsed in user mode should be 0 or higher", proc.getUserTime() >= 0);
         assertTrue("Current running process uptime should be 0 or higher", proc.getUpTime() >= 0);
         assertTrue("Current process minor faults should be 0 or higher", proc.getMinorFaults() >= 0);
         assertTrue("Current process major faults should be 0 or higher", proc.getMajorFaults() >= 0);
-        assertTrue("Current process cumulative cpu usage should be 0.0 or higher" , proc.getProcessCpuLoadCumulative() >= 0d);
+        assertTrue("Current process cumulative cpu usage should be 0.0 or higher",
+                proc.getProcessCpuLoadCumulative() >= 0d);
         assertEquals("Current process cumulative cpu usage should be the same as the current process",
                 proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(null), Double.MIN_VALUE);
-        assertEquals("Current process cumulative cpu usage should be the same for a previous snapshot of the same process",
+        assertEquals(
+                "Current process cumulative cpu usage should be the same for a previous snapshot of the same process",
                 proc.getProcessCpuLoadCumulative(), proc.getProcessCpuLoadBetweenTicks(proc), Double.MIN_VALUE);
         assertTrue("Current process start time should be 0 or higher", proc.getStartTime() >= 0);
         assertTrue("Current process bytes read from disk should be 0 or higher", proc.getBytesRead() >= 0);

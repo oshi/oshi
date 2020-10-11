@@ -71,15 +71,19 @@ public class InternetProtocolStatsTest {
         UdpStats udp4 = ipStats.getUDPv4Stats();
         assertTrue("IPV4 UDP datagrams delivered to UDP users should be 0 or higher", udp4.getDatagramsReceived() >= 0);
         assertTrue("IPV4 UDP datagrams sent should be 0 or higher", udp4.getDatagramsSent() >= 0);
-        assertTrue("IPV4 UDP datagrams received with no application at the destination port should be 0 or higher", udp4.getDatagramsNoPort() >= 0);
-        assertTrue("IPV4 UDP datagrams received that could not be delivered for reasons other than lack of application at the destination port should be 0 or higher",
+        assertTrue("IPV4 UDP datagrams received with no application at the destination port should be 0 or higher",
+                udp4.getDatagramsNoPort() >= 0);
+        assertTrue(
+                "IPV4 UDP datagrams received that could not be delivered for reasons other than lack of application at the destination port should be 0 or higher",
                 udp4.getDatagramsReceivedErrors() >= 0);
 
         UdpStats udp6 = ipStats.getUDPv6Stats();
         assertTrue("IPV6 UDP datagrams delivered to UDP users should be 0 or higher", udp6.getDatagramsReceived() >= 0);
         assertTrue("IPV6 UDP datagrams sent should be 0 or higher", udp6.getDatagramsSent() >= 0);
-        assertTrue("IPV6 UDP datagrams received with no application at the destination port should be 0 or higher", udp6.getDatagramsNoPort() >= 0);
-        assertTrue("IPV6 UDP datagrams received that could not be delivered for reasons other than lack of application at the destination port should be 0 or higher",
+        assertTrue("IPV6 UDP datagrams received with no application at the destination port should be 0 or higher",
+                udp6.getDatagramsNoPort() >= 0);
+        assertTrue(
+                "IPV6 UDP datagrams received that could not be delivered for reasons other than lack of application at the destination port should be 0 or higher",
                 udp6.getDatagramsReceivedErrors() >= 0);
 
         assertNotNull("IPV4 TCP stats shouldn't be null", tcp4.toString());

@@ -49,8 +49,10 @@ public class FileSystemTest {
     public void testFileSystem() throws IOException {
         SystemInfo si = new SystemInfo();
         FileSystem filesystem = si.getOperatingSystem().getFileSystem();
-        assertTrue("File system open file descriptors should be 0 or higher", filesystem.getOpenFileDescriptors() >= 0L);
-        assertTrue("File system max open file descriptors should be 0 or higher", filesystem.getMaxFileDescriptors() >= 0L);
+        assertTrue("File system open file descriptors should be 0 or higher",
+                filesystem.getOpenFileDescriptors() >= 0L);
+        assertTrue("File system max open file descriptors should be 0 or higher",
+                filesystem.getMaxFileDescriptors() >= 0L);
         for (OSFileStore store : filesystem.getFileStores()) {
             assertNotNull("File store name shouldn't be null", store.getName());
             assertNotNull("File store volume shouldn't be null", store.getVolume());
@@ -67,11 +69,13 @@ public class FileSystemTest {
             if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
                 assertTrue("Number of free inodes should be 0 or higher on non-Windows systems",
                         store.getFreeInodes() >= 0);
-                assertTrue("Total number of inodes should be greater than or equal to number of free inodes on non-Windows systems",
+                assertTrue(
+                        "Total number of inodes should be greater than or equal to number of free inodes on non-Windows systems",
                         store.getTotalInodes() >= store.getFreeInodes());
             }
             if (!store.getDescription().equals("Network drive")) {
-                assertTrue("File store's usable space should be less than or equal to the total space on non-network drives",
+                assertTrue(
+                        "File store's usable space should be less than or equal to the total space on non-network drives",
                         store.getUsableSpace() <= store.getTotalSpace());
             }
         }
