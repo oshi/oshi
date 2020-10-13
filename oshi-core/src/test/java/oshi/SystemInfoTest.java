@@ -76,7 +76,7 @@ public class SystemInfoTest {
      */
     @Test
     public void testPlatformEnum() {
-        assertNotEquals(PlatformEnum.UNKNOWN, SystemInfo.getCurrentPlatformEnum());
+        assertNotEquals("Test if this OS is supported.", PlatformEnum.UNKNOWN, SystemInfo.getCurrentPlatformEnum());
         // Exercise the main method
         main(null);
     }

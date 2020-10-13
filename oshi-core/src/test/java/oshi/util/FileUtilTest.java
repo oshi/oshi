@@ -23,15 +23,15 @@
  */
 package oshi.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests FileUtil
@@ -55,7 +55,7 @@ public class FileUtilTest {
         List<String> thisFile = null;
         // Try file not found
         thisFile = FileUtil.readFile(NO_FILE);
-        assertEquals(0, thisFile.size());
+        assertEquals("Check that invalid file doesn't exists.", 0, thisFile.size());
         // Try this file
         thisFile = FileUtil.readFile(THISCLASS);
         // Comment ONE line
@@ -73,7 +73,7 @@ public class FileUtilTest {
                 break;
             }
         }
-        assertEquals(2, lineTwo - lineOne);
+        assertEquals("Check line numbers could be correctly read.", 2, lineTwo - lineOne);
     }
 
     /**
@@ -81,20 +81,20 @@ public class FileUtilTest {
      */
     @Test
     public void testGetFromFile() {
-        assertEquals(123L, FileUtil.getUnsignedLongFromFile(INT_FILE));
-        assertEquals(0L, FileUtil.getUnsignedLongFromFile(STRING_FILE));
-        assertEquals(0L, FileUtil.getUnsignedLongFromFile(NO_FILE));
+        assertEquals("Read unsigned long from integer file.", 123L, FileUtil.getUnsignedLongFromFile(INT_FILE));
+        assertEquals("Read unsigned long from string file.", 0L, FileUtil.getUnsignedLongFromFile(STRING_FILE));
+        assertEquals("Read unsigned long from invalid file.", 0L, FileUtil.getUnsignedLongFromFile(NO_FILE));
 
-        assertEquals(123L, FileUtil.getLongFromFile(INT_FILE));
-        assertEquals(0L, FileUtil.getLongFromFile(STRING_FILE));
-        assertEquals(0L, FileUtil.getLongFromFile(NO_FILE));
+        assertEquals("Read long from integer file.", 123L, FileUtil.getLongFromFile(INT_FILE));
+        assertEquals("Read long from string file.", 0L, FileUtil.getLongFromFile(STRING_FILE));
+        assertEquals("Read long from invalid file.", 0L, FileUtil.getLongFromFile(NO_FILE));
 
-        assertEquals(123, FileUtil.getIntFromFile(INT_FILE));
-        assertEquals(0, FileUtil.getIntFromFile(STRING_FILE));
-        assertEquals(0, FileUtil.getIntFromFile(NO_FILE));
+        assertEquals("Read int from integer file.", 123, FileUtil.getIntFromFile(INT_FILE));
+        assertEquals("Read int from string file.", 0, FileUtil.getIntFromFile(STRING_FILE));
+        assertEquals("Read int from invalid file.", 0, FileUtil.getIntFromFile(NO_FILE));
 
-        assertEquals("123", FileUtil.getStringFromFile(INT_FILE));
-        assertEquals("", FileUtil.getStringFromFile(NO_FILE));
+        assertEquals("Read string from integer file.", "123", FileUtil.getStringFromFile(INT_FILE));
+        assertEquals("Read string from invalid file.", "", FileUtil.getStringFromFile(NO_FILE));
     }
 
     @Test
@@ -108,17 +108,17 @@ public class FileUtilTest {
         expected.put("write_bytes", "124780544");
         expected.put("cancelled_write_bytes", "42");
         Map<String, String> actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, ":");
-        assertEquals(expected.size(), actual.size());
+        assertEquals("Check key-value file returned correct number of items.", expected.size(), actual.size());
         for (String key : expected.keySet()) {
-            assertEquals(expected.get(key), actual.get(key));
+            assertEquals("Check key-value item equals the test value.", expected.get(key), actual.get(key));
         }
     }
 
     @Test
     public void testReadProperties() {
         Properties props = FileUtil.readPropertiesFromFilename("simplelogger.properties");
-        assertEquals("INFO", props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"));
+        assertEquals("Check properties file was read correctly.", "INFO", props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"));
         props = FileUtil.readPropertiesFromFilename("this.file.does.not.exist");
-        assertFalse(props.elements().hasMoreElements());
+        assertFalse("Check properties could not be read from invalid file.", props.elements().hasMoreElements());
     }
 }

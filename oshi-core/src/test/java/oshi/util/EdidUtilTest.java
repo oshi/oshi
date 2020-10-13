@@ -61,15 +61,15 @@ public class EdidUtilTest {
 
     @Test
     public void testGetEdidAttrs() {
-        assertEquals("A", EdidUtil.getManufacturerID(EDID));
-        assertEquals("9227", EdidUtil.getProductID(EDID));
-        assertEquals("162C0C25", EdidUtil.getSerialNo(EDID));
-        assertEquals((byte) 44, EdidUtil.getWeek(EDID));
-        assertEquals(2012, EdidUtil.getYear(EDID));
-        assertEquals("1.4", EdidUtil.getVersion(EDID));
-        assertTrue(EdidUtil.isDigital(EDID));
-        assertEquals(60, EdidUtil.getHcm(EDID));
-        assertEquals(34, EdidUtil.getVcm(EDID));
+        assertEquals("Parse manufacturerId.", "A", EdidUtil.getManufacturerID(EDID));
+        assertEquals("Parse productId.", "9227", EdidUtil.getProductID(EDID));
+        assertEquals("Parse serialNo.", "162C0C25", EdidUtil.getSerialNo(EDID));
+        assertEquals("Parse week.", (byte) 44, EdidUtil.getWeek(EDID));
+        assertEquals("Parse year.", 2012, EdidUtil.getYear(EDID));
+        assertEquals("Parse version.", "1.4", EdidUtil.getVersion(EDID));
+        assertTrue("Parse \"isDigital\".", EdidUtil.isDigital(EDID));
+        assertEquals("Parse hcm.", 60, EdidUtil.getHcm(EDID));
+        assertEquals("Parse vcm.",34, EdidUtil.getVcm(EDID));
     }
 
     @Test
@@ -81,23 +81,23 @@ public class EdidUtilTest {
             String range = EdidUtil.getDescriptorRangeLimits(descs[i]);
             switch (i) {
             case 0:
-                assertEquals(0x565E00A0, type);
-                assertEquals("Clock 241MHz, Active Pixels 2560x1440 ", timing);
-                assertEquals("Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz", range);
+                assertEquals("Parse first type.",0x565E00A0, type);
+                assertEquals("Parse first timing.","Clock 241MHz, Active Pixels 2560x1440 ", timing);
+                assertEquals("Parse first range.","Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz", range);
                 break;
             case 1:
-                assertEquals(0x1A1D0080, type);
-                assertEquals("Clock 74MHz, Active Pixels 1280x720 ", timing);
-                assertEquals("Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz", range);
+                assertEquals("Parse second type.",0x1A1D0080, type);
+                assertEquals("Parse second timing.","Clock 74MHz, Active Pixels 1280x720 ", timing);
+                assertEquals("Parse second range.","Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz", range);
                 break;
             case 2:
-                assertEquals(0xFF, type);
-                assertEquals("C02JM2PFF2GC", EdidUtil.getDescriptorText(descs[i]));
-                assertEquals(EDID_DESC3, ParseUtil.byteArrayToHexString(descs[i]));
+                assertEquals("Parse third type.",0xFF, type);
+                assertEquals("Parse third descriptorText.","C02JM2PFF2GC", EdidUtil.getDescriptorText(descs[i]));
+                assertEquals("Parse third descriptors completely.",EDID_DESC3, ParseUtil.byteArrayToHexString(descs[i]));
                 break;
             case 3:
-                assertEquals(0xFC, type);
-                assertEquals("Thunderbolt", EdidUtil.getDescriptorText(descs[i]));
+                assertEquals("Parse fourth type.",0xFC, type);
+                assertEquals("Parse fourth descriptorText.","Thunderbolt", EdidUtil.getDescriptorText(descs[i]));
                 break;
             default:
             }
@@ -107,8 +107,8 @@ public class EdidUtilTest {
     @Test
     public void testToString() {
         String[] toString = EdidUtil.toString(EDID).split("\\n");
-        assertEquals(6, toString.length);
+        assertEquals("Parse edId toString.",6, toString.length);
         toString = EdidUtil.toString(ParseUtil.hexStringToByteArray(EDID_STR2)).split("\\n");
-        assertEquals(6, toString.length);
+        assertEquals("Parse edId2 toString.",6, toString.length);
     };
 }
