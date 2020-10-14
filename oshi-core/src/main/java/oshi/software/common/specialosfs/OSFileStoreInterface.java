@@ -35,7 +35,7 @@ import oshi.software.os.windows.WindowsOSFileStore;
  */
 public interface OSFileStoreInterface {
 
-    String getName();
+    String getType();
 
     LinuxOSFileStore getLinuxOSFileStore();
 

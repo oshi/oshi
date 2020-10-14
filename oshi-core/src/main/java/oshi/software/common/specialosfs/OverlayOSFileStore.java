@@ -36,7 +36,7 @@ import oshi.software.os.windows.WindowsOSFileStore;
 public class OverlayOSFileStore implements OSFileStoreInterface {
 
     @Override
-    public String getName() {
+    public String getType() {
         return "overlay";
     }
 

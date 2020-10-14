@@ -23,34 +23,23 @@
  */
 package oshi.util;
 
-import org.reflections.Reflections;
+import org.junit.Test;
 import oshi.software.common.specialosfs.OSFileStoreInterface;
+import oshi.software.common.specialosfs.OverlayOSFileStore;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-public final class OSFileStoreUtil {
+import static org.junit.Assert.assertEquals;
 
-    private OSFileStoreUtil() {
-    }
+public class OSFileStoreUtilTest {
 
-    public static <T extends OSFileStoreInterface> Map<String, T> getSpecialOSFileStores() {
-        Map<String, T> specialFileSystems = new HashMap<>();
+    @Test
+    public void testSpecialOSFileStores() {
+        Map<String, OSFileStoreInterface> specialOSFileStores = OSFileStoreUtil.getSpecialOSFileStores();
 
-        Reflections reflections = new Reflections("oshi.software.common.specialosfs");
-        Set<Class<? extends OSFileStoreInterface>> classes = reflections.getSubTypesOf(OSFileStoreInterface.class);
+        assertEquals("Number of special OSFileStores", specialOSFileStores.size(), 1);
 
-        classes.forEach(clazz -> {
-            try {
-                T osFileStore = (T) clazz.newInstance();
-                specialFileSystems.put(osFileStore.getType(), osFileStore);
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        });
-
-        return specialFileSystems;
+        assertEquals("\"overlay\" file store was found", specialOSFileStores.get("overlay").getClass(), OverlayOSFileStore.class);
     }
 
 }
