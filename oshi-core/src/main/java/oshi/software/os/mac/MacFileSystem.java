@@ -51,8 +51,10 @@ import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.specialosfs.OSFileStoreInterface;
 import oshi.software.os.OSFileStore;
 import oshi.util.Constants;
+import oshi.util.OSFileStoreUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -144,6 +146,7 @@ public class MacFileSystem extends AbstractFileSystem {
                 LOG.error("Unable to open session to DiskArbitration framework.");
             } else {
                 CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
+                Map<String, OSFileStoreInterface> specialFileSystems = OSFileStoreUtil.getSpecialOSFileStores();
 
                 // Create array to hold results
                 Statfs[] fs = new Statfs[numfs];
@@ -165,7 +168,15 @@ public class MacFileSystem extends AbstractFileSystem {
 
                     String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();
                     String description = "Volume";
-                    if (LOCAL_DISK.matcher(volume).matches()) {
+                    if (specialFileSystems.containsKey(type)) {
+                        // If there is a special implementation for this OSFileStore, take that instead
+                        OSFileStore fs1 = specialFileSystems.get(type).getMacOSFileStore();
+                        if (fs1 != null) {
+                            fsList.add(fs1);
+                        }
+                        continue;
+
+                    } else if (LOCAL_DISK.matcher(volume).matches()) {
                         description = "Local Disk";
                     } else if (volume.startsWith("localhost:") || volume.startsWith("//") || volume.startsWith("smb://")
                             || NETWORK_FS_TYPES.contains(type)) {

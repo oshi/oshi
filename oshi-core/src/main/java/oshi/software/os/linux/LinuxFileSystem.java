@@ -42,9 +42,9 @@ import com.sun.jna.platform.linux.LibC;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
-import oshi.software.common.OSFileStoreInterface;
+import oshi.software.common.specialosfs.OSFileStoreInterface;
 import oshi.software.os.OSFileStore;
-import oshi.util.FileSystemUtil;
+import oshi.util.OSFileStoreUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -94,7 +94,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
-        Map<String, OSFileStoreInterface> specialFileSystems = FileSystemUtil.getSpecialFileSystems();
+        Map<String, OSFileStoreInterface> specialFileSystems = OSFileStoreUtil.getSpecialOSFileStores();
 
         // Parse /proc/mounts to get fs types
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);

@@ -21,32 +21,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.software.common;
-
-import oshi.software.os.linux.LinuxOSFileStore;
-import oshi.software.os.mac.MacOSFileStore;
-import oshi.software.os.unix.aix.AixOSFileStore;
-import oshi.software.os.unix.freebsd.FreeBsdOSFileStore;
-import oshi.software.os.unix.solaris.SolarisOSFileStore;
-import oshi.software.os.windows.WindowsOSFileStore;
-
-/**
- * Interface for special filesystems and what to return per OS.
- */
-public interface OSFileStoreInterface {
-
-    String getName();
-
-    LinuxOSFileStore getLinuxOSFileStore();
-
-    AixOSFileStore getAixOSFileStore();
-
-    FreeBsdOSFileStore getFreeBsdOSFileStore();
-
-    MacOSFileStore getMacOSFileStore();
-
-    SolarisOSFileStore getSolarisOSFileStore();
-
-    WindowsOSFileStore getWindowsOSFileStore();
-
-}
+package oshi.software.common.specialosfs;

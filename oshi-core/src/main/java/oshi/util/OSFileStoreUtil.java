@@ -24,21 +24,21 @@
 package oshi.util;
 
 import org.reflections.Reflections;
-import oshi.software.common.OSFileStoreInterface;
+import oshi.software.common.specialosfs.OSFileStoreInterface;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class FileSystemUtil {
+public final class OSFileStoreUtil {
 
-    private FileSystemUtil() {
+    private OSFileStoreUtil() {
     }
 
-    public static <T extends OSFileStoreInterface> Map<String, T> getSpecialFileSystems() {
+    public static <T extends OSFileStoreInterface> Map<String, T> getSpecialOSFileStores() {
         Map<String, T> specialFileSystems = new HashMap<>();
 
-        Reflections reflections = new Reflections("firstdeveloper.examples.reflections");
+        Reflections reflections = new Reflections("oshi.software.common.specialosfs");
         Set<Class<? extends OSFileStoreInterface>> classes = reflections.getSubTypesOf(OSFileStoreInterface.class);
 
         classes.forEach(clazz -> {

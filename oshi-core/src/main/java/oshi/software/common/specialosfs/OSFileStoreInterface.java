@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.software.common;
+package oshi.software.common.specialosfs;
 
 import oshi.software.os.linux.LinuxOSFileStore;
 import oshi.software.os.mac.MacOSFileStore;
@@ -31,49 +31,22 @@ import oshi.software.os.unix.solaris.SolarisOSFileStore;
 import oshi.software.os.windows.WindowsOSFileStore;
 
 /**
- * OverlayFileSystem implementation.
+ * Interface for special filesystems and what to return per OS.
  */
-public class OverlayOSFileStore implements OSFileStoreInterface {
+public interface OSFileStoreInterface {
 
-    @Override
-    public String getName() {
-        return "overlay";
-    }
+    String getName();
 
-    @Override
-    public LinuxOSFileStore getLinuxOSFileStore() {
-        // TODO
-        return null;
-    }
+    LinuxOSFileStore getLinuxOSFileStore();
 
-    @Override
-    public AixOSFileStore getAixOSFileStore() {
-        // TODO
-        return null;
-    }
+    AixOSFileStore getAixOSFileStore();
 
-    @Override
-    public FreeBsdOSFileStore getFreeBsdOSFileStore() {
-        // TODO
-        return null;
-    }
+    FreeBsdOSFileStore getFreeBsdOSFileStore();
 
-    @Override
-    public MacOSFileStore getMacOSFileStore() {
-        // TODO
-        return null;
-    }
+    MacOSFileStore getMacOSFileStore();
 
-    @Override
-    public SolarisOSFileStore getSolarisOSFileStore() {
-        // TODO
-        return null;
-    }
+    SolarisOSFileStore getSolarisOSFileStore();
 
-    @Override
-    public WindowsOSFileStore getWindowsOSFileStore() {
-        // TODO
-        return null;
-    }
+    WindowsOSFileStore getWindowsOSFileStore();
 
 }

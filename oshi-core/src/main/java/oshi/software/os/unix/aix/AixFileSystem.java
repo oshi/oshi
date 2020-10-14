@@ -32,10 +32,10 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
-import oshi.software.common.OSFileStoreInterface;
+import oshi.software.common.specialosfs.OSFileStoreInterface;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
-import oshi.util.FileSystemUtil;
+import oshi.util.OSFileStoreUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -89,7 +89,7 @@ public class AixFileSystem extends AbstractFileSystem {
             }
         }
 
-        Map<String, OSFileStoreInterface> specialFileSystems = FileSystemUtil.getSpecialFileSystems();
+        Map<String, OSFileStoreInterface> specialFileSystems = OSFileStoreUtil.getSpecialOSFileStores();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
