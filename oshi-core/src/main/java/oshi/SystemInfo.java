@@ -37,12 +37,20 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
+import oshi.software.os.linux.LinuxFileSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
+import oshi.software.os.unix.aix.AixFileSystem;
 import oshi.software.os.unix.aix.AixOperatingSystem;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
+import oshi.software.os.unix.solaris.SolarisFileSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
+import oshi.util.GlobalConfig;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * System information. This is the main entry point to Oshi.
@@ -104,19 +112,42 @@ public class SystemInfo {
         switch (currentPlatformEnum) {
 
         case WINDOWS:
+            initializeSuppressedConfig(null);
             return new WindowsOperatingSystem();
         case LINUX:
+            initializeSuppressedConfig(LinuxFileSystem.TMP_FS_PATHS_DEFAULT);
             return new LinuxOperatingSystem();
         case MACOSX:
+            initializeSuppressedConfig(null);
             return new MacOperatingSystem();
         case SOLARIS:
+            initializeSuppressedConfig(SolarisFileSystem.TMP_FS_PATHS_DEFAULT);
             return new SolarisOperatingSystem();
         case FREEBSD:
+            initializeSuppressedConfig(FreeBsdFileSystem.TMP_FS_PATHS_DEFAULT);
             return new FreeBsdOperatingSystem();
         case AIX:
+            initializeSuppressedConfig(AixFileSystem.TMP_FS_PATHS_DEFAULT);
             return new AixOperatingSystem();
         default:
             throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+        }
+    }
+
+    /**
+     * Save config of suppressed paths/types if they didn't exist before
+     *
+     * @param TMP_FS_PATHS if exists for this OS.
+     */
+    static void initializeSuppressedConfig(List<String> TMP_FS_PATHS) {
+        if (GlobalConfig.get("NETWORK_FS_TYPES", null) == null) {
+            GlobalConfig.set("NETWORK_FS_TYPES", String.join(",", NETWORK_FS_TYPES_DEFAULT));
+        }
+        if (GlobalConfig.get("PSEUDO_FS_TYPES", null) == null) {
+            GlobalConfig.set("PSEUDO_FS_TYPES", String.join(",", PSEUDO_FS_TYPES_DEFAULT));
+        }
+        if (TMP_FS_PATHS != null && GlobalConfig.get("TMP_FS_PATHS", null) == null) {
+            GlobalConfig.set("TMP_FS_PATHS", String.join(",", TMP_FS_PATHS));
         }
     }
 
@@ -149,4 +180,67 @@ public class SystemInfo {
             throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
     }
+
+    /**
+     * FileSystem types which are network-based and should be excluded from
+     * local-only lists
+     */
+    protected static final List<String> NETWORK_FS_TYPES_DEFAULT = Arrays.asList("afs", "cifs", "smbfs", "sshfs", "ncpfs",
+        "ncp", "nfs", "nfs4", "gfs", "gds2", "glusterfs");
+
+    protected static final List<String> PSEUDO_FS_TYPES_DEFAULT = Arrays.asList(//
+        // Linux defines a set of virtual file systems
+        "anon_inodefs", // anonymous inodes - inodes without filenames
+        "autofs", // automounter file system, used by Linux, Solaris, FreeBSD
+        "bdev", // keep track of block_device vs major/minor mapping
+        "binfmt_misc", // Binary format support file system
+        "bpf", // Virtual filesystem for Berkeley Paket Filter
+        "cgroup", // Cgroup file system
+        "cgroup2", // Cgroup file system
+        "configfs", // Config file system
+        "cpuset", // pseudo-filesystem interface to the kernel cpuset mechanism
+        "dax", // Direct Access (DAX) can be used on memory-backed block devices
+        "debugfs", // Debug file system
+        "devpts", // Dev pseudo terminal devices file system
+        "devtmpfs", // Dev temporary file system
+        "drm", // Direct Rendering Manager
+        "ecryptfs", // POSIX-compliant enterprise cryptographic filesystem for Linux
+        "efivarfs", // (U)EFI variable filesystem
+        "fuse", //
+        // NOTE: FUSE's fuseblk is not evalued because used as file system
+        // representation of a FUSE block storage
+        // "fuseblk" // FUSE block file system
+        "fusectl", // FUSE control file system
+        "hugetlbfs", // Huge pages support file system
+        "inotifyfs", // support inotify
+        "mqueue", // Message queue file system
+        "nfsd", // NFS file system
+        "overlay", // Overlay file system https://wiki.archlinux.org/index.php/Overlay_filesystem
+        // "pipefs", // for pipes but only visible inside kernel
+        "proc", // Proc file system, used by Linux and Solaris
+        "pstore", // Pstore file system
+        // "ramfs", // Old filesystem used for RAM disks
+        "rootfs", // Minimal fs to support kernel boot
+        "rpc_pipefs", // Sun RPC file system
+        "securityfs", // Kernel security file system
+        "selinuxfs", // SELinux file system
+        "sunrpc", // Sun RPC file system
+        "sysfs", // SysFS file system
+        "systemd-1", // Systemd file system
+        // "tmpfs", // Temporary file system
+        // NOTE: tmpfs is evaluated apart, because Linux, Solaris, FreeBSD use it for
+        // RAMdisks
+        "tracefs", // thin stackable file system for capturing file system traces
+        "usbfs", // removed in linux 3.5 but still seen in some systems
+        // FreeBSD / Solaris defines a set of virtual file systems
+        "procfs", // Proc file system
+        "devfs", // Dev temporary file system
+        "ctfs", // Contract file system
+        "fdescfs", // fd
+        "objfs", // Object file system
+        "mntfs", // Mount file system
+        "sharefs", // Share file system
+        "lofs" // Library file system
+    );
+
 }

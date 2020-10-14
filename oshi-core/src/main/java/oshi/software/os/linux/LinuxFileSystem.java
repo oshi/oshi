@@ -61,7 +61,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
     private static final String UNICODE_SPACE = "\\040";
 
     // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
+    public static final List<String> TMP_FS_PATHS_DEFAULT = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
+    private static final List<String> TMP_FS_PATHS = loadList("TMP_FS_PATHS");
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
