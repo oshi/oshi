@@ -34,8 +34,10 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.OSFileStoreInterface;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
@@ -94,6 +96,8 @@ public class SolarisFileSystem extends AbstractFileSystem {
             }
         }
 
+        Map<String, OSFileStoreInterface> specialFileSystems = FileSystemUtil.getSpecialFileSystems();
+
         // Get mount table
         for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR squid:S135
             String[] split = ParseUtil.whitespaces.split(fs);
@@ -111,7 +115,16 @@ public class SolarisFileSystem extends AbstractFileSystem {
             String options = split[3];
 
             // Skip non-local drives if requested, and exclude pseudo file systems
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type) || path.equals("/dev")
+            if (specialFileSystems.containsKey(type)) {
+                // If there is a special implementation for this OSFileStore, take that instead
+                OSFileStore fs1 = specialFileSystems.get(type).getSolarisOSFileStore();
+                if (fs1 != null) {
+                    fsList.add(fs1);
+                }
+                continue;
+
+                // Exclude pseudo file systems
+            } else if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type) || path.equals("/dev")
                     || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
                     || volume.startsWith("rpool") && !path.equals("/")) {
                 continue;

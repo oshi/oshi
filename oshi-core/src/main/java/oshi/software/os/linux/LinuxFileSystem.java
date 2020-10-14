@@ -42,7 +42,9 @@ import com.sun.jna.platform.linux.LibC;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.OSFileStoreInterface;
 import oshi.software.os.OSFileStore;
+import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -92,6 +94,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
             boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
+        Map<String, OSFileStoreInterface> specialFileSystems = FileSystemUtil.getSpecialFileSystems();
+
         // Parse /proc/mounts to get fs types
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
@@ -107,10 +111,18 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 continue;
             }
 
-            // Exclude pseudo file systems
             String path = split[1].replace(UNICODE_SPACE, " ");
             String type = split[2];
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
+            if (specialFileSystems.containsKey(type)) {
+                // If there is a special implementation for this OSFileStore, take that instead
+                OSFileStore fs = specialFileSystems.get(type).getLinuxOSFileStore();
+                if (fs != null) {
+                    fsList.add(fs);
+                }
+                continue;
+
+                // Exclude pseudo file systems
+            } else if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
                     || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types
                     || path.equals("/dev") // exclude plain dev directory
                     || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes

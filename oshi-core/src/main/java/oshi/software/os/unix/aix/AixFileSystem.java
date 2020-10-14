@@ -32,8 +32,10 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.OSFileStoreInterface;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -87,6 +89,8 @@ public class AixFileSystem extends AbstractFileSystem {
             }
         }
 
+        Map<String, OSFileStoreInterface> specialFileSystems = FileSystemUtil.getSpecialFileSystems();
+
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
             /*- Sample Output:
@@ -117,7 +121,17 @@ public class AixFileSystem extends AbstractFileSystem {
                 String options = split[4];
 
                 // Skip non-local drives if requested, and exclude pseudo file systems
-                if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type)
+
+                if (specialFileSystems.containsKey(type)) {
+                    // If there is a special implementation for this OSFileStore, take that instead
+                    OSFileStore fs1 = specialFileSystems.get(type).getAixOSFileStore();
+                    if (fs1 != null) {
+                        fsList.add(fs1);
+                    }
+                    continue;
+
+                    // Exclude pseudo file systems
+                } else if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type)
                         || path.equals("/dev") || !path.startsWith("/")
                         || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) && !path.equals("/")) {
                     continue;
