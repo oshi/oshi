@@ -190,7 +190,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static int getMatchingBitmask(List<Long> bitmasks, int lp) {
         for (int j = 0; j < bitmasks.size(); j++) {
-            if ((bitmasks.get(j).longValue() & (1L << lp)) > 0) {
+            if ((bitmasks.get(j).longValue() & (1L << lp)) != 0) {
                 return j;
             }
         }
