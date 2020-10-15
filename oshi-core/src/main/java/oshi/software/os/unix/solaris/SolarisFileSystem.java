@@ -50,8 +50,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 public class SolarisFileSystem extends AbstractFileSystem {
 
     // System path mounted as tmpfs
-    public static final List<String> TMP_FS_PATHS_DEFAULT = Arrays.asList("/system", "/tmp", "/dev/fd");
-    private static final List<String> TMP_FS_PATHS = loadList("TMP_FS_PATHS");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {

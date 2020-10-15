@@ -45,8 +45,7 @@ import oshi.util.ParseUtil;
 public class AixFileSystem extends AbstractFileSystem {
 
     // System path mounted as tmpfs
-    public static final List<String> TMP_FS_PATHS_DEFAULT = Arrays.asList("/proc");
-    private static final List<String> TMP_FS_PATHS = loadList("TMP_FS_PATHS");
+    private static final List<String> TMP_FS_PATHS = Arrays.asList("/proc");
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
