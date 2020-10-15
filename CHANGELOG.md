@@ -1,6 +1,7 @@
 5.3.1 (in progress)
 ================
 * Your contribution here
+* [#1362](https://github.com/oshi/oshi/pull/1362): 63.rd core is wrongly calculated due to too high numbers - [@J-Jimmy](https://github.com/J-Jimmy).
 
 5.3.0 (2020-10-11)
 ================
