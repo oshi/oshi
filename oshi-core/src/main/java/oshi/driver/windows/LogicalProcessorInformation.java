@@ -59,20 +59,24 @@ public final class LogicalProcessorInformation {
         // package. These will be 64-bit bitmasks.
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
                 .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);
+        // Used to cross-reference a processor to package pr core
         List<GROUP_AFFINITY[]> packages = new ArrayList<>();
-        List<NUMA_NODE_RELATIONSHIP> numaNodes = new ArrayList<>();
         List<GROUP_AFFINITY> cores = new ArrayList<>();
+        // Used to iterate
+        List<NUMA_NODE_RELATIONSHIP> numaNodes = new ArrayList<>();
 
         for (int i = 0; i < procInfo.length; i++) {
             switch (procInfo[i].relationship) {
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
+                // could assign a package to more than one processor group
                 packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);
+                break;
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
+                // for Core, groupCount is always 1
+                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
                 numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);
-                break;
-            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
-                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);
                 break;
             default:
                 // Ignore Group and Cache info
@@ -83,29 +87,33 @@ public final class LogicalProcessorInformation {
         // so core and package numbers increment consistently with processor
         // numbers/bitmasks, ordered in groups
         cores.sort(Comparator.comparing(c -> c.group * 64L + c.mask.longValue()));
+        // if package in multiple groups will still use first group for sorting
         packages.sort(Comparator.comparing(p -> p[0].group * 64L + p[0].mask.longValue()));
+
+        // Perfmon instances are numa node + processor number so we will assign numbers
+        // based on this definition.
+        numaNodes.sort(Comparator.comparing(n -> n.nodeNumber));
 
         // Iterate Logical Processors and use bitmasks to match packages, cores,
         // and NUMA nodes
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        for (GROUP_AFFINITY coreMask : cores) {
-            int group = coreMask.group;
-            long mask = coreMask.mask.longValue();
+        for (NUMA_NODE_RELATIONSHIP node : numaNodes) {
+            // Initialize processor numbers for this numa node
+            int procNum = 0;
+            int nodeNum = node.nodeNumber;
+            int group = node.groupMask.group;
+            long mask = node.groupMask.mask.longValue();
             // Iterate mask for logical processor numbers
             int lowBit = Long.numberOfTrailingZeros(mask);
             int hiBit = 63 - Long.numberOfLeadingZeros(mask);
             for (int lp = lowBit; lp <= hiBit; lp++) {
                 if ((mask & (1L << lp)) != 0) {
-                    LogicalProcessor logProc = new LogicalProcessor(lp, getMatchingCore(cores, group, lp),
-                            getMatchingPackage(packages, group, lp), getMatchingNumaNode(numaNodes, group, lp), group);
+                    LogicalProcessor logProc = new LogicalProcessor(procNum++, getMatchingCore(cores, group, lp),
+                            getMatchingPackage(packages, group, lp), nodeNum, group);
                     logProcs.add(logProc);
                 }
             }
         }
-        // Sort by numaNode and then logical processor number to match
-        // PerfCounter/WMI ordering
-        logProcs.sort(Comparator.comparing(LogicalProcessor::getNumaNode)
-                .thenComparing(LogicalProcessor::getProcessorNumber));
         return logProcs;
     }
 
@@ -115,16 +123,6 @@ public final class LogicalProcessorInformation {
                 if ((packages.get(i)[j].mask.longValue() & (1L << lp)) != 0 && packages.get(i)[j].group == g) {
                     return i;
                 }
-            }
-        }
-        return 0;
-    }
-
-    private static int getMatchingNumaNode(List<NUMA_NODE_RELATIONSHIP> numaNodes, int g, int lp) {
-        for (int j = 0; j < numaNodes.size(); j++) {
-            if ((numaNodes.get(j).groupMask.mask.longValue() & (1L << lp)) != 0
-                    && numaNodes.get(j).groupMask.group == g) {
-                return numaNodes.get(j).nodeNumber;
             }
         }
         return 0;
@@ -175,7 +173,7 @@ public final class LogicalProcessorInformation {
             int hiBit = 63 - Long.numberOfLeadingZeros(coreMask);
             // Create logical processors for this core
             for (int i = lowBit; i <= hiBit; i++) {
-                if ((coreMask & (1L << i)) > 0) {
+                if ((coreMask & (1L << i)) != 0) {
                     LogicalProcessor logProc = new LogicalProcessor(i, core,
                             LogicalProcessorInformation.getBitMatchingPackageNumber(packageMaskList, i));
                     logProcs.add(logProc);
@@ -196,7 +194,7 @@ public final class LogicalProcessorInformation {
      */
     private static int getBitMatchingPackageNumber(List<Long> packageMaskList, int logProc) {
         for (int i = 0; i < packageMaskList.size(); i++) {
-            if ((packageMaskList.get(i).longValue() & (1L << logProc)) > 0) {
+            if ((packageMaskList.get(i).longValue() & (1L << logProc)) != 0) {
                 return i;
             }
         }
