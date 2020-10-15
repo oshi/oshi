@@ -112,7 +112,7 @@ public final class LogicalProcessorInformation {
     private static int getMatchingPackage(List<GROUP_AFFINITY[]> packages, int g, int lp) {
         for (int i = 0; i < packages.size(); i++) {
             for (int j = 0; j < packages.get(i).length; j++) {
-                if ((packages.get(i)[j].mask.longValue() & (1L << lp)) > 0 && packages.get(i)[j].group == g) {
+                if ((packages.get(i)[j].mask.longValue() & (1L << lp)) != 0 && packages.get(i)[j].group == g) {
                     return i;
                 }
             }
@@ -122,7 +122,7 @@ public final class LogicalProcessorInformation {
 
     private static int getMatchingNumaNode(List<NUMA_NODE_RELATIONSHIP> numaNodes, int g, int lp) {
         for (int j = 0; j < numaNodes.size(); j++) {
-            if ((numaNodes.get(j).groupMask.mask.longValue() & (1L << lp)) > 0
+            if ((numaNodes.get(j).groupMask.mask.longValue() & (1L << lp)) != 0
                     && numaNodes.get(j).groupMask.group == g) {
                 return numaNodes.get(j).nodeNumber;
             }
@@ -132,7 +132,7 @@ public final class LogicalProcessorInformation {
 
     private static int getMatchingCore(List<GROUP_AFFINITY> cores, int g, int lp) {
         for (int j = 0; j < cores.size(); j++) {
-            if ((cores.get(j).mask.longValue() & (1L << lp)) > 0 && cores.get(j).group == g) {
+            if ((cores.get(j).mask.longValue() & (1L << lp)) != 0 && cores.get(j).group == g) {
                 return j;
             }
         }
