@@ -95,7 +95,7 @@ public final class LogicalProcessorInformation {
             int lowBit = Long.numberOfTrailingZeros(mask);
             int hiBit = 63 - Long.numberOfLeadingZeros(mask);
             for (int lp = lowBit; lp <= hiBit; lp++) {
-                if ((mask & (1L << lp)) > 0) {
+                if ((mask & (1L << lp)) != 0) {
                     LogicalProcessor logProc = new LogicalProcessor(lp, getMatchingCore(cores, group, lp),
                             getMatchingPackage(packages, group, lp), getMatchingNumaNode(numaNodes, group, lp), group);
                     logProcs.add(logProc);
