@@ -294,6 +294,9 @@ public class LinuxOSProcess extends AbstractOSProcess {
             this.state = INVALID;
             return false;
         }
+        // If some details couldn't be read from ProcPath.PID_STATUS try reading it from ProcPath.PID_STAT
+        getMissingDetails(status, stat);
+
         long now = System.currentTimeMillis();
 
         // We can get name and status more easily from /proc/pid/status which we
@@ -337,6 +340,35 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.name = status.getOrDefault("Name", "");
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
         return true;
+    }
+
+    /**
+     * If some details couldn't be read from ProcPath.PID_STATUS try reading it from ProcPath.PID_STAT
+     *
+     * @param status status map to fill.
+     * @param stat string to read from.
+     */
+    private void getMissingDetails(Map<String, String> status, String stat) {
+        if (status == null || stat == null){
+            return;
+        }
+        String[] statSplit = stat.split(" ");
+        if (status.get("Name") == null || status.get("Name").trim().isEmpty()) {
+            // As per man, the second item is the name
+            if (statSplit.length > 1) {
+                String name = statSplit[1];
+                // remove leading and trailing parentheses
+                name = name.substring(1, name.length() - 1);
+                status.put("Name", name);
+            }
+        }
+        if (status.get("State") == null || status.get("State").trim().isEmpty()) {
+            // As per man, the third item is the state
+            if (statSplit.length > 2) {
+                String state = statSplit[2];
+                status.put("State", state);
+            }
+        }
     }
 
     /**

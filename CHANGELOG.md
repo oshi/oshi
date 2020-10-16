@@ -1,6 +1,7 @@
 5.3.1 (in progress)
 ================
 * Your contribution here
+* [#1366](https://github.com/oshi/oshi/pull/1366): Backup for getting process name and state - [@J-Jimmy](https://github.com/J-Jimmy).
 
 5.3.0 (2020-10-11)
 ================
