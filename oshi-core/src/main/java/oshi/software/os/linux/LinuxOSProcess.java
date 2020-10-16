@@ -53,6 +53,7 @@ import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.platform.linux.ProcPath;
 
 @ThreadSafe
@@ -356,22 +357,24 @@ public class LinuxOSProcess extends AbstractOSProcess {
         if (status == null || stat == null) {
             return;
         }
-        String[] statSplit = stat.split(" ");
-        if (status.get("Name") == null || status.get("Name").trim().isEmpty()) {
-            // As per man, the second item is the name
-            if (statSplit.length > 1) {
-                String statName = statSplit[1];
-                // remove leading and trailing parentheses
-                statName = statName.substring(1, statName.length() - 1);
-                status.put("Name", statName);
-            }
+
+        int nameStart = stat.indexOf("(");
+        int nameEnd = stat.indexOf(")");
+        if (Util.isBlank(status.get("Name")) && nameStart < nameEnd) {
+            // remove leading and trailing parentheses
+            String name = stat.substring(nameStart, nameEnd + 1);
+            name = name.substring(1, name.length() - 1);
+            status.put("Name", name);
         }
-        if (status.get("State") == null || status.get("State").trim().isEmpty()) {
-            // As per man, the third item is the state
-            if (statSplit.length > 2) {
-                String statState = statSplit[2];
-                status.put("State", statState);
-            }
+
+        // get the rest of the string from after the name
+        // (the name may contain whitespaces and destroy the index)
+        String statEnd = stat.substring(nameEnd + 2);
+        String[] statSplit = statEnd.split(" ");
+        // As per man, the next item after the name is the state
+        if (Util.isBlank(status.get("State")) && statSplit.length > 0) {
+            String statState = statSplit[0];
+            status.put("State", statState);
         }
     }
 
