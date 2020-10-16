@@ -360,20 +360,16 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
         int nameStart = stat.indexOf("(");
         int nameEnd = stat.indexOf(")");
-        if (Util.isBlank(status.get("Name")) && nameStart < nameEnd) {
+        if (Util.isBlank(status.get("Name")) && nameStart > 0 && nameStart < nameEnd) {
             // remove leading and trailing parentheses
             String statName = stat.substring(nameStart, nameEnd + 1);
             statName = statName.substring(1, statName.length() - 1);
             status.put("Name", statName);
         }
 
-        // get the rest of the string from after the name
-        // (the name may contain whitespaces and destroy the index)
-        String statEnd = stat.substring(nameEnd + 2);
-        String[] statSplit = ParseUtil.whitespaces.split(statEnd);
         // As per man, the next item after the name is the state
-        if (Util.isBlank(status.get("State")) && statSplit.length > 0) {
-            String statState = statSplit[0];
+        if (Util.isBlank(status.get("State")) && nameEnd > 0 && stat.length() > nameEnd + 2) {
+            String statState = String.valueOf(stat.charAt(nameEnd + 2));
             status.put("State", statState);
         }
     }
