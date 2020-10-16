@@ -370,7 +370,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         // get the rest of the string from after the name
         // (the name may contain whitespaces and destroy the index)
         String statEnd = stat.substring(nameEnd + 2);
-        String[] statSplit = statEnd.split(" ");
+        String[] statSplit = ParseUtil.whitespaces.split(statEnd);
         // As per man, the next item after the name is the state
         if (Util.isBlank(status.get("State")) && statSplit.length > 0) {
             String statState = statSplit[0];
