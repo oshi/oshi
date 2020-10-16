@@ -46,11 +46,11 @@ public class ExecutingCommandTest {
     @Test
     public void testRunNative() {
         List<String> test = ExecutingCommand.runNative(ECHO);
-        assertEquals(1, test.size());
-        assertEquals("Test", test.get(0));
-        assertEquals("Test", ExecutingCommand.getFirstAnswer(ECHO));
+        assertEquals("Test command line returned expected number of outputs.",1, test.size());
+        assertEquals("Test command line returned expected string.","Test", test.get(0));
+        assertEquals("Test command line \"getFirstAnswer\" returned first output.","Test", ExecutingCommand.getFirstAnswer(ECHO));
 
-        assertTrue(ExecutingCommand.runNative(BAD_COMMAND).isEmpty());
-        assertTrue(ExecutingCommand.getFirstAnswer(BAD_COMMAND).isEmpty());
+        assertTrue("Test command line execution failed.",ExecutingCommand.runNative(BAD_COMMAND).isEmpty());
+        assertTrue("Test command line execution failed and didn't return a result.",ExecutingCommand.getFirstAnswer(BAD_COMMAND).isEmpty());
     }
 }

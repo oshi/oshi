@@ -2,6 +2,7 @@
 ================
 * Your contribution here
 * [#1368](https://github.com/oshi/oshi/pull/1368): Backup for getting process name and state - [@J-Jimmy](https://github.com/J-Jimmy).
+* [#1362](https://github.com/oshi/oshi/pull/1362): 63.rd core is wrongly calculated due to too high numbers - [@J-Jimmy](https://github.com/J-Jimmy).
 
 5.3.0 (2020-10-11)
 ================
