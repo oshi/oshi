@@ -2,6 +2,7 @@
 ================
 * [#1359](https://github.com/oshi/oshi/pull/1359): Set suppressed network filesystem types and pseudo filesystem types via config - [@J-Jimmy](https://github.com/J-Jimmy).
 * [#1362](https://github.com/oshi/oshi/pull/1362): Correct invalid Windows processor bitmask logic on 64th core - [@J-Jimmy](https://github.com/J-Jimmy).
+* [#1363](https://github.com/oshi/oshi/pull/1363): Index logical processors by NUMA node - [@dbwiddis](https://github.com/dbwiddis).
 * [#1368](https://github.com/oshi/oshi/pull/1368): Backup for getting process name and state - [@J-Jimmy](https://github.com/J-Jimmy).
 * Your contribution here
 
