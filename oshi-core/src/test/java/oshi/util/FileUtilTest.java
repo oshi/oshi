@@ -117,7 +117,8 @@ public class FileUtilTest {
     @Test
     public void testReadProperties() {
         Properties props = FileUtil.readPropertiesFromFilename("simplelogger.properties");
-        assertEquals("Check properties file was read correctly.", "INFO", props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"));
+        assertEquals("Check properties file was read correctly.", "INFO",
+                props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"));
         props = FileUtil.readPropertiesFromFilename("this.file.does.not.exist");
         assertFalse("Check properties could not be read from invalid file.", props.elements().hasMoreElements());
     }

@@ -55,10 +55,10 @@ public class FormatUtilTest {
     public void testFormatBytes() {
         assertEquals("Test format bytes.", "0 bytes", FormatUtil.formatBytes(0));
         assertEquals("Test format byte.", "1 byte", FormatUtil.formatBytes(1));
-        assertEquals("Test format bytes.","532 bytes", FormatUtil.formatBytes(532));
-        assertEquals("Test format KiByte.","1 KiB", FormatUtil.formatBytes(1024));
-        assertEquals("Test format GiByte.","1 GiB", FormatUtil.formatBytes(1024 * 1024 * 1024));
-        assertEquals("Test format TiByte.","1 TiB", FormatUtil.formatBytes(1099511627776L));
+        assertEquals("Test format bytes.", "532 bytes", FormatUtil.formatBytes(532));
+        assertEquals("Test format KiByte.", "1 KiB", FormatUtil.formatBytes(1024));
+        assertEquals("Test format GiByte.", "1 GiB", FormatUtil.formatBytes(1024 * 1024 * 1024));
+        assertEquals("Test format TiByte.", "1 TiB", FormatUtil.formatBytes(1099511627776L));
     }
 
     /**
@@ -72,12 +72,15 @@ public class FormatUtilTest {
         String expected4 = "1" + DECIMAL_SEPARATOR + "1 TiB";
         String expected5 = "1" + DECIMAL_SEPARATOR + "1 PiB";
         String expected6 = "1" + DECIMAL_SEPARATOR + "1 EiB";
-        assertEquals("Test format KiBytes with decimal separator.",expected1, FormatUtil.formatBytes(1340));
-        assertEquals("Test format MiBytes with decimal separator.",expected2, FormatUtil.formatBytes(2400016));
-        assertEquals("Test format GiBytes with decimal separator.",expected3, FormatUtil.formatBytes(2400000000L));
-        assertEquals("Test format TiBytes with decimal separator.",expected4, FormatUtil.formatBytes(1099511627776L + 109951162777L));
-        assertEquals("Test format PiBytes with decimal separator.",expected5, FormatUtil.formatBytes(1125899906842624L + 112589990684262L));
-        assertEquals("Test format EiBytes with decimal separator.",expected6, FormatUtil.formatBytes(1152921504606846976L + 115292150460684698L));
+        assertEquals("Test format KiBytes with decimal separator.", expected1, FormatUtil.formatBytes(1340));
+        assertEquals("Test format MiBytes with decimal separator.", expected2, FormatUtil.formatBytes(2400016));
+        assertEquals("Test format GiBytes with decimal separator.", expected3, FormatUtil.formatBytes(2400000000L));
+        assertEquals("Test format TiBytes with decimal separator.", expected4,
+                FormatUtil.formatBytes(1099511627776L + 109951162777L));
+        assertEquals("Test format PiBytes with decimal separator.", expected5,
+                FormatUtil.formatBytes(1125899906842624L + 112589990684262L));
+        assertEquals("Test format EiBytes with decimal separator.", expected6,
+                FormatUtil.formatBytes(1152921504606846976L + 115292150460684698L));
     }
 
     /**
@@ -106,10 +109,14 @@ public class FormatUtilTest {
         String expected6 = "5" + DECIMAL_SEPARATOR + "6 EB";
         assertEquals("Test format KBytes with decimal separator.", expected1, FormatUtil.formatBytesDecimal(1300));
         assertEquals("Test format MBytes with decimal separator.", expected2, FormatUtil.formatBytesDecimal(2300000));
-        assertEquals("Test format GBytes with decimal separator.", expected3, FormatUtil.formatBytesDecimal(2200000000L));
-        assertEquals("Test format TBytes with decimal separator.", expected4, FormatUtil.formatBytesDecimal(1100000000000L));
-        assertEquals("Test format PBytes with decimal separator.", expected5, FormatUtil.formatBytesDecimal(3400000000000000L));
-        assertEquals("Test format EBytes with decimal separator.", expected6, FormatUtil.formatBytesDecimal(5600000000000000000L));
+        assertEquals("Test format GBytes with decimal separator.", expected3,
+                FormatUtil.formatBytesDecimal(2200000000L));
+        assertEquals("Test format TBytes with decimal separator.", expected4,
+                FormatUtil.formatBytesDecimal(1100000000000L));
+        assertEquals("Test format PBytes with decimal separator.", expected5,
+                FormatUtil.formatBytesDecimal(3400000000000000L));
+        assertEquals("Test format EBytes with decimal separator.", expected6,
+                FormatUtil.formatBytesDecimal(5600000000000000000L));
     }
 
     /**
@@ -134,7 +141,8 @@ public class FormatUtilTest {
         assertEquals("Test format 0 elapsed seconds.", "0 days, 00:00:00", FormatUtil.formatElapsedSecs(0));
         assertEquals("Test format many elapsed seconds.", "0 days, 03:25:45", FormatUtil.formatElapsedSecs(12345));
         assertEquals("Test format elapsed day in seconds.", "1 days, 10:17:36", FormatUtil.formatElapsedSecs(123456));
-        assertEquals("Test format elapsed days in seconds.", "14 days, 06:56:07", FormatUtil.formatElapsedSecs(1234567));
+        assertEquals("Test format elapsed days in seconds.", "14 days, 06:56:07",
+                FormatUtil.formatElapsedSecs(1234567));
     }
 
     /**
@@ -153,7 +161,7 @@ public class FormatUtilTest {
      */
     @Test
     public void testGetUnsignedInt() {
-        assertEquals("Return unsigned int.",4294967295L, FormatUtil.getUnsignedInt(-1));
+        assertEquals("Return unsigned int.", 4294967295L, FormatUtil.getUnsignedInt(-1));
     }
 
     /**
@@ -166,8 +174,10 @@ public class FormatUtilTest {
         assertEquals("INT_MAX to unsigned string.", "4294967295", FormatUtil.toUnsignedString(0xffffffff));
 
         assertEquals("Long to unsigned string.", "1", FormatUtil.toUnsignedString(0x0000000000000001L));
-        assertEquals("Big Long to unsigned string.", "9223372036854775808", FormatUtil.toUnsignedString(0x8000000000000000L));
-        assertEquals("LONG_MAX to unsigned string.", "18446744073709551615", FormatUtil.toUnsignedString(0xffffffffffffffffL));
+        assertEquals("Big Long to unsigned string.", "9223372036854775808",
+                FormatUtil.toUnsignedString(0x8000000000000000L));
+        assertEquals("LONG_MAX to unsigned string.", "18446744073709551615",
+                FormatUtil.toUnsignedString(0xffffffffffffffffL));
     }
 
     /**
