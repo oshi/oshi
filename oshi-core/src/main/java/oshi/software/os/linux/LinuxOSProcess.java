@@ -358,12 +358,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
             return;
         }
 
-        int nameStart = stat.indexOf("(");
-        int nameEnd = stat.indexOf(")");
+        int nameStart = stat.indexOf('(');
+        int nameEnd = stat.indexOf(')');
         if (Util.isBlank(status.get("Name")) && nameStart > 0 && nameStart < nameEnd) {
             // remove leading and trailing parentheses
-            String statName = stat.substring(nameStart, nameEnd + 1);
-            statName = statName.substring(1, statName.length() - 1);
+            String statName = stat.substring(nameStart + 1, nameEnd);
             status.put("Name", statName);
         }
 
