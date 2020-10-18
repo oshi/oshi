@@ -217,10 +217,13 @@ Many thanks to the following companies for providing free support of Open Source
 Projects using OSHI
 -------------------
 * [Apache Flink](https://flink.apache.org/)
+* [AppDynamics](https://www.appdynamics.com/)
 * [Atlassian Confluence](https://www.atlassian.com/software/confluence)
 * [CAS Server](https://apereo.github.io/cas)
 * [Kamon System Metrics](https://kamon.io/)
 * [DeepLearning4J](https://deeplearning4j.org/)
+* [N-Squared Java SLEE](https://nsquared.co.nz/files/n2jslee/technical_guide/)
+* [EnOS IoT Hub](https://developer.envisioniot.com/)
 * [Hutool](https://www.hutool.cn/)
 * [Dolphin Scheduler](https://dolphinscheduler.apache.org/)
 * [Guns](https://github.com/stylefeng/Guns)
