@@ -54,14 +54,16 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      @Test
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRunNative() {
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;String&gt; test = ExecutingCommand.runNative(ECHO);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertEquals(1, test.size());
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertEquals(<span class="jxr_string">"Test"</span>, test.get(0));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertEquals(<span class="jxr_string">"Test"</span>, ExecutingCommand.getFirstAnswer(ECHO));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertTrue(ExecutingCommand.runNative(BAD_COMMAND).isEmpty());
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertTrue(ExecutingCommand.getFirstAnswer(BAD_COMMAND).isEmpty());
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertEquals(<span class="jxr_string">"Test command line returned expected number of outputs."</span>, 1, test.size());
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertEquals(<span class="jxr_string">"Test command line returned expected string."</span>, <span class="jxr_string">"Test"</span>, test.get(0));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertEquals(<span class="jxr_string">"Test command line \&quot;getFirstAnswer\&quot; returned first output."</span>, <span class="jxr_string">"Test"</span>,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                  ExecutingCommand.getFirstAnswer(ECHO));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertTrue(<span class="jxr_string">"Test command line execution failed."</span>, ExecutingCommand.runNative(BAD_COMMAND).isEmpty());
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(<span class="jxr_string">"Test command line execution failed and didn't return a result."</span>,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  ExecutingCommand.getFirstAnswer(BAD_COMMAND).isEmpty());
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

@@ -31,15 +31,15 @@
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.util;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertFalse;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.Properties;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.Properties;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertFalse;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * Tests FileUtil</em>
@@ -63,7 +63,7 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          List&lt;String&gt; thisFile = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">// Try file not found</em>
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          thisFile = FileUtil.readFile(NO_FILE);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertEquals(0, thisFile.size());
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertEquals(<span class="jxr_string">"Check that invalid file doesn't exists."</span>, 0, thisFile.size());
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// Try this file</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          thisFile = FileUtil.readFile(THISCLASS);
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// Comment ONE line</em>
@@ -81,7 +81,7 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertEquals(2, lineTwo - lineOne);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertEquals(<span class="jxr_string">"Check line numbers could be correctly read."</span>, 2, lineTwo - lineOne);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
@@ -89,20 +89,20 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      @Test
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGetFromFile() {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertEquals(123L, FileUtil.getUnsignedLongFromFile(INT_FILE));
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertEquals(0L, FileUtil.getUnsignedLongFromFile(STRING_FILE));
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertEquals(0L, FileUtil.getUnsignedLongFromFile(NO_FILE));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertEquals(<span class="jxr_string">"Read unsigned long from integer file."</span>, 123L, FileUtil.getUnsignedLongFromFile(INT_FILE));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertEquals(<span class="jxr_string">"Read unsigned long from string file."</span>, 0L, FileUtil.getUnsignedLongFromFile(STRING_FILE));
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertEquals(<span class="jxr_string">"Read unsigned long from invalid file."</span>, 0L, FileUtil.getUnsignedLongFromFile(NO_FILE));
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertEquals(123L, FileUtil.getLongFromFile(INT_FILE));
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertEquals(0L, FileUtil.getLongFromFile(STRING_FILE));
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertEquals(0L, FileUtil.getLongFromFile(NO_FILE));
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertEquals(<span class="jxr_string">"Read long from integer file."</span>, 123L, FileUtil.getLongFromFile(INT_FILE));
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertEquals(<span class="jxr_string">"Read long from string file."</span>, 0L, FileUtil.getLongFromFile(STRING_FILE));
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertEquals(<span class="jxr_string">"Read long from invalid file."</span>, 0L, FileUtil.getLongFromFile(NO_FILE));
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertEquals(123, FileUtil.getIntFromFile(INT_FILE));
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertEquals(0, FileUtil.getIntFromFile(STRING_FILE));
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertEquals(0, FileUtil.getIntFromFile(NO_FILE));
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertEquals(<span class="jxr_string">"Read int from integer file."</span>, 123, FileUtil.getIntFromFile(INT_FILE));
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertEquals(<span class="jxr_string">"Read int from string file."</span>, 0, FileUtil.getIntFromFile(STRING_FILE));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertEquals(<span class="jxr_string">"Read int from invalid file."</span>, 0, FileUtil.getIntFromFile(NO_FILE));
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertEquals(<span class="jxr_string">"123"</span>, FileUtil.getStringFromFile(INT_FILE));
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertEquals(<span class="jxr_string">""</span>, FileUtil.getStringFromFile(NO_FILE));
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertEquals(<span class="jxr_string">"Read string from integer file."</span>, <span class="jxr_string">"123"</span>, FileUtil.getStringFromFile(INT_FILE));
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertEquals(<span class="jxr_string">"Read string from invalid file."</span>, <span class="jxr_string">""</span>, FileUtil.getStringFromFile(NO_FILE));
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     @Test
@@ -116,20 +116,21 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         expected.put(<span class="jxr_string">"write_bytes"</span>, <span class="jxr_string">"124780544"</span>);
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         expected.put(<span class="jxr_string">"cancelled_write_bytes"</span>, <span class="jxr_string">"42"</span>);
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         Map&lt;String, String&gt; actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, <span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertEquals(expected.size(), actual.size());
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertEquals(<span class="jxr_string">"Check key-value file returned correct number of items."</span>, expected.size(), actual.size());
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">for</strong> (String key : expected.keySet()) {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             assertEquals(expected.get(key), actual.get(key));
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             assertEquals(<span class="jxr_string">"Check key-value item equals the test value."</span>, expected.get(key), actual.get(key));
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         }
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> 
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>     @Test
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testReadProperties() {
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         Properties props = FileUtil.readPropertiesFromFilename(<span class="jxr_string">"simplelogger.properties"</span>);
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertEquals(<span class="jxr_string">"INFO"</span>, props.getProperty(<span class="jxr_string">"org.slf4j.simpleLogger.defaultLogLevel"</span>));
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         props = FileUtil.readPropertiesFromFilename(<span class="jxr_string">"this.file.does.not.exist"</span>);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertFalse(props.elements().hasMoreElements());
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertEquals(<span class="jxr_string">"Check properties file was read correctly."</span>, <span class="jxr_string">"INFO"</span>,
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 props.getProperty(<span class="jxr_string">"org.slf4j.simpleLogger.defaultLogLevel"</span>));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         props = FileUtil.readPropertiesFromFilename(<span class="jxr_string">"this.file.does.not.exist"</span>);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertFalse(<span class="jxr_string">"Check properties could not be read from invalid file."</span>, props.elements().hasMoreElements());
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
