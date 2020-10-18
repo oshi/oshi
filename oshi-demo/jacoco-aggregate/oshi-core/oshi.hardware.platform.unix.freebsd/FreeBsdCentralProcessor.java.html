@@ -190,7 +190,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
     private static int getMatchingBitmask(List&lt;Long&gt; bitmasks, int lp) {
 <span class="nc bnc" id="L192" title="All 2 branches missed.">        for (int j = 0; j &lt; bitmasks.size(); j++) {</span>
-<span class="nc bnc" id="L193" title="All 2 branches missed.">            if ((bitmasks.get(j).longValue() &amp; (1L &lt;&lt; lp)) &gt; 0) {</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">            if ((bitmasks.get(j).longValue() &amp; (1L &lt;&lt; lp)) != 0) {</span>
 <span class="nc" id="L194">                return j;</span>
             }
         }

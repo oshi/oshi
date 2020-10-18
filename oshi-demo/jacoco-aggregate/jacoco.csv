@@ -1,5 +1,5 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-oshi-demo/oshi-core,oshi.driver.windows,LogicalProcessorInformation,416,0,48,0,69,0,33,0,8,0
+oshi-demo/oshi-core,oshi.driver.windows,LogicalProcessorInformation,385,0,42,0,65,0,30,0,8,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterQuery,284,0,25,0,58,0,19,0,5,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfDataUtil.PerfCounter,54,0,2,0,14,0,6,0,5,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterQueryHandler,178,0,24,0,49,0,20,0,8,0
@@ -285,7 +285,7 @@ oshi-demo/oshi-core,oshi.jna.platform.linux,LinuxLibc.Exit_status,3,0,0,0,1,0,1,
 oshi-demo/oshi-core,oshi.jna.platform.linux,LinuxLibc.LinuxUtmpx,27,0,0,0,7,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.linux,LinuxLibc,6,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSProcess.ProcPidStat,125,0,0,0,7,0,3,0,3,0
-oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSProcess,546,0,16,0,101,0,39,0,31,0
+oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSProcess,612,0,32,0,113,0,48,0,32,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxInternetProtocolStats,242,0,24,0,61,0,25,0,7,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxFileSystem,399,0,48,0,87,0,32,0,8,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSThread,234,0,6,0,45,0,17,0,14,0
@@ -397,7 +397,7 @@ oshi-demo/oshi-core,oshi.software.common,AbstractOSProcess,110,0,8,0,19,0,12,0,8
 oshi-demo/oshi-core,oshi.software.common,AbstractOperatingSystem,244,0,24,0,63,0,29,0,14,0
 oshi-demo/oshi-core,oshi.software.common,AbstractOSFileStore,119,0,0,0,21,0,9,0,9,0
 oshi-demo/oshi-core,oshi.software.common,AbstractNetworkParams,184,0,20,0,38,0,17,0,7,0
-oshi-demo/oshi-core,oshi.software.common,AbstractFileSystem,228,0,0,0,4,0,3,0,3,0
+oshi-demo/oshi-core,oshi.software.common,AbstractFileSystem,22,0,0,0,6,0,3,0,3,0
 oshi-demo/oshi-core,oshi.software.common,AbstractOSThread,168,0,10,0,23,0,17,0,12,0
 oshi-demo/oshi-core,oshi.hardware,PhysicalMemory,0,102,0,0,0,19,0,7,0,7
 oshi-demo/oshi-core,oshi.hardware,CentralProcessor.TickType,0,103,0,0,0,13,0,3,0,3
