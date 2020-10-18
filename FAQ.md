@@ -14,6 +14,14 @@ rarely, change between minor versions, usually associated with organizing packag
 
 Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
+Does OSHI support Open Service Gateway Initiative (OSGi) modules?
+========
+OSHI publishes a shaded JAR in the `oshi-core-shaded` artifact built using `maven-shade-plugin` and `maven-bundle-plugin` with manifest updates using `mvn-bnd-plugin`. Submit an issue if the configuration of these plugins needs to be adjusted to support your project.
+
+Does OSHI support Java Platform Management System (JPMS) modules (a.k.a., Jigsaw)?
+========
+OSHI publishes an `Automatic-Module-Name` of `com.github.oshi` in its manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to make `oshi-core`.  Modularization is being considered for the next major API rewrite.  If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
+
 I'm trying to optimize performance. What CPU/Memory trade-offs are key?
 ========
 OSHI avoids caching large amount of information and the use of `static` variables.  Memoized suppliers are used in many classes to avoid repeated operating system calls, but these will be garbage collected with their containing classes.  Users with memory constrants should consider periodically creating a new `SystemInfo` object to enable this.
@@ -49,8 +57,6 @@ What minimum Java version is required?
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
 
 OSHI 4.x and later require minimum Java 8 compatibility. This minimum level will be retained through at least 2026.
-
-In the future, OSHI may include a new artifact targeting JDK 17 and leveraging JPMS, while maintaining feature parity with the JDK 8 version.  
 
 Which operating systems are supported?
 ========

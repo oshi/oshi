@@ -1,16 +1,16 @@
-5.3.1 (in progress)
+5.3.2 (in progress)
 ================
-* [#1359](https://github.com/oshi/oshi/pull/1359): Set suppressed network filesystem types and pseudo filesystem types via config - [@J-Jimmy](https://github.com/J-Jimmy).
-* [#1362](https://github.com/oshi/oshi/pull/1362): Correct invalid Windows processor bitmask logic on 64th core - [@J-Jimmy](https://github.com/J-Jimmy).
-* [#1363](https://github.com/oshi/oshi/pull/1363): Index logical processors by NUMA node - [@dbwiddis](https://github.com/dbwiddis).
-* [#1368](https://github.com/oshi/oshi/pull/1368): Backup for getting process name and state - [@J-Jimmy](https://github.com/J-Jimmy).
 * Your contribution here
 
-5.3.0 (2020-10-11)
+5.3.0 (2020-10-11), 5.3.1 (2020-10-18)
 ================
 * [#1350](https://github.com/oshi/oshi/pull/1350): Optionally list loopback and virtual network interfaces - [@zalintyre](https://github.com/zalintyre).
 * [#1353](https://github.com/oshi/oshi/pull/1353): runNative locale issues on linux - [@dmitraver](https://github.com/dmitraver)
 * [#1355](https://github.com/oshi/oshi/pull/1355): Allow variable size structs for macOS IP stat sysctl calls - [@dbwiddis](https://github.com/dbwiddis).
+* [#1359](https://github.com/oshi/oshi/pull/1359): Set suppressed network filesystem types and pseudo filesystem types via config - [@J-Jimmy](https://github.com/J-Jimmy).
+* [#1362](https://github.com/oshi/oshi/pull/1362): Correct invalid Windows processor bitmask logic on 64th core - [@J-Jimmy](https://github.com/J-Jimmy).
+* [#1363](https://github.com/oshi/oshi/pull/1363): Index logical processors by NUMA node - [@dbwiddis](https://github.com/dbwiddis).
+* [#1368](https://github.com/oshi/oshi/pull/1368): Backup for getting process name and state - [@J-Jimmy](https://github.com/J-Jimmy).
 
 4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16), 4.9.5 / 5.2.5 (2020-08-30)
 ================

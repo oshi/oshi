@@ -54,11 +54,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.3.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.3.0&e=jar)  | [oshi-core-5.3.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.3.1-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.3.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.3.1&e=jar)  | [oshi-core-5.3.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.3.2-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.3.0/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.3.1/jar). 
 
 2. Create a new instance of `SystemInfo` 
 
@@ -76,6 +76,12 @@ Note: OSHI uses the latest version of [JNA](https://github.com/java-native-acces
  - Listing OSHI earlier (or first) in your dependency list 
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
  - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property or equivalent
+
+Support
+-------------------
+* For bug reports, feature requests, or general questions about OSHI's longer term plans, please [create an issue](https://github.com/oshi/oshi/issues).  
+* For help integrating OSHI into your own project or maintainer code review of your PRs, tag `@dbwiddis` in issues or pull requests on your project site.
+* For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, and asking a new question if it hasn't been answered before.
 
 OSHI for enterprise
 -------------------
@@ -120,6 +126,7 @@ Memory and swapfile information is available.
 ![Memory Statistics](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/Memory.PNG)
 
 Statistics for the system battery are provided:
+
 ```
 Power Sources: 
  Name: InternalBattery-0, Device Name: bq20z451,
@@ -132,6 +139,7 @@ Power Sources:
 ```
 
 The EDID for each Display is provided. This can be parsed with various utilities for detailed information. OSHI provides a summary of selected data.
+
 ```
 Displays:
  Display 0:
@@ -151,6 +159,7 @@ Displays:
 ```
 
 Disks and usage (reads, writes, transfer times) are shown, and partitions can be mapped to filesystems.
+
 ```
 Disks:
  disk0: (model: SanDisk Ultra II 960GB - S/N: 161008800550) size: 960.2 GB, reads: 1053132 (23.0 GiB), writes: 243792 (11.1 GiB), xfer: 73424854 ms
@@ -163,6 +172,7 @@ Disks:
 ```
 
 Sensor readings are available for some hardware (see notes in the [API](https://oshi.github.io/oshi/apidocs/oshi/hardware/Sensors.html)).
+
 ```
 Sensors:
  CPU Temperature: 69.8°C
@@ -171,6 +181,7 @@ Sensors:
 ```
 
 Attached USB devices can be listed:
+
 ```
 USB Devices:
  AppleUSBEHCI
@@ -202,7 +213,10 @@ Where are we? How can I help?
 as a platform-independent library that did not require additional software and had a license compatible with 
 both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
 but we would love for *you* to help by:
-* Testing!  Our CI testing is limited to a few platforms.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed. 
+* Testing!  Our CI testing is limited to a few platforms.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed. Particular testing needs include:
+  * Windows systems with over 64 processors
+  * Raspberry Pi
+  * Less common Linux distributions
 * Contributing code.  See something that's not working right or could work better?  Help us fix it!  New contributors are welcome.
 * Documenting implementation.  Our Wiki is sparse and the `oshi-demo` artifact is a place to host proof-of-concept ideas.  Want to help new users follow in your footsteps?
 * Suggesting new features.  Do you need OSHI to do something it doesn't currently do?  Let us know.
