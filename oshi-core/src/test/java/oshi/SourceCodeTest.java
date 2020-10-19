@@ -58,7 +58,7 @@ public class SourceCodeTest {
         // use google checks, but adjust max line length
         final StyleChecks checks = StyleChecks.google().maxLineLen(120);
         final CheckstyleResult result = new CheckstyleAnalyzer(config, checks, collector).analyze();
-        assertThat(result, hasNoCheckstyleIssues());
+        assertThat("There are Checkstyle errors found", result, hasNoCheckstyleIssues());
     }
 
     public void checkstyleSun() {
@@ -75,6 +75,6 @@ public class SourceCodeTest {
         // use sun checks also , but adjust max line length
         final StyleChecks checks = StyleChecks.sun().maxLineLen(120);
         final CheckstyleResult result = new CheckstyleAnalyzer(config, checks, collector).analyze();
-        assertThat(result, hasNoCheckstyleIssues());
+        assertThat("There are Checkstyle errors found", result, hasNoCheckstyleIssues());
     }
 }
