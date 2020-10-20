@@ -97,7 +97,7 @@ public final class MemoizerTest {
         // Do tests with refresh after 0.1 ms.
         iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(10);
         ttlNanos = iterationDurationNanos / 100;
-        assertNotEquals(0, ttlNanos); // avoid div/0 later
+        assertNotEquals("ttlNanos should not be zero",0, ttlNanos); // avoid div/0 later
         for (int r = 0; r < refreshIters; r++) {
             run(iterationDurationNanos, ttlNanos);
         }
@@ -125,8 +125,8 @@ public final class MemoizerTest {
                 // First read from the memoizer. Only one thread will win this race to increment
                 // 0 to 1, but all threads should read at least 1, if not increment further
                 Long previousValue = m.get();
-                assertNotNull(previousValue);
-                assertTrue(previousValue > 0);
+                assertNotNull("previousValue should not be null",previousValue);
+                assertTrue("previousValue should be greater than zero", previousValue > 0);
                 // Memoizer's ttl was set during previous call (for race winning thread) or
                 // earlier (for losing threads) but if we delay for at least ttl from now, we
                 // are sure to get at least one increment if ttl is nonnegative
@@ -144,7 +144,7 @@ public final class MemoizerTest {
                         throw new InterruptedException();
                     }
                     final Long newValue = m.get();
-                    assertNotNull(newValue);// check that we never get uninitialized value
+                    assertNotNull("newValue should not be null", newValue);// check that we never get uninitialized value
                     assertTrue(String.format("newValue=%s, previousValue=%s", newValue, previousValue),
                             newValue >= previousValue);// check that the counter never goes down
                     previousValue = newValue;
