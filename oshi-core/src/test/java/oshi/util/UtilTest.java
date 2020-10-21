@@ -43,30 +43,30 @@ public class UtilTest {
 
     @Test
     public void testWildcardMatch() {
-        assertFalse(Util.wildcardMatch("Test", "est"));
-        assertTrue(Util.wildcardMatch("Test", "^est"));
-        assertFalse(Util.wildcardMatch("Test", "^^est"));
-        assertTrue(Util.wildcardMatch("Test", "?est"));
-        assertFalse(Util.wildcardMatch("Test", "^?est"));
-        assertTrue(Util.wildcardMatch("Test", "*est"));
-        assertFalse(Util.wildcardMatch("Test", "^*est"));
+        assertFalse("Test should not match est", Util.wildcardMatch("Test", "est"));
+        assertTrue("Test should match ^est", Util.wildcardMatch("Test", "^est"));
+        assertFalse("Test should not match ^^est", Util.wildcardMatch("Test", "^^est"));
+        assertTrue("Test should match ?est", Util.wildcardMatch("Test", "?est"));
+        assertFalse("Test should not match ^?est", Util.wildcardMatch("Test", "^?est"));
+        assertTrue("Test should match *est", Util.wildcardMatch("Test", "*est"));
+        assertFalse("Test should not match ^*est", Util.wildcardMatch("Test", "^*est"));
 
-        assertFalse(Util.wildcardMatch("Test", "T?t"));
-        assertTrue(Util.wildcardMatch("Test", "T??t"));
-        assertTrue(Util.wildcardMatch("Test", "T*t"));
+        assertFalse("Test should not match T?t", Util.wildcardMatch("Test", "T?t"));
+        assertTrue("Test should match T??t", Util.wildcardMatch("Test", "T??t"));
+        assertTrue("Test should match T*t", Util.wildcardMatch("Test", "T*t"));
 
-        assertFalse(Util.wildcardMatch("Test", "Tes"));
-        assertTrue(Util.wildcardMatch("Test", "Tes?"));
-        assertTrue(Util.wildcardMatch("Test", "Tes*"));
+        assertFalse("Test should not match Tes", Util.wildcardMatch("Test", "Tes"));
+        assertTrue("Test should match Tes?", Util.wildcardMatch("Test", "Tes?"));
+        assertTrue("Test should match Tes*", Util.wildcardMatch("Test", "Tes*"));
 
-        assertFalse(Util.wildcardMatch("Test", "Te?"));
-        assertTrue(Util.wildcardMatch("Test", "Te*"));
+        assertFalse("Test should not match Te?", Util.wildcardMatch("Test", "Te?"));
+        assertTrue("Test should match Te*", Util.wildcardMatch("Test", "Te*"));
     }
 
     @Test
     public void testIsBlank() {
-        assertTrue(Util.isBlank(""));
-        assertTrue(Util.isBlank(null));
-        assertFalse(Util.isBlank("Not blank"));
+        assertTrue("\"\" should be Blank", Util.isBlank(""));
+        assertTrue("null should be Blank", Util.isBlank(null));
+        assertFalse("\"Not blank\" should not be Blank", Util.isBlank("Not blank"));
     }
 }
