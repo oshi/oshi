@@ -40,7 +40,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 
 /**
- * Utility to query Logical Processor Information pre-Win7
+ * Utility to query Logical Processor Information
  */
 @ThreadSafe
 public final class LogicalProcessorInformation {
@@ -90,25 +90,23 @@ public final class LogicalProcessorInformation {
         // if package in multiple groups will still use first group for sorting
         packages.sort(Comparator.comparing(p -> p[0].group * 64L + p[0].mask.longValue()));
 
-        // Perfmon instances are numa node + processor number so we will assign numbers
-        // based on this definition.
-        numaNodes.sort(Comparator.comparing(n -> n.nodeNumber));
-
         // Iterate Logical Processors and use bitmasks to match packages, cores,
-        // and NUMA nodes
+        // and NUMA nodes. Perfmon instances are numa node + processor number, so we
+        // iterate by numa node so the returned list will properly index perfcounter
+        // numa/proc-per-numa indices with all numa nodes grouped together
+        numaNodes.sort(Comparator.comparing(n -> n.nodeNumber));
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (NUMA_NODE_RELATIONSHIP node : numaNodes) {
-            // Initialize processor numbers for this numa node
-            int procNum = 0;
             int nodeNum = node.nodeNumber;
             int group = node.groupMask.group;
             long mask = node.groupMask.mask.longValue();
-            // Iterate mask for logical processor numbers
+            // Processor numbers are uniquely identified by processor group and processor
+            // number on that group, which matches the bitmask.
             int lowBit = Long.numberOfTrailingZeros(mask);
             int hiBit = 63 - Long.numberOfLeadingZeros(mask);
             for (int lp = lowBit; lp <= hiBit; lp++) {
                 if ((mask & (1L << lp)) != 0) {
-                    LogicalProcessor logProc = new LogicalProcessor(procNum++, getMatchingCore(cores, group, lp),
+                    LogicalProcessor logProc = new LogicalProcessor(lp, getMatchingCore(cores, group, lp),
                             getMatchingPackage(packages, group, lp), nodeNum, group);
                     logProcs.add(logProc);
                 }
