@@ -451,7 +451,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 LOG.error("AdjustTokenPrivileges failed. Error: {}", err);
                 return false;
             } else if (err == WinError.ERROR_NOT_ALL_ASSIGNED) {
-                LOG.debug("Debug priveleges not enabled.");
+                LOG.debug("Debug privileges not enabled.");
                 return false;
             }
         } finally {
