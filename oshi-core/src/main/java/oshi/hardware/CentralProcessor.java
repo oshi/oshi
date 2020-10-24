@@ -404,6 +404,13 @@ public interface CentralProcessor {
         public int getProcessorGroup() {
             return processorGroup;
         }
+
+        @Override
+        public String toString() {
+            return "LogicalProcessor [processorNumber=" + processorNumber + ", coreNumber=" + physicalProcessorNumber
+                    + ", packageNumber=" + physicalPackageNumber + ", numaNode=" + numaNode + ", processorGroup="
+                    + processorGroup + "]";
+        }
     }
 
     /**

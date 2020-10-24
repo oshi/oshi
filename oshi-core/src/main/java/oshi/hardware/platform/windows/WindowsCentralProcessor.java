@@ -148,11 +148,21 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (VersionHelpers.IsWindows7OrGreater()) {
             List<LogicalProcessor> logProcs = LogicalProcessorInformation.getLogicalProcessorInformationEx();
             // Save numaNode,Processor lookup for future PerfCounter instance lookup
-            this.numaNodeProcToLogicalProcMap = new HashMap<>();
+            // The processor number is based on the Processor Group, so we keep a separate
+            // index by NUMA node.
+            int curNode = -1;
+            int procNum = 0;
+            // 0-indexed list of all lps for array lookup
             int lp = 0;
+            this.numaNodeProcToLogicalProcMap = new HashMap<>();
             for (LogicalProcessor logProc : logProcs) {
-                numaNodeProcToLogicalProcMap
-                        .put(String.format("%d,%d", logProc.getNumaNode(), logProc.getProcessorNumber()), lp++);
+                int node = logProc.getNumaNode();
+                // This list is grouped by NUMA node so a change in node will reset this counter
+                if (node != curNode) {
+                    curNode = node;
+                    procNum = 0;
+                }
+                numaNodeProcToLogicalProcMap.put(String.format("%d,%d", logProc.getNumaNode(), procNum++), lp++);
             }
             return logProcs;
         } else {
