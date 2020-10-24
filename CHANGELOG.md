@@ -1,6 +1,7 @@
 5.3.2 (in progress)
 ================
 * [#1374](https://github.com/oshi/oshi/pull/1374): Revert logical processor indexing, fix counter instance naming - [@dbwiddis](https://github.com/dbwiddis).
+* [#1375](https://github.com/oshi/oshi/pull/1375): Reduce log level for expected Windows permission failures - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 5.3.0 (2020-10-11), 5.3.1 (2020-10-18)
