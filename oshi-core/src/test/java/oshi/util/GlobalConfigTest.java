@@ -61,9 +61,7 @@ public class GlobalConfigTest {
     public void testGetInteger() {
         asserter(PROPERTY).assertDefaultThat(0, 0);
         set(PROPERTY, 123);
-        asserter(PROPERTY)
-            .assertThat(123, 0)
-            .assertThat("123", null);
+        asserter(PROPERTY).assertThat(123, 0).assertThat("123", null);
 
         // Invalid integer
         set(PROPERTY, "1.23");
@@ -74,9 +72,7 @@ public class GlobalConfigTest {
     public void testGetDouble() {
         asserter(PROPERTY).assertDefaultThat(0.0, 0.0);
         set(PROPERTY, 1.23d);
-        asserter(PROPERTY)
-            .assertThat(1.23, 0.0)
-            .assertThat("1.23", null);
+        asserter(PROPERTY).assertThat(1.23, 0.0).assertThat("1.23", null);
 
         // Invalid double
         set(PROPERTY, "1.2.3");
@@ -87,9 +83,7 @@ public class GlobalConfigTest {
     public void testGetBoolean() {
         asserter(PROPERTY).assertDefaultThat(false, false);
         set(PROPERTY, true);
-        asserter(PROPERTY)
-            .assertThat(true, false)
-            .assertThat("true", null);
+        asserter(PROPERTY).assertThat(true, false).assertThat("true", null);
     }
 
     @Test
@@ -117,8 +111,7 @@ public class GlobalConfigTest {
     @Test
     public void testPropertyExceptionMessage() {
         set(PROPERTY, "test");
-        assertEquals(format("Invalid property: \"%s\" = test", PROPERTY),
-                new PropertyException(PROPERTY).getMessage());
+        assertEquals(format("Invalid property: \"%s\" = test", PROPERTY), new PropertyException(PROPERTY).getMessage());
     }
 
     private Properties propertiesWith(String value) {
