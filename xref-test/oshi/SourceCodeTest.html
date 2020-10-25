@@ -66,7 +66,7 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <em class="jxr_comment">// use google checks, but adjust max line length</em>
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">final</strong> StyleChecks checks = StyleChecks.google().maxLineLen(120);
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">final</strong> CheckstyleResult result = <strong class="jxr_keyword">new</strong> CheckstyleAnalyzer(config, checks, collector).analyze();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(result, hasNoCheckstyleIssues());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(<span class="jxr_string">"There are Checkstyle errors found"</span>, result, hasNoCheckstyleIssues());
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> checkstyleSun() {
@@ -83,7 +83,7 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          <em class="jxr_comment">// use sun checks also , but adjust max line length</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">final</strong> StyleChecks checks = StyleChecks.sun().maxLineLen(120);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">final</strong> CheckstyleResult result = <strong class="jxr_keyword">new</strong> CheckstyleAnalyzer(config, checks, collector).analyze();
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertThat(result, hasNoCheckstyleIssues());
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertThat(<span class="jxr_string">"There are Checkstyle errors found"</span>, result, hasNoCheckstyleIssues());
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
 </pre>

@@ -105,7 +105,7 @@
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          <em class="jxr_comment">// Do tests with refresh after 0.1 ms.</em>
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(10);
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          ttlNanos = iterationDurationNanos / 100;
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertNotEquals(0, ttlNanos); <em class="jxr_comment">// avoid div/0 later</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertNotEquals(<span class="jxr_string">"ttlNanos should not be zero"</span>, 0, ttlNanos); <em class="jxr_comment">// avoid div/0 later</em>
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> r = 0; r &lt; refreshIters; r++) {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>             run(iterationDurationNanos, ttlNanos);
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
@@ -133,8 +133,8 @@
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                 <em class="jxr_comment">// First read from the memoizer. Only one thread will win this race to increment</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <em class="jxr_comment">// 0 to 1, but all threads should read at least 1, if not increment further</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                 Long previousValue = m.get();
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 assertNotNull(previousValue);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 assertTrue(previousValue &gt; 0);
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 assertNotNull(<span class="jxr_string">"previousValue should not be null"</span>, previousValue);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 assertTrue(<span class="jxr_string">"previousValue should be greater than zero"</span>, previousValue &gt; 0);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                 <em class="jxr_comment">// Memoizer's ttl was set during previous call (for race winning thread) or</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                 <em class="jxr_comment">// earlier (for losing threads) but if we delay for at least ttl from now, we</em>
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <em class="jxr_comment">// are sure to get at least one increment if ttl is nonnegative</em>
@@ -152,74 +152,75 @@
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> InterruptedException();
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>                     }
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>                     <strong class="jxr_keyword">final</strong> Long newValue = m.get();
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>                     assertNotNull(newValue);<em class="jxr_comment">// check that we never get uninitialized value</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                     assertTrue(String.format(<span class="jxr_string">"newValue=%s, previousValue=%s"</span>, newValue, previousValue),
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>                             newValue &gt;= previousValue);<em class="jxr_comment">// check that the counter never goes down</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                     previousValue = newValue;
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                 }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             }));
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         }
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_comment">         * Make sure all the submitted tasks finished correctly</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_comment">         */</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         finishAllThreads(results);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_comment">         * All the writes to s.value field happened-before this read because of all the</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_comment">         * result.get() invocations, so it holds the final/max value returned by any</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_comment">         * thread. We cannot access s.value but it's private, and s.get() will increment</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_comment">         * before returning, so here we subtract 1 from the result to determine what the</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_comment">         * internal s.value was before this call increments it.</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_comment">         */</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> actualNumberOfIncrements = s.get() - 1;
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         testIncrementCounts(actualNumberOfIncrements, iterationDurationNanos, ttlNanos);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> finishAllThreads(Collection&lt;Future&lt;Void&gt;&gt; results)
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>             <strong class="jxr_keyword">throws</strong> InterruptedException, ExecutionException {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Future&lt;Void&gt; result : results) {
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>             result.get();
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         }
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> testIncrementCounts(<strong class="jxr_keyword">long</strong> actualNumberOfIncrements, <strong class="jxr_keyword">long</strong> iterationDurationNanos, <strong class="jxr_keyword">long</strong> ttlNanos) {
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">if</strong> (ttlNanos &lt; 0) {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             assertEquals(String.format(<span class="jxr_string">"ttlNanos=%d, expectedNumberOfIncrements=%d, actualNumberOfIncrements=%s"</span>,
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>                     ttlNanos, 1, actualNumberOfIncrements), 1, actualNumberOfIncrements);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         }
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_comment">         * Calculation of expectedNumberOfIncrements is a bit tricky because there is no</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_comment">         * such thing. We can only talk about min and max possible values when ttl &gt; 0.</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_comment">         *</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_comment">         * Min: Two increments are guaranteed: the initial one, because it does not</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_comment">         * depend on timings, and a second one which ensures at least ttlNanos have</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_comment">         * elapsed since the first one. All other refreshes may or may not happen</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_comment">         * depending on the timings. Therefore the min is 2. In the case of negative ttl</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_comment">         * we should get only one increment ever; otherwise we must have at least 2</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_comment">         * increments.</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_comment">         *</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_comment">         * Max: Each thread has a chance to refresh one more time after</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_comment">         * (iterationDurationNanos / ttlNanos) refreshes have been collectively done,</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_comment">         * which will increment again. This happens because an arbitrary amount of time</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_comment">         * may elapse between the instant when a thread enters the while cycle body for</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_comment">         * the last time (the last iteration), and the instant that is observed by the</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_comment">         * MemoizedObject.get method. Additionally, each thread may refresh one more</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_comment">         * time because of the last iteration of the loop caused by guaranteedIteration.</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_comment">         * Therefore each thread may do up to 2 additional refreshes.</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_comment">         */</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> minExpectedNumberOfIncrements = 2;
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2 * numberOfThreads;
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             assertTrue(String.format(
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>                     <span class="jxr_string">"ttlNanos=%s, minExpectedNumberOfRefreshes=%s, maxExpectedNumberOfRefreshes=%s, actualNumberOfRefreshes=%s"</span>,
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>                     ttlNanos, minExpectedNumberOfIncrements, maxExpectedNumberOfIncrements, actualNumberOfIncrements),
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>                     minExpectedNumberOfIncrements &lt;= actualNumberOfIncrements
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>                             &amp;&amp; actualNumberOfIncrements &lt;= maxExpectedNumberOfIncrements);
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         }
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     }
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                     assertNotNull(<span class="jxr_string">"newValue should not be null"</span>, newValue);<em class="jxr_comment">// check that we never get uninitialized</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                                                                            <em class="jxr_comment">// value</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                     assertTrue(String.format(<span class="jxr_string">"newValue=%s, previousValue=%s"</span>, newValue, previousValue),
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>                             newValue &gt;= previousValue);<em class="jxr_comment">// check that the counter never goes down</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>                     previousValue = newValue;
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                 }
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             }));
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         }
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_comment">         * Make sure all the submitted tasks finished correctly</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         finishAllThreads(results);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_comment">         * All the writes to s.value field happened-before this read because of all the</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_comment">         * result.get() invocations, so it holds the final/max value returned by any</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_comment">         * thread. We cannot access s.value but it's private, and s.get() will increment</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_comment">         * before returning, so here we subtract 1 from the result to determine what the</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_comment">         * internal s.value was before this call increments it.</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> actualNumberOfIncrements = s.get() - 1;
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         testIncrementCounts(actualNumberOfIncrements, iterationDurationNanos, ttlNanos);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> finishAllThreads(Collection&lt;Future&lt;Void&gt;&gt; results)
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <strong class="jxr_keyword">throws</strong> InterruptedException, ExecutionException {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> Future&lt;Void&gt; result : results) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             result.get();
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     }
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> testIncrementCounts(<strong class="jxr_keyword">long</strong> actualNumberOfIncrements, <strong class="jxr_keyword">long</strong> iterationDurationNanos, <strong class="jxr_keyword">long</strong> ttlNanos) {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">if</strong> (ttlNanos &lt; 0) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             assertEquals(String.format(<span class="jxr_string">"ttlNanos=%d, expectedNumberOfIncrements=%d, actualNumberOfIncrements=%s"</span>,
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                     ttlNanos, 1, actualNumberOfIncrements), 1, actualNumberOfIncrements);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         }
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_comment">         * Calculation of expectedNumberOfIncrements is a bit tricky because there is no</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_comment">         * such thing. We can only talk about min and max possible values when ttl &gt; 0.</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_comment">         *</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_comment">         * Min: Two increments are guaranteed: the initial one, because it does not</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_comment">         * depend on timings, and a second one which ensures at least ttlNanos have</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_comment">         * elapsed since the first one. All other refreshes may or may not happen</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_comment">         * depending on the timings. Therefore the min is 2. In the case of negative ttl</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_comment">         * we should get only one increment ever; otherwise we must have at least 2</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_comment">         * increments.</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_comment">         *</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_comment">         * Max: Each thread has a chance to refresh one more time after</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_comment">         * (iterationDurationNanos / ttlNanos) refreshes have been collectively done,</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_comment">         * which will increment again. This happens because an arbitrary amount of time</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_comment">         * may elapse between the instant when a thread enters the while cycle body for</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_comment">         * the last time (the last iteration), and the instant that is observed by the</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_comment">         * MemoizedObject.get method. Additionally, each thread may refresh one more</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_comment">         * time because of the last iteration of the loop caused by guaranteedIteration.</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_comment">         * Therefore each thread may do up to 2 additional refreshes.</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> minExpectedNumberOfIncrements = 2;
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2 * numberOfThreads;
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             assertTrue(String.format(
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>                     <span class="jxr_string">"ttlNanos=%s, minExpectedNumberOfRefreshes=%s, maxExpectedNumberOfRefreshes=%s, actualNumberOfRefreshes=%s"</span>,
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>                     ttlNanos, minExpectedNumberOfIncrements, maxExpectedNumberOfIncrements, actualNumberOfIncrements),
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>                     minExpectedNumberOfIncrements &lt;= actualNumberOfIncrements
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>                             &amp;&amp; actualNumberOfIncrements &lt;= maxExpectedNumberOfIncrements);
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

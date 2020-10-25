@@ -51,31 +51,31 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      @Test
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testWildcardMatch() {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertFalse(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"est"</span>));
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^est"</span>));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertFalse(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^^est"</span>));
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"?est"</span>));
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertFalse(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^?est"</span>));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"*est"</span>));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertFalse(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^*est"</span>));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertFalse(<span class="jxr_string">"Test should not match est"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"est"</span>));
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertTrue(<span class="jxr_string">"Test should match ^est"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^est"</span>));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertFalse(<span class="jxr_string">"Test should not match ^^est"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^^est"</span>));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(<span class="jxr_string">"Test should match ?est"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"?est"</span>));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertFalse(<span class="jxr_string">"Test should not match ^?est"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^?est"</span>));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(<span class="jxr_string">"Test should match *est"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"*est"</span>));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertFalse(<span class="jxr_string">"Test should not match ^*est"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"^*est"</span>));
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertFalse(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"T?t"</span>));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"T??t"</span>));
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"T*t"</span>));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertFalse(<span class="jxr_string">"Test should not match T?t"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"T?t"</span>));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(<span class="jxr_string">"Test should match T??t"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"T??t"</span>));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(<span class="jxr_string">"Test should match T*t"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"T*t"</span>));
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertFalse(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Tes"</span>));
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Tes?"</span>));
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Tes*"</span>));
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertFalse(<span class="jxr_string">"Test should not match Tes"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Tes"</span>));
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertTrue(<span class="jxr_string">"Test should match Tes?"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Tes?"</span>));
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertTrue(<span class="jxr_string">"Test should match Tes*"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Tes*"</span>));
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertFalse(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Te?"</span>));
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertTrue(Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Te*"</span>));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertFalse(<span class="jxr_string">"Test should not match Te?"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Te?"</span>));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertTrue(<span class="jxr_string">"Test should match Te*"</span>, Util.wildcardMatch(<span class="jxr_string">"Test"</span>, <span class="jxr_string">"Te*"</span>));
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      @Test
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testIsBlank() {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertTrue(Util.isBlank(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertTrue(Util.isBlank(<strong class="jxr_keyword">null</strong>));
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertFalse(Util.isBlank(<span class="jxr_string">"Not blank"</span>));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertTrue(<span class="jxr_string">"\&quot;\&quot; should be Blank"</span>, Util.isBlank(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertTrue(<span class="jxr_string">"null should be Blank"</span>, Util.isBlank(<strong class="jxr_keyword">null</strong>));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertFalse(<span class="jxr_string">"\&quot;Not blank\&quot; should not be Blank"</span>, Util.isBlank(<span class="jxr_string">"Not blank"</span>));
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  }
 </pre>
