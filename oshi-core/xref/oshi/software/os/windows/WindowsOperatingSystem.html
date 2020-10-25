@@ -430,87 +430,90 @@
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>     }
 <a class="jxr_linenumber" name="L423" href="#L423">423</a> 
 <a class="jxr_linenumber" name="L424" href="#L424">424</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     * Enables debug privileges for this process, required for OpenProcess() to get</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     * processes other than the current user</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * @return {@code true} if debug privileges were successfully enabled.</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> enableDebugPrivilege() {
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         HANDLEByReference hToken = <strong class="jxr_keyword">new</strong> HANDLEByReference();
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>         <strong class="jxr_keyword">boolean</strong> success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>                 WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <strong class="jxr_keyword">if</strong> (!success) {
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>             LOG.error(<span class="jxr_string">"OpenProcessToken failed. Error: {}"</span>, Native.getLastError());
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         }
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>             WinNT.LUID luid = <strong class="jxr_keyword">new</strong> WinNT.LUID();
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>             success = Advapi32.INSTANCE.LookupPrivilegeValue(<strong class="jxr_keyword">null</strong>, WinNT.SE_DEBUG_NAME, luid);
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>             <strong class="jxr_keyword">if</strong> (!success) {
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>                 LOG.error(<span class="jxr_string">"LookupPrivilegeValue failed. Error: {}"</span>, Native.getLastError());
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>                 <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>             }
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>             WinNT.TOKEN_PRIVILEGES tkp = <strong class="jxr_keyword">new</strong> WinNT.TOKEN_PRIVILEGES(1);
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>             tkp.Privileges[0] = <strong class="jxr_keyword">new</strong> WinNT.LUID_AND_ATTRIBUTES(luid, <strong class="jxr_keyword">new</strong> DWORD(WinNT.SE_PRIVILEGE_ENABLED));
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>             success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>             <em class="jxr_comment">// Possible to partially succeed, only need to check LastError</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     * Attempts to enable debug privileges for this process, required for</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     * OpenProcess() to get processes other than the current user. Requires elevated</em>
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     * permissions.</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     * @return {@code true} if debug privileges were successfully enabled.</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> enableDebugPrivilege() {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         HANDLEByReference hToken = <strong class="jxr_keyword">new</strong> HANDLEByReference();
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">boolean</strong> success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>                 WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         <strong class="jxr_keyword">if</strong> (!success) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             LOG.error(<span class="jxr_string">"OpenProcessToken failed. Error: {}"</span>, Native.getLastError());
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>             WinNT.LUID luid = <strong class="jxr_keyword">new</strong> WinNT.LUID();
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             success = Advapi32.INSTANCE.LookupPrivilegeValue(<strong class="jxr_keyword">null</strong>, WinNT.SE_DEBUG_NAME, luid);
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             <strong class="jxr_keyword">if</strong> (!success) {
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>                 LOG.error(<span class="jxr_string">"LookupPrivilegeValue failed. Error: {}"</span>, Native.getLastError());
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>             }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>             WinNT.TOKEN_PRIVILEGES tkp = <strong class="jxr_keyword">new</strong> WinNT.TOKEN_PRIVILEGES(1);
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>             tkp.Privileges[0] = <strong class="jxr_keyword">new</strong> WinNT.LUID_AND_ATTRIBUTES(luid, <strong class="jxr_keyword">new</strong> DWORD(WinNT.SE_PRIVILEGE_ENABLED));
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>             success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L449" href="#L449">449</a>             <strong class="jxr_keyword">int</strong> err = Native.getLastError();
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>             <strong class="jxr_keyword">if</strong> (err != WinError.ERROR_SUCCESS) {
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>             <strong class="jxr_keyword">if</strong> (!success) {
 <a class="jxr_linenumber" name="L451" href="#L451">451</a>                 LOG.error(<span class="jxr_string">"AdjustTokenPrivileges failed. Error: {}"</span>, err);
 <a class="jxr_linenumber" name="L452" href="#L452">452</a>                 <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>             }
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>             Kernel32.INSTANCE.CloseHandle(hToken.getValue());
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         }
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>     }
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>     @Override
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">public</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[] getServices() {
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         <strong class="jxr_keyword">try</strong> (W32ServiceManager sm = <strong class="jxr_keyword">new</strong> W32ServiceManager()) {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>             sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>             Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>                     Winsvc.SERVICE_STATE_ALL, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>             <a name="OSService" href="../../../../oshi/software/os/OSService<a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>ervice">OSService</a>[] svcArray = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[services.length];
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; services.length; i++) {
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>                 State state;
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>                 <strong class="jxr_keyword">switch</strong> (services[i].ServiceStatusProcess.dwCurrentState) {
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>                 <strong class="jxr_keyword">case</strong> 1:
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>                     state = STOPPED;
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>                 <strong class="jxr_keyword">case</strong> 4:
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>                     state = RUNNING;
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (err == WinError.ERROR_NOT_ALL_ASSIGNED) {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>                 LOG.debug(<span class="jxr_string">"Debug privileges not enabled."</span>);
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>             }
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>             Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         }
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     }
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     @Override
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <strong class="jxr_keyword">public</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[] getServices() {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         <strong class="jxr_keyword">try</strong> (W32ServiceManager sm = <strong class="jxr_keyword">new</strong> W32ServiceManager()) {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>             sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>             Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>                     Winsvc.SERVICE_STATE_ALL, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <a name="OSService" href="../../../../oshi/software/os/OSService<a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>ervice">OSService</a>[] svcArray = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[services.length];
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; services.length; i++) {
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>                 State state;
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>                 <strong class="jxr_keyword">switch</strong> (services[i].ServiceStatusProcess.dwCurrentState) {
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>                 <strong class="jxr_keyword">case</strong> 1:
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>                     state = STOPPED;
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>                 <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>                     state = OTHER;
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>                 <strong class="jxr_keyword">case</strong> 4:
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>                     state = RUNNING;
 <a class="jxr_linenumber" name="L478" href="#L478">478</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>                 }
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>                 svcArray[i] = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>                         state);
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>             }
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>             <strong class="jxr_keyword">return</strong> svcArray;
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         } <strong class="jxr_keyword">catch</strong> (com.sun.jna.platform.win32.Win32Exception ex) {
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>             LOG.error(<span class="jxr_string">"Win32Exception: {}"</span>, ex.getMessage());
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[0];
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>         }
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>     }
-<a class="jxr_linenumber" name="L489" href="#L489">489</a> 
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySystemLog() {
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         String systemLog = GlobalConfig.get(<span class="jxr_string">"oshi.os.windows.eventlog"</span>, <span class="jxr_string">"System"</span>);
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         <strong class="jxr_keyword">if</strong> (systemLog.isEmpty()) {
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>             <em class="jxr_comment">// Use faster boot time approximation</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>         }
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>         <em class="jxr_comment">// Check whether it works</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>         HANDLE h = Advapi32.INSTANCE.OpenEventLog(<strong class="jxr_keyword">null</strong>, systemLog);
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>         <strong class="jxr_keyword">if</strong> (h == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>             LOG.warn(<span class="jxr_string">"Unable to open configured system Event log \&quot;{}\&quot;. Calculating boot time from uptime."</span>,
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>                     systemLog);
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>         }
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">return</strong> systemLog;
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>     }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a> }
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>                 <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>                     state = OTHER;
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>                 }
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>                 svcArray[i] = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>                         state);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>             }
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>             <strong class="jxr_keyword">return</strong> svcArray;
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         } <strong class="jxr_keyword">catch</strong> (com.sun.jna.platform.win32.Win32Exception ex) {
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>             LOG.error(<span class="jxr_string">"Win32Exception: {}"</span>, ex.getMessage());
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[0];
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         }
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     }
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySystemLog() {
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         String systemLog = GlobalConfig.get(<span class="jxr_string">"oshi.os.windows.eventlog"</span>, <span class="jxr_string">"System"</span>);
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         <strong class="jxr_keyword">if</strong> (systemLog.isEmpty()) {
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>             <em class="jxr_comment">// Use faster boot time approximation</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         }
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>         <em class="jxr_comment">// Check whether it works</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         HANDLE h = Advapi32.INSTANCE.OpenEventLog(<strong class="jxr_keyword">null</strong>, systemLog);
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         <strong class="jxr_keyword">if</strong> (h == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>             LOG.warn(<span class="jxr_string">"Unable to open configured system Event log \&quot;{}\&quot;. Calculating boot time from uptime."</span>,
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>                     systemLog);
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         }
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         <strong class="jxr_keyword">return</strong> systemLog;
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>     }
+<a class="jxr_linenumber" name="L508" href="#L508">508</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
