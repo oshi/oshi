@@ -422,85 +422,88 @@ import oshi.util.platform.windows.WmiUtil;
     }
 
     /**
-     * Enables debug privileges for this process, required for OpenProcess() to get
-     * processes other than the current user
+     * Attempts to enable debug privileges for this process, required for
+     * OpenProcess() to get processes other than the current user. Requires elevated
+     * permissions.
      *
      * @return {@code true} if debug privileges were successfully enabled.
      */
     private static boolean enableDebugPrivilege() {
-<span class="nc" id="L431">        HANDLEByReference hToken = new HANDLEByReference();</span>
-<span class="nc" id="L432">        boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),</span>
+<span class="nc" id="L432">        HANDLEByReference hToken = new HANDLEByReference();</span>
+<span class="nc" id="L433">        boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),</span>
                 WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
-<span class="nc bnc" id="L434" title="All 2 branches missed.">        if (!success) {</span>
-<span class="nc" id="L435">            LOG.error(&quot;OpenProcessToken failed. Error: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L436">            return false;</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">        if (!success) {</span>
+<span class="nc" id="L436">            LOG.error(&quot;OpenProcessToken failed. Error: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L437">            return false;</span>
         }
         try {
-<span class="nc" id="L439">            WinNT.LUID luid = new WinNT.LUID();</span>
-<span class="nc" id="L440">            success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);</span>
-<span class="nc bnc" id="L441" title="All 2 branches missed.">            if (!success) {</span>
-<span class="nc" id="L442">                LOG.error(&quot;LookupPrivilegeValue failed. Error: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L443">                return false;</span>
+<span class="nc" id="L440">            WinNT.LUID luid = new WinNT.LUID();</span>
+<span class="nc" id="L441">            success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">            if (!success) {</span>
+<span class="nc" id="L443">                LOG.error(&quot;LookupPrivilegeValue failed. Error: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L444">                return false;</span>
             }
-<span class="nc" id="L445">            WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);</span>
-<span class="nc" id="L446">            tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));</span>
-<span class="nc" id="L447">            success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);</span>
-            // Possible to partially succeed, only need to check LastError
+<span class="nc" id="L446">            WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);</span>
+<span class="nc" id="L447">            tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));</span>
+<span class="nc" id="L448">            success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);</span>
 <span class="nc" id="L449">            int err = Native.getLastError();</span>
-<span class="nc bnc" id="L450" title="All 2 branches missed.">            if (err != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">            if (!success) {</span>
 <span class="nc" id="L451">                LOG.error(&quot;AdjustTokenPrivileges failed. Error: {}&quot;, err);</span>
 <span class="nc" id="L452">                return false;</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">            } else if (err == WinError.ERROR_NOT_ALL_ASSIGNED) {</span>
+<span class="nc" id="L454">                LOG.debug(&quot;Debug privileges not enabled.&quot;);</span>
+<span class="nc" id="L455">                return false;</span>
             }
         } finally {
-<span class="nc" id="L455">            Kernel32.INSTANCE.CloseHandle(hToken.getValue());</span>
+<span class="nc" id="L458">            Kernel32.INSTANCE.CloseHandle(hToken.getValue());</span>
         }
-<span class="nc" id="L457">        return true;</span>
+<span class="nc" id="L460">        return true;</span>
     }
 
     @Override
     public OSService[] getServices() {
-<span class="nc" id="L462">        try (W32ServiceManager sm = new W32ServiceManager()) {</span>
-<span class="nc" id="L463">            sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);</span>
-<span class="nc" id="L464">            Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,</span>
+<span class="nc" id="L465">        try (W32ServiceManager sm = new W32ServiceManager()) {</span>
+<span class="nc" id="L466">            sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);</span>
+<span class="nc" id="L467">            Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,</span>
                     Winsvc.SERVICE_STATE_ALL, null);
-<span class="nc" id="L466">            OSService[] svcArray = new OSService[services.length];</span>
-<span class="nc bnc" id="L467" title="All 2 branches missed.">            for (int i = 0; i &lt; services.length; i++) {</span>
+<span class="nc" id="L469">            OSService[] svcArray = new OSService[services.length];</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">            for (int i = 0; i &lt; services.length; i++) {</span>
                 State state;
-<span class="nc bnc" id="L469" title="All 3 branches missed.">                switch (services[i].ServiceStatusProcess.dwCurrentState) {</span>
+<span class="nc bnc" id="L472" title="All 3 branches missed.">                switch (services[i].ServiceStatusProcess.dwCurrentState) {</span>
                 case 1:
-<span class="nc" id="L471">                    state = STOPPED;</span>
-<span class="nc" id="L472">                    break;</span>
-                case 4:
-<span class="nc" id="L474">                    state = RUNNING;</span>
+<span class="nc" id="L474">                    state = STOPPED;</span>
 <span class="nc" id="L475">                    break;</span>
+                case 4:
+<span class="nc" id="L477">                    state = RUNNING;</span>
+<span class="nc" id="L478">                    break;</span>
                 default:
-<span class="nc" id="L477">                    state = OTHER;</span>
+<span class="nc" id="L480">                    state = OTHER;</span>
                     break;
                 }
-<span class="nc" id="L480">                svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,</span>
+<span class="nc" id="L483">                svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,</span>
                         state);
             }
-<span class="nc" id="L483">            return svcArray;</span>
-<span class="nc" id="L484">        } catch (com.sun.jna.platform.win32.Win32Exception ex) {</span>
-<span class="nc" id="L485">            LOG.error(&quot;Win32Exception: {}&quot;, ex.getMessage());</span>
-<span class="nc" id="L486">            return new OSService[0];</span>
+<span class="nc" id="L486">            return svcArray;</span>
+<span class="nc" id="L487">        } catch (com.sun.jna.platform.win32.Win32Exception ex) {</span>
+<span class="nc" id="L488">            LOG.error(&quot;Win32Exception: {}&quot;, ex.getMessage());</span>
+<span class="nc" id="L489">            return new OSService[0];</span>
         }
     }
 
     private static String querySystemLog() {
-<span class="nc" id="L491">        String systemLog = GlobalConfig.get(&quot;oshi.os.windows.eventlog&quot;, &quot;System&quot;);</span>
-<span class="nc bnc" id="L492" title="All 2 branches missed.">        if (systemLog.isEmpty()) {</span>
+<span class="nc" id="L494">        String systemLog = GlobalConfig.get(&quot;oshi.os.windows.eventlog&quot;, &quot;System&quot;);</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">        if (systemLog.isEmpty()) {</span>
             // Use faster boot time approximation
-<span class="nc" id="L494">            return null;</span>
+<span class="nc" id="L497">            return null;</span>
         }
         // Check whether it works
-<span class="nc" id="L497">        HANDLE h = Advapi32.INSTANCE.OpenEventLog(null, systemLog);</span>
-<span class="nc bnc" id="L498" title="All 2 branches missed.">        if (h == null) {</span>
-<span class="nc" id="L499">            LOG.warn(&quot;Unable to open configured system Event log \&quot;{}\&quot;. Calculating boot time from uptime.&quot;,</span>
+<span class="nc" id="L500">        HANDLE h = Advapi32.INSTANCE.OpenEventLog(null, systemLog);</span>
+<span class="nc bnc" id="L501" title="All 2 branches missed.">        if (h == null) {</span>
+<span class="nc" id="L502">            LOG.warn(&quot;Unable to open configured system Event log \&quot;{}\&quot;. Calculating boot time from uptime.&quot;,</span>
                     systemLog);
-<span class="nc" id="L501">            return null;</span>
+<span class="nc" id="L504">            return null;</span>
         }
-<span class="nc" id="L503">        return systemLog;</span>
+<span class="nc" id="L506">        return systemLog;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
