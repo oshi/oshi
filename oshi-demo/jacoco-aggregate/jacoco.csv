@@ -1,5 +1,5 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-oshi-demo/oshi-core,oshi.driver.windows,LogicalProcessorInformation,385,0,42,0,65,0,30,0,8,0
+oshi-demo/oshi-core,oshi.driver.windows,LogicalProcessorInformation,382,0,42,0,64,0,30,0,8,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterQuery,284,0,25,0,58,0,19,0,5,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfDataUtil.PerfCounter,54,0,2,0,14,0,6,0,5,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterQueryHandler,178,0,24,0,49,0,20,0,8,0
@@ -31,7 +31,7 @@ oshi-demo/oshi-core,oshi.hardware.common,AbstractBaseboard,44,0,0,0,7,0,2,0,2,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractCentralProcessor,702,0,55,0,138,0,59,0,17,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractSensors,71,0,0,0,12,0,5,0,5,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractHardwareAbstractionLayer,47,0,0,0,10,0,6,0,6,0
-oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,830,0,103,0,187,0,81,0,29,0
+oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,840,0,105,0,190,0,82,0,29,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsFileSystem,624,0,48,0,114,0,35,0,9,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSSystemInfo,65,0,4,0,21,0,7,0,5,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSThread,162,0,14,0,46,0,22,0,13,0
@@ -249,7 +249,7 @@ oshi-demo/oshi-core,oshi.software.os.unix.aix,AixOperatingSystem,504,0,58,0,82,0
 oshi-demo/oshi-core,oshi.software.os.unix.aix,AixOSProcess,577,0,43,0,125,0,54,0,30,0
 oshi-demo/oshi-core,oshi.software.os.unix.aix,AixFileSystem,298,0,44,0,56,0,29,0,7,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsFirmware,116,0,12,0,24,0,13,0,7,0
-oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,768,0,66,0,137,0,46,0,13,0
+oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,782,0,68,0,142,0,47,0,13,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsBaseboard,96,0,10,0,19,0,11,0,6,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice,472,0,42,0,107,0,30,0,9,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory,324,0,61,0,96,0,66,0,11,0
@@ -402,6 +402,6 @@ oshi-demo/oshi-core,oshi.software.common,AbstractOSThread,168,0,10,0,23,0,17,0,1
 oshi-demo/oshi-core,oshi.hardware,PhysicalMemory,0,102,0,0,0,19,0,7,0,7
 oshi-demo/oshi-core,oshi.hardware,CentralProcessor.TickType,0,103,0,0,0,13,0,3,0,3
 oshi-demo/oshi-core,oshi.hardware,HWPartition,0,121,0,2,0,26,0,11,0,10
-oshi-demo/oshi-core,oshi.hardware,CentralProcessor.LogicalProcessor,8,41,0,0,2,14,1,7,1,7
+oshi-demo/oshi-core,oshi.hardware,CentralProcessor.LogicalProcessor,40,41,0,0,3,14,2,7,2,7
 oshi-demo/oshi-core,oshi.hardware,CentralProcessor.ProcessorIdentifier,41,213,14,12,9,52,14,13,1,13
 oshi-demo/oshi-core,oshi.hardware,PowerSource.CapacityUnits,0,34,0,0,0,4,0,1,0,1
