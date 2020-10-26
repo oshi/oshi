@@ -1,5 +1,6 @@
 5.3.3 (in progress)
 ================
+* [#1379](https://github.com/oshi/oshi/pull/1379): Add `squashfs` as a pseudo file system so it will be skipped by default - [@mprins](https://github.com/mprins).
 * Your contribution here
 
 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25)
