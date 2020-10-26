@@ -48,8 +48,8 @@ public class ParseUtilTest {
     public void testParseHertz() {
         assertEquals("Failed to parse OneHz", -1L, ParseUtil.parseHertz("OneHz"));
         assertEquals("Failed to parse NotEvenAHertz", -1L, ParseUtil.parseHertz("NotEvenAHertz"));
-        assertEquals("Failed to parse 10000000000000000000 Hz", Long.MAX_VALUE, ParseUtil.parseHertz(
-            "10000000000000000000 Hz"));
+        assertEquals("Failed to parse 10000000000000000000 Hz", Long.MAX_VALUE,
+                ParseUtil.parseHertz("10000000000000000000 Hz"));
         assertEquals("Failed to parse 1Hz", 1L, ParseUtil.parseHertz("1Hz"));
         assertEquals("Failed to parse 500 Hz", 500L, ParseUtil.parseHertz("500 Hz"));
         assertEquals("Failed to parse 1kHz", 1_000L, ParseUtil.parseHertz("1kHz"));
@@ -74,8 +74,8 @@ public class ParseUtilTest {
         assertEquals("Failed to parse -1 as long", -1L, ParseUtil.parseLastLong("foo : bar", -1L));
         assertEquals("Failed to parse 1 as long", 1L, ParseUtil.parseLastLong("foo : 1", 0L));
         assertEquals("Failed to parse 2 as long", 2L, ParseUtil.parseLastLong("foo", 2L));
-        assertEquals("Failed to parse 2147483648L as long", 2147483648L, ParseUtil.parseLastLong("max_int plus one is" +
-            " 2147483648", 3L));
+        assertEquals("Failed to parse 2147483648L as long", 2147483648L,
+                ParseUtil.parseLastLong("max_int plus one is" + " 2147483648", 3L));
         assertEquals("Failed to parse 255 as long", 255L, ParseUtil.parseLastLong("0xff", 0L));
 
         double epsilon = 1.1102230246251565E-16;
@@ -135,7 +135,7 @@ public class ParseUtilTest {
         // Test string
         assertEquals("Failed to parse \"abcde\"", abcde, ParseUtil.strToLong("abcde", 5));
         // Test byte array
-        assertEquals("Failed to parse " + abcde , abcde, ParseUtil.byteArrayToLong(temp, 5));
+        assertEquals("Failed to parse " + abcde, abcde, ParseUtil.byteArrayToLong(temp, 5));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -180,7 +180,7 @@ public class ParseUtilTest {
         assertEquals("Failed to parse 1 as signed long", 1L, ParseUtil.unsignedLongToSignedLong(Long.MAX_VALUE + 2));
         assertEquals("Failed to parse 123 as signed long", 123L, ParseUtil.unsignedLongToSignedLong(123));
         assertEquals("Failed to parse 9223372036854775807 as signed long", 9223372036854775807L,
-            ParseUtil.unsignedLongToSignedLong(9223372036854775807L));
+                ParseUtil.unsignedLongToSignedLong(9223372036854775807L));
     }
 
     /**
@@ -219,8 +219,10 @@ public class ParseUtilTest {
      */
     @Test
     public void testParseUnsignedLongOrDefault() {
-        assertEquals("Failed to parse 9223372036854775807L", 9223372036854775807L, ParseUtil.parseUnsignedLongOrDefault("9223372036854775807", 123L));
-        assertEquals("Failed to parse 9223372036854775808L", -9223372036854775808L, ParseUtil.parseUnsignedLongOrDefault("9223372036854775808", 45L));
+        assertEquals("Failed to parse 9223372036854775807L", 9223372036854775807L,
+                ParseUtil.parseUnsignedLongOrDefault("9223372036854775807", 123L));
+        assertEquals("Failed to parse 9223372036854775808L", -9223372036854775808L,
+                ParseUtil.parseUnsignedLongOrDefault("9223372036854775808", 45L));
         assertEquals("Failed to parse 1L", -1L, ParseUtil.parseUnsignedLongOrDefault("18446744073709551615", 123L));
         assertEquals("Failed to parse 0L", 0L, ParseUtil.parseUnsignedLongOrDefault("18446744073709551616", 45L));
         assertEquals("Failed to parse 123L", 123L, ParseUtil.parseUnsignedLongOrDefault("9223372036854775808L", 123L));
@@ -233,7 +235,7 @@ public class ParseUtilTest {
     public void testParseDoubleOrDefault() {
         assertEquals("Failed to parse 1.23d", 1.23d, ParseUtil.parseDoubleOrDefault("1.23", 4.5d), Double.MIN_VALUE);
         assertEquals("Failed to parse 4.5d", 4.5d, ParseUtil.parseDoubleOrDefault("one.twentythree", 4.5d),
-            Double.MIN_VALUE);
+                Double.MIN_VALUE);
     }
 
     /**
@@ -282,10 +284,10 @@ public class ParseUtilTest {
      */
     @Test
     public void testGetStringBetweenMultipleQuotes() {
-        assertEquals("Failed to parse Single quotes between Multiple quotes", "hello $ is", ParseUtil.getStringBetween(
-            "hello = $hello $ is $", '$'));
+        assertEquals("Failed to parse Single quotes between Multiple quotes", "hello $ is",
+                ParseUtil.getStringBetween("hello = $hello $ is $", '$'));
         assertEquals("Failed to parse Single quotes between Multiple quotes", "Realtek AC'97 Audio",
-            ParseUtil.getStringBetween("pci.device = 'Realtek AC'97 Audio'", '\''));
+                ParseUtil.getStringBetween("pci.device = 'Realtek AC'97 Audio'", '\''));
     }
 
     /**
@@ -314,8 +316,10 @@ public class ParseUtilTest {
      */
     @Test
     public void testRemoveMatchingString() {
-        assertEquals("Failed to parse removeMatchingString", "foo = 42 () (int)", ParseUtil.removeMatchingString("foo = 42 (0x2a) (int)", "0x2a"));
-        assertEquals("Failed to parse removeMatchingString", "foo = 0x2a (int)", ParseUtil.removeMatchingString("foo = 0x2a (int)", "qqq"));
+        assertEquals("Failed to parse removeMatchingString", "foo = 42 () (int)",
+                ParseUtil.removeMatchingString("foo = 42 (0x2a) (int)", "0x2a"));
+        assertEquals("Failed to parse removeMatchingString", "foo = 0x2a (int)",
+                ParseUtil.removeMatchingString("foo = 0x2a (int)", "qqq"));
         assertEquals("Failed to parse removeMatchingString", "10.1.", ParseUtil.removeMatchingString("10.12.2", "2"));
         assertEquals("Failed to parse removeMatchingString", "", ParseUtil.removeMatchingString("10.12.2", "10.12.2"));
         assertEquals("Failed to parse removeMatchingString", "", ParseUtil.removeMatchingString("", "10.12.2"));
