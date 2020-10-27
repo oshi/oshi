@@ -337,55 +337,55 @@ public class ParseUtilTest {
 
         String foo = String.format("The numbers are %d %d %d %d", 123, 456, 789, now);
         int count = ParseUtil.countStringToLongArray(foo, ' ');
-        assertEquals(4, count);
+        assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
         long[] result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals(456L, result[0]);
-        assertEquals(now, result[1]);
+        assertEquals("result[0] should be 456 using parseStringToLongArray on \"" + foo + "\"", 456L, result[0]);
+        assertEquals("result[1] should be " + now + " using parseStringToLongArray on \"" + foo + "\"", now, result[1]);
 
         foo = String.format("The numbers are %d %d %d %d %s", 123, 456, 789, now,
                 "709af748-5f8e-41b3-b73a-b440ef4406c8");
         count = ParseUtil.countStringToLongArray(foo, ' ');
-        assertEquals(4, count);
+        assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals(456L, result[0]);
-        assertEquals(now, result[1]);
+        assertEquals("result[0] should be 456 using parseStringToLongArray on \"" + foo + "\"",456L, result[0]);
+        assertEquals("result[1] should be " + now + " using parseStringToLongArray on \"" + foo + "\"", now, result[1]);
 
         foo = String.format("The numbers are %d -%d %d +%d", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
-        assertEquals(4, count);
+        assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals(-456L, result[0]);
-        assertEquals(now, result[1]);
+        assertEquals("result[0] should be -4456 using parseStringToLongArray on \"" + foo + "\"",-456L, result[0]);
+        assertEquals("result[1] index should be 456 using parseStringToLongArray on \"" + foo + "\"", now, result[1]);
 
         foo = String.format("Invalid character %d %s %d %d", 123, "4v6", 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
-        assertEquals(2, count);
+        assertEquals("countStringToLongArray should return 2 for \"" + foo + "\"", 2, count);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals(0, result[1]);
+        assertEquals("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", 0, result[1]);
 
         foo = String.format("Exceeds max long %d %d %d 1%d", 123, 456, 789, Long.MAX_VALUE);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals(Long.MAX_VALUE, result[1]);
+        assertEquals("result[1] index should be " + Long.MAX_VALUE + " (Long.MAX_VALUE) using parseStringToLongArray on \"" + foo + "\"", Long.MAX_VALUE, result[1]);
 
         foo = String.format("String too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 9, ' ');
-        assertEquals(0, result[1]);
+        assertEquals("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", 0, result[1]);
 
         foo = String.format("Array too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 2, ' ');
-        assertEquals(0, result[1]);
+        assertEquals("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", 0, result[1]);
 
         foo = String.format("%d %d %d %d", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
-        assertEquals(4, count);
+        assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
 
         foo = String.format("%d %d %d %d nonNumeric", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
-        assertEquals(4, count);
+        assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
 
         foo = String.format("%d %d %d %d 123-456", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
-        assertEquals(4, count);
+        assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
     }
 
     @Test
