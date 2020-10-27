@@ -70,6 +70,8 @@ HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```
 
+Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-core/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://oshi.github.io/oshi/apidocs/oshi/util/GlobalConfig.html) class. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
+
 The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
 
 Note: OSHI uses the latest version of [JNA](https://github.com/java-native-access/jna), which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
@@ -81,7 +83,7 @@ Support
 -------------------
 * For bug reports, feature requests, or general questions about OSHI's longer term plans, please [create an issue](https://github.com/oshi/oshi/issues).  
 * For help integrating OSHI into your own project or maintainer code review of your PRs, tag `@dbwiddis` in issues or pull requests on your project site.
-* For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, and asking a new question if it hasn't been answered before.
+* For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, asking a new question if it hasn't been answered before.
 
 OSHI for enterprise
 -------------------
@@ -234,35 +236,35 @@ Projects using OSHI
     <td align=center width=134px><a href="https://flink.apache.org/"><img src="./src/site/markdown/flink.jpg" alt="Apache Flink" width=122px><br/>Apache Flink</a></td>
     <td align=center width=134px><a href="https://www.appdynamics.com/"><img src="./src/site/markdown/appdynamics.png" alt="AppDynamics" width=122px><br/>AppDynamics</a></td>
     <td align=center width=134px><a href="https://www.atlassian.com/software/confluence"><img src="./src/site/markdown/confluence.png" alt="Atlassian Confluence" width=122px><br/>Atlassian Confluence</a></td>
-    <td align=center width=134px><a href="https://apereo.github.io/cas"><img src="./src/site/markdown/cas.png" alt="CAS Server" width=122px><br/>CAS Server</a></td>
+    <td align=center width=134px><a href="https://apereo.github.io/cas"><img src="./src/site/markdown/cas.png" alt="CAS Server" width=122px><br/><br/>CAS Server</a></td>
     <td align=center width=134px><a href="https://kamon.io/"><img src="./src/site/markdown/kamon.png" alt="Kamon System Metrics" width=122px><br/>Kamon System Metrics</a></td>
     <td align=center width=134px><a href="https://deeplearning4j.org/"><img src="./src/site/markdown/dl4j.png" alt="DeepLearning4J" width=122px><br/>DeepLearning4J</a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://nsquared.co.nz/files/n2jslee/technical_guide/"><img src="./src/site/markdown/nsquared.png" alt="N-Squared Java SLEE" width=122px><br/>N-Squared Java SLEE</a></td>
     <td align=center width=134px><a href="https://developer.envisioniot.com/"><img src="./src/site/markdown/enosiot.png" alt="EnOS IoT Hub" width=122px><br/>EnOS IoT Hub</a></td>
-    <td align=center width=134px><a href="https://www.hutool.cn/"><img src="./src/site/markdown/hutool.jpg" alt="Hutool" width=122px><br/>Hutool</a></td>
+    <td align=center width=134px><a href="https://www.hutool.cn/"><br/><img src="./src/site/markdown/hutool.jpg" alt="Hutool" width=122px><br/><br/><br/>Hutool</a></td>
     <td align=center width=134px><a href="https://dolphinscheduler.apache.org/"><img src="./src/site/markdown/dolphinscheduler.png" alt="Apache Dolphin Scheduler" width=122px><br/>Apache Dolphin Scheduler</a></td>
     <td align=center width=134px><a href="https://github.com/stylefeng/Guns"><img src="./src/site/markdown/guns.png" alt="Guns" width=122px><br/>Guns</a></td>
     <td align=center width=134px><a href="https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html"><img src="./src/site/markdown/geoserver.png" alt="GeoServer" width=122px><br/>GeoServer</a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://doris.incubator.apache.org/"><img src="./src/site/markdown/doris.png" alt="Apache Doris" width=122px><br/>Apache Doris</a></td>
-    <td align=center width=134px><a href="https://jppf.org/"><img src="./src/site/markdown/jppf.gif" alt="JPPF" width=122px><br/>JPPF</a></td>
+    <td align=center width=134px><a href="https://jppf.org/"><br/><img src="./src/site/markdown/jppf.gif" alt="JPPF" width=122px><br/><br/><br/>JPPF</a></td>
     <td align=center width=134px><a href="https://github.com/UniversalMediaServer/UniversalMediaServer"><img src="./src/site/markdown/ums.png" alt="Universal Media Server" width=122px><br/>Universal Media Server</a></td>
     <td align=center width=134px><a href="https://www.semux.org/"><img src="./src/site/markdown/semux.svg" alt="Semux" width=122px><br/>Semux</a></td>
     <td align=center width=134px><a href="https://github.com/psi-probe/psi-probe"><img src="./src/site/markdown/psi.jpg" alt="PSI Probe" width=122px><br/>PSI Probe</a></td>
     <td align=center width=134px><a href="https://octopus.com/"><img src="./src/site/markdown/octopus.svg" alt="Octopus Deploy" width=122px><br/>Octopus Deploy</a></td>
   </tr><tr></tr><tr>
-    <td align=center width=134px><a href="https://xap.github.io/"><img src="./src/site/markdown/xap.png" alt="GigaSpaces XAP" width=122px><br/>GigaSpaces XAP</a></td>
+    <td align=center width=134px><a href="https://xap.github.io/"><img src="./src/site/markdown/xap.png" alt="GigaSpaces XAP" width=122px><br/><br/>GigaSpaces XAP</a></td>
     <td align=center width=134px><a href="https://github.com/openhab/openhab-addons/tree/main/bundles/org.openhab.binding.systeminfo"><img src="./src/site/markdown/openhab.png" alt="OpenHAB Systeminfo Binding" width=122px><br/>OpenHAB Systeminfo Binding</a></td>
     <td align=center width=134px><a href="https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin"><img src="./src/site/markdown/jenkins.png" alt="Jenkins Swarm Plugin" width=122px><br/>Jenkins Swarm Plugin</a></td>
     <td align=center width=134px><a href="https://ibm-watson-iot.github.io/iot-java/"><img src="./src/site/markdown/watson.png" alt="Java for IBM Watson IoT Platform" width=122px><br/>Java for IBM Watson IoT Platform</a></td>
     <td align=center width=134px><a href="https://github.com/hawkular/hawkular-agent"><img src="./src/site/markdown/hawkular.png" alt="Hawkular Agent" width=122px><br/>Hawkular Agent</a></td>
-    <td align=center width=134px><a href="https://github.com/fulcrumgenomics/dagr"><img src="./src/site/markdown/dagr.png" alt="Dagr" width=122px><br/>Dagr</a></td>
+    <td align=center width=134px><a href="https://github.com/fulcrumgenomics/dagr"><img src="./src/site/markdown/dagr.png" alt="DAGR" width=122px><br/>DAGR</a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://github.com/Krillsson/sys-API"><img src="./src/site/markdown/sysapi.png" alt="sys-API" width=122px><br/>sys-API</a></td>
-    <td align=center width=134px><a href="https://www.nexess-solutions.com/fr/produits/application-nexcap-mat/"><img src="./src/site/markdown/nexcap.png" alt="NexCap MAT" width=122px><br/>NexCap MAT</a></td>
-    <td align=center width=134px><a href="https://360suite.io/"><img src="./src/site/markdown/360suite.png" alt="SAP 360Suite" width=122px><br/>SAP 360Suite</a></td>
-    <td align=center width=134px><a href="https://github.com/gomint/gomint"><img src="./src/site/markdown/gomint.png" alt="GoMint" width=122px><br/>GoMint</a></td>
+    <td align=center width=134px><a href="https://www.nexess-solutions.com/fr/produits/application-nexcap-mat/"><img src="./src/site/markdown/nexcap.png" alt="NexCap MAT" width=122px><br/><br/>NexCap MAT</a></td>
+    <td align=center width=134px><a href="https://360suite.io/"><br/><img src="./src/site/markdown/360suite.png" alt="SAP 360Suite" width=122px><br/><br/>SAP 360Suite</a></td>
+    <td align=center width=134px><a href="https://github.com/gomint/gomint"><img src="./src/site/markdown/gomint.png" alt="GoMint" width=122px><br/><br/>GoMint</a></td>
     <td align=center width=134px><a href="https://www.ruoyi.vip/"><img src="./src/site/markdown/ruoyi.png" alt="RuoYi Management System" width=122px><br/>RuoYi Management System</a></td>
     <td align=center width=134px><a href="https://github.com/WeiYe-Jing/datax-web"><img src="./src/site/markdown/dataxweb.jpg" alt="DataX Web" width=122px><br/>DataX Web</a></td>
 </tr></table>
