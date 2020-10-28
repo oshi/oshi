@@ -292,7 +292,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         } finally {
             Kernel32.INSTANCE.CloseHandle(snapshot);
         }
-        List<OSProcess> procList = getProcesses(childPids);
+        // Get modifiable version
+        List<OSProcess> procList = processMapToList(childPids);
         List<OSProcess> sorted = processSort(procList, limit, sort);
         return Collections.unmodifiableList(sorted);
     }

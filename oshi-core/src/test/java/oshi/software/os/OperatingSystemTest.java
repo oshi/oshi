@@ -40,6 +40,7 @@ import org.junit.Test;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
+import oshi.software.os.OperatingSystem.ProcessSort;
 
 /**
  * Test OS
@@ -231,7 +232,8 @@ public class OperatingSystemTest {
         matched = 0;
         total = 0;
         for (Integer i : manyChildSet) {
-            if (os.getChildProcesses(i, 0, null).size() > 1) {
+            // Use a non-null sorting for test purposes
+            if (os.getChildProcesses(i, Integer.MAX_VALUE, ProcessSort.PID).size() > 1) {
                 matched++;
             }
             // Quit if enough to test
