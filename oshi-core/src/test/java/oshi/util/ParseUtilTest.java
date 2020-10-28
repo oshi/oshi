@@ -347,14 +347,14 @@ public class ParseUtilTest {
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals("result[0] should be 456 using parseStringToLongArray on \"" + foo + "\"",456L, result[0]);
+        assertEquals("result[0] should be 456 using parseStringToLongArray on \"" + foo + "\"", 456L, result[0]);
         assertEquals("result[1] should be " + now + " using parseStringToLongArray on \"" + foo + "\"", now, result[1]);
 
         foo = String.format("The numbers are %d -%d %d +%d", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertEquals("countStringToLongArray should return 4 for \"" + foo + "\"", 4, count);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals("result[0] should be -4456 using parseStringToLongArray on \"" + foo + "\"",-456L, result[0]);
+        assertEquals("result[0] should be -4456 using parseStringToLongArray on \"" + foo + "\"", -456L, result[0]);
         assertEquals("result[1] index should be 456 using parseStringToLongArray on \"" + foo + "\"", now, result[1]);
 
         foo = String.format("Invalid character %d %s %d %d", 123, "4v6", 789, now);
@@ -365,7 +365,8 @@ public class ParseUtilTest {
 
         foo = String.format("Exceeds max long %d %d %d 1%d", 123, 456, 789, Long.MAX_VALUE);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
-        assertEquals("result[1] index should be " + Long.MAX_VALUE + " (Long.MAX_VALUE) using parseStringToLongArray on \"" + foo + "\"", Long.MAX_VALUE, result[1]);
+        assertEquals("result[1] index should be " + Long.MAX_VALUE
+                + " (Long.MAX_VALUE) using parseStringToLongArray on \"" + foo + "\"", Long.MAX_VALUE, result[1]);
 
         foo = String.format("String too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 9, ' ');
