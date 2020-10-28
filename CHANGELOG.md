@@ -2,8 +2,8 @@
 ================
 * [#1379](https://github.com/oshi/oshi/pull/1379): Add `squashfs` as a pseudo file system so it will be skipped by default - [@mprins](https://github.com/mprins).
 * [#1380](https://github.com/oshi/oshi/pull/1389): Fix exception sorting child process list on Windows - [@agaponik](https://github.com/agaponik).
+* [#1382](https://github.com/oshi/oshi/pull/1382): Fix exception on 32-bit Windows thread stats - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
-
 
 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25)
 ================
