@@ -183,7 +183,7 @@ oshi-dist/oshi-core,oshi.driver.windows.registry,ProcessPerformanceData.PerfCoun
 oshi-dist/oshi-core,oshi.driver.windows.registry,ProcessPerformanceData,291,0,26,0,55,0,16,0,3,0
 oshi-dist/oshi-core,oshi.driver.windows.registry,SessionWtsData,213,0,16,0,50,0,11,0,3,0
 oshi-dist/oshi-core,oshi.driver.windows.registry,HkeyUserData,159,0,20,0,30,0,12,0,2,0
-oshi-dist/oshi-core,oshi.driver.windows.registry,ThreadPerformanceData,320,0,20,0,59,0,12,0,2,0
+oshi-dist/oshi-core,oshi.driver.windows.registry,ThreadPerformanceData,332,0,22,0,61,0,13,0,2,0
 oshi-dist/oshi-core,oshi.driver.windows.registry,NetSessionData,91,0,6,0,15,0,5,0,2,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32PnPEntity,17,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32ComputerSystem.ComputerSystemProperty,24,0,0,0,2,0,1,0,1,0
@@ -596,7 +596,7 @@ oshi-dist/oshi-demo,oshi.driver.windows.registry,ProcessPerformanceData.PerfCoun
 oshi-dist/oshi-demo,oshi.driver.windows.registry,ProcessPerformanceData,291,0,26,0,55,0,16,0,3,0
 oshi-dist/oshi-demo,oshi.driver.windows.registry,SessionWtsData,213,0,16,0,50,0,11,0,3,0
 oshi-dist/oshi-demo,oshi.driver.windows.registry,HkeyUserData,159,0,20,0,30,0,12,0,2,0
-oshi-dist/oshi-demo,oshi.driver.windows.registry,ThreadPerformanceData,320,0,20,0,59,0,12,0,2,0
+oshi-dist/oshi-demo,oshi.driver.windows.registry,ThreadPerformanceData,332,0,22,0,61,0,13,0,2,0
 oshi-dist/oshi-demo,oshi.driver.windows.registry,NetSessionData,91,0,6,0,15,0,5,0,2,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32PnPEntity,17,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32ComputerSystem.ComputerSystemProperty,24,0,0,0,2,0,1,0,1,0
