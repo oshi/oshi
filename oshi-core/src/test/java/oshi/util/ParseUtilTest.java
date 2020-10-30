@@ -450,8 +450,8 @@ public class ParseUtilTest {
         Pair<String, String> idPair = ParseUtil
                 .parsePnPDeviceIdToVendorProductId("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
         assertNotNull(idPair);
-        assertEquals("0x10de", idPair.getA());
-        assertEquals("0x134b", idPair.getB());
+        assertEquals("First element of pair","0x10de", idPair.getA());
+        assertEquals("Second element of pair","0x134b", idPair.getB());
 
         idPair = ParseUtil
                 .parsePnPDeviceIdToVendorProductId("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
@@ -472,8 +472,8 @@ public class ParseUtilTest {
     @Test
     public void testParseLspciMachineReadable() {
         Pair<String, String> pair = ParseUtil.parseLspciMachineReadable("foo [bar]");
-        assertEquals("foo", pair.getA());
-        assertEquals("bar", pair.getB());
+        assertEquals("First element of pair", "foo", pair.getA());
+        assertEquals("Second element of pair","bar", pair.getB());
         assertNull(ParseUtil.parseLspciMachineReadable("Bad format"));
     }
 
