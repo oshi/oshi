@@ -23,72 +23,108 @@
  */
 package oshi.software.os;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import oshi.SystemInfo;
 import oshi.software.os.InternetProtocolStats.TcpStats;
 import oshi.software.os.InternetProtocolStats.UdpStats;
 
 /**
- * Test network parameters
+ * Test IP stats
  */
-public class InternetProtocolStatsTest {
+@TestInstance(Lifecycle.PER_CLASS)
+class InternetProtocolStatsTest {
 
-    /**
-     * Test network parameters
-     */
-    @Test
-    public void testIPStats() {
+    private InternetProtocolStats ipStats = null;
+
+    @BeforeAll
+    void setUp() {
         SystemInfo si = new SystemInfo();
-        InternetProtocolStats ipStats = si.getOperatingSystem().getInternetProtocolStats();
+        this.ipStats = si.getOperatingSystem().getInternetProtocolStats();
+    }
+
+    @Test
+    void testTCPStats() {
         TcpStats tcp4 = ipStats.getTCPv4Stats();
-        assertTrue("IPV4 TCP connections should be 0 or higher", tcp4.getConnectionsEstablished() >= 0);
-        assertTrue("IPV4 TCP active connections should be 0 or higher", tcp4.getConnectionsActive() >= 0);
-        assertTrue("IPV4 TCP passive connections should be 0 or higher", tcp4.getConnectionsPassive() >= 0);
-        assertTrue("IPV4 TCP connection failures should be 0 or higher", tcp4.getConnectionFailures() >= 0);
-        assertTrue("IPV4 TCP connections reset should be 0 or higher", tcp4.getConnectionsReset() >= 0);
-        assertTrue("IPV4 TCP segments received should be 0 or higher", tcp4.getSegmentsReceived() >= 0);
-        assertTrue("IPV4 TCP segments sent should be 0 or higher", tcp4.getSegmentsSent() >= 0);
-        assertTrue("IPV4 TCP segments retransmitted should be 0 or higher", tcp4.getSegmentsRetransmitted() >= 0);
-        assertTrue("IPV4 TCP errors should be or higher ", tcp4.getInErrors() >= 0);
-        assertTrue("IPV4 TCP segments transmitted with the reset flag should be 0 or higher", tcp4.getOutResets() >= 0);
+        assertThat("IPV4 TCP connections should be 0 or higher", tcp4.getConnectionsEstablished(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP active connections should be 0 or higher", tcp4.getConnectionsActive(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP passive connections should be 0 or higher", tcp4.getConnectionsPassive(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP connection failures should be 0 or higher", tcp4.getConnectionFailures(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP connections reset should be 0 or higher", tcp4.getConnectionsReset(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP segments received should be 0 or higher", tcp4.getSegmentsReceived(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP segments sent should be 0 or higher", tcp4.getSegmentsSent(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP segments retransmitted should be 0 or higher", tcp4.getSegmentsRetransmitted(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP errors should be or higher ", tcp4.getInErrors(), is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 TCP segments transmitted with the reset flag should be 0 or higher", tcp4.getOutResets(),
+                is(greaterThanOrEqualTo(0L)));
 
         TcpStats tcp6 = ipStats.getTCPv6Stats();
-        assertTrue("IPV6 TCP connections should be 0 or higher", tcp6.getConnectionsEstablished() >= 0);
-        assertTrue("IPV6 TCP active connections should be 0 or higher", tcp6.getConnectionsActive() >= 0);
-        assertTrue("IPV6 TCP passive connections should be 0 or higher", tcp6.getConnectionsPassive() >= 0);
-        assertTrue("IPV6 TCP connection failures should be 0 or higher", tcp6.getConnectionFailures() >= 0);
-        assertTrue("IPV6 TCP connections reset should be 0 or higher", tcp6.getConnectionsReset() >= 0);
-        assertTrue("IPV6 TCP segments received should be 0 or higher", tcp6.getSegmentsReceived() >= 0);
-        assertTrue("IPV6 TCP segments sent should be 0 or higher", tcp6.getSegmentsSent() >= 0);
-        assertTrue("IPV6 TCP segments retransmitted should be 0 or higher", tcp6.getSegmentsRetransmitted() >= 0);
-        assertTrue("IPV6 TCP errors should be or higher ", tcp6.getInErrors() >= 0);
-        assertTrue("IPV6 TCP segments transmitted with the reset flag should be 0 or higher", tcp6.getOutResets() >= 0);
+        assertThat("IPV6 TCP connections should be 0 or higher", tcp6.getConnectionsEstablished(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP active connections should be 0 or higher", tcp6.getConnectionsActive(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP passive connections should be 0 or higher", tcp6.getConnectionsPassive(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP connection failures should be 0 or higher", tcp6.getConnectionFailures(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP connections reset should be 0 or higher", tcp6.getConnectionsReset(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP segments received should be 0 or higher", tcp6.getSegmentsReceived(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP segments sent should be 0 or higher", tcp6.getSegmentsSent(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP segments retransmitted should be 0 or higher", tcp6.getSegmentsRetransmitted(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP errors should be or higher ", tcp6.getInErrors(), is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 TCP segments transmitted with the reset flag should be 0 or higher", tcp6.getOutResets(),
+                is(greaterThanOrEqualTo(0L)));
 
+        assertThat("IPV4 TCP stats shouldn't be null", tcp4.toString(), is(not(nullValue())));
+        assertThat("IPV6 TCP stats shouldn't be null", tcp6.toString(), is(not(nullValue())));
+    }
+
+    @Test
+    void testUDPStats() {
         UdpStats udp4 = ipStats.getUDPv4Stats();
-        assertTrue("IPV4 UDP datagrams delivered to UDP users should be 0 or higher", udp4.getDatagramsReceived() >= 0);
-        assertTrue("IPV4 UDP datagrams sent should be 0 or higher", udp4.getDatagramsSent() >= 0);
-        assertTrue("IPV4 UDP datagrams received with no application at the destination port should be 0 or higher",
-                udp4.getDatagramsNoPort() >= 0);
-        assertTrue(
+        assertThat("IPV4 UDP datagrams delivered to UDP users should be 0 or higher", udp4.getDatagramsReceived(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 UDP datagrams sent should be 0 or higher", udp4.getDatagramsSent(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV4 UDP datagrams received with no application at the destination port should be 0 or higher",
+                udp4.getDatagramsNoPort(), is(greaterThanOrEqualTo(0L)));
+        assertThat(
                 "IPV4 UDP datagrams received that could not be delivered for reasons other than lack of application at the destination port should be 0 or higher",
-                udp4.getDatagramsReceivedErrors() >= 0);
+                udp4.getDatagramsReceivedErrors(), is(greaterThanOrEqualTo(0L)));
 
         UdpStats udp6 = ipStats.getUDPv6Stats();
-        assertTrue("IPV6 UDP datagrams delivered to UDP users should be 0 or higher", udp6.getDatagramsReceived() >= 0);
-        assertTrue("IPV6 UDP datagrams sent should be 0 or higher", udp6.getDatagramsSent() >= 0);
-        assertTrue("IPV6 UDP datagrams received with no application at the destination port should be 0 or higher",
-                udp6.getDatagramsNoPort() >= 0);
-        assertTrue(
+        assertThat("IPV6 UDP datagrams delivered to UDP users should be 0 or higher", udp6.getDatagramsReceived(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 UDP datagrams sent should be 0 or higher", udp6.getDatagramsSent(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("IPV6 UDP datagrams received with no application at the destination port should be 0 or higher",
+                udp6.getDatagramsNoPort(), is(greaterThanOrEqualTo(0L)));
+        assertThat(
                 "IPV6 UDP datagrams received that could not be delivered for reasons other than lack of application at the destination port should be 0 or higher",
-                udp6.getDatagramsReceivedErrors() >= 0);
+                udp6.getDatagramsReceivedErrors(), is(greaterThanOrEqualTo(0L)));
 
-        assertNotNull("IPV4 TCP stats shouldn't be null", tcp4.toString());
-        assertNotNull("IPV6 TCP stats shouldn't be null", tcp6.toString());
-        assertNotNull("IPV4 UDP stats shouldn't be null", udp4.toString());
-        assertNotNull("IPV6 UDP stats shouldn't be null", udp6.toString());
+        assertThat("IPV4 UDP stats shouldn't be null", udp4.toString(), is(not(nullValue())));
+        assertThat("IPV6 UDP stats shouldn't be null", udp6.toString(), is(not(nullValue())));
     }
 }

@@ -23,28 +23,33 @@
  */
 package oshi.software.os;
 
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 
 /**
  * Test network parameters
  */
-public class NetworkParamsTest {
+class NetworkParamsTest {
 
     /**
      * Test network parameters
      */
     @Test
-    public void testNetworkParams() {
+    void testNetworkParams() {
         SystemInfo si = new SystemInfo();
         NetworkParams params = si.getOperatingSystem().getNetworkParams();
-        assertNotNull("Network parameters hostname is null.", params.getHostName());
-        assertNotNull("Network parameters domain name is null.", params.getDomainName());
-        assertNotNull("Network parameters DNS server is null.", params.getDnsServers());
-        assertNotNull("Network parameters IPv4 default gateway is null.", params.getIpv4DefaultGateway());
-        assertNotNull("Network parameters IPv6 default gateway is null.", params.getIpv6DefaultGateway());
+        assertThat("Network parameters hostname is null.", params.getHostName(), is(not(nullValue())));
+        assertThat("Network parameters domain name is null.", params.getDomainName(), is(not(nullValue())));
+        assertThat("Network parameters DNS server is null.", params.getDnsServers(), is(not(nullValue())));
+        assertThat("Network parameters IPv4 default gateway is null.", params.getIpv4DefaultGateway(),
+                is(not(nullValue())));
+        assertThat("Network parameters IPv6 default gateway is null.", params.getIpv6DefaultGateway(),
+                is(not(nullValue())));
     }
 }
