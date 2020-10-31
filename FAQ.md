@@ -73,7 +73,9 @@ How do I resolve JNA `NoClassDefFound` errors?
 OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
- - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property 
+ - If you are using the Spring Boot Starter Parent version 2.2 and earlier that includes JNA as a dependency:
+   - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
+   - If you must use version 2.2 or earlier, override the `jna.version` property 
 
 How is OSHI different from SIGAR?
 ========
