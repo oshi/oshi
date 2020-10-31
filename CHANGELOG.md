@@ -1,13 +1,8 @@
-5.3.4 (2020-10-27)
+5.3.4 (in progress)
 ================
-[#1350](https://github.com/oshi/oshi/pull/1350): Reticulated splines - [@EllaCherrystone](https://github.com/EllaCherrystone)
-
-5.3.3 (in progress)
-================
-* [#1379](https://github.com/oshi/oshi/pull/1379): Add `squashfs` as a pseudo file system so it will be skipped by default - [@mprins](https://github.com/mprins).
 * Your contribution here
 
-5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25)
+5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28)
 ================
 * [#1350](https://github.com/oshi/oshi/pull/1350): Optionally list loopback and virtual network interfaces - [@zalintyre](https://github.com/zalintyre).
 * [#1353](https://github.com/oshi/oshi/pull/1353): runNative locale issues on linux - [@dmitraver](https://github.com/dmitraver)
@@ -17,6 +12,9 @@
 * [#1363](https://github.com/oshi/oshi/pull/1363), [#1374](https://github.com/oshi/oshi/pull/1374): Index logical processors by NUMA node - [@dbwiddis](https://github.com/dbwiddis).
 * [#1368](https://github.com/oshi/oshi/pull/1368): Backup for getting process name and state - [@J-Jimmy](https://github.com/J-Jimmy).
 * [#1375](https://github.com/oshi/oshi/pull/1375): Reduce log level for expected Windows permission failures - [@dbwiddis](https://github.com/dbwiddis).
+* [#1379](https://github.com/oshi/oshi/pull/1379): Add `squashfs` as a pseudo file system so it will be skipped by default - [@mprins](https://github.com/mprins).
+* [#1380](https://github.com/oshi/oshi/pull/1389): Fix exception sorting child process list on Windows - [@agaponik](https://github.com/agaponik).
+* [#1382](https://github.com/oshi/oshi/pull/1382): Fix exception on 32-bit Windows thread stats - [@dbwiddis](https://github.com/dbwiddis).
 
 4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16), 4.9.5 / 5.2.5 (2020-08-30)
 ================
