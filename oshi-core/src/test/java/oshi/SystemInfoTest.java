@@ -23,14 +23,16 @@
  */
 package oshi;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +67,7 @@ import oshi.util.Util;
 /**
  * A demonstration of access to many of OSHI's capabilities
  */
-public class SystemInfoTest {
+class SystemInfoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
@@ -75,8 +77,8 @@ public class SystemInfoTest {
      * Test that this platform is implemented..
      */
     @Test
-    public void testPlatformEnum() {
-        assertNotEquals("Test if this OS is supported.", PlatformEnum.UNKNOWN, SystemInfo.getCurrentPlatformEnum());
+    void testPlatformEnum() {
+        assertThat("Unsupported OS", SystemInfo.getCurrentPlatformEnum(), is(not(PlatformEnum.UNKNOWN)));
         // Exercise the main method
         main(null);
     }

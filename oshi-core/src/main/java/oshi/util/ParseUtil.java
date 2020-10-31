@@ -246,11 +246,8 @@ public final class ParseUtil {
      */
     public static String parseLastString(String s) {
         String[] ss = whitespaces.split(s);
-        if (ss.length < 1) {
-            return s;
-        } else {
-            return ss[ss.length - 1];
-        }
+        // guaranteed at least one element
+        return ss[ss.length - 1];
     }
 
     /**

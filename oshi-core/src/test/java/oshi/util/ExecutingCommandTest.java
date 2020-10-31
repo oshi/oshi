@@ -23,12 +23,15 @@
  */
 package oshi.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
@@ -36,7 +39,7 @@ import oshi.SystemInfo;
 /**
  * Test command line and returning the result of execution.
  */
-public class ExecutingCommandTest {
+class ExecutingCommandTest {
 
     private static final String ECHO = SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)
             ? "cmd.exe /C echo Test"
@@ -44,15 +47,13 @@ public class ExecutingCommandTest {
     private static final String BAD_COMMAND = "noOSshouldHaveACommandNamedThis";
 
     @Test
-    public void testRunNative() {
+    void testRunNative() {
         List<String> test = ExecutingCommand.runNative(ECHO);
-        assertEquals("Test command line returned expected number of outputs.", 1, test.size());
-        assertEquals("Test command line returned expected string.", "Test", test.get(0));
-        assertEquals("Test command line \"getFirstAnswer\" returned first output.", "Test",
-                ExecutingCommand.getFirstAnswer(ECHO));
+        assertThat("echo output", test, hasSize(1));
+        assertThat("echo output", test.get(0), is("Test"));
+        assertThat("echo first answer", ExecutingCommand.getFirstAnswer(ECHO), is("Test"));
 
-        assertTrue("Test command line execution failed.", ExecutingCommand.runNative(BAD_COMMAND).isEmpty());
-        assertTrue("Test command line execution failed and didn't return a result.",
-                ExecutingCommand.getFirstAnswer(BAD_COMMAND).isEmpty());
+        assertThat("bad command", ExecutingCommand.runNative(BAD_COMMAND), is(empty()));
+        assertThat("bad command first answer", ExecutingCommand.getFirstAnswer(BAD_COMMAND), is(emptyString()));
     }
 }

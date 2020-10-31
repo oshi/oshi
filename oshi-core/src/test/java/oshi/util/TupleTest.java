@@ -23,11 +23,12 @@
  */
 package oshi.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.math.BigInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
@@ -37,33 +38,35 @@ import oshi.util.tuples.Triplet;
 /**
  * Test object pair.
  */
-public class TupleTest {
+class TupleTest {
 
     @Test
-    public void testTuples() {
+    void testTuples() {
         Pair<String, Integer> pair = new Pair<>("A", 1);
         Triplet<String, Integer, Long> triplet = new Triplet<>("B", 2, Long.MAX_VALUE);
         Quartet<String, Integer, Long, Character> quartet = new Quartet<>("C", 3, Long.MIN_VALUE, 'c');
         Quintet<String, Integer, Long, Character, BigInteger> quintet = new Quintet<>("D", 4, Long.valueOf("0"), 'd',
                 BigInteger.ZERO);
 
-        assertEquals("pair.getA() should be A", "A", pair.getA());
-        assertEquals("triplet.getA() should be B", "B", triplet.getA());
-        assertEquals("quartet.getA() should be C", "C", quartet.getA());
-        assertEquals("quintet.getA() should be D", "D", quintet.getA());
+        assertThat("pair.getA() should be A", pair.getA(), is("A"));
+        assertThat("triplet.getA() should be B", triplet.getA(), is("B"));
+        assertThat("quartet.getA() should be C", quartet.getA(), is("C"));
+        assertThat("quintet.getA() should be D", quintet.getA(), is("D"));
 
-        assertEquals("pair.getB().intValue() should be 1", 1, pair.getB().intValue());
-        assertEquals("triplet.getB().intValue() should be 2", 2, triplet.getB().intValue());
-        assertEquals("quartet.getB().intValue() should be 3", 3, quartet.getB().intValue());
-        assertEquals("quintet.getB().intValue() should be 4", 4, quintet.getB().intValue());
+        assertThat("pair.getB().intValue() should be 1", pair.getB().intValue(), is(1));
+        assertThat("triplet.getB().intValue() should be 2", triplet.getB().intValue(), is(2));
+        assertThat("quartet.getB().intValue() should be 3", quartet.getB().intValue(), is(3));
+        assertThat("quintet.getB().intValue() should be 4", quintet.getB().intValue(), is(4));
 
-        assertEquals("triplet.getC().longValue() should be Long.MAX_VALUE", Long.MAX_VALUE, triplet.getC().longValue());
-        assertEquals("quartet.getC().longValue() should be Long.MIN_VALUE", Long.MIN_VALUE, quartet.getC().longValue());
-        assertEquals("quintet.getC().longValue() should be 0L", 0L, quintet.getC().longValue());
+        assertThat("triplet.getC().longValue() should be Long.MAX_VALUE", triplet.getC().longValue(),
+                is(Long.MAX_VALUE));
+        assertThat("quartet.getC().longValue() should be Long.MIN_VALUE", quartet.getC().longValue(),
+                is(Long.MIN_VALUE));
+        assertThat("quintet.getC().longValue() should be 0L", quintet.getC().longValue(), is(0L));
 
-        assertEquals("quartet.getD().charValue() should be c", 'c', quartet.getD().charValue());
-        assertEquals("quintet.getD().charValue() should be d", 'd', quintet.getD().charValue());
+        assertThat("quartet.getD().charValue() should be c", quartet.getD().charValue(), is('c'));
+        assertThat("quintet.getD().charValue() should be d", quintet.getD().charValue(), is('d'));
 
-        assertEquals("quintet.getE() should be BigInteger.ZERO", BigInteger.ZERO, quintet.getE());
+        assertThat("quintet.getE() should be BigInteger.ZERO", quintet.getE(), is(BigInteger.ZERO));
     }
 }

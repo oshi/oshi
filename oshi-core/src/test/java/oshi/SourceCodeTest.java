@@ -26,7 +26,7 @@ package oshi;
 import static guru.nidi.codeassert.junit.CodeAssertMatchers.hasNoCheckstyleIssues;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.puppycrawl.tools.checkstyle.api.SeverityLevel;
 
@@ -37,15 +37,15 @@ import guru.nidi.codeassert.checkstyle.StyleEventCollector;
 import guru.nidi.codeassert.config.AnalyzerConfig;
 import guru.nidi.codeassert.config.In;
 
-public class SourceCodeTest {
+class SourceCodeTest {
 
     @Test
-    public void testCheckstyle() {
+    void testCheckstyle() {
         checkstyleGoogle();
         checkstyleSun();
     }
 
-    public void checkstyleGoogle() {
+    void checkstyleGoogle() {
         // Analyze all sources in src/main/java
         AnalyzerConfig config = AnalyzerConfig.maven().main();
 
@@ -61,7 +61,7 @@ public class SourceCodeTest {
         assertThat("There are Checkstyle errors found", result, hasNoCheckstyleIssues());
     }
 
-    public void checkstyleSun() {
+    void checkstyleSun() {
         // Analyze all sources in src/main/java
         AnalyzerConfig config = AnalyzerConfig.maven().main();
 

@@ -23,50 +23,51 @@
  */
 package oshi.util;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test general utility methods
  */
-public class UtilTest {
+class UtilTest {
 
     @Test
-    public void testSleep() {
+    void testSleep() {
         // Windows counters may be up to 1/64 second (16ms) off
         long now = System.nanoTime();
         Util.sleep(100);
-        assertTrue(System.nanoTime() - now >= 84_375_000);
+        assertThat(System.nanoTime() - now, is(greaterThan(84_375_000L)));
     }
 
     @Test
-    public void testWildcardMatch() {
-        assertFalse("Test should not match est", Util.wildcardMatch("Test", "est"));
-        assertTrue("Test should match ^est", Util.wildcardMatch("Test", "^est"));
-        assertFalse("Test should not match ^^est", Util.wildcardMatch("Test", "^^est"));
-        assertTrue("Test should match ?est", Util.wildcardMatch("Test", "?est"));
-        assertFalse("Test should not match ^?est", Util.wildcardMatch("Test", "^?est"));
-        assertTrue("Test should match *est", Util.wildcardMatch("Test", "*est"));
-        assertFalse("Test should not match ^*est", Util.wildcardMatch("Test", "^*est"));
+    void testWildcardMatch() {
+        assertThat("Test should not match est", Util.wildcardMatch("Test", "est"), is(false));
+        assertThat("Test should match ^est", Util.wildcardMatch("Test", "^est"), is(true));
+        assertThat("Test should not match ^^est", Util.wildcardMatch("Test", "^^est"), is(false));
+        assertThat("Test should match ?est", Util.wildcardMatch("Test", "?est"), is(true));
+        assertThat("Test should not match ^?est", Util.wildcardMatch("Test", "^?est"), is(false));
+        assertThat("Test should match *est", Util.wildcardMatch("Test", "*est"), is(true));
+        assertThat("Test should not match ^*est", Util.wildcardMatch("Test", "^*est"), is(false));
 
-        assertFalse("Test should not match T?t", Util.wildcardMatch("Test", "T?t"));
-        assertTrue("Test should match T??t", Util.wildcardMatch("Test", "T??t"));
-        assertTrue("Test should match T*t", Util.wildcardMatch("Test", "T*t"));
+        assertThat("Test should not match T?t", Util.wildcardMatch("Test", "T?t"), is(false));
+        assertThat("Test should match T??t", Util.wildcardMatch("Test", "T??t"), is(true));
+        assertThat("Test should match T*t", Util.wildcardMatch("Test", "T*t"), is(true));
 
-        assertFalse("Test should not match Tes", Util.wildcardMatch("Test", "Tes"));
-        assertTrue("Test should match Tes?", Util.wildcardMatch("Test", "Tes?"));
-        assertTrue("Test should match Tes*", Util.wildcardMatch("Test", "Tes*"));
+        assertThat("Test should not match Tes", Util.wildcardMatch("Test", "Tes"), is(false));
+        assertThat("Test should match Tes?", Util.wildcardMatch("Test", "Tes?"), is(true));
+        assertThat("Test should match Tes*", Util.wildcardMatch("Test", "Tes*"), is(true));
 
-        assertFalse("Test should not match Te?", Util.wildcardMatch("Test", "Te?"));
-        assertTrue("Test should match Te*", Util.wildcardMatch("Test", "Te*"));
+        assertThat("Test should not match Te?", Util.wildcardMatch("Test", "Te?"), is(false));
+        assertThat("Test should match Te*", Util.wildcardMatch("Test", "Te*"), is(true));
     }
 
     @Test
-    public void testIsBlank() {
-        assertTrue("\"\" should be Blank", Util.isBlank(""));
-        assertTrue("null should be Blank", Util.isBlank(null));
-        assertFalse("\"Not blank\" should not be Blank", Util.isBlank("Not blank"));
+    void testIsBlank() {
+        assertThat("\"\" should be Blank", Util.isBlank(""), is(true));
+        assertThat("null should be Blank", Util.isBlank(null), is(true));
+        assertThat("\"Not blank\" should not be Blank", Util.isBlank("Not blank"), is(false));
     }
 }

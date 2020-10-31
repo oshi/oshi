@@ -23,10 +23,13 @@
  */
 package oshi.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -40,18 +43,18 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public final class MemoizerTest {
+final class MemoizerTest {
     // We want enough threads that some of them are forced to wait
     private static final int numberOfThreads = Math.max(5, Runtime.getRuntime().availableProcessors() + 2);
 
     private ExecutorService ex;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         final ThreadPoolExecutor ex = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         ex.allowCoreThreadTimeOut(false);
@@ -60,14 +63,14 @@ public final class MemoizerTest {
         this.ex = ex;
     }
 
-    @After
-    public void after() throws InterruptedException {
+    @AfterEach
+    void after() throws InterruptedException {
         ex.shutdownNow();
         ex.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     }
 
     @Test
-    public void get() throws Throwable {
+    void get() throws Throwable {
         // With max time limits these tests take a minute to run. But with no changes to
         // the memoizer it's simply testing overkill. Use a RNG to limit these tests
         // regularly but occasionally run the longer tests.
@@ -97,7 +100,7 @@ public final class MemoizerTest {
         // Do tests with refresh after 0.1 ms.
         iterationDurationNanos = TimeUnit.MILLISECONDS.toNanos(10);
         ttlNanos = iterationDurationNanos / 100;
-        assertNotEquals("ttlNanos should not be zero", 0, ttlNanos); // avoid div/0 later
+        assertThat("ttlNanos should not be zero", ttlNanos, is(not(0L))); // avoid div/0 later
         for (int r = 0; r < refreshIters; r++) {
             run(iterationDurationNanos, ttlNanos);
         }
@@ -125,8 +128,8 @@ public final class MemoizerTest {
                 // First read from the memoizer. Only one thread will win this race to increment
                 // 0 to 1, but all threads should read at least 1, if not increment further
                 Long previousValue = m.get();
-                assertNotNull("previousValue should not be null", previousValue);
-                assertTrue("previousValue should be greater than zero", previousValue > 0);
+                assertThat("previousValue should not be null", previousValue, is(not(nullValue())));
+                assertThat("previousValue should be greater than zero", previousValue, is(greaterThan(0L)));
                 // Memoizer's ttl was set during previous call (for race winning thread) or
                 // earlier (for losing threads) but if we delay for at least ttl from now, we
                 // are sure to get at least one increment if ttl is nonnegative
@@ -144,10 +147,10 @@ public final class MemoizerTest {
                         throw new InterruptedException();
                     }
                     final Long newValue = m.get();
-                    assertNotNull("newValue should not be null", newValue);// check that we never get uninitialized
-                                                                           // value
-                    assertTrue(String.format("newValue=%s, previousValue=%s", newValue, previousValue),
-                            newValue >= previousValue);// check that the counter never goes down
+                    // check that we never get uninitialized
+                    assertThat("newValue should not be null", newValue, is(not(nullValue())));
+                    // check that the counter never goes down // value
+                    assertThat("newValue shuld be larger", newValue, is(not(lessThan(previousValue))));
                     previousValue = newValue;
                 }
                 return null;
@@ -178,8 +181,7 @@ public final class MemoizerTest {
 
     private static void testIncrementCounts(long actualNumberOfIncrements, long iterationDurationNanos, long ttlNanos) {
         if (ttlNanos < 0) {
-            assertEquals(String.format("ttlNanos=%d, expectedNumberOfIncrements=%d, actualNumberOfIncrements=%s",
-                    ttlNanos, 1, actualNumberOfIncrements), 1, actualNumberOfIncrements);
+            assertThat(String.format("ttlNanos=%d", ttlNanos), actualNumberOfIncrements, is(1L));
         }
         /*
          * Calculation of expectedNumberOfIncrements is a bit tricky because there is no
@@ -202,14 +204,13 @@ public final class MemoizerTest {
          * Therefore each thread may do up to 2 additional refreshes.
          */
         else {
-            final int minExpectedNumberOfIncrements = 2;
-            final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2 * numberOfThreads;
+            final long minExpectedNumberOfIncrements = 2L;
+            final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * numberOfThreads;
 
-            assertTrue(String.format(
-                    "ttlNanos=%s, minExpectedNumberOfRefreshes=%s, maxExpectedNumberOfRefreshes=%s, actualNumberOfRefreshes=%s",
-                    ttlNanos, minExpectedNumberOfIncrements, maxExpectedNumberOfIncrements, actualNumberOfIncrements),
-                    minExpectedNumberOfIncrements <= actualNumberOfIncrements
-                            && actualNumberOfIncrements <= maxExpectedNumberOfIncrements);
+            assertThat(String.format("ttlNanos=%s", ttlNanos), minExpectedNumberOfIncrements,
+                    is(lessThanOrEqualTo(actualNumberOfIncrements)));
+            assertThat(String.format("ttlNanos=%s", ttlNanos), actualNumberOfIncrements,
+                    is(lessThanOrEqualTo(maxExpectedNumberOfIncrements)));
         }
     }
 }
