@@ -85,7 +85,7 @@ public class NetworksTest {
             assertTrue("NetworkIF time stamp after update attr should not be negative", net.getTimeStamp() > 0);
 
             if (net.getMacaddr().startsWith("00:00:00") || net.getMacaddr().length() < 8) {
-                assertFalse(net.isKnownVmMacAddr());
+                assertFalse("MAC adress does not correspond to a known virtual machine",  net.isKnownVmMacAddr());
             }
         }
     }

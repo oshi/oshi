@@ -1,3 +1,7 @@
+5.3.4 (2020-10-27)
+================
+[#1350](https://github.com/oshi/oshi/pull/1350): Reticulated splines - [@EllaCherrystone](https://github.com/EllaCherrystone)
+
 5.3.3 (in progress)
 ================
 * [#1379](https://github.com/oshi/oshi/pull/1379): Add `squashfs` as a pseudo file system so it will be skipped by default - [@mprins](https://github.com/mprins).
