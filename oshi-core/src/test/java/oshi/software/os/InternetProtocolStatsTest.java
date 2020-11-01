@@ -26,8 +26,7 @@ package oshi.software.os;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -96,8 +95,8 @@ class InternetProtocolStatsTest {
         assertThat("IPV6 TCP segments transmitted with the reset flag should be 0 or higher", tcp6.getOutResets(),
                 is(greaterThanOrEqualTo(0L)));
 
-        assertThat("IPV4 TCP stats shouldn't be null", tcp4.toString(), is(not(nullValue())));
-        assertThat("IPV6 TCP stats shouldn't be null", tcp6.toString(), is(not(nullValue())));
+        assertThat("IPV4 TCP stats shouldn't be null", tcp4.toString(), is(notNullValue()));
+        assertThat("IPV6 TCP stats shouldn't be null", tcp6.toString(), is(notNullValue()));
     }
 
     @Test
@@ -124,7 +123,7 @@ class InternetProtocolStatsTest {
                 "IPV6 UDP datagrams received that could not be delivered for reasons other than lack of application at the destination port should be 0 or higher",
                 udp6.getDatagramsReceivedErrors(), is(greaterThanOrEqualTo(0L)));
 
-        assertThat("IPV4 UDP stats shouldn't be null", udp4.toString(), is(not(nullValue())));
-        assertThat("IPV6 UDP stats shouldn't be null", udp6.toString(), is(not(nullValue())));
+        assertThat("IPV4 UDP stats shouldn't be null", udp4.toString(), is(notNullValue()));
+        assertThat("IPV6 UDP stats shouldn't be null", udp6.toString(), is(notNullValue()));
     }
 }

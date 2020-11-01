@@ -25,8 +25,7 @@ package oshi.software.os;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.IOException;
 
@@ -55,15 +54,15 @@ class FileSystemTest {
         assertThat("File system max open file descriptors should be 0 or higher",
                 filesystem.getMaxFileDescriptors() >= 0L, is(true));
         for (OSFileStore store : filesystem.getFileStores()) {
-            assertThat("File store name shouldn't be null", store.getName(), is(not(nullValue())));
-            assertThat("File store volume shouldn't be null", store.getVolume(), is(not(nullValue())));
-            assertThat("File store label shouldn't be null", store.getLabel(), is(not(nullValue())));
-            assertThat("File store logical volume shouldn't be null", store.getLogicalVolume(), is(not(nullValue())));
-            assertThat("File store description shouldn't be null", store.getDescription(), is(not(nullValue())));
-            assertThat("File store type shouldn't be null", store.getType(), is(not(nullValue())));
+            assertThat("File store name shouldn't be null", store.getName(), is(notNullValue()));
+            assertThat("File store volume shouldn't be null", store.getVolume(), is(notNullValue()));
+            assertThat("File store label shouldn't be null", store.getLabel(), is(notNullValue()));
+            assertThat("File store logical volume shouldn't be null", store.getLogicalVolume(), is(notNullValue()));
+            assertThat("File store description shouldn't be null", store.getDescription(), is(notNullValue()));
+            assertThat("File store type shouldn't be null", store.getType(), is(notNullValue()));
             assertThat("File store options shouldn't be empty", store.getOptions().isEmpty(), is(false));
-            assertThat("File store mount shouldn't be null", store.getMount(), is(not(nullValue())));
-            assertThat("File store UUID shouldn't be null", store.getUUID(), is(not(nullValue())));
+            assertThat("File store mount shouldn't be null", store.getMount(), is(notNullValue()));
+            assertThat("File store UUID shouldn't be null", store.getUUID(), is(notNullValue()));
             assertThat("File store total space should be 0 or higher", store.getTotalSpace() >= 0, is(true));
             assertThat("File store usable space should be 0 or higher", store.getUsableSpace() >= 0, is(true));
             assertThat("File store free space should be 0 or higher", store.getFreeSpace() >= 0, is(true));

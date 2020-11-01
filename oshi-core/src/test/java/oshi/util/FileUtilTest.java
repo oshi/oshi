@@ -24,10 +24,10 @@
 package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.util.HashMap;
@@ -109,7 +109,7 @@ class FileUtilTest {
         expected.put("write_bytes", "124780544");
         expected.put("cancelled_write_bytes", "42");
         Map<String, String> actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, ":");
-        assertThat("procio size", actual.entrySet(), hasSize(expected.size()));
+        assertThat("procio size", actual, is(aMapWithSize(expected.size())));
         for (Entry<String, String> entry : expected.entrySet()) {
             assertThat("procio entry", actual, hasEntry(entry.getKey(), entry.getValue()));
         }

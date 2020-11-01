@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -128,7 +128,7 @@ final class MemoizerTest {
                 // First read from the memoizer. Only one thread will win this race to increment
                 // 0 to 1, but all threads should read at least 1, if not increment further
                 Long previousValue = m.get();
-                assertThat("previousValue should not be null", previousValue, is(not(nullValue())));
+                assertThat("previousValue should not be null", previousValue, is(notNullValue()));
                 assertThat("previousValue should be greater than zero", previousValue, is(greaterThan(0L)));
                 // Memoizer's ttl was set during previous call (for race winning thread) or
                 // earlier (for losing threads) but if we delay for at least ttl from now, we
@@ -148,7 +148,7 @@ final class MemoizerTest {
                     }
                     final Long newValue = m.get();
                     // check that we never get uninitialized
-                    assertThat("newValue should not be null", newValue, is(not(nullValue())));
+                    assertThat("newValue should not be null", newValue, is(notNullValue()));
                     // check that the counter never goes down // value
                     assertThat("newValue shuld be larger", newValue, is(not(lessThan(previousValue))));
                     previousValue = newValue;

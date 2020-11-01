@@ -23,33 +23,38 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 
 /**
  * Test Power Source
  */
-public class PowerSourceTest {
+class PowerSourceTest {
     /**
      * Test power source.
      */
     @Test
-    public void testPowerSource() {
+    void testPowerSource() {
         SystemInfo si = new SystemInfo();
         List<PowerSource> psArr = si.getHardware().getPowerSources();
         for (PowerSource ps : psArr) {
-            assertTrue("Power Source's remaining capacity shouldn't be negative",
-                    ps.getRemainingCapacityPercent() >= 0);
+            assertThat("Power Source's remaining capacity shouldn't be negative", ps.getRemainingCapacityPercent(),
+                    is(greaterThanOrEqualTo(0d)));
             double epsilon = 1E-6;
-            assertTrue(
+            assertThat(
                     "Power Source's estimated remaining time should be greater than zero or within error margin of -1 or within error margin of -2",
-                    ps.getTimeRemainingEstimated() > 0 || Math.abs(ps.getTimeRemainingEstimated() - -1) < epsilon
-                            || Math.abs(ps.getTimeRemainingEstimated() - -2) < epsilon);
+                    ps.getTimeRemainingEstimated(),
+                    is(either(greaterThan(0d)).or(closeTo(-1d, epsilon)).or(closeTo(-2d, epsilon))));
         }
     }
 }

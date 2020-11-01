@@ -23,44 +23,46 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 
 /**
  * Tests Computer System
  */
-public class ComputerSystemTest {
+class ComputerSystemTest {
 
     /**
      * Test Computer System
      */
     @Test
-    public void testComputerSystem() {
+    void testComputerSystem() {
         SystemInfo si = new SystemInfo();
         ComputerSystem cs = si.getHardware().getComputerSystem();
-        assertNotNull("Computer System's manufacturer shouldn't be null", cs.getManufacturer());
-        assertNotNull("Computer System's model shouldn't be null", cs.getModel());
-        assertNotNull("Computer System's serial number shouldn't be null", cs.getSerialNumber());
+        assertThat("Computer System's manufacturer shouldn't be null", cs.getManufacturer(), is(notNullValue()));
+        assertThat("Computer System's model shouldn't be null", cs.getModel(), is(notNullValue()));
+        assertThat("Computer System's serial number shouldn't be null", cs.getSerialNumber(), is(notNullValue()));
 
         Firmware fw = cs.getFirmware();
-        assertNotNull("Firmware shouldn't be null", fw);
-        assertNotNull("Firmware's manufacturer shouldn't be null", fw.getManufacturer());
-        assertNotNull("Firmware's name shouldn't be null", fw.getName());
-        assertNotNull("Firmware's description shouldn't be null", fw.getDescription());
-        assertNotNull("Firmware's version shouldn't be null", fw.getVersion());
-        assertNotNull("Firmware's release date shouldn't be null", fw.getReleaseDate());
-        assertTrue("Firmware's tostring value should contain manufacturer's name",
-                fw.toString().contains(fw.getManufacturer()));
+        assertThat("Firmware shouldn't be null", fw, is(notNullValue()));
+        assertThat("Firmware's manufacturer shouldn't be null", fw.getManufacturer(), is(notNullValue()));
+        assertThat("Firmware's name shouldn't be null", fw.getName(), is(notNullValue()));
+        assertThat("Firmware's description shouldn't be null", fw.getDescription(), is(notNullValue()));
+        assertThat("Firmware's version shouldn't be null", fw.getVersion(), is(notNullValue()));
+        assertThat("Firmware's release date shouldn't be null", fw.getReleaseDate(), is(notNullValue()));
+        assertThat("Firmware's tostring value should contain manufacturer's name", fw.toString(),
+                containsString(fw.getManufacturer()));
 
         Baseboard bb = cs.getBaseboard();
-        assertNotNull("Baseboard shouldn't be null", bb);
-        assertNotNull("Baseboard's manufacturer shouldn't be null", bb.getManufacturer());
-        assertNotNull("Baseboard's model shouldn't be null", bb.getModel());
-        assertNotNull("Baseboard's version shouldn't be null", bb.getVersion());
-        assertNotNull("Baseboard's serial number shouldn't be null", bb.getSerialNumber());
+        assertThat("Baseboard shouldn't be null", bb, is(notNullValue()));
+        assertThat("Baseboard's manufacturer shouldn't be null", bb.getManufacturer(), is(notNullValue()));
+        assertThat("Baseboard's model shouldn't be null", bb.getModel(), is(notNullValue()));
+        assertThat("Baseboard's version shouldn't be null", bb.getVersion(), is(notNullValue()));
+        assertThat("Baseboard's serial number shouldn't be null", bb.getSerialNumber(), is(notNullValue()));
     }
 }

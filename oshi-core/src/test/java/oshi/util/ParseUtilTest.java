@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -371,7 +372,7 @@ class ParseUtilTest {
         assertThat("result[0] should be -4456 using parseStringToLongArray on \"" + foo + "\"", result[0], is(-456L));
         assertThat("result[1] index should be 456 using parseStringToLongArray on \"" + foo + "\"", result[1], is(now));
 
-        foo = String.format("Invalid character %d %s %d %d", 123, "4v6", 789, now);
+        foo = String.format("NOLOG: Invalid character %d %s %d %d", 123, "4v6", 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 2 for \"" + foo + "\"", count, is(2));
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
@@ -382,11 +383,11 @@ class ParseUtilTest {
         assertThat("result[1] index should be " + Long.MAX_VALUE
                 + " (Long.MAX_VALUE) using parseStringToLongArray on \"" + foo + "\"", result[1], is(Long.MAX_VALUE));
 
-        foo = String.format("String too short %d %d %d %d", 123, 456, 789, now);
+        foo = String.format("NOLOG: String too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 9, ' ');
         assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
 
-        foo = String.format("Array too short %d %d %d %d", 123, 456, 789, now);
+        foo = String.format("NOLOG: Array too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 2, ' ');
         assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
 
@@ -462,7 +463,7 @@ class ParseUtilTest {
     void testParsePnPDeviceIdToVendorProductId() {
         Pair<String, String> idPair = ParseUtil
                 .parsePnPDeviceIdToVendorProductId("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
-        assertThat(idPair, is(not(nullValue())));
+        assertThat(idPair, is(notNullValue()));
         assertThat("First element of pair mismatch.", idPair.getA(), is("0x10de"));
         assertThat("Second element of pair mismatch.", idPair.getB(), is("0x134b"));
 

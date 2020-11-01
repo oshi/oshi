@@ -23,34 +23,36 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 
 /**
  * Test GraphicsCard
  */
-public class GraphicsCardTest {
+class GraphicsCardTest {
 
     /**
      * Testing sound cards , each attribute.
      */
     @Test
-    public void testGraphicsCards() {
+    void testGraphicsCards() {
         SystemInfo info = new SystemInfo();
         for (GraphicsCard graphicsCard : info.getHardware().getGraphicsCards()) {
-            assertNotNull("Graphics card's name should not be null", graphicsCard.getName());
-            assertNotNull("Graphics card's vendor should not be null", graphicsCard.getVendor());
-            assertTrue("Graphics card's VRAM should be at least zero", graphicsCard.getVRam() >= 0);
-            assertEquals("Graphics card's VRAM should be divisible by 1024", 0, graphicsCard.getVRam() % 1024);
-            assertTrue("Graphics card's id number length should be at least 6",
-                    graphicsCard.getDeviceId().length() >= 6);
-            assertTrue("Graphics card's version information length should be at least 2",
-                    graphicsCard.getVersionInfo().length() >= 2);
+            assertThat("Graphics card's name should not be null", graphicsCard.getName(), is(notNullValue()));
+            assertThat("Graphics card's vendor should not be null", graphicsCard.getVendor(), is(notNullValue()));
+            assertThat("Graphics card's VRAM should be at least zero", graphicsCard.getVRam(),
+                    is(greaterThanOrEqualTo(0L)));
+            assertThat("Graphics card's VRAM should be divisible by 1024", graphicsCard.getVRam() % 1024, is(0L));
+            assertThat("Graphics card's id number length should be at least 6", graphicsCard.getDeviceId().length(),
+                    is(greaterThanOrEqualTo(6)));
+            assertThat("Graphics card's version information length should be at least 2",
+                    graphicsCard.getVersionInfo().length(), is(greaterThanOrEqualTo(2)));
         }
     }
 }

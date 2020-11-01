@@ -25,8 +25,7 @@ package oshi.software.os;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.jupiter.api.Test;
 
@@ -44,12 +43,12 @@ class NetworkParamsTest {
     void testNetworkParams() {
         SystemInfo si = new SystemInfo();
         NetworkParams params = si.getOperatingSystem().getNetworkParams();
-        assertThat("Network parameters hostname is null.", params.getHostName(), is(not(nullValue())));
-        assertThat("Network parameters domain name is null.", params.getDomainName(), is(not(nullValue())));
-        assertThat("Network parameters DNS server is null.", params.getDnsServers(), is(not(nullValue())));
+        assertThat("Network parameters hostname is null.", params.getHostName(), is(notNullValue()));
+        assertThat("Network parameters domain name is null.", params.getDomainName(), is(notNullValue()));
+        assertThat("Network parameters DNS server is null.", params.getDnsServers(), is(notNullValue()));
         assertThat("Network parameters IPv4 default gateway is null.", params.getIpv4DefaultGateway(),
-                is(not(nullValue())));
+                is(notNullValue()));
         assertThat("Network parameters IPv6 default gateway is null.", params.getIpv6DefaultGateway(),
-                is(not(nullValue())));
+                is(notNullValue()));
     }
 }
