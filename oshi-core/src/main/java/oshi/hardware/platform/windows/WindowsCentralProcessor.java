@@ -37,6 +37,7 @@ import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinReg;
@@ -83,6 +84,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
+        long cpuVendorFreq = 0L;
         String processorID;
         boolean cpu64bit = false;
 
@@ -96,6 +98,12 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                     "ProcessorNameString");
             cpuIdentifier = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
                     "Identifier");
+            try {
+                cpuVendorFreq = Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "~MHz")
+                        * 1_000_000L;
+            } catch (Win32Exception e) {
+                // Leave as 0, parse the identifier as backup
+            }
         }
         if (!cpuIdentifier.isEmpty()) {
             cpuFamily = parseIdentifier(cpuIdentifier, "Family");
@@ -117,7 +125,8 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,
                     cpu64bit ? new String[] { "ia64" } : new String[0]);
         }
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
+                cpuVendorFreq);
     }
 
     /**

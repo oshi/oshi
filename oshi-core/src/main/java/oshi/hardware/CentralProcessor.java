@@ -461,7 +461,7 @@ public interface CentralProcessor {
             sb.append(" Stepping ").append(cpuStepping);
             this.cpuIdentifier = sb.toString();
 
-            if (vendorFreq >= 0) {
+            if (vendorFreq > 0) {
                 this.cpuVendorFreq = vendorFreq;
             } else {
                 // Parse Freq from name string
