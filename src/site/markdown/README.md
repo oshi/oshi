@@ -54,11 +54,11 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.3.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.3.3&amp;e=jar)  | [oshi-core-5.3.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.3.4-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.3.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.3.4&amp;e=jar)  | [oshi-core-5.3.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.3.5-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.3.3/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.3.4/jar). 
 
 2. Create a new instance of `SystemInfo` 
 
@@ -70,18 +70,22 @@ HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```
 
+Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-core/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://oshi.github.io/oshi/apidocs/oshi/util/GlobalConfig.html) class. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
+
 The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
 
-Note: OSHI uses the latest version of [JNA](https://github.com/java-native-access/jna), which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
+Note: OSHI uses the latest version of [JNA](https://github.com/java-native-access/jna). If you experience issues with `NoClassDefFound` errors for JNA artifacts, it is likely you have another dependency in your project which relies on an earlier version. Consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
- - If you are using a parent (e.g., Spring Boot) that includes JNA as a dependency, override the `jna.version` property or equivalent
+ - If you are using the Spring Boot Starter Parent version 2.2 and earlier that includes JNA as a dependency:
+   - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
+   - If you must use version 2.2 or earlier, override the `jna.version` property 
 
 Support
 -------------------
 * For bug reports, feature requests, or general questions about OSHI's longer term plans, please [create an issue](https://github.com/oshi/oshi/issues).  
 * For help integrating OSHI into your own project or maintainer code review of your PRs, tag `@dbwiddis` in issues or pull requests on your project site.
-* For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, and asking a new question if it hasn't been answered before.
+* For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, asking a new question if it hasn't been answered before.
 
 OSHI for enterprise
 -------------------
@@ -227,39 +231,6 @@ Many thanks to the following companies for providing free support of Open Source
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
 * [Travis CI](https://travis-ci.org/) for continuous integration testing
 * The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate cpu bottlenecks
-
-Projects using OSHI
--------------------
-* [Apache Flink](https://flink.apache.org/)
-* [Atlassian Confluence](https://www.atlassian.com/software/confluence)
-* [CAS Server](https://apereo.github.io/cas)
-* [Kamon System Metrics](https://kamon.io/)
-* [DeepLearning4J](https://deeplearning4j.org/)
-* [Hutool](https://www.hutool.cn/)
-* [Dolphin Scheduler](https://dolphinscheduler.apache.org/)
-* [Guns](https://github.com/stylefeng/Guns)
-* [GeoServer](https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html)
-* [Apache Doris](https://doris.incubator.apache.org/)
-* [UniversalMediaServer](https://github.com/UniversalMediaServer/UniversalMediaServer)
-* [PSI Probe](https://github.com/psi-probe/psi-probe)
-* [JPPF](https://jppf.org/)
-* [Octopus Deploy](https://octopus.com/)
-* [GigaSpaces XAP](https://xap.github.io/)
-* [openHAB Systeminfo Binding](https://github.com/openhab/openhab2-addons/tree/master/bundles/org.openhab.binding.systeminfo)
-* [Jenkins swarm plugin](https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin)
-* [Java for IBM Watson IoT Platform](https://ibm-watson-iot.github.io/iot-java/)
-* [Semux](https://www.semux.org/)
-* [Hawkular Agent](https://github.com/hawkular/hawkular-agent)
-* [Dagr](https://github.com/fulcrumgenomics/dagr)
-* [sys-API](https://github.com/Krillsson/sys-API)
-* [NexCapMAT](https://www.nexess-solutions.com/fr/produits/application-nexcap-mat/)
-* [360Suite](https://360suite.io/)
-* [GoMint](https://gomint.io/)
-* [Stefan's OS](https://BotCompany.de/)
-* [Eclipse Passage](https://projects.eclipse.org/projects/technology.passage)
-* [Eclipse Orbit](https://projects.eclipse.org/projects/tools.orbit)
-* [Ruoyi](https://www.ruoyi.vip/)
-* [DataX](https://github.com/WeiYe-Jing/datax-web)
 
 License
 -------

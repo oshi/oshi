@@ -67,7 +67,7 @@ import oshi.util.Util;
 /**
  * A demonstration of access to many of OSHI's capabilities
  */
-class SystemInfoTest {
+public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
