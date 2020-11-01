@@ -31,40 +31,45 @@
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.hardware;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertNotNull;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertTrue;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.SystemInfo;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.containsString;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.greaterThanOrEqualTo;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.lessThanOrEqualTo;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.notNullValue;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * Test GlobalMemory</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="VirtualMemoryTest" href="../../oshi/hardware/VirtualMemoryTest.html#VirtualMemoryTest">VirtualMemoryTest</a> {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * Test VirtualMemory.</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Test
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGlobalMemory() {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          HardwareAbstractionLayer hal = si.getHardware();
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          GlobalMemory memory = hal.getMemory();
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          VirtualMemory vm = memory.getVirtualMemory();
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertNotNull(<span class="jxr_string">"VM object shouldn't be null"</span>, vm);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <em class="jxr_comment">// Swap tests</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertTrue(<span class="jxr_string">"VM's swap pages in shouldn't be negative"</span>, vm.getSwapPagesIn() &gt;= 0);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertTrue(<span class="jxr_string">"VM's swap pages out shouldn't be negative"</span>, vm.getSwapPagesOut() &gt;= 0);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertTrue(<span class="jxr_string">"VM's swap total shouldn't be negative"</span>, vm.getSwapTotal() &gt;= 0);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertTrue(<span class="jxr_string">"VM's swap used shouldn't be negative"</span>, vm.getSwapUsed() &gt;= 0);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertTrue(<span class="jxr_string">"VM's swap used should be less than or equal to VM swap total"</span>,
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  vm.getSwapUsed() &lt;= vm.getSwapTotal());
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertTrue(<span class="jxr_string">"VM's max should be greater than or qual to VM swap total"</span>, vm.getVirtualMax() &gt;= vm.getSwapTotal());
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertTrue(<span class="jxr_string">"VM's virtual in use shouldn't be negative"</span>, vm.getVirtualInUse() &gt;= 0);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertTrue(<span class="jxr_string">"VM's toString contains 'Used'"</span>, vm.toString().contains(<span class="jxr_string">"Used"</span>));
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  }
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.SystemInfo;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * Test GlobalMemory</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">class</strong> <a name="VirtualMemoryTest" href="../../oshi/hardware/VirtualMemoryTest.html#VirtualMemoryTest">VirtualMemoryTest</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * Test VirtualMemory.</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      @Test
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">void</strong> testGlobalMemory() {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          HardwareAbstractionLayer hal = si.getHardware();
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          GlobalMemory memory = hal.getMemory();
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          VirtualMemory vm = memory.getVirtualMemory();
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertThat(<span class="jxr_string">"VM object shouldn't be null"</span>, vm, is(notNullValue()));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <em class="jxr_comment">// Swap tests</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(<span class="jxr_string">"VM's swap pages in shouldn't be negative"</span>, vm.getSwapPagesIn(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(<span class="jxr_string">"VM's swap pages out shouldn't be negative"</span>, vm.getSwapPagesOut(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(<span class="jxr_string">"VM's swap total shouldn't be negative"</span>, vm.getSwapTotal(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(<span class="jxr_string">"VM's swap used shouldn't be negative"</span>, vm.getSwapUsed(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(<span class="jxr_string">"VM's swap used should be less than or equal to VM swap total"</span>, vm.getSwapUsed(),
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  is(lessThanOrEqualTo(vm.getSwapTotal())));
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertThat(<span class="jxr_string">"VM's max should be greater than or qual to VM swap total"</span>, vm.getVirtualMax() &gt;= vm.getSwapTotal(),
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(<span class="jxr_string">"VM's virtual in use shouldn't be negative"</span>, vm.getVirtualInUse(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(<span class="jxr_string">"VM's toString contains 'Used'"</span>, vm.toString(), containsString(<span class="jxr_string">"Used"</span>));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

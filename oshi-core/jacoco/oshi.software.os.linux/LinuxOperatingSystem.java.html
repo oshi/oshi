@@ -562,7 +562,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L562">        List&lt;String&gt; systemctl = ExecutingCommand.runNative(&quot;systemctl list-unit-files&quot;);</span>
 <span class="nc bnc" id="L563" title="All 2 branches missed.">        for (String str : systemctl) {</span>
 <span class="nc" id="L564">            String[] split = ParseUtil.whitespaces.split(str);</span>
-<span class="nc bnc" id="L565" title="All 6 branches missed.">            if (split.length == 2 &amp;&amp; split[0].endsWith(&quot;.service&quot;) &amp;&amp; &quot;enabled&quot;.equals(split[1])) {</span>
+<span class="nc bnc" id="L565" title="All 6 branches missed.">            if (split.length &gt;= 2 &amp;&amp; split[0].endsWith(&quot;.service&quot;) &amp;&amp; &quot;enabled&quot;.equals(split[1])) {</span>
                 // remove .service extension
 <span class="nc" id="L567">                String name = split[0].substring(0, split[0].length() - 8);</span>
 <span class="nc" id="L568">                int index = name.lastIndexOf('.');</span>
