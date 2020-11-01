@@ -23,37 +23,42 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.notNullValue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 
 /**
  * Test GlobalMemory
  */
-public class VirtualMemoryTest {
+class VirtualMemoryTest {
     /**
      * Test VirtualMemory.
      */
     @Test
-    public void testGlobalMemory() {
+    void testGlobalMemory() {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
         GlobalMemory memory = hal.getMemory();
         VirtualMemory vm = memory.getVirtualMemory();
-        assertNotNull("VM object shouldn't be null", vm);
+        assertThat("VM object shouldn't be null", vm, is(notNullValue()));
 
         // Swap tests
-        assertTrue("VM's swap pages in shouldn't be negative", vm.getSwapPagesIn() >= 0);
-        assertTrue("VM's swap pages out shouldn't be negative", vm.getSwapPagesOut() >= 0);
-        assertTrue("VM's swap total shouldn't be negative", vm.getSwapTotal() >= 0);
-        assertTrue("VM's swap used shouldn't be negative", vm.getSwapUsed() >= 0);
-        assertTrue("VM's swap used should be less than or equal to VM swap total",
-                vm.getSwapUsed() <= vm.getSwapTotal());
-        assertTrue("VM's max should be greater than or qual to VM swap total", vm.getVirtualMax() >= vm.getSwapTotal());
-        assertTrue("VM's virtual in use shouldn't be negative", vm.getVirtualInUse() >= 0);
-        assertTrue("VM's toString contains 'Used'", vm.toString().contains("Used"));
+        assertThat("VM's swap pages in shouldn't be negative", vm.getSwapPagesIn(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap pages out shouldn't be negative", vm.getSwapPagesOut(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap total shouldn't be negative", vm.getSwapTotal(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap used shouldn't be negative", vm.getSwapUsed(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap used should be less than or equal to VM swap total", vm.getSwapUsed(),
+                is(lessThanOrEqualTo(vm.getSwapTotal())));
+        assertThat("VM's max should be greater than or qual to VM swap total", vm.getVirtualMax() >= vm.getSwapTotal(),
+                is(true));
+        assertThat("VM's virtual in use shouldn't be negative", vm.getVirtualInUse(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's toString contains 'Used'", vm.toString(), containsString("Used"));
     }
 }

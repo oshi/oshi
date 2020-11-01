@@ -23,9 +23,7 @@
  */
 package oshi.util;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -195,20 +193,6 @@ public final class FormatUtil {
         eTime -= TimeUnit.MINUTES.toSeconds(min);
         final long sec = eTime;
         return String.format("%d days, %02d:%02d:%02d", days, hr, min, sec);
-    }
-
-    /**
-     * Round to certain number of decimals.
-     *
-     * @param d
-     *            Number to be rounded
-     * @param decimalPlace
-     *            Number of decimal places to round to
-     * @return rounded result
-     */
-    public static float round(float d, int decimalPlace) {
-        final BigDecimal bd = new BigDecimal(Float.toString(d)).setScale(decimalPlace, RoundingMode.HALF_UP);
-        return bd.floatValue();
     }
 
     /**

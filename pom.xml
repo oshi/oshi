@@ -24,7 +24,9 @@
     SOFTWARE.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.oshi</groupId>
@@ -121,7 +123,8 @@
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
 		<slf4j.version>1.7.30</slf4j.version>
-		<junit-vintage-engine.version>5.7.0</junit-vintage-engine.version>
+		<junit.version>5.7.0</junit.version>
+		<hamcrest.version>2.2</hamcrest.version>
 		<!-- Compile versions -->
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -265,10 +268,12 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${maven-surefire-plugin.version}</version>
 					<configuration>
-						<forkCount>3</forkCount>
-						<reuseForks>true</reuseForks>
 						<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
 						<redirectTestOutputToFile>true</redirectTestOutputToFile>
+						<forkCount>4</forkCount>
+						<reuseForks>true</reuseForks>
+						<parallel>all</parallel>
+						<useUnlimitedThreads>true</useUnlimitedThreads>
 					</configuration>
 				</plugin>
 				<!-- Build Plugins -->

@@ -246,11 +246,8 @@ public final class ParseUtil {
      */
     public static String parseLastString(String s) {
         String[] ss = whitespaces.split(s);
-        if (ss.length < 1) {
-            return s;
-        } else {
-            return ss[ss.length - 1];
-        }
+        // guaranteed at least one element
+        return ss[ss.length - 1];
     }
 
     /**
@@ -764,7 +761,9 @@ public final class ParseUtil {
                 // Flag as nonnumeric and continue unless we've seen a numeric
                 // error on everything else
                 if (numberFound) {
-                    LOG.error("Illegal character parsing string '{}' to long array: {}", s, s.charAt(charIndex));
+                    if (!noLog(s)) {
+                        LOG.error("Illegal character parsing string '{}' to long array: {}", s, s.charAt(charIndex));
+                    }
                     return new long[indices.length];
                 }
                 parsed[parsedIndex] = 0;
@@ -772,10 +771,24 @@ public final class ParseUtil {
             }
         }
         if (parsedIndex > 0) {
-            LOG.error("Not enough fields in string '{}' parsing to long array: {}", s, indices.length - parsedIndex);
+            if (!noLog(s)) {
+                LOG.error("Not enough fields in string '{}' parsing to long array: {}", s,
+                        indices.length - parsedIndex);
+            }
             return new long[indices.length];
         }
         return parsed;
+    }
+
+    /**
+     * Test whether to log this message
+     *
+     * @param s
+     *            The string to log
+     * @return True if the string begins with {@code NOLOG}
+     */
+    private static boolean noLog(String s) {
+        return s.startsWith("NOLOG: ");
     }
 
     /**

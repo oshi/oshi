@@ -23,21 +23,24 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 
 /**
  * Test Disks
  */
-public class DisksTest {
+class DisksTest {
 
     /**
      * Test disks extraction.
@@ -46,11 +49,11 @@ public class DisksTest {
      *             Signals that an I/O exception has occurred.
      */
     @Test
-    public void testDisks() throws IOException {
+    void testDisks() throws IOException {
         SystemInfo si = new SystemInfo();
 
         for (HWDiskStore disk : si.getHardware().getDiskStores()) {
-            assertNotNull(disk);
+            assertThat(disk, is(notNullValue()));
             List<HWPartition> parts = disk.getPartitions();
             List<HWPartition> partList = new ArrayList<>(parts.size());
             for (HWPartition part : parts) {
@@ -58,39 +61,46 @@ public class DisksTest {
                         part.getSize(), part.getMajor(), part.getMinor(), part.getMountPoint()));
             }
 
-            assertNotNull("Disk name should not be null", disk.getName());
-            assertNotNull("Disk model should not be null", disk.getModel());
-            assertNotNull("Disk serial number should not be null", disk.getSerial());
-            assertTrue("Disk size should be greater or equal 0", disk.getSize() >= 0);
-            assertTrue("Number of read operations from the disk should be greater or equal to 0", disk.getReads() >= 0);
-            assertTrue("Number of read bytes should be greater or equal to 0", disk.getReadBytes() >= 0);
-            assertTrue("Number of write operations from the disk should be greater or equal to 0",
-                    disk.getWrites() >= 0);
-            assertTrue("Number of write bytes should be greater or equal to 0", disk.getWriteBytes() >= 0);
-            assertTrue("Transfer times should be greater or equal 0", disk.getTransferTime() >= 0);
-            assertTrue("Update time for statistics should be greater or equal 0", disk.getTimeStamp() >= 0);
-            assertTrue("toString method should contain the disk name", disk.toString().contains(disk.getName()));
+            assertThat("Disk name should not be null", disk.getName(), is(notNullValue()));
+            assertThat("Disk model should not be null", disk.getModel(), is(notNullValue()));
+            assertThat("Disk serial number should not be null", disk.getSerial(), is(notNullValue()));
+            assertThat("Disk size should be greater or equal 0", disk.getSize(), is(greaterThanOrEqualTo(0L)));
+            assertThat("Number of read operations from the disk should be greater or equal to 0", disk.getReads(),
+                    is(greaterThanOrEqualTo(0L)));
+            assertThat("Number of read bytes should be greater or equal to 0", disk.getReadBytes(),
+                    is(greaterThanOrEqualTo(0L)));
+            assertThat("Number of write operations from the disk should be greater or equal to 0", disk.getWrites(),
+                    is(greaterThanOrEqualTo(0L)));
+            assertThat("Number of write bytes should be greater or equal to 0", disk.getWriteBytes(),
+                    is(greaterThanOrEqualTo(0L)));
+            assertThat("Transfer times should be greater or equal 0", disk.getTransferTime(),
+                    is(greaterThanOrEqualTo(0L)));
+            assertThat("Update time for statistics should be greater or equal 0", disk.getTimeStamp(),
+                    is(greaterThanOrEqualTo(0L)));
+            assertThat("toString method should contain the disk name", disk.toString(), containsString(disk.getName()));
 
             long oldReads = disk.getReads();
             long oldReadBytes = disk.getReadBytes();
-            assertTrue("Updating the disk statistics should work", disk.updateAttributes());
-            assertTrue("Number of reads from the disk has not been updated", disk.getReads() >= oldReads);
-            assertTrue("Number of read bytes from the disk has not been updated", disk.getReadBytes() >= oldReadBytes);
+            assertThat("Updating the disk statistics should work", disk.updateAttributes(), is(true));
+            assertThat("Number of reads from the disk has not been updated", disk.getReads(),
+                    is(greaterThanOrEqualTo(oldReads)));
+            assertThat("Number of read bytes from the disk has not been updated", disk.getReadBytes(),
+                    is(greaterThanOrEqualTo(oldReadBytes)));
 
             for (HWPartition partition : disk.getPartitions()) {
-                assertNotNull("Identification of partition is null", partition.getIdentification());
-                assertNotNull("Name of partition is null", partition.getName());
-                assertNotNull("Type of partition is null", partition.getType());
-                assertNotNull("UUID of partition is null", partition.getUuid());
-                assertNotNull("Mount point of partition is null", partition.getMountPoint());
-                assertTrue("Partition size of partition " + partition.getName() + " is smaller 0",
-                        partition.getSize() >= 0);
-                assertTrue("Major device ID of partition " + partition.getName() + "is smaller 0",
-                        partition.getMajor() >= 0);
-                assertTrue("Minor device ID of partition " + partition.getName() + "is smaller 0",
-                        partition.getMinor() >= 0);
-                assertTrue("Partition's toString() method should contain the partitions identification.",
-                        partition.toString().contains(partition.getIdentification()));
+                assertThat("Identification of partition is null", partition.getIdentification(), is(notNullValue()));
+                assertThat("Name of partition is null", partition.getName(), is(notNullValue()));
+                assertThat("Type of partition is null", partition.getType(), is(notNullValue()));
+                assertThat("UUID of partition is null", partition.getUuid(), is(notNullValue()));
+                assertThat("Mount point of partition is null", partition.getMountPoint(), is(notNullValue()));
+                assertThat("Partition size of partition " + partition.getName() + " is < 0", partition.getSize(),
+                        is(greaterThanOrEqualTo(0L)));
+                assertThat("Major device ID of partition " + partition.getName() + "is < 0", partition.getMajor(),
+                        is(greaterThanOrEqualTo(0)));
+                assertThat("Minor device ID of partition " + partition.getName() + "is < 0", partition.getMinor(),
+                        is(greaterThanOrEqualTo(0)));
+                assertThat("Partition's toString() method should contain the partitions identification.",
+                        partition.toString(), containsString(partition.getIdentification()));
             }
         }
     }

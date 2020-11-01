@@ -1,5 +1,6 @@
 5.3.4 (in progress)
 ================
+* [#1387](https://github.com/oshi/oshi/pull/1387): Switch tests to JUnit5 and Hamcrest matchers - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28)

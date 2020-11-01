@@ -23,15 +23,11 @@
  */
 package oshi.util;
 
-import org.junit.Before;
-import org.junit.Test;
-import oshi.util.GlobalConfig.PropertyException;
-
-import java.util.Properties;
-
-import static java.lang.Double.MIN_VALUE;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 import static oshi.util.GlobalConfig.clear;
 import static oshi.util.GlobalConfig.get;
 import static oshi.util.GlobalConfig.load;
@@ -39,16 +35,26 @@ import static oshi.util.GlobalConfig.remove;
 import static oshi.util.GlobalConfig.set;
 import static oshi.util.GlobalConfigTest.GlobalConfigAsserter.asserter;
 
-public class GlobalConfigTest {
-    private static final String PROPERTY = "oshi.test.property";
+import java.util.Properties;
 
-    @Before
-    public void setUp() {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+
+import oshi.util.GlobalConfig.PropertyException;
+
+@Execution(SAME_THREAD)
+class GlobalConfigTest {
+    private static final String PROPERTY = "oshi.test.property";
+    private static final double EPSILON = Double.MIN_VALUE;
+
+    @BeforeEach
+    void setUp() {
         clear();
     }
 
     @Test
-    public void testGetString() {
+    void testGetString() {
         asserter(PROPERTY).assertDefaultThat(null, null);
         set(PROPERTY, "test");
         asserter(PROPERTY).assertThat("test", null);
@@ -58,7 +64,7 @@ public class GlobalConfigTest {
     }
 
     @Test
-    public void testGetInteger() {
+    void testGetInteger() {
         asserter(PROPERTY).assertDefaultThat(0, 0);
         set(PROPERTY, 123);
         asserter(PROPERTY).assertThat(123, 0).assertThat("123", null);
@@ -69,7 +75,7 @@ public class GlobalConfigTest {
     }
 
     @Test
-    public void testGetDouble() {
+    void testGetDouble() {
         asserter(PROPERTY).assertDefaultThat(0.0, 0.0);
         set(PROPERTY, 1.23d);
         asserter(PROPERTY).assertThat(1.23, 0.0).assertThat("1.23", null);
@@ -80,21 +86,21 @@ public class GlobalConfigTest {
     }
 
     @Test
-    public void testGetBoolean() {
+    void testGetBoolean() {
         asserter(PROPERTY).assertDefaultThat(false, false);
         set(PROPERTY, true);
         asserter(PROPERTY).assertThat(true, false).assertThat("true", null);
     }
 
     @Test
-    public void testSetNull() {
+    void testSetNull() {
         set(PROPERTY, "test");
         set(PROPERTY, null);
         asserter(PROPERTY).assertThat("123", "123");
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         String removed = "test";
         set(PROPERTY, removed);
         remove(PROPERTY);
@@ -102,16 +108,17 @@ public class GlobalConfigTest {
     }
 
     @Test
-    public void testLoad() {
+    void testLoad() {
         load(propertiesWith("321"));
 
         asserter(PROPERTY).assertThat("321", null);
     }
 
     @Test
-    public void testPropertyExceptionMessage() {
+    void testPropertyExceptionMessage() {
         set(PROPERTY, "test");
-        assertEquals(format("Invalid property: \"%s\" = test", PROPERTY), new PropertyException(PROPERTY).getMessage());
+        assertThat(new PropertyException(PROPERTY).getMessage(),
+                is(format("Invalid property: \"%s\" = test", PROPERTY)));
     }
 
     private Properties propertiesWith(String value) {
@@ -120,7 +127,7 @@ public class GlobalConfigTest {
         return updates;
     }
 
-    public static class GlobalConfigAsserter {
+    static class GlobalConfigAsserter {
         private static final String FAILURE_MESSAGE_TEMPLATE = "property: %s value for def: %s should be";
         private static final String DEFAULT_FAILURE_MESSAGE_TEMPLATE = "Property: %s default value def: %s should be";
         private final String property;
@@ -129,29 +136,29 @@ public class GlobalConfigTest {
             this.property = property;
         }
 
-        public static GlobalConfigAsserter asserter(String property) {
+        static GlobalConfigAsserter asserter(String property) {
             return new GlobalConfigAsserter(property);
         }
 
-        public GlobalConfigAsserter assertThat(Object expected, Object def) {
+        GlobalConfigAsserter assertThat(Object expected, Object def) {
             assertThat(failureMessage(def), expected, def);
             return this;
         }
 
-        public GlobalConfigAsserter assertDefaultThat(Object expected, Object def) {
+        GlobalConfigAsserter assertDefaultThat(Object expected, Object def) {
             assertThat(defaultFailureMessage(def), expected, def);
             return this;
         }
 
-        public GlobalConfigAsserter assertThat(String message, Object expected, Object def) {
+        GlobalConfigAsserter assertThat(String message, Object expected, Object def) {
             if (def instanceof String) {
-                assertEquals(message, expected, get(property, (String) def));
+                assertThat(message, get(property, (String) def), is(expected));
             } else if (def instanceof Boolean) {
-                assertEquals(message, expected, get(property, (boolean) def));
+                assertThat(message, get(property, (boolean) def), is(expected));
             } else if (def instanceof Integer) {
-                assertEquals(message, expected, get(property, (Integer) def));
+                assertThat(message, get(property, (Integer) def), is(expected));
             } else if (def instanceof Double) {
-                assertEquals(message, (Double) expected, get(property, (Double) def), MIN_VALUE);
+                assertThat(message, get(property, (Double) def), is(closeTo((Double) expected, EPSILON)));
             }
             return this;
         }

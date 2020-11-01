@@ -23,20 +23,25 @@
  */
 package oshi.util;
 
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.is;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests FileUtil
  */
-public class FileUtilTest {
+class FileUtilTest {
 
     /*
      * File sources
@@ -51,13 +56,11 @@ public class FileUtilTest {
      * Test read file.
      */
     @Test
-    public void testReadFile() {
-        List<String> thisFile = null;
+    void testReadFile() {
         // Try file not found
-        thisFile = FileUtil.readFile(NO_FILE);
-        assertEquals("Check that invalid file doesn't exists.", 0, thisFile.size());
+        assertThat("no file", FileUtil.readFile(NO_FILE), is(empty()));
         // Try this file
-        thisFile = FileUtil.readFile(THISCLASS);
+        List<String> thisFile = FileUtil.readFile(THISCLASS);
         // Comment ONE line
         int lineOne = 0;
         // Comment TWO line
@@ -66,39 +69,37 @@ public class FileUtilTest {
             String line = thisFile.get(i);
             if (lineOne == 0 && line.contains("Comment ONE line")) {
                 lineOne = i;
-                continue;
-            }
-            if (lineTwo == 0 && line.contains("Comment TWO line")) {
+            } else if (lineTwo == 0 && line.contains("Comment TWO line")) {
                 lineTwo = i;
                 break;
             }
         }
-        assertEquals("Check line numbers could be correctly read.", 2, lineTwo - lineOne);
+        assertThat("Comment line difference", lineTwo - lineOne, is(2));
     }
 
     /**
      * Test get*FromFile
      */
     @Test
-    public void testGetFromFile() {
-        assertEquals("Read unsigned long from integer file.", 123L, FileUtil.getUnsignedLongFromFile(INT_FILE));
-        assertEquals("Read unsigned long from string file.", 0L, FileUtil.getUnsignedLongFromFile(STRING_FILE));
-        assertEquals("Read unsigned long from invalid file.", 0L, FileUtil.getUnsignedLongFromFile(NO_FILE));
+    void testGetFromFile() {
+        assertThat("unsigned long from int", FileUtil.getUnsignedLongFromFile(INT_FILE), is(123L));
+        assertThat("unsigned long from string", FileUtil.getUnsignedLongFromFile(STRING_FILE), is(0L));
+        assertThat("unsigned long from invalid", FileUtil.getUnsignedLongFromFile(NO_FILE), is(0L));
 
-        assertEquals("Read long from integer file.", 123L, FileUtil.getLongFromFile(INT_FILE));
-        assertEquals("Read long from string file.", 0L, FileUtil.getLongFromFile(STRING_FILE));
-        assertEquals("Read long from invalid file.", 0L, FileUtil.getLongFromFile(NO_FILE));
+        assertThat("long from int", FileUtil.getLongFromFile(INT_FILE), is(123L));
+        assertThat("long from string", FileUtil.getLongFromFile(STRING_FILE), is(0L));
+        assertThat("long from invalid", FileUtil.getLongFromFile(NO_FILE), is(0L));
 
-        assertEquals("Read int from integer file.", 123, FileUtil.getIntFromFile(INT_FILE));
-        assertEquals("Read int from string file.", 0, FileUtil.getIntFromFile(STRING_FILE));
-        assertEquals("Read int from invalid file.", 0, FileUtil.getIntFromFile(NO_FILE));
+        assertThat("int from int", FileUtil.getIntFromFile(INT_FILE), is(123));
+        assertThat("int from string", FileUtil.getIntFromFile(STRING_FILE), is(0));
+        assertThat("int from invalid", FileUtil.getIntFromFile(NO_FILE), is(0));
 
-        assertEquals("Read string from integer file.", "123", FileUtil.getStringFromFile(INT_FILE));
-        assertEquals("Read string from invalid file.", "", FileUtil.getStringFromFile(NO_FILE));
+        assertThat("string from int", FileUtil.getStringFromFile(INT_FILE), is("123"));
+        assertThat("string from invalid ", FileUtil.getStringFromFile(NO_FILE), is(emptyString()));
     }
 
     @Test
-    public void testReadProcIo() {
+    void testReadProcIo() {
         Map<String, String> expected = new HashMap<>();
         expected.put("rchar", "124788352");
         expected.put("wchar", "124802481");
@@ -108,18 +109,17 @@ public class FileUtilTest {
         expected.put("write_bytes", "124780544");
         expected.put("cancelled_write_bytes", "42");
         Map<String, String> actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, ":");
-        assertEquals("Check key-value file returned correct number of items.", expected.size(), actual.size());
-        for (String key : expected.keySet()) {
-            assertEquals("Check key-value item equals the test value.", expected.get(key), actual.get(key));
+        assertThat("procio size", actual, is(aMapWithSize(expected.size())));
+        for (Entry<String, String> entry : expected.entrySet()) {
+            assertThat("procio entry", actual, hasEntry(entry.getKey(), entry.getValue()));
         }
     }
 
     @Test
-    public void testReadProperties() {
+    void testReadProperties() {
         Properties props = FileUtil.readPropertiesFromFilename("simplelogger.properties");
-        assertEquals("Check properties file was read correctly.", "INFO",
-                props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"));
+        assertThat("simplelogger properties", props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"), is("INFO"));
         props = FileUtil.readPropertiesFromFilename("this.file.does.not.exist");
-        assertFalse("Check properties could not be read from invalid file.", props.elements().hasMoreElements());
+        assertThat("invalid file", props.stringPropertyNames(), is(empty()));
     }
 }

@@ -23,28 +23,30 @@
  */
 package oshi.hardware;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 
 /**
  * Tests Displays
  */
-public class DisplayTest {
+class DisplayTest {
 
     /**
      * Test displays
      */
     @Test
-    public void testDisplay() {
+    void testDisplay() {
         SystemInfo si = new SystemInfo();
         List<Display> displays = si.getHardware().getDisplays();
         for (Display d : displays) {
-            assertTrue("EDID Byte length should be greater or equal 128", d.getEdid().length >= 128);
+            assertThat("EDID Byte length should be at least 128", d.getEdid().length, is(greaterThanOrEqualTo(128)));
         }
     }
 }
