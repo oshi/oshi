@@ -142,7 +142,7 @@ oshi-dist/oshi-core,oshi.hardware.platform.mac,MacSoundCard,67,0,6,0,20,0,5,0,2,
 oshi-dist/oshi-core,oshi.hardware.platform.mac,MacPowerSource,414,0,44,0,115,0,25,0,3,0
 oshi-dist/oshi-core,oshi.hardware.platform.mac,MacFirmware,192,0,30,0,43,0,23,0,7,0
 oshi-dist/oshi-core,oshi.hardware.platform.mac,MacDisplay,82,0,8,0,26,0,7,0,3,0
-oshi-dist/oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,415,0,26,0,77,0,24,0,11,0
+oshi-dist/oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,420,0,26,0,78,0,24,0,11,0
 oshi-dist/oshi-core,oshi.hardware.platform.mac,MacComputerSystem,102,0,12,0,23,0,13,0,7,0
 oshi-dist/oshi-core,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-dist/oshi-core,oshi.hardware.platform.mac,MacSensors,79,0,6,0,20,0,7,0,4,0
@@ -164,15 +164,15 @@ oshi-dist/oshi-core,oshi.driver.unix,Who,163,0,12,0,31,0,8,0,2,0
 oshi-dist/oshi-core,oshi.driver.unix,NetStatTcp,47,0,8,0,11,0,5,0,1,0
 oshi-dist/oshi-core,oshi.driver.unix,Xrandr,64,0,12,0,19,0,7,0,1,0
 oshi-dist/oshi-core,oshi.util,Util,10,50,1,9,3,9,1,8,0,4
-oshi-dist/oshi-core,oshi.util,LsofUtil,116,0,15,0,20,0,11,0,3,0
+oshi-dist/oshi-core,oshi.util,LsofUtil,3,113,3,12,2,18,3,8,0,3
 oshi-dist/oshi-core,oshi.util,Memoizer.new Supplier() {...},2,71,1,9,0,14,1,6,0,2
 oshi-dist/oshi-core,oshi.util,GlobalConfig,0,70,0,8,0,18,0,13,0,9
 oshi-dist/oshi-core,oshi.util,Constants,6,5,0,0,2,1,1,1,1,1
-oshi-dist/oshi-core,oshi.util,ParseUtil,22,1560,21,170,6,321,20,121,0,44
+oshi-dist/oshi-core,oshi.util,ParseUtil,32,1554,21,172,7,322,20,123,0,45
 oshi-dist/oshi-core,oshi.util,Memoizer,0,29,0,0,0,6,0,5,0,5
 oshi-dist/oshi-core,oshi.util,FileUtil,69,232,18,34,19,62,17,19,0,10
 oshi-dist/oshi-core,oshi.util,EdidUtil,32,522,7,16,2,63,6,25,0,17
-oshi-dist/oshi-core,oshi.util,FormatUtil,0,378,0,36,0,57,0,30,0,12
+oshi-dist/oshi-core,oshi.util,FormatUtil,0,366,0,36,0,55,0,29,0,11
 oshi-dist/oshi-core,oshi.util,GlobalConfig.PropertyException,15,17,0,0,2,2,1,1,1,1
 oshi-dist/oshi-core,oshi.util,ExecutingCommand,32,99,3,7,9,27,3,8,0,6
 oshi-dist/oshi-core,oshi.driver.windows.registry,ProcessWtsData,205,0,14,0,34,0,11,0,4,0
@@ -249,7 +249,7 @@ oshi-dist/oshi-core,oshi.software.os.unix.aix,AixOperatingSystem,504,0,58,0,82,0
 oshi-dist/oshi-core,oshi.software.os.unix.aix,AixOSProcess,577,0,43,0,125,0,54,0,30,0
 oshi-dist/oshi-core,oshi.software.os.unix.aix,AixFileSystem,298,0,44,0,56,0,29,0,7,0
 oshi-dist/oshi-core,oshi.hardware.platform.windows,WindowsFirmware,116,0,12,0,24,0,13,0,7,0
-oshi-dist/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,782,0,68,0,142,0,47,0,13,0
+oshi-dist/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,795,0,68,0,146,0,47,0,13,0
 oshi-dist/oshi-core,oshi.hardware.platform.windows,WindowsBaseboard,96,0,10,0,19,0,11,0,6,0
 oshi-dist/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice,472,0,42,0,107,0,30,0,9,0
 oshi-dist/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory,324,0,61,0,96,0,66,0,11,0
@@ -334,7 +334,7 @@ oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdSoundCard,138,0,1
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdHWDiskStore,315,0,14,0,60,0,18,0,11,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdPowerSource,298,0,32,0,69,0,19,0,3,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdGraphicsCard,263,0,48,0,46,0,26,0,2,0
-oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,745,0,72,0,147,0,52,0,15,0
+oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,752,0,72,0,148,0,52,0,15,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,67,0,4,0,13,0,7,0,5,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdFirmware,112,0,14,0,23,0,12,0,5,0
@@ -354,7 +354,7 @@ oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxUsbDevice,362,0,26,0,74,0,
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxSoundCard,239,0,32,0,42,0,23,0,7,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxHWDiskStore.UdevStat,81,0,0,0,6,0,3,0,3,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxPowerSource,354,0,40,0,66,0,22,0,2,0
-oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,895,0,121,0,174,0,77,0,13,0
+oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,919,0,126,0,182,0,80,0,13,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxHWDiskStore,445,0,54,0,99,0,42,0,15,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxVirtualMemory,215,0,21,0,47,0,22,0,10,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxDisplay,83,0,12,0,24,0,9,0,3,0
@@ -362,7 +362,7 @@ oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxBaseboard,123,0,16,0,30,0,
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxNetworkIF,248,0,6,0,48,0,18,0,15,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisGraphicsCard,239,0,42,0,45,0,23,0,2,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisDisplay,13,0,0,0,4,0,2,0,2,0
-oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,567,0,70,0,113,0,47,0,12,0
+oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,576,0,70,0,115,0,47,0,12,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisComputerSystem,319,0,44,0,71,0,32,0,9,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisBaseboard,27,0,0,0,10,0,5,0,5,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisComputerSystem.SmbiosStrings,83,0,20,0,12,0,11,0,1,0
@@ -403,7 +403,7 @@ oshi-dist/oshi-core,oshi.hardware,PhysicalMemory,0,102,0,0,0,19,0,7,0,7
 oshi-dist/oshi-core,oshi.hardware,CentralProcessor.TickType,0,103,0,0,0,13,0,3,0,3
 oshi-dist/oshi-core,oshi.hardware,HWPartition,0,121,0,2,0,26,0,11,0,10
 oshi-dist/oshi-core,oshi.hardware,CentralProcessor.LogicalProcessor,40,41,0,0,3,14,2,7,2,7
-oshi-dist/oshi-core,oshi.hardware,CentralProcessor.ProcessorIdentifier,41,213,14,12,9,52,14,13,1,13
+oshi-dist/oshi-core,oshi.hardware,CentralProcessor.ProcessorIdentifier,67,187,15,11,16,45,15,12,2,12
 oshi-dist/oshi-core,oshi.hardware,PowerSource.CapacityUnits,0,34,0,0,0,4,0,1,0,1
 oshi-dist/oshi-demo,oshi.demo,ComputerID,110,0,0,0,19,0,3,0,3,0
 oshi-dist/oshi-demo,oshi.demo,DetectVM,232,0,18,0,39,0,13,0,4,0
@@ -555,7 +555,7 @@ oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacSoundCard,67,0,6,0,20,0,5,0,2,
 oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacPowerSource,414,0,44,0,115,0,25,0,3,0
 oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacFirmware,192,0,30,0,43,0,23,0,7,0
 oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacDisplay,82,0,8,0,26,0,7,0,3,0
-oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacCentralProcessor,415,0,26,0,77,0,24,0,11,0
+oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacCentralProcessor,420,0,26,0,78,0,24,0,11,0
 oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacComputerSystem,102,0,12,0,23,0,13,0,7,0
 oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-dist/oshi-demo,oshi.hardware.platform.mac,MacSensors,79,0,6,0,20,0,7,0,4,0
@@ -577,15 +577,15 @@ oshi-dist/oshi-demo,oshi.driver.unix,Who,163,0,12,0,31,0,8,0,2,0
 oshi-dist/oshi-demo,oshi.driver.unix,NetStatTcp,47,0,8,0,11,0,5,0,1,0
 oshi-dist/oshi-demo,oshi.driver.unix,Xrandr,64,0,12,0,19,0,7,0,1,0
 oshi-dist/oshi-demo,oshi.util,Util,10,50,1,9,3,9,1,8,0,4
-oshi-dist/oshi-demo,oshi.util,LsofUtil,116,0,15,0,20,0,11,0,3,0
+oshi-dist/oshi-demo,oshi.util,LsofUtil,3,113,3,12,2,18,3,8,0,3
 oshi-dist/oshi-demo,oshi.util,Memoizer.new Supplier() {...},2,71,1,9,0,14,1,6,0,2
 oshi-dist/oshi-demo,oshi.util,GlobalConfig,0,70,0,8,0,18,0,13,0,9
 oshi-dist/oshi-demo,oshi.util,Constants,6,5,0,0,2,1,1,1,1,1
-oshi-dist/oshi-demo,oshi.util,ParseUtil,22,1560,21,170,6,321,20,121,0,44
+oshi-dist/oshi-demo,oshi.util,ParseUtil,32,1554,21,172,7,322,20,123,0,45
 oshi-dist/oshi-demo,oshi.util,Memoizer,0,29,0,0,0,6,0,5,0,5
 oshi-dist/oshi-demo,oshi.util,FileUtil,69,232,18,34,19,62,17,19,0,10
 oshi-dist/oshi-demo,oshi.util,EdidUtil,32,522,7,16,2,63,6,25,0,17
-oshi-dist/oshi-demo,oshi.util,FormatUtil,0,378,0,36,0,57,0,30,0,12
+oshi-dist/oshi-demo,oshi.util,FormatUtil,0,366,0,36,0,55,0,29,0,11
 oshi-dist/oshi-demo,oshi.util,GlobalConfig.PropertyException,15,17,0,0,2,2,1,1,1,1
 oshi-dist/oshi-demo,oshi.util,ExecutingCommand,32,99,3,7,9,27,3,8,0,6
 oshi-dist/oshi-demo,oshi.driver.windows.registry,ProcessWtsData,205,0,14,0,34,0,11,0,4,0
@@ -662,7 +662,7 @@ oshi-dist/oshi-demo,oshi.software.os.unix.aix,AixOperatingSystem,504,0,58,0,82,0
 oshi-dist/oshi-demo,oshi.software.os.unix.aix,AixOSProcess,577,0,43,0,125,0,54,0,30,0
 oshi-dist/oshi-demo,oshi.software.os.unix.aix,AixFileSystem,298,0,44,0,56,0,29,0,7,0
 oshi-dist/oshi-demo,oshi.hardware.platform.windows,WindowsFirmware,116,0,12,0,24,0,13,0,7,0
-oshi-dist/oshi-demo,oshi.hardware.platform.windows,WindowsCentralProcessor,782,0,68,0,142,0,47,0,13,0
+oshi-dist/oshi-demo,oshi.hardware.platform.windows,WindowsCentralProcessor,795,0,68,0,146,0,47,0,13,0
 oshi-dist/oshi-demo,oshi.hardware.platform.windows,WindowsBaseboard,96,0,10,0,19,0,11,0,6,0
 oshi-dist/oshi-demo,oshi.hardware.platform.windows,WindowsUsbDevice,472,0,42,0,107,0,30,0,9,0
 oshi-dist/oshi-demo,oshi.hardware.platform.windows,WindowsGlobalMemory,324,0,61,0,96,0,66,0,11,0
@@ -754,7 +754,7 @@ oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdSoundCard,138,0,1
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdHWDiskStore,315,0,14,0,60,0,18,0,11,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdPowerSource,298,0,32,0,69,0,19,0,3,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdGraphicsCard,263,0,48,0,46,0,26,0,2,0
-oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,745,0,72,0,147,0,52,0,15,0
+oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,752,0,72,0,148,0,52,0,15,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,67,0,4,0,13,0,7,0,5,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdFirmware,112,0,14,0,23,0,12,0,5,0
@@ -774,7 +774,7 @@ oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxUsbDevice,362,0,26,0,74,0,
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxSoundCard,239,0,32,0,42,0,23,0,7,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxHWDiskStore.UdevStat,81,0,0,0,6,0,3,0,3,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxPowerSource,354,0,40,0,66,0,22,0,2,0
-oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxCentralProcessor,895,0,121,0,174,0,77,0,13,0
+oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxCentralProcessor,919,0,126,0,182,0,80,0,13,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxHWDiskStore,445,0,54,0,99,0,42,0,15,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxVirtualMemory,215,0,21,0,47,0,22,0,10,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxDisplay,83,0,12,0,24,0,9,0,3,0
@@ -782,7 +782,7 @@ oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxBaseboard,123,0,16,0,30,0,
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxNetworkIF,248,0,6,0,48,0,18,0,15,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisGraphicsCard,239,0,42,0,45,0,23,0,2,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisDisplay,13,0,0,0,4,0,2,0,2,0
-oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,567,0,70,0,113,0,47,0,12,0
+oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisCentralProcessor,576,0,70,0,115,0,47,0,12,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisComputerSystem,319,0,44,0,71,0,32,0,9,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisBaseboard,27,0,0,0,10,0,5,0,5,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisComputerSystem.SmbiosStrings,83,0,20,0,12,0,11,0,1,0
@@ -823,5 +823,5 @@ oshi-dist/oshi-demo,oshi.hardware,PhysicalMemory,0,102,0,0,0,19,0,7,0,7
 oshi-dist/oshi-demo,oshi.hardware,CentralProcessor.TickType,0,103,0,0,0,13,0,3,0,3
 oshi-dist/oshi-demo,oshi.hardware,HWPartition,0,121,0,2,0,26,0,11,0,10
 oshi-dist/oshi-demo,oshi.hardware,CentralProcessor.LogicalProcessor,40,41,0,0,3,14,2,7,2,7
-oshi-dist/oshi-demo,oshi.hardware,CentralProcessor.ProcessorIdentifier,41,213,14,12,9,52,14,13,1,13
+oshi-dist/oshi-demo,oshi.hardware,CentralProcessor.ProcessorIdentifier,67,187,15,11,16,45,15,12,2,12
 oshi-dist/oshi-demo,oshi.hardware,PowerSource.CapacityUnits,0,34,0,0,0,4,0,1,0,1
