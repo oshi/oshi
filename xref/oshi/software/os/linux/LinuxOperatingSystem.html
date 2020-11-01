@@ -570,7 +570,7 @@
 <a class="jxr_linenumber" name="L562" href="#L562">562</a>         List&lt;String&gt; systemctl = ExecutingCommand.runNative(<span class="jxr_string">"systemctl list-unit-files"</span>);
 <a class="jxr_linenumber" name="L563" href="#L563">563</a>         <strong class="jxr_keyword">for</strong> (String str : systemctl) {
 <a class="jxr_linenumber" name="L564" href="#L564">564</a>             String[] split = ParseUtil.whitespaces.split(str);
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>             <strong class="jxr_keyword">if</strong> (split.length == 2 &amp;&amp; split[0].endsWith(<span class="jxr_string">".service"</span>) &amp;&amp; <span class="jxr_string">"enabled"</span>.equals(split[1])) {
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 2 &amp;&amp; split[0].endsWith(<span class="jxr_string">".service"</span>) &amp;&amp; <span class="jxr_string">"enabled"</span>.equals(split[1])) {
 <a class="jxr_linenumber" name="L566" href="#L566">566</a>                 <em class="jxr_comment">// remove .service extension</em>
 <a class="jxr_linenumber" name="L567" href="#L567">567</a>                 String name = split[0].substring(0, split[0].length() - 8);
 <a class="jxr_linenumber" name="L568" href="#L568">568</a>                 <strong class="jxr_keyword">int</strong> index = name.lastIndexOf('.');
