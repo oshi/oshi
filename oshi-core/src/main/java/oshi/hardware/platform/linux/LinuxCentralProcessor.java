@@ -60,6 +60,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         String cpuModel = "";
         String cpuStepping = "";
         String processorID;
+        long cpuFreq = 0L;
         boolean cpu64bit = false;
 
         StringBuilder armStepping = new StringBuilder(); // For ARM equivalent
@@ -111,8 +112,21 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
             case "cpu family":
                 cpuFamily = splitLine[1];
                 break;
+            case "cpu MHz":
+                cpuFreq = ParseUtil.parseHertz(splitLine[1]);
+                break;
             default:
                 // Do nothing
+            }
+        }
+        if (cpuName.contains("Hz")) {
+            // if Name contains CPU vendor frequency, ignore cpuinfo and use it
+            cpuFreq = -1L;
+        } else {
+            // Try lshw and use it in preference to cpuinfo
+            long cpuCapacity = Lshw.queryCpuCapacity();
+            if (cpuCapacity > cpuFreq) {
+                cpuFreq = cpuCapacity;
             }
         }
         if (cpuStepping.isEmpty()) {
@@ -127,7 +141,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
+                cpuFreq);
     }
 
     @Override

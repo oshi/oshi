@@ -54,6 +54,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
+        long cpuFreq = 0L;
 
         // Get first result
         try (KstatChain kc = KstatUtil.openChain()) {
@@ -65,12 +66,14 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
                 cpuFamily = KstatUtil.dataLookupString(ksp, "family");
                 cpuModel = KstatUtil.dataLookupString(ksp, "model");
                 cpuStepping = KstatUtil.dataLookupString(ksp, "stepping");
+                cpuFreq = KstatUtil.dataLookupLong(ksp, "clock_MHz") * 1_000_000L;
             }
         }
         boolean cpu64bit = "64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim());
         String processorID = getProcessorID(cpuStepping, cpuModel, cpuFamily);
 
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
+                cpuFreq);
     }
 
     @Override

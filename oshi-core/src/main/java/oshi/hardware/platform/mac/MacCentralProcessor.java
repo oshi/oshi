@@ -66,8 +66,10 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
         String processorID = String.format("%016X", processorIdBits);
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
+        long cpuFreq = SysctlUtil.sysctl("hw.cpufrequency", 0L);
 
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit);
+        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
+                cpuFreq);
     }
 
     @Override
