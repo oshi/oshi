@@ -49,7 +49,8 @@ class LsofUtilTest {
 
             assertThat("CwdMap should have at least one element", LsofUtil.getCwdMap(-1), is(not(anEmptyMap())));
 
-            assertThat("CwdMap with pid should have at least one element", LsofUtil.getCwdMap(pid), is(not(anEmptyMap())));
+            assertThat("CwdMap with pid should have at least one element", LsofUtil.getCwdMap(pid),
+                    is(not(anEmptyMap())));
 
             assertThat("Cwd should be nonempty", LsofUtil.getCwd(pid), is(not(emptyString())));
         }
