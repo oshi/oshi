@@ -267,12 +267,12 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${maven-surefire-plugin.version}</version>
 					<configuration>
+						<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+						<redirectTestOutputToFile>true</redirectTestOutputToFile>
 						<forkCount>4</forkCount>
 						<reuseForks>true</reuseForks>
 						<parallel>all</parallel>
-						<useUnlimitedThreads>true</useUnlimitedThreads>						
-						<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
-						<redirectTestOutputToFile>true</redirectTestOutputToFile>
+						<useUnlimitedThreads>true</useUnlimitedThreads>
 					</configuration>
 				</plugin>
 				<!-- Build Plugins -->

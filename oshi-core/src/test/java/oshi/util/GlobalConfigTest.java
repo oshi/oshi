@@ -27,6 +27,7 @@ import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 import static oshi.util.GlobalConfig.clear;
 import static oshi.util.GlobalConfig.get;
 import static oshi.util.GlobalConfig.load;
@@ -38,9 +39,11 @@ import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 
 import oshi.util.GlobalConfig.PropertyException;
 
+@Execution(SAME_THREAD)
 class GlobalConfigTest {
     private static final String PROPERTY = "oshi.test.property";
     private static final double EPSILON = Double.MIN_VALUE;
