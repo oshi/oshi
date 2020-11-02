@@ -242,26 +242,40 @@ Projects using OSHI
     <td align=center width=134px><a href="https://kamon.io/"><img src="./src/site/markdown/kamon.png" alt="Kamon System Metrics" width=122px><br/>Kamon System Metrics</a></td>
     <td align=center width=134px><a href="https://deeplearning4j.org/"><img src="./src/site/markdown/dl4j.png" alt="DeepLearning4J" width=122px><br/>DeepLearning4J</a></td>
   </tr><tr></tr><tr>
-    <td align=center width=134px><a href="https://nsquared.co.nz/files/n2jslee/technical_guide/"><img src="./src/site/markdown/nsquared.png" alt="N-Squared Java SLEE" width=122px><br/>N-Squared Java SLEE</a></td>
-    <td align=center width=134px><a href="https://developer.envisioniot.com/"><img src="./src/site/markdown/enosiot.png" alt="EnOS IoT Hub" width=122px><br/>EnOS IoT Hub</a></td>
-    <td align=center width=134px><a href="https://www.hutool.cn/"><br/><img src="./src/site/markdown/hutool.jpg" alt="Hutool" width=122px><br/><br/><br/>Hutool</a></td>
-    <td align=center width=134px><a href="https://dolphinscheduler.apache.org/"><img src="./src/site/markdown/dolphinscheduler.png" alt="Apache Dolphin Scheduler" width=122px><br/>Apache Dolphin Scheduler</a></td>
-    <td align=center width=134px><a href="https://github.com/stylefeng/Guns"><img src="./src/site/markdown/guns.png" alt="Guns" width=122px><br/>Guns</a></td>
-    <td align=center width=134px><a href="https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html"><img src="./src/site/markdown/geoserver.png" alt="GeoServer" width=122px><br/>GeoServer</a></td>
-  </tr><tr></tr><tr>
-    <td align=center width=134px><a href="https://doris.incubator.apache.org/"><img src="./src/site/markdown/doris.png" alt="Apache Doris" width=122px><br/>Apache Doris</a></td>
-    <td align=center width=134px><a href="https://jppf.org/"><br/><img src="./src/site/markdown/jppf.gif" alt="JPPF" width=122px><br/><br/><br/>JPPF</a></td>
-    <td align=center width=134px><a href="https://github.com/UniversalMediaServer/UniversalMediaServer"><img src="./src/site/markdown/ums.png" alt="Universal Media Server" width=122px><br/>Universal Media Server</a></td>
-    <td align=center width=134px><a href="https://www.semux.org/"><img src="./src/site/markdown/semux.svg" alt="Semux" width=122px><br/>Semux</a></td>
-    <td align=center width=134px><a href="https://github.com/psi-probe/psi-probe"><img src="./src/site/markdown/psi.jpg" alt="PSI Probe" width=122px><br/>PSI Probe</a></td>
     <td align=center width=134px><a href="https://octopus.com/"><img src="./src/site/markdown/octopus.svg" alt="Octopus Deploy" width=122px><br/>Octopus Deploy</a></td>
+    <td align=center width=134px><a href="https://dolphinscheduler.apache.org/"><img src="./src/site/markdown/dolphinscheduler.png" alt="Apache Dolphin Scheduler" width=122px><br/>Apache Dolphin Scheduler</a></td>
+    <td align=center width=134px><a href="https://github.com/UniversalMediaServer/UniversalMediaServer"><img src="./src/site/markdown/ums.png" alt="Universal Media Server" width=122px><br/>Universal Media Server</a></td>
+    <td align=center width=134px><a href="https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html"><img src="./src/site/markdown/geoserver.png" alt="GeoServer" width=122px><br/>GeoServer</a></td>
+    <td align=center width=134px><a href="https://github.com/psi-probe/psi-probe"><img src="./src/site/markdown/psi.jpg" alt="PSI Probe" width=122px><br/>PSI Probe</a></td>
+    <td align=center width=134px><a href="https://jppf.org/"><br/><img src="./src/site/markdown/jppf.gif" alt="JPPF" width=122px><br/><br/><br/>JPPF</a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://www.alluxio.io/"><img src="./src/site/markdown/alluxio.png" alt="Alluxio" width=122px><br/>Alluxio</a></td>
+    <td align=center width=134px><a href="https://lightstep.com/"><img src="./src/site/markdown/lightstep.png" alt="Lightstep" width=122px><br/>Lightstep</a></td>
+    <td align=center width=134px><a href="https://www.hivemq.com/"><img src="./src/site/markdown/hivemq.png" alt="HiveMQ" width=122px><br/>HiveMQ</a></td>
+    <td align=center width=134px><a href="https://mosip.io/"><img src="./src/site/markdown/mosip.png" alt="MOSIP" width=122px><br/>MOSIP</a></td>
+    <td align=center width=134px><a href="https://www.handle.net/"><br/><img src="./src/site/markdown/hdl.gif" alt="Handle.net" width=122px><br/><br/><br/>Handle.net</a></td>
+    <td align=center width=134px><a href="https://karaf.apache.org/"><img src="./src/site/markdown/karaf.png" alt="Apache Karaf" width=122px><br/>Apache Karaf</a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://xap.github.io/"><img src="./src/site/markdown/xap.png" alt="GigaSpaces XAP" width=122px><br/><br/>GigaSpaces XAP</a></td>
     <td align=center width=134px><a href="https://github.com/openhab/openhab-addons/tree/main/bundles/org.openhab.binding.systeminfo"><img src="./src/site/markdown/openhab.png" alt="OpenHAB Systeminfo Binding" width=122px><br/>OpenHAB Systeminfo Binding</a></td>
     <td align=center width=134px><a href="https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin"><img src="./src/site/markdown/jenkins.png" alt="Jenkins Swarm Plugin" width=122px><br/>Jenkins Swarm Plugin</a></td>
-    <td align=center width=134px><a href="https://ibm-watson-iot.github.io/iot-java/"><img src="./src/site/markdown/watson.png" alt="Java for IBM Watson IoT Platform" width=122px><br/>Java for IBM Watson IoT Platform</a></td>
+    <td align=center width=134px><a href="https://ibm-watson-iot.github.io/iot-java/"><img src="./src/site/markdown/watson.png" alt="IBM Watson IoT Platform" width=122px><br/>IBM Watson IoT Platform</a></td>
     <td align=center width=134px><a href="https://github.com/hawkular/hawkular-agent"><img src="./src/site/markdown/hawkular.png" alt="Hawkular Agent" width=122px><br/>Hawkular Agent</a></td>
     <td align=center width=134px><a href="https://github.com/fulcrumgenomics/dagr"><img src="./src/site/markdown/dagr.png" alt="DAGR" width=122px><br/>DAGR</a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://dynamiasoluciones.com/"><img src="./src/site/markdown/dynamia.png" alt="DynamiaModules SaaS Remote" width=122px><br/>DynamiaModules SaaS Remote</a></td>
+    <td align=center width=134px><a href="https://doris.incubator.apache.org/"><img src="./src/site/markdown/doris.png" alt="Apache Doris" width=122px><br/>Apache Doris</a></td>
+    <td align=center width=134px><a href="https://www.semux.org/"><img src="./src/site/markdown/semux.svg" alt="Semux" width=122px><br/>Semux</a></td>
+    <td align=center width=134px><a href="https://github.com/nosqlbench/nosqlbench"><img src="./src/site/markdown/nosqlbench.png" alt="NoSQLbench" width=122px><br/>NoSQLbench</a></td>
+    <td align=center width=134px><a href="https://github.com/stylefeng/Guns"><img src="./src/site/markdown/guns.png" alt="Guns" width=122px><br/>Guns</a></td>
+    <td align=center width=134px><a href="https://github.com/Tencent/bk-ci"><img src="./src/site/markdown/bkci.png" alt="BlueKing CI" width=122px><br/>BlueKing CI</a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://nsquared.co.nz/files/n2jslee/technical_guide/"><img src="./src/site/markdown/nsquared.png" alt="N-Squared Java SLEE" width=122px><br/>N-Squared Java SLEE</a></td>
+    <td align=center width=134px><a href="https://developer.envisioniot.com/"><img src="./src/site/markdown/enosiot.png" alt="EnOS IoT Hub" width=122px><br/>EnOS IoT Hub</a></td>
+    <td align=center width=134px><a href="https://www.fastchar.com/fc_lib/13"><img src="./src/site/markdown/fastchar.png" alt="FastChar-ExtJs" width=122px><br/>FastChar-ExtJs</a></td>
+    <td align=center width=134px><a href="https://github.com/criteo/garmadon"><br/><img src="./src/site/markdown/garmadon.png" alt="Garmadon" width=122px><br/><br/><br/>Garmadon</a></td>
+    <td align=center width=134px><a href="https://www.hutool.cn/"><br/><img src="./src/site/markdown/hutool.jpg" alt="Hutool" width=122px><br/><br/><br/>Hutool</a></td>  
+    <td align=center width=134px><a href="https://github.com/fizzed/crux"><img src="./src/site/markdown/crux.png" alt="Crux Utilities" width=122px><br/><br/>Crux Utilities</a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://github.com/Krillsson/sys-API"><img src="./src/site/markdown/sysapi.png" alt="sys-API" width=122px><br/>sys-API</a></td>
     <td align=center width=134px><a href="https://www.nexess-solutions.com/fr/produits/application-nexcap-mat/"><img src="./src/site/markdown/nexcap.png" alt="NexCap MAT" width=122px><br/><br/>NexCap MAT</a></td>
