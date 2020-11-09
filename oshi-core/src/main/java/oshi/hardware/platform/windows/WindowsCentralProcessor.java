@@ -32,13 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
-import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
-import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -49,7 +47,6 @@ import oshi.driver.windows.perfmon.ProcessorInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
-import oshi.driver.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
 import oshi.driver.windows.perfmon.SystemInformation;
 import oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.windows.wmi.Win32Processor;
@@ -181,33 +178,20 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] querySystemCpuLoadTicks() {
+        // To get load in processor group scenario, we need perfmon counters, but the
+        // _Total instance is an average rather than total (scaled) number of ticks
+        // which matches GetSystemTimes() results. We can just query the per-processor
+        // ticks and add them up. Calling the get() method gains the benefit of
+        // synchronizing this output with the memoized result of per-processor ticks as
+        // well.
         long[] ticks = new long[TickType.values().length];
-        WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
-        WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
-        WinBase.FILETIME lpUserTime = new WinBase.FILETIME();
-        if (!Kernel32.INSTANCE.GetSystemTimes(lpIdleTime, lpKernelTime, lpUserTime)) {
-            LOG.error("Failed to update system idle/kernel/user times. Error code: {}", Native.getLastError());
-            return ticks;
+        // Sum processor ticks
+        long[][] procTicks = getProcessorCpuLoadTicks();
+        for (int i = 0; i < ticks.length; i++) {
+            for (long[] procTick : procTicks) {
+                ticks[i] += procTick[i];
+            }
         }
-        // IOwait:
-        // Windows does not measure IOWait.
-
-        // IRQ and ticks:
-        // Percent time raw value is cumulative 100NS-ticks
-        // Divide by 10_000 to get milliseconds
-
-        Map<SystemTickCountProperty, Long> valueMap = ProcessorInformation.querySystemCounters();
-        ticks[TickType.IRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTINTERRUPTTIME, 0L)
-                / 10_000L;
-        ticks[TickType.SOFTIRQ.getIndex()] = valueMap.getOrDefault(SystemTickCountProperty.PERCENTDPCTIME, 0L)
-                / 10_000L;
-
-        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;
-        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10_000L
-                - ticks[TickType.IDLE.getIndex()];
-        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10_000L;
-        // Additional decrement to avoid double counting in the total array
-        ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
         return ticks;
     }
 
