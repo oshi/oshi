@@ -1,5 +1,6 @@
 # 5.3.5 (in progress)
 
+* [#1399](https://github.com/oshi/oshi/pull/1399): Fix redundant multiplication in Linux max Freq - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 # 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01)
