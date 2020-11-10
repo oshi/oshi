@@ -43,6 +43,7 @@ import oshi.util.ParseUtil;
 final class LinuxDisplay extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxDisplay.class);
+    private static final String[] XRANDR_VERBOSE = { "xrandr", "--verbose" };
 
     /**
      * Constructor for LinuxDisplay.
@@ -61,7 +62,8 @@ final class LinuxDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays() {
-        List<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
+        // Special handling for X commands, don't use LC_ALL
+        List<String> xrandr = ExecutingCommand.runNative(XRANDR_VERBOSE, null);
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
         if (xrandr.isEmpty()) {
