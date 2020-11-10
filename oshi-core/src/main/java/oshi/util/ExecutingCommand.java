@@ -94,9 +94,30 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs) {
+        return runNative(cmdToRunWithArgs, DEFAULT_ENV);
+    }
+
+    /**
+     * Executes a command on the native command line and returns the result line by
+     * line. This is a convenience method to call
+     * {@link java.lang.Runtime#exec(String[])} and capture the resulting output in
+     * a list of Strings. On Windows, built-in commands not associated with an
+     * executable program may require the strings {@code cmd.exe} and {@code /c} to
+     * be prepended to the array.
+     *
+     * @param cmdToRunWithArgs
+     *            Command to run and args, in an array
+     * @param envp
+     *            array of strings, each element of which has environment variable
+     *            settings in the format name=value, or null if the subprocess
+     *            should inherit the environment of the current process.
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
+     */
+    public static List<String> runNative(String[] cmdToRunWithArgs, String[] envp) {
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(cmdToRunWithArgs, DEFAULT_ENV);
+            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
             return new ArrayList<>(0);
