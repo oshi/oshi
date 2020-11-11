@@ -94,31 +94,52 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
-<span class="fc" id="L97">        Process p = null;</span>
-        try {
-<span class="fc" id="L99">            p = Runtime.getRuntime().exec(cmdToRunWithArgs, DEFAULT_ENV);</span>
-<span class="fc" id="L100">        } catch (SecurityException | IOException e) {</span>
-<span class="fc" id="L101">            LOG.trace(&quot;Couldn't run command {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
-<span class="fc" id="L102">            return new ArrayList&lt;&gt;(0);</span>
-<span class="fc" id="L103">        }</span>
+<span class="fc" id="L97">        return runNative(cmdToRunWithArgs, DEFAULT_ENV);</span>
+    }
 
-<span class="fc" id="L105">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L106">        try (BufferedReader reader = new BufferedReader(</span>
-<span class="fc" id="L107">                new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {</span>
+    /**
+     * Executes a command on the native command line and returns the result line by
+     * line. This is a convenience method to call
+     * {@link java.lang.Runtime#exec(String[])} and capture the resulting output in
+     * a list of Strings. On Windows, built-in commands not associated with an
+     * executable program may require the strings {@code cmd.exe} and {@code /c} to
+     * be prepended to the array.
+     *
+     * @param cmdToRunWithArgs
+     *            Command to run and args, in an array
+     * @param envp
+     *            array of strings, each element of which has environment variable
+     *            settings in the format name=value, or null if the subprocess
+     *            should inherit the environment of the current process.
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
+     */
+    public static List&lt;String&gt; runNative(String[] cmdToRunWithArgs, String[] envp) {
+<span class="fc" id="L118">        Process p = null;</span>
+        try {
+<span class="fc" id="L120">            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);</span>
+<span class="fc" id="L121">        } catch (SecurityException | IOException e) {</span>
+<span class="fc" id="L122">            LOG.trace(&quot;Couldn't run command {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
+<span class="fc" id="L123">            return new ArrayList&lt;&gt;(0);</span>
+<span class="fc" id="L124">        }</span>
+
+<span class="fc" id="L126">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L127">        try (BufferedReader reader = new BufferedReader(</span>
+<span class="fc" id="L128">                new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {</span>
             String line;
-<span class="fc bfc" id="L109" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
-<span class="fc" id="L110">                sa.add(line);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L131">                sa.add(line);</span>
             }
-<span class="fc" id="L112">            p.waitFor();</span>
-<span class="nc" id="L113">        } catch (IOException e) {</span>
-<span class="nc" id="L114">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
-<span class="nc" id="L115">            return new ArrayList&lt;&gt;(0);</span>
-<span class="nc" id="L116">        } catch (InterruptedException ie) {</span>
-<span class="nc" id="L117">            LOG.trace(&quot;Interrupted while reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs),</span>
-<span class="nc" id="L118">                    ie.getMessage());</span>
-<span class="nc" id="L119">            Thread.currentThread().interrupt();</span>
-<span class="fc" id="L120">        }</span>
-<span class="fc" id="L121">        return sa;</span>
+<span class="fc" id="L133">            p.waitFor();</span>
+<span class="nc" id="L134">        } catch (IOException e) {</span>
+<span class="nc" id="L135">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
+<span class="nc" id="L136">            return new ArrayList&lt;&gt;(0);</span>
+<span class="nc" id="L137">        } catch (InterruptedException ie) {</span>
+<span class="nc" id="L138">            LOG.trace(&quot;Interrupted while reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs),</span>
+<span class="nc" id="L139">                    ie.getMessage());</span>
+<span class="nc" id="L140">            Thread.currentThread().interrupt();</span>
+<span class="fc" id="L141">        }</span>
+<span class="fc" id="L142">        return sa;</span>
     }
 
     /**
@@ -129,7 +150,7 @@ public final class ExecutingCommand {
      * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
-<span class="fc" id="L132">        return getAnswerAt(cmd2launch, 0);</span>
+<span class="fc" id="L153">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
@@ -144,12 +165,12 @@ public final class ExecutingCommand {
      *         running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="fc" id="L147">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="fc" id="L168">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="pc bpc" id="L149" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="fc" id="L150">            return sa.get(answerIdx);</span>
+<span class="pc bpc" id="L170" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="fc" id="L171">            return sa.get(answerIdx);</span>
         }
-<span class="fc" id="L152">        return &quot;&quot;;</span>
+<span class="fc" id="L173">        return &quot;&quot;;</span>
     }
 
 }
