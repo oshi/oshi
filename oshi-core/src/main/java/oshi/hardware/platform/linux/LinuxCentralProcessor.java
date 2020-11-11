@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.LongStream;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Lshw;
@@ -202,6 +203,10 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     public long[] querySystemCpuLoadTicks() {
         // convert the Linux Jiffies to Milliseconds.
         long[] ticks = CpuStat.getSystemCpuLoadTicks();
+        // In rare cases, /proc/stat reading fails. If so, try again.
+        if (LongStream.of(ticks).sum() == 0) {
+            ticks = CpuStat.getSystemCpuLoadTicks();
+        }
         long hz = LinuxOperatingSystem.getHz();
         for (int i = 0; i < ticks.length; i++) {
             ticks[i] = ticks[i] * 1000L / hz;
@@ -301,6 +306,12 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
+        // In rare cases, /proc/stat reading fails. If so, try again.
+        // In theory we should check all of them, but on failure we can expect all 0's
+        // so we only need to check for processor 0
+        if (LongStream.of(ticks[0]).sum() == 0) {
+            ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
+        }
         // convert the Linux Jiffies to Milliseconds.
         long hz = LinuxOperatingSystem.getHz();
         for (int i = 0; i < ticks.length; i++) {
