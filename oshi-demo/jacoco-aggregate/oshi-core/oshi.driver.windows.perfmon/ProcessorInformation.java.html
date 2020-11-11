@@ -79,74 +79,48 @@ public final class ProcessorInformation {
     }
 
     /**
-     * System performance counters
-     */
-<span class="nc" id="L84">    public enum SystemTickCountProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L85">        PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, &quot;% DPC Time&quot;), //</span>
-<span class="nc" id="L86">        PERCENTINTERRUPTTIME(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Interrupt Time&quot;);</span>
-
-        private final String instance;
-        private final String counter;
-
-<span class="nc" id="L91">        SystemTickCountProperty(String instance, String counter) {</span>
-<span class="nc" id="L92">            this.instance = instance;</span>
-<span class="nc" id="L93">            this.counter = counter;</span>
-<span class="nc" id="L94">        }</span>
-
-        @Override
-        public String getInstance() {
-<span class="nc" id="L98">            return instance;</span>
-        }
-
-        @Override
-        public String getCounter() {
-<span class="nc" id="L103">            return counter;</span>
-        }
-    }
-
-    /**
      * System interrupts counters
      */
-<span class="nc" id="L110">    public enum InterruptsProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L111">        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
+<span class="nc" id="L84">    public enum InterruptsProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L85">        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
 
         private final String instance;
         private final String counter;
 
-<span class="nc" id="L116">        InterruptsProperty(String instance, String counter) {</span>
-<span class="nc" id="L117">            this.instance = instance;</span>
-<span class="nc" id="L118">            this.counter = counter;</span>
-<span class="nc" id="L119">        }</span>
+<span class="nc" id="L90">        InterruptsProperty(String instance, String counter) {</span>
+<span class="nc" id="L91">            this.instance = instance;</span>
+<span class="nc" id="L92">            this.counter = counter;</span>
+<span class="nc" id="L93">        }</span>
 
         @Override
         public String getInstance() {
-<span class="nc" id="L123">            return instance;</span>
+<span class="nc" id="L97">            return instance;</span>
         }
 
         @Override
         public String getCounter() {
-<span class="nc" id="L128">            return counter;</span>
+<span class="nc" id="L102">            return counter;</span>
         }
     }
 
     /**
      * Processor Frequency counters. Requires Win7 or greater
      */
-<span class="nc" id="L135">    public enum ProcessorFrequencyProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L109">    public enum ProcessorFrequencyProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L137">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+<span class="nc" id="L111">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
         // Remaining elements define counters
-<span class="nc" id="L139">        PERCENTOFMAXIMUMFREQUENCY(&quot;% of Maximum Frequency&quot;);</span>
+<span class="nc" id="L113">        PERCENTOFMAXIMUMFREQUENCY(&quot;% of Maximum Frequency&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L143">        ProcessorFrequencyProperty(String counter) {</span>
-<span class="nc" id="L144">            this.counter = counter;</span>
-<span class="nc" id="L145">        }</span>
+<span class="nc" id="L117">        ProcessorFrequencyProperty(String counter) {</span>
+<span class="nc" id="L118">            this.counter = counter;</span>
+<span class="nc" id="L119">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L149">            return counter;</span>
+<span class="nc" id="L123">            return counter;</span>
         }
     }
 
@@ -159,20 +133,10 @@ public final class ProcessorInformation {
      * @return Performance Counters for processors.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt;&gt; queryProcessorCounters() {
-<span class="nc bnc" id="L162" title="All 2 branches missed.">        return IS_WIN7_OR_GREATER ? PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class,</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        return IS_WIN7_OR_GREATER ? PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class,</span>
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL)
-<span class="nc" id="L164">                : PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class, PROCESSOR,</span>
+<span class="nc" id="L138">                : PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class, PROCESSOR,</span>
                         WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NOT_NAME_TOTAL);
-    }
-
-    /**
-     * Returns system performance counters.
-     *
-     * @return Performance Counters for the total of all processors.
-     */
-    public static Map&lt;SystemTickCountProperty, Long&gt; querySystemCounters() {
-<span class="nc" id="L174">        return PerfCounterQuery.queryValues(SystemTickCountProperty.class, PROCESSOR,</span>
-                WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
     }
 
     /**
@@ -181,7 +145,7 @@ public final class ProcessorInformation {
      * @return Interrupts counter for the total of all processors.
      */
     public static Map&lt;InterruptsProperty, Long&gt; queryInterruptCounters() {
-<span class="nc" id="L184">        return PerfCounterQuery.queryValues(InterruptsProperty.class, PROCESSOR,</span>
+<span class="nc" id="L148">        return PerfCounterQuery.queryValues(InterruptsProperty.class, PROCESSOR,</span>
                 WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
     }
 
@@ -191,7 +155,7 @@ public final class ProcessorInformation {
      * @return Processor frequency counter for each processor.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt;&gt; queryFrequencyCounters() {
-<span class="nc" id="L194">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,</span>
+<span class="nc" id="L158">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,</span>
                 WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 }
