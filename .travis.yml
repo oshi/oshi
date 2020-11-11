@@ -62,9 +62,9 @@ after_success:
 # Put longest running job in first group of 5
 jobs:
   include:
-    - name: "Linux JDK11"
+    - name: "Linux JDK15"
       os: linux
-      jdk: openjdk11
+      jdk: openjdk15
     - name: "Mac JDK8"
       if: branch = master
       os: osx
@@ -72,7 +72,7 @@ jobs:
     - name: "Mac JDK14"
       if: branch = master
       os: osx
-      osx_image: xcode12
+      osx_image: xcode12.2
     - name: "Windows JDK 8"
       if: branch = master
       os: windows
@@ -81,18 +81,13 @@ jobs:
       if: branch = master
       os: linux
       arch: arm64
-    - name: "Linux JDK15"
-      if: branch = master
-      os: linux
-      jdk: openjdk15
-      dist: bionic
     - name: "Linux JDK16 EA"
       if: branch = master
       os: linux
       jdk: openjdk16
       dist: bionic
 # Uncomment if external issue
-  allow_failures:
+#  allow_failures:
 #    - name: "Linux JDK16 EA"
 #      os: linux
 #      jdk: openjdk16

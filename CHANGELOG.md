@@ -1,11 +1,8 @@
-# 5.3.5 (in progress)
+# 5.3.6 (in progress)
 
-* [#1399](https://github.com/oshi/oshi/pull/1399): Fix redundant multiplication in Linux max Freq - [@dbwiddis](https://github.com/dbwiddis).
-* [#1400](https://github.com/oshi/oshi/pull/1400): Make Windows System CPU usage Process-group aware - [@dbwiddis](https://github.com/dbwiddis).
-* [#1402](https://github.com/oshi/oshi/pull/1402): Don't use localized environment for xrandr - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
-# 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01)
+# 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11)
 
 ##### New Features
 * [#1350](https://github.com/oshi/oshi/pull/1350): Optionally list loopback and virtual network interfaces - [@zalintyre](https://github.com/zalintyre).
@@ -23,6 +20,9 @@
 * [#1382](https://github.com/oshi/oshi/pull/1382): Fix exception on 32-bit Windows thread stats - [@dbwiddis](https://github.com/dbwiddis).
 * [#1388](https://github.com/oshi/oshi/pull/1388): Fix service listing with systemd 245 and newer - [@Szwendacz99](https://github.com/Szwendacz99).
 * [#1389](https://github.com/oshi/oshi/pull/1389): Vendor frequency from non-Intel chips - [@dbwiddis](https://github.com/dbwiddis).
+* [#1399](https://github.com/oshi/oshi/pull/1399): Fix redundant multiplication in Linux max Freq - [@dbwiddis](https://github.com/dbwiddis).
+* [#1400](https://github.com/oshi/oshi/pull/1400): Make Windows System CPU usage Process-group aware - [@dbwiddis](https://github.com/dbwiddis).
+* [#1402](https://github.com/oshi/oshi/pull/1402): Don't use localized environment for xrandr - [@dbwiddis](https://github.com/dbwiddis).
 
 # 4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16), 4.9.5 / 5.2.5 (2020-08-30)
 

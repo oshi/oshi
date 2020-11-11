@@ -39,20 +39,23 @@ import oshi.util.tuples.Pair;
  * Uses OSHI to attempt to identify which OSFileStore, HWDiskStore, and
  * HWPartition a file resides on. Intended as a demonstration, not intended to
  * be used in production code.
+ * <p>
+ * In pariticular, this won't work in all cases, particularly with logical
+ * partitions.
  */
 public class DiskStoreForPath {
     /**
      * Main method
-     * 
+     *
      * @param args
      *            Optional file path
      * @throws URISyntaxException
+     *             on invalid path
      */
     public static void main(String[] args) throws URISyntaxException {
         // Use the arg as a file path or get this class's path
         String filePath = args.length > 0 ? args[0]
-                : new File(
-                        DiskStoreForPath.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                : new File(DiskStoreForPath.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                         .getPath();
         System.out.println("Searching stores for path: " + filePath);
 
