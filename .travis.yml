@@ -62,9 +62,9 @@ after_success:
 # Put longest running job in first group of 5
 jobs:
   include:
-    - name: "Linux JDK15"
+    - name: "Linux JDK11"
       os: linux
-      jdk: openjdk15
+      jdk: openjdk11
     - name: "Mac JDK8"
       if: branch = master
       os: osx
