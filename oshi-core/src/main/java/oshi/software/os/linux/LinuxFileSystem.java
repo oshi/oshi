@@ -85,7 +85,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) as key and also as volumes as key
                     uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());
-                    if (volumeDeviceMap.get(uuid.getCanonicalPath()) != null) {
+                    if (volumeDeviceMap.containsKey(uuid.getCanonicalPath())) {
                         uuidMap.put(volumeDeviceMap.get(uuid.getCanonicalPath()), uuid.getName().toLowerCase());
                     }
                 } catch (IOException e) {
