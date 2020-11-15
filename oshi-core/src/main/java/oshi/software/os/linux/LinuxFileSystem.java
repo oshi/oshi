@@ -65,14 +65,28 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
+        //Map of volume with device path as key
+        Map<String, String> volumeDeviceMap = new HashMap<>();
+        File volumes = new File("/dev/mapper");
+        if (volumes.listFiles() != null) {
+            for (File volume : volumes.listFiles()) {
+                try {
+                    volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());
+                } catch (IOException e) {
+                    LOG.error("Couldn't get canonical path for {}. {}", volume.getName(), e.getMessage());
+                }
+            }
+        }
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
         File uuidDir = new File("/dev/disk/by-uuid");
         if (uuidDir.listFiles() != null) {
             for (File uuid : uuidDir.listFiles()) {
                 try {
-                    // Store UUID as value with path (e.g., /dev/sda1) as key
+                    // Store UUID as value with path (e.g., /dev/sda1) as key and also as volumes as key
                     uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());
+                    if (volumeDeviceMap.get(uuid.getCanonicalPath()) != null)
+                        uuidMap.put(volumeDeviceMap.get(uuid.getCanonicalPath()), uuid.getName().toLowerCase());
                 } catch (IOException e) {
                     LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
                 }
