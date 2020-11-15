@@ -84,9 +84,10 @@ public class LinuxFileSystem extends AbstractFileSystem {
             for (File uuid : uuidDir.listFiles()) {
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) as key and also as volumes as key
-                    uuidMap.put(uuid.getCanonicalPath(), uuid.getName().toLowerCase());
-                    if (volumeDeviceMap.containsKey(uuid.getCanonicalPath())) {
-                        uuidMap.put(volumeDeviceMap.get(uuid.getCanonicalPath()), uuid.getName().toLowerCase());
+                    String canonicalPath = uuid.getCanonicalPath();
+                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase());
+                    if (volumeDeviceMap.containsKey(canonicalPath)) {
+                        uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase());
                     }
                 } catch (IOException e) {
                     LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
