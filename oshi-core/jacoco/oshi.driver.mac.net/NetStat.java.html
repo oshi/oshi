@@ -101,10 +101,10 @@ public final class NetStat {
 <span class="nc" id="L101">                if2m.read();</span>
 <span class="nc bnc" id="L102" title="All 4 branches missed.">                if (index &lt; 0 || index == if2m.ifm_index) {</span>
 <span class="nc" id="L103">                    data.put((int) if2m.ifm_index,</span>
-                            new IFdata(if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets, if2m.ifm_data.ifi_ipackets,
-                                    if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors,
-                                    if2m.ifm_data.ifi_ierrors, if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops,
-                                    if2m.ifm_data.ifi_baudrate, now));
+                            new IFdata(0xff &amp; if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets,
+                                    if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes,
+                                    if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors, if2m.ifm_data.ifi_collisions,
+                                    if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate, now));
 <span class="nc bnc" id="L108" title="All 2 branches missed.">                    if (index &gt;= 0) {</span>
 <span class="nc" id="L109">                        return data;</span>
                     }
