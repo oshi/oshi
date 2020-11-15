@@ -3,6 +3,7 @@
 * [#1409](https://github.com/oshi/oshi/pull/1409): Parse processor name on Orange Pi - [@dbwiddis](https://github.com/dbwiddis).
 * [#1410](https://github.com/oshi/oshi/pull/1410): Adapt to macOS 11 version reverse compatibility - [@dbwiddis](https://github.com/dbwiddis).
 * [#1411](https://github.com/oshi/oshi/pull/1411): Add mapping of device and volume to be used for getting uuid - [@tausiflife](https://github.com/tausiflife).
+* [#1413](https://github.com/oshi/oshi/pull/1413): Handle macOS unsigned byte ifTypes - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 # 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11)
