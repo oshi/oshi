@@ -97,9 +97,21 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     public MacOperatingSystem() {
-        this.osXVersion = System.getProperty("os.version");
-        this.major = ParseUtil.getFirstIntValue(this.osXVersion);
-        this.minor = ParseUtil.getNthIntValue(this.osXVersion, 2);
+        String version = System.getProperty("os.version");
+        int verMajor = ParseUtil.getFirstIntValue(version);
+        int verMinor = ParseUtil.getNthIntValue(version, 2);
+        // Big Sur (11.x) may return 10.16
+        if (verMajor == 10 && verMinor > 15) {
+            String swVers = ExecutingCommand.getFirstAnswer("sw_vers -productVersion");
+            if (!swVers.isEmpty()) {
+                version = swVers;
+            }
+            verMajor = ParseUtil.getFirstIntValue(version);
+            verMinor = ParseUtil.getNthIntValue(version, 2);
+        }
+        this.osXVersion = version;
+        this.major = verMajor;
+        this.minor = verMinor;
         // Set max processes
         this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
     }
@@ -111,14 +123,15 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        String family = this.major == 10 && this.minor >= 12 ? "macOS" : System.getProperty("os.name");
+        String family = this.major > 10 || (this.major == 10 && this.minor >= 12) ? "macOS"
+                : System.getProperty("os.name");
         String codeName = parseCodeName();
         String buildNumber = SysctlUtil.sysctl("kern.osversion", "");
         return new FamilyVersionInfo(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
     }
 
     private String parseCodeName() {
-        if (this.major == 10) {
+        if (this.major >= 10) {
             Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
             return verProps.getProperty(this.major + "." + this.minor);
         }
