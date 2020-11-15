@@ -82,6 +82,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 cpuVendor = splitLine[1];
                 break;
             case "model name":
+            case "Processor": // for Orange Pi
                 cpuName = splitLine[1];
                 break;
             case "flags":
