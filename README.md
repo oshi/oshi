@@ -72,6 +72,8 @@ CentralProcessor cpu = hal.getProcessor();
 
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-core/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://oshi.github.io/oshi/apidocs/oshi/util/GlobalConfig.html) class. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
 
+See the [PERFORMANCE](PERFORMANCE.md) document for general CPU/Memory tradeoffs and specific Windows (WMI) recommendations depending upon your application.
+
 The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
 
 Note: OSHI uses the latest version of [JNA](https://github.com/java-native-access/jna). If you experience issues with `NoClassDefFound` errors for JNA artifacts, it is likely you have another dependency in your project which relies on an earlier version. Consider one or more of the following steps to resolve the conflict:

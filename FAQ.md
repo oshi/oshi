@@ -22,16 +22,6 @@ Does OSHI support Java Platform Management System (JPMS) modules (a.k.a., Jigsaw
 ========
 OSHI publishes an `Automatic-Module-Name` of `com.github.oshi` in its manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to make `oshi-core` fully modular.  Modularization is being considered for the next major API rewrite and could be considered for an `oshi-jpms` artifact with well-defined requirements.  If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
 
-I'm trying to optimize performance. What CPU/Memory trade-offs are key?
-========
-OSHI avoids caching large amount of information and the use of `static` variables, leaving caching to the user.  Memoized suppliers are used for in many classes to avoid repeated operating system calls, but these will be garbage collected with their containing classes.  Users with memory constraints should consider periodically creating a new `SystemInfo` object to allow this memory recycling.
-
-Many of the individual objects returned by lists, such as `OSProcess`, `NetworkIF`, `OSFileStore`, and others, have an `updateAttributes()` method that operates only on that object. These are intended for use primarily if that individual process is the only one being updated, but in many cases gather data for the entire list.  Users updating multiple objects in a list should simply re-query the list and correlate the results in their own application.
-
-On Windows, fetching command lines requires WMI overhead. By default, each process command line will execute a separate query. For better CPU performance, it is possible to query all command lines and cache the results, but this must be enabled in the configuration file, or by calling `GlobalConfig.set(WindowsOSProcess.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, true);` shortly after startup.
-
-Updates of disks, filestores, and USB devices tend to be slower than other native calls, and should be polled less frequently.
-
 Is OSHI Thread Safe?
 ========
 OSHI 5.X is thread safe with the exceptions noted below. `@Immutable`, `@ThreadSafe`, and `@NotThreadSafe` document
