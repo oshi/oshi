@@ -93,7 +93,6 @@ public class WmiQueryHandler {
             return customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);
         } catch (NoSuchMethodException | SecurityException e) {
             LOG.error("Failed to find or access a no-arg constructor for {}", customClass);
-            e.printStackTrace();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             LOG.error("Failed to create a new instance of {}", customClass);

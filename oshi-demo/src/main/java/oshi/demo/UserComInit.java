@@ -26,7 +26,6 @@ package oshi.demo;
 import com.sun.jna.platform.win32.COM.COMException; // NOSONAR squid:S1191
 
 import oshi.driver.windows.wmi.Win32OperatingSystem;
-import oshi.driver.windows.wmi.Win32USBController;
 import oshi.util.platform.windows.WmiQueryHandler;
 
 /**
