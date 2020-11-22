@@ -43,7 +43,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.GlobalConfig;
 
 /**
- * Utility to handle WMI Queries
+ * Utility to handle WMI Queries. Designed to be extended with user-customized
+ * behavior.
  */
 @ThreadSafe
 public class WmiQueryHandler {
@@ -59,10 +60,10 @@ public class WmiQueryHandler {
     }
 
     // Timeout for WMI queries
-    private int wmiTimeout = globalTimeout;
+    protected int wmiTimeout = globalTimeout;
 
     // Cache failed wmi classes
-    private final Set<String> failedWmiClassNames = new HashSet<>();
+    protected final Set<String> failedWmiClassNames = new HashSet<>();
 
     // Preferred threading model
     private int comThreading = Ole32.COINIT_MULTITHREADED;
@@ -208,13 +209,12 @@ public class WmiQueryHandler {
     }
 
     /**
-     * <p>
-     * initCOM.
-     * </p>
+     * Initializes COM with a specific threading model
      *
      * @param coInitThreading
-     *            a int.
-     * @return a boolean.
+     *            The threading model
+     * @return True if COM was initialized and needs to be uninitialized, false
+     *         otherwise
      */
     protected boolean initCOM(int coInitThreading) {
         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
