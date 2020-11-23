@@ -71,38 +71,67 @@ public final class Who {
      */
     public static synchronized List<OSSession> queryWho() {
         List<OSSession> whoList = new ArrayList<>();
-        List<String> who = ExecutingCommand.runNative("who");
-        for (String s : who) {
-            Matcher m = WHO_FORMAT_LINUX.matcher(s);
-            if (m.matches()) {
-                try {
-                    whoList.add(new OSSession(m.group(1), m.group(2),
-                            LocalDateTime.parse(m.group(3) + " " + m.group(4), WHO_DATE_FORMAT_LINUX)
-                                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                            m.group(5) == null ? Constants.UNKNOWN : m.group(5)));
-                } catch (DateTimeParseException | NullPointerException e) {
-                    // shouldn't happen if regex matches and OS is producing sensible dates
-                }
-            } else {
-                m = WHO_FORMAT_UNIX.matcher(s);
-                if (m.matches()) {
-                    try {
-                        // Missing year, parse date time with current year
-                        LocalDateTime login = LocalDateTime.parse(m.group(3) + " " + m.group(4) + " " + m.group(5),
-                                WHO_DATE_FORMAT_UNIX);
-                        // If this date is in the future, subtract a year
-                        if (login.isAfter(LocalDateTime.now())) {
-                            login = login.minus(1, ChronoUnit.YEARS);
-                        }
-                        long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-                        whoList.add(
-                                new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? "" : m.group(6)));
-                    } catch (DateTimeParseException | NullPointerException e) {
-                        // shouldn't happen if regex matches and OS is producing sensible dates
-                    }
-                }
+        boolean useUnix = false;
+        for (String s : ExecutingCommand.runNative("who")) {
+            if (useUnix || !matchLinux(whoList, s)) {
+                useUnix = matchUnix(whoList, s);
             }
         }
         return whoList;
+    }
+
+    /**
+     * Attempt to match Linux WHO format and add to the list
+     *
+     * @param whoList
+     *            the list to add to
+     * @param s
+     *            the string to match
+     * @return true if successful, false otherwise
+     */
+    private static boolean matchLinux(List<OSSession> whoList, String s) {
+        Matcher m = WHO_FORMAT_LINUX.matcher(s);
+        if (m.matches()) {
+            try {
+                whoList.add(new OSSession(m.group(1), m.group(2),
+                        LocalDateTime.parse(m.group(3) + " " + m.group(4), WHO_DATE_FORMAT_LINUX)
+                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                        m.group(5) == null ? Constants.UNKNOWN : m.group(5)));
+                return true;
+            } catch (DateTimeParseException | NullPointerException e) {
+                // shouldn't happen if regex matches and OS is producing sensible dates
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Attempt to match Unix WHO format and add to the list
+     *
+     * @param whoList
+     *            the list to add to
+     * @param s
+     *            the string to match
+     * @return true if successful, false otherwise
+     */
+    private static boolean matchUnix(List<OSSession> whoList, String s) {
+        Matcher m = WHO_FORMAT_UNIX.matcher(s);
+        if (m.matches()) {
+            try {
+                // Missing year, parse date time with current year
+                LocalDateTime login = LocalDateTime.parse(m.group(3) + " " + m.group(4) + " " + m.group(5),
+                        WHO_DATE_FORMAT_UNIX);
+                // If this date is in the future, subtract a year
+                if (login.isAfter(LocalDateTime.now())) {
+                    login = login.minus(1, ChronoUnit.YEARS);
+                }
+                long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                whoList.add(new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? "" : m.group(6)));
+                return true;
+            } catch (DateTimeParseException | NullPointerException e) {
+                // shouldn't happen if regex matches and OS is producing sensible dates
+            }
+        }
+        return false;
     }
 }

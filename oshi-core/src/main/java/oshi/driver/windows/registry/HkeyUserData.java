@@ -29,9 +29,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Advapi32Util.Account; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Advapi32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.Advapi32Util.InfoKey;
-import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg;
@@ -46,6 +46,7 @@ import oshi.software.os.OSSession;
 @ThreadSafe
 public final class HkeyUserData {
 
+    private static final String PATH_DELIMITER = "\\";
     private static final String DEFAULT_DEVICE = "Console";
     private static final String VOLATILE_ENV_SUBKEY = "Volatile Environment";
     private static final String CLIENTNAME = "CLIENTNAME";
@@ -66,14 +67,14 @@ public final class HkeyUserData {
                     String device = DEFAULT_DEVICE;
                     String host = a.domain; // temporary default
                     long loginTime = 0;
-                    String keyPath = sidKey + "\\" + VOLATILE_ENV_SUBKEY;
+                    String keyPath = sidKey + PATH_DELIMITER + VOLATILE_ENV_SUBKEY;
                     if (Advapi32Util.registryKeyExists(WinReg.HKEY_USERS, keyPath)) {
                         HKEY hKey = Advapi32Util.registryGetKey(WinReg.HKEY_USERS, keyPath, WinNT.KEY_READ).getValue();
                         // InfoKey write time is user login time
                         InfoKey info = Advapi32Util.registryQueryInfoKey(hKey, 0);
                         loginTime = info.lpftLastWriteTime.toTime();
                         for (String subKey : Advapi32Util.registryGetKeys(hKey)) {
-                            String subKeyPath = keyPath + "\\" + subKey;
+                            String subKeyPath = keyPath + PATH_DELIMITER + subKey;
                             // Check for session and client name
                             if (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, SESSIONNAME)) {
                                 String session = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,

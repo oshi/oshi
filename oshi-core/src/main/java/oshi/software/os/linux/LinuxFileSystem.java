@@ -37,7 +37,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.LibC;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -65,7 +65,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
-        //Map of volume with device path as key
+        // Map of volume with device path as key
         Map<String, String> volumeDeviceMap = new HashMap<>();
         File devMapper = new File("/dev/mapper");
         File[] volumes = devMapper.listFiles();
@@ -85,7 +85,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
         if (uuids != null) {
             for (File uuid : uuids) {
                 try {
-                    // Store UUID as value with path (e.g., /dev/sda1) as key and also as volumes as key
+                    // Store UUID as value with path (e.g., /dev/sda1) and volumes as key
                     String canonicalPath = uuid.getCanonicalPath();
                     uuidMap.put(canonicalPath, uuid.getName().toLowerCase());
                     if (volumeDeviceMap.containsKey(canonicalPath)) {
