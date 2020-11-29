@@ -38,9 +38,6 @@ import oshi.util.platform.windows.WmiUtil;
 /**
  * Query handler class that overrides WMI query method assuming COM is already
  * initialized by the user.
- * <p>
- *
- * @inheritDoc
  */
 public class WmiNoComInitQueryHandler extends WmiQueryHandler {
 
