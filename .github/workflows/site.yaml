@@ -52,6 +52,6 @@ jobs:
         with:
           SSH: true
           BRANCH: gh-pages
-          FOLDER: Source/JNA/target/staging
+          FOLDER: target/staging
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
