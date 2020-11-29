@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2020 oshi</copyright>
     <item>
-      <title>File: 16,
-             Errors: 312,
+      <title>File: 18,
+             Errors: 337,
              Warnings: 0,
              Infos: 0
       </title>
@@ -70,6 +70,20 @@ under the License.
                 </td>
                 <td>
                   30
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.UserComInit.java">oshi/demo/UserComInit.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  11
                 </td>
               </tr>
                           <tr>
@@ -130,20 +144,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.OshiGui.java">oshi/demo/OshiGui.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  33
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.OshiJPanel.java">oshi/demo/gui/OshiJPanel.java</a>
                 </td>
                 <td>
@@ -154,6 +154,20 @@ under the License.
                 </td>
                 <td>
                   11
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.OshiGui.java">oshi/demo/OshiGui.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  33
                 </td>
               </tr>
                           <tr>
@@ -210,6 +224,20 @@ under the License.
                 </td>
                 <td>
                   16
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.WmiNoComInitQueryHandler.java">oshi/demo/WmiNoComInitQueryHandler.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  14
                 </td>
               </tr>
                           <tr>

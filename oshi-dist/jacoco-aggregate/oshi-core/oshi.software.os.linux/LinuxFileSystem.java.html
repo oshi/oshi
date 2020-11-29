@@ -37,7 +37,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.LibC;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -65,7 +65,7 @@ import oshi.util.platform.linux.ProcPath;
 
     @Override
     public List&lt;OSFileStore&gt; getFileStores(boolean localOnly) {
-        //Map of volume with device path as key
+        // Map of volume with device path as key
 <span class="nc" id="L69">        Map&lt;String, String&gt; volumeDeviceMap = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L70">        File devMapper = new File(&quot;/dev/mapper&quot;);</span>
 <span class="nc" id="L71">        File[] volumes = devMapper.listFiles();</span>
@@ -85,7 +85,7 @@ import oshi.util.platform.linux.ProcPath;
 <span class="nc bnc" id="L85" title="All 2 branches missed.">        if (uuids != null) {</span>
 <span class="nc bnc" id="L86" title="All 2 branches missed.">            for (File uuid : uuids) {</span>
                 try {
-                    // Store UUID as value with path (e.g., /dev/sda1) as key and also as volumes as key
+                    // Store UUID as value with path (e.g., /dev/sda1) and volumes as key
 <span class="nc" id="L89">                    String canonicalPath = uuid.getCanonicalPath();</span>
 <span class="nc" id="L90">                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase());</span>
 <span class="nc bnc" id="L91" title="All 2 branches missed.">                    if (volumeDeviceMap.containsKey(canonicalPath)) {</span>

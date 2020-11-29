@@ -43,38 +43,39 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.GlobalConfig;
 
 /**
- * Utility to handle WMI Queries
+ * Utility to handle WMI Queries. Designed to be extended with user-customized
+ * behavior.
  */
 @ThreadSafe
-<span class="nc" id="L49">public class WmiQueryHandler {</span>
+<span class="nc" id="L50">public class WmiQueryHandler {</span>
 
-<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);</span>
+<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);</span>
 
-<span class="nc" id="L53">    private static int globalTimeout = GlobalConfig.get(&quot;oshi.util.wmi.timeout&quot;, -1);</span>
+<span class="nc" id="L54">    private static int globalTimeout = GlobalConfig.get(&quot;oshi.util.wmi.timeout&quot;, -1);</span>
 
     static {
-<span class="nc bnc" id="L56" title="All 4 branches missed.">        if (globalTimeout == 0 || globalTimeout &lt; -1) {</span>
-<span class="nc" id="L57">            throw new GlobalConfig.PropertyException(&quot;oshi.util.wmi.timeout&quot;);</span>
+<span class="nc bnc" id="L57" title="All 4 branches missed.">        if (globalTimeout == 0 || globalTimeout &lt; -1) {</span>
+<span class="nc" id="L58">            throw new GlobalConfig.PropertyException(&quot;oshi.util.wmi.timeout&quot;);</span>
         }
     }
 
     // Timeout for WMI queries
-<span class="nc" id="L62">    private int wmiTimeout = globalTimeout;</span>
+<span class="nc" id="L63">    protected int wmiTimeout = globalTimeout;</span>
 
     // Cache failed wmi classes
-<span class="nc" id="L65">    private final Set&lt;String&gt; failedWmiClassNames = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L66">    protected final Set&lt;String&gt; failedWmiClassNames = new HashSet&lt;&gt;();</span>
 
     // Preferred threading model
-<span class="nc" id="L68">    private int comThreading = Ole32.COINIT_MULTITHREADED;</span>
+<span class="nc" id="L69">    private int comThreading = Ole32.COINIT_MULTITHREADED;</span>
 
     // Track initialization of Security
-<span class="nc" id="L71">    private boolean securityInitialized = false;</span>
+<span class="nc" id="L72">    private boolean securityInitialized = false;</span>
 
-<span class="nc" id="L73">    private static final Class&lt;?&gt;[] EMPTY_CLASS_ARRAY = new Class&lt;?&gt;[0];</span>
-<span class="nc" id="L74">    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];</span>
+<span class="nc" id="L74">    private static final Class&lt;?&gt;[] EMPTY_CLASS_ARRAY = new Class&lt;?&gt;[0];</span>
+<span class="nc" id="L75">    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];</span>
 
     // Factory to create this or a subclass
-<span class="nc" id="L77">    private static Class&lt;? extends WmiQueryHandler&gt; customClass = null;</span>
+<span class="nc" id="L78">    private static Class&lt;? extends WmiQueryHandler&gt; customClass = null;</span>
 
     /**
      * Factory method to create an instance of this class. To override this class,
@@ -85,18 +86,18 @@ import oshi.util.GlobalConfig;
      *         {@link #setInstanceClass(Class)}
      */
     public static synchronized WmiQueryHandler createInstance() {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (customClass == null) {</span>
-<span class="nc" id="L89">            return new WmiQueryHandler();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (customClass == null) {</span>
+<span class="nc" id="L90">            return new WmiQueryHandler();</span>
         }
         try {
-<span class="nc" id="L92">            return customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);</span>
-<span class="nc" id="L93">        } catch (NoSuchMethodException | SecurityException e) {</span>
-<span class="nc" id="L94">            LOG.error(&quot;Failed to find or access a no-arg constructor for {}&quot;, customClass);</span>
-<span class="nc" id="L95">        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException</span>
+<span class="nc" id="L93">            return customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);</span>
+<span class="nc" id="L94">        } catch (NoSuchMethodException | SecurityException e) {</span>
+<span class="nc" id="L95">            LOG.error(&quot;Failed to find or access a no-arg constructor for {}&quot;, customClass);</span>
+<span class="nc" id="L96">        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException</span>
                 | InvocationTargetException e) {
-<span class="nc" id="L97">            LOG.error(&quot;Failed to create a new instance of {}&quot;, customClass);</span>
-<span class="nc" id="L98">        }</span>
-<span class="nc" id="L99">        return null;</span>
+<span class="nc" id="L98">            LOG.error(&quot;Failed to create a new instance of {}&quot;, customClass);</span>
+<span class="nc" id="L99">        }</span>
+<span class="nc" id="L100">        return null;</span>
     }
 
     /**
@@ -107,8 +108,8 @@ import oshi.util.GlobalConfig;
      *            The class to instantiate with {@link #createInstance()}.
      */
     public static synchronized void setInstanceClass(Class&lt;? extends WmiQueryHandler&gt; instanceClass) {
-<span class="nc" id="L110">        customClass = instanceClass;</span>
-<span class="nc" id="L111">    }</span>
+<span class="nc" id="L111">        customClass = instanceClass;</span>
+<span class="nc" id="L112">    }</span>
 
     /**
      * Query WMI for values, with no timeout.
@@ -123,41 +124,41 @@ import oshi.util.GlobalConfig;
      */
     public &lt;T extends Enum&lt;T&gt;&gt; WbemcliUtil.WmiResult&lt;T&gt; queryWMI(WbemcliUtil.WmiQuery&lt;T&gt; query) {
 
-<span class="nc" id="L126">        WbemcliUtil.WmiResult&lt;T&gt; result = WbemcliUtil.INSTANCE.new WmiResult&lt;&gt;(query.getPropertyEnum());</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (failedWmiClassNames.contains(query.getWmiClassName())) {</span>
-<span class="nc" id="L128">            return result;</span>
+<span class="nc" id="L127">        WbemcliUtil.WmiResult&lt;T&gt; result = WbemcliUtil.INSTANCE.new WmiResult&lt;&gt;(query.getPropertyEnum());</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (failedWmiClassNames.contains(query.getWmiClassName())) {</span>
+<span class="nc" id="L129">            return result;</span>
         }
-<span class="nc" id="L130">        boolean comInit = false;</span>
+<span class="nc" id="L131">        boolean comInit = false;</span>
         try {
-<span class="nc" id="L132">            comInit = initCOM();</span>
-<span class="nc" id="L133">            result = query.execute(wmiTimeout);</span>
-<span class="nc" id="L134">        } catch (COMException e) {</span>
+<span class="nc" id="L133">            comInit = initCOM();</span>
+<span class="nc" id="L134">            result = query.execute(wmiTimeout);</span>
+<span class="nc" id="L135">        } catch (COMException e) {</span>
             // Ignore any exceptions with OpenHardwareMonitor
-<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())) {</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();</span>
-<span class="nc bnc" id="L138" title="All 4 branches missed.">                switch (hresult) {</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())) {</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();</span>
+<span class="nc bnc" id="L139" title="All 4 branches missed.">                switch (hresult) {</span>
                 case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-<span class="nc" id="L140">                    LOG.warn(&quot;COM exception: Invalid Namespace {}&quot;, query.getNameSpace());</span>
-<span class="nc" id="L141">                    break;</span>
+<span class="nc" id="L141">                    LOG.warn(&quot;COM exception: Invalid Namespace {}&quot;, query.getNameSpace());</span>
+<span class="nc" id="L142">                    break;</span>
                 case Wbemcli.WBEM_E_INVALID_CLASS:
-<span class="nc" id="L143">                    LOG.warn(&quot;COM exception: Invalid Class {}&quot;, query.getWmiClassName());</span>
-<span class="nc" id="L144">                    break;</span>
+<span class="nc" id="L144">                    LOG.warn(&quot;COM exception: Invalid Class {}&quot;, query.getWmiClassName());</span>
+<span class="nc" id="L145">                    break;</span>
                 case Wbemcli.WBEM_E_INVALID_QUERY:
-<span class="nc" id="L146">                    LOG.warn(&quot;COM exception: Invalid Query: {}&quot;, WmiUtil.queryToString(query));</span>
-<span class="nc" id="L147">                    break;</span>
+<span class="nc" id="L147">                    LOG.warn(&quot;COM exception: Invalid Query: {}&quot;, WmiUtil.queryToString(query));</span>
+<span class="nc" id="L148">                    break;</span>
                 default:
-<span class="nc" id="L149">                    handleComException(query, e);</span>
+<span class="nc" id="L150">                    handleComException(query, e);</span>
                     break;
                 }
-<span class="nc" id="L152">                failedWmiClassNames.add(query.getWmiClassName());</span>
+<span class="nc" id="L153">                failedWmiClassNames.add(query.getWmiClassName());</span>
             }
-<span class="nc" id="L154">        } catch (TimeoutException e) {</span>
-<span class="nc" id="L155">            LOG.error(&quot;WMI query timed out after {} ms: {}&quot;, wmiTimeout, WmiUtil.queryToString(query));</span>
-<span class="nc" id="L156">        }</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (comInit) {</span>
-<span class="nc" id="L158">            unInitCOM();</span>
+<span class="nc" id="L155">        } catch (TimeoutException e) {</span>
+<span class="nc" id="L156">            LOG.error(&quot;WMI query timed out after {} ms: {}&quot;, wmiTimeout, WmiUtil.queryToString(query));</span>
+<span class="nc" id="L157">        }</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (comInit) {</span>
+<span class="nc" id="L159">            unInitCOM();</span>
         }
-<span class="nc" id="L160">        return result;</span>
+<span class="nc" id="L161">        return result;</span>
     }
 
     /**
@@ -172,10 +173,10 @@ import oshi.util.GlobalConfig;
      *            a {@link com.sun.jna.platform.win32.COM.COMException} object.
      */
     protected void handleComException(WbemcliUtil.WmiQuery&lt;?&gt; query, COMException ex) {
-<span class="nc" id="L175">        LOG.warn(</span>
+<span class="nc" id="L176">        LOG.warn(</span>
                 &quot;COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was {}: {}&quot;,
-<span class="nc" id="L177">                query.getWmiClassName(), ex.getHresult().intValue(), ex.getMessage());</span>
-<span class="nc" id="L178">    }</span>
+<span class="nc" id="L178">                query.getWmiClassName(), ex.getHresult().intValue(), ex.getMessage());</span>
+<span class="nc" id="L179">    }</span>
 
     /**
      * Initializes COM library and sets security to impersonate the local user
@@ -184,37 +185,36 @@ import oshi.util.GlobalConfig;
      *         otherwise
      */
     public boolean initCOM() {
-<span class="nc" id="L187">        boolean comInit = false;</span>
+<span class="nc" id="L188">        boolean comInit = false;</span>
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-<span class="nc" id="L190">        comInit = initCOM(getComThreading());</span>
-<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (!comInit) {</span>
-<span class="nc" id="L192">            comInit = initCOM(switchComThreading());</span>
+<span class="nc" id="L191">        comInit = initCOM(getComThreading());</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (!comInit) {</span>
+<span class="nc" id="L193">            comInit = initCOM(switchComThreading());</span>
         }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
-<span class="nc bnc" id="L196" title="All 4 branches missed.">        if (comInit &amp;&amp; !isSecurityInitialized()) {</span>
-<span class="nc" id="L197">            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null,</span>
+<span class="nc bnc" id="L197" title="All 4 branches missed.">        if (comInit &amp;&amp; !isSecurityInitialized()) {</span>
+<span class="nc" id="L198">            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null,</span>
                     Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
             // If security already initialized we get RPC_E_TOO_LATE
             // This can be safely ignored
-<span class="nc bnc" id="L201" title="All 4 branches missed.">            if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {</span>
-<span class="nc" id="L202">                Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L203">                throw new COMException(&quot;Failed to initialize security.&quot;, hres);</span>
+<span class="nc bnc" id="L202" title="All 4 branches missed.">            if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {</span>
+<span class="nc" id="L203">                Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L204">                throw new COMException(&quot;Failed to initialize security.&quot;, hres);</span>
             }
-<span class="nc" id="L205">            securityInitialized = true;</span>
+<span class="nc" id="L206">            securityInitialized = true;</span>
         }
-<span class="nc" id="L207">        return comInit;</span>
+<span class="nc" id="L208">        return comInit;</span>
     }
 
     /**
-     * &lt;p&gt;
-     * initCOM.
-     * &lt;/p&gt;
+     * Initializes COM with a specific threading model
      *
      * @param coInitThreading
-     *            a int.
-     * @return a boolean.
+     *            The threading model
+     * @return True if COM was initialized and needs to be uninitialized, false
+     *         otherwise
      */
     protected boolean initCOM(int coInitThreading) {
 <span class="nc" id="L220">        WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);</span>

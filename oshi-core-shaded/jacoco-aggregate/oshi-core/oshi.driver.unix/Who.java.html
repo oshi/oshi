@@ -71,39 +71,68 @@ public final class Who {
      */
     public static synchronized List&lt;OSSession&gt; queryWho() {
 <span class="nc" id="L73">        List&lt;OSSession&gt; whoList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L74">        List&lt;String&gt; who = ExecutingCommand.runNative(&quot;who&quot;);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (String s : who) {</span>
-<span class="nc" id="L76">            Matcher m = WHO_FORMAT_LINUX.matcher(s);</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (m.matches()) {</span>
-                try {
-<span class="nc" id="L79">                    whoList.add(new OSSession(m.group(1), m.group(2),</span>
-<span class="nc" id="L80">                            LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4), WHO_DATE_FORMAT_LINUX)</span>
-<span class="nc" id="L81">                                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">                            m.group(5) == null ? Constants.UNKNOWN : m.group(5)));</span>
-<span class="nc" id="L83">                } catch (DateTimeParseException | NullPointerException e) {</span>
-                    // shouldn't happen if regex matches and OS is producing sensible dates
-<span class="nc" id="L85">                }</span>
-            } else {
-<span class="nc" id="L87">                m = WHO_FORMAT_UNIX.matcher(s);</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">                if (m.matches()) {</span>
-                    try {
-                        // Missing year, parse date time with current year
-<span class="nc" id="L91">                        LocalDateTime login = LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4) + &quot; &quot; + m.group(5),</span>
-                                WHO_DATE_FORMAT_UNIX);
-                        // If this date is in the future, subtract a year
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                        if (login.isAfter(LocalDateTime.now())) {</span>
-<span class="nc" id="L95">                            login = login.minus(1, ChronoUnit.YEARS);</span>
-                        }
-<span class="nc" id="L97">                        long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();</span>
-<span class="nc" id="L98">                        whoList.add(</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                                new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? &quot;&quot; : m.group(6)));</span>
-<span class="nc" id="L100">                    } catch (DateTimeParseException | NullPointerException e) {</span>
-                        // shouldn't happen if regex matches and OS is producing sensible dates
-<span class="nc" id="L102">                    }</span>
-                }
+<span class="nc" id="L74">        boolean useUnix = false;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;who&quot;)) {</span>
+<span class="nc bnc" id="L76" title="All 4 branches missed.">            if (useUnix || !matchLinux(whoList, s)) {</span>
+<span class="nc" id="L77">                useUnix = matchUnix(whoList, s);</span>
             }
-<span class="nc" id="L105">        }</span>
-<span class="nc" id="L106">        return whoList;</span>
+<span class="nc" id="L79">        }</span>
+<span class="nc" id="L80">        return whoList;</span>
+    }
+
+    /**
+     * Attempt to match Linux WHO format and add to the list
+     *
+     * @param whoList
+     *            the list to add to
+     * @param s
+     *            the string to match
+     * @return true if successful, false otherwise
+     */
+    private static boolean matchLinux(List&lt;OSSession&gt; whoList, String s) {
+<span class="nc" id="L93">        Matcher m = WHO_FORMAT_LINUX.matcher(s);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (m.matches()) {</span>
+            try {
+<span class="nc" id="L96">                whoList.add(new OSSession(m.group(1), m.group(2),</span>
+<span class="nc" id="L97">                        LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4), WHO_DATE_FORMAT_LINUX)</span>
+<span class="nc" id="L98">                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                        m.group(5) == null ? Constants.UNKNOWN : m.group(5)));</span>
+<span class="nc" id="L100">                return true;</span>
+<span class="nc" id="L101">            } catch (DateTimeParseException | NullPointerException e) {</span>
+                // shouldn't happen if regex matches and OS is producing sensible dates
+            }
+        }
+<span class="nc" id="L105">        return false;</span>
+    }
+
+    /**
+     * Attempt to match Unix WHO format and add to the list
+     *
+     * @param whoList
+     *            the list to add to
+     * @param s
+     *            the string to match
+     * @return true if successful, false otherwise
+     */
+    private static boolean matchUnix(List&lt;OSSession&gt; whoList, String s) {
+<span class="nc" id="L118">        Matcher m = WHO_FORMAT_UNIX.matcher(s);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (m.matches()) {</span>
+            try {
+                // Missing year, parse date time with current year
+<span class="nc" id="L122">                LocalDateTime login = LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4) + &quot; &quot; + m.group(5),</span>
+                        WHO_DATE_FORMAT_UNIX);
+                // If this date is in the future, subtract a year
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (login.isAfter(LocalDateTime.now())) {</span>
+<span class="nc" id="L126">                    login = login.minus(1, ChronoUnit.YEARS);</span>
+                }
+<span class="nc" id="L128">                long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                whoList.add(new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? &quot;&quot; : m.group(6)));</span>
+<span class="nc" id="L130">                return true;</span>
+<span class="nc" id="L131">            } catch (DateTimeParseException | NullPointerException e) {</span>
+                // shouldn't happen if regex matches and OS is producing sensible dates
+            }
+        }
+<span class="nc" id="L135">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
