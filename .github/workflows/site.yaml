@@ -1,0 +1,33 @@
+name: Site
+
+on:
+  push:
+    branches:
+      - site
+
+jobs:
+  build:
+    if: github.repository_owner == 'oshi' && ! contains(toJSON(github.event.head_commit.message), '[maven-release-plugin]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - uses: webfactory/ssh-agent@master
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      - name: Build site
+        run: ./mvnw site site:stage -DskipTests
+        env:
+          CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy Site to gh-pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          SSH: true
+          BRANCH: gh-pages
+          FOLDER: Source/JNA/target/staging
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
