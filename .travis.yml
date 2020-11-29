@@ -11,8 +11,6 @@ addons:
     build_command_prepend: "cov-configure --comptype gcc --compiler gcc-4.8 --template"
     build_command:   "./mvnw -DskipTests=true clean compile"
     branch_pattern: coverity_scan
-  sonarcloud:
-    organization: "default" # the key of the open source org
   hosts:
     - oshi
   hostname: oshi
@@ -54,7 +52,6 @@ script:
 after_success:
   - if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_JOB_NAME}" = "Linux JDK11" ]; then
       ./mvnw clean test jacoco:report coveralls:report;
-      ./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar;
     fi
 
 # 5 concurrent total builds and 2 concurrent builds on osx
