@@ -3,7 +3,13 @@
 
 version: 2
 updates:
-  - package-ecosystem: "maven"
-    directory: "/" 
+  - package-ecosystem: maven
+    directory: "/"
     schedule:
-      interval: "daily"
+      interval: daily
+    open-pull-requests-limit: 10
+    ignore:
+    - dependency-name: net.trajano.wagon:wagon-git
+      versions:
+      - "< 2.0.5"
+      - ">= 2.0.4.a"
