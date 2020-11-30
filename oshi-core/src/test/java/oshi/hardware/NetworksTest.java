@@ -128,6 +128,7 @@ class NetworksTest {
             assertThat("Network interface has a hardware address", net.queryNetworkInterface().getHardwareAddress(),
                     is(notNullValue()));
 
+            // On Windows, virtual interfaces may return max unsigned int value, -1.
             assertThat("NetworkIF MTU should not be negative", net.getMTU(), is(greaterThanOrEqualTo(0)));
         }
     }

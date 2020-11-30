@@ -45,6 +45,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.util.FileUtil;
 import oshi.util.FormatUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Network interfaces implementation.
@@ -235,7 +236,8 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         StringBuilder sb = new StringBuilder();
         sb.append("Name: ").append(getName()).append(" ").append("(").append(getDisplayName()).append(")").append("\n");
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
-        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
+        sb.append("  MTU: ").append(ParseUtil.unsignedIntToLong(getMTU())).append(", ").append("Speed: ")
+                .append(getSpeed()).append("\n");
         String[] ipv4withmask = getIPv4addr();
         if (this.ipv4.length == this.subnetMasks.length) {
             for (int i = 0; i < this.subnetMasks.length; i++) {

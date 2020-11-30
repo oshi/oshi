@@ -66,6 +66,11 @@ public interface NetworkIF {
      *
      * @return The MTU of the network interface.
      *         <p>
+     *         The value is a 32-bit integer which may be unsigned on some operating
+     *         systems. On Windows, some non-physical interfaces (e.g., loopback)
+     *         may return a value of -1 which is equivalent to the maximum unsigned
+     *         integer value.
+     *         <p>
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
      *         instantiated and may not be up to date.
      */
