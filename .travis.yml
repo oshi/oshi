@@ -55,17 +55,13 @@ after_success:
     fi
 
 # 5 concurrent total builds and 2 concurrent builds on osx
-# Put the osx in the first group of 5
-# Put longest running job in first group of 5
+# Github Actions handle all 3 OS's and multiple versions.
+# Still want at least one build on each OS/architecture to maximize unique machine testing
 jobs:
   include:
     - name: "Linux JDK11"
       os: linux
       jdk: openjdk11
-    - name: "Mac JDK8"
-      if: branch = master
-      os: osx
-      osx_image: xcode9.3
     - name: "Mac JDK14"
       if: branch = master
       os: osx
@@ -78,14 +74,3 @@ jobs:
       if: branch = master
       os: linux
       arch: arm64
-    - name: "Linux JDK16 EA"
-      if: branch = master
-      os: linux
-      jdk: openjdk16
-      dist: bionic
-# Uncomment if external issue
-#  allow_failures:
-#    - name: "Linux JDK16 EA"
-#      os: linux
-#      jdk: openjdk16
-#      dist: bionic
