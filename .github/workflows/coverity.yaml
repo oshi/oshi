@@ -22,36 +22,23 @@
 # SOFTWARE.
 #
 
-name: Coverity
+name: Synchornize Coverity branch
 
 on:
-  push:
-    branches:
-      - coverity_scan
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
 
 jobs:
-  build:
+  sync-branches:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
+    name: Synchornize Coverity Scan branch
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
         with:
-          java-version: 11
-      - name: Analyze with Coverity
-        run: |
-          wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=dblock%2Foshi" -O coverity_tool.tgz
-          tar -xf coverity_tool.tgz
-          ./cov-analysis-linux64-*/bin/cov-configure --comptype gcc --compiler gcc-4.8 --template
-          ./cov-analysis-linux64-*/bin/cov-build --dir cov-int ./mvnw -B -DskipTests=true verify
-          tar czvf oshi.tgz cov-int
-          curl --form token=$COVERITY_TOKEN \
-            --form email=$EMAIL \
-            --form file=@oshi.tgz \
-            --form version="oshi/coverity_scan" \
-            --form description="Oshi Coverity Scan" \
-            https://scan.coverity.com/builds?project=dblock%2Foshi
-        env:
-          COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
-          EMAIL: ${{ secrets.EMAIL }}
+          fetch-depth: 0
+          ref: master
+      - run: |
+          git checkout -B coverity_scan
+          git push origin coverity_scan
