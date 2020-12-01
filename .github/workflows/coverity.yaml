@@ -50,7 +50,7 @@ jobs:
             --form file=@oshi.tgz \
             --form version="oshi/coverity_scan" \
             --form description="Oshi Coverity Scan" \
-            https://scan.coverity.com/builds?project=oshi%2Foshi
+            https://scan.coverity.com/builds?project=dblock%2Foshi
         env:
           COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
           EMAIL: ${{ secrets.EMAIL }}
