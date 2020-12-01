@@ -3,23 +3,10 @@ os: linux
 dist: trusty
 
 addons:
-  coverity_scan:
-    project:
-      name: "dblock/oshi"
-      description: "Build submitted via Travis CI"
-    notification_email: widdis@gmail.com
-    build_command_prepend: "cov-configure --comptype gcc --compiler gcc-4.8 --template"
-    build_command:   "./mvnw -DskipTests=true clean compile"
-    branch_pattern: coverity_scan
   hosts:
     - oshi
   hostname: oshi
 
-env:
-  global:
-    # COVERITY_SCAN_TOKEN
-    - secure: "JuTWT2u7BWQEJGMGkVvQMIQxwxajntxqbCGYt+bJD3JQhioPVFUJoEFrLCx+jJ0qLy5usrneCDFrvRhvTh6C+95kvHypvGQ3UoeWyXS8zD+GRPUyskbuQ7P60kqqIqc+naGd3uyGddniixoAA6C/Ptmknhls4FlhDCMjW3HDS0c="
-    
 # disable shallow clone
 git:
   depth: false
