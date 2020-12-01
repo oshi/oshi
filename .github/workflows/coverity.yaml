@@ -43,7 +43,7 @@ jobs:
         run: |
           wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=dblock%2Foshi" -O coverity_tool.tgz
           tar -xf coverity_tool.tgz
-          ./cov-analysis-linux64-*/bin/cov-build --dir cov-int ./mvnw -B -DskipTests=true verify
+          ./cov-analysis-linux64-*/bin/cov-build --dir cov-int ./mvnw -B verify
           tar czvf oshi.tgz cov-int
           curl --form token=$COVERITY_TOKEN \
             --form email=$EMAIL \
