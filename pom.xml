@@ -455,8 +455,10 @@
 							<exclude>**/*.PNG</exclude>
 							<exclude>*.yml</exclude>
 							<exclude>**/*.yml</exclude>
+							<exclude>**/*.yaml</exclude>
 							<exclude>LICENSE.txt</exclude>
 							<exclude>**/OSHIJavaFormatConventions.xml</exclude>
+							<exclude>**/cov-analysis*/**</exclude>
 						</excludes>
 					</configuration>
 				</plugin>
