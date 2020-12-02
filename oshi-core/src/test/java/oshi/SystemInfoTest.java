@@ -253,6 +253,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static void printProcesses(OperatingSystem os, GlobalMemory memory) {
         OSProcess myProc = os.getProcess(os.getProcessId());
+        // current process will never be null. Other code should check for null here
         oshi.add(
                 "My PID: " + myProc.getProcessID() + " with affinity " + Long.toBinaryString(myProc.getAffinityMask()));
         oshi.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
