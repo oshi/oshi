@@ -3,7 +3,7 @@ name: Coverity Scan
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * *" # daily at 09:00 UTC
+    - cron: "0 9 */4 * *" # every 4 days at 09:00 UTC
 
 jobs:
   build:
