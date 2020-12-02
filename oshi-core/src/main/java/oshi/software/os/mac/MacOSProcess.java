@@ -58,6 +58,7 @@ import oshi.driver.mac.ThreadInfo;
 import oshi.driver.mac.ThreadInfo.ThreadStats;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.util.ExecutingCommand;
 import oshi.util.platform.mac.SysctlUtil;
 
 @ThreadSafe
@@ -138,6 +139,11 @@ public class MacOSProcess extends AbstractOSProcess {
         IntByReference size = new IntByReference(argmax);
         // Fetch arguments
         if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
+            // Beginning in macOS 11, this call has become unreliable. Use ps as a backup.
+            String cmdLine = ExecutingCommand.getFirstAnswer("ps -o command= -p " + getProcessID());
+            if (!cmdLine.isEmpty()) {
+                return cmdLine;
+            }
             LOG.warn(
                     "Failed syctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
                     getProcessID(), Native.getLastError());
