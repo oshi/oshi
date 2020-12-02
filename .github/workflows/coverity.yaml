@@ -47,6 +47,7 @@ jobs:
           tar -xf coverity_tool.tgz
           ./cov-analysis-linux64-*/bin/cov-configure --comptype gcc --compiler gcc-4.8 --template
           ./cov-analysis-linux64-*/bin/cov-build --dir cov-int ./mvnw -B -DskipTests=true verify
+          cat build-log.txt
           tar czvf oshi.tgz cov-int
           curl --form token=$COVERITY_TOKEN \
             --form email=$EMAIL \
