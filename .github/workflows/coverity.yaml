@@ -22,7 +22,7 @@
 # SOFTWARE.
 #
 
-name: Synchornize Coverity branch
+name: Coverity Scan
 
 on:
   workflow_dispatch:
@@ -33,7 +33,6 @@ jobs:
   build:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
-    name: Synchornize Coverity Scan branch
     steps:
       - uses: actions/checkout@v2
         with:
@@ -41,20 +40,13 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 11          
-      - name: Download Coverity Build Tool
+          java-version: 11
+      - name: Analyze with Coverity
         run: |
           wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=dblock%2Foshi" -O coverity_tool.tgz
-          mkdir cov-analysis-linux64
-          tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
-        env:
-          TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}          
-          
-      - name: Build with cov-build
-        run: |
-          export PATH=`pwd`/cov-analysis-linux64/bin:$PATH
-          cov-configure --comptype gcc --compiler gcc-4.8 --template
-          cov-build --dir cov-int ./mvnw -B -DskipTests=true clean compile
+          tar -xf coverity_tool.tgz
+          ./cov-analysis-linux64-*/bin/cov-configure --comptype gcc --compiler gcc-4.8 --template
+          ./cov-analysis-linux64-*/bin/cov-build --dir cov-int ./mvnw -B -DskipTests=true verify
           tar czvf oshi.tgz cov-int
           curl --form token=$COVERITY_TOKEN \
             --form email=$EMAIL \
