@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '**.md'
     
 jobs:
   test:
@@ -14,7 +16,6 @@ jobs:
         java: [8, 11, 15, 16-ea]
         os: [ubuntu-latest, ubuntu-20.04, macos-latest, macos-11.0, windows-latest]
       fail-fast: false
-      max-parallel: 4
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:

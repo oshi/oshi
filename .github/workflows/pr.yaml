@@ -1,7 +1,10 @@
 # Limited CI matrix on all pull requests to any branch
 name: Pull Request CI
 
-on: [pull_request]
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
 
 jobs:
   test:
@@ -11,7 +14,6 @@ jobs:
         os: [ubuntu-latest, ubuntu-20.04, macos-latest, macos-11.0, windows-latest]
         java: [8]
       fail-fast: false
-      max-parallel: 4
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:
