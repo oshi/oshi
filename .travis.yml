@@ -12,13 +12,6 @@ git:
   depth: false
     
 before_install:
-  # Travis doesn't have Java on Windows. Use the Gravis project to get it
-  - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then
-      export JDK="adopt@1.8.0-252";
-      travis_retry git clone --depth 1 https://github.com/DanySK/Gravis-CI.git $HOME/gravis;
-      source $HOME/gravis/install-jdk;
-      source $HOME/gravis/install-maven;
-    fi
   # Need to install our own arm64 jdk and set JAVA_HOME
   - if [ "${TRAVIS_CPU_ARCH}" = "arm64" ]; then 
       sudo apt-get -m install openjdk-11-jdk maven;
@@ -36,28 +29,14 @@ script:
       mvn test;
     fi
 
-after_success:
-  - if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_JOB_NAME}" = "Linux JDK11" ]; then
-      ./mvnw clean test jacoco:report coveralls:report;
-    fi
-
-# 5 concurrent total builds and 2 concurrent builds on osx
-# Github Actions handle all 3 OS's and multiple versions.
-# Still want at least one build on each OS/architecture to maximize unique machine testing
+# 4 concurrent builds on travis-ci.com but limit to what's not covered by other CI
+# Github Actions handles Windows, macOS, and Linux
 jobs:
   include:
-    - name: "Linux JDK11"
-      os: linux
-      jdk: openjdk11
-    - name: "Mac JDK14"
-      if: branch = master
-      os: osx
-      osx_image: xcode12.2
-    - name: "Windows JDK 8"
-      if: branch = master
-      os: windows
-      language: shell
     - name: "Linux JDK11 ARM"
       if: branch = master
       os: linux
       arch: arm64
+    - name: "Freebsd JDK 8"
+      if: branch = master
+      os: freebsd
