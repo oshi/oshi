@@ -18,6 +18,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2  
       - name: Analyze with SonarCloud
         run: ./mvnw verify sonar:sonar -B -D"sonar.projectKey=oshi_oshi" -D"sonar.organization=oshi-oshi" -D"sonar.host.url=https://sonarcloud.io" -D"sonar.login=$SONAR_TOKEN"
         env:

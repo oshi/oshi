@@ -17,6 +17,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2  
       - name: Analyze with Coverity
         run: |
           wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=dblock%2Foshi" -O coverity_tool.tgz
