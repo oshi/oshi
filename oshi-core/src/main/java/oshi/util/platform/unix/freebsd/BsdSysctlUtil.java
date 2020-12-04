@@ -30,7 +30,6 @@ import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -141,12 +140,12 @@ public final class BsdSysctlUtil {
      */
     public static Memory sysctl(String name) {
         IntByReference size = new IntByReference();
-        if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, null, size, null, 0)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return null;
         }
         Memory m = new Memory(size.getValue());
-        if (0 != SystemB.INSTANCE.sysctlbyname(name, m, size, null, 0)) {
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, m, size, null, 0)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return null;
         }

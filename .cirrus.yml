@@ -2,13 +2,12 @@ freebsd_task:
   name: FreeBSD CI
   freebsd_instance:
     matrix:
- #     image_family: freebsd-13-0-snap
- #     image_family: freebsd-12-1
       image_family: freebsd-11-4
+      image_family: freebsd-12-1
+#      image_family: freebsd-13-0-snap   
   container:
     image: maven:latest
   maven_cache:
     folder: ~/.m2
   install_script: pkg install -y openjdk8
-  build_script: java -XshowSettings:properties -version
   test_script: ./mvnw test -B

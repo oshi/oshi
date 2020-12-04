@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-20.04, macos-latest, macos-11.0, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-11.0, windows-latest]
         java: [8]
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}

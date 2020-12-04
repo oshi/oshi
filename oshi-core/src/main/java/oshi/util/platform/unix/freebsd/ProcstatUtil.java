@@ -21,21 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.util;
+package oshi.util.platform.unix.freebsd;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
- * Reads from lsof into a map
+ * Reads from procstat into a map
  */
 @ThreadSafe
-public final class LsofUtil {
+public final class ProcstatUtil {
 
-    private LsofUtil() {
+    private ProcstatUtil() {
     }
 
     /**
@@ -48,24 +50,12 @@ public final class LsofUtil {
      *         otherwise the map may contain only a single element for {@code pid}
      */
     public static Map<Integer, String> getCwdMap(int pid) {
-        List<String> lsof = ExecutingCommand.runNative("lsof -F n -d cwd" + (pid < 0 ? "" : " -p " + pid));
+        List<String> procstat = ExecutingCommand.runNative("procstat -f " + (pid < 0 ? "-a" : pid));
         Map<Integer, String> cwdMap = new HashMap<>();
-        Integer key = -1;
-        for (String line : lsof) {
-            if (line.isEmpty()) {
-                continue;
-            }
-            switch (line.charAt(0)) {
-            case 'p':
-                key = ParseUtil.parseIntOrDefault(line.substring(1), -1);
-                break;
-            case 'n':
-                cwdMap.put(key, line.substring(1));
-                break;
-            case 'f':
-                // ignore the 'cwd' file descriptor
-            default:
-                break;
+        for (String line : procstat) {
+            String[] split = ParseUtil.whitespaces.split(line, 10);
+            if (split.length == 10 && split[2].equals("cwd")) {
+                cwdMap.put(ParseUtil.parseIntOrDefault(split[0], -1), split[9]);
             }
         }
         return cwdMap;
@@ -79,10 +69,11 @@ public final class LsofUtil {
      * @return the current working directory for that process.
      */
     public static String getCwd(int pid) {
-        List<String> lsof = ExecutingCommand.runNative("lsof -F n -d cwd -p " + pid);
-        for (String line : lsof) {
-            if (!line.isEmpty() && line.charAt(0) == 'n') {
-                return line.substring(1).trim();
+        List<String> procstat = ExecutingCommand.runNative("procstat -f " + pid);
+        for (String line : procstat) {
+            String[] split = ParseUtil.whitespaces.split(line, 10);
+            if (split.length == 10 && split[2].equals("cwd")) {
+                return split[9];
             }
         }
         return "";
@@ -96,8 +87,14 @@ public final class LsofUtil {
      * @return the number of open files.
      */
     public static long getOpenFiles(int pid) {
-        int openFiles = ExecutingCommand.runNative("lsof -p " + pid).size();
-        // If nonzero, subtract 1 from size for header
-        return openFiles > 0 ? openFiles - 1L : 0L;
+        long fd = 0L;
+        List<String> procstat = ExecutingCommand.runNative("procstat -f " + pid);
+        for (String line : procstat) {
+            String[] split = ParseUtil.whitespaces.split(line, 10);
+            if (split.length == 10 && !"Vd-".contains(split[4])) {
+                fd++;
+            }
+        }
+        return fd;
     }
 }

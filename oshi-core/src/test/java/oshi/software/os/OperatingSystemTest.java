@@ -307,8 +307,7 @@ class OperatingSystemTest {
             }
         }
 
-        assertThat("Processes with non-empty command line should be 1 or higher",
-                processesWithNonEmptyCmdLine,
+        assertThat("Processes with non-empty command line should be 1 or higher", processesWithNonEmptyCmdLine,
                 is(greaterThan(0)));
     }
 
