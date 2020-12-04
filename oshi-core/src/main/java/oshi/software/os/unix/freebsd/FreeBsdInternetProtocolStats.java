@@ -36,7 +36,7 @@ import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
 import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
 import oshi.software.os.InternetProtocolStats;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
@@ -80,7 +80,7 @@ public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
 
     private static BsdTcpstat queryTcpstat() {
         BsdTcpstat ft = new BsdTcpstat();
-        Memory m = SysctlUtil.sysctl("net.inet.tcp.stats");
+        Memory m = BsdSysctlUtil.sysctl("net.inet.tcp.stats");
         if (m != null && m.size() >= 128) {
             ft.tcps_connattempt = m.getInt(0);
             ft.tcps_accepts = m.getInt(4);
@@ -99,7 +99,7 @@ public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
 
     private static BsdUdpstat queryUdpstat() {
         BsdUdpstat ut = new BsdUdpstat();
-        Memory m = SysctlUtil.sysctl("net.inet.udp.stats");
+        Memory m = BsdSysctlUtil.sysctl("net.inet.udp.stats");
         if (m != null && m.size() >= 1644) {
             ut.udps_ipackets = m.getInt(0);
             ut.udps_hdrops = m.getInt(4);

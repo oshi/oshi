@@ -45,8 +45,8 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
-import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.ProcstatUtil;
 
 @ThreadSafe
 public class FreeBsdOSProcess extends AbstractOSProcess {
@@ -97,7 +97,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCurrentWorkingDirectory() {
-        return LsofUtil.getCwd(getProcessID());
+        return ProcstatUtil.getCwd(getProcessID());
     }
 
     @Override
@@ -182,7 +182,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public long getOpenFiles() {
-        return LsofUtil.getOpenFiles(getProcessID());
+        return ProcstatUtil.getOpenFiles(getProcessID());
     }
 
     @Override
@@ -270,7 +270,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args,majflt,minflt -p "
+        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args -p "
                 + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
@@ -327,9 +327,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         this.userTime = ParseUtil.parseDHMSOrDefault(split[13], 0L) - this.kernelTime;
         this.path = split[14];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.commandLine = split[15];
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[17], 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
+        this.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
+        this.commandLine = split[17];
         return true;
     }
 }
