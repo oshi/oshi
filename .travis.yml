@@ -31,12 +31,10 @@ script:
 
 # 4 concurrent builds on travis-ci.com but limit to what's not covered by other CI
 # Github Actions handles Windows, macOS, and Linux
+# Cirrus CI handles FreeBSD
 jobs:
   include:
     - name: "Linux JDK11 ARM"
       if: branch = master
       os: linux
       arch: arm64
-    - name: "Freebsd JDK 8"
-      if: branch = master
-      os: freebsd
