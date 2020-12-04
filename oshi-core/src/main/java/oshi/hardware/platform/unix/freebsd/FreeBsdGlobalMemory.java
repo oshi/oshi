@@ -31,6 +31,8 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
@@ -68,10 +70,10 @@ final class FreeBsdGlobalMemory extends AbstractGlobalMemory {
     }
 
     private long queryVmStats() {
-        long inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0L);
-        long cache = BsdSysctlUtil.sysctl("vm.stats.vm.v_cache_count", 0L);
-        long free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0L);
-        return (inactive + cache + free) * getPageSize();
+        // cached removed in FreeBSD 12 but was always set to 0
+        int inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0);
+        int free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0);
+        return (inactive + free) * getPageSize();
     }
 
     private static long queryPhysMem() {
@@ -79,7 +81,8 @@ final class FreeBsdGlobalMemory extends AbstractGlobalMemory {
     }
 
     private static long queryPageSize() {
-        return BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
+        // sysctl hw.pagesize doesn't work on FreeBSD 13
+        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("sysconf PAGESIZE"), 4096L);
     }
 
     private VirtualMemory createVirtualMemory() {

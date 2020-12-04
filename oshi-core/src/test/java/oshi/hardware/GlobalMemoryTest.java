@@ -58,12 +58,12 @@ class GlobalMemoryTest {
     @Test
     void testGlobalMemory() {
         assertThat("Memory shouldn't be null", memory, is(notNullValue()));
-
         assertThat("Total memory should be greater than zero", memory.getTotal(), is(greaterThan(0L)));
         assertThat("Available memory should be between 0 and total memory", memory.getAvailable(),
                 is(both(greaterThanOrEqualTo(0L)).and(lessThanOrEqualTo(memory.getTotal()))));
         assertThat("Memory page size should be greater than zero", memory.getPageSize(), is(greaterThan(0L)));
-        assertThat("Memory should contain the substring \"Available\"", memory.toString(), containsString("Available"));
+        assertThat("Memory toString should contain the substring \"Available\"", memory.toString(),
+                containsString("Available"));
     }
 
     @Test
