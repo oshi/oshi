@@ -54,7 +54,6 @@ class NetworksTest {
             assertThat("NetworkIF should not be null", net.queryNetworkInterface(), is(notNullValue()));
             assertThat("NetworkIF name should not be null", net.getName(), is(notNullValue()));
             assertThat("NetworkIF display name should not be null", net.getDisplayName(), is(notNullValue()));
-            assertThat("NetworkIF MacAddress should not be null", net.getMacaddr(), is(notNullValue()));
             assertThat("NetworkIF IPv4 address should not be null", net.getIPv4addr(), is(notNullValue()));
             assertThat("NetworkIF SubnetMasks should not be null", net.getSubnetMasks(), is(notNullValue()));
             assertThat("NetworkIF IPv6 should not be null", net.getIPv6addr(), is(notNullValue()));
@@ -130,6 +129,8 @@ class NetworksTest {
 
             // On Windows, virtual interfaces may return max unsigned int value, -1.
             assertThat("NetworkIF MTU should not be negative", net.getMTU(), is(greaterThanOrEqualTo(0)));
+
+            assertThat("NetworkIF MacAddress should not be null", net.getMacaddr(), is(notNullValue()));
         }
     }
 }

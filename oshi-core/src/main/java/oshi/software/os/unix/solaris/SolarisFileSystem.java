@@ -152,9 +152,9 @@ public class SolarisFileSystem extends AbstractFileSystem {
     @Override
     public long getOpenFileDescriptors() {
         try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, -1, "file_cache");
+            Kstat ksp = KstatChain.lookup(null, -1, "file_cache");
             // Set values
-            if (ksp != null && kc.read(ksp)) {
+            if (ksp != null && KstatChain.read(ksp)) {
                 return KstatUtil.dataLookupLong(ksp, "buf_inuse");
             }
         }
@@ -164,9 +164,9 @@ public class SolarisFileSystem extends AbstractFileSystem {
     @Override
     public long getMaxFileDescriptors() {
         try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, -1, "file_cache");
+            Kstat ksp = KstatChain.lookup(null, -1, "file_cache");
             // Set values
-            if (ksp != null && kc.read(ksp)) {
+            if (ksp != null && KstatChain.read(ksp)) {
                 return KstatUtil.dataLookupLong(ksp, "buf_max");
             }
         }

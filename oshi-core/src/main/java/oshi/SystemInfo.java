@@ -75,9 +75,9 @@ public class SystemInfo {
         }
     }
 
-    private final Supplier<OperatingSystem> os = memoize(this::createOperatingSystem);
+    private final Supplier<OperatingSystem> os = memoize(SystemInfo::createOperatingSystem);
 
-    private final Supplier<HardwareAbstractionLayer> hardware = memoize(this::createHardware);
+    private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfo::createHardware);
 
     /**
      * <p>
@@ -100,7 +100,7 @@ public class SystemInfo {
         return os.get();
     }
 
-    private OperatingSystem createOperatingSystem() {
+    private static OperatingSystem createOperatingSystem() {
         switch (currentPlatformEnum) {
 
         case WINDOWS:
@@ -130,7 +130,7 @@ public class SystemInfo {
         return hardware.get();
     }
 
-    private HardwareAbstractionLayer createHardware() {
+    private static HardwareAbstractionLayer createHardware() {
         switch (currentPlatformEnum) {
 
         case WINDOWS:

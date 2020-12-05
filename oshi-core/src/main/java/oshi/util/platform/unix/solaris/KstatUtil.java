@@ -75,7 +75,7 @@ public final class KstatUtil {
 
         private KstatChain() {
             CHAIN.lock();
-            this.update();
+            update();
         }
 
         /**
@@ -91,7 +91,7 @@ public final class KstatUtil {
          *            The kstat from which to retrieve data
          * @return {@code true} if successful; {@code false} otherwise
          */
-        public boolean read(Kstat ksp) {
+        public static boolean read(Kstat ksp) {
             int retry = 0;
             while (0 > KS.kstat_read(KC, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
@@ -123,7 +123,7 @@ public final class KstatUtil {
          * @return The first match of the requested Kstat structure if found, or
          *         {@code null}
          */
-        public Kstat lookup(String module, int instance, String name) {
+        public static Kstat lookup(String module, int instance, String name) {
             return KS.kstat_lookup(KC, module, instance, name);
         }
 
@@ -144,7 +144,7 @@ public final class KstatUtil {
          * @return All matches of the requested Kstat structure if found, or an empty
          *         list otherwise
          */
-        public List<Kstat> lookupAll(String module, int instance, String name) {
+        public static List<Kstat> lookupAll(String module, int instance, String name) {
             List<Kstat> kstats = new ArrayList<>();
             for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {
                 if ((module == null || module.equals(new String(ksp.ks_module, StandardCharsets.US_ASCII).trim()))
@@ -166,7 +166,7 @@ public final class KstatUtil {
          * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on
          *         failure.
          */
-        public int update() {
+        public static int update() {
             return KS.kstat_chain_update(KC);
         }
 
