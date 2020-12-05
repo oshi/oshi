@@ -668,9 +668,8 @@
 				<configuration>
 					<excludes>
 						<exclude>**/driver/**</exclude>
-						<exclude>**/impl/**</exclude>
 						<exclude>**/common/**</exclude>
-						<exclude>**/Abstract*/**</exclude>
+						<exclude>**/Abstract*</exclude>
 						<exclude>**/platform/**</exclude>
 						<exclude>**/linux/**</exclude>
 						<exclude>**/mac/**</exclude>
@@ -807,6 +806,18 @@
 					</plugin>
 					<!-- External Tools -->
 					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>sonar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
 						<executions>
@@ -832,6 +843,7 @@
 							</execution>
 						</executions>
 					</plugin>
+					
 					<plugin>
 						<groupId>org.owasp</groupId>
 						<artifactId>dependency-check-maven</artifactId>
@@ -842,6 +854,25 @@
 								</goals>
 							</execution>
 						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+				<sonar.organization>oshi_oshi</sonar.organization>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>

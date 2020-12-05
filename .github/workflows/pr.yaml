@@ -49,5 +49,4 @@ jobs:
           prepare: |
             pkg install -y curl
             pkg install -y openjdk8
-          run: |
-            ./mvnw test -B
+          run: ./mvnw test -B

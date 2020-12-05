@@ -43,7 +43,8 @@ class LsofUtilTest {
     @Test
     void testLsof() {
         if (!SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)
-                && !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.FREEBSD)) {
+                && !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.FREEBSD)
+                && !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.SOLARIS)) {
             int pid = new SystemInfo().getOperatingSystem().getProcessId();
 
             assertThat("Open files must be nonnegative", LsofUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
