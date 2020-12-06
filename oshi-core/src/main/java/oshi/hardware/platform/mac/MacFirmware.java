@@ -28,7 +28,8 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.mac.IOKit.IOIterator; // NOSONAR squid:S1191
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
@@ -89,27 +90,27 @@ final class MacFirmware extends AbstractFirmware {
                     case "rom":
                         byte[] data = entry.getByteArrayProperty("vendor");
                         if (data != null) {
-                            manufacturer = new String(data, StandardCharsets.UTF_8).trim();
+                            manufacturer = Native.toString(data, StandardCharsets.UTF_8);
                         }
                         data = entry.getByteArrayProperty("version");
                         if (data != null) {
-                            version = new String(data, StandardCharsets.UTF_8).trim();
+                            version = Native.toString(data, StandardCharsets.UTF_8);
                         }
                         data = entry.getByteArrayProperty("release-date");
                         if (data != null) {
-                            releaseDate = new String(data, StandardCharsets.UTF_8).trim();
+                            releaseDate = Native.toString(data, StandardCharsets.UTF_8);
                         }
                         break;
                     case "chosen":
                         data = entry.getByteArrayProperty("booter-name");
                         if (data != null) {
-                            name = new String(data, StandardCharsets.UTF_8).trim();
+                            name = Native.toString(data, StandardCharsets.UTF_8);
                         }
                         break;
                     case "efi":
                         data = entry.getByteArrayProperty("firmware-abi");
                         if (data != null) {
-                            description = new String(data, StandardCharsets.UTF_8).trim();
+                            description = Native.toString(data, StandardCharsets.UTF_8);
                         }
                         break;
                     default:

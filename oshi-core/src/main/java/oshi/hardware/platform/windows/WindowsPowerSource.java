@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.sun.jna.Memory; // NOSONAR
+import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Guid.GUID;
 import com.sun.jna.platform.win32.Kernel32;
@@ -206,7 +207,7 @@ public final class WindowsPowerSource extends AbstractPowerSource {
                                                 if (0 == (bi.Capabilities & BATTERY_CAPACITY_RELATIVE)) {
                                                     psCapacityUnits = CapacityUnits.MWH;
                                                 }
-                                                psChemistry = new String(bi.Chemistry, StandardCharsets.US_ASCII);
+                                                psChemistry = Native.toString(bi.Chemistry, StandardCharsets.US_ASCII);
                                                 psDesignCapacity = bi.DesignedCapacity;
                                                 psMaxCapacity = bi.FullChargedCapacity;
                                                 psCycleCount = bi.CycleCount;

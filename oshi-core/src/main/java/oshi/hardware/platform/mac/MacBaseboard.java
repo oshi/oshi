@@ -28,7 +28,8 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.Immutable;
@@ -76,15 +77,15 @@ final class MacBaseboard extends AbstractBaseboard {
         if (platformExpert != null) {
             byte[] data = platformExpert.getByteArrayProperty("manufacturer");
             if (data != null) {
-                manufacturer = new String(data, StandardCharsets.UTF_8).trim();
+                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
             }
             data = platformExpert.getByteArrayProperty("board-id");
             if (data != null) {
-                model = new String(data, StandardCharsets.UTF_8).trim();
+                model = Native.toString(data, StandardCharsets.UTF_8);
             }
             data = platformExpert.getByteArrayProperty("version");
             if (data != null) {
-                version = new String(data, StandardCharsets.UTF_8).trim();
+                version = Native.toString(data, StandardCharsets.UTF_8);
             }
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
             platformExpert.release();

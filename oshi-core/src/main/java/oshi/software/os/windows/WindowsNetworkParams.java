@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; //NOSONAR
+import com.sun.jna.Native;
 import com.sun.jna.platform.win32.IPHlpAPI;
 import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
 import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
@@ -62,7 +63,7 @@ final class WindowsNetworkParams extends AbstractNetworkParams {
             LOG.error("Failed to get dns domain name. Error code: {}", Kernel32.INSTANCE.GetLastError());
             return "";
         }
-        return new String(buffer).trim();
+        return Native.toString(buffer);
     }
 
     @Override
@@ -87,7 +88,7 @@ final class WindowsNetworkParams extends AbstractNetworkParams {
         while (dns != null) {
             // a char array of size 16.
             // This array holds an IPv4 address in dotted decimal notation.
-            String addr = new String(dns.IpAddress.String, StandardCharsets.US_ASCII);
+            String addr = Native.toString(dns.IpAddress.String, StandardCharsets.US_ASCII);
             int nullPos = addr.indexOf(0);
             if (nullPos != -1) {
                 addr = addr.substring(0, nullPos);
