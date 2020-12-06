@@ -30,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.jna.Native; // NOSONAR squid:S1191
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.jna.platform.unix.solaris.SolarisLibc.SolarisUtmpx;
@@ -60,10 +62,10 @@ public final class Who {
             // Iterate
             while ((ut = LIBC.getutxent()) != null) {
                 if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
-                    String user = new String(ut.ut_user, StandardCharsets.US_ASCII).trim();
+                    String user = Native.toString(ut.ut_user, StandardCharsets.US_ASCII);
                     if (!"LOGIN".equals(user)) {
-                        String device = new String(ut.ut_line, StandardCharsets.US_ASCII).trim();
-                        String host = new String(ut.ut_host, StandardCharsets.US_ASCII).trim();
+                        String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);
+                        String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
                         long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
                         // Sanity check. If errors, default to who command line
                         if (user.isEmpty() || device.isEmpty() || loginTime < 0

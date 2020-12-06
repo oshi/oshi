@@ -27,7 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -56,8 +57,8 @@ public final class Fsstat {
         SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
         // Iterate all mounted file systems
         for (Statfs f : fs) {
-            String mntFrom = new String(f.f_mntfromname, StandardCharsets.UTF_8).trim();
-            mountPointMap.put(mntFrom.replace("/dev/", ""), new String(f.f_mntonname, StandardCharsets.UTF_8).trim());
+            String mntFrom = Native.toString(f.f_mntfromname, StandardCharsets.UTF_8);
+            mountPointMap.put(mntFrom.replace("/dev/", ""), Native.toString(f.f_mntonname, StandardCharsets.UTF_8));
         }
         return mountPointMap;
     }

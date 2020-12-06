@@ -332,13 +332,7 @@ public class MacOSProcess extends AbstractOSProcess {
         }
         if (this.name.isEmpty()) {
             // pbi_comm contains first 16 characters of name
-            // null terminated
-            for (int t = 0; t < taskAllInfo.pbsd.pbi_comm.length; t++) {
-                if (taskAllInfo.pbsd.pbi_comm[t] == 0) {
-                    this.name = new String(taskAllInfo.pbsd.pbi_comm, 0, t, StandardCharsets.UTF_8);
-                    break;
-                }
-            }
+            this.name = Native.toString(taskAllInfo.pbsd.pbi_comm, StandardCharsets.UTF_8);
         }
 
         switch (taskAllInfo.pbsd.pbi_status) {
@@ -397,14 +391,7 @@ public class MacOSProcess extends AbstractOSProcess {
         }
         VnodePathInfo vpi = new VnodePathInfo();
         if (0 < SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
-            int len = 0;
-            for (byte b : vpi.pvi_cdir.vip_path) {
-                if (b == 0) {
-                    break;
-                }
-                len++;
-            }
-            this.currentWorkingDirectory = new String(vpi.pvi_cdir.vip_path, 0, len, StandardCharsets.US_ASCII);
+            this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);
         }
         return true;
     }

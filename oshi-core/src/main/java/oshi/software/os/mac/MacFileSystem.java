@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
@@ -155,7 +156,7 @@ public class MacFileSystem extends AbstractFileSystem {
                     // Byte arrays are null-terminated strings
 
                     // Get volume name
-                    String volume = new String(fs[f].f_mntfromname, StandardCharsets.UTF_8).trim();
+                    String volume = Native.toString(fs[f].f_mntfromname, StandardCharsets.UTF_8);
                     // Skip non-local drives if requested, skip system types
                     final int flags = fs[f].f_flags;
                     if ((localOnly && (flags & MNT_LOCAL) == 0) || volume.equals("devfs")
@@ -163,7 +164,7 @@ public class MacFileSystem extends AbstractFileSystem {
                         continue;
                     }
 
-                    String type = new String(fs[f].f_fstypename, StandardCharsets.UTF_8).trim();
+                    String type = Native.toString(fs[f].f_fstypename, StandardCharsets.UTF_8);
                     String description = "Volume";
                     if (LOCAL_DISK.matcher(volume).matches()) {
                         description = "Local Disk";
@@ -171,7 +172,7 @@ public class MacFileSystem extends AbstractFileSystem {
                             || NETWORK_FS_TYPES.contains(type)) {
                         description = "Network Drive";
                     }
-                    String path = new String(fs[f].f_mntonname, StandardCharsets.UTF_8).trim();
+                    String path = Native.toString(fs[f].f_mntonname, StandardCharsets.UTF_8);
                     String name = "";
                     File file = new File(path);
                     if (name.isEmpty()) {

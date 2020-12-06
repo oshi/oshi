@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.win32.Kernel32; //NOSONAR
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -170,7 +171,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
         WinNT.LARGE_INTEGER userFreeBytes;
         WinNT.LARGE_INTEGER totalBytes;
         WinNT.LARGE_INTEGER systemFreeBytes;
-        boolean retVal;
         char[] aVolume;
         char[] fstype;
         char[] name;
@@ -184,49 +184,46 @@ public class WindowsFileSystem extends AbstractFileSystem {
         if (hVol == WinBase.INVALID_HANDLE_VALUE) {
             return fs;
         }
+        try {
+            do {
+                fstype = new char[16];
+                name = new char[BUFSIZE];
+                mount = new char[BUFSIZE];
+                pFlags = new IntByReference();
 
-        while (true) {
-            fstype = new char[16];
-            name = new char[BUFSIZE];
-            mount = new char[BUFSIZE];
-            pFlags = new IntByReference();
+                userFreeBytes = new WinNT.LARGE_INTEGER(0L);
+                totalBytes = new WinNT.LARGE_INTEGER(0L);
+                systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
 
-            userFreeBytes = new WinNT.LARGE_INTEGER(0L);
-            totalBytes = new WinNT.LARGE_INTEGER(0L);
-            systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
+                volume = Native.toString(aVolume);
+                Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, pFlags, fstype, 16);
+                final int flags = pFlags.getValue();
+                Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
 
-            volume = new String(aVolume).trim();
-            Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, pFlags, fstype, 16);
-            final int flags = pFlags.getValue();
-            Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
+                strMount = Native.toString(mount);
+                if (!strMount.isEmpty() && (volumeToMatch == null || volumeToMatch.equals(volume))) {
+                    strName = Native.toString(name);
+                    strFsType = Native.toString(fstype);
 
-            strMount = new String(mount).trim();
-            if (!strMount.isEmpty() && (volumeToMatch == null || volumeToMatch.equals(volume))) {
-                strName = new String(name).trim();
-                strFsType = new String(fstype).trim();
+                    StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
+                    String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
+                            .map(Map.Entry::getValue).collect(Collectors.joining(","));
+                    if (!moreOptions.isEmpty()) {
+                        options.append(',').append(moreOptions);
+                    }
+                    Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
+                    // Parse uuid from volume name
+                    String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
-                StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
-                String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
-                        .map(Map.Entry::getValue).collect(Collectors.joining(","));
-                if (!moreOptions.isEmpty()) {
-                    options.append(',').append(moreOptions);
+                    fs.add(new WindowsOSFileStore(String.format("%s (%s)", strName, strMount), volume, strName,
+                            strMount, options.toString(), uuid, "", getDriveType(strMount), strFsType,
+                            systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
                 }
-                Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
-                // Parse uuid from volume name
-                String uuid = ParseUtil.parseUuidOrDefault(volume, "");
-
-                fs.add(new WindowsOSFileStore(String.format("%s (%s)", strName, strMount), volume, strName, strMount,
-                        options.toString(), uuid, "", getDriveType(strMount), strFsType, systemFreeBytes.getValue(),
-                        userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
-            }
-            retVal = Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE);
-            if (!retVal) {
-                Kernel32.INSTANCE.FindVolumeClose(hVol);
-                break;
-            }
+            } while (Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE));
+            return fs;
+        } finally {
+            Kernel32.INSTANCE.FindVolumeClose(hVol);
         }
-
-        return fs;
     }
 
     /**
@@ -256,7 +253,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             if (type != 4) {
                 char[] chrVolume = new char[BUFSIZE];
                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + "\\", chrVolume, BUFSIZE);
-                volume = new String(chrVolume).trim();
+                volume = Native.toString(chrVolume);
             } else {
                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
                 String[] split = volume.split("\\\\");
