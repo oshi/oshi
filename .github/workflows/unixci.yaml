@@ -1,0 +1,42 @@
+# Test Solaris and FreeBSD using VM inside macos
+name: Unix Java CI
+
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: "30 9 1 * *" # monthly on 1st at 09:30 UTC
+
+jobs:
+  # This tends to work reliably after ~20 minutes
+  # After FreeBSD code changes, reactivate Cirrus CI temporarily
+  testfreebsd:
+    runs-on: macos-latest
+    name: Test JDK 8, freebsd
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test in FreeBSD
+        id: test-freebsd
+        uses: vmactions/freebsd-vm@v0.0.9
+        with:
+          usesh: true
+          prepare: |
+            pkg install -y curl
+            pkg install -y openjdk8
+          run: |
+            ./mvnw test -B
+
+  # This gets through the mvn test part in ~40 mintues but hangs.
+  # Cancel workflow after an hour and inspect the logs
+  testsolaris:
+    runs-on: macos-latest
+    name: Test JDK 8, solaris
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test in Solaris
+        id: test-solaris
+        uses: vmactions/solaris-vm@v0.0.1
+        with:
+          prepare: |
+            pkg install jdk-8
+          run: ./mvnw test -B
+

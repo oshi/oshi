@@ -37,20 +37,3 @@ jobs:
         run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  testfreebsd:
-    runs-on: macos-latest
-    name: Test JDK 8, freebsd
-    steps:
-      - uses: actions/checkout@v2
-      - name: Test in FreeBSD
-        id: test-freebsd
-        uses: vmactions/freebsd-vm@v0.0.9
-        with:
-          usesh: true
-          prepare: |
-            pkg install -y curl
-            pkg install -y openjdk8
-          run: |
-            ./mvnw test -B
-
