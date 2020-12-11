@@ -24,9 +24,12 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
@@ -40,6 +43,8 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class FreeBsdNetworkIF extends AbstractNetworkIF {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkIF.class);
+
     private long bytesRecv;
     private long bytesSent;
     private long packetsRecv;
@@ -50,7 +55,7 @@ public final class FreeBsdNetworkIF extends AbstractNetworkIF {
     private long collisions;
     private long timeStamp;
 
-    public FreeBsdNetworkIF(NetworkInterface netint) {
+    public FreeBsdNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
     }
@@ -64,8 +69,15 @@ public final class FreeBsdNetworkIF extends AbstractNetworkIF {
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()
-                .map(FreeBsdNetworkIF::new).collect(Collectors.toList()));
+        List<NetworkIF> ifList = new ArrayList<>();
+        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
+            try {
+                ifList.add(new FreeBsdNetworkIF(ni));
+            } catch (InstantiationException e) {
+                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
+            }
+        }
+        return Collections.unmodifiableList(ifList);
     }
 
     @Override

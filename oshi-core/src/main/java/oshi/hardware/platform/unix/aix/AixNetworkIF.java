@@ -27,10 +27,13 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 
@@ -46,6 +49,8 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 @ThreadSafe
 public final class AixNetworkIF extends AbstractNetworkIF {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AixNetworkIF.class);
+
     private long bytesRecv;
     private long bytesSent;
     private long packetsRecv;
@@ -59,7 +64,8 @@ public final class AixNetworkIF extends AbstractNetworkIF {
 
     private Supplier<perfstat_netinterface_t[]> netstats;
 
-    public AixNetworkIF(NetworkInterface netint, Supplier<perfstat_netinterface_t[]> netstats) {
+    public AixNetworkIF(NetworkInterface netint, Supplier<perfstat_netinterface_t[]> netstats)
+            throws InstantiationException {
         super(netint);
         this.netstats = netstats;
         updateAttributes();
@@ -76,8 +82,15 @@ public final class AixNetworkIF extends AbstractNetworkIF {
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterface::queryNetInterfaces,
                 defaultExpiration());
-        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()
-                .map(n -> new AixNetworkIF(n, netstats)).collect(Collectors.toList()));
+        List<NetworkIF> ifList = new ArrayList<>();
+        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
+            try {
+                ifList.add(new AixNetworkIF(ni, netstats));
+            } catch (InstantiationException e) {
+                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
+            }
+        }
+        return Collections.unmodifiableList(ifList);
     }
 
     @Override

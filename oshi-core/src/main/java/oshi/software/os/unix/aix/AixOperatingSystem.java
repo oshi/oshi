@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.Uptime;
 import oshi.driver.unix.aix.Who;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatProcess;
@@ -206,7 +207,11 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        return Who.queryBootTime() / 1000L;
+        long bootTime = Who.queryBootTime();
+        if (bootTime > 0) {
+            return bootTime / 1000L;
+        }
+        return System.currentTimeMillis() - Uptime.queryUpTime();
     }
 
     @Override

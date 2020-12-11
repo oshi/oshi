@@ -24,10 +24,13 @@
 package oshi.hardware.platform.mac;
 
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.net.NetStat;
@@ -41,6 +44,8 @@ import oshi.hardware.common.AbstractNetworkIF;
 @ThreadSafe
 public final class MacNetworkIF extends AbstractNetworkIF {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIF.class);
+
     private int ifType;
     private long bytesRecv;
     private long bytesSent;
@@ -53,7 +58,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     private long speed;
     private long timeStamp;
 
-    public MacNetworkIF(NetworkInterface netint, Map<Integer, IFdata> data) {
+    public MacNetworkIF(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
         super(netint);
         updateNetworkStats(data);
     }
@@ -69,8 +74,15 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         // One time fetch of stats
         final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
-        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()
-                .map(ni -> new MacNetworkIF(ni, data)).collect(Collectors.toList()));
+        List<NetworkIF> ifList = new ArrayList<>();
+        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
+            try {
+                ifList.add(new MacNetworkIF(ni, data));
+            } catch (InstantiationException e) {
+                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
+            }
+        }
+        return Collections.unmodifiableList(ifList);
     }
 
     @Override

@@ -24,9 +24,12 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
@@ -42,6 +45,8 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 @ThreadSafe
 public final class SolarisNetworkIF extends AbstractNetworkIF {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SolarisNetworkIF.class);
+
     private long bytesRecv;
     private long bytesSent;
     private long packetsRecv;
@@ -53,7 +58,7 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
     private long speed;
     private long timeStamp;
 
-    public SolarisNetworkIF(NetworkInterface netint) {
+    public SolarisNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
     }
@@ -67,8 +72,15 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()
-                .map(SolarisNetworkIF::new).collect(Collectors.toList()));
+        List<NetworkIF> ifList = new ArrayList<>();
+        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
+            try {
+                ifList.add(new SolarisNetworkIF(ni));
+            } catch (InstantiationException e) {
+                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
+            }
+        }
+        return Collections.unmodifiableList(ifList);
     }
 
     @Override

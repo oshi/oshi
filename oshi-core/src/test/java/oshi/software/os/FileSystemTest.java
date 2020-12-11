@@ -69,9 +69,11 @@ class FileSystemTest {
             if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
                 assertThat("Number of free inodes should be 0 or higher on non-Windows systems",
                         store.getFreeInodes() >= 0, is(true));
-                assertThat(
-                        "Total number of inodes should be greater than or equal to number of free inodes on non-Windows systems",
-                        store.getTotalInodes() >= store.getFreeInodes(), is(true));
+                if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.SOLARIS) {
+                    assertThat(
+                            "Total number of inodes should be greater than or equal to number of free inodes on non-Windows/Solaris systems",
+                            store.getTotalInodes() >= store.getFreeInodes(), is(true));
+                }
             }
             if (!store.getDescription().equals("Network drive")) {
                 assertThat(
