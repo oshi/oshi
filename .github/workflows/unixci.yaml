@@ -7,8 +7,8 @@ on:
     - cron: "30 9 1 * *" # monthly on 1st at 09:30 UTC
 
 jobs:
-  # This tends to work reliably
-  # After FreeBSD code changes, reactivate Cirrus CI temporarily
+  # Runs current branch on FreeBSD 10.0.1 in a VM
+  # After FreeBSD code changes, reactivate Cirrus CI temporarily for 11.4 and 12.1 and 13.0
   testfreebsd:
     runs-on: macos-latest
     name: Test JDK 8, freebsd
@@ -25,8 +25,7 @@ jobs:
           run: |
             ./mvnw test -B
 
-  # This gets through the mvn test part but forks stay alive without timeout
-  # Timeout always exits with failed status
+  # Runs current branch on Solaris 11.4 in a VM
   testsolaris:
     runs-on: macos-latest
     name: Test JDK 8, solaris
@@ -38,11 +37,13 @@ jobs:
         with:
           prepare: |
             pkg install jdk-8
-          run: |
-            ./mvnw test -B -Djacoco.skip=true -Dsurefire.timeout=300
+          run: |    
+            ./mvnw test -B -Djacoco.skip=true
+                      
 
-  # SSH into AIX server and run test
+  # SSH into AIX server and run test on AIX 7.1
   # Configured to pull latest from oshi master branch
+  # To test on a PR, log into the aix server and create a new branch
   testaix:
     runs-on: ubuntu-latest
     name: Test JDK 8, aix
@@ -63,7 +64,3 @@ jobs:
           git reset --hard HEAD
           git pull
           mvn clean test -B -Djacoco.skip=true
-          
-          
-          
-          
