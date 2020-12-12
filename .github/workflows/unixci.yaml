@@ -1,4 +1,4 @@
-# Test Solaris and FreeBSD using VM inside macos
+# Test FreeBSD, Solaris and AIX
 name: Unix Java CI
 
 on: 
@@ -7,7 +7,7 @@ on:
     - cron: "30 9 1 * *" # monthly on 1st at 09:30 UTC
 
 jobs:
-  # This tends to work reliably after ~20 minutes
+  # This tends to work reliably
   # After FreeBSD code changes, reactivate Cirrus CI temporarily
   testfreebsd:
     runs-on: macos-latest
@@ -25,8 +25,8 @@ jobs:
           run: |
             ./mvnw test -B
 
-  # This gets through the mvn test part in ~40 mintues but hangs.
-  # Cancel workflow after an hour and inspect the logs
+  # This gets through the mvn test part but forks stay alive without timeout
+  # Timeout always exits with failed status
   testsolaris:
     runs-on: macos-latest
     name: Test JDK 8, solaris
@@ -38,5 +38,32 @@ jobs:
         with:
           prepare: |
             pkg install jdk-8
-          run: ./mvnw test -B
+          run: |
+            ./mvnw test -B -Djacoco.skip=true -Dsurefire.timeout=300
 
+  # SSH into AIX server and run test
+  # Configured to pull latest from oshi master branch
+  testaix:
+    runs-on: ubuntu-latest
+    name: Test JDK 8, aix
+    steps:
+    - name: Test in AIX
+      uses: appleboy/ssh-action@master    
+      with:
+        host: gate.polarhome.com
+        username: oshi
+        password: ${{ secrets.AIX_OSHI_PW }}
+        port: 775
+        script_stop: true
+        command_timeout: 45m
+        script: |
+          source .profile
+          source .bashrc
+          cd ~/git/oshi
+          git reset --hard HEAD
+          git pull
+          mvn clean test -B -Djacoco.skip=true
+          
+          
+          
+          

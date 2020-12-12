@@ -272,6 +272,7 @@
 						<reuseForks>true</reuseForks>
 						<parallel>all</parallel>
 						<useUnlimitedThreads>true</useUnlimitedThreads>
+						<forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
 					</configuration>
 				</plugin>
 				<!-- Build Plugins -->

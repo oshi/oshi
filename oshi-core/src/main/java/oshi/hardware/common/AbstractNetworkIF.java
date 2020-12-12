@@ -73,8 +73,10 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      *
      * @param netint
      *            The core java {@link NetworkInterface} backing this object.
+     * @throws InstantiationException
+     *             If a socket exception prevents access to the backing interface.
      */
-    protected AbstractNetworkIF(NetworkInterface netint) {
+    protected AbstractNetworkIF(NetworkInterface netint) throws InstantiationException {
         this.networkInterface = netint;
         try {
             // Set MTU
@@ -114,7 +116,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             this.ipv6 = ipv6list.toArray(new String[0]);
             this.prefixLengths = prefixLengthList.toArray(new Short[0]);
         } catch (SocketException e) {
-            LOG.error("Socket exception: {}", e.getMessage());
+            throw new InstantiationException(e.getMessage());
         }
     }
 

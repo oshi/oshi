@@ -25,9 +25,12 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
@@ -39,6 +42,8 @@ import oshi.util.FileUtil;
  */
 @ThreadSafe
 public final class LinuxNetworkIF extends AbstractNetworkIF {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkIF.class);
 
     private int ifType;
     private boolean connectorPresent;
@@ -53,7 +58,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     private long speed;
     private long timeStamp;
 
-    public LinuxNetworkIF(NetworkInterface netint) {
+    public LinuxNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
     }
@@ -67,8 +72,15 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
      *         the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()
-                .map(LinuxNetworkIF::new).collect(Collectors.toList()));
+        List<NetworkIF> ifList = new ArrayList<>();
+        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
+            try {
+                ifList.add(new LinuxNetworkIF(ni));
+            } catch (InstantiationException e) {
+                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
+            }
+        }
+        return Collections.unmodifiableList(ifList);
     }
 
     @Override
