@@ -36,9 +36,9 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class Uptime {
 
-    private static final long MINUTE = 60L * 1000L;
-    private static final long HOUR = 60L * MINUTE;
-    private static final long DAY = 24L * HOUR;
+    private static final long MINUTE_MS = 60L * 1000L;
+    private static final long HOUR_MS = 60L * MINUTE_MS;
+    private static final long DAY_MS = 24L * HOUR_MS;
 
     // sample format:
     // 18:36pm up 10 days 8:11, 2 users, load average: 3.14, 2.74, 2.41
@@ -55,16 +55,16 @@ public final class Uptime {
      */
     public static long queryUpTime() {
         long uptime = 0L;
-        String s = ExecutingCommand.getFirstAnswer("uptime");
+        String s = ExecutingCommand.getFirstAnswer("/usr/bin/uptime");
         Matcher m = UPTIME_FORMAT_AIX.matcher(s);
         if (m.matches()) {
             if (m.group(2) != null) {
-                uptime += ParseUtil.parseLongOrDefault(m.group(2), 0L) * DAY;
+                uptime += ParseUtil.parseLongOrDefault(m.group(2), 0L) * DAY_MS;
             }
             if (m.group(4) != null) {
-                uptime += ParseUtil.parseLongOrDefault(m.group(4), 0L) * HOUR;
+                uptime += ParseUtil.parseLongOrDefault(m.group(4), 0L) * HOUR_MS;
             }
-            uptime += ParseUtil.parseLongOrDefault(m.group(5), 0L) * MINUTE;
+            uptime += ParseUtil.parseLongOrDefault(m.group(5), 0L) * MINUTE_MS;
         }
         return uptime;
     }
