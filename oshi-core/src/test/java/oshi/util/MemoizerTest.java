@@ -46,6 +46,7 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 final class MemoizerTest {
     // We want enough threads that some of them are forced to wait
@@ -70,6 +71,7 @@ final class MemoizerTest {
     }
 
     @Test
+    @Timeout(value = 2, unit = TimeUnit.MINUTES)
     void get() throws Throwable {
         // With max time limits these tests take a minute to run. But with no changes to
         // the memoizer it's simply testing overkill. Use a RNG to limit these tests

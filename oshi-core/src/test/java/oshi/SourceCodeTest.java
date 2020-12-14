@@ -26,7 +26,10 @@ package oshi;
 import static guru.nidi.codeassert.junit.CodeAssertMatchers.hasNoCheckstyleIssues;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.puppycrawl.tools.checkstyle.api.SeverityLevel;
 
@@ -40,6 +43,7 @@ import guru.nidi.codeassert.config.In;
 class SourceCodeTest {
 
     @Test
+    @Timeout(value = 10, unit = TimeUnit.MINUTES)
     void testCheckstyle() {
         checkstyleGoogle();
         checkstyleSun();
