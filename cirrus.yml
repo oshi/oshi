@@ -1,0 +1,14 @@
+freebsd_task:
+  name: FreeBSD CI
+  only_if: $CIRRUS_BRANCH == 'master'
+  freebsd_instance:
+    matrix:
+      image_family: freebsd-11-4
+      image_family: freebsd-12-1
+      image_family: freebsd-13-0-snap   
+  container:
+    image: maven:latest
+  maven_cache:
+    folder: ~/.m2
+  install_script: pkg install -y openjdk8
+  test_script: ./mvnw test -B

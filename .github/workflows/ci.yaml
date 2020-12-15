@@ -10,10 +10,12 @@ on:
       - '**.md'
     
 jobs:
-  test:
+  # Runs current branch on Windows, Linux, macOS with multiple JDKs
+  testmatrix:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # Baseline support, Current LTS, Current GA, Current EA
         java: [8, 11, 15, 16-ea]
         os: [ubuntu-latest, macos-latest, macos-11.0, windows-latest]
       fail-fast: false
@@ -40,7 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Runs current branch on FreeBSD 10.0.1 in a VM
-  # After FreeBSD code changes, reactivate Cirrus CI temporarily for 11.4 and 12.1 and 13.0
+  # Cirrus CI tests 11.4 and 12.1 and 13.0
   testfreebsd:
     runs-on: macos-latest
     name: Test JDK 8, freebsd
