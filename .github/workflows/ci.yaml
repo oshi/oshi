@@ -95,7 +95,8 @@ jobs:
           source .profile
           source .bashrc
           cd ~/git/oshi
-          git reset --hard HEAD
+          git checkout master
+          git reset --hard HEAD~5
           git pull
           mvn clean test -B -Djacoco.skip=true
           
