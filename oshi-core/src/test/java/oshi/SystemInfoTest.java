@@ -31,10 +31,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +77,6 @@ public class SystemInfoTest { // NOSONAR squid:S5786
      * Test that this platform is implemented..
      */
     @Test
-    @Timeout(value = 5, unit = TimeUnit.MINUTES)
     void testPlatformEnum() {
         assertThat("Unsupported OS", SystemInfo.getCurrentPlatformEnum(), is(not(PlatformEnum.UNKNOWN)));
         // Exercise the main method
