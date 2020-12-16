@@ -1,13 +1,11 @@
 freebsd_task:
   name: FreeBSD CI
-  only_if: $CIRRUS_BRANCH == 'master'
+  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
   freebsd_instance:
     matrix:
       image_family: freebsd-11-4
       image_family: freebsd-12-1
       image_family: freebsd-13-0-snap   
-  container:
-    image: maven:latest
   maven_cache:
     folder: ~/.m2
   install_script: pkg install -y openjdk8
