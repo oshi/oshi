@@ -56,6 +56,7 @@ import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -131,12 +132,17 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     private String parseCodeName() {
-        if (this.major >= 10) {
-            Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
-            return verProps.getProperty(this.major + "." + this.minor);
+        Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
+        String codeName = null;
+        if (this.major > 10) {
+            codeName = verProps.getProperty(Integer.toString(this.major));
+        } else if (this.major == 10) {
+            codeName = verProps.getProperty(this.major + "." + this.minor);
         }
-        LOG.warn("Unable to parse version {}.{} to a codename.", this.major, this.minor);
-        return "";
+        if (Util.isBlank(codeName)) {
+            LOG.warn("Unable to parse version {}.{} to a codename.", this.major, this.minor);
+        }
+        return codeName;
     }
 
     @Override
