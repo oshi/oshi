@@ -44,6 +44,7 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     private final int threadId;
+    private String name;
     private State state = State.INVALID;
     private long minorFaults;
     private long majorFaults;
@@ -64,6 +65,11 @@ public class LinuxOSThread extends AbstractOSThread {
     @Override
     public int getThreadId() {
         return this.threadId;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override
@@ -118,6 +124,8 @@ public class LinuxOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
+        this.name = FileUtil
+                .getStringFromFile(String.format(ProcPath.TASK_COMM, this.getOwningProcessId(), this.threadId));
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(
                 String.format(ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), ":");
         String stat = FileUtil
