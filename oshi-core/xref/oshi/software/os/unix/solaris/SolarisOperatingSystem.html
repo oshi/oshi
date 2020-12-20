@@ -190,7 +190,7 @@
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> 
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> querySystemUptime() {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             Kstat ksp = kc.lookup(<span class="jxr_string">"unix"</span>, 0, <span class="jxr_string">"system_misc"</span>);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             Kstat ksp = KstatChain.lookup(<span class="jxr_string">"unix"</span>, 0, <span class="jxr_string">"system_misc"</span>);
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>                 <em class="jxr_comment">// Snap Time is in nanoseconds; divide for seconds</em>
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>                 <strong class="jxr_keyword">return</strong> ksp.ks_snaptime / 1_000_000_000L;
@@ -206,8 +206,8 @@
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> 
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> querySystemBootTime() {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>             Kstat ksp = kc.lookup(<span class="jxr_string">"unix"</span>, 0, <span class="jxr_string">"system_misc"</span>);
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; kc.read(ksp)) {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>             Kstat ksp = KstatChain.lookup(<span class="jxr_string">"unix"</span>, 0, <span class="jxr_string">"system_misc"</span>);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>             <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>                 <strong class="jxr_keyword">return</strong> KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"boot_time"</span>);
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>             }
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>         }

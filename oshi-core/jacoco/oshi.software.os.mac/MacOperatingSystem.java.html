@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacOperatingSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacOperatingSystem.java</span></div><h1>MacOperatingSystem.java</h1><pre class="source lang-java linenums">/**
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os.mac;
+
+import static oshi.software.os.OSService.State.RUNNING;
+import static oshi.software.os.OSService.State.STOPPED;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
+import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
+import com.sun.jna.platform.mac.SystemB.Timeval;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.Who;
+import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
+import oshi.software.os.NetworkParams;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OSProcess.State;
+import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
+import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.Util;
+import oshi.util.platform.mac.SysctlUtil;
+
+/**
+ * macOS, previously Mac OS X and later OS X) is a series of proprietary
+ * graphical operating systems developed and marketed by Apple Inc. since 2001.
+ * It is the primary operating system for Apple's Mac computers.
+ */
+@ThreadSafe
+public class MacOperatingSystem extends AbstractOperatingSystem {
+
+<span class="nc" id="L70">    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);</span>
+
+    public static final String MACOS_VERSIONS_PROPERTIES = &quot;oshi.macos.versions.properties&quot;;
+
+    private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = &quot;/System/Library/LaunchAgents&quot;;
+    private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = &quot;/System/Library/LaunchDaemons&quot;;
+
+<span class="nc" id="L77">    private int maxProc = 1024;</span>
+
+    private final String osXVersion;
+    private final int major;
+    private final int minor;
+
+    private static final long BOOTTIME;
+    static {
+<span class="nc" id="L85">        Timeval tv = new Timeval();</span>
+<span class="nc bnc" id="L86" title="All 4 branches missed.">        if (!SysctlUtil.sysctl(&quot;kern.boottime&quot;, tv) || tv.tv_sec.longValue() == 0L) {</span>
+            // Usually this works. If it doesn't, fall back to text parsing.
+            // Boot time will be the first consecutive string of digits.
+<span class="nc" id="L89">            BOOTTIME = ParseUtil.parseLongOrDefault(</span>
+<span class="nc" id="L90">                    ExecutingCommand.getFirstAnswer(&quot;sysctl -n kern.boottime&quot;).split(&quot;,&quot;)[0].replaceAll(&quot;\\D&quot;, &quot;&quot;),</span>
+<span class="nc" id="L91">                    System.currentTimeMillis() / 1000);</span>
+        } else {
+            // tv now points to a 64-bit timeval structure for boot time.
+            // First 4 bytes are seconds, second 4 bytes are microseconds
+            // (we ignore)
+<span class="nc" id="L96">            BOOTTIME = tv.tv_sec.longValue();</span>
+        }
+<span class="nc" id="L98">    }</span>
+
+<span class="nc" id="L100">    public MacOperatingSystem() {</span>
+<span class="nc" id="L101">        String version = System.getProperty(&quot;os.version&quot;);</span>
+<span class="nc" id="L102">        int verMajor = ParseUtil.getFirstIntValue(version);</span>
+<span class="nc" id="L103">        int verMinor = ParseUtil.getNthIntValue(version, 2);</span>
+        // Big Sur (11.x) may return 10.16
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (verMajor == 10 &amp;&amp; verMinor &gt; 15) {</span>
+<span class="nc" id="L106">            String swVers = ExecutingCommand.getFirstAnswer(&quot;sw_vers -productVersion&quot;);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (!swVers.isEmpty()) {</span>
+<span class="nc" id="L108">                version = swVers;</span>
+            }
+<span class="nc" id="L110">            verMajor = ParseUtil.getFirstIntValue(version);</span>
+<span class="nc" id="L111">            verMinor = ParseUtil.getNthIntValue(version, 2);</span>
+        }
+<span class="nc" id="L113">        this.osXVersion = version;</span>
+<span class="nc" id="L114">        this.major = verMajor;</span>
+<span class="nc" id="L115">        this.minor = verMinor;</span>
+        // Set max processes
+<span class="nc" id="L117">        this.maxProc = SysctlUtil.sysctl(&quot;kern.maxproc&quot;, 0x1000);</span>
+<span class="nc" id="L118">    }</span>
+
+    @Override
+    public String queryManufacturer() {
+<span class="nc" id="L122">        return &quot;Apple&quot;;</span>
+    }
+
+    @Override
+    public FamilyVersionInfo queryFamilyVersionInfo() {
+<span class="nc bnc" id="L127" title="All 6 branches missed.">        String family = this.major &gt; 10 || (this.major == 10 &amp;&amp; this.minor &gt;= 12) ? &quot;macOS&quot;</span>
+<span class="nc" id="L128">                : System.getProperty(&quot;os.name&quot;);</span>
+<span class="nc" id="L129">        String codeName = parseCodeName();</span>
+<span class="nc" id="L130">        String buildNumber = SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;);</span>
+<span class="nc" id="L131">        return new FamilyVersionInfo(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));</span>
+    }
+
+    private String parseCodeName() {
+<span class="nc" id="L135">        Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);</span>
+<span class="nc" id="L136">        String codeName = null;</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (this.major &gt; 10) {</span>
+<span class="nc" id="L138">            codeName = verProps.getProperty(Integer.toString(this.major));</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        } else if (this.major == 10) {</span>
+<span class="nc" id="L140">            codeName = verProps.getProperty(this.major + &quot;.&quot; + this.minor);</span>
+        }
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (Util.isBlank(codeName)) {</span>
+<span class="nc" id="L143">            LOG.warn(&quot;Unable to parse version {}.{} to a codename.&quot;, this.major, this.minor);</span>
+        }
+<span class="nc" id="L145">        return codeName;</span>
+    }
+
+    @Override
+    protected int queryBitness(int jvmBitness) {
+<span class="nc bnc" id="L150" title="All 6 branches missed.">        if (jvmBitness == 64 || (this.major == 10 &amp;&amp; this.minor &gt; 6)) {</span>
+<span class="nc" id="L151">            return 64;</span>
+        }
+<span class="nc" id="L153">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf LONG_BIT&quot;), 32);</span>
+    }
+
+    @Override
+    protected boolean queryElevated() {
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        return System.getenv(&quot;SUDO_COMMAND&quot;) != null;</span>
+    }
+
+    @Override
+    public FileSystem getFileSystem() {
+<span class="nc" id="L163">        return new MacFileSystem();</span>
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+<span class="nc" id="L168">        return new MacInternetProtocolStats(isElevated());</span>
+    }
+
+    @Override
+    public List&lt;OSSession&gt; getSessions() {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        return Collections.unmodifiableList(USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent());</span>
+    }
+
+    @Override
+    public List&lt;OSProcess&gt; getProcesses(int limit, ProcessSort sort) {
+<span class="nc" id="L178">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L179">        int[] pids = new int[this.maxProc];</span>
+<span class="nc" id="L180">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
+                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+            // Handle off-by-one bug in proc_listpids where the size returned
+            // is: SystemB.INT_SIZE * (pids + 1)
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (pids[i] &gt; 0) {</span>
+<span class="nc" id="L186">                OSProcess proc = getProcess(pids[i]);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">                if (proc != null) {</span>
+<span class="nc" id="L188">                    procs.add(proc);</span>
+                }
+            }
+        }
+<span class="nc" id="L192">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L193">        return Collections.unmodifiableList(sorted);</span>
+    }
+
+    @Override
+    public OSProcess getProcess(int pid) {
+<span class="nc" id="L198">        OSProcess proc = new MacOSProcess(pid, this.minor);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        return proc.getState().equals(State.INVALID) ? null : proc;</span>
+    }
+
+    @Override
+    public List&lt;OSProcess&gt; getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+<span class="nc" id="L204">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L205">        int[] pids = new int[this.maxProc];</span>
+<span class="nc" id="L206">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
+                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+            // Handle off-by-one bug in proc_listpids where the size returned
+            // is: SystemB.INT_SIZE * (pids + 1)
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (pids[i] == 0) {</span>
+<span class="nc" id="L212">                continue;</span>
+            }
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (parentPid == getParentProcessPid(pids[i])) {</span>
+<span class="nc" id="L215">                OSProcess proc = getProcess(pids[i]);</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                if (proc != null) {</span>
+<span class="nc" id="L217">                    procs.add(proc);</span>
+                }
+            }
+        }
+<span class="nc" id="L221">        List&lt;OSProcess&gt; sorted = processSort(procs, limit, sort);</span>
+<span class="nc" id="L222">        return Collections.unmodifiableList(sorted);</span>
+    }
+
+    private static int getParentProcessPid(int pid) {
+<span class="nc" id="L226">        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (0 &gt; SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {</span>
+<span class="nc" id="L228">            return 0;</span>
+        }
+<span class="nc" id="L230">        return taskAllInfo.pbsd.pbi_ppid;</span>
+    }
+
+    @Override
+    public int getProcessId() {
+<span class="nc" id="L235">        return SystemB.INSTANCE.getpid();</span>
+    }
+
+    @Override
+    public int getProcessCount() {
+<span class="nc" id="L240">        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;</span>
+    }
+
+    @Override
+    public int getThreadCount() {
+        // Get current pids, then slightly pad in case new process starts while
+        // allocating array space
+<span class="nc" id="L247">        int[] pids = new int[getProcessCount() + 10];</span>
+<span class="nc" id="L248">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
+                / SystemB.INT_SIZE;
+<span class="nc" id="L250">        int numberOfThreads = 0;</span>
+<span class="nc" id="L251">        ProcTaskInfo taskInfo = new ProcTaskInfo();</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+<span class="nc" id="L253">            int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            if (exit != -1) {</span>
+<span class="nc" id="L255">                numberOfThreads += taskInfo.pti_threadnum;</span>
+            }
+        }
+<span class="nc" id="L258">        return numberOfThreads;</span>
+    }
+
+    @Override
+    public long getSystemUptime() {
+<span class="nc" id="L263">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
+    }
+
+    @Override
+    public long getSystemBootTime() {
+<span class="nc" id="L268">        return BOOTTIME;</span>
+    }
+
+    @Override
+    public NetworkParams getNetworkParams() {
+<span class="nc" id="L273">        return new MacNetworkParams();</span>
+    }
+
+    @Override
+    public OSService[] getServices() {
+        // Get running services
+<span class="nc" id="L279">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L280">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {</span>
+<span class="nc" id="L282">            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);</span>
+<span class="nc" id="L283">            services.add(s);</span>
+<span class="nc" id="L284">            running.add(p.getName());</span>
+<span class="nc" id="L285">        }</span>
+        // Get Directories for stopped services
+<span class="nc" id="L287">        ArrayList&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L288">        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);</span>
+<span class="nc bnc" id="L289" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
+<span class="nc" id="L290">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
+        } else {
+<span class="nc" id="L292">            LOG.error(&quot;Directory: /System/Library/LaunchAgents does not exist&quot;);</span>
+        }
+<span class="nc" id="L294">        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);</span>
+<span class="nc bnc" id="L295" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
+<span class="nc" id="L296">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
+        } else {
+<span class="nc" id="L298">            LOG.error(&quot;Directory: /System/Library/LaunchDaemons does not exist&quot;);</span>
+        }
+<span class="nc bnc" id="L300" title="All 2 branches missed.">        for (File f : files) {</span>
+            // remove .plist extension
+<span class="nc" id="L302">            String name = f.getName().substring(0, f.getName().length() - 6);</span>
+<span class="nc" id="L303">            int index = name.lastIndexOf('.');</span>
+<span class="nc bnc" id="L304" title="All 4 branches missed.">            String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);</span>
+<span class="nc bnc" id="L305" title="All 4 branches missed.">            if (!running.contains(name) &amp;&amp; !running.contains(shortName)) {</span>
+<span class="nc" id="L306">                OSService s = new OSService(name, 0, STOPPED);</span>
+<span class="nc" id="L307">                services.add(s);</span>
+            }
+<span class="nc" id="L309">        }</span>
+<span class="nc" id="L310">        return services.toArray(new OSService[0]);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

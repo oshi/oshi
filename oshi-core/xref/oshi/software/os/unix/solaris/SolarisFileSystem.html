@@ -160,9 +160,9 @@
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     @Override
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             Kstat ksp = kc.lookup(<strong class="jxr_keyword">null</strong>, -1, <span class="jxr_string">"file_cache"</span>);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             Kstat ksp = KstatChain.lookup(<strong class="jxr_keyword">null</strong>, -1, <span class="jxr_string">"file_cache"</span>);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>             <em class="jxr_comment">// Set values</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; kc.read(ksp)) {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>                 <strong class="jxr_keyword">return</strong> KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"buf_inuse"</span>);
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>             }
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         }
@@ -172,9 +172,9 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>     @Override
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             Kstat ksp = kc.lookup(<strong class="jxr_keyword">null</strong>, -1, <span class="jxr_string">"file_cache"</span>);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             Kstat ksp = KstatChain.lookup(<strong class="jxr_keyword">null</strong>, -1, <span class="jxr_string">"file_cache"</span>);
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>             <em class="jxr_comment">// Set values</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; kc.read(ksp)) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>                 <strong class="jxr_keyword">return</strong> KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"buf_max"</span>);
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>             }
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         }

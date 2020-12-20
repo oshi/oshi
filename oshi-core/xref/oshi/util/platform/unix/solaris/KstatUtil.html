@@ -83,7 +83,7 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">private</strong> KstatChain() {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              CHAIN.lock();
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">this</strong>.update();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              update();
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <em class="jxr_javadoccomment">/**</em>
@@ -99,14 +99,14 @@
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">         *            The kstat from which to retrieve data</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">         * @return {@code true} if successful; {@code false} otherwise</em>
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> read(Kstat ksp) {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> read(Kstat ksp) {
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">int</strong> retry = 0;
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">while</strong> (0 &gt; KS.kstat_read(KC, ksp, <strong class="jxr_keyword">null</strong>)) {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <strong class="jxr_keyword">if</strong> (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                      <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>                          LOG.error(<span class="jxr_string">"Failed to read kstat {}:{}:{}"</span>,
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                                 <strong class="jxr_keyword">new</strong> String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                                 <strong class="jxr_keyword">new</strong> String(ksp.ks_name, StandardCharsets.US_ASCII).trim());
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                                 Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                                 Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>                     }
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>                     <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>                 }
@@ -131,7 +131,7 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">         * @return The first match of the requested Kstat structure if found, or</em>
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">         *         {@code null}</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">public</strong> Kstat lookup(String module, <strong class="jxr_keyword">int</strong> instance, String name) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Kstat lookup(String module, <strong class="jxr_keyword">int</strong> instance, String name) {
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>             <strong class="jxr_keyword">return</strong> KS.kstat_lookup(KC, module, instance, name);
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         }
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> 
@@ -152,12 +152,12 @@
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">         * @return All matches of the requested Kstat structure if found, or an empty</em>
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">         *         list otherwise</em>
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">public</strong> List&lt;Kstat&gt; lookupAll(String module, <strong class="jxr_keyword">int</strong> instance, String name) {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;Kstat&gt; lookupAll(String module, <strong class="jxr_keyword">int</strong> instance, String name) {
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>             List&lt;Kstat&gt; kstats = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>             <strong class="jxr_keyword">for</strong> (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != <strong class="jxr_keyword">null</strong>; ksp = ksp.next()) {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 <strong class="jxr_keyword">if</strong> ((module == <strong class="jxr_keyword">null</strong> || module.equals(<strong class="jxr_keyword">new</strong> String(ksp.ks_module, StandardCharsets.US_ASCII).trim()))
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 <strong class="jxr_keyword">if</strong> ((module == <strong class="jxr_keyword">null</strong> || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>                         &amp;&amp; (instance &lt; 0 || instance == ksp.ks_instance)
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                         &amp;&amp; (name == <strong class="jxr_keyword">null</strong> || name.equals(<strong class="jxr_keyword">new</strong> String(ksp.ks_name, StandardCharsets.US_ASCII).trim()))) {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                         &amp;&amp; (name == <strong class="jxr_keyword">null</strong> || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                     kstats.add(ksp);
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                 }
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             }
@@ -174,7 +174,7 @@
 <a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">         * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on</em>
 <a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">         *         failure.</em>
 <a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> update() {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> update() {
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">return</strong> KS.kstat_chain_update(KC);
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> 
@@ -223,7 +223,7 @@
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>         KstatNamed data = <strong class="jxr_keyword">new</strong> KstatNamed(p);
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">switch</strong> (data.data_type) {
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_CHAR:
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(data.value.charc, StandardCharsets.UTF_8).trim();
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">return</strong> Native.toString(data.value.charc, StandardCharsets.UTF_8);
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_INT32:
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">return</strong> Integer.toString(data.value.i32);
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">case</strong> LibKstat.KSTAT_DATA_UINT32:
@@ -263,8 +263,8 @@
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">if</strong> (p == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>                 LOG.error(<span class="jxr_string">"Failed lo lookup kstat value on {}:{}:{} for key {}"</span>,
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                         <strong class="jxr_keyword">new</strong> String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                         <strong class="jxr_keyword">new</strong> String(ksp.ks_name, StandardCharsets.US_ASCII).trim(), name);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                         Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                         Native.toString(ksp.ks_name, StandardCharsets.US_ASCII), name);
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>             }
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>             <strong class="jxr_keyword">return</strong> 0L;
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>         }
