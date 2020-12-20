@@ -28,7 +28,8 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.mac.IOKit.IORegistryEntry; // NOSONAR squid:S1191
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.Immutable;
@@ -41,57 +42,57 @@ import oshi.util.tuples.Quartet;
  * Baseboard data obtained from ioreg
  */
 @Immutable
-<span class="nc" id="L44">final class MacBaseboard extends AbstractBaseboard {</span>
+<span class="nc" id="L45">final class MacBaseboard extends AbstractBaseboard {</span>
 
-<span class="nc" id="L46">    private final Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufModelVersSerial = memoize(</span>
+<span class="nc" id="L47">    private final Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufModelVersSerial = memoize(</span>
             MacBaseboard::queryPlatform);
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L51">        return manufModelVersSerial.get().getA();</span>
+<span class="nc" id="L52">        return manufModelVersSerial.get().getA();</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L56">        return manufModelVersSerial.get().getB();</span>
+<span class="nc" id="L57">        return manufModelVersSerial.get().getB();</span>
     }
 
     @Override
     public String getVersion() {
-<span class="nc" id="L61">        return manufModelVersSerial.get().getC();</span>
+<span class="nc" id="L62">        return manufModelVersSerial.get().getC();</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L66">        return manufModelVersSerial.get().getD();</span>
+<span class="nc" id="L67">        return manufModelVersSerial.get().getD();</span>
     }
 
     private static Quartet&lt;String, String, String, String&gt; queryPlatform() {
-<span class="nc" id="L70">        String manufacturer = null;</span>
-<span class="nc" id="L71">        String model = null;</span>
-<span class="nc" id="L72">        String version = null;</span>
-<span class="nc" id="L73">        String serialNumber = null;</span>
+<span class="nc" id="L71">        String manufacturer = null;</span>
+<span class="nc" id="L72">        String model = null;</span>
+<span class="nc" id="L73">        String version = null;</span>
+<span class="nc" id="L74">        String serialNumber = null;</span>
 
-<span class="nc" id="L75">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (platformExpert != null) {</span>
-<span class="nc" id="L77">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L79">                manufacturer = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L76">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (platformExpert != null) {</span>
+<span class="nc" id="L78">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (data != null) {</span>
+<span class="nc" id="L80">                manufacturer = Native.toString(data, StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L81">            data = platformExpert.getByteArrayProperty(&quot;board-id&quot;);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L83">                model = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L82">            data = platformExpert.getByteArrayProperty(&quot;board-id&quot;);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (data != null) {</span>
+<span class="nc" id="L84">                model = Native.toString(data, StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L85">            data = platformExpert.getByteArrayProperty(&quot;version&quot;);</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L87">                version = new String(data, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L86">            data = platformExpert.getByteArrayProperty(&quot;version&quot;);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (data != null) {</span>
+<span class="nc" id="L88">                version = Native.toString(data, StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L89">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
-<span class="nc" id="L90">            platformExpert.release();</span>
+<span class="nc" id="L90">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
+<span class="nc" id="L91">            platformExpert.release();</span>
         }
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        return new Quartet&lt;&gt;(Util.isBlank(manufacturer) ? &quot;Apple Inc.&quot; : manufacturer,</span>
-<span class="nc bnc" id="L93" title="All 4 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        return new Quartet&lt;&gt;(Util.isBlank(manufacturer) ? &quot;Apple Inc.&quot; : manufacturer,</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

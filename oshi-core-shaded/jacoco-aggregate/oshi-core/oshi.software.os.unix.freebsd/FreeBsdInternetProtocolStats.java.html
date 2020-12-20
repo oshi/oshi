@@ -36,7 +36,7 @@ import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
 import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
 import oshi.software.os.InternetProtocolStats;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
@@ -80,7 +80,7 @@ import oshi.util.tuples.Pair;
 
     private static BsdTcpstat queryTcpstat() {
 <span class="nc" id="L82">        BsdTcpstat ft = new BsdTcpstat();</span>
-<span class="nc" id="L83">        Memory m = SysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;);</span>
+<span class="nc" id="L83">        Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;);</span>
 <span class="nc bnc" id="L84" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 128) {</span>
 <span class="nc" id="L85">            ft.tcps_connattempt = m.getInt(0);</span>
 <span class="nc" id="L86">            ft.tcps_accepts = m.getInt(4);</span>
@@ -99,7 +99,7 @@ import oshi.util.tuples.Pair;
 
     private static BsdUdpstat queryUdpstat() {
 <span class="nc" id="L101">        BsdUdpstat ut = new BsdUdpstat();</span>
-<span class="nc" id="L102">        Memory m = SysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;);</span>
+<span class="nc" id="L102">        Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;);</span>
 <span class="nc bnc" id="L103" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 1644) {</span>
 <span class="nc" id="L104">            ut.udps_ipackets = m.getInt(0);</span>
 <span class="nc" id="L105">            ut.udps_hdrops = m.getInt(4);</span>

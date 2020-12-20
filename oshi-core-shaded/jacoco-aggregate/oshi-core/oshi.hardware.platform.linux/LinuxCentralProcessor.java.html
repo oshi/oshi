@@ -243,7 +243,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L243">        int proc = 0;</span>
 <span class="nc bnc" id="L244" title="All 2 branches missed.">        for (String s : cpuInfo) {</span>
 <span class="nc bnc" id="L245" title="All 2 branches missed.">            if (s.toLowerCase().contains(&quot;cpu mhz&quot;)) {</span>
-<span class="nc" id="L246">                freqs[proc] = (long) (ParseUtil.parseLastDouble(s, 0d) * 1_000_000);</span>
+<span class="nc" id="L246">                freqs[proc] = Math.round(ParseUtil.parseLastDouble(s, 0d) * 1_000_000d);</span>
 <span class="nc bnc" id="L247" title="All 2 branches missed.">                if (++proc &gt;= freqs.length) {</span>
 <span class="nc" id="L248">                    break;</span>
                 }

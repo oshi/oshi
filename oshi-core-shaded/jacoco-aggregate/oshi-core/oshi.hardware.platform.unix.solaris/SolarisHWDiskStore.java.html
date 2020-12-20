@@ -107,8 +107,8 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
     @Override
     public boolean updateAttributes() {
 <span class="nc" id="L109">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L110">            Kstat ksp = kc.lookup(null, 0, getName());</span>
-<span class="nc bnc" id="L111" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L110">            Kstat ksp = KstatChain.lookup(null, 0, getName());</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L112">                KstatIO data = new KstatIO(ksp.ks_data);</span>
 <span class="nc" id="L113">                this.reads = data.reads;</span>
 <span class="nc" id="L114">                this.writes = data.writes;</span>

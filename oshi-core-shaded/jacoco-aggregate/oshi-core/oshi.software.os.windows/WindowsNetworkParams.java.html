@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; //NOSONAR
+import com.sun.jna.Native;
 import com.sun.jna.platform.win32.IPHlpAPI;
 import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
 import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
@@ -48,91 +49,91 @@ import oshi.util.ParseUtil;
  * WindowsNetworkParams class.
  */
 @ThreadSafe
-<span class="nc" id="L51">final class WindowsNetworkParams extends AbstractNetworkParams {</span>
+<span class="nc" id="L52">final class WindowsNetworkParams extends AbstractNetworkParams {</span>
 
-<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);</span>
+<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);</span>
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
     @Override
     public String getDomainName() {
-<span class="nc" id="L59">        char[] buffer = new char[256];</span>
-<span class="nc" id="L60">        IntByReference bufferSize = new IntByReference(buffer.length);</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetComputerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, bufferSize)) {</span>
-<span class="nc" id="L62">            LOG.error(&quot;Failed to get dns domain name. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L63">            return &quot;&quot;;</span>
+<span class="nc" id="L60">        char[] buffer = new char[256];</span>
+<span class="nc" id="L61">        IntByReference bufferSize = new IntByReference(buffer.length);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (!Kernel32.INSTANCE.GetComputerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, bufferSize)) {</span>
+<span class="nc" id="L63">            LOG.error(&quot;Failed to get dns domain name. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L64">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L65">        return new String(buffer).trim();</span>
+<span class="nc" id="L66">        return Native.toString(buffer);</span>
     }
 
     @Override
     public String[] getDnsServers() {
-<span class="nc" id="L70">        IntByReference bufferSize = new IntByReference();</span>
-<span class="nc" id="L71">        int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (ret != WinError.ERROR_BUFFER_OVERFLOW) {</span>
-<span class="nc" id="L73">            LOG.error(&quot;Failed to get network parameters buffer size. Error code: {}&quot;, ret);</span>
-<span class="nc" id="L74">            return new String[0];</span>
+<span class="nc" id="L71">        IntByReference bufferSize = new IntByReference();</span>
+<span class="nc" id="L72">        int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (ret != WinError.ERROR_BUFFER_OVERFLOW) {</span>
+<span class="nc" id="L74">            LOG.error(&quot;Failed to get network parameters buffer size. Error code: {}&quot;, ret);</span>
+<span class="nc" id="L75">            return new String[0];</span>
         }
 
-<span class="nc" id="L77">        Memory buffer = new Memory(bufferSize.getValue());</span>
-<span class="nc" id="L78">        ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (ret != 0) {</span>
-<span class="nc" id="L80">            LOG.error(&quot;Failed to get network parameters. Error code: {}&quot;, ret);</span>
-<span class="nc" id="L81">            return new String[0];</span>
+<span class="nc" id="L78">        Memory buffer = new Memory(bufferSize.getValue());</span>
+<span class="nc" id="L79">        ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (ret != 0) {</span>
+<span class="nc" id="L81">            LOG.error(&quot;Failed to get network parameters. Error code: {}&quot;, ret);</span>
+<span class="nc" id="L82">            return new String[0];</span>
         }
-<span class="nc" id="L83">        FIXED_INFO fixedInfo = new FIXED_INFO(buffer);</span>
+<span class="nc" id="L84">        FIXED_INFO fixedInfo = new FIXED_INFO(buffer);</span>
 
-<span class="nc" id="L85">        List&lt;String&gt; list = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L86">        IP_ADDR_STRING dns = fixedInfo.DnsServerList;</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        while (dns != null) {</span>
+<span class="nc" id="L86">        List&lt;String&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L87">        IP_ADDR_STRING dns = fixedInfo.DnsServerList;</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        while (dns != null) {</span>
             // a char array of size 16.
             // This array holds an IPv4 address in dotted decimal notation.
-<span class="nc" id="L90">            String addr = new String(dns.IpAddress.String, StandardCharsets.US_ASCII);</span>
-<span class="nc" id="L91">            int nullPos = addr.indexOf(0);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (nullPos != -1) {</span>
-<span class="nc" id="L93">                addr = addr.substring(0, nullPos);</span>
+<span class="nc" id="L91">            String addr = Native.toString(dns.IpAddress.String, StandardCharsets.US_ASCII);</span>
+<span class="nc" id="L92">            int nullPos = addr.indexOf(0);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (nullPos != -1) {</span>
+<span class="nc" id="L94">                addr = addr.substring(0, nullPos);</span>
             }
-<span class="nc" id="L95">            list.add(addr);</span>
-<span class="nc" id="L96">            dns = dns.Next;</span>
-<span class="nc" id="L97">        }</span>
-<span class="nc" id="L98">        return list.toArray(new String[0]);</span>
+<span class="nc" id="L96">            list.add(addr);</span>
+<span class="nc" id="L97">            dns = dns.Next;</span>
+<span class="nc" id="L98">        }</span>
+<span class="nc" id="L99">        return list.toArray(new String[0]);</span>
     }
 
     @Override
     public String getHostName() {
-<span class="nc" id="L103">        return Kernel32Util.getComputerName();</span>
+<span class="nc" id="L104">        return Kernel32Util.getComputerName();</span>
     }
 
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L108">        return parseIpv4Route();</span>
+<span class="nc" id="L109">        return parseIpv4Route();</span>
     }
 
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L113">        return parseIpv6Route();</span>
+<span class="nc" id="L114">        return parseIpv6Route();</span>
     }
 
     private static String parseIpv4Route() {
-<span class="nc" id="L117">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -4 0.0.0.0&quot;);</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc" id="L119">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
-<span class="nc bnc" id="L120" title="All 4 branches missed.">            if (fields.length &gt; 2 &amp;&amp; &quot;0.0.0.0&quot;.equals(fields[0])) {</span>
-<span class="nc" id="L121">                return fields[2];</span>
+<span class="nc" id="L118">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -4 0.0.0.0&quot;);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L120">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">            if (fields.length &gt; 2 &amp;&amp; &quot;0.0.0.0&quot;.equals(fields[0])) {</span>
+<span class="nc" id="L122">                return fields[2];</span>
             }
-<span class="nc" id="L123">        }</span>
-<span class="nc" id="L124">        return &quot;&quot;;</span>
+<span class="nc" id="L124">        }</span>
+<span class="nc" id="L125">        return &quot;&quot;;</span>
     }
 
     private static String parseIpv6Route() {
-<span class="nc" id="L128">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -6 ::/0&quot;);</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc" id="L130">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
-<span class="nc bnc" id="L131" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; &quot;::/0&quot;.equals(fields[2])) {</span>
-<span class="nc" id="L132">                return fields[3];</span>
+<span class="nc" id="L129">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;route print -6 ::/0&quot;);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L131">            String[] fields = ParseUtil.whitespaces.split(line.trim());</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; &quot;::/0&quot;.equals(fields[2])) {</span>
+<span class="nc" id="L133">                return fields[3];</span>
             }
-<span class="nc" id="L134">        }</span>
-<span class="nc" id="L135">        return &quot;&quot;;</span>
+<span class="nc" id="L135">        }</span>
+<span class="nc" id="L136">        return &quot;&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -152,9 +152,9 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
     @Override
     public long getOpenFileDescriptors() {
 <span class="nc" id="L154">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L155">            Kstat ksp = kc.lookup(null, -1, &quot;file_cache&quot;);</span>
+<span class="nc" id="L155">            Kstat ksp = KstatChain.lookup(null, -1, &quot;file_cache&quot;);</span>
             // Set values
-<span class="nc bnc" id="L157" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc bnc" id="L157" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L158">                return KstatUtil.dataLookupLong(ksp, &quot;buf_inuse&quot;);</span>
             }
 <span class="nc bnc" id="L160" title="All 2 branches missed.">        }</span>
@@ -164,9 +164,9 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
     @Override
     public long getMaxFileDescriptors() {
 <span class="nc" id="L166">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L167">            Kstat ksp = kc.lookup(null, -1, &quot;file_cache&quot;);</span>
+<span class="nc" id="L167">            Kstat ksp = KstatChain.lookup(null, -1, &quot;file_cache&quot;);</span>
             // Set values
-<span class="nc bnc" id="L169" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L170">                return KstatUtil.dataLookupLong(ksp, &quot;buf_max&quot;);</span>
             }
 <span class="nc bnc" id="L172" title="All 2 branches missed.">        }</span>
