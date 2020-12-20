@@ -44,7 +44,8 @@ public class LinuxOSThread extends AbstractOSThread {
 <span class="nc" id="L44">    }</span>
 
     private final int threadId;
-<span class="nc" id="L47">    private State state = State.INVALID;</span>
+    private String name;
+<span class="nc" id="L48">    private State state = State.INVALID;</span>
     private long minorFaults;
     private long majorFaults;
     private long startMemoryAddress;
@@ -56,123 +57,130 @@ public class LinuxOSThread extends AbstractOSThread {
     private int priority;
 
     public LinuxOSThread(int processId, int tid) {
-<span class="nc" id="L59">        super(processId);</span>
-<span class="nc" id="L60">        this.threadId = tid;</span>
-<span class="nc" id="L61">        updateAttributes();</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L60">        super(processId);</span>
+<span class="nc" id="L61">        this.threadId = tid;</span>
+<span class="nc" id="L62">        updateAttributes();</span>
+<span class="nc" id="L63">    }</span>
 
     @Override
     public int getThreadId() {
-<span class="nc" id="L66">        return this.threadId;</span>
+<span class="nc" id="L67">        return this.threadId;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L72">        return this.name;</span>
     }
 
     @Override
     public State getState() {
-<span class="nc" id="L71">        return this.state;</span>
+<span class="nc" id="L77">        return this.state;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L76">        return this.startTime;</span>
+<span class="nc" id="L82">        return this.startTime;</span>
     }
 
     @Override
     public long getStartMemoryAddress() {
-<span class="nc" id="L81">        return this.startMemoryAddress;</span>
+<span class="nc" id="L87">        return this.startMemoryAddress;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L86">        return this.contextSwitches;</span>
+<span class="nc" id="L92">        return this.contextSwitches;</span>
     }
 
     @Override
     public long getMinorFaults() {
-<span class="nc" id="L91">        return this.minorFaults;</span>
+<span class="nc" id="L97">        return this.minorFaults;</span>
     }
 
     @Override
     public long getMajorFaults() {
-<span class="nc" id="L96">        return this.majorFaults;</span>
+<span class="nc" id="L102">        return this.majorFaults;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L101">        return this.kernelTime;</span>
+<span class="nc" id="L107">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L106">        return this.userTime;</span>
+<span class="nc" id="L112">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L111">        return this.upTime;</span>
+<span class="nc" id="L117">        return this.upTime;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L116">        return this.priority;</span>
+<span class="nc" id="L122">        return this.priority;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L121">        Map&lt;String, String&gt; status = FileUtil.getKeyValueMapFromFile(</span>
-<span class="nc" id="L122">                String.format(ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), &quot;:&quot;);</span>
-<span class="nc" id="L123">        String stat = FileUtil</span>
-<span class="nc" id="L124">                .getStringFromFile(String.format(ProcPath.TASK_STAT, this.getOwningProcessId(), this.threadId));</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
-<span class="nc" id="L126">            this.state = State.INVALID;</span>
-<span class="nc" id="L127">            return false;</span>
+<span class="nc" id="L127">        this.name = FileUtil</span>
+<span class="nc" id="L128">                .getStringFromFile(String.format(ProcPath.TASK_COMM, this.getOwningProcessId(), this.threadId));</span>
+<span class="nc" id="L129">        Map&lt;String, String&gt; status = FileUtil.getKeyValueMapFromFile(</span>
+<span class="nc" id="L130">                String.format(ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), &quot;:&quot;);</span>
+<span class="nc" id="L131">        String stat = FileUtil</span>
+<span class="nc" id="L132">                .getStringFromFile(String.format(ProcPath.TASK_STAT, this.getOwningProcessId(), this.threadId));</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
+<span class="nc" id="L134">            this.state = State.INVALID;</span>
+<span class="nc" id="L135">            return false;</span>
         }
-<span class="nc" id="L129">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L130">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_TASK_STAT_ORDERS,</span>
+<span class="nc" id="L137">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L138">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_TASK_STAT_ORDERS,</span>
                 ProcessStat.PROC_PID_STAT_LENGTH, ' ');
 
         // BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.
         // Combine units to jiffies and convert to millijiffies before hz division to
         // avoid precision loss without having to cast
-<span class="nc" id="L136">        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()</span>
-<span class="nc" id="L137">                + statArray[LinuxOSThread.ThreadPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();</span>
+<span class="nc" id="L144">        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()</span>
+<span class="nc" id="L145">                + statArray[LinuxOSThread.ThreadPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();</span>
         // BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process
         // that has started within last 505ms could produce a future start time/negative
         // up time, so insert a sanity check.
-<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (this.startTime &gt;= now) {</span>
-<span class="nc" id="L142">            this.startTime = now - 1;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (this.startTime &gt;= now) {</span>
+<span class="nc" id="L150">            this.startTime = now - 1;</span>
         }
-<span class="nc" id="L144">        this.minorFaults = statArray[ThreadPidStat.MINOR_FAULTS.ordinal()];</span>
-<span class="nc" id="L145">        this.majorFaults = statArray[ThreadPidStat.MAJOR_FAULT.ordinal()];</span>
-<span class="nc" id="L146">        this.startMemoryAddress = statArray[ThreadPidStat.START_CODE.ordinal()];</span>
-<span class="nc" id="L147">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;voluntary_ctxt_switches&quot;), 0L);</span>
-<span class="nc" id="L148">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;nonvoluntary_ctxt_switches&quot;), 0L);</span>
-<span class="nc" id="L149">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
-<span class="nc" id="L150">        this.state = ProcessStat.getState(status.getOrDefault(&quot;State&quot;, &quot;U&quot;).charAt(0));</span>
-<span class="nc" id="L151">        this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
-<span class="nc" id="L152">        this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
-<span class="nc" id="L153">        this.upTime = now - startTime;</span>
-<span class="nc" id="L154">        this.priority = (int) statArray[ThreadPidStat.PRIORITY.ordinal()];</span>
-<span class="nc" id="L155">        return true;</span>
+<span class="nc" id="L152">        this.minorFaults = statArray[ThreadPidStat.MINOR_FAULTS.ordinal()];</span>
+<span class="nc" id="L153">        this.majorFaults = statArray[ThreadPidStat.MAJOR_FAULT.ordinal()];</span>
+<span class="nc" id="L154">        this.startMemoryAddress = statArray[ThreadPidStat.START_CODE.ordinal()];</span>
+<span class="nc" id="L155">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;voluntary_ctxt_switches&quot;), 0L);</span>
+<span class="nc" id="L156">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;nonvoluntary_ctxt_switches&quot;), 0L);</span>
+<span class="nc" id="L157">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
+<span class="nc" id="L158">        this.state = ProcessStat.getState(status.getOrDefault(&quot;State&quot;, &quot;U&quot;).charAt(0));</span>
+<span class="nc" id="L159">        this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
+<span class="nc" id="L160">        this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
+<span class="nc" id="L161">        this.upTime = now - startTime;</span>
+<span class="nc" id="L162">        this.priority = (int) statArray[ThreadPidStat.PRIORITY.ordinal()];</span>
+<span class="nc" id="L163">        return true;</span>
     }
 
     /**
      * Enum used to update attributes. The order field represents the 1-indexed
      * numeric order of the stat in /proc/pid/task/tid/stat per the man file.
      */
-<span class="nc" id="L162">    private enum ThreadPidStat {</span>
+<span class="nc" id="L170">    private enum ThreadPidStat {</span>
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-<span class="nc" id="L165">        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20),</span>
-<span class="nc" id="L166">        START_TIME(22), VSZ(23), RSS(24), START_CODE(26);</span>
+<span class="nc" id="L173">        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20),</span>
+<span class="nc" id="L174">        START_TIME(22), VSZ(23), RSS(24), START_CODE(26);</span>
 
         private final int order;
 
-<span class="nc" id="L170">        ThreadPidStat(int order) {</span>
-<span class="nc" id="L171">            this.order = order;</span>
-<span class="nc" id="L172">        }</span>
+<span class="nc" id="L178">        ThreadPidStat(int order) {</span>
+<span class="nc" id="L179">            this.order = order;</span>
+<span class="nc" id="L180">        }</span>
 
         public int getOrder() {
-<span class="nc" id="L175">            return this.order;</span>
+<span class="nc" id="L183">            return this.order;</span>
         }
     }
 }

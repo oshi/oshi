@@ -58,9 +58,9 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
         // Get first result
 <span class="nc" id="L60">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L61">            Kstat ksp = kc.lookup(CPU_INFO, -1, null);</span>
+<span class="nc" id="L61">            Kstat ksp = KstatChain.lookup(CPU_INFO, -1, null);</span>
             // Set values
-<span class="nc bnc" id="L63" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L64">                cpuVendor = KstatUtil.dataLookupString(ksp, &quot;vendor_id&quot;);</span>
 <span class="nc" id="L65">                cpuName = KstatUtil.dataLookupString(ksp, &quot;brand&quot;);</span>
 <span class="nc" id="L66">                cpuFamily = KstatUtil.dataLookupString(ksp, &quot;family&quot;);</span>
@@ -81,10 +81,10 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc" id="L81">        Map&lt;Integer, Integer&gt; numaNodeMap = mapNumaNodes();</span>
 <span class="nc" id="L82">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L83">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L84">            List&lt;Kstat&gt; kstats = kc.lookupAll(CPU_INFO, -1, null);</span>
+<span class="nc" id="L84">            List&lt;Kstat&gt; kstats = KstatChain.lookupAll(CPU_INFO, -1, null);</span>
 
 <span class="nc bnc" id="L86" title="All 2 branches missed.">            for (Kstat ksp : kstats) {</span>
-<span class="nc bnc" id="L87" title="All 4 branches missed.">                if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc bnc" id="L87" title="All 4 branches missed.">                if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L88">                    int procId = logProcs.size(); // 0-indexed</span>
 <span class="nc" id="L89">                    String chipId = KstatUtil.dataLookupString(ksp, &quot;chip_id&quot;);</span>
 <span class="nc" id="L90">                    String coreId = KstatUtil.dataLookupString(ksp, &quot;core_id&quot;);</span>
@@ -143,8 +143,8 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc" id="L143">        Arrays.fill(freqs, -1);</span>
 <span class="nc" id="L144">        try (KstatChain kc = KstatUtil.openChain()) {</span>
 <span class="nc bnc" id="L145" title="All 2 branches missed.">            for (int i = 0; i &lt; freqs.length; i++) {</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">                for (Kstat ksp : kc.lookupAll(CPU_INFO, i, null)) {</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">                    if (kc.read(ksp)) {</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                for (Kstat ksp : KstatChain.lookupAll(CPU_INFO, i, null)) {</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">                    if (KstatChain.read(ksp)) {</span>
 <span class="nc" id="L148">                        freqs[i] = KstatUtil.dataLookupLong(ksp, &quot;current_clock_Hz&quot;);</span>
                     }
 <span class="nc" id="L150">                }</span>
@@ -157,8 +157,8 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
     public long queryMaxFreq() {
 <span class="nc" id="L158">        long max = -1L;</span>
 <span class="nc" id="L159">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">            for (Kstat ksp : kc.lookupAll(CPU_INFO, 0, null)) {</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">                if (kc.read(ksp)) {</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            for (Kstat ksp : KstatChain.lookupAll(CPU_INFO, 0, null)) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                if (KstatChain.read(ksp)) {</span>
 <span class="nc" id="L162">                    String suppFreq = KstatUtil.dataLookupString(ksp, &quot;supported_frequencies_Hz&quot;);</span>
 <span class="nc bnc" id="L163" title="All 2 branches missed.">                    if (!suppFreq.isEmpty()) {</span>
 <span class="nc bnc" id="L164" title="All 2 branches missed.">                        for (String s : suppFreq.split(&quot;:&quot;)) {</span>
@@ -194,13 +194,13 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc" id="L194">        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];</span>
 <span class="nc" id="L195">        int cpu = -1;</span>
 <span class="nc" id="L196">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc bnc" id="L197" title="All 2 branches missed.">            for (Kstat ksp : kc.lookupAll(&quot;cpu&quot;, -1, &quot;sys&quot;)) {</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            for (Kstat ksp : KstatChain.lookupAll(&quot;cpu&quot;, -1, &quot;sys&quot;)) {</span>
                 // This is a new CPU
 <span class="nc bnc" id="L199" title="All 2 branches missed.">                if (++cpu &gt;= ticks.length) {</span>
                     // Shouldn't happen
 <span class="nc" id="L201">                    break;</span>
                 }
-<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (kc.read(ksp)) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (KstatChain.read(ksp)) {</span>
 <span class="nc" id="L204">                    ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.dataLookupLong(ksp, &quot;cpu_ticks_idle&quot;);</span>
 <span class="nc" id="L205">                    ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.dataLookupLong(ksp, &quot;cpu_ticks_kernel&quot;);</span>
 <span class="nc" id="L206">                    ticks[cpu][TickType.USER.getIndex()] = KstatUtil.dataLookupLong(ksp, &quot;cpu_ticks_user&quot;);</span>

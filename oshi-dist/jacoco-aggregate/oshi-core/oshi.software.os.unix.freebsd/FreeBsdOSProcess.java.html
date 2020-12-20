@@ -45,8 +45,8 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
-import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.ProcstatUtil;
 
 @ThreadSafe
 public class FreeBsdOSProcess extends AbstractOSProcess {
@@ -97,7 +97,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCurrentWorkingDirectory() {
-<span class="nc" id="L100">        return LsofUtil.getCwd(getProcessID());</span>
+<span class="nc" id="L100">        return ProcstatUtil.getCwd(getProcessID());</span>
     }
 
     @Override
@@ -182,7 +182,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public long getOpenFiles() {
-<span class="nc" id="L185">        return LsofUtil.getOpenFiles(getProcessID());</span>
+<span class="nc" id="L185">        return ProcstatUtil.getOpenFiles(getProcessID());</span>
     }
 
     @Override
@@ -270,7 +270,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L273">        String psCommand = &quot;ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args,majflt,minflt -p &quot;</span>
+<span class="nc" id="L273">        String psCommand = &quot;ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args -p &quot;</span>
 <span class="nc" id="L274">                + getProcessID();</span>
 <span class="nc" id="L275">        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand);</span>
 <span class="nc bnc" id="L276" title="All 2 branches missed.">        if (procList.size() &gt; 1) {</span>
@@ -327,9 +327,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 <span class="nc" id="L327">        this.userTime = ParseUtil.parseDHMSOrDefault(split[13], 0L) - this.kernelTime;</span>
 <span class="nc" id="L328">        this.path = split[14];</span>
 <span class="nc" id="L329">        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);</span>
-<span class="nc" id="L330">        this.commandLine = split[15];</span>
-<span class="nc" id="L331">        this.minorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);</span>
-<span class="nc" id="L332">        this.majorFaults = ParseUtil.parseLongOrDefault(split[17], 0L);</span>
+<span class="nc" id="L330">        this.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);</span>
+<span class="nc" id="L331">        this.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);</span>
+<span class="nc" id="L332">        this.commandLine = split[17];</span>
 <span class="nc" id="L333">        return true;</span>
     }
 }

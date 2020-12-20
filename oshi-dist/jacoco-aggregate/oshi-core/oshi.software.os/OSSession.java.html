@@ -36,19 +36,19 @@ import oshi.annotation.concurrent.Immutable;
  */
 @Immutable
 public class OSSession {
-<span class="nc" id="L39">    private static final DateTimeFormatter LOGIN_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
+<span class="fc" id="L39">    private static final DateTimeFormatter LOGIN_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
 
     private final String userName;
     private final String terminalDevice;
     private final long loginTime;
     private final String host;
 
-<span class="nc" id="L46">    public OSSession(String userName, String terminalDevice, long loginTime, String host) {</span>
-<span class="nc" id="L47">        this.userName = userName;</span>
-<span class="nc" id="L48">        this.terminalDevice = terminalDevice;</span>
-<span class="nc" id="L49">        this.loginTime = loginTime;</span>
-<span class="nc" id="L50">        this.host = host;</span>
-<span class="nc" id="L51">    }</span>
+<span class="fc" id="L46">    public OSSession(String userName, String terminalDevice, long loginTime, String host) {</span>
+<span class="fc" id="L47">        this.userName = userName;</span>
+<span class="fc" id="L48">        this.terminalDevice = terminalDevice;</span>
+<span class="fc" id="L49">        this.loginTime = loginTime;</span>
+<span class="fc" id="L50">        this.host = host;</span>
+<span class="fc" id="L51">    }</span>
 
     /**
      * Gets the login name of the user
@@ -56,7 +56,7 @@ public class OSSession {
      * @return the userName
      */
     public String getUserName() {
-<span class="nc" id="L59">        return userName;</span>
+<span class="fc" id="L59">        return userName;</span>
     }
 
     /**
@@ -65,7 +65,7 @@ public class OSSession {
      * @return the terminalDevice
      */
     public String getTerminalDevice() {
-<span class="nc" id="L68">        return terminalDevice;</span>
+<span class="fc" id="L68">        return terminalDevice;</span>
     }
 
     /**
@@ -74,7 +74,7 @@ public class OSSession {
      * @return the loginTime, in milliseconds since the 1970 epoch
      */
     public long getLoginTime() {
-<span class="nc" id="L77">        return loginTime;</span>
+<span class="fc" id="L77">        return loginTime;</span>
     }
 
     /**
@@ -84,18 +84,18 @@ public class OSSession {
      *         unspecified, may also be an empty string, depending on the platform.
      */
     public String getHost() {
-<span class="nc" id="L87">        return host;</span>
+<span class="fc" id="L87">        return host;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        String loginStr = loginTime == 0 ? &quot;No login&quot;</span>
-<span class="nc" id="L93">                : LocalDateTime.ofInstant(Instant.ofEpochMilli(loginTime), ZoneId.systemDefault()).format(LOGIN_FORMAT);</span>
-<span class="nc" id="L94">        String hostStr = &quot;&quot;;</span>
-<span class="nc bnc" id="L95" title="All 6 branches missed.">        if (!host.isEmpty() &amp;&amp; !host.equals(&quot;::&quot;) &amp;&amp; !host.equals(&quot;0.0.0.0&quot;)) {</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        String loginStr = loginTime == 0 ? &quot;No login&quot;</span>
+<span class="fc" id="L93">                : LocalDateTime.ofInstant(Instant.ofEpochMilli(loginTime), ZoneId.systemDefault()).format(LOGIN_FORMAT);</span>
+<span class="fc" id="L94">        String hostStr = &quot;&quot;;</span>
+<span class="pc bpc" id="L95" title="5 of 6 branches missed.">        if (!host.isEmpty() &amp;&amp; !host.equals(&quot;::&quot;) &amp;&amp; !host.equals(&quot;0.0.0.0&quot;)) {</span>
 <span class="nc" id="L96">            hostStr = &quot;, (&quot; + host + &quot;)&quot;;</span>
         }
-<span class="nc" id="L98">        return String.format(&quot;%s, %s, %s%s&quot;, userName, terminalDevice, loginStr, hostStr);</span>
+<span class="fc" id="L98">        return String.format(&quot;%s, %s, %s%s&quot;, userName, terminalDevice, loginStr, hostStr);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

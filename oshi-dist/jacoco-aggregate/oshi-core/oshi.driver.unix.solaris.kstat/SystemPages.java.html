@@ -51,9 +51,9 @@ public final class SystemPages {
 <span class="nc" id="L51">        long memTotal = 0;</span>
         // Get first result
 <span class="nc" id="L53">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L54">            Kstat ksp = kc.lookup(null, -1, &quot;system_pages&quot;);</span>
+<span class="nc" id="L54">            Kstat ksp = KstatChain.lookup(null, -1, &quot;system_pages&quot;);</span>
             // Set values
-<span class="nc bnc" id="L56" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc bnc" id="L56" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L57">                memAvailable = KstatUtil.dataLookupLong(ksp, &quot;availrmem&quot;); // not a typo</span>
 <span class="nc" id="L58">                memTotal = KstatUtil.dataLookupLong(ksp, &quot;physmem&quot;);</span>
             }
