@@ -28,10 +28,10 @@ import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.os.InternetProtocolStats;
+import oshi.software.common.AbstractInternetProtocolStats;
 
 @ThreadSafe
-public class WindowsInternetProtocolStats implements InternetProtocolStats {
+public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats {
 
     private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;
 

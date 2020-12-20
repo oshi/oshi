@@ -21,41 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.unix;
+package oshi.software.common;
 
+import java.util.Collections;
 import java.util.List;
 
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.ExecutingCommand;
-import oshi.util.tuples.Pair;
+import oshi.driver.unix.NetStat;
+import oshi.software.os.InternetProtocolStats;
 
-/**
- * Utility to query TCP connections
- */
-@ThreadSafe
-public final class NetStatTcp {
+public abstract class AbstractInternetProtocolStats implements InternetProtocolStats {
 
-    private NetStatTcp() {
+    public AbstractInternetProtocolStats() {
+        super();
     }
 
-    /**
-     * Query netstat to obtain number of established TCP connections
-     *
-     * @return A pair with number of established IPv4 and IPv6 connections
-     */
-    public static Pair<Long, Long> queryTcpnetstat() {
-        long tcp4 = 0L;
-        long tcp6 = 0L;
-        List<String> activeConns = ExecutingCommand.runNative("netstat -n -p tcp");
-        for (String s : activeConns) {
-            if (s.endsWith("ESTABLISHED")) {
-                if (s.startsWith("tcp4")) {
-                    tcp4++;
-                } else if (s.startsWith("tcp6")) {
-                    tcp6++;
-                }
-            }
-        }
-        return new Pair<>(tcp4, tcp6);
+    @Override
+    public List<IPConnection> getConnections() {
+        return Collections.unmodifiableList(NetStat.queryNetstat());
     }
 }

@@ -23,6 +23,10 @@
  */
 package oshi.software.os;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -63,6 +67,8 @@ public interface InternetProtocolStats {
      * @return a {@link UdpStats} object encapsulating the stats.
      */
     UdpStats getUDPv6Stats();
+
+    List<IPConnection> getConnections();
 
     final class TcpStats {
         private final long connectionsEstablished;
@@ -265,6 +271,143 @@ public interface InternetProtocolStats {
             return "UdpStats [datagramsSent=" + datagramsSent + ", datagramsReceived=" + datagramsReceived
                     + ", datagramsNoPort=" + datagramsNoPort + ", datagramsReceivedErrors=" + datagramsReceivedErrors
                     + "]";
+        }
+    }
+
+    /**
+     * The TCP connection state as described in RFC 793
+     */
+    enum TcpState {
+        UNKNOWN, CLOSE, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT1, FIN_WAIT2, CLOSE_WAIT, CLOSING, LAST_ACK,
+        TIME_WAIT, DELETE_TCB;
+
+        private static final TcpState[] values = values();
+
+        /**
+         * Gets the connection state corresponding to the index.
+         *
+         * @param index
+         *            The TCP State index
+         * @return the TCP State
+         */
+        public static TcpState getByOrdinal(int index) {
+            return values[index];
+        }
+    }
+
+    final class IPConnection {
+        private final String type;
+        private final byte[] localAddress;
+        private final int localPort;
+        private final byte[] foreignAddress;
+        private final int foreignPort;
+        private final TcpState state;
+        private final int transmitQueue;
+        private final int receiveQueue;
+
+        public IPConnection(String type, byte[] localAddress, int localPort, byte[] foreignAddress, int foreignPort,
+                TcpState state, int transmitQueue, int receiveQueue) {
+            this.type = type;
+            this.localAddress = localAddress;
+            this.localPort = localPort;
+            this.foreignAddress = foreignAddress;
+            this.foreignPort = foreignPort;
+            this.state = state;
+            this.transmitQueue = transmitQueue;
+            this.receiveQueue = receiveQueue;
+        }
+
+        /**
+         * Returns the connection protocol type, e.g., tcp4, tcp6, udp4, udp6
+         *
+         * @return The protocol type
+         */
+        public String getType() {
+            return type;
+        }
+
+        /**
+         * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6
+         * addresses this is a 16-byte array.
+         *
+         * @return The local address, or an empty array if the listener can accept a
+         *         connection on any interface.
+         */
+        public byte[] getLocalAddress() {
+            return localAddress;
+        }
+
+        /**
+         * Gets the local port.
+         *
+         * @return The local port, or 0 if unknown, or any port.
+         */
+        public int getLocalPort() {
+            return localPort;
+        }
+
+        /**
+         * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array.
+         * For IPv6 addresses this is a 16-byte array.
+         *
+         * @return The foreign/remote address, or an empty array if unknown. An empty
+         *         array will also result if
+         */
+        public byte[] getForeignAddress() {
+            return foreignAddress;
+        }
+
+        /**
+         * Gets the foreign/remote port.
+         *
+         * @return The foreign/remote port, or 0 if unknown.
+         */
+        public int getForeignPort() {
+            return foreignPort;
+        }
+
+        /**
+         * Gets the connection state (TCP connections only).
+         *
+         * @return The connection state if known or relevant, null otherwise.
+         */
+        public TcpState getState() {
+            return state;
+        }
+
+        /**
+         * Gets the size of the transmit queue. Not available on Windows.
+         *
+         * @return The size of the transmit queue, or 0 if unknown.
+         */
+        public int getTransmitQueue() {
+            return transmitQueue;
+        }
+
+        /**
+         * Gets the size of the receive queue. Not available on Windows.
+         *
+         * @return The size of the receive queue, or 0 if unknown.
+         */
+        public int getReceiveQueue() {
+            return receiveQueue;
+        }
+
+        @Override
+        public String toString() {
+            String localIp = "*";
+            try {
+                localIp = InetAddress.getByAddress(localAddress).toString();
+            } catch (UnknownHostException e) {
+            }
+            String foreignIp = "*";
+            try {
+                foreignIp = InetAddress.getByAddress(foreignAddress).toString();
+            } catch (UnknownHostException e) {
+            }
+            return "IPConnection [type=" + type + ", localAddress=" + localIp + ", localPort=" + localPort
+                    + ", foreignAddress=" + foreignIp + ", foreignPort=" + foreignPort + ", state=" + state
+                    + ", transmitQueue=" + transmitQueue + ", receiveQueue=" + receiveQueue + "]";
         }
     }
 }

@@ -33,10 +33,10 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatProtocol;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
-import oshi.software.os.InternetProtocolStats;
+import oshi.software.common.AbstractInternetProtocolStats;
 
 @ThreadSafe
-public class AixInternetProtocolStats implements InternetProtocolStats {
+public class AixInternetProtocolStats extends AbstractInternetProtocolStats {
 
     private Supplier<perfstat_protocol_t[]> ipstats = memoize(PerfstatProtocol::queryProtocols, defaultExpiration());
 
