@@ -98,7 +98,7 @@ public class SolarisOSThread extends AbstractOSThread {
     public boolean updateAttributes() {
 <span class="nc" id="L99">        List&lt;String&gt; threadListInfo1 = ExecutingCommand</span>
 <span class="nc" id="L100">                .runNative(&quot;ps -o lwp,s,etime,stime,time,addr,pri -p &quot; + getOwningProcessId());</span>
-<span class="nc" id="L101">        List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(&quot;prstat -L -v -p &quot; + getOwningProcessId());</span>
+<span class="nc" id="L101">        List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(&quot;prstat -L -v -p &quot; + getOwningProcessId() + &quot; 1 1&quot;);</span>
 <span class="nc" id="L102">        Map&lt;Integer, String[]&gt; threadMap = SolarisOSProcess.parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);</span>
 <span class="nc bnc" id="L103" title="All 2 branches missed.">        if (threadMap.keySet().size() &gt; 1) {</span>
 <span class="nc" id="L104">            Optional&lt;String[]&gt; split = threadMap.entrySet().stream()</span>

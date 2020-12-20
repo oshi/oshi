@@ -236,7 +236,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     public List&lt;OSThread&gt; getThreadDetails() {
 <span class="nc" id="L237">        List&lt;String&gt; threadListInfo1 = ExecutingCommand</span>
 <span class="nc" id="L238">                .runNative(&quot;ps -o lwp,s,etime,stime,time,addr,pri -p &quot; + getProcessID());</span>
-<span class="nc" id="L239">        List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(&quot;prstat -L -v -p &quot; + getProcessID());</span>
+<span class="nc" id="L239">        List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(&quot;prstat -L -v -p &quot; + getProcessID() + &quot; 1 1&quot;);</span>
 <span class="nc" id="L240">        Map&lt;Integer, String[]&gt; threadMap = parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);</span>
 <span class="nc bnc" id="L241" title="All 2 branches missed.">        if (threadMap.keySet().size() &gt; 1) {</span>
 <span class="nc" id="L242">            return threadMap.entrySet().stream().map(entry -&gt; new SolarisOSThread(getProcessID(), entry.getValue()))</span>

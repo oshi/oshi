@@ -75,7 +75,7 @@ public final class KstatUtil {
 
 <span class="nc" id="L76">        private KstatChain() {</span>
 <span class="nc" id="L77">            CHAIN.lock();</span>
-<span class="nc" id="L78">            this.update();</span>
+<span class="nc" id="L78">            update();</span>
 <span class="nc" id="L79">        }</span>
 
         /**
@@ -91,14 +91,14 @@ public final class KstatUtil {
          *            The kstat from which to retrieve data
          * @return {@code true} if successful; {@code false} otherwise
          */
-        public boolean read(Kstat ksp) {
+        public static boolean read(Kstat ksp) {
 <span class="nc" id="L95">            int retry = 0;</span>
 <span class="nc bnc" id="L96" title="All 2 branches missed.">            while (0 &gt; KS.kstat_read(KC, ksp, null)) {</span>
 <span class="nc bnc" id="L97" title="All 4 branches missed.">                if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
 <span class="nc bnc" id="L98" title="All 2 branches missed.">                    if (LOG.isErrorEnabled()) {</span>
 <span class="nc" id="L99">                        LOG.error(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
-<span class="nc" id="L100">                                new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,</span>
-<span class="nc" id="L101">                                new String(ksp.ks_name, StandardCharsets.US_ASCII).trim());</span>
+<span class="nc" id="L100">                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
+<span class="nc" id="L101">                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));</span>
                     }
 <span class="nc" id="L103">                    return false;</span>
                 }
@@ -123,7 +123,7 @@ public final class KstatUtil {
          * @return The first match of the requested Kstat structure if found, or
          *         {@code null}
          */
-        public Kstat lookup(String module, int instance, String name) {
+        public static Kstat lookup(String module, int instance, String name) {
 <span class="nc" id="L127">            return KS.kstat_lookup(KC, module, instance, name);</span>
         }
 
@@ -144,12 +144,12 @@ public final class KstatUtil {
          * @return All matches of the requested Kstat structure if found, or an empty
          *         list otherwise
          */
-        public List&lt;Kstat&gt; lookupAll(String module, int instance, String name) {
+        public static List&lt;Kstat&gt; lookupAll(String module, int instance, String name) {
 <span class="nc" id="L148">            List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L149" title="All 2 branches missed.">            for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {</span>
-<span class="nc bnc" id="L150" title="All 10 branches missed.">                if ((module == null || module.equals(new String(ksp.ks_module, StandardCharsets.US_ASCII).trim()))</span>
+<span class="nc bnc" id="L150" title="All 10 branches missed.">                if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))</span>
                         &amp;&amp; (instance &lt; 0 || instance == ksp.ks_instance)
-<span class="nc bnc" id="L152" title="All 2 branches missed.">                        &amp;&amp; (name == null || name.equals(new String(ksp.ks_name, StandardCharsets.US_ASCII).trim()))) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                        &amp;&amp; (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {</span>
 <span class="nc" id="L153">                    kstats.add(ksp);</span>
                 }
             }
@@ -166,7 +166,7 @@ public final class KstatUtil {
          * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on
          *         failure.
          */
-        public int update() {
+        public static int update() {
 <span class="nc" id="L170">            return KS.kstat_chain_update(KC);</span>
         }
 
@@ -215,7 +215,7 @@ public final class KstatUtil {
 <span class="nc" id="L215">        KstatNamed data = new KstatNamed(p);</span>
 <span class="nc bnc" id="L216" title="All 7 branches missed.">        switch (data.data_type) {</span>
         case LibKstat.KSTAT_DATA_CHAR:
-<span class="nc" id="L218">            return new String(data.value.charc, StandardCharsets.UTF_8).trim();</span>
+<span class="nc" id="L218">            return Native.toString(data.value.charc, StandardCharsets.UTF_8);</span>
         case LibKstat.KSTAT_DATA_INT32:
 <span class="nc" id="L220">            return Integer.toString(data.value.i32);</span>
         case LibKstat.KSTAT_DATA_UINT32:
@@ -255,8 +255,8 @@ public final class KstatUtil {
 <span class="nc bnc" id="L255" title="All 2 branches missed.">        if (p == null) {</span>
 <span class="nc bnc" id="L256" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
 <span class="nc" id="L257">                LOG.error(&quot;Failed lo lookup kstat value on {}:{}:{} for key {}&quot;,</span>
-<span class="nc" id="L258">                        new String(ksp.ks_module, StandardCharsets.US_ASCII).trim(), ksp.ks_instance,</span>
-<span class="nc" id="L259">                        new String(ksp.ks_name, StandardCharsets.US_ASCII).trim(), name);</span>
+<span class="nc" id="L258">                        Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
+<span class="nc" id="L259">                        Native.toString(ksp.ks_name, StandardCharsets.US_ASCII), name);</span>
             }
 <span class="nc" id="L261">            return 0L;</span>
         }

@@ -182,7 +182,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
     private static long querySystemUptime() {
 <span class="nc" id="L184">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L185">            Kstat ksp = kc.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
+<span class="nc" id="L185">            Kstat ksp = KstatChain.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
 <span class="nc bnc" id="L186" title="All 2 branches missed.">            if (ksp != null) {</span>
                 // Snap Time is in nanoseconds; divide for seconds
 <span class="nc" id="L188">                return ksp.ks_snaptime / 1_000_000_000L;</span>
@@ -198,8 +198,8 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
     private static long querySystemBootTime() {
 <span class="nc" id="L200">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L201">            Kstat ksp = kc.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
-<span class="nc bnc" id="L202" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L201">            Kstat ksp = KstatChain.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
+<span class="nc bnc" id="L202" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L203">                return KstatUtil.dataLookupLong(ksp, &quot;boot_time&quot;);</span>
             }
 <span class="nc bnc" id="L205" title="All 2 branches missed.">        }</span>

@@ -51,19 +51,19 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * platform-specific implementations of {@link oshi.software.os.OperatingSystem}
  * (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
  */
-<span class="nc" id="L54">public class SystemInfo {</span>
+<span class="fc" id="L54">public class SystemInfo {</span>
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
     private static final PlatformEnum currentPlatformEnum;
 
     static {
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (Platform.isWindows()) {</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
 <span class="nc" id="L62">            currentPlatformEnum = PlatformEnum.WINDOWS;</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        } else if (Platform.isLinux()) {</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        } else if (Platform.isLinux()) {</span>
 <span class="nc" id="L64">            currentPlatformEnum = PlatformEnum.LINUX;</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        } else if (Platform.isMac()) {</span>
-<span class="nc" id="L66">            currentPlatformEnum = PlatformEnum.MACOSX;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        } else if (Platform.isMac()) {</span>
+<span class="fc" id="L66">            currentPlatformEnum = PlatformEnum.MACOSX;</span>
 <span class="nc bnc" id="L67" title="All 2 branches missed.">        } else if (Platform.isSolaris()) {</span>
 <span class="nc" id="L68">            currentPlatformEnum = PlatformEnum.SOLARIS;</span>
 <span class="nc bnc" id="L69" title="All 2 branches missed.">        } else if (Platform.isFreeBSD()) {</span>
@@ -73,11 +73,11 @@ import oshi.software.os.windows.WindowsOperatingSystem;
         } else {
 <span class="nc" id="L74">            currentPlatformEnum = PlatformEnum.UNKNOWN;</span>
         }
-<span class="nc" id="L76">    }</span>
+<span class="fc" id="L76">    }</span>
 
-<span class="nc" id="L78">    private final Supplier&lt;OperatingSystem&gt; os = memoize(this::createOperatingSystem);</span>
+<span class="fc" id="L78">    private final Supplier&lt;OperatingSystem&gt; os = memoize(SystemInfo::createOperatingSystem);</span>
 
-<span class="nc" id="L80">    private final Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(this::createHardware);</span>
+<span class="fc" id="L80">    private final Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(SystemInfo::createHardware);</span>
 
     /**
      * &lt;p&gt;
@@ -87,7 +87,7 @@ import oshi.software.os.windows.WindowsOperatingSystem;
      * @return Returns the currentPlatformEnum.
      */
     public static PlatformEnum getCurrentPlatformEnum() {
-<span class="nc" id="L90">        return currentPlatformEnum;</span>
+<span class="fc" id="L90">        return currentPlatformEnum;</span>
     }
 
     /**
@@ -97,18 +97,18 @@ import oshi.software.os.windows.WindowsOperatingSystem;
      * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-<span class="nc" id="L100">        return os.get();</span>
+<span class="fc" id="L100">        return os.get();</span>
     }
 
-    private OperatingSystem createOperatingSystem() {
-<span class="nc bnc" id="L104" title="All 7 branches missed.">        switch (currentPlatformEnum) {</span>
+    private static OperatingSystem createOperatingSystem() {
+<span class="pc bpc" id="L104" title="6 of 7 branches missed.">        switch (currentPlatformEnum) {</span>
 
         case WINDOWS:
 <span class="nc" id="L107">            return new WindowsOperatingSystem();</span>
         case LINUX:
 <span class="nc" id="L109">            return new LinuxOperatingSystem();</span>
         case MACOSX:
-<span class="nc" id="L111">            return new MacOperatingSystem();</span>
+<span class="fc" id="L111">            return new MacOperatingSystem();</span>
         case SOLARIS:
 <span class="nc" id="L113">            return new SolarisOperatingSystem();</span>
         case FREEBSD:
@@ -127,18 +127,18 @@ import oshi.software.os.windows.WindowsOperatingSystem;
      * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-<span class="nc" id="L130">        return hardware.get();</span>
+<span class="fc" id="L130">        return hardware.get();</span>
     }
 
-    private HardwareAbstractionLayer createHardware() {
-<span class="nc bnc" id="L134" title="All 7 branches missed.">        switch (currentPlatformEnum) {</span>
+    private static HardwareAbstractionLayer createHardware() {
+<span class="pc bpc" id="L134" title="6 of 7 branches missed.">        switch (currentPlatformEnum) {</span>
 
         case WINDOWS:
 <span class="nc" id="L137">            return new WindowsHardwareAbstractionLayer();</span>
         case LINUX:
 <span class="nc" id="L139">            return new LinuxHardwareAbstractionLayer();</span>
         case MACOSX:
-<span class="nc" id="L141">            return new MacHardwareAbstractionLayer();</span>
+<span class="fc" id="L141">            return new MacHardwareAbstractionLayer();</span>
         case SOLARIS:
 <span class="nc" id="L143">            return new SolarisHardwareAbstractionLayer();</span>
         case FREEBSD:

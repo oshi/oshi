@@ -24,10 +24,13 @@
 package oshi.hardware.platform.mac;
 
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.net.NetStat;
@@ -41,6 +44,8 @@ import oshi.hardware.common.AbstractNetworkIF;
 @ThreadSafe
 public final class MacNetworkIF extends AbstractNetworkIF {
 
+<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIF.class);</span>
+
     private int ifType;
     private long bytesRecv;
     private long bytesSent;
@@ -53,10 +58,10 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     private long speed;
     private long timeStamp;
 
-    public MacNetworkIF(NetworkInterface netint, Map&lt;Integer, IFdata&gt; data) {
-<span class="nc" id="L57">        super(netint);</span>
-<span class="nc" id="L58">        updateNetworkStats(data);</span>
-<span class="nc" id="L59">    }</span>
+    public MacNetworkIF(NetworkInterface netint, Map&lt;Integer, IFdata&gt; data) throws InstantiationException {
+<span class="nc" id="L62">        super(netint);</span>
+<span class="nc" id="L63">        updateNetworkStats(data);</span>
+<span class="nc" id="L64">    }</span>
 
     /**
      * Gets all network interfaces on this machine
@@ -68,70 +73,77 @@ public final class MacNetworkIF extends AbstractNetworkIF {
      */
     public static List&lt;NetworkIF&gt; getNetworks(boolean includeLocalInterfaces) {
         // One time fetch of stats
-<span class="nc" id="L71">        final Map&lt;Integer, IFdata&gt; data = NetStat.queryIFdata(-1);</span>
-<span class="nc" id="L72">        return Collections.unmodifiableList(getNetworkInterfaces(includeLocalInterfaces).stream()</span>
-<span class="nc" id="L73">                .map(ni -&gt; new MacNetworkIF(ni, data)).collect(Collectors.toList()));</span>
+<span class="nc" id="L76">        final Map&lt;Integer, IFdata&gt; data = NetStat.queryIFdata(-1);</span>
+<span class="nc" id="L77">        List&lt;NetworkIF&gt; ifList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {</span>
+            try {
+<span class="nc" id="L80">                ifList.add(new MacNetworkIF(ni, data));</span>
+<span class="nc" id="L81">            } catch (InstantiationException e) {</span>
+<span class="nc" id="L82">                LOG.debug(&quot;Network Interface Instantiation failed: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L83">            }</span>
+<span class="nc" id="L84">        }</span>
+<span class="nc" id="L85">        return Collections.unmodifiableList(ifList);</span>
     }
 
     @Override
     public int getIfType() {
-<span class="nc" id="L78">        return this.ifType;</span>
+<span class="nc" id="L90">        return this.ifType;</span>
     }
 
     @Override
     public long getBytesRecv() {
-<span class="nc" id="L83">        return this.bytesRecv;</span>
+<span class="nc" id="L95">        return this.bytesRecv;</span>
     }
 
     @Override
     public long getBytesSent() {
-<span class="nc" id="L88">        return this.bytesSent;</span>
+<span class="nc" id="L100">        return this.bytesSent;</span>
     }
 
     @Override
     public long getPacketsRecv() {
-<span class="nc" id="L93">        return this.packetsRecv;</span>
+<span class="nc" id="L105">        return this.packetsRecv;</span>
     }
 
     @Override
     public long getPacketsSent() {
-<span class="nc" id="L98">        return this.packetsSent;</span>
+<span class="nc" id="L110">        return this.packetsSent;</span>
     }
 
     @Override
     public long getInErrors() {
-<span class="nc" id="L103">        return this.inErrors;</span>
+<span class="nc" id="L115">        return this.inErrors;</span>
     }
 
     @Override
     public long getOutErrors() {
-<span class="nc" id="L108">        return this.outErrors;</span>
+<span class="nc" id="L120">        return this.outErrors;</span>
     }
 
     @Override
     public long getInDrops() {
-<span class="nc" id="L113">        return this.inDrops;</span>
+<span class="nc" id="L125">        return this.inDrops;</span>
     }
 
     @Override
     public long getCollisions() {
-<span class="nc" id="L118">        return this.collisions;</span>
+<span class="nc" id="L130">        return this.collisions;</span>
     }
 
     @Override
     public long getSpeed() {
-<span class="nc" id="L123">        return this.speed;</span>
+<span class="nc" id="L135">        return this.speed;</span>
     }
 
     @Override
     public long getTimeStamp() {
-<span class="nc" id="L128">        return this.timeStamp;</span>
+<span class="nc" id="L140">        return this.timeStamp;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L133">        int index = queryNetworkInterface().getIndex();</span>
-<span class="nc" id="L134">        return updateNetworkStats(NetStat.queryIFdata(index));</span>
+<span class="nc" id="L145">        int index = queryNetworkInterface().getIndex();</span>
+<span class="nc" id="L146">        return updateNetworkStats(NetStat.queryIFdata(index));</span>
     }
 
     /**
@@ -143,24 +155,24 @@ public final class MacNetworkIF extends AbstractNetworkIF {
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     private boolean updateNetworkStats(Map&lt;Integer, IFdata&gt; data) {
-<span class="nc" id="L146">        int index = queryNetworkInterface().getIndex();</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (data.containsKey(index)) {</span>
-<span class="nc" id="L148">            IFdata ifData = data.get(index);</span>
+<span class="nc" id="L158">        int index = queryNetworkInterface().getIndex();</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (data.containsKey(index)) {</span>
+<span class="nc" id="L160">            IFdata ifData = data.get(index);</span>
             // Update data
-<span class="nc" id="L150">            this.ifType = ifData.getIfType();</span>
-<span class="nc" id="L151">            this.bytesSent = ifData.getOBytes();</span>
-<span class="nc" id="L152">            this.bytesRecv = ifData.getIBytes();</span>
-<span class="nc" id="L153">            this.packetsSent = ifData.getOPackets();</span>
-<span class="nc" id="L154">            this.packetsRecv = ifData.getIPackets();</span>
-<span class="nc" id="L155">            this.outErrors = ifData.getOErrors();</span>
-<span class="nc" id="L156">            this.inErrors = ifData.getIErrors();</span>
-<span class="nc" id="L157">            this.collisions = ifData.getCollisions();</span>
-<span class="nc" id="L158">            this.inDrops = ifData.getIDrops();</span>
-<span class="nc" id="L159">            this.speed = ifData.getSpeed();</span>
-<span class="nc" id="L160">            this.timeStamp = ifData.getTimeStamp();</span>
-<span class="nc" id="L161">            return true;</span>
+<span class="nc" id="L162">            this.ifType = ifData.getIfType();</span>
+<span class="nc" id="L163">            this.bytesSent = ifData.getOBytes();</span>
+<span class="nc" id="L164">            this.bytesRecv = ifData.getIBytes();</span>
+<span class="nc" id="L165">            this.packetsSent = ifData.getOPackets();</span>
+<span class="nc" id="L166">            this.packetsRecv = ifData.getIPackets();</span>
+<span class="nc" id="L167">            this.outErrors = ifData.getOErrors();</span>
+<span class="nc" id="L168">            this.inErrors = ifData.getIErrors();</span>
+<span class="nc" id="L169">            this.collisions = ifData.getCollisions();</span>
+<span class="nc" id="L170">            this.inDrops = ifData.getIDrops();</span>
+<span class="nc" id="L171">            this.speed = ifData.getSpeed();</span>
+<span class="nc" id="L172">            this.timeStamp = ifData.getTimeStamp();</span>
+<span class="nc" id="L173">            return true;</span>
         }
-<span class="nc" id="L163">        return false;</span>
+<span class="nc" id="L175">        return false;</span>
     }
 
 }

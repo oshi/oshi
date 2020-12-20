@@ -27,7 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -47,19 +48,19 @@ public final class Fsstat {
      * @return A map with partitions as the key and mount points as the value
      */
     public static Map&lt;String, String&gt; queryPartitionToMountMap() {
-<span class="nc" id="L50">        Map&lt;String, String&gt; mountPointMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L51">        Map&lt;String, String&gt; mountPointMap = new HashMap&lt;&gt;();</span>
         // Use statfs to populate mount point map
-<span class="nc" id="L52">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
+<span class="nc" id="L53">        int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);</span>
         // Create array to hold results
-<span class="nc" id="L54">        Statfs[] fs = new Statfs[numfs];</span>
+<span class="nc" id="L55">        Statfs[] fs = new Statfs[numfs];</span>
         // Fill array with results
-<span class="nc" id="L56">        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
+<span class="nc" id="L57">        SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
         // Iterate all mounted file systems
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (Statfs f : fs) {</span>
-<span class="nc" id="L59">            String mntFrom = new String(f.f_mntfromname, StandardCharsets.UTF_8).trim();</span>
-<span class="nc" id="L60">            mountPointMap.put(mntFrom.replace(&quot;/dev/&quot;, &quot;&quot;), new String(f.f_mntonname, StandardCharsets.UTF_8).trim());</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        for (Statfs f : fs) {</span>
+<span class="nc" id="L60">            String mntFrom = Native.toString(f.f_mntfromname, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L61">            mountPointMap.put(mntFrom.replace(&quot;/dev/&quot;, &quot;&quot;), Native.toString(f.f_mntonname, StandardCharsets.UTF_8));</span>
         }
-<span class="nc" id="L62">        return mountPointMap;</span>
+<span class="nc" id="L63">        return mountPointMap;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

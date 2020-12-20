@@ -139,7 +139,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
     private static List&lt;OSProcess&gt; getProcessListFromPS(int pid) {
 <span class="nc" id="L141">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L142">        String psCommand = &quot;ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args&quot;;</span>
+<span class="nc" id="L142">        String psCommand = &quot;ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args&quot;;</span>
 <span class="nc bnc" id="L143" title="All 2 branches missed.">        if (pid &gt;= 0) {</span>
 <span class="nc" id="L144">            psCommand += &quot; -p &quot; + pid;</span>
         }
@@ -151,9 +151,9 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 <span class="nc" id="L151">        procList.remove(0);</span>
         // Fill list
 <span class="nc bnc" id="L153" title="All 2 branches missed.">        for (String proc : procList) {</span>
-<span class="nc" id="L154">            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);</span>
+<span class="nc" id="L154">            String[] split = ParseUtil.whitespaces.split(proc.trim(), 18);</span>
             // Elements should match ps command order
-<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (split.length == 16) {</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (split.length == 18) {</span>
 <span class="nc bnc" id="L157" title="All 2 branches missed.">                procs.add(new FreeBsdOSProcess(pid &lt; 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));</span>
             }
 <span class="nc" id="L159">        }</span>

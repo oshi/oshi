@@ -45,8 +45,8 @@ public interface OperatingSystem {
     /**
      * Controls sorting of Process output
      */
-<span class="nc" id="L48">    enum ProcessSort {</span>
-<span class="nc" id="L49">        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
+<span class="fc" id="L48">    enum ProcessSort {</span>
+<span class="fc" id="L49">        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
     }
 
     /**
@@ -254,20 +254,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="nc" id="L257">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="nc" id="L258">            this.version = version;</span>
-<span class="nc" id="L259">            this.codeName = codeName;</span>
-<span class="nc" id="L260">            this.buildNumber = buildNumber;</span>
+<span class="fc" id="L257">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="fc" id="L258">            this.version = version;</span>
+<span class="fc" id="L259">            this.codeName = codeName;</span>
+<span class="fc" id="L260">            this.buildNumber = buildNumber;</span>
 
-<span class="nc bnc" id="L262" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="nc bnc" id="L263" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="nc" id="L264">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="fc" id="L264">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="nc bnc" id="L266" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="nc" id="L267">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="fc" id="L267">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="nc" id="L269">            this.versionStr = sb.toString();</span>
-<span class="nc" id="L270">        }</span>
+<span class="fc" id="L269">            this.versionStr = sb.toString();</span>
+<span class="fc" id="L270">        }</span>
 
         /**
          * Gets the operating system version.
@@ -275,7 +275,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="nc" id="L278">            return version;</span>
+<span class="fc" id="L278">            return version;</span>
         }
 
         /**
@@ -284,7 +284,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="nc" id="L287">            return codeName;</span>
+<span class="fc" id="L287">            return codeName;</span>
         }
 
         /**
@@ -293,12 +293,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="nc" id="L296">            return buildNumber;</span>
+<span class="fc" id="L296">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L301">            return this.versionStr;</span>
+<span class="fc" id="L301">            return this.versionStr;</span>
         }
     }
 }

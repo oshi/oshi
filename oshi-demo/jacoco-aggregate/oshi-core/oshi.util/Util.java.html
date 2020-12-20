@@ -33,7 +33,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class Util {
-<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
+<span class="fc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
 
     private Util() {
     }
@@ -46,13 +46,13 @@ public final class Util {
      */
     public static void sleep(long ms) {
         try {
-<span class="nc" id="L49">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
-<span class="nc" id="L50">            Thread.sleep(ms);</span>
+<span class="fc" id="L49">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
+<span class="fc" id="L50">            Thread.sleep(ms);</span>
 <span class="nc" id="L51">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
 <span class="nc" id="L52">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e.getMessage());</span>
 <span class="nc" id="L53">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L54">        }</span>
-<span class="nc" id="L55">    }</span>
+<span class="fc" id="L54">        }</span>
+<span class="fc" id="L55">    }</span>
 
     /**
      * Tests if a String matches another String with a wildcard pattern.
@@ -69,10 +69,10 @@ public final class Util {
      *         remainder of the String does not match.
      */
     public static boolean wildcardMatch(String text, String pattern) {
-<span class="nc bnc" id="L72" title="All 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            return !wildcardMatch(text, pattern.substring(1));</span>
+<span class="pc bpc" id="L72" title="1 of 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            return !wildcardMatch(text, pattern.substring(1));</span>
         }
-<span class="nc" id="L75">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
+<span class="fc" id="L75">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
     }
 
     /**
@@ -83,7 +83,7 @@ public final class Util {
      * @return True if the String is either null or empty.
      */
     public static boolean isBlank(String s) {
-<span class="nc bnc" id="L86" title="All 4 branches missed.">        return s == null || s.isEmpty();</span>
+<span class="fc bfc" id="L86" title="All 4 branches covered.">        return s == null || s.isEmpty();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
