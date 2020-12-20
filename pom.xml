@@ -29,7 +29,7 @@
 
 	<groupId>com.github.oshi</groupId>
 	<artifactId>oshi-parent</artifactId>
-	<version>5.3.7-SNAPSHOT</version>
+	<version>5.3.8-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Operating System and Hardware Information</name>
