@@ -59,9 +59,9 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">long</strong> memTotal = 0;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          <em class="jxr_comment">// Get first result</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              Kstat ksp = kc.lookup(<strong class="jxr_keyword">null</strong>, -1, <span class="jxr_string">"system_pages"</span>);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              Kstat ksp = KstatChain.lookup(<strong class="jxr_keyword">null</strong>, -1, <span class="jxr_string">"system_pages"</span>);
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              <em class="jxr_comment">// Set values</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; kc.read(ksp)) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>                  memAvailable = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"availrmem"</span>); <em class="jxr_comment">// not a typo</em>
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>                  memTotal = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"physmem"</span>);
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>              }

@@ -106,7 +106,7 @@
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>          List&lt;String&gt; threadListInfo1 = <a name="ExecutingCommand" href="../../../../../oshi/util/ExecutingCommand.html#ExecutingCommand">ExecutingCommand</a>
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>                 .runNative(<span class="jxr_string">"ps -o lwp,s,etime,stime,time,addr,pri -p "</span> + getOwningProcessId());
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(<span class="jxr_string">"prstat -L -v -p "</span> + getOwningProcessId());
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(<span class="jxr_string">"prstat -L -v -p "</span> + getOwningProcessId() + <span class="jxr_string">" 1 1"</span>);
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         Map&lt;Integer, String[]&gt; threadMap = SolarisOSProcess.parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">if</strong> (threadMap.keySet().size() &gt; 1) {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>             Optional&lt;String[]&gt; split = threadMap.entrySet().stream()

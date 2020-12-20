@@ -83,9 +83,9 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          }
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;OperatingSystem&gt; os = memoize(<strong class="jxr_keyword">this</strong>::createOperatingSystem);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;OperatingSystem&gt; os = memoize(SystemInfo::createOperatingSystem);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(<strong class="jxr_keyword">this</strong>::createHardware);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(SystemInfo::createHardware);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
@@ -108,7 +108,7 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">return</strong> os.get();
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     }
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> 
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">private</strong> <a name="OperatingSystem" href="../oshi/software/os/OperatingSystem.html#OperatingSystem">OperatingSystem</a> createOperatingSystem() {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="OperatingSystem" href="../oshi/software/os/OperatingSystem.html#OperatingSystem">OperatingSystem</a> createOperatingSystem() {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">switch</strong> (currentPlatformEnum) {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> 
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">case</strong> WINDOWS:
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">return</strong> hardware.get();
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> 
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">private</strong> <a name="HardwareAbstractionLayer" href="../oshi/hardware/HardwareAbstractionLayer.html#HardwareAbstractionLayer">HardwareAbstractionLayer</a> createHardware() {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="HardwareAbstractionLayer" href="../oshi/hardware/HardwareAbstractionLayer.html#HardwareAbstractionLayer">HardwareAbstractionLayer</a> createHardware() {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">switch</strong> (currentPlatformEnum) {
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> 
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">case</strong> WINDOWS:

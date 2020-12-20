@@ -244,7 +244,7 @@
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">public</strong> List&lt;OSThread&gt; getThreadDetails() {
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>         List&lt;String&gt; threadListInfo1 = <a name="ExecutingCommand" href="../../../../../oshi/util/ExecutingCommand.html#ExecutingCommand">ExecutingCommand</a>
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>                 .runNative(<span class="jxr_string">"ps -o lwp,s,etime,stime,time,addr,pri -p "</span> + getProcessID());
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(<span class="jxr_string">"prstat -L -v -p "</span> + getProcessID());
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(<span class="jxr_string">"prstat -L -v -p "</span> + getProcessID() + <span class="jxr_string">" 1 1"</span>);
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>         Map&lt;Integer, String[]&gt; threadMap = parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">if</strong> (threadMap.keySet().size() &gt; 1) {
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>             <strong class="jxr_keyword">return</strong> threadMap.entrySet().stream().map(entry -&gt; <strong class="jxr_keyword">new</strong> <a name="SolarisOSThread" href="../../../../../oshi/software/os/unix/solaris/SolarisOSThread.html#SolarisOSThread">SolarisOSThread</a>(getProcessID(), entry.getValue()))

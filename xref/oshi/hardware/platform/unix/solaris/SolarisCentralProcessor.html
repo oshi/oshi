@@ -66,9 +66,9 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// Get first result</em>
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              Kstat ksp = kc.lookup(CPU_INFO, -1, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              Kstat ksp = KstatChain.lookup(CPU_INFO, -1, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>              <em class="jxr_comment">// Set values</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; kc.read(ksp)) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                  cpuVendor = KstatUtil.dataLookupString(ksp, <span class="jxr_string">"vendor_id"</span>);
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  cpuName = KstatUtil.dataLookupString(ksp, <span class="jxr_string">"brand"</span>);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  cpuFamily = KstatUtil.dataLookupString(ksp, <span class="jxr_string">"family"</span>);
@@ -89,10 +89,10 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          Map&lt;Integer, Integer&gt; numaNodeMap = mapNumaNodes();
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          List&lt;LogicalProcessor&gt; logProcs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              List&lt;Kstat&gt; kstats = kc.lookupAll(CPU_INFO, -1, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              List&lt;Kstat&gt; kstats = KstatChain.lookupAll(CPU_INFO, -1, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">for</strong> (Kstat ksp : kstats) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; kc.read(ksp)) {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong> &amp;&amp; KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <strong class="jxr_keyword">int</strong> procId = logProcs.size(); <em class="jxr_comment">// 0-indexed</em>
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                      String chipId = KstatUtil.dataLookupString(ksp, <span class="jxr_string">"chip_id"</span>);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                      String coreId = KstatUtil.dataLookupString(ksp, <span class="jxr_string">"core_id"</span>);
@@ -151,8 +151,8 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         Arrays.fill(freqs, -1);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; freqs.length; i++) {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 <strong class="jxr_keyword">for</strong> (Kstat ksp : kc.lookupAll(CPU_INFO, i, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>                     <strong class="jxr_keyword">if</strong> (kc.read(ksp)) {
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 <strong class="jxr_keyword">for</strong> (Kstat ksp : KstatChain.lookupAll(CPU_INFO, i, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                     <strong class="jxr_keyword">if</strong> (KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>                         freqs[i] = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"current_clock_Hz"</span>);
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>                     }
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>                 }
@@ -165,8 +165,8 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryMaxFreq() {
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">long</strong> max = -1L;
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>             <strong class="jxr_keyword">for</strong> (Kstat ksp : kc.lookupAll(CPU_INFO, 0, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 <strong class="jxr_keyword">if</strong> (kc.read(ksp)) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             <strong class="jxr_keyword">for</strong> (Kstat ksp : KstatChain.lookupAll(CPU_INFO, 0, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 <strong class="jxr_keyword">if</strong> (KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>                     String suppFreq = KstatUtil.dataLookupString(ksp, <span class="jxr_string">"supported_frequencies_Hz"</span>);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>                     <strong class="jxr_keyword">if</strong> (!suppFreq.isEmpty()) {
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>                         <strong class="jxr_keyword">for</strong> (String s : suppFreq.split(<span class="jxr_string">":"</span>)) {
@@ -202,13 +202,13 @@
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()][TickType.values().length];
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">int</strong> cpu = -1;
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             <strong class="jxr_keyword">for</strong> (Kstat ksp : kc.lookupAll(<span class="jxr_string">"cpu"</span>, -1, <span class="jxr_string">"sys"</span>)) {
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             <strong class="jxr_keyword">for</strong> (Kstat ksp : KstatChain.lookupAll(<span class="jxr_string">"cpu"</span>, -1, <span class="jxr_string">"sys"</span>)) {
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>                 <em class="jxr_comment">// This is a new CPU</em>
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>                 <strong class="jxr_keyword">if</strong> (++cpu &gt;= ticks.length) {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>                     <em class="jxr_comment">// Shouldn't happen</em>
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>                     <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>                 }
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 <strong class="jxr_keyword">if</strong> (kc.read(ksp)) {
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 <strong class="jxr_keyword">if</strong> (KstatChain.read(ksp)) {
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>                     ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"cpu_ticks_idle"</span>);
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>                     ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"cpu_ticks_kernel"</span>);
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>                     ticks[cpu][TickType.USER.getIndex()] = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"cpu_ticks_user"</span>);

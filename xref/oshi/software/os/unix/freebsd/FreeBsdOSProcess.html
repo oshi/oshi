@@ -53,8 +53,8 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.util.LsofUtil;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.unix.freebsd.ProcstatUtil;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  @ThreadSafe
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdOSProcess" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdOSProcess.html#FreeBsdOSProcess">FreeBsdOSProcess</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSProcess" href="../../../../../oshi/software/common/AbstractOSProcess.html#AbstractOSProcess">AbstractOSProcess</a> {
@@ -105,7 +105,7 @@
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>  
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>      @Override
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">public</strong> String getCurrentWorkingDirectory() {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">return</strong> LsofUtil.getCwd(getProcessID());
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">return</strong> ProcstatUtil.getCwd(getProcessID());
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     }
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> 
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     @Override
@@ -190,7 +190,7 @@
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> 
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>     @Override
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFiles() {
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">return</strong> LsofUtil.getOpenFiles(getProcessID());
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">return</strong> ProcstatUtil.getOpenFiles(getProcessID());
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
 <a class="jxr_linenumber" name="L187" href="#L187">187</a> 
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>     @Override
@@ -278,7 +278,7 @@
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> 
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>     @Override
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         String psCommand = <span class="jxr_string">"ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,args,majflt,minflt -p "</span>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         String psCommand = <span class="jxr_string">"ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args -p "</span>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>                 + getProcessID();
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>         List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand);
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">if</strong> (procList.size() &gt; 1) {
@@ -335,9 +335,9 @@
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>         <strong class="jxr_keyword">this</strong>.userTime = ParseUtil.parseDHMSOrDefault(split[13], 0L) - <strong class="jxr_keyword">this</strong>.kernelTime;
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>         <strong class="jxr_keyword">this</strong>.path = split[14];
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">this</strong>.name = <strong class="jxr_keyword">this</strong>.path.substring(<strong class="jxr_keyword">this</strong>.path.lastIndexOf('/') + 1);
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">this</strong>.commandLine = split[15];
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">this</strong>.minorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <strong class="jxr_keyword">this</strong>.majorFaults = ParseUtil.parseLongOrDefault(split[17], 0L);
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">this</strong>.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">this</strong>.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <strong class="jxr_keyword">this</strong>.commandLine = split[17];
 <a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>     }
 <a class="jxr_linenumber" name="L335" href="#L335">335</a> }

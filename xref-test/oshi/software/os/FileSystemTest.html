@@ -77,18 +77,20 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  assertThat(<span class="jxr_string">"Number of free inodes should be 0 or higher on non-Windows systems"</span>,
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                          store.getFreeInodes() &gt;= 0, is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  assertThat(
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                          <span class="jxr_string">"Total number of inodes should be greater than or equal to number of free inodes on non-Windows systems"</span>,
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          store.getTotalInodes() &gt;= store.getFreeInodes(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">if</strong> (!store.getDescription().equals(<span class="jxr_string">"Network drive"</span>)) {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  assertThat(
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                          <span class="jxr_string">"File store's usable space should be less than or equal to the total space on non-network drives"</span>,
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                          store.getUsableSpace() &lt;= store.getTotalSpace(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.SOLARIS) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      assertThat(
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                              <span class="jxr_string">"Total number of inodes should be greater than or equal to number of free inodes on non-Windows/Solaris systems"</span>,
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                              store.getTotalInodes() &gt;= store.getFreeInodes(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">if</strong> (!store.getDescription().equals(<span class="jxr_string">"Network drive"</span>)) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  assertThat(
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          <span class="jxr_string">"File store's usable space should be less than or equal to the total space on non-network drives"</span>,
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                          store.getUsableSpace() &lt;= store.getTotalSpace(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
