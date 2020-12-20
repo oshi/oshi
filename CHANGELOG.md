@@ -1,16 +1,8 @@
-# 5.3.7 (in progress)
+# 5.3.8 (in progress)
 
-* [#1419](https://github.com/oshi/oshi/pull/1419): WMI performance improvement demo classes - [@dbwiddis](https://github.com/dbwiddis).
-* [#1432](https://github.com/oshi/oshi/pull/1432): Properly round Linux current frequency - [@dbwiddis](https://github.com/dbwiddis).
-* [#1434](https://github.com/oshi/oshi/pull/1434): Document unsigned int MTU and update toString - [@dbwiddis](https://github.com/dbwiddis).
-* [#1440](https://github.com/oshi/oshi/pull/1440): Add ps backup for command line for macOS Big Sur compatibility - [@dbwiddis](https://github.com/dbwiddis).
-* [#1442](https://github.com/oshi/oshi/pull/1442), [#1443](https://github.com/oshi/oshi/pull/1443): FreeBSD CI; fix FreeBSD Test Failures - [@dbwiddis](https://github.com/dbwiddis).
-* [#1455](https://github.com/oshi/oshi/pull/1455): Fix hanging prstat call on Solaris thread details - [@dbwiddis](https://github.com/dbwiddis).
-* [#1457](https://github.com/oshi/oshi/pull/1457): Fix macOS codename with new versioning scheme - [@dbwiddis](https://github.com/dbwiddis).
-* [#1460](https://github.com/oshi/oshi/pull/1460): Fetch thread names on Linux - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
-# 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11), 5.3.6 (2020-11-15)
+# 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11), 5.3.6 (2020-11-15), 5.3.7 (2020-12-20)
 
 ##### New Features
 * [#1350](https://github.com/oshi/oshi/pull/1350): Optionally list loopback and virtual network interfaces - [@zalintyre](https://github.com/zalintyre).
@@ -35,6 +27,14 @@
 * [#1410](https://github.com/oshi/oshi/pull/1410): Adapt to macOS 11 version reverse compatibility - [@dbwiddis](https://github.com/dbwiddis).
 * [#1411](https://github.com/oshi/oshi/pull/1411): Add mapping of device and volume to be used for getting uuid - [@tausiflife](https://github.com/tausiflife).
 * [#1413](https://github.com/oshi/oshi/pull/1413): Handle macOS unsigned byte ifTypes - [@dbwiddis](https://github.com/dbwiddis).
+* [#1419](https://github.com/oshi/oshi/pull/1419): WMI performance improvement demo classes - [@dbwiddis](https://github.com/dbwiddis).
+* [#1432](https://github.com/oshi/oshi/pull/1432): Properly round Linux current frequency - [@dbwiddis](https://github.com/dbwiddis).
+* [#1434](https://github.com/oshi/oshi/pull/1434): Document unsigned int MTU and update toString - [@dbwiddis](https://github.com/dbwiddis).
+* [#1440](https://github.com/oshi/oshi/pull/1440): Add ps backup for command line for macOS Big Sur compatibility - [@dbwiddis](https://github.com/dbwiddis).
+* [#1442](https://github.com/oshi/oshi/pull/1442), [#1443](https://github.com/oshi/oshi/pull/1443): FreeBSD CI; fix FreeBSD Test Failures - [@dbwiddis](https://github.com/dbwiddis).
+* [#1455](https://github.com/oshi/oshi/pull/1455): Fix hanging prstat call on Solaris thread details - [@dbwiddis](https://github.com/dbwiddis).
+* [#1457](https://github.com/oshi/oshi/pull/1457): Fix macOS codename with new versioning scheme - [@dbwiddis](https://github.com/dbwiddis).
+* [#1460](https://github.com/oshi/oshi/pull/1460): Fetch thread names on Linux - [@dbwiddis](https://github.com/dbwiddis).
 
 # 4.9.1 / 5.2.1 (2020-07-14), 4.9.2 / 5.2.2 (2020-07-20), 4.9.3 / 5.2.3 (2020-08-09), 4.9.4 / 5.2.4 (2020-08-16), 4.9.5 / 5.2.5 (2020-08-30)
 
