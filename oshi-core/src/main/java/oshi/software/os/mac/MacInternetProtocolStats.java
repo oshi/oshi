@@ -48,8 +48,6 @@ import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -203,45 +201,24 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
             byte[] laddr;
             byte[] faddr;
             if (ini.insi_vflag == 1) {
-                laddr = parseIntToIP(ini.insi_laddr[3]);
-                faddr = parseIntToIP(ini.insi_faddr[3]);
+                laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
+                faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
                 type += "4";
             } else if (ini.insi_vflag == 2) {
-                laddr = parseIntArrayToIP(ini.insi_laddr);
-                faddr = parseIntArrayToIP(ini.insi_faddr);
+                laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);
+                faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);
                 type += "6";
             } else {
                 return null;
             }
-            // Ports are in big-endian 16-bit, need little-endian
-            int lport = bigEndian16ToLittleEndian(ini.insi_lport);
-            int fport = bigEndian16ToLittleEndian(ini.insi_fport);
+            int lport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_lport);
+            int fport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_fport);
             return new IPConnection(type, laddr, lport, faddr, fport, state, si.psi.soi_qlen, si.psi.soi_incqlen, pid);
         }
         return null;
     }
 
-    private int bigEndian16ToLittleEndian(int port) {
-        // 20480 = 0x5000 should be 0x0050 = 80
-        // 47873 = 0xBB01 should be 0x01BB = 443
-        return port >> 8 & 0xff | port << 8 & 0xff00;
-    }
-
-    private byte[] parseIntToIP(int ip) {
-        // convert int to its 4 bytes
-        return ByteBuffer.allocate(4).order(ByteOrder.nativeOrder()).putInt(ip).array();
-    }
-
-    private byte[] parseIntArrayToIP(int[] ip6) {
-        // convert int[] to its 16 bytes
-        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.nativeOrder());
-        for (int i : ip6) {
-            bb.putInt(i);
-        }
-        return bb.array();
-    }
-
-    private TcpState stateLookup(int state) {
+    private static TcpState stateLookup(int state) {
         switch (state) {
         case 0:
             return CLOSED;

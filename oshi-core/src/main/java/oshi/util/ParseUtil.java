@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -1100,6 +1101,51 @@ public final class ParseUtil {
             }
         }
         return result;
+    }
+
+    /**
+     * Parse an integer in big endian IP format to its component bytes representing
+     * an IPv4 address
+     *
+     * @param ip
+     *            The address as an integer
+     * @return The address as an array of four bytes
+     */
+    public static byte[] parseIntToIP(int ip) {
+        return ByteBuffer.allocate(4).order(ByteOrder.nativeOrder()).putInt(ip).array();
+    }
+
+    /**
+     * Parse an integer array in big endian IP format to its component bytes
+     * representing an IPv6 address
+     *
+     * @param ip
+     *            The address as an integer array
+     * @return The address as an array of sizteen bytes
+     */
+    public static byte[] parseIntArrayToIP(int[] ip6) {
+        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.nativeOrder());
+        for (int i : ip6) {
+            bb.putInt(i);
+        }
+        return bb.array();
+    }
+
+    /**
+     * TCP network addresses and ports are in big endian format by definition. The
+     * order of the two bytes in the 16-bit unsigned short port value must be
+     * reversed
+     *
+     * @param port
+     *            The port number in big endian order
+     * @return The port number
+     * @see <a href=
+     *      "https://docs.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-ntohs">ntohs</a>
+     */
+    public static int bigEndian16ToLittleEndian(int port) {
+        // 20480 = 0x5000 should be 0x0050 = 80
+        // 47873 = 0xBB01 should be 0x01BB = 443
+        return port >> 8 & 0xff | port << 8 & 0xff00;
     }
 
     /**
