@@ -275,24 +275,11 @@ public interface InternetProtocolStats {
     }
 
     /**
-     * The TCP connection state as described in RFC 793
+     * The TCP connection state as described in RFC 793.
      */
     enum TcpState {
-        UNKNOWN, CLOSE, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT1, FIN_WAIT2, CLOSE_WAIT, CLOSING, LAST_ACK,
-        TIME_WAIT, DELETE_TCB;
-
-        private static final TcpState[] values = values();
-
-        /**
-         * Gets the connection state corresponding to the index.
-         *
-         * @param index
-         *            The TCP State index
-         * @return the TCP State
-         */
-        public static TcpState getByOrdinal(int index) {
-            return values[index];
-        }
+        UNKNOWN, CLOSED, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT1, FIN_WAIT2, CLOSE_WAIT, CLOSING, LAST_ACK,
+        TIME_WAIT, NONE;
     }
 
     final class IPConnection {
@@ -304,9 +291,10 @@ public interface InternetProtocolStats {
         private final TcpState state;
         private final int transmitQueue;
         private final int receiveQueue;
+        private int owningProcessId;
 
         public IPConnection(String type, byte[] localAddress, int localPort, byte[] foreignAddress, int foreignPort,
-                TcpState state, int transmitQueue, int receiveQueue) {
+                TcpState state, int transmitQueue, int receiveQueue, int owningProcessId) {
             this.type = type;
             this.localAddress = localAddress;
             this.localPort = localPort;
@@ -315,6 +303,7 @@ public interface InternetProtocolStats {
             this.state = state;
             this.transmitQueue = transmitQueue;
             this.receiveQueue = receiveQueue;
+            this.owningProcessId = owningProcessId;
         }
 
         /**
@@ -329,6 +318,9 @@ public interface InternetProtocolStats {
         /**
          * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6
          * addresses this is a 16-byte array.
+         * <p>
+         * On Unix operating systems, this value may be truncated. IPv6 addresses ending
+         * in zeroes should be considered suspect.
          *
          * @return The local address, or an empty array if the listener can accept a
          *         connection on any interface.
@@ -349,6 +341,9 @@ public interface InternetProtocolStats {
         /**
          * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array.
          * For IPv6 addresses this is a 16-byte array.
+         * <p>
+         * On Unix operating systems, this value may be truncated. IPv6 addresses ending
+         * in zeroes should be considered suspect.
          *
          * @return The foreign/remote address, or an empty array if unknown. An empty
          *         array will also result if
@@ -393,21 +388,32 @@ public interface InternetProtocolStats {
             return receiveQueue;
         }
 
+        /**
+         * Gets the id of the process which holds this connection.
+         *
+         * @return The process id of the process which holds this connection if known,
+         *         -1 otherwise.
+         */
+        public int getowningProcessId() {
+            return owningProcessId;
+        }
+
         @Override
         public String toString() {
             String localIp = "*";
             try {
                 localIp = InetAddress.getByAddress(localAddress).toString();
-            } catch (UnknownHostException e) {
+            } catch (UnknownHostException e) { // NOSONAR squid:S108
             }
             String foreignIp = "*";
             try {
                 foreignIp = InetAddress.getByAddress(foreignAddress).toString();
-            } catch (UnknownHostException e) {
+            } catch (UnknownHostException e) { // NOSONAR squid:S108
             }
             return "IPConnection [type=" + type + ", localAddress=" + localIp + ", localPort=" + localPort
                     + ", foreignAddress=" + foreignIp + ", foreignPort=" + foreignPort + ", state=" + state
-                    + ", transmitQueue=" + transmitQueue + ", receiveQueue=" + receiveQueue + "]";
+                    + ", transmitQueue=" + transmitQueue + ", receiveQueue=" + receiveQueue + ", owningProcessId="
+                    + owningProcessId + "]";
         }
     }
 }

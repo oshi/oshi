@@ -23,15 +23,46 @@
  */
 package oshi.software.os.mac;
 
+import static com.sun.jna.platform.mac.SystemB.INT_SIZE; // NOSONAR squid:S1191
+import static com.sun.jna.platform.mac.SystemB.PROC_ALL_PIDS;
+import static oshi.jna.platform.mac.SystemB.AF_INET;
+import static oshi.jna.platform.mac.SystemB.AF_INET6;
+import static oshi.jna.platform.mac.SystemB.PROC_PIDFDSOCKETINFO;
+import static oshi.jna.platform.mac.SystemB.PROC_PIDLISTFDS;
+import static oshi.jna.platform.mac.SystemB.PROX_FDTYPE_SOCKET;
+import static oshi.jna.platform.mac.SystemB.SOCKINFO_IN;
+import static oshi.jna.platform.mac.SystemB.SOCKINFO_TCP;
+import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
+import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
+import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
+import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT1;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT2;
+import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
+import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
+import static oshi.software.os.InternetProtocolStats.TcpState.NONE;
+import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
+import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
+import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
+import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.NetStat;
+import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.mac.SystemB.InSockInfo;
+import oshi.jna.platform.mac.SystemB.ProcFdInfo;
+import oshi.jna.platform.mac.SystemB.SocketFdInfo;
 import oshi.jna.platform.unix.CLibrary.BsdIp6stat;
 import oshi.jna.platform.unix.CLibrary.BsdIpstat;
 import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
@@ -105,6 +136,138 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
         BsdUdpstat stat = udpstat.get();
         return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
                 ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
+    }
+
+    @Override
+    public List<IPConnection> getConnections() {
+        List<IPConnection> conns = new ArrayList<>();
+        int[] pids = new int[1024];
+        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(PROC_ALL_PIDS, 0, pids, pids.length * INT_SIZE)
+                / INT_SIZE;
+        for (int i = 0; i < numberOfProcesses; i++) {
+            // Handle off-by-one bug in proc_listpids where the size returned
+            // is: SystemB.INT_SIZE * (pids + 1)
+            if (pids[i] > 0) {
+                for (Integer fd : queryFdList(pids[i])) {
+                    IPConnection ipc = queryIPConnection(pids[i], fd);
+                    if (ipc != null) {
+                        conns.add(ipc);
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableList(conns);
+    }
+
+    private List<Integer> queryFdList(int pid) {
+        List<Integer> fdList = new ArrayList<>();
+        int bufferSize = SystemB.INSTANCE.proc_pidinfo(pid, PROC_PIDLISTFDS, 0, null, 0);
+        if (bufferSize > 0) {
+            ProcFdInfo fdInfo = new ProcFdInfo();
+            int numStructs = bufferSize / fdInfo.size();
+            ProcFdInfo[] fdArray = (ProcFdInfo[]) fdInfo.toArray(numStructs);
+            bufferSize = SystemB.INSTANCE.proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdArray[0], bufferSize);
+            numStructs = bufferSize / fdInfo.size();
+            for (int i = 0; i < numStructs; i++) {
+                if (fdArray[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
+                    fdList.add(fdArray[i].proc_fd);
+                }
+            }
+        }
+        return fdList;
+    }
+
+    private IPConnection queryIPConnection(int pid, int fd) {
+        SocketFdInfo si = new SocketFdInfo();
+        int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
+        if (si.size() == ret && si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
+            InSockInfo ini;
+            String type;
+            TcpState state;
+            if (si.psi.soi_kind == SOCKINFO_TCP) {
+                si.psi.soi_proto.setType("pri_tcp");
+                si.psi.soi_proto.read();
+                ini = si.psi.soi_proto.pri_tcp.tcpsi_ini;
+                state = stateLookup(si.psi.soi_proto.pri_tcp.tcpsi_state);
+                type = "tcp";
+            } else if (si.psi.soi_kind == SOCKINFO_IN) {
+                si.psi.soi_proto.setType("pri_in");
+                si.psi.soi_proto.read();
+                ini = si.psi.soi_proto.pri_in;
+                state = NONE;
+                type = "udp";
+            } else {
+                return null;
+            }
+
+            byte[] laddr;
+            byte[] faddr;
+            if (ini.insi_vflag == 1) {
+                laddr = parseIntToIP(ini.insi_laddr[3]);
+                faddr = parseIntToIP(ini.insi_faddr[3]);
+                type += "4";
+            } else if (ini.insi_vflag == 2) {
+                laddr = parseIntArrayToIP(ini.insi_laddr);
+                faddr = parseIntArrayToIP(ini.insi_faddr);
+                type += "6";
+            } else {
+                return null;
+            }
+            // Ports are in big-endian 16-bit, need little-endian
+            int lport = bigEndian16ToLittleEndian(ini.insi_lport);
+            int fport = bigEndian16ToLittleEndian(ini.insi_fport);
+            return new IPConnection(type, laddr, lport, faddr, fport, state, si.psi.soi_qlen, si.psi.soi_incqlen, pid);
+        }
+        return null;
+    }
+
+    private int bigEndian16ToLittleEndian(int port) {
+        // 20480 = 0x5000 should be 0x0050 = 80
+        // 47873 = 0xBB01 should be 0x01BB = 443
+        return port >> 8 & 0xff | port << 8 & 0xff00;
+    }
+
+    private byte[] parseIntToIP(int ip) {
+        // convert int to its 4 bytes
+        return ByteBuffer.allocate(4).order(ByteOrder.nativeOrder()).putInt(ip).array();
+    }
+
+    private byte[] parseIntArrayToIP(int[] ip6) {
+        // convert int[] to its 16 bytes
+        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.nativeOrder());
+        for (int i : ip6) {
+            bb.putInt(i);
+        }
+        return bb.array();
+    }
+
+    private TcpState stateLookup(int state) {
+        switch (state) {
+        case 0:
+            return CLOSED;
+        case 1:
+            return LISTEN;
+        case 2:
+            return SYN_SENT;
+        case 3:
+            return SYN_RECV;
+        case 4:
+            return ESTABLISHED;
+        case 5:
+            return CLOSE_WAIT;
+        case 6:
+            return FIN_WAIT1;
+        case 7:
+            return CLOSING;
+        case 8:
+            return LAST_ACK;
+        case 9:
+            return FIN_WAIT2;
+        case 10:
+            return TIME_WAIT;
+        default:
+            return UNKNOWN;
+        }
     }
 
     /*
