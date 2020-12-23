@@ -83,8 +83,8 @@ public final class NetStat {
                     Pair<byte[], Integer> local = parseIP(split[3]);
                     Pair<byte[], Integer> foreign = parseIP(split[4]);
                     connections.add(new IPConnection(type, local.getA(), local.getB(), foreign.getA(), foreign.getB(),
-                            state == null ? null : TcpState.valueOf(state), ParseUtil.parseIntOrDefault(split[2], 0),
-                            ParseUtil.parseIntOrDefault(split[1], 0), -1));
+                            state == null ? TcpState.NONE : TcpState.valueOf(state),
+                            ParseUtil.parseIntOrDefault(split[2], 0), ParseUtil.parseIntOrDefault(split[1], 0), -1));
                 }
             }
         }

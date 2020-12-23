@@ -1112,7 +1112,7 @@ public final class ParseUtil {
      * @return The address as an array of four bytes
      */
     public static byte[] parseIntToIP(int ip) {
-        return ByteBuffer.allocate(4).order(ByteOrder.nativeOrder()).putInt(ip).array();
+        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(ip).array();
     }
 
     /**
@@ -1124,7 +1124,7 @@ public final class ParseUtil {
      * @return The address as an array of sizteen bytes
      */
     public static byte[] parseIntArrayToIP(int[] ip6) {
-        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.nativeOrder());
+        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);
         for (int i : ip6) {
             bb.putInt(i);
         }
