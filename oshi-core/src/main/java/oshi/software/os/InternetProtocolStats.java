@@ -408,17 +408,15 @@ public interface InternetProtocolStats {
 
         @Override
         public String toString() {
-            String localIp;
+            String localIp = "*";
             try {
                 localIp = InetAddress.getByAddress(localAddress).toString();
-            } catch (UnknownHostException e) {
-                localIp = "*";
+            } catch (UnknownHostException e) { // NOSONAR squid:S108
             }
-            String foreignIp;
+            String foreignIp = "*";
             try {
                 foreignIp = InetAddress.getByAddress(foreignAddress).toString();
-            } catch (UnknownHostException e) {
-                foreignIp = "*";
+            } catch (UnknownHostException e) { // NOSONAR squid:S108
             }
             return "IPConnection [type=" + type + ", localAddress=" + localIp + ", localPort=" + localPort
                     + ", foreignAddress=" + foreignIp + ", foreignPort=" + foreignPort + ", state=" + state

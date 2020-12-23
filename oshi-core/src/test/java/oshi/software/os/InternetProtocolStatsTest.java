@@ -24,8 +24,13 @@
 package oshi.software.os;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -131,6 +136,27 @@ class InternetProtocolStatsTest {
     @Test
     void testGetConnections() {
         for (IPConnection conn : ipStats.getConnections()) {
+            assertThat("Protocol name is not null or empty", conn.getType(),
+                    allOf(is(not(emptyString())), is(notNullValue())));
+            if (conn.getType().contains("6")) {
+                assertThat("Local address array size should be 0, or 16", conn.getLocalAddress().length,
+                        anyOf(is(0), is(16)));
+                assertThat("Foreign address rray size should be 0, or 16", conn.getForeignAddress().length,
+                        anyOf(is(0), is(16)));
+            } else {
+                assertThat("Local address array size should be 0, or 4", conn.getLocalAddress().length,
+                        anyOf(is(0), is(4)));
+                assertThat("Foreign address rray size should be 0, or 4", conn.getForeignAddress().length,
+                        anyOf(is(0), is(4)));
+            }
+            assertThat("Local port must be a 16 bit value", conn.getLocalPort(),
+                    allOf(greaterThanOrEqualTo(0), lessThanOrEqualTo(0xffff)));
+            assertThat("Foreign port must be a 16 bit value", conn.getLocalPort(),
+                    allOf(greaterThanOrEqualTo(0), lessThanOrEqualTo(0xffff)));
+            assertThat("Transmit queue msut be nonnegative", conn.getTransmitQueue(), greaterThanOrEqualTo(0));
+            assertThat("Receive queue msut be nonnegative", conn.getReceiveQueue(), greaterThanOrEqualTo(0));
+            assertThat("Connection state must not be null", conn.getState(), is(notNullValue()));
+            assertThat("Owning Process ID must be -1 or higher", conn.getowningProcessId(), greaterThanOrEqualTo(-1));
             assertThat("Connection toString must not be null", conn.toString(), is(notNullValue()));
         }
     }
