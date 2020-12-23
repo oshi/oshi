@@ -34,6 +34,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import oshi.SystemInfo;
+import oshi.software.os.InternetProtocolStats.IPConnection;
 import oshi.software.os.InternetProtocolStats.TcpStats;
 import oshi.software.os.InternetProtocolStats.UdpStats;
 
@@ -125,5 +126,12 @@ class InternetProtocolStatsTest {
 
         assertThat("IPV4 UDP stats shouldn't be null", udp4.toString(), is(notNullValue()));
         assertThat("IPV6 UDP stats shouldn't be null", udp6.toString(), is(notNullValue()));
+    }
+
+    @Test
+    void testGetConnections() {
+        for (IPConnection conn : ipStats.getConnections()) {
+            assertThat("Connection toString must not be null", conn.toString(), is(notNullValue()));
+        }
     }
 }

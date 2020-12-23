@@ -183,7 +183,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
                     Pair<Integer, Integer> txQrxQ = parseHexColonHex(split[4]);
                     int inode = ParseUtil.parseIntOrDefault(split[9], 0);
                     conns.add(new IPConnection(protocol + ipver, lAddr.getA(), lAddr.getB(), fAddr.getA(), fAddr.getB(),
-                            state, txQrxQ.getA(), txQrxQ.getB(), pidMap.getOrDefault(inode, 0)));
+                            state, txQrxQ.getA(), txQrxQ.getB(), pidMap.getOrDefault(inode, -1)));
                 }
             }
         }
@@ -246,13 +246,6 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         case 0x00:
         default:
             return UNKNOWN;
-        }
-    }
-
-    public static void main(String[] args) {
-        LinuxInternetProtocolStats lips = new LinuxInternetProtocolStats();
-        for (IPConnection conn : lips.getConnections()) {
-            System.out.println(conn.toString());
         }
     }
 }

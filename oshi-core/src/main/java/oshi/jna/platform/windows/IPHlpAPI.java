@@ -160,11 +160,31 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
      *            A pointer to the table structure that contains the filtered TCP
      *            endpoints available to the application.
      * @param pdwSize
+     *            The estimated size of the structure returned in pTcpTable, in
+     *            bytes. If this value is set too small,
+     *            {@code ERROR_INSUFFICIENT_BUFFER} is returned by this function,
+     *            and this field will contain the correct size of the structure.
      * @param bOrder
+     *            A value that specifies whether the TCP connection table should be
+     *            sorted. If this parameter is set to TRUE, the TCP endpoints in the
+     *            table are sorted in ascending order, starting with the lowest
+     *            local IP address. If this parameter is set to FALSE, the TCP
+     *            endpoints in the table appear in the order in which they were
+     *            retrieved. The following values are compared (as listed) when
+     *            ordering the TCP endpoints: Local IP address, Local scope ID
+     *            (applicable when the ulAf parameter is set to AF_INET6), Local TCP
+     *            port, Remote IP address, Remote scope ID (applicable when the ulAf
+     *            parameter is set to AF_INET6), Remote TCP port.
      * @param ulAf
+     *            The version of IP used by the TCP endpoints.
      * @param TableClass
+     *            The type of the TCP table structure to retrieve. This parameter
+     *            can be one of the values from the {@code TCP_TABLE_CLASS}
+     *            enumeration.
      * @param Reserved
-     * @return
+     *            Reserved. This value must be zero.
+     * @return If the function succeeds, the return value is {@code NO_ERROR}. If
+     *         the function fails, the return value is an error code.
      */
     int GetExtendedTcpTable(Pointer pTcpTable, IntByReference pdwSize, boolean bOrder, int ulAf, int TableClass,
             int Reserved);

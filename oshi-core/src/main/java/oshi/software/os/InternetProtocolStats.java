@@ -68,6 +68,12 @@ public interface InternetProtocolStats {
      */
     UdpStats getUDPv6Stats();
 
+    /**
+     * Gets a list of TCP and UDP connections.
+     *
+     * @return An {@code UnmodifiableList} of {@link IPConnection} objects for TCP
+     *         and UDP connections.
+     */
     List<IPConnection> getConnections();
 
     final class TcpStats {
@@ -319,8 +325,9 @@ public interface InternetProtocolStats {
          * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6
          * addresses this is a 16-byte array.
          * <p>
-         * On Unix operating systems, this value may be truncated. IPv6 addresses ending
-         * in zeroes should be considered suspect.
+         * On Unix operating systems, the 16-bit value may be truncated, giving only the
+         * high order bytes. IPv6 addresses ending in zeroes should be considered
+         * suspect.
          *
          * @return The local address, or an empty array if the listener can accept a
          *         connection on any interface.
