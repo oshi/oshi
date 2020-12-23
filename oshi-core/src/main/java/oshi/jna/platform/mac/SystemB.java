@@ -142,7 +142,6 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
         public SocketInfo psi;
     }
 
-    @FieldOrder({ "pri_in", "pri_tcp", "max_size" })
     class Pri extends Union {
         public InSockInfo pri_in;
         public TcpSockInfo pri_tcp;
