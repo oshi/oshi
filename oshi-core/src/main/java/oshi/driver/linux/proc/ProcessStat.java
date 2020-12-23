@@ -34,8 +34,10 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -53,6 +55,7 @@ import oshi.util.tuples.Triplet;
 public final class ProcessStat {
 
     private static final Pattern DIGITS = Pattern.compile("\\d+");
+    private static final Pattern SOCKET = Pattern.compile("socket:\\[(\\d+)\\]");
 
     /**
      * Enum corresponding to the fields in the output of {@code /proc/[pid]/stat}
@@ -464,6 +467,32 @@ public final class ProcessStat {
         File procdir = new File(ProcPath.PROC);
         File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
         return pids != null ? pids : new File[0];
+    }
+
+    /**
+     * Gets a map of sockets and their corresponding process ID
+     *
+     * @return a map with socket as the key and pid as the value
+     */
+    public static Map<Integer, Integer> querySocketToPidMap() {
+        Map<Integer, Integer> pidMap = new HashMap<>();
+        for (File f : getPidFiles()) {
+            int pid = ParseUtil.parseIntOrDefault(f.getName(), -1);
+            File fdDir = new File(f.getPath() + "/fd");
+            File[] fds = fdDir.listFiles();
+            if (fds != null) {
+                for (File fd : fds) {
+                    String symLink = FileUtil.readSymlinkTarget(fd);
+                    if (symLink != null) {
+                        Matcher m = SOCKET.matcher(symLink);
+                        if (m.matches()) {
+                            pidMap.put(ParseUtil.parseIntOrDefault(m.group(1), -1), pid);
+                        }
+                    }
+                }
+            }
+        }
+        return pidMap;
     }
 
     /**

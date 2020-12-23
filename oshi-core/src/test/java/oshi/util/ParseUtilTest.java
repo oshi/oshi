@@ -575,6 +575,13 @@ class ParseUtilTest {
     }
 
     @Test
+    void testHexStringToInt() {
+        assertThat(ParseUtil.hexStringToInt("ff", 0), is(255));
+        assertThat(ParseUtil.hexStringToInt("830f53a0", 0), is(-2096147552));
+        assertThat(ParseUtil.hexStringToInt("pqwe", 0), is(0));
+    }
+
+    @Test
     void testHexStringToLong() {
         assertThat(ParseUtil.hexStringToLong("ff", 0L), is(255L));
         assertThat(ParseUtil.hexStringToLong("ffffffff830f53a0", 0L), is(-2096147552L));

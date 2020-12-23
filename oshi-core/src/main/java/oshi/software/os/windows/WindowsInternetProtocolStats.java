@@ -240,11 +240,4 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
             return UNKNOWN;
         }
     }
-
-    public static void main(String[] args) {
-        WindowsInternetProtocolStats wips = new WindowsInternetProtocolStats();
-        for (IPConnection conn : wips.getConnections()) {
-            System.out.println(conn.toString());
-        }
-    }
 }

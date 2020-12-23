@@ -1190,7 +1190,26 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a string of hex digits to long value.
+     * Parses a string of hex digits to an int value.
+     *
+     * @param hexString
+     *            A sequence of hex digits
+     * @param defaultValue
+     *            default value to return if parsefails
+     * @return The corresponding int value
+     */
+    public static int hexStringToInt(String hexString, int defaultValue) {
+        try {
+            return new BigInteger(hexString, 16).intValue();
+        } catch (NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, hexString, e);
+            // Hex failed to parse, just return the default long
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Parses a string of hex digits to a long value.
      *
      * @param hexString
      *            A sequence of hex digits
