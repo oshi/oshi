@@ -264,4 +264,19 @@ public final class FileUtil {
         }
         return true;
     }
+
+    /**
+     * Reads the target of a symbolic link
+     *
+     * @param file
+     *            The file to read
+     * @return The symlink name, or null if the read failed
+     */
+    public static String readSymlinkTarget(File file) {
+        try {
+            return Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();
+        } catch (IOException e) {
+            return null;
+        }
+    }
 }

@@ -524,6 +524,33 @@ class ParseUtilTest {
     }
 
     @Test
+    void testParseIntToIP() {
+        // IP addresses are big endian
+        int ip = 1 | 2 << 8 | 3 << 16 | 4 << 24;
+        byte[] ipb = { (byte) 1, (byte) 2, (byte) 3, (byte) 4 };
+        assertThat("IP did not parse properly", ParseUtil.parseIntToIP(ip), is(ipb));
+    }
+
+    @Test
+    void testParseIntArrayToIP() {
+        // IP addresses are big endian
+        int[] ip = new int[4];
+        ip[0] = 1 | 2 << 8 | 3 << 16 | 4 << 24;
+        ip[1] = 5 | 6 << 8 | 7 << 16 | 8 << 24;
+        ip[2] = 9 | 10 << 8 | 11 << 16 | 12 << 24;
+        ip[3] = 13 | 14 << 8 | 15 << 16 | 16 << 24;
+        byte[] ipb = { (byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7, (byte) 8, (byte) 9,
+                (byte) 10, (byte) 11, (byte) 12, (byte) 13, (byte) 14, (byte) 15, (byte) 16 };
+        assertThat("IP array did not parse properly", ParseUtil.parseIntArrayToIP(ip), is(ipb));
+    }
+
+    @Test
+    void testBigEndian16ToLittleEndian() {
+        assertThat("Port 80 did not convert properly", ParseUtil.bigEndian16ToLittleEndian(0x5000), is(80));
+        assertThat("Port 443 did not convert properly", ParseUtil.bigEndian16ToLittleEndian(0xBB01), is(443));
+    }
+
+    @Test
     void testParseUtAddrV6toIP() {
         int[] zero = { 0, 0, 0, 0 };
         int[] loopback = { 0, 0, 0, 1 };
@@ -545,6 +572,13 @@ class ParseUtilTest {
         assertThrows(IllegalArgumentException.class, () -> {
             ParseUtil.parseUtAddrV6toIP(invalid);
         });
+    }
+
+    @Test
+    void testHexStringToInt() {
+        assertThat(ParseUtil.hexStringToInt("ff", 0), is(255));
+        assertThat(ParseUtil.hexStringToInt("830f53a0", 0), is(-2096147552));
+        assertThat(ParseUtil.hexStringToInt("pqwe", 0), is(0));
     }
 
     @Test

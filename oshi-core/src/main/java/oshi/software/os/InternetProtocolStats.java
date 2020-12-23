@@ -23,6 +23,11 @@
  */
 package oshi.software.os;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -63,6 +68,14 @@ public interface InternetProtocolStats {
      * @return a {@link UdpStats} object encapsulating the stats.
      */
     UdpStats getUDPv6Stats();
+
+    /**
+     * Gets a list of TCP and UDP connections.
+     *
+     * @return An {@code UnmodifiableList} of {@link IPConnection} objects for TCP
+     *         and UDP connections.
+     */
+    List<IPConnection> getConnections();
 
     final class TcpStats {
         private final long connectionsEstablished;
@@ -265,6 +278,150 @@ public interface InternetProtocolStats {
             return "UdpStats [datagramsSent=" + datagramsSent + ", datagramsReceived=" + datagramsReceived
                     + ", datagramsNoPort=" + datagramsNoPort + ", datagramsReceivedErrors=" + datagramsReceivedErrors
                     + "]";
+        }
+    }
+
+    /**
+     * The TCP connection state as described in RFC 793.
+     */
+    enum TcpState {
+        UNKNOWN, CLOSED, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT1, FIN_WAIT2, CLOSE_WAIT, CLOSING, LAST_ACK,
+        TIME_WAIT, NONE;
+    }
+
+    final class IPConnection {
+        private final String type;
+        private final byte[] localAddress;
+        private final int localPort;
+        private final byte[] foreignAddress;
+        private final int foreignPort;
+        private final TcpState state;
+        private final int transmitQueue;
+        private final int receiveQueue;
+        private int owningProcessId;
+
+        public IPConnection(String type, byte[] localAddress, int localPort, byte[] foreignAddress, int foreignPort,
+                TcpState state, int transmitQueue, int receiveQueue, int owningProcessId) {
+            this.type = type;
+            this.localAddress = Arrays.copyOf(localAddress, localAddress.length);
+            this.localPort = localPort;
+            this.foreignAddress = Arrays.copyOf(foreignAddress, foreignAddress.length);
+            this.foreignPort = foreignPort;
+            this.state = state;
+            this.transmitQueue = transmitQueue;
+            this.receiveQueue = receiveQueue;
+            this.owningProcessId = owningProcessId;
+        }
+
+        /**
+         * Returns the connection protocol type, e.g., tcp4, tcp6, udp4, udp6
+         *
+         * @return The protocol type
+         */
+        public String getType() {
+            return type;
+        }
+
+        /**
+         * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6
+         * addresses this is a 16-byte array.
+         * <p>
+         * On Unix operating systems, the 16-bit value may be truncated, giving only the
+         * high order bytes. IPv6 addresses ending in zeroes should be considered
+         * suspect.
+         *
+         * @return The local address, or an empty array if the listener can accept a
+         *         connection on any interface.
+         */
+        public byte[] getLocalAddress() {
+            return Arrays.copyOf(localAddress, localAddress.length);
+        }
+
+        /**
+         * Gets the local port.
+         *
+         * @return The local port, or 0 if unknown, or any port.
+         */
+        public int getLocalPort() {
+            return localPort;
+        }
+
+        /**
+         * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array.
+         * For IPv6 addresses this is a 16-byte array.
+         * <p>
+         * On Unix operating systems, this value may be truncated. IPv6 addresses ending
+         * in zeroes should be considered suspect.
+         *
+         * @return The foreign/remote address, or an empty array if unknown. An empty
+         *         array will also result if
+         */
+        public byte[] getForeignAddress() {
+            return Arrays.copyOf(foreignAddress, foreignAddress.length);
+        }
+
+        /**
+         * Gets the foreign/remote port.
+         *
+         * @return The foreign/remote port, or 0 if unknown.
+         */
+        public int getForeignPort() {
+            return foreignPort;
+        }
+
+        /**
+         * Gets the connection state (TCP connections only).
+         *
+         * @return The connection state if known or relevant, null otherwise.
+         */
+        public TcpState getState() {
+            return state;
+        }
+
+        /**
+         * Gets the size of the transmit queue. Not available on Windows.
+         *
+         * @return The size of the transmit queue, or 0 if unknown.
+         */
+        public int getTransmitQueue() {
+            return transmitQueue;
+        }
+
+        /**
+         * Gets the size of the receive queue. Not available on Windows.
+         *
+         * @return The size of the receive queue, or 0 if unknown.
+         */
+        public int getReceiveQueue() {
+            return receiveQueue;
+        }
+
+        /**
+         * Gets the id of the process which holds this connection.
+         *
+         * @return The process id of the process which holds this connection if known,
+         *         -1 otherwise.
+         */
+        public int getowningProcessId() {
+            return owningProcessId;
+        }
+
+        @Override
+        public String toString() {
+            String localIp = "*";
+            try {
+                localIp = InetAddress.getByAddress(localAddress).toString();
+            } catch (UnknownHostException e) { // NOSONAR squid:S108
+            }
+            String foreignIp = "*";
+            try {
+                foreignIp = InetAddress.getByAddress(foreignAddress).toString();
+            } catch (UnknownHostException e) { // NOSONAR squid:S108
+            }
+            return "IPConnection [type=" + type + ", localAddress=" + localIp + ", localPort=" + localPort
+                    + ", foreignAddress=" + foreignIp + ", foreignPort=" + foreignPort + ", state=" + state
+                    + ", transmitQueue=" + transmitQueue + ", receiveQueue=" + receiveQueue + ", owningProcessId="
+                    + owningProcessId + "]";
         }
     }
 }

@@ -31,18 +31,18 @@ import java.util.function.Supplier;
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.NetStatTcp;
+import oshi.driver.unix.NetStat;
 import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
 import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
-import oshi.software.os.InternetProtocolStats;
+import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
-public class FreeBsdInternetProtocolStats implements InternetProtocolStats {
+public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats {
 
-    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStatTcp::queryTcpnetstat, defaultExpiration());
+    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());
     private Supplier<BsdTcpstat> tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());
     private Supplier<BsdUdpstat> udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());
 
