@@ -115,7 +115,7 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
         return Collections.emptyList();
     }
 
-    private List<IPConnection> queryTCPv4Connections() {
+    private static List<IPConnection> queryTCPv4Connections() {
         List<IPConnection> conns = new ArrayList<>();
         // Get size needed
         IntByReference sizePtr = new IntByReference();
@@ -140,7 +140,7 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
         return conns;
     }
 
-    private List<IPConnection> queryTCPv6Connections() {
+    private static List<IPConnection> queryTCPv6Connections() {
         List<IPConnection> conns = new ArrayList<>();
         // Get size needed
         IntByReference sizePtr = new IntByReference();
@@ -164,7 +164,7 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
         return conns;
     }
 
-    private List<IPConnection> queryUDPv4Connections() {
+    private static List<IPConnection> queryUDPv4Connections() {
         List<IPConnection> conns = new ArrayList<>();
         // Get size needed
         IntByReference sizePtr = new IntByReference();
@@ -188,7 +188,7 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
         return conns;
     }
 
-    private List<IPConnection> queryUDPv6Connections() {
+    private static List<IPConnection> queryUDPv6Connections() {
         List<IPConnection> conns = new ArrayList<>();
         // Get size needed
         IntByReference sizePtr = new IntByReference();

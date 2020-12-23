@@ -25,6 +25,7 @@ package oshi.software.os;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -302,9 +303,9 @@ public interface InternetProtocolStats {
         public IPConnection(String type, byte[] localAddress, int localPort, byte[] foreignAddress, int foreignPort,
                 TcpState state, int transmitQueue, int receiveQueue, int owningProcessId) {
             this.type = type;
-            this.localAddress = localAddress;
+            this.localAddress = Arrays.copyOf(localAddress, localAddress.length);
             this.localPort = localPort;
-            this.foreignAddress = foreignAddress;
+            this.foreignAddress = Arrays.copyOf(foreignAddress, foreignAddress.length);
             this.foreignPort = foreignPort;
             this.state = state;
             this.transmitQueue = transmitQueue;
@@ -333,7 +334,7 @@ public interface InternetProtocolStats {
          *         connection on any interface.
          */
         public byte[] getLocalAddress() {
-            return localAddress;
+            return Arrays.copyOf(localAddress, localAddress.length);
         }
 
         /**
@@ -356,7 +357,7 @@ public interface InternetProtocolStats {
          *         array will also result if
          */
         public byte[] getForeignAddress() {
-            return foreignAddress;
+            return Arrays.copyOf(foreignAddress, foreignAddress.length);
         }
 
         /**
@@ -407,15 +408,17 @@ public interface InternetProtocolStats {
 
         @Override
         public String toString() {
-            String localIp = "*";
+            String localIp;
             try {
                 localIp = InetAddress.getByAddress(localAddress).toString();
-            } catch (UnknownHostException e) { // NOSONAR squid:S108
+            } catch (UnknownHostException e) {
+                localIp = "*";
             }
-            String foreignIp = "*";
+            String foreignIp;
             try {
                 foreignIp = InetAddress.getByAddress(foreignAddress).toString();
-            } catch (UnknownHostException e) { // NOSONAR squid:S108
+            } catch (UnknownHostException e) {
+                foreignIp = "*";
             }
             return "IPConnection [type=" + type + ", localAddress=" + localIp + ", localPort=" + localPort
                     + ", foreignAddress=" + foreignIp + ", foreignPort=" + foreignPort + ", state=" + state

@@ -1119,7 +1119,7 @@ public final class ParseUtil {
      * Parse an integer array in big endian IP format to its component bytes
      * representing an IPv6 address
      *
-     * @param ip
+     * @param ip6
      *            The address as an integer array
      * @return The address as an array of sizteen bytes
      */

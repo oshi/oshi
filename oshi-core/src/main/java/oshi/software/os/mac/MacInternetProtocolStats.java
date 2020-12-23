@@ -157,7 +157,7 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
         return Collections.unmodifiableList(conns);
     }
 
-    private List<Integer> queryFdList(int pid) {
+    private static List<Integer> queryFdList(int pid) {
         List<Integer> fdList = new ArrayList<>();
         int bufferSize = SystemB.INSTANCE.proc_pidinfo(pid, PROC_PIDLISTFDS, 0, null, 0);
         if (bufferSize > 0) {
@@ -175,7 +175,7 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
         return fdList;
     }
 
-    private IPConnection queryIPConnection(int pid, int fd) {
+    private static IPConnection queryIPConnection(int pid, int fd) {
         SocketFdInfo si = new SocketFdInfo();
         int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
         if (si.size() == ret && si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {

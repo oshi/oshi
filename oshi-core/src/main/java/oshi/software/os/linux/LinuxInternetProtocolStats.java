@@ -171,7 +171,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         return Collections.unmodifiableList(conns);
     }
 
-    private List<IPConnection> queryConnections(String protocol, int ipver, Map<Integer, Integer> pidMap) {
+    private static List<IPConnection> queryConnections(String protocol, int ipver, Map<Integer, Integer> pidMap) {
         List<IPConnection> conns = new ArrayList<>();
         for (String s : FileUtil.readFile(ProcPath.NET + "/" + protocol + (ipver == 6 ? "6" : ""))) {
             if (s.indexOf(':') >= 0) {
@@ -190,7 +190,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         return conns;
     }
 
-    private Pair<byte[], Integer> parseIpAddr(String s) {
+    private static Pair<byte[], Integer> parseIpAddr(String s) {
         int colon = s.indexOf(':');
         if (colon > 0 && colon < s.length()) {
             byte[] first = ParseUtil.hexStringToByteArray(s.substring(0, colon));
@@ -209,7 +209,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         return new Pair<>(new byte[0], 0);
     }
 
-    private Pair<Integer, Integer> parseHexColonHex(String s) {
+    private static Pair<Integer, Integer> parseHexColonHex(String s) {
         int colon = s.indexOf(':');
         if (colon > 0 && colon < s.length()) {
             int first = ParseUtil.hexStringToInt(s.substring(0, colon), 0);
