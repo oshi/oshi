@@ -1,6 +1,7 @@
 freebsd_task:
   name: FreeBSD CI
-  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
+  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi' 
+  skip: "!changesInclude('.cirrus.yml', '**/freebsd/**', '**/common/**', '**/unix/*', '**/util/**')"
   freebsd_instance:
     matrix:
       image_family: freebsd-11-4
@@ -10,4 +11,4 @@ freebsd_task:
   maven_cache:
     folder: ~/.m2
   install_script: pkg install -y openjdk8
-  test_script: ./mvnw test -B
+  test_script: ./mvnw test -Djacoco.skip=true -B 

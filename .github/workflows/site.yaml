@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - site
-
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+      
 jobs:
   build:
     if: github.repository_owner == 'oshi' && ! contains(toJSON(github.event.head_commit.message), '[maven-release-plugin]')

@@ -4,6 +4,12 @@ image: Visual Studio 2017
 
 skip_tags: true
 
+only_commits:
+  files:
+    - '**/windows/**'
+    - '**/common/**'
+    - '**/util/**'
+
 environment:
   TERM: dumb
   matrix:

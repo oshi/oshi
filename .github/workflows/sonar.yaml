@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - master
-    pull_request:
-      types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
 
 jobs:
   build:

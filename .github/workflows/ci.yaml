@@ -8,6 +8,8 @@ on:
       - master
     paths-ignore:
       - '**.md'
+      - '**.yml'
+      - '**.yaml'
     
 jobs:
   # Runs current branch on Windows, Linux, macOS with multiple JDKs
