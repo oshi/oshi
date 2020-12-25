@@ -165,8 +165,8 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                     // Get the properties from the parent
                     if (drive.conformsTo("IOMedia")) {
                         IORegistryEntry parent = drive.getParentEntry("IOService");
-                        if (parent != null && parent.conformsTo("IOBlockStorageDriver")
-                                           || parent.conformsTo("AppleAPFSContainerScheme")) {
+                        if (parent != null && (parent.conformsTo("IOBlockStorageDriver")
+                                || parent.conformsTo("AppleAPFSContainerScheme"))) {
                             CFMutableDictionaryRef properties = parent.createCFProperties();
                             // We now have a properties object with the
                             // statistics we need on it. Fetch them
