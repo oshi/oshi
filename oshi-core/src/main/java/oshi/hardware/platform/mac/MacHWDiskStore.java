@@ -161,11 +161,12 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                 // Should only match one drive
                 if (drive != null) {
                     // Should be an IOMedia object with a parent
-                    // IOBlockStorageDriver object
+                    // IOBlockStorageDriver or AppleAPFSContainerScheme object
                     // Get the properties from the parent
                     if (drive.conformsTo("IOMedia")) {
                         IORegistryEntry parent = drive.getParentEntry("IOService");
-                        if (parent != null && parent.conformsTo("IOBlockStorageDriver")) {
+                        if (parent != null && parent.conformsTo("IOBlockStorageDriver") ||
+                                              parent.conformsTo("AppleAPFSContainerScheme")) {
                             CFMutableDictionaryRef properties = parent.createCFProperties();
                             // We now have a properties object with the
                             // statistics we need on it. Fetch them
@@ -190,13 +191,16 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
 
                             // Total time is in nanoseconds. Add read+write
                             // and convert total to ms
-                            result = statistics.getValue(cfKeyMap.get(CFKey.READ_TIME));
-                            stat.setPointer(result);
-                            long xferTime = stat.longValue();
-                            result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_TIME));
-                            stat.setPointer(result);
-                            xferTime += stat.longValue();
-                            this.transferTime = xferTime / 1_000_000L;
+                            final Pointer readTimeResult = statistics.getValue(cfKeyMap.get(CFKey.READ_TIME));
+                            final Pointer writeTimeResult = statistics.getValue(cfKeyMap.get(CFKey.WRITE_TIME));
+                            // AppleAPFSContainerScheme does not have timer statistics
+                            if (readTimeResult != null && writeTimeResult != null) {
+                                stat.setPointer(readTimeResult);
+                                long xferTime = stat.longValue();
+                                stat.setPointer(writeTimeResult);
+                                xferTime += stat.longValue();
+                                this.transferTime = xferTime / 1_000_000L;
+                            }
 
                             properties.release();
                         } else {
