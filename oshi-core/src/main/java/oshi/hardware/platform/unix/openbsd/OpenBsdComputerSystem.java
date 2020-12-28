@@ -21,19 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.software.os.unix.openbsd;
+package oshi.hardware.platform.unix.openbsd;
 
-import oshi.software.common.AbstractNetworkParams;
-import oshi.util.ExecutingCommand;
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
+import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
-public class OpenBSDNetworkParams extends AbstractNetworkParams {
+public class OpenBsdComputerSystem extends AbstractComputerSystem {
+
     @Override
-    public String getIpv4DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -n get default"));
+    public String getManufacturer() {
+        return OpenBsdSysctlUtil.sysctl("hw.vendor", "unknown");
     }
 
     @Override
-    public String getIpv6DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -n get default"));
+    public String getModel() {
+        // or version
+        return OpenBsdSysctlUtil.sysctl("hw.product", "unknown");
+    }
+
+    @Override
+    public String getSerialNumber() {
+        // could also use uuid
+        return OpenBsdSysctlUtil.sysctl("hw.serialno", "unknown");
+    }
+
+    @Override
+    protected Firmware createFirmware() {
+        return new OpenBsdFirmware();
+    }
+
+    @Override
+    protected Baseboard createBaseboard() {
+        // TODO implement
+        return new OpenBsdBaseboard(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN);
     }
 }

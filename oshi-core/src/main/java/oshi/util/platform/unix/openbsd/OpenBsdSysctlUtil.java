@@ -31,16 +31,18 @@ import oshi.util.ParseUtil;
  * Provides access to sysctl calls on OpenBSD.
  */
 @ThreadSafe
-public final class OpenBSDSysctlUtil {
+public final class OpenBsdSysctlUtil {
 
-    private OpenBSDSysctlUtil() {
+    private OpenBsdSysctlUtil() {
     }
 
     /**
      * Executes a sysctl call with an int result
      *
-     * @param name name of the sysctl
-     * @param def  default int value
+     * @param name
+     *            name of the sysctl
+     * @param def
+     *            default int value
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
@@ -50,8 +52,10 @@ public final class OpenBSDSysctlUtil {
     /**
      * Executes a sysctl call with a long result
      *
-     * @param name name of the sysctl
-     * @param def  default long value
+     * @param name
+     *            name of the sysctl
+     * @param def
+     *            default long value
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
@@ -61,8 +65,10 @@ public final class OpenBSDSysctlUtil {
     /**
      * Executes a sysctl call with a String result
      *
-     * @param name name of the sysctl
-     * @param def  default String value
+     * @param name
+     *            name of the sysctl
+     * @param def
+     *            default String value
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {

@@ -23,39 +23,38 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import oshi.hardware.Baseboard;
-import oshi.hardware.Firmware;
-import oshi.hardware.common.AbstractComputerSystem;
-import oshi.util.Constants;
-import oshi.util.platform.unix.openbsd.OpenBSDSysctlUtil;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class OpenBSDComputerSystem extends AbstractComputerSystem {
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.Xrandr;
+import oshi.hardware.Display;
+import oshi.hardware.common.AbstractDisplay;
 
-    @Override
-    public String getManufacturer() {
-        return OpenBSDSysctlUtil.sysctl("hw.vendor", "unknown");
+/**
+ * A Display
+ */
+@ThreadSafe
+final class OpenBsdDisplay extends AbstractDisplay {
+
+    /**
+     * Constructor for OpenBsdDisplay.
+     *
+     * @param edid
+     *            a byte array representing a display EDID
+     */
+    OpenBsdDisplay(byte[] edid) {
+        super(edid);
     }
 
-    @Override
-    public String getModel() {
-        // or version
-        return OpenBSDSysctlUtil.sysctl("hw.product", "unknown");
-    }
-
-    @Override
-    public String getSerialNumber() {
-        // could also use uuid
-        return OpenBSDSysctlUtil.sysctl("hw.serialno", "unknown");
-    }
-
-    @Override
-    protected Firmware createFirmware() {
-        return new OpenBSDFirmware();
-    }
-
-    @Override
-    protected Baseboard createBaseboard() {
-        // TODO implement
-        return new OpenBSDBaseboard(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN);
+    /**
+     * Gets Display Information
+     *
+     * @return An array of Display objects representing monitors, etc.
+     */
+    public static List<Display> getDisplays() {
+        return Collections.unmodifiableList(
+                Xrandr.getEdidArrays().stream().map(OpenBsdDisplay::new).collect(Collectors.toList()));
     }
 }

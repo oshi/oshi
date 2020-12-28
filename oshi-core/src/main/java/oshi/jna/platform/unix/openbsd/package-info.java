@@ -21,30 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.software.os.unix.openbsd;
-
-import oshi.software.common.AbstractFileSystem;
-import oshi.software.os.OSFileStore;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
-
-import java.util.Collections;
-import java.util.List;
-
-public class OpenBSDFileSystem extends AbstractFileSystem {
-
-    @Override
-    public List<OSFileStore> getFileStores(boolean localOnly) {
-        // TODO implement
-        return Collections.emptyList();
-    }
-
-    @Override
-    public long getOpenFileDescriptors() {
-        return BsdSysctlUtil.sysctl("kern.nfiles", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
-    }
-}
+/**
+ * Provides extensions of JNA libraries for FreeBSD. These classes should be
+ * considered non-API as they may be removed if/when their code is incorporated
+ * into the JNA project.
+ */
+package oshi.jna.platform.unix.openbsd;

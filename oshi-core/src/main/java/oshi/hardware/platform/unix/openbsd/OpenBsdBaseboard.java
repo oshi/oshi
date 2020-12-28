@@ -27,13 +27,13 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 
 @Immutable
-final class OpenBSDBaseboard extends AbstractBaseboard {
+final class OpenBsdBaseboard extends AbstractBaseboard {
     private final String manufacturer;
     private final String model;
     private final String serialNumber;
     private final String version;
 
-    OpenBSDBaseboard(String manufacturer, String model, String serialNumber, String version) {
+    OpenBsdBaseboard(String manufacturer, String model, String serialNumber, String version) {
         this.manufacturer = manufacturer;
         this.model = model;
         this.serialNumber = serialNumber;

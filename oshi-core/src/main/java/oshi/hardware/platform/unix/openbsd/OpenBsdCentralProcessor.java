@@ -23,20 +23,19 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
+import java.util.List;
+
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.openbsd.OpenBSDSysctlUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
-import java.util.List;
-
-public class OpenBSDCentralProcessor extends AbstractCentralProcessor {
-
+public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = OpenBSDSysctlUtil.sysctl("machdep.cpuvendor", "");
-        String cpuName = OpenBSDSysctlUtil.sysctl("hw.model", "");
+        String cpuVendor = OpenBsdSysctlUtil.sysctl("machdep.cpuvendor", "");
+        String cpuName = OpenBsdSysctlUtil.sysctl("hw.model", "");
         // TODO
         String cpuFamily = "";
         String cpuModel = "";
@@ -44,20 +43,22 @@ public class OpenBSDCentralProcessor extends AbstractCentralProcessor {
         long cpuFreq = queryMaxFreq();
         // does not cover the case of x86-OS running on x64 cpu
         boolean cpu64bit = ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
-        String processorID = OpenBSDSysctlUtil.sysctl("machdep.cpuid", "");
+        String processorID = OpenBsdSysctlUtil.sysctl("machdep.cpuid", "");
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
-            cpuFreq);
+                cpuFreq);
     }
+
     @Override
     protected long queryMaxFreq() {
-        return ParseUtil.parseHertz(OpenBSDSysctlUtil.sysctl("hw.model", "0")) * 1_000_000L;
+        return ParseUtil.parseHertz(OpenBsdSysctlUtil.sysctl("hw.model", "0")) * 1_000_000L;
     }
 
     @Override
     protected long[] queryCurrentFreq() {
-        return new long[]{OpenBSDSysctlUtil.sysctl("hw.cpuspeed", 0L) * 1_000_000L};
+        return new long[] { OpenBsdSysctlUtil.sysctl("hw.cpuspeed", 0L) * 1_000_000L };
     }
+
     /**
      * Updates logical and physical processor counts and arrays
      *
@@ -67,8 +68,6 @@ public class OpenBSDCentralProcessor extends AbstractCentralProcessor {
     protected List<LogicalProcessor> initProcessorCounts() {
         return null;
     }
-
-
 
     /**
      * Get number of context switches
@@ -108,12 +107,13 @@ public class OpenBSDCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected long[][] queryProcessorCpuLoadTicks() {
-        //use
-        //└─ $ ▶ sysctl kern.cp_time
-        //kern.cp_time=765981,576,193424,42002,3534,3819889
+        // use
+        // └─ $ ▶ sysctl kern.cp_time
+        // kern.cp_time=765981,576,193424,42002,3534,3819889
         // An array of longs of size CPUSTATES is returned, containing statistics about
         // the number of ticks spent by the system in
-        // interrupt processing, user processes (nice(1) or normal), system processing, lock spinning, or idling.
+        // interrupt processing, user processes (nice(1) or normal), system processing,
+        // lock spinning, or idling.
         return new long[0][];
     }
 
@@ -131,14 +131,15 @@ public class OpenBSDCentralProcessor extends AbstractCentralProcessor {
      * The load average may be unavailable on some platforms (e.g., Windows) where
      * it is expensive to implement this method.
      *
-     * @param nelem Number of elements to return.
+     * @param nelem
+     *            Number of elements to return.
      * @return an array of the system load averages for 1, 5, and 15 minutes with
-     * the size of the array specified by nelem; or negative values if not
-     * available.
+     *         the size of the array specified by nelem; or negative values if not
+     *         available.
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-        //vm.loadavg=0.30 0.58 0.75
+        // vm.loadavg=0.30 0.58 0.75
         return new double[0];
     }
 }

@@ -34,7 +34,7 @@ import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.openbsd.OpenBSDHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
@@ -42,7 +42,7 @@ import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
 import oshi.software.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
-import oshi.software.os.unix.openbsd.OpenBSDOperatingSystem;
+import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
@@ -120,7 +120,7 @@ public class SystemInfo {
         case AIX:
             return new AixOperatingSystem();
         case OPENBSD:
-            return new OpenBSDOperatingSystem();
+            return new OpenBsdOperatingSystem();
         default:
             throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
@@ -152,7 +152,7 @@ public class SystemInfo {
         case AIX:
             return new AixHardwareAbstractionLayer();
         case OPENBSD:
-            return new OpenBSDHardwareAbstractionLayer();
+            return new OpenBsdHardwareAbstractionLayer();
         default:
             throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }

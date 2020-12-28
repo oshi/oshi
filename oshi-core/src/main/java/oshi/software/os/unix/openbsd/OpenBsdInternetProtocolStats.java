@@ -25,8 +25,7 @@ package oshi.software.os.unix.openbsd;
 
 import oshi.software.common.AbstractInternetProtocolStats;
 
-
-public class OpenBSDInternetProtocolStats extends AbstractInternetProtocolStats {
+public class OpenBsdInternetProtocolStats extends AbstractInternetProtocolStats {
     /**
      * Get the TCP stats for IPv4 connections.
      * <p>
