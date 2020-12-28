@@ -21,42 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.software.os.unix.openbsd;
 
-/**
- * Enum of supported operating systems.
- */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD
-     */
-    OPENBSD,
-    /**
-     * WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+import oshi.software.common.AbstractNetworkParams;
+import oshi.util.ExecutingCommand;
+
+public class OpenBSDNetworkParams extends AbstractNetworkParams {
+    @Override
+    public String getIpv4DefaultGateway() {
+        return searchGateway(ExecutingCommand.runNative("route -n get default"));
+    }
+
+    @Override
+    public String getIpv6DefaultGateway() {
+        return searchGateway(ExecutingCommand.runNative("route -n get default"));
+    }
 }

@@ -21,42 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.software.os.unix.openbsd;
 
-/**
- * Enum of supported operating systems.
- */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD
-     */
-    OPENBSD,
-    /**
-     * WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.OSFileStore;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+
+import java.util.Collections;
+import java.util.List;
+
+public class OpenBSDFileSystem extends AbstractFileSystem {
+
+    @Override
+    public List<OSFileStore> getFileStores(boolean localOnly) {
+        // TODO implement
+        return Collections.emptyList();
+    }
+
+    @Override
+    public long getOpenFileDescriptors() {
+        return BsdSysctlUtil.sysctl("kern.nfiles", 0);
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
+    }
 }

@@ -21,42 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.hardware.platform.unix.openbsd;
 
-/**
- * Enum of supported operating systems.
- */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD
-     */
-    OPENBSD,
-    /**
-     * WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+import oshi.hardware.Baseboard;
+import oshi.hardware.Firmware;
+import oshi.hardware.common.AbstractComputerSystem;
+import oshi.util.Constants;
+import oshi.util.platform.unix.openbsd.OpenBSDSysctlUtil;
+
+public class OpenBSDComputerSystem extends AbstractComputerSystem {
+
+    @Override
+    public String getManufacturer() {
+        return OpenBSDSysctlUtil.sysctl("hw.vendor", "unknown");
+    }
+
+    @Override
+    public String getModel() {
+        // or version
+        return OpenBSDSysctlUtil.sysctl("hw.product", "unknown");
+    }
+
+    @Override
+    public String getSerialNumber() {
+        // could also use uuid
+        return OpenBSDSysctlUtil.sysctl("hw.serialno", "unknown");
+    }
+
+    @Override
+    protected Firmware createFirmware() {
+        return new OpenBSDFirmware();
+    }
+
+    @Override
+    protected Baseboard createBaseboard() {
+        // TODO implement
+        return new OpenBSDBaseboard(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN);
+    }
 }
