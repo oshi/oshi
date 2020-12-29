@@ -106,7 +106,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // interrupt processing, user processes (nice(1) or normal), system processing,
         // lock spinning, or idling.
         String cpu = OpenBsdSysctlUtil.sysctl("kern.cp_time", "");
-        String[] split = ParseUtil.whitespaces.split(cpu);
+        String[] split = cpu.split(",");
         if (split.length > 4) {
             ticks[TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(split[0], 0L);
             ticks[TickType.NICE.getIndex()] = ParseUtil.parseLongOrDefault(split[1], 0L);
@@ -126,7 +126,8 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected long[][] queryProcessorCpuLoadTicks() {
-        // Need to use binary sysctl to access CPU parameter.  As a placeholder just set CPU 0 as total
+        // Need to use binary sysctl to access CPU parameter. As a placeholder just set
+        // CPU 0 as total
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         ticks[0] = querySystemCpuLoadTicks();
         return ticks;
@@ -155,6 +156,12 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public double[] getSystemLoadAverage(int nelem) {
         // vm.loadavg=0.30 0.58 0.75
-        return new double[0];
+        double[] load = new double[nelem];
+        String avg = OpenBsdSysctlUtil.sysctl("vm.loadavg", "");
+        String[] split = ParseUtil.whitespaces.split(avg);
+        for (int i = 0; i < nelem && i < split.length; i++) {
+            load[i] = ParseUtil.parseDoubleOrDefault(split[i], -1d);
+        }
+        return load;
     }
 }
