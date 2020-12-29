@@ -38,23 +38,6 @@ import oshi.jna.platform.unix.CLibrary;
 public interface OpenBsdLibc extends CLibrary {
     OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);
 
-    int UTX_USERSIZE = 32;
-    int UTX_LINESIZE = 16;
-    int UTX_IDSIZE = 8;
-    int UTX_HOSTSIZE = 128;
-
-    @FieldOrder({ "ut_type", "ut_tv", "ut_id", "ut_pid", "ut_user", "ut_line", "ut_host", "ut_spare" })
-    class OpenBsdUtmpx extends Structure {
-        public short ut_type; // type of entry
-        public Timeval ut_tv; // time entry was made
-        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)
-        public int ut_pid; // process id
-        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name
-        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name
-        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name
-        public byte[] ut_spare = new byte[64];
-    }
-
     /*
      * Data size
      */
@@ -185,15 +168,4 @@ public interface OpenBsdLibc extends CLibrary {
      * @return 0 on success; sets errno on failure
      */
     int sysctlnametomib(String name, Pointer mibp, IntByReference size);
-
-    /**
-     * Reads a line from the current file position in the utmp file. It returns a
-     * pointer to a structure containing the fields of the line.
-     * <p>
-     * Not thread safe
-     *
-     * @return a {@link OpenBsdUtmpx} on success, and NULL on failure (which
-     *         includes the "record not found" case)
-     */
-    OpenBsdUtmpx getutxent();
 }
