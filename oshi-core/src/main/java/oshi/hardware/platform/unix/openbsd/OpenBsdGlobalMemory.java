@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_PHYSMEM;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -77,7 +79,10 @@ final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
     }
 
     private static long queryPhysMem() {
-        return OpenBsdSysctlUtil.sysctl("hw.physmem", 0L);
+        int[] mib = new int[2];
+        mib[0] = CTL_HW;
+        mib[1] = HW_PHYSMEM;
+        return OpenBsdSysctlUtil.sysctl(mib, 0L);
     }
 
     private static long queryPageSize() {

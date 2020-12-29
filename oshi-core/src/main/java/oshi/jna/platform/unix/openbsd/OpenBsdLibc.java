@@ -38,6 +38,26 @@ import oshi.jna.platform.unix.CLibrary;
 public interface OpenBsdLibc extends CLibrary {
     OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);
 
+    int CTL_KERN = 1; // "high kernel": proc, limits
+    int CTL_HW = 6; // generic cpu/io
+    int CTL_MACHDEP = 7;// machine dependent
+
+    int KERN_OSTYPE = 1; // string: system version
+    int KERN_OSRELEASE = 2; // string: system release
+    int KERN_OSREV = 3; // int: system revision
+    int KERN_VERSION = 4; // string: compile time info
+    int KERN_MAXVNODES = 5; // int: max vnodes
+    int KERN_MAXPROC = 6; // int: max processes
+    int KERN_MAXFILES = 7; // int: max open files
+    int KERN_ARGMAX = 8; // int: max arguments to exec
+    int KERN_CPTIME = 40; // array: cp_time
+    int KERN_CPTIME2 = 71; // array: cp_time2
+
+    int HW_MACHINE = 1; // string: machine class
+    int HW_MODEL = 2; // string: specific machine model
+    int HW_NCPU = 3; // int: number of cpus
+    int HW_PHYSMEM = 5; // int: total memory
+    int HW_CPUSPEED = 12; // get CPU frequency
     /*
      * Data size
      */
@@ -74,6 +94,21 @@ public interface OpenBsdLibc extends CLibrary {
     @FieldOrder({ "cpu_ticks" })
     class CpTime extends Structure {
         public long[] cpu_ticks = new long[CPUSTATES];
+
+        public CpTime(Pointer p) {
+            super(p);
+            read();
+        }
+    }
+
+    @FieldOrder({ "cpu_ticks" })
+    class CpTimeNew extends Structure {
+        public long[] cpu_ticks = new long[CPUSTATES + 1];
+
+        public CpTimeNew(Pointer p) {
+            super(p);
+            read();
+        }
     }
 
     /**
@@ -119,53 +154,4 @@ public interface OpenBsdLibc extends CLibrary {
      * @return 0 on success; sets errno on failure
      */
     int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
-
-    /**
-     * The sysctlbyname() function accepts an ASCII representation of the name and
-     * internally looks up the integer name vector. Apart from that, it behaves the
-     * same as the standard sysctl() function.
-     *
-     * @param name
-     *            ASCII representation of the MIB name
-     * @param oldp
-     *            Information retrieved
-     * @param oldlenp
-     *            Size of information retrieved
-     * @param newp
-     *            Information to be written
-     * @param newlen
-     *            Size of information to be written
-     * @return 0 on success; sets errno on failure
-     */
-    int sysctlbyname(String name, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
-
-    /**
-     * The sysctlnametomib() function accepts an ASCII representation of the name,
-     * looks up the integer name vector, and returns the numeric representation in
-     * the mib array pointed to by mibp. The number of elements in the mib array is
-     * given by the location specified by sizep before the call, and that location
-     * gives the number of entries copied after a successful call. The resulting mib
-     * and size may be used in subsequent sysctl() calls to get the data associated
-     * with the requested ASCII name. This interface is intended for use by
-     * applications that want to repeatedly request the same variable (the sysctl()
-     * function runs in about a third the time as the same request made via the
-     * sysctlbyname() function).
-     *
-     * The number of elements in the mib array can be determined by calling
-     * sysctlnametomib() with the NULL argument for mibp.
-     *
-     * The sysctlnametomib() function is also useful for fetching mib prefixes. If
-     * size on input is greater than the number of elements written, the array still
-     * contains the additional elements which may be written programmatically.
-     *
-     * @param name
-     *            ASCII representation of the name
-     * @param mibp
-     *            Integer array containing the corresponding name vector.
-     * @param size
-     *            On input, number of elements in the returned array; on output, the
-     *            number of entries copied.
-     * @return 0 on success; sets errno on failure
-     */
-    int sysctlnametomib(String name, Pointer mibp, IntByReference size);
 }

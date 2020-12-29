@@ -23,10 +23,28 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_IDLE;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_INTR;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_NICE;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_SYS;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_USER;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_CPUSPEED;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MACHINE;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MODEL;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_NCPU;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTimeNew;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
@@ -36,14 +54,19 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected ProcessorIdentifier queryProcessorId() {
         String cpuVendor = OpenBsdSysctlUtil.sysctl("machdep.cpuvendor", "");
-        String cpuName = OpenBsdSysctlUtil.sysctl("hw.model", "");
-        // TODO
+        int[] mib = new int[2];
+        mib[0] = CTL_HW;
+        mib[1] = HW_MODEL;
+        String cpuName = OpenBsdSysctlUtil.sysctl(mib, "");
+        // TODO, probably parse processorID=CPUID?
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
         long cpuFreq = queryMaxFreq();
-        // does not cover the case of x86-OS running on x64 cpu
-        boolean cpu64bit = ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
+        mib[1] = HW_MACHINE;
+        String machine = OpenBsdSysctlUtil.sysctl(mib, "");
+        boolean cpu64bit = machine != null && machine.contains("64")
+                || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
         String processorID = OpenBsdSysctlUtil.sysctl("machdep.cpuid", "");
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
@@ -52,17 +75,26 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected long queryMaxFreq() {
-        return ParseUtil.parseHertz(OpenBsdSysctlUtil.sysctl("hw.model", "0")) * 1_000_000L;
+        return queryCurrentFreq()[0];
+        // This is vendor freq.
+        // return ParseUtil.parseHertz(OpenBsdSysctlUtil.sysctl("hw.model", "0")) *
+        // 1_000_000L;
     }
 
     @Override
     protected long[] queryCurrentFreq() {
-        return new long[] { OpenBsdSysctlUtil.sysctl("hw.cpuspeed", 0L) * 1_000_000L };
+        int[] mib = new int[2];
+        mib[0] = CTL_HW;
+        mib[1] = HW_CPUSPEED;
+        return new long[] { OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L };
     }
 
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
-        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpu", 1);
+        int[] mib = new int[2];
+        mib[0] = CTL_HW;
+        mib[1] = HW_NCPU;
+        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl(mib, 1);
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
         for (int i = 0; i < logicalProcessorCount; i++) {
             logProcs.add(new LogicalProcessor(i, 1, 1));
@@ -105,17 +137,40 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // the number of ticks spent by the system in
         // interrupt processing, user processes (nice(1) or normal), system processing,
         // lock spinning, or idling.
-        String cpu = OpenBsdSysctlUtil.sysctl("kern.cp_time", "");
-        String[] split = cpu.split(",");
-        if (split.length > 4) {
-            ticks[TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(split[0], 0L);
-            ticks[TickType.NICE.getIndex()] = ParseUtil.parseLongOrDefault(split[1], 0L);
-            ticks[TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(split[2], 0L);
-            int offset = split.length > 5 ? 1 : 0;
-            // Version 6.4 and later has CP_SPIN at index 3
-            ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(split[3 + offset], 0L);
-            ticks[TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(split[4 + offset], 0L);
+        int[] mib = new int[2];
+        mib[0] = CTL_KERN;
+        mib[1] = KERN_CPTIME;
+        Memory m = OpenBsdSysctlUtil.sysctl(mib);
+        // array of 5 or 6 longs
+        long[] cpuTicks = null;
+        if (m != null) {
+            if (m.size() == 5 * Native.LONG_SIZE) {
+                cpuTicks = new CpTime(m).cpu_ticks;
+            } else if (m.size() == 6 * Native.LONG_SIZE) {
+                // Version 6.4 and later has CP_SPIN at index 3
+                cpuTicks = new CpTimeNew(m).cpu_ticks;
+            }
         }
+        if (cpuTicks != null) {
+            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
+            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+            int offset = cpuTicks.length > 5 ? 1 : 0;
+            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
+            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+        }
+
+//        String cpu = OpenBsdSysctlUtil.sysctl("kern.cp_time", "");
+//        String[] split = cpu.split(",");
+//        if (split.length > 4) {
+//            ticks[TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(split[0], 0L);
+//            ticks[TickType.NICE.getIndex()] = ParseUtil.parseLongOrDefault(split[1], 0L);
+//            ticks[TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(split[2], 0L);
+//            int offset = split.length > 5 ? 1 : 0;
+//            // Version 6.4 and later has CP_SPIN at index 3
+//            ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(split[3 + offset], 0L);
+//            ticks[TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(split[4 + offset], 0L);
+//        }
         return ticks;
     }
 

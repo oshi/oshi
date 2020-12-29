@@ -23,6 +23,10 @@
  */
 package oshi.software.os.unix.openbsd;
 
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_OSRELEASE;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_OSTYPE;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_VERSION;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
@@ -47,8 +51,8 @@ import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
-
 /**
+ *
  * OpenBsd is a free and open-source Unix-like operating system descended from
  * the Berkeley Software Distribution (BSD), which was based on Research Unix.
  * The first version of OpenBsd was released in 1993. In 2005, OpenBsd was the
@@ -69,10 +73,14 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        String family = OpenBsdSysctlUtil.sysctl("kern.ostype", "OpenBsd");
-
-        String version = OpenBsdSysctlUtil.sysctl("kern.osrelease", "");
-        String versionInfo = OpenBsdSysctlUtil.sysctl("kern.version", "");
+        int[] mib = new int[2];
+        mib[0] = CTL_KERN;
+        mib[1] = KERN_OSTYPE;
+        String family = OpenBsdSysctlUtil.sysctl(mib, "OpenBsd");
+        mib[1] = KERN_OSRELEASE;
+        String version = OpenBsdSysctlUtil.sysctl(mib, "");
+        mib[1] = KERN_VERSION;
+        String versionInfo = OpenBsdSysctlUtil.sysctl(mib, "");
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
         return new FamilyVersionInfo(family, new OSVersionInfo(version, null, buildNumber));
