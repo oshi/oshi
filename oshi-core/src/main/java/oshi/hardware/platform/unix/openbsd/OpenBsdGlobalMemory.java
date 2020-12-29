@@ -24,7 +24,7 @@
 package oshi.hardware.platform.unix.openbsd;
 
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_PHYSMEM64;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_PAGESIZE;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -33,8 +33,6 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
@@ -72,22 +70,20 @@ final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
     }
 
     private long queryVmStats() {
-        // cached removed in FreeBSD 12 but was always set to 0
-        int inactive = OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0);
-        int free = OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0);
-        return (inactive + free) * getPageSize();
+        // temp for debug
+        return getPageSize();
     }
 
     private static long queryPhysMem() {
-        int[] mib = new int[2];
-        mib[0] = CTL_HW;
-        mib[1] = HW_PHYSMEM64;
-        return OpenBsdSysctlUtil.sysctl(mib, 0L);
+        // Native call doesn't seem to work here.
+        return OpenBsdSysctlUtil.sysctl("hw.physmem", 0L);
     }
 
     private static long queryPageSize() {
-        // sysctl hw.pagesize doesn't work on FreeBSD 13
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("sysconf PAGESIZE"), 4096L);
+        int[] mib = new int[2];
+        mib[0] = CTL_HW;
+        mib[1] = HW_PAGESIZE;
+        return OpenBsdSysctlUtil.sysctl(mib, 4096L);
     }
 
     private VirtualMemory createVirtualMemory() {
