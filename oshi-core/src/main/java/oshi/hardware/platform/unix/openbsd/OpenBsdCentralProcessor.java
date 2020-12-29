@@ -97,8 +97,26 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected long[] querySystemCpuLoadTicks() {
-
-        return new long[0];
+        long[] ticks = new long[TickType.values().length];
+        // use
+        // └─ $ ▶ sysctl kern.cp_time
+        // kern.cp_time=765981,576,193424,42002,3534,3819889
+        // An array of longs of size CPUSTATES is returned, containing statistics about
+        // the number of ticks spent by the system in
+        // interrupt processing, user processes (nice(1) or normal), system processing,
+        // lock spinning, or idling.
+        String cpu = OpenBsdSysctlUtil.sysctl("kern.cp_time", "");
+        String[] split = ParseUtil.whitespaces.split(cpu);
+        if (split.length > 4) {
+            ticks[TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(split[0], 0L);
+            ticks[TickType.NICE.getIndex()] = ParseUtil.parseLongOrDefault(split[1], 0L);
+            ticks[TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(split[2], 0L);
+            int offset = split.length > 5 ? 1 : 0;
+            // Version 6.4 and later has CP_SPIN at index 3
+            ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(split[3 + offset], 0L);
+            ticks[TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(split[4 + offset], 0L);
+        }
+        return ticks;
     }
 
     /**
@@ -108,14 +126,10 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected long[][] queryProcessorCpuLoadTicks() {
-        // use
-        // └─ $ ▶ sysctl kern.cp_time
-        // kern.cp_time=765981,576,193424,42002,3534,3819889
-        // An array of longs of size CPUSTATES is returned, containing statistics about
-        // the number of ticks spent by the system in
-        // interrupt processing, user processes (nice(1) or normal), system processing,
-        // lock spinning, or idling.
-        return new long[0][];
+        // Need to use binary sysctl to access CPU parameter.  As a placeholder just set CPU 0 as total
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
+        ticks[0] = querySystemCpuLoadTicks();
+        return ticks;
     }
 
     /**
