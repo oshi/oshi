@@ -39,6 +39,7 @@ public interface OpenBsdLibc extends CLibrary {
     OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);
 
     int CTL_KERN = 1; // "high kernel": proc, limits
+    int CTL_VM = 1; // "high kernel": proc, limits
     int CTL_HW = 6; // generic cpu/io
     int CTL_MACHDEP = 7;// machine dependent
 
@@ -52,6 +53,11 @@ public interface OpenBsdLibc extends CLibrary {
     int KERN_ARGMAX = 8; // int: max arguments to exec
     int KERN_CPTIME = 40; // array: cp_time
     int KERN_CPTIME2 = 71; // array: cp_time2
+
+    int VM_METER = 1; // struct vmmeter
+    int VM_LOADAVG = 2; // struct loadavg
+    int VM_PSSTRINGS = 3; // PSSTRINGS
+    int VM_UVMEXP = 4; // struct uvmexp
 
     int HW_MACHINE = 1; // string: machine class
     int HW_MODEL = 2; // string: specific machine model

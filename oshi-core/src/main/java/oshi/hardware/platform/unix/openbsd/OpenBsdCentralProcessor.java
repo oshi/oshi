@@ -30,11 +30,13 @@ import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_SYS;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_USER;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_VM;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_CPUSPEED;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MACHINE;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MODEL;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME2;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VM_LOADAVG;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,13 +230,23 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
+        }
         // vm.loadavg=0.30 0.58 0.75
         double[] load = new double[nelem];
-        String avg = OpenBsdSysctlUtil.sysctl("vm.loadavg", "");
-        String[] split = ParseUtil.whitespaces.split(avg);
-        for (int i = 0; i < nelem && i < split.length; i++) {
-            load[i] = ParseUtil.parseDoubleOrDefault(split[i], -1d);
+        int[] mib = new int[2];
+        mib[0] = CTL_VM;
+        mib[1] = VM_LOADAVG;
+        Memory m = OpenBsdSysctlUtil.sysctl(mib);
+        if (m.size() == 3 * Native.LONG_DOUBLE_SIZE) {
+            load = m.getDoubleArray(0, nelem);
         }
+//        String avg = OpenBsdSysctlUtil.sysctl("vm.loadavg", "");
+//        String[] split = ParseUtil.whitespaces.split(avg);
+//        for (int i = 0; i < nelem && i < split.length; i++) {
+//            load[i] = ParseUtil.parseDoubleOrDefault(split[i], -1d);
+//        }
         return load;
     }
 }
