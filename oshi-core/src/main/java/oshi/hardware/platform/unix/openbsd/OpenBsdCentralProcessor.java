@@ -35,11 +35,12 @@ import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MACHINE;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MODEL;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_NCPU;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -62,7 +63,10 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
-        long cpuFreq = queryMaxFreq();
+        long cpuFreq = ParseUtil.parseHertz(cpuName) * 1_000_000L;
+        if (cpuFreq < 0) {
+            cpuFreq = queryMaxFreq();
+        }
         mib[1] = HW_MACHINE;
         String machine = OpenBsdSysctlUtil.sysctl(mib, "");
         boolean cpu64bit = machine != null && machine.contains("64")
@@ -130,28 +134,13 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
-        // use
-        // └─ $ ▶ sysctl kern.cp_time
-        // kern.cp_time=765981,576,193424,42002,3534,3819889
-        // An array of longs of size CPUSTATES is returned, containing statistics about
-        // the number of ticks spent by the system in
-        // interrupt processing, user processes (nice(1) or normal), system processing,
-        // lock spinning, or idling.
         int[] mib = new int[2];
         mib[0] = CTL_KERN;
         mib[1] = KERN_CPTIME;
         Memory m = OpenBsdSysctlUtil.sysctl(mib);
         // array of 5 or 6 longs
-        long[] cpuTicks = null;
-        if (m != null) {
-            if (m.size() == 5 * Native.LONG_SIZE) {
-                cpuTicks = new CpTime(m).cpu_ticks;
-            } else if (m.size() == 6 * Native.LONG_SIZE) {
-                // Version 6.4 and later has CP_SPIN at index 3
-                cpuTicks = new CpTimeNew(m).cpu_ticks;
-            }
-        }
-        if (cpuTicks != null) {
+        long[] cpuTicks = cpTimeToTicks(m);
+        if (cpuTicks.length >= 5) {
             ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
             ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
             ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
@@ -159,18 +148,6 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
             ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
         }
-
-//        String cpu = OpenBsdSysctlUtil.sysctl("kern.cp_time", "");
-//        String[] split = cpu.split(",");
-//        if (split.length > 4) {
-//            ticks[TickType.USER.getIndex()] = ParseUtil.parseLongOrDefault(split[0], 0L);
-//            ticks[TickType.NICE.getIndex()] = ParseUtil.parseLongOrDefault(split[1], 0L);
-//            ticks[TickType.SYSTEM.getIndex()] = ParseUtil.parseLongOrDefault(split[2], 0L);
-//            int offset = split.length > 5 ? 1 : 0;
-//            // Version 6.4 and later has CP_SPIN at index 3
-//            ticks[TickType.IRQ.getIndex()] = ParseUtil.parseLongOrDefault(split[3 + offset], 0L);
-//            ticks[TickType.IDLE.getIndex()] = ParseUtil.parseLongOrDefault(split[4 + offset], 0L);
-//        }
         return ticks;
     }
 
@@ -181,13 +158,45 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected long[][] queryProcessorCpuLoadTicks() {
-        // Need to use binary sysctl to access CPU parameter. As a placeholder just set
-        // CPU 0 as total
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        ticks[0] = querySystemCpuLoadTicks();
+        int[] mib = new int[3];
+        mib[0] = CTL_KERN;
+        mib[1] = KERN_CPTIME2;
+        for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
+            mib[2] = cpu;
+            Memory m = OpenBsdSysctlUtil.sysctl(mib);
+            // array of 5 or 6 longs
+            long[] cpuTicks = cpTimeToTicks(m);
+            if (cpuTicks.length >= 5) {
+                ticks[TickType.USER.getIndex()][cpu] = cpuTicks[CP_USER];
+                ticks[TickType.NICE.getIndex()][cpu] = cpuTicks[CP_NICE];
+                ticks[TickType.SYSTEM.getIndex()][cpu] = cpuTicks[CP_SYS];
+                int offset = cpuTicks.length > 5 ? 1 : 0;
+                ticks[TickType.IRQ.getIndex()][cpu] = cpuTicks[CP_INTR + offset];
+                ticks[TickType.IDLE.getIndex()][cpu] = cpuTicks[CP_IDLE + offset];
+            }
+        }
         return ticks;
     }
 
+    /**
+     * Parse memory buffer returned from sysctl kern.cptime to array of 5 or 6 longs
+     * depending on version
+     *
+     * @param m
+     *            A buffer containing a long array
+     * @return The long array
+     */
+    private long[] cpTimeToTicks(Memory m) {
+        if (m != null) {
+            if (m.size() == 5 * Native.LONG_SIZE) {
+                return new CpTime(m).cpu_ticks;
+            } else if (m.size() == 6 * Native.LONG_SIZE) {
+                return new CpTimeNew(m).cpu_ticks;
+            }
+        }
+        return new long[0];
+    }
     /**
      * Returns the system load average for the number of elements specified, up to
      * 3, representing 1, 5, and 15 minutes. The system load average is the sum of
