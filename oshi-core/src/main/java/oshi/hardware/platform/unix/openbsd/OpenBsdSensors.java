@@ -23,13 +23,10 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import com.sun.jna.Memory; // NOSONAR squid:S1191
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
+import oshi.util.ParseUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
  * Sensors from coretemp
@@ -39,37 +36,20 @@ final class OpenBsdSensors extends AbstractSensors {
 
     @Override
     public double queryCpuTemperature() {
-        return queryKldloadCoretemp();
-    }
-
-    /*
-     * If user has loaded coretemp module via kldload coretemp, sysctl call will
-     * return temperature
-     *
-     * @return Tempurature if successful, otherwise NaN
-     */
-    private static double queryKldloadCoretemp() {
-        String name = "dev.cpu.%d.temperature";
-        IntByReference size = new IntByReference(OpenBsdLibc.INT_SIZE);
-        Pointer p = new Memory(size.getValue());
-        int cpu = 0;
-        double sumTemp = 0d;
-        while (0 == OpenBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, 0)) {
-            sumTemp += p.getInt(0) / 10d - 273.15;
-            cpu++;
-        }
-        return cpu > 0 ? sumTemp / cpu : Double.NaN;
+        String tempC = OpenBsdSysctlUtil.sysctl("hw.sensors.acpisbs0.temp0", "");
+        String[] split = ParseUtil.whitespaces.split(tempC);
+        return ParseUtil.parseDoubleOrDefault(split[0], 0d);
     }
 
     @Override
     public int[] queryFanSpeeds() {
-        // Nothing known on FreeBSD for this.
+        // Nothing known on OpenBSD for this.
         return new int[0];
     }
 
     @Override
     public double queryCpuVoltage() {
-        // Nothing known on FreeBSD for this.
+        // Nothing known on OpenBSD for this.
         return 0d;
     }
 }
