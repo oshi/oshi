@@ -56,7 +56,7 @@ public interface OpenBsdLibc extends CLibrary {
     int HW_MACHINE = 1; // string: machine class
     int HW_MODEL = 2; // string: specific machine model
     int HW_NCPU = 3; // int: number of cpus
-    int HW_PHYSMEM = 5; // int: total memory
+    int HW_PHYSMEM64 = 19; // quad: total memory
     int HW_CPUSPEED = 12; // get CPU frequency
     /*
      * Data size

@@ -59,9 +59,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[0] = CTL_HW;
         mib[1] = HW_MODEL;
         String cpuName = OpenBsdSysctlUtil.sysctl(mib, "");
-        // CPUID: BFEBFBFF000906ED
-        // sysctl machdep.cpuid = 0x906ed
-        // sysctl machdep.cpufeature = 0x1f9Bfbff
+        // CPUID: first 32 bits is cpufeature, last 32 bits is cpuid
         int cpuid = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpuid", ""), 0);
         int cpufeature = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpufeature", ""), 0);
         Triplet<Integer, Integer, Integer> cpu = cpuidToFamilyModelStepping(cpuid);
@@ -95,9 +93,6 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected long queryMaxFreq() {
         return queryCurrentFreq()[0];
-        // This is vendor freq.
-        // return ParseUtil.parseHertz(OpenBsdSysctlUtil.sysctl("hw.model", "0")) *
-        // 1_000_000L;
     }
 
     @Override
