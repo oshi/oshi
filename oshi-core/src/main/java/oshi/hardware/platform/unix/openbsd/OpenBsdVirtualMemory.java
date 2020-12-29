@@ -32,7 +32,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
  * Memory obtained by swapinfo
@@ -94,14 +94,14 @@ final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static long querySwapTotal() {
-        return BsdSysctlUtil.sysctl("vm.swap_total", 0L);
+        return OpenBsdSysctlUtil.sysctl("vm.swap_total", 0L);
     }
 
     private static long queryPagesIn() {
-        return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
+        return OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
     }
 
     private static long queryPagesOut() {
-        return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
+        return OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
     }
 }

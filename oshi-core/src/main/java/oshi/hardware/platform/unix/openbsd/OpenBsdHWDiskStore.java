@@ -40,7 +40,7 @@ import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -144,7 +144,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
         Map<String, Triplet<String, String, Long>> diskInfoMap = GeomDiskList.queryDisks();
 
         // Get list of disks from sysctl
-        List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("kern.disks", "")));
+        List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(OpenBsdSysctlUtil.sysctl("kern.disks", "")));
 
         // Run iostat -Ix to enumerate disks by name and get kb r/w
         List<String> iostat = ExecutingCommand.runNative("iostat -Ix");

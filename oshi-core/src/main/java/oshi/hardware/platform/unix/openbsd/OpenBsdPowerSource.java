@@ -36,7 +36,7 @@ import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
  * A Power Source
@@ -85,11 +85,11 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
         double psTemperature = 0d;
 
         // state 0=full, 1=discharging, 2=charging
-        int state = BsdSysctlUtil.sysctl("hw.acpi.battery.state", 0);
+        int state = OpenBsdSysctlUtil.sysctl("hw.acpi.battery.state", 0);
         if (state == 2) {
             psCharging = true;
         } else {
-            int time = BsdSysctlUtil.sysctl("hw.acpi.battery.time", -1);
+            int time = OpenBsdSysctlUtil.sysctl("hw.acpi.battery.time", -1);
             // time is in minutes
             psTimeRemainingEstimated = time < 0 ? -1d : 60d * time;
             if (state == 1) {
@@ -97,7 +97,7 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
             }
         }
         // life is in percent
-        int life = BsdSysctlUtil.sysctl("hw.acpi.battery.life", -1);
+        int life = OpenBsdSysctlUtil.sysctl("hw.acpi.battery.life", -1);
         if (life > 0) {
             psRemainingCapacityPercent = life / 100d;
         }

@@ -36,7 +36,7 @@ import oshi.jna.platform.unix.CLibrary;
  * if/when its code is incorporated into the JNA project.
  */
 public interface OpenBsdLibc extends CLibrary {
-    OpenBsdLibc INSTANCE = Native.load("libc", OpenBsdLibc.class);
+    OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);
 
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 16;

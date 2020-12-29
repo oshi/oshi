@@ -33,7 +33,7 @@ import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
  * Memory obtained by sysctl vm.stats
@@ -71,13 +71,13 @@ final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
 
     private long queryVmStats() {
         // cached removed in FreeBSD 12 but was always set to 0
-        int inactive = BsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0);
-        int free = BsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0);
+        int inactive = OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_inactive_count", 0);
+        int free = OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_free_count", 0);
         return (inactive + free) * getPageSize();
     }
 
     private static long queryPhysMem() {
-        return BsdSysctlUtil.sysctl("hw.physmem", 0L);
+        return OpenBsdSysctlUtil.sysctl("hw.physmem", 0L);
     }
 
     private static long queryPageSize() {

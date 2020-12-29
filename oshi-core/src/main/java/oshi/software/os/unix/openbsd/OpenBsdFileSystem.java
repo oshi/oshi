@@ -28,7 +28,7 @@ import java.util.List;
 
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 public class OpenBsdFileSystem extends AbstractFileSystem {
 
@@ -40,11 +40,11 @@ public class OpenBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        return BsdSysctlUtil.sysctl("kern.nfiles", 0);
+        return OpenBsdSysctlUtil.sysctl("kern.nfiles", 0);
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
+        return OpenBsdSysctlUtil.sysctl("kern.maxfiles", 0);
     }
 }

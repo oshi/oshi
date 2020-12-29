@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.openbsd.Who;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -49,7 +48,7 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
  * OpenBsd is a free and open-source Unix-like operating system descended from
@@ -72,10 +71,10 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FamilyVersionInfo queryFamilyVersionInfo() {
-        String family = BsdSysctlUtil.sysctl("kern.ostype", "OpenBsd");
+        String family = OpenBsdSysctlUtil.sysctl("kern.ostype", "OpenBsd");
 
-        String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
-        String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
+        String version = OpenBsdSysctlUtil.sysctl("kern.osrelease", "");
+        String versionInfo = OpenBsdSysctlUtil.sysctl("kern.version", "");
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
         return new FamilyVersionInfo(family, new OSVersionInfo(version, null, buildNumber));
@@ -195,17 +194,10 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        Timeval tv = new Timeval();
-        if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
-            return ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                    System.currentTimeMillis() / 1000);
-        }
-        // tv now points to a 128-bit timeval structure for boot time.
-        // First 8 bytes are seconds, second 8 bytes are microseconds (we ignore)
-        return tv.tv_sec;
+        // Boot time will be the first consecutive string of digits.
+        return ParseUtil.parseLongOrDefault(
+                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                System.currentTimeMillis() / 1000);
     }
 
     @Override
