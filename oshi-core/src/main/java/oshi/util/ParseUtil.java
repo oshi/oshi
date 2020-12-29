@@ -1199,13 +1199,19 @@ public final class ParseUtil {
      * @return The corresponding int value
      */
     public static int hexStringToInt(String hexString, int defaultValue) {
-        try {
-            return new BigInteger(hexString, 16).intValue();
-        } catch (NumberFormatException e) {
-            LOG.trace(DEFAULT_LOG_MSG, hexString, e);
-            // Hex failed to parse, just return the default long
-            return defaultValue;
+        if (hexString != null) {
+            try {
+                if (hexString.startsWith("0x")) {
+                    return new BigInteger(hexString.substring(2), 16).intValue();
+                } else {
+                    return new BigInteger(hexString, 16).intValue();
+                }
+            } catch (NumberFormatException e) {
+                LOG.trace(DEFAULT_LOG_MSG, hexString, e);
+            }
         }
+        // Hex failed to parse, just return the default long
+        return defaultValue;
     }
 
     /**
@@ -1218,13 +1224,19 @@ public final class ParseUtil {
      * @return The corresponding long value
      */
     public static long hexStringToLong(String hexString, long defaultValue) {
-        try {
-            return new BigInteger(hexString, 16).longValue();
-        } catch (NumberFormatException e) {
-            LOG.trace(DEFAULT_LOG_MSG, hexString, e);
-            // Hex failed to parse, just return the default long
-            return defaultValue;
+        if (hexString != null) {
+            try {
+                if (hexString.startsWith("0x")) {
+                    return new BigInteger(hexString.substring(2), 16).longValue();
+                } else {
+                    return new BigInteger(hexString, 16).longValue();
+                }
+            } catch (NumberFormatException e) {
+                LOG.trace(DEFAULT_LOG_MSG, hexString, e);
+            }
         }
+        // Hex failed to parse, just return the default long
+        return defaultValue;
     }
 
     /**

@@ -48,6 +48,7 @@ import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTimeNew;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.tuples.Triplet;
 
 public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
 
@@ -58,11 +59,16 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[0] = CTL_HW;
         mib[1] = HW_MODEL;
         String cpuName = OpenBsdSysctlUtil.sysctl(mib, "");
-        // TODO, probably parse processorID=CPUID?
-        String cpuFamily = "";
-        String cpuModel = "";
-        String cpuStepping = "";
-        long cpuFreq = ParseUtil.parseHertz(cpuName) * 1_000_000L;
+        // CPUID: BFEBFBFF000906ED
+        // sysctl machdep.cpuid = 0x906ed
+        // sysctl machdep.cpufeature = 0x1f9Bfbff
+        int cpuid = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpuid", ""), 0);
+        int cpufeature = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpufeature", ""), 0);
+        Triplet<Integer, Integer, Integer> cpu = cpuidToFamilyModelStepping(cpuid);
+        String cpuFamily = cpu.getA().toString();
+        String cpuModel = cpu.getB().toString();
+        String cpuStepping = cpu.getC().toString();
+        long cpuFreq = ParseUtil.parseHertz(cpuName);
         if (cpuFreq < 0) {
             cpuFreq = queryMaxFreq();
         }
@@ -70,10 +76,20 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         String machine = OpenBsdSysctlUtil.sysctl(mib, "");
         boolean cpu64bit = machine != null && machine.contains("64")
                 || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
-        String processorID = OpenBsdSysctlUtil.sysctl("machdep.cpuid", "");
+        String processorID = String.format("%08x%08x", cpufeature, cpuid);
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuFreq);
+    }
+
+    private Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
+        // family is bits 27:20 | 11:8
+        int family = cpuid >> 16 & 0xff0 | cpuid >> 8 & 0xf;
+        // model is bits 19:16 | 7:4
+        int model = cpuid >> 12 & 0xf0 | cpuid >> 4 & 0xf;
+        // stepping is bits 3:0
+        int stepping = cpuid & 0xf;
+        return new Triplet<>(family, model, stepping);
     }
 
     @Override
@@ -194,6 +210,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         }
         return new long[0];
     }
+
     /**
      * Returns the system load average for the number of elements specified, up to
      * 3, representing 1, 5, and 15 minutes. The system load average is the sum of

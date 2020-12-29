@@ -576,16 +576,22 @@ class ParseUtilTest {
 
     @Test
     void testHexStringToInt() {
-        assertThat(ParseUtil.hexStringToInt("ff", 0), is(255));
-        assertThat(ParseUtil.hexStringToInt("830f53a0", 0), is(-2096147552));
-        assertThat(ParseUtil.hexStringToInt("pqwe", 0), is(0));
+        assertThat("Parsing ff failed", ParseUtil.hexStringToInt("ff", 0), is(255));
+        assertThat("Parsing 830f53a0 failed", ParseUtil.hexStringToInt("830f53a0", 0), is(-2096147552));
+        assertThat("Parsing pqwe failed", ParseUtil.hexStringToInt("pqwe", 0), is(0));
+        assertThat("Parsing 0xff failed", ParseUtil.hexStringToInt("0xff", 0), is(255));
+        assertThat("Parsing 0x830f53a0 failed", ParseUtil.hexStringToInt("0x830f53a0", 0), is(-2096147552));
+        assertThat("Parsing 0xpqwe failed", ParseUtil.hexStringToInt("0xpqwe", 0), is(0));
     }
 
     @Test
     void testHexStringToLong() {
-        assertThat(ParseUtil.hexStringToLong("ff", 0L), is(255L));
-        assertThat(ParseUtil.hexStringToLong("ffffffff830f53a0", 0L), is(-2096147552L));
-        assertThat(ParseUtil.hexStringToLong("pqwe", 0L), is(0L));
+        assertThat("Parsing ff failed", ParseUtil.hexStringToLong("ff", 0L), is(255L));
+        assertThat("Parsing 830f53a0 failed", ParseUtil.hexStringToLong("ffffffff830f53a0", 0L), is(-2096147552L));
+        assertThat("Parsing pqwe failed", ParseUtil.hexStringToLong("pqwe", 0L), is(0L));
+        assertThat("Parsing 0xff failed", ParseUtil.hexStringToLong("0xff", 0L), is(255L));
+        assertThat("Parsing 0x830f53a0 failed", ParseUtil.hexStringToLong("0xffffffff830f53a0", 0L), is(-2096147552L));
+        assertThat("Parsing 0xpqwe failed", ParseUtil.hexStringToLong("0xpqwe", 0L), is(0L));
     }
 
     @Test
