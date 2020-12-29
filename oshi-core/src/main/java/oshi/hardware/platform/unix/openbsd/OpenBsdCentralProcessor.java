@@ -33,7 +33,6 @@ import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_CPUSPEED;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MACHINE;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MODEL;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_NCPU;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME2;
 
@@ -95,10 +94,8 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
-        int[] mib = new int[2];
-        mib[0] = CTL_HW;
-        mib[1] = HW_NCPU;
-        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl(mib, 1);
+        // native call seems to fail here, use fallback
+        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpu", 1);
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
         for (int i = 0; i < logicalProcessorCount; i++) {
             logProcs.add(new LogicalProcessor(i, 1, 1));
@@ -168,12 +165,12 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             // array of 5 or 6 longs
             long[] cpuTicks = cpTimeToTicks(m);
             if (cpuTicks.length >= 5) {
-                ticks[TickType.USER.getIndex()][cpu] = cpuTicks[CP_USER];
-                ticks[TickType.NICE.getIndex()][cpu] = cpuTicks[CP_NICE];
-                ticks[TickType.SYSTEM.getIndex()][cpu] = cpuTicks[CP_SYS];
+                ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
+                ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+                ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
                 int offset = cpuTicks.length > 5 ? 1 : 0;
-                ticks[TickType.IRQ.getIndex()][cpu] = cpuTicks[CP_INTR + offset];
-                ticks[TickType.IDLE.getIndex()][cpu] = cpuTicks[CP_IDLE + offset];
+                ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
+                ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
             }
         }
         return ticks;
