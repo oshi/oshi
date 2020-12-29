@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -59,14 +60,14 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         return new long[] { OpenBsdSysctlUtil.sysctl("hw.cpuspeed", 0L) * 1_000_000L };
     }
 
-    /**
-     * Updates logical and physical processor counts and arrays
-     *
-     * @return An array of initialized Logical Processors
-     */
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
-        return null;
+        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpu", 1);
+        List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
+        for (int i = 0; i < logicalProcessorCount; i++) {
+            logProcs.add(new LogicalProcessor(i, 1, 1));
+        }
+        return logProcs;
     }
 
     /**
