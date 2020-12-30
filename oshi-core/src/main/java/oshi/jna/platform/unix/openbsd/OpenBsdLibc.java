@@ -61,6 +61,9 @@ public interface OpenBsdLibc extends CLibrary {
     int HW_MODEL = 2; // string: specific machine model
     int HW_PAGESIZE = 7; // int: software page size
     int HW_CPUSPEED = 12; // get CPU frequency
+    int HW_NCPUFOUND = 21; // CPU found (includes offline)
+    int HW_SMT = 24; // enable SMT/HT/CMT
+    int HW_NCPUONLINE = 25; // number of cpus being used
 
     int VFS_GENERIC = 0; // generic filesystem information
     int VFS_BCACHESTAT = 3; // struct: buffer cache statistics given as next argument

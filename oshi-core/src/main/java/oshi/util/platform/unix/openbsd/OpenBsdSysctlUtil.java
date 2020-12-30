@@ -45,7 +45,7 @@ public final class OpenBsdSysctlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdSysctlUtil.class);
 
-    private static final String SYSCTL_FAIL = "Failed syctl call: {}, Error code: {}";
+    private static final String SYSCTL_FAIL = "Failed sysctl call: {}, Error code: {}";
 
     private OpenBsdSysctlUtil() {
     }
@@ -63,7 +63,7 @@ public final class OpenBsdSysctlUtil {
         IntByReference size = new IntByReference(OpenBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, 0)) {
-            LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
+            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         return p.getInt(0);

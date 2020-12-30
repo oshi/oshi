@@ -45,7 +45,6 @@ import java.util.function.Supplier;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
-
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime;
@@ -107,7 +106,31 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         int[] mib = new int[2];
         mib[0] = CTL_HW;
         mib[1] = HW_CPUSPEED;
-        return new long[] { OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L };
+        long freq = OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L;
+        // on OpenBSD SMT/HT/CMT is turned off by default, eg.
+        //   hw.ncpufound=4
+        //   hw.smt=0
+        //   hw.ncpuonline=2
+        // these native calls are failing with "Failed sysctl call: [6, 21], Error code: 12"
+        // and "Failed sysctl call: [6, 24], Error code: 12"
+        //        mib[1] = HW_NCPUFOUND;
+        //        long[] freqs = new long[OpenBsdSysctlUtil.sysctl(mib, 1)];
+        //        mib[1] = HW_SMT;
+        //        int smtOff = OpenBsdSysctlUtil.sysctl(mib, 0);
+        long[] freqs = new long[OpenBsdSysctlUtil.sysctl("hw.ncpufound", 1)];
+        int smtOff = OpenBsdSysctlUtil.sysctl("hw.smt", 0);
+        if (smtOff > 0) {
+            // HT switched on
+            Arrays.fill(freqs, freq);
+        } else {
+            for (int c = 0; c < freqs.length; c++) {
+                if (c % 2 == 0) {
+                    freqs[c] = freq;
+                }
+            }
+        }
+
+        return freqs;
     }
 
     @Override
