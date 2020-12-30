@@ -77,7 +77,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         int[] mib = new int[2];
         mib[0] = CTL_KERN;
         mib[1] = KERN_OSTYPE;
-        String family = OpenBsdSysctlUtil.sysctl(mib, "OpenBsd");
+        String family = OpenBsdSysctlUtil.sysctl(mib, "OpenBSD");
         mib[1] = KERN_OSRELEASE;
         String version = OpenBsdSysctlUtil.sysctl(mib, "");
         mib[1] = KERN_VERSION;
@@ -140,7 +140,9 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
 
     private static List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args";
+        // https://man.openbsd.org/ps#KEYWORDS
+        // missing are threadCount and kernelTime
+        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,args";
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
@@ -152,9 +154,9 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 18);
+            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
             // Elements should match ps command order
-            if (split.length == 18) {
+            if (split.length == 16) {
                 procs.add(new OpenBsdOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
             }
         }
@@ -178,11 +180,15 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        int threads = 0;
-        for (String proc : ExecutingCommand.runNative("ps -axo nlwp")) {
-            threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
+        // -H "Also display information about kernel visible threads"
+        // -k "Also display information about kernel threads"
+        // column TID holds thread ID
+        List<String> threadList = ExecutingCommand.runNative("ps -axHo tid");
+        if (!threadList.isEmpty()) {
+            // Subtract 1 for header
+            return threadList.size() - 1;
         }
-        return threads;
+        return 0;
     }
 
     @Override
@@ -229,7 +235,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         } else {
-            LOG.error("Directory: /etc/init does not exist");
+            LOG.error("Directory: /etc/rc.d does not exist");
         }
         return services.toArray(new OSService[0]);
     }

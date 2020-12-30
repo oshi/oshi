@@ -46,7 +46,7 @@ import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.ProcstatUtil;
+import oshi.util.platform.unix.openbsd.FstatUtil;
 
 @ThreadSafe
 public class OpenBsdOSProcess extends AbstractOSProcess {
@@ -77,6 +77,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     public OpenBsdOSProcess(int pid, String[] split) {
         super(pid);
+        updateThreadCount();
         updateAttributes(split);
     }
 
@@ -97,7 +98,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCurrentWorkingDirectory() {
-        return ProcstatUtil.getCwd(getProcessID());
+        return FstatUtil.getCwd(getProcessID());
     }
 
     @Override
@@ -182,7 +183,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public long getOpenFiles() {
-        return ProcstatUtil.getOpenFiles(getProcessID());
+        return FstatUtil.getOpenFiles(getProcessID());
     }
 
     @Override
@@ -237,7 +238,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H";
+        // tdname, systime and tdaddr are unknown to OpenBSD ps and
+        String psCommand = "ps -aHwwxo tdname,tid,state,etime,systime,cputime,tdaddr,nivcsw,nvcsw,majflt,minflt,pri";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
@@ -270,13 +272,15 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args -p "
+        // 'ps' does not provide threadCount or kernelTime on OpenBSD
+        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,args -p "
                 + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 18);
-            if (split.length == 18) {
+            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 16);
+            if (split.length == 16) {
+                updateThreadCount();
                 return updateAttributes(split);
             }
         }
@@ -314,22 +318,32 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         this.userID = split[4];
         this.group = split[5];
         this.groupID = split[6];
-        this.threadCount = ParseUtil.parseIntOrDefault(split[7], 0);
-        this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
+        this.priority = ParseUtil.parseIntOrDefault(split[7], 0);
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) * 1024;
+        this.virtualSize = ParseUtil.parseLongOrDefault(split[8], 0) * 1024;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[10], 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[13], 0L) - this.kernelTime;
-        this.path = split[14];
+        this.userTime = ParseUtil.parseDHMSOrDefault(split[10], 0L);
+        this.path = split[12];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
-        this.commandLine = split[17];
+        this.minorFaults = ParseUtil.parseLongOrDefault(split[13], 0L);
+        this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
+        this.commandLine = split[15];
+        // kernel time is not provided
+        // this.kernelTime = ParseUtil.parseDHMSOrDefault(split[16], 0L);
+        this.kernelTime = 0L;
         return true;
+    }
+
+    private void updateThreadCount() {
+        List<String> threadList = ExecutingCommand.runNative("ps -axHo tid -p " + getProcessID());
+        if (!threadList.isEmpty()) {
+            // Subtract 1 for header
+            this.threadCount = threadList.size() - 1;
+        }
+        this.threadCount = 0;
     }
 }

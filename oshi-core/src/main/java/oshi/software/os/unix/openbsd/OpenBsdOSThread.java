@@ -120,7 +120,7 @@ public class OpenBsdOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H -p "
+        String psCommand = "ps -aHwwxo tdname,tid,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -p "
                 + getOwningProcessId();
         // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
