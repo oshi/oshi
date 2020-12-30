@@ -96,11 +96,13 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
 
         for (String line : ExecutingCommand.runNative("systat -d1 sensors")) {
             String[] split = ParseUtil.whitespaces.split(line);
-            if (split.length > 1 && split[0].contains("sensors." + name)) {
+            if (split.length > 1 && split[0].startsWith(name)) {
                 if (split[0].contains("volt0") || split[0].contains("volt") && line.contains("current")) {
                     psVoltage = ParseUtil.parseDoubleOrDefault(split[1], -1d);
                 } else if (split[0].contains("current0")) {
                     psAmperage = ParseUtil.parseDoubleOrDefault(split[1], 0d);
+                } else if (split[0].contains("temp0")) {
+                    psTemperature = ParseUtil.parseDoubleOrDefault(split[1], 0d);
                 } else if (split[0].contains("watthour") || split[0].contains("amphour")) {
                     psCapacityUnits = split[0].contains("watthour") ? CapacityUnits.MWH : CapacityUnits.MAH;
                     if (line.contains("remaining")) {

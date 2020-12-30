@@ -262,7 +262,12 @@ public abstract class AbstractPowerSource implements PowerSource {
         sb.append("Time Remaining: ").append(formatTimeRemaining(getTimeRemainingEstimated())).append(", ");
         sb.append("Time Remaining Instant: ").append(formatTimeRemaining(getTimeRemainingInstant())).append(",\n ");
         sb.append("Power Usage Rate: ").append(getPowerUsageRate()).append("mW, ");
-        sb.append("Voltage: ").append(getVoltage()).append("V, ");
+        sb.append("Voltage: ");
+        if (getVoltage() > 0) {
+            sb.append(getVoltage()).append("V, ");
+        } else {
+            sb.append(Constants.UNKNOWN);
+        }
         sb.append("Amperage: ").append(getAmperage()).append("mA,\n ");
         sb.append("Power OnLine: ").append(isPowerOnLine()).append(", ");
         sb.append("Charging: ").append(isCharging()).append(", ");
