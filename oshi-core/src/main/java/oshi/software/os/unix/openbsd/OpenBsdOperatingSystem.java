@@ -97,7 +97,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     protected boolean queryElevated() {
-        return System.getenv("SUDO_COMMAND") != null;
+        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"), -1);
     }
 
     @Override
