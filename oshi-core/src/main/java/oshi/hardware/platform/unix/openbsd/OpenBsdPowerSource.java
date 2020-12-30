@@ -65,7 +65,7 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
         for (String line : ExecutingCommand.runNative("systat -d1 sensors")) {
             if (line.contains(".amphour") || line.contains(".watthour")) {
                 int dot = line.indexOf('.');
-                psNames.add(line.substring(dot));
+                psNames.add(line.substring(0, dot));
             }
         }
         List<OpenBsdPowerSource> psList = new ArrayList<>();
