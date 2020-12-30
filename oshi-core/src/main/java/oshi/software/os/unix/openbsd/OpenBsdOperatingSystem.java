@@ -141,7 +141,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
     private static List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
         // https://man.openbsd.org/ps#KEYWORDS
-        // missing are threadCount and kernelTime
+        // missing are threadCount and kernelTime which is included in cputime
         String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,args";
         if (pid >= 0) {
             psCommand += " -p " + pid;

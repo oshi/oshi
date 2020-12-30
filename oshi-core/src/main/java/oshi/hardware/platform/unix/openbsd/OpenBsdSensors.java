@@ -36,7 +36,10 @@ final class OpenBsdSensors extends AbstractSensors {
 
     @Override
     public double queryCpuTemperature() {
-        String tempC = OpenBsdSysctlUtil.sysctl("hw.sensors.acpisbs0.temp0", "");
+        String tempC = OpenBsdSysctlUtil.sysctl("hw.sensors.cpu0.temp0", "");
+        if (tempC.isEmpty()) {
+            tempC = OpenBsdSysctlUtil.sysctl("hw.sensors.acpisbs0.temp0", "");
+        }
         String[] split = ParseUtil.whitespaces.split(tempC);
         return ParseUtil.parseDoubleOrDefault(split[0], 0d);
     }

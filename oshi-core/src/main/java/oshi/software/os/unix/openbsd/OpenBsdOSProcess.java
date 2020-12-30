@@ -238,7 +238,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        // tdname, systime and tdaddr are unknown to OpenBSD ps and
+        // tdname, systime and tdaddr are unknown to OpenBSD ps
+        // command may give the thread name, but should be put last with fixed length
+        // split to avoid parsing any spaces
         String psCommand = "ps -aHwwxo tdname,tid,state,etime,systime,cputime,tdaddr,nivcsw,nvcsw,majflt,minflt,pri";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
@@ -326,13 +328,13 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         long elapsedTime = ParseUtil.parseDHMSOrDefault(split[10], 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[10], 0L);
+        this.userTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
         this.path = split[12];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(split[13], 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
         this.commandLine = split[15];
-        // kernel time is not provided
+        // kernel time is included in user time
         // this.kernelTime = ParseUtil.parseDHMSOrDefault(split[16], 0L);
         this.kernelTime = 0L;
         return true;
