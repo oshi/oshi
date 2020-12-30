@@ -41,7 +41,7 @@ public interface OpenBsdLibc extends CLibrary {
     int CTL_KERN = 1; // "high kernel": proc, limits
     int CTL_VM = 1; // "high kernel": proc, limits
     int CTL_HW = 6; // generic cpu/io
-    int CTL_MACHDEP = 7;// machine dependent
+    int CTL_MACHDEP = 7; // machine dependent
     int CTL_VFS = 10; // VFS sysctl's
 
     int KERN_OSTYPE = 1; // string: system version

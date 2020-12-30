@@ -51,6 +51,7 @@ import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+
 /**
  *
  * OpenBsd is a free and open-source Unix-like operating system descended from
