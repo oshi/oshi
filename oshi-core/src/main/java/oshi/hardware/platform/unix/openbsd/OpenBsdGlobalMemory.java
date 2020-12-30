@@ -77,9 +77,9 @@ final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
         long inactive = 0L;
         List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
         for (String line : vmstat) {
-            if (line.contains("pages free")) {
+            if (line.endsWith("pages free")) {
                 free = ParseUtil.getFirstIntValue(line);
-            } else if (line.contains("pages inactive")) {
+            } else if (line.endsWith("pages inactive")) {
                 inactive = ParseUtil.getFirstIntValue(line);
             }
         }
