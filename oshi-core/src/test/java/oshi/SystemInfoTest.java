@@ -152,12 +152,10 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < oshi.size(); i++) {
-            logger.info(oshi.get(i));
-            Util.sleep(3000);
-//            output.append(oshi.get(i));
-//            if (oshi.get(i) != null && !oshi.get(i).endsWith("\n")) {
-//                output.append('\n');
-//            }
+            output.append(oshi.get(i));
+            if (oshi.get(i) != null && !oshi.get(i).endsWith("\n")) {
+                output.append('\n');
+            }
         }
         logger.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
     }

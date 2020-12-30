@@ -35,10 +35,13 @@ import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MACHINE;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MODEL;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME2;
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
@@ -50,9 +53,11 @@ import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTimeNew;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
+    private final Supplier<Pair<Long, Long>> vmStats = memoize(this::queryVmStats, defaultExpiration());
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -123,7 +128,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected long queryContextSwitches() {
-        return 0;
+        return vmStats.get().getA();
     }
 
     /**
@@ -133,7 +138,21 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      */
     @Override
     protected long queryInterrupts() {
-        return 0;
+        return vmStats.get().getB();
+    }
+
+    private Pair<Long, Long> queryVmStats() {
+        long contextSwitches = 0L;
+        long interrupts = 0L;
+        List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
+        for (String line : vmstat) {
+            if (line.endsWith("cpu context switches")) {
+                contextSwitches = ParseUtil.getFirstIntValue(line);
+            } else if (line.endsWith("interrupts")) {
+                interrupts = ParseUtil.getFirstIntValue(line);
+            }
+        }
+        return new Pair<>(contextSwitches, interrupts);
     }
 
     /**
