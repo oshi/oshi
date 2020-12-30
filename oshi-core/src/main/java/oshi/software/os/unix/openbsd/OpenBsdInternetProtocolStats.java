@@ -23,51 +23,32 @@
  */
 package oshi.software.os.unix.openbsd;
 
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.NetStat;
 import oshi.software.common.AbstractInternetProtocolStats;
 
+@ThreadSafe
 public class OpenBsdInternetProtocolStats extends AbstractInternetProtocolStats {
-    /**
-     * Get the TCP stats for IPv4 connections.
-     * <p>
-     * On macOS connection information requires elevated permissions. Without
-     * elevatd permissions, segment data is estimated.
-     *
-     * @return a {@link TcpStats} object encapsulating the stats.
-     */
+
     @Override
     public TcpStats getTCPv4Stats() {
-        return null;
+        return NetStat.queryTcpStats('p');
     }
 
-    /**
-     * Get the TCP stats for IPv6 connections, if available. If not available
-     * separately, these may be 0 and included in IPv4 connections.
-     *
-     * @return a {@link TcpStats} object encapsulating the stats.
-     */
     @Override
     public TcpStats getTCPv6Stats() {
-        return null;
+        // Stats are no different for inet6
+        return new TcpStats(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
     }
 
-    /**
-     * Get the UDP stats for IPv4 datagrams.
-     *
-     * @return a {@link UdpStats} object encapsulating the stats.
-     */
     @Override
     public UdpStats getUDPv4Stats() {
-        return null;
+        return NetStat.queryUdpStats('p');
     }
 
-    /**
-     * Get the UDP stats for IPv6 datagrams, if available. If not available
-     * separately, these may be 0 and included in IPv4 datagrams.
-     *
-     * @return a {@link UdpStats} object encapsulating the stats.
-     */
     @Override
     public UdpStats getUDPv6Stats() {
-        return null;
+        // Stats are no different for inet6
+        return new UdpStats(0L, 0L, 0L, 0L);
     }
 }
