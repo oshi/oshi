@@ -63,11 +63,9 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
     public static List<PowerSource> getPowerSources() {
         Set<String> psNames = new HashSet<>();
         for (String line : ExecutingCommand.runNative("systat -d1 sensors")) {
-            if (line.contains("amphour") || line.contains("watthour")) {
-                String[] split = line.split("\\.");
-                if (split.length > 2) {
-                    psNames.add(split[2]);
-                }
+            if (line.contains(".amphour") || line.contains(".watthour")) {
+                int dot = line.indexOf('.');
+                psNames.add(line.substring(dot));
             }
         }
         List<OpenBsdPowerSource> psList = new ArrayList<>();
