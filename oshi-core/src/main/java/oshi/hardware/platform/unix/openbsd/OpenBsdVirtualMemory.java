@@ -23,19 +23,16 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_VM;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VM_UVMEXP;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
-
-import com.sun.jna.Memory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc.Uvmexp;
-import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
 
 /**
@@ -84,12 +81,19 @@ final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static Quartet<Integer, Integer, Integer, Integer> querySwap() {
-        int[] mib = new int[2];
-        mib[0] = CTL_VM;
-        mib[1] = VM_UVMEXP;
-        Memory m = OpenBsdSysctlUtil.sysctl(mib);
-        Uvmexp uvm = new Uvmexp(m);
-
-        return new Quartet<>(uvm.swpginuse, uvm.swpages, uvm.pgswapin, uvm.pgswapout);
+        int used = 0;
+        int total = 0;
+        int swapIn = 0;
+        List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
+        for (String line : vmstat) {
+            if (line.contains("swap pages in use")) {
+                used = ParseUtil.getFirstIntValue(line);
+            } else if (line.contains("swap pages")) {
+                total = ParseUtil.getFirstIntValue(line);
+            } else if (line.contains("pagein operations")) {
+                swapIn = ParseUtil.getFirstIntValue(line);
+            }
+        }
+        return new Quartet<>(used, total, swapIn, 0);
     }
 }
