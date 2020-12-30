@@ -124,8 +124,7 @@ public final class OpenBsdSysctlUtil {
      */
     public static boolean sysctl(int[] name, Structure struct) {
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, struct.getPointer(), new IntByReference(struct.size()),
-                null,
-                0)) {
+                null, 0)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return false;
         }

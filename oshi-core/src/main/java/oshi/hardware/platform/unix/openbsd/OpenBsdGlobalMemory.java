@@ -24,15 +24,24 @@
 package oshi.hardware.platform.unix.openbsd;
 
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_VFS;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_VM;
 import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_PAGESIZE;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VFS_BCACHESTAT;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VFS_GENERIC;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VM_UVMEXP;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import com.sun.jna.Memory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.Bcachestats;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.Uvmexp;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
@@ -70,8 +79,19 @@ final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
     }
 
     private long queryVmStats() {
-        // temp for debug
-        return getPageSize();
+        int[] mib = new int[2];
+        mib[0] = CTL_VM;
+        mib[1] = VM_UVMEXP;
+        Memory m = OpenBsdSysctlUtil.sysctl(mib);
+        Uvmexp uvm = new Uvmexp(m);
+
+        mib = new int[3];
+        mib[0] = CTL_VFS;
+        mib[1] = VFS_GENERIC;
+        mib[2] = VFS_BCACHESTAT;
+        m = OpenBsdSysctlUtil.sysctl(mib);
+        Bcachestats cache = new Bcachestats(m);
+        return (cache.numbufpages + uvm.free + uvm.inactive) * getPageSize();
     }
 
     private static long queryPhysMem() {

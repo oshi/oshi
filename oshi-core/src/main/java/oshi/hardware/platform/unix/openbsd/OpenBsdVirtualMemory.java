@@ -23,16 +23,20 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_VM;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VM_UVMEXP;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import com.sun.jna.Memory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.Uvmexp;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.tuples.Quartet;
 
 /**
  * Memory obtained by swapinfo
@@ -42,13 +46,8 @@ final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
 
     OpenBsdGlobalMemory global;
 
-    private final Supplier<Long> used = memoize(OpenBsdVirtualMemory::querySwapUsed, defaultExpiration());
-
-    private final Supplier<Long> total = memoize(OpenBsdVirtualMemory::querySwapTotal, defaultExpiration());
-
-    private final Supplier<Long> pagesIn = memoize(OpenBsdVirtualMemory::queryPagesIn, defaultExpiration());
-
-    private final Supplier<Long> pagesOut = memoize(OpenBsdVirtualMemory::queryPagesOut, defaultExpiration());
+    private final Supplier<Quartet<Integer, Integer, Integer, Integer>> usedTotalPginPgout = memoize(
+            OpenBsdVirtualMemory::querySwap, defaultExpiration());
 
     OpenBsdVirtualMemory(OpenBsdGlobalMemory freeBsdGlobalMemory) {
         this.global = freeBsdGlobalMemory;
@@ -56,12 +55,12 @@ final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
 
     @Override
     public long getSwapUsed() {
-        return used.get();
+        return usedTotalPginPgout.get().getA() * global.getPageSize();
     }
 
     @Override
     public long getSwapTotal() {
-        return total.get();
+        return usedTotalPginPgout.get().getB() * global.getPageSize();
     }
 
     @Override
@@ -76,32 +75,21 @@ final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
 
     @Override
     public long getSwapPagesIn() {
-        return pagesIn.get();
+        return usedTotalPginPgout.get().getC() * global.getPageSize();
     }
 
     @Override
     public long getSwapPagesOut() {
-        return pagesOut.get();
+        return usedTotalPginPgout.get().getD() * global.getPageSize();
     }
 
-    private static long querySwapUsed() {
-        String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
-        String[] split = ParseUtil.whitespaces.split(swapInfo);
-        if (split.length < 5) {
-            return 0L;
-        }
-        return ParseUtil.parseLongOrDefault(split[2], 0L) << 10;
-    }
+    private static Quartet<Integer, Integer, Integer, Integer> querySwap() {
+        int[] mib = new int[2];
+        mib[0] = CTL_VM;
+        mib[1] = VM_UVMEXP;
+        Memory m = OpenBsdSysctlUtil.sysctl(mib);
+        Uvmexp uvm = new Uvmexp(m);
 
-    private static long querySwapTotal() {
-        return OpenBsdSysctlUtil.sysctl("vm.swap_total", 0L);
-    }
-
-    private static long queryPagesIn() {
-        return OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
-    }
-
-    private static long queryPagesOut() {
-        return OpenBsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsout", 0L);
+        return new Quartet<>(uvm.swpginuse, uvm.swpages, uvm.pgswapin, uvm.pgswapout);
     }
 }
