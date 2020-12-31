@@ -21,41 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.util;
+package oshi.util.platform.unix.openbsd;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.TestInstance;
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 /**
- * Test general utility methods
+ * Test general utility methods for {@link FstatUtil}.
  */
-class LsofUtilTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class FstatUtilTest {
+    private static int pid;
+
+    @BeforeAll
+    void getPid(){
+        assumeTrue(SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.OPENBSD));
+        pid = new SystemInfo().getOperatingSystem().getProcessId();
+    }
 
     @Test
-    void testLsof() {
-        if (!SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)
-                && !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.FREEBSD)
-                && !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.OPENBSD)
-                && !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.SOLARIS)) {
-            int pid = new SystemInfo().getOperatingSystem().getProcessId();
+    void testGetOpenFiles() {
+        assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
+    }
 
-            assertThat("Open files must be nonnegative", LsofUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
-
-            assertThat("CwdMap should have at least one element", LsofUtil.getCwdMap(-1), is(not(anEmptyMap())));
-
-            assertThat("CwdMap with pid should have at least one element", LsofUtil.getCwdMap(pid),
-                    is(not(anEmptyMap())));
-
-            assertThat("Cwd should be nonempty", LsofUtil.getCwd(pid), is(not(emptyString())));
-        }
+    @Test
+    void testGetCwd() {
+        assertThat("Cwd should not be empty", FstatUtil.getCwd(pid), is(not(emptyString())));
     }
 }
