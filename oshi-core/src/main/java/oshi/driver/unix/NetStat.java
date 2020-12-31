@@ -43,8 +43,6 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class NetStat {
 
-    private static final String NETSTAT_S = "netstat -s -";
-
     private NetStat() {
     }
 
@@ -126,13 +124,13 @@ public final class NetStat {
     }
 
     /**
-     * Queries {@code netstat -s} for the tcp protocol
+     * Gets TCP stats via {@code netstat -s}. Used for Linux and OpenBSD formats
      *
-     * @param protocolSwitch
-     *            the netstat command switch character for protocol
-     * @return the stats
+     * @param netstatStr
+     *            The command string
+     * @return The statistics
      */
-    public static TcpStats queryTcpStats(Character protocolSwitch) {
+    public static TcpStats queryTcpStats(String netstatStr) {
         long connectionsEstablished = 0;
         long connectionsActive = 0;
         long connectionsPassive = 0;
@@ -143,54 +141,48 @@ public final class NetStat {
         long segmentsRetransmitted = 0;
         long inErrors = 0;
         long outResets = 0;
-        List<String> netstat = ExecutingCommand.runNative(NETSTAT_S + protocolSwitch + " tcp");
-        // append IP
-        netstat.addAll(ExecutingCommand.runNative(NETSTAT_S + protocolSwitch + " ip"));
+        List<String> netstat = ExecutingCommand.runNative(netstatStr);
         for (String s : netstat) {
-            // Two stats per line. Split the strings by index of "tcp"
-            String[] stats = NetStat.splitOnPrefix(s, "tcp");
-            // Now of form tcpXX = 123
-            for (String stat : stats) {
-                if (stat != null) {
-                    String[] split = stat.split("=");
-                    if (split.length == 2) {
-                        switch (split[0].trim()) {
-                        case "tcpCurrEstab":
-                            connectionsEstablished = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpActiveOpens":
-                            connectionsActive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpPassiveOpens":
-                            connectionsPassive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpAttemptFails":
-                            connectionFailures = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpEstabResets":
-                            connectionsReset = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpOutSegs":
-                            segmentsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpInSegs":
-                            segmentsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpRetransSegs":
-                            segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpInErr":
-                            // doesn't have tcp in second column
-                            inErrors = ParseUtil.getFirstIntValue(split[1].trim());
-                            break;
-                        case "tcpOutRsts":
-                            outResets = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        default:
-                            break;
-                        }
-                    }
+            String[] split = s.trim().split(" ", 2);
+            if (split.length == 2) {
+                switch (split[1]) {
+                case "connections established":
+                case "connections established (including accepts)":
+                    connectionsEstablished = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "active connection openings":
+                    connectionsActive = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "passive connection openings":
+                    connectionsPassive = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "failed connection attempts":
+                    connectionFailures = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "connection resets received":
+                    connectionsReset = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "segments sent out":
+                case "packets sent":
+                    segmentsSent = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "segments received":
+                case "packets received":
+                    segmentsReceived = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "segments retransmitted":
+                    segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "bad segments received":
+                    inErrors = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "resets sent":
+                    outResets = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                default:
+                    break;
                 }
+
             }
         }
         return new TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,
@@ -198,63 +190,41 @@ public final class NetStat {
     }
 
     /**
-     * Queries {@code netstat -s} for the udp protocol
+     * Gets UDP stats via {@code netstat -s}. Used for Linux and OpenBSD formats
      *
-     * @param protocolSwitch
-     *            the netstat command switch character for protocol
-     * @return the stats
+     * @param netstatStr
+     *            The command string
+     * @return The statistics
      */
-    public static UdpStats queryUdpStats(Character protocolSwitch) {
+    public static UdpStats queryUdpStats(String netstatStr) {
         long datagramsSent = 0;
         long datagramsReceived = 0;
         long datagramsNoPort = 0;
         long datagramsReceivedErrors = 0;
-        List<String> netstat = ExecutingCommand.runNative(NETSTAT_S + protocolSwitch + " tcp");
-        // append IP
-        netstat.addAll(ExecutingCommand.runNative(NETSTAT_S + protocolSwitch + " ip"));
+        List<String> netstat = ExecutingCommand.runNative(netstatStr);
         for (String s : netstat) {
-            // Two stats per line. Split the strings by index of "udp"
-            String[] stats = NetStat.splitOnPrefix(s, "udp");
-            // Now of form udpXX = 123
-            for (String stat : stats) {
-                if (stat != null) {
-                    String[] split = stat.split("=");
-                    if (split.length == 2) {
-                        switch (split[0].trim()) {
-                        case "udpOutDatagrams":
-                            datagramsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "udpInDatagrams":
-                            datagramsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "udpNoPorts":
-                            datagramsNoPort = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "udpInErrors":
-                            datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        default:
-                            break;
-                        }
-                    }
+            String[] split = s.trim().split(" ", 2);
+            if (split.length == 2) {
+                switch (split[1]) {
+                case "packets sent":
+                case "datagrams output":
+                    datagramsSent = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "packets received":
+                case "datagrams received":
+                    datagramsReceived = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "packets to unknown port received":
+                    datagramsNoPort = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                case "packet receive errors":
+                    datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[0], 0L);
+                    break;
+                default:
+                    break;
                 }
             }
         }
         return new UdpStats(datagramsSent, datagramsReceived, datagramsNoPort, datagramsReceivedErrors);
-    }
-
-    private static String[] splitOnPrefix(String s, String prefix) {
-        String[] stats = new String[2];
-        int first = s.indexOf(prefix);
-        if (first >= 0) {
-            int second = s.indexOf(prefix, first + 1);
-            if (second >= 0) {
-                stats[0] = s.substring(first, second).trim();
-                stats[1] = s.substring(second).trim();
-            } else {
-                stats[0] = s.substring(first).trim();
-            }
-        }
-        return stats;
     }
 }

@@ -32,7 +32,7 @@ public class OpenBsdInternetProtocolStats extends AbstractInternetProtocolStats 
 
     @Override
     public TcpStats getTCPv4Stats() {
-        return NetStat.queryTcpStats('p');
+        return NetStat.queryTcpStats("netstat -s -p tcp");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class OpenBsdInternetProtocolStats extends AbstractInternetProtocolStats 
 
     @Override
     public UdpStats getUDPv4Stats() {
-        return NetStat.queryUdpStats('p');
+        return NetStat.queryUdpStats("netstat -s -p udp");
     }
 
     @Override
