@@ -81,6 +81,35 @@ public interface OpenBsdLibc extends CLibrary {
     int UINT64_SIZE = Native.getNativeSize(long.class);
     int INT_SIZE = Native.getNativeSize(int.class);
 
+    @FieldOrder({ "numbufs", "numbufpages", "numdirtypages", "numcleanpages", "pendingwrites", "pendingreads",
+            "numwrites", "numreads", "cachehits", "busymapped", "dmapages", "highpages", "delwribufs", "kvaslots",
+            "kvaslots_avail", "highflips", "highflops", "dmaflips" })
+    class Bcachestats extends Structure {
+        public long numbufs; // number of buffers allocated
+        public long numbufpages; // number of pages in buffer cache
+        public long numdirtypages; // number of dirty free pages
+        public long numcleanpages; // number of clean free pages
+        public long pendingwrites; // number of pending writes
+        public long pendingreads; // number of pending reads
+        public long numwrites; // total writes started
+        public long numreads; // total reads started
+        public long cachehits; // total reads found in cache
+        public long busymapped; // number of busy and mapped buffers
+        public long dmapages; // dma reachable pages in buffer cache
+        public long highpages; // pages above dma region
+        public long delwribufs; // delayed write buffers
+        public long kvaslots; // kva slots total
+        public long kvaslots_avail; // available kva slots
+        public long highflips; // total flips to above DMA
+        public long highflops; // total failed flips to above DMA
+        public long dmaflips; // total flips from high to DMA
+
+        public Bcachestats(Pointer p) {
+            super(p);
+            read();
+        }
+    }
+
     /**
      * Return type for BSD sysctl kern.boottime
      */

@@ -23,17 +23,20 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_PAGESIZE;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_VFS;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VFS_BCACHESTAT;
+import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VFS_GENERIC;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.List;
 import java.util.function.Supplier;
+
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.Bcachestats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
@@ -44,7 +47,7 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 @ThreadSafe
 final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
+    private final Supplier<Long> available = memoize(OpenBsdGlobalMemory::queryAvailable, defaultExpiration());
 
     private final Supplier<Long> total = memoize(OpenBsdGlobalMemory::queryPhysMem);
 
@@ -54,7 +57,7 @@ final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
 
     @Override
     public long getAvailable() {
-        return available.get();
+        return available.get() * getPageSize();
     }
 
     @Override
@@ -72,30 +75,31 @@ final class OpenBsdGlobalMemory extends AbstractGlobalMemory {
         return vm.get();
     }
 
-    private long queryVmStats() {
+    private static long queryAvailable() {
         long free = 0L;
         long inactive = 0L;
-        List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
-        for (String line : vmstat) {
+        for (String line : ExecutingCommand.runNative("vmstat -s")) {
             if (line.endsWith("pages free")) {
                 free = ParseUtil.getFirstIntValue(line);
             } else if (line.endsWith("pages inactive")) {
                 inactive = ParseUtil.getFirstIntValue(line);
             }
         }
-        return (free + inactive) * getPageSize();
+        int[] mib = new int[3];
+        mib[0] = CTL_VFS;
+        mib[1] = VFS_GENERIC;
+        mib[2] = VFS_BCACHESTAT;
+        Memory m = OpenBsdSysctlUtil.sysctl(mib);
+        Bcachestats cache = new Bcachestats(m);
+        return (cache.numbufpages + free + inactive);
     }
 
     private static long queryPhysMem() {
-        // Native call doesn't seem to work here.
         return OpenBsdSysctlUtil.sysctl("hw.physmem", 0L);
     }
 
     private static long queryPageSize() {
-        int[] mib = new int[2];
-        mib[0] = CTL_HW;
-        mib[1] = HW_PAGESIZE;
-        return OpenBsdSysctlUtil.sysctl(mib, 4096L);
+        return OpenBsdSysctlUtil.sysctl("hw.pagesize", 4096L);
     }
 
     private VirtualMemory createVirtualMemory() {
