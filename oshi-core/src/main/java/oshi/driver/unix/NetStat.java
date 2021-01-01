@@ -147,6 +147,7 @@ public final class NetStat {
             if (split.length == 2) {
                 switch (split[1]) {
                 case "connections established":
+                case "connection established (including accepts)":
                 case "connections established (including accepts)":
                     connectionsEstablished = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
@@ -157,16 +158,20 @@ public final class NetStat {
                     connectionsPassive = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "failed connection attempts":
+                case "bad connection attempts":
                     connectionFailures = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "connection resets received":
+                case "dropped due to RST":
                     connectionsReset = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "segments sent out":
+                case "packet sent":
                 case "packets sent":
                     segmentsSent = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "segments received":
+                case "packet received":
                 case "packets received":
                     segmentsReceived = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
@@ -174,16 +179,27 @@ public final class NetStat {
                     segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "bad segments received":
-                    inErrors = ParseUtil.parseLongOrDefault(split[0], 0L);
+                case "discarded for bad checksum":
+                case "discarded for bad checksums":
+                case "discarded for bad header offset field":
+                case "discarded for bad header offset fields":
+                case "discarded because packet too short":
+                case "discarded for missing IPsec protection":
+                    inErrors += ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "resets sent":
                     outResets = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 default:
+                    // handle special case variable strings
+                    if (split[1].contains("retransmitted") && split[1].contains("data packet")) {
+                        segmentsRetransmitted += ParseUtil.parseLongOrDefault(split[0], 0L);
+                    }
                     break;
                 }
 
             }
+
         }
         return new TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,
                 connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
@@ -207,18 +223,27 @@ public final class NetStat {
             if (split.length == 2) {
                 switch (split[1]) {
                 case "packets sent":
+                case "datagram output":
                 case "datagrams output":
                     datagramsSent = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "packets received":
+                case "datagram received":
                 case "datagrams received":
                     datagramsReceived = ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "packets to unknown port received":
-                    datagramsNoPort = ParseUtil.parseLongOrDefault(split[0], 0L);
+                case "dropped due to no socket":
+                case "broadcast/multicast datagram dropped due to no socket":
+                case "broadcast/multicast datagrams dropped due to no socket":
+                    datagramsNoPort += ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 case "packet receive errors":
-                    datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[0], 0L);
+                case "with incomplete header":
+                case "with bad data length field":
+                case "with bad checksum":
+                case "woth no checksum":
+                    datagramsReceivedErrors += ParseUtil.parseLongOrDefault(split[0], 0L);
                     break;
                 default:
                     break;
