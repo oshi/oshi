@@ -126,9 +126,7 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
                 int time = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("apm -m"), -1);
                 // time is in minutes
                 psTimeRemainingEstimated = time < 0 ? -1d : 60d * time;
-                if (state < 3) {
-                    psDischarging = true;
-                }
+                psDischarging = true;
             }
         }
         // life is in percent
