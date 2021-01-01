@@ -65,7 +65,7 @@ final class OpenBsdSensors extends AbstractSensors {
         List<Double> cpuTemps = new ArrayList<>();
         List<Double> allTemps = new ArrayList<>();
         List<Integer> fanRPMs = new ArrayList<>();
-        for (String line : ExecutingCommand.runNative("systat -d1 sensors")) {
+        for (String line : ExecutingCommand.runNative("systat -ab sensors")) {
             String[] split = ParseUtil.whitespaces.split(line);
             if (split.length > 1) {
                 if (split[0].contains("cpu")) {
