@@ -69,6 +69,12 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
         return Collections.unmodifiableList(deviceList);
     }
 
+    public static void main(String[] args) {
+        for (UsbDevice dev : getUsbDevices()) {
+            System.out.println(dev.toString());
+        }
+    }
+
     private static List<UsbDevice> getUsbDevices() {
         // Maps to store information using node # as the key
         // Node is controller+addr (+port+addr etc.)
@@ -79,52 +85,45 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
         Map<String, String> serialMap = new HashMap<>();
         Map<String, List<String>> hubMap = new HashMap<>();
 
-        // Enumerate all devices and build information maps. This will build the
-        // entire device tree; we will identify the controllers as the parents
-        // of the usbus entries and eventually only populate the returned
-        // results with those
-        List<String> devices = ExecutingCommand.runNative("usbdevs -v");
-        if (devices.isEmpty()) {
-            return Collections.emptyList();
-        }
+        List<String> rootHubs = new ArrayList<>();
         // For each item enumerated, store information in the maps
         String key = "";
-        List<String> usBuses = new ArrayList<>();
+        // Addresses repeat for each controller:
+        // prepend the controller /dev/usb* for the key
         String parent = "";
-        for (String line : devices) {
-            // addr with no leading space is new controller, save as parent
-            if (line.startsWith("addr ")) {
-                int idx = line.indexOf(':');
-                if (idx > 0) {
-                    parent = line.substring(0, idx);
-                    usBuses.add(parent);
-                }
-            }
-            line = line.trim();
-            if (line.startsWith("addr ")) {
-                // colon-delimited key:CSV
-                String[] keyValue = line.trim().split(":", 2);
-                if (keyValue.length == 2) {
-                    key = keyValue[0].trim();
-                    String[] split = keyValue[1].trim().split(",");
+        // Enumerate all devices and build information maps.
+        // This will build the entire device tree in hubMap
+        for (String line : ExecutingCommand.runNative("usbdevs -v")) {
+            if (line.startsWith("Controller ")) {
+                parent = line.substring(11);
+            } else if (line.startsWith("addr ")) {
+                // addr 01: 8086:0000 Intel, EHCI root hub
+                if (line.indexOf(':') == 7 && line.indexOf(',') >= 18) {
+                    key = parent + line.substring(0, 7);
+                    String[] split = line.substring(8).trim().split(",");
                     if (split.length > 1) {
                         // 0 = vid:pid vendor
                         String vendorStr = split[0].trim();
                         int idx1 = vendorStr.indexOf(':');
                         int idx2 = vendorStr.indexOf(' ');
                         if (idx1 >= 0 && idx2 >= 0) {
-                            vendorIdMap.put(keyValue[0], vendorStr.substring(0, idx1));
-                            productIdMap.put(keyValue[0], vendorStr.substring(idx1 + 1, idx2));
-                            vendorMap.put(keyValue[0], vendorStr.substring(idx2 + 1));
+                            vendorIdMap.put(key, vendorStr.substring(0, idx1));
+                            productIdMap.put(key, vendorStr.substring(idx1 + 1, idx2));
+                            vendorMap.put(key, vendorStr.substring(idx2 + 1));
                         }
                         // 1 = product
-                        nameMap.put(keyValue[0], split[1].trim());
+                        nameMap.put(key, split[1].trim());
                         // Add this key to the parent's hubmap list
                         hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
+                        // For the first addr in a controller, make it the parent
+                        if (!parent.contains("addr")) {
+                            parent = key;
+                            rootHubs.add(parent);
+                        }
                     }
                 }
             } else if (!key.isEmpty()) {
-                // Continuing to read for a key in verbose mode
+                // Continuing to read for the previous key
                 // CSV is speed, power, config, rev, optional iSerial
                 // Since all we need is the serial...
                 int idx = line.indexOf("iSerial ");
@@ -137,8 +136,8 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
 
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (String usbus : usBuses) {
-            controllerDevices.add(getDeviceAndChildren(usbus, "0000", "0000", nameMap, vendorMap, vendorIdMap,
+        for (String devusb : rootHubs) {
+            controllerDevices.add(getDeviceAndChildren(devusb, "0000", "0000", nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap));
         }
         return controllerDevices;
