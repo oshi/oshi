@@ -33,7 +33,6 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
  * OpenBsd Usb Device
@@ -72,6 +71,7 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
 
     private static List<UsbDevice> getUsbDevices() {
         // Maps to store information using node # as the key
+        // Node is controller+addr (+port+addr etc.)
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> vendorIdMap = new HashMap<>();
@@ -84,62 +84,63 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
         // entire device tree; we will identify the controllers as the parents
         // of the usbus entries and eventually only populate the returned
         // results with those
-        List<String> devices = ExecutingCommand.runNative("lshal");
+        List<String> devices = ExecutingCommand.runNative("usbdevs -v");
         if (devices.isEmpty()) {
             return Collections.emptyList();
         }
         // For each item enumerated, store information in the maps
         String key = "";
         List<String> usBuses = new ArrayList<>();
+        String parent = "";
         for (String line : devices) {
-            // udi = ... identifies start of a new tree
-            if (line.startsWith("udi =")) {
-                // Remove indent for key
-                key = ParseUtil.getSingleQuoteStringValue(line);
-            } else if (!key.isEmpty()) {
-                // We are currently processing for node identified by key. Save
-                // approrpriate variables to maps.
-                line = line.trim();
-                if (!line.isEmpty()) {
-                    if (line.startsWith("freebsd.driver =")
-                            && "usbus".equals(ParseUtil.getSingleQuoteStringValue(line))) {
-                        usBuses.add(key);
-                    } else if (line.contains(".parent =")) {
-                        String parent = ParseUtil.getSingleQuoteStringValue(line);
-                        // If this is interface of parent, skip
-                        if (key.replace(parent, "").startsWith("_if")) {
-                            continue;
+            // addr with no leading space is new controller, save as parent
+            if (line.startsWith("addr ")) {
+                int idx = line.indexOf(':');
+                if (idx > 0) {
+                    parent = line.substring(0, idx);
+                    usBuses.add(parent);
+                }
+            }
+            line = line.trim();
+            if (line.startsWith("addr ")) {
+                // colon-delimited key:CSV
+                String[] keyValue = line.trim().split(":", 2);
+                if (keyValue.length == 2) {
+                    key = keyValue[0].trim();
+                    String[] split = keyValue[1].trim().split(",");
+                    if (split.length > 1) {
+                        // 0 = vid:pid vendor
+                        String vendorStr = split[0].trim();
+                        int idx1 = vendorStr.indexOf(':');
+                        int idx2 = vendorStr.indexOf(' ');
+                        if (idx1 >= 0 && idx2 >= 0) {
+                            vendorIdMap.put(keyValue[0], vendorStr.substring(0, idx1));
+                            productIdMap.put(keyValue[0], vendorStr.substring(idx1 + 1, idx2));
+                            vendorMap.put(keyValue[0], vendorStr.substring(idx2 + 1));
                         }
-                        // Store parent for later usbus-skipping
+                        // 1 = product
+                        nameMap.put(keyValue[0], split[1].trim());
                         parentMap.put(key, parent);
                         // Add this key to the parent's hubmap list
                         hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
-                    } else if (line.contains(".product =")) {
-                        nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
-                    } else if (line.contains(".vendor =")) {
-                        vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
-                    } else if (line.contains(".serial =")) {
-                        String serial = ParseUtil.getSingleQuoteStringValue(line);
-                        serialMap.put(key,
-                                serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", ""))
-                                        : serial);
-                    } else if (line.contains(".vendor_id =")) {
-                        vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
-                    } else if (line.contains(".product_id =")) {
-                        productIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
                     }
                 }
+            } else if (!key.isEmpty()) {
+                // Continuing to read for a key in verbose mode
+                // CSV is speed, power, config, rev, optional iSerial
+                // Since all we need is the serial...
+                int idx = line.indexOf("iSerial ");
+                if (idx >= 0) {
+                    serialMap.put(key, line.substring(idx + 8).trim());
+                }
+                key = "";
             }
         }
 
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String usbus : usBuses) {
-            // Skip the usbuses: make their parents the controllers and replace
-            // parents' children with the buses' children
-            String parent = parentMap.get(usbus);
-            hubMap.put(parent, hubMap.get(usbus));
-            controllerDevices.add(getDeviceAndChildren(parent, "0000", "0000", nameMap, vendorMap, vendorIdMap,
+            controllerDevices.add(getDeviceAndChildren(usbus, "0000", "0000", nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap));
         }
         return controllerDevices;
@@ -153,7 +154,7 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates SolarisUsbDevices by fetching information from maps to
+     * Recursively creates OpenBsdUsbDevices by fetching information from maps to
      * populate fields
      *
      * @param devPath
