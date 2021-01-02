@@ -23,11 +23,11 @@
  */
 package oshi.util.platform.unix.openbsd;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-
-import java.util.List;
 
 /**
  * Reads from fstat.

@@ -69,12 +69,6 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
         return Collections.unmodifiableList(deviceList);
     }
 
-    public static void main(String[] args) {
-        for (UsbDevice dev : getUsbDevices()) {
-            System.out.println(dev.toString());
-        }
-    }
-
     private static List<UsbDevice> getUsbDevices() {
         // Maps to store information using node # as the key
         // Node is controller+addr (+port+addr etc.)
