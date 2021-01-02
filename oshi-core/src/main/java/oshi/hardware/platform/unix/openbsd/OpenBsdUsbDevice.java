@@ -77,7 +77,6 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
         Map<String, String> vendorIdMap = new HashMap<>();
         Map<String, String> productIdMap = new HashMap<>();
         Map<String, String> serialMap = new HashMap<>();
-        Map<String, String> parentMap = new HashMap<>();
         Map<String, List<String>> hubMap = new HashMap<>();
 
         // Enumerate all devices and build information maps. This will build the
@@ -120,7 +119,6 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
                         }
                         // 1 = product
                         nameMap.put(keyValue[0], split[1].trim());
-                        parentMap.put(key, parent);
                         // Add this key to the parent's hubmap list
                         hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
                     }

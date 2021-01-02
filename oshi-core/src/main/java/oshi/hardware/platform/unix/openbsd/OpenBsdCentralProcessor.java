@@ -45,6 +45,7 @@ import java.util.function.Supplier;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
+
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime;
@@ -56,7 +57,8 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
-    private final Supplier<Pair<Long, Long>> vmStats = memoize(this::queryVmStats, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> vmStats = memoize(OpenBsdCentralProcessor::queryVmStats,
+            defaultExpiration());
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -86,7 +88,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
                 cpuFreq);
     }
 
-    private Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
+    private static Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
         // family is bits 27:20 | 11:8
         int family = cpuid >> 16 & 0xff0 | cpuid >> 8 & 0xf;
         // model is bits 19:16 | 7:4
@@ -108,15 +110,16 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[1] = HW_CPUSPEED;
         long freq = OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L;
         // on OpenBSD SMT/HT/CMT is turned off by default, eg.
-        //   hw.ncpufound=4
-        //   hw.smt=0
-        //   hw.ncpuonline=2
-        // these native calls are failing with "Failed sysctl call: [6, 21], Error code: 12"
+        // hw.ncpufound=4
+        // hw.smt=0
+        // hw.ncpuonline=2
+        // these native calls are failing with "Failed sysctl call: [6, 21], Error code:
+        // 12"
         // and "Failed sysctl call: [6, 24], Error code: 12"
-        //        mib[1] = HW_NCPUFOUND;
-        //        long[] freqs = new long[OpenBsdSysctlUtil.sysctl(mib, 1)];
-        //        mib[1] = HW_SMT;
-        //        int smtOff = OpenBsdSysctlUtil.sysctl(mib, 0);
+        // mib[1] = HW_NCPUFOUND;
+        // long[] freqs = new long[OpenBsdSysctlUtil.sysctl(mib, 1)];
+        // mib[1] = HW_SMT;
+        // int smtOff = OpenBsdSysctlUtil.sysctl(mib, 0);
         long[] freqs = new long[OpenBsdSysctlUtil.sysctl("hw.ncpufound", 1)];
         int smtOff = OpenBsdSysctlUtil.sysctl("hw.smt", 0);
         if (smtOff > 0) {
@@ -164,7 +167,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         return vmStats.get().getB();
     }
 
-    private Pair<Long, Long> queryVmStats() {
+    private static Pair<Long, Long> queryVmStats() {
         long contextSwitches = 0L;
         long interrupts = 0L;
         List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
@@ -239,7 +242,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      *            A buffer containing a long array
      * @return The long array
      */
-    private long[] cpTimeToTicks(Memory m) {
+    private static long[] cpTimeToTicks(Memory m) {
         if (m != null) {
             if (m.size() == 5 * Native.LONG_SIZE) {
                 return new CpTime(m).cpu_ticks;
