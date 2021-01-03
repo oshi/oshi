@@ -40,8 +40,12 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
@@ -59,6 +63,7 @@ import oshi.util.tuples.Triplet;
 public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     private final Supplier<Pair<Long, Long>> vmStats = memoize(OpenBsdCentralProcessor::queryVmStats,
             defaultExpiration());
+    private static final Pattern DMESG_CPU = Pattern.compile("cpu(\\d+): smt (\\d+), core (\\d+), package (\\d+)");
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -138,11 +143,24 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected List<LogicalProcessor> initProcessorCounts() {
+        // Iterate dmesg, look for lines:
+        // cpu0: smt 0, core 0, package 0
+        // cpu1: smt 0, core 1, package 0
+        Map<Integer, Integer> coreMap = new HashMap<>();
+        Map<Integer, Integer> packageMap = new HashMap<>();
+        for (String line : ExecutingCommand.runNative("dmesg")) {
+            Matcher m = DMESG_CPU.matcher(line);
+            if (m.matches()) {
+                int cpu = ParseUtil.parseIntOrDefault(m.group(1), 0);
+                coreMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(3), 0));
+                packageMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(4), 0));
+            }
+        }
         // native call seems to fail here, use fallback
         int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpu", 1);
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
         for (int i = 0; i < logicalProcessorCount; i++) {
-            logProcs.add(new LogicalProcessor(i, 1, 1));
+            logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));
         }
         return logProcs;
     }
