@@ -120,7 +120,7 @@ public class OpenBsdOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -aHwwxo tdname,tid,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -p "
+        String psCommand = "ps -aHwwxo tid,state,etime,cputime,nivcsw,nvcsw,majflt,minflt,pri,args -p "
                 + getOwningProcessId();
         // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
@@ -135,13 +135,13 @@ public class OpenBsdOSThread extends AbstractOSThread {
     }
 
     private boolean updateAttributes(String[] split) {
-        if (split.length != 12) {
+        if (split.length != 10) {
             this.state = INVALID;
             return false;
         }
-        this.name = split[0];
-        this.threadId = ParseUtil.parseIntOrDefault(split[1], 0);
-        switch (split[2].charAt(0)) {
+
+        this.threadId = ParseUtil.parseIntOrDefault(split[0], 0);
+        switch (split[1].charAt(0)) {
         case 'R':
             this.state = RUNNING;
             break;
@@ -165,19 +165,23 @@ public class OpenBsdOSThread extends AbstractOSThread {
             break;
         }
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // etimes
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[2], 0L); // etime
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         long now = System.currentTimeMillis();
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[4], 0L); // systime
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[5], 0L) - this.kernelTime; // time
-        this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[7], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[8], 0L);
+        // ps does not provide kerneltime on OpenBSD
+        //this.kernelTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // systime
+        this.kernelTime = 0L;
+        this.userTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // cputime
+        //this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
+        this.startMemoryAddress = 0L;
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[3], 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[5], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[9], 0L);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[10], 0L);
-        this.priority = ParseUtil.parseIntOrDefault(split[11], 0);
+        this.majorFaults = ParseUtil.parseLongOrDefault(split[6], 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(split[7], 0L);
+        this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
+        this.name = split[9];
         return true;
     }
 }
