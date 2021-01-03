@@ -241,7 +241,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         // tdname, systime and tdaddr are unknown to OpenBSD ps
         // command may give the thread name, but should be put last with fixed length
         // split to avoid parsing any spaces
-        String psCommand = "ps -aHwwxo tdname,tid,state,etime,systime,cputime,tdaddr,nivcsw,nvcsw,majflt,minflt,pri";
+        String psCommand = "ps -aHwwxo tid,state,etime,time,nivcsw,nvcsw,majflt,minflt,pri,args";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
@@ -253,7 +253,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         threadList.remove(0);
         // Fill list
         for (String thread : threadList) {
-            String[] split = ParseUtil.whitespaces.split(thread.trim(), 12);
+            String[] split = ParseUtil.whitespaces.split(thread.trim(), 10);
             // Elements should match ps command order
             if (split.length == 10) {
                 threads.add(new OpenBsdOSThread(getProcessID(), split));
