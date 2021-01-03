@@ -26,13 +26,14 @@ package oshi.hardware.platform.unix.openbsd;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
  * Graphics Card info obtained from pciconf
@@ -40,7 +41,8 @@ import oshi.util.ParseUtil;
 @Immutable
 final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
 
-    private static final String PCI_CLASS_DISPLAY = "0x03";
+    private static final String PCI_CLASS_DISPLAY = "Class: 03 Display";
+    private static final Pattern PCI_DUMP_HEADER = Pattern.compile("^\\s\\d+:\\d+:\\d+\\s(.*)$");
 
     /**
      * Constructor for OpenBsdGraphicsCard
@@ -76,55 +78,56 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
         if (devices.isEmpty()) {
             return Collections.emptyList();
         }
-        String name = Constants.UNKNOWN;
-        String vendorId = Constants.UNKNOWN;
-        String productId = Constants.UNKNOWN;
-        String classCode = "";
-        String versionInfo = Constants.UNKNOWN;
+        String name = "";
+        String vendorId = "";
+        String productId = "";
+        boolean classCodeFound = false;
+        String versionInfo = "";
         for (String line : devices) {
-            if (line.contains("class=0x")) {
+            Matcher m = PCI_DUMP_HEADER.matcher(line);
+            if (m.matches()) {
                 // Identifies start of a new device. Save previous if it's a graphics card
-                if (PCI_CLASS_DISPLAY.equals(classCode)) {
+                if (classCodeFound) {
                     cardList.add(new OpenBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,
                             productId.isEmpty() ? Constants.UNKNOWN : productId,
                             vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
                             versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
                 }
-                // Parse this line
-                String[] split = ParseUtil.whitespaces.split(line);
-                for (String s : split) {
-                    String[] keyVal = s.split("=");
-                    if (keyVal.length > 1) {
-                        if (keyVal[0].equals("class") && keyVal[1].length() >= 4) {
-                            // class=0x030000
-                            classCode = keyVal[1].substring(0, 4);
-                        } else if (keyVal[0].equals("chip") && keyVal[1].length() >= 10) {
-                            // chip=0x3ea08086
-                            productId = keyVal[1].substring(0, 6);
-                            vendorId = "0x" + keyVal[1].substring(6, 10);
-                        } else if (keyVal[0].contains("rev")) {
-                            // rev=0x00
-                            versionInfo = s;
-                        }
-                    }
-                }
-                // Reset name
-                name = Constants.UNKNOWN;
+                // Device name is the captured pattern
+                name = m.group(1);
+                // Reset values
+                vendorId = "";
+                productId = "";
+                classCodeFound = false;
+                versionInfo = "";
             } else {
-                String[] split = line.trim().split("=", 2);
-                if (split.length == 2) {
-                    String key = split[0].trim();
-                    if (key.equals("vendor")) {
-                        vendorId = ParseUtil.getSingleQuoteStringValue(line)
-                                + (vendorId.equals(Constants.UNKNOWN) ? "" : " (" + vendorId + ")");
-                    } else if (key.equals("device")) {
-                        name = ParseUtil.getSingleQuoteStringValue(line);
+                int idx;
+                // Look for:
+                // 0x0000: Vendor ID: 1ab8, Product ID: 4005
+                // 0x0008: Class: 03 Display, Subclass: 00 VGA
+                // ....... Interface: 00, Revision: 00
+                if (!classCodeFound) {
+                    idx = line.indexOf("Vendor ID: ");
+                    if (idx >= 0 && line.length() >= idx + 15) {
+                        vendorId = line.substring(idx + 11, idx + 15);
+                    }
+                    idx = line.indexOf("Product ID: ");
+                    if (idx >= 0 && line.length() >= idx + 16) {
+                        productId = line.substring(idx + 12, idx + 16);
+                    }
+                    if (line.contains(PCI_CLASS_DISPLAY)) {
+                        classCodeFound = true;
+                    }
+                } else if (versionInfo.isEmpty()) {
+                    idx = line.indexOf("Revision: ");
+                    if (idx >= 0) {
+                        versionInfo = line.substring(idx + 10, line.length());
                     }
                 }
             }
         }
         // In case we reached end before saving
-        if (PCI_CLASS_DISPLAY.equals(classCode)) {
+        if (classCodeFound) {
             cardList.add(new OpenBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,
                     productId.isEmpty() ? Constants.UNKNOWN : productId,
                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
