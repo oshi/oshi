@@ -56,6 +56,7 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Linux (Most major distributions) Kernel 2.6 and higher
 * AIX 7.1 (POWER4)
 * FreeBSD 10 
+* OpenBSD 6.8
 * Solaris 11 (SunOS 5.11) 
 
 How do I resolve JNA `NoClassDefFound` errors?

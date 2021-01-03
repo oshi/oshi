@@ -29,7 +29,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 Supported platforms 
 --------------------------- 
-Windows • Linux • macOS • Unix (AIX, FreeBSD, Solaris) 
+Windows • Linux • macOS • Unix (AIX, FreeBSD, OpenBSD, Solaris) 
 
 Essentials
 ----------
