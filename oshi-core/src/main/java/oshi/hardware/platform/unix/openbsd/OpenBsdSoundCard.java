@@ -26,22 +26,28 @@ package oshi.hardware.platform.unix.openbsd;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
- * FreeBSD soundcard.
+ * OpenBSD soundcard.
  */
 @Immutable
 final class OpenBsdSoundCard extends AbstractSoundCard {
 
-    private static final String LSHAL = "lshal";
+    private static final Pattern AUDIO_AT = Pattern.compile("audio\\d+ at (.+)");
+    private static final Pattern PCI_AT = Pattern
+            .compile("(.+) at pci\\d+ dev \\d+ function \\d+ \"(.*)\" (rev .+):.*");
 
     /**
      * Constructor for OpenBsdSoundCard.
@@ -65,31 +71,40 @@ final class OpenBsdSoundCard extends AbstractSoundCard {
      * @return a {@link java.util.List} object.
      */
     public static List<SoundCard> getSoundCards() {
-        Map<String, String> vendorMap = new HashMap<>();
-        Map<String, String> productMap = new HashMap<>();
-        vendorMap.clear();
-        productMap.clear();
-        List<String> sounds = new ArrayList<>();
+        List<String> dmesg = ExecutingCommand.runNative("dmesg");
+        // Iterate dmesg once to collect location of audioN
+        Set<String> names = new HashSet<>();
+        for (String line : dmesg) {
+            Matcher m = AUDIO_AT.matcher(line);
+            if (m.matches()) {
+                names.add(m.group(1));
+            }
+        }
+        // Iterate again and add cards when they match the name
+        Map<String, String> nameMap = new HashMap<>();
+        Map<String, String> codecMap = new HashMap<>();
+        Map<String, String> versionMap = new HashMap<>();
         String key = "";
-        for (String line : ExecutingCommand.runNative(LSHAL)) {
-            line = line.trim();
-            if (line.startsWith("udi =")) {
-                // we have the key.
-                key = ParseUtil.getSingleQuoteStringValue(line);
-            } else if (!key.isEmpty() && !line.isEmpty()) {
-                if (line.contains("freebsd.driver =") && "pcm".equals(ParseUtil.getSingleQuoteStringValue(line))) {
-                    sounds.add(key);
-                } else if (line.contains("info.product")) {
-                    productMap.put(key, ParseUtil.getStringBetween(line, '\''));
-                } else if (line.contains("info.vendor")) {
-                    vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
+        for (String line : dmesg) {
+            Matcher m = PCI_AT.matcher(line);
+            if (m.matches() && names.contains(m.group(1))) {
+                key = m.group(1);
+                nameMap.put(key, m.group(2));
+                versionMap.put(key, m.group(3));
+            } else if (!key.isEmpty()) {
+                // Codec is on the next line
+                int idx = line.indexOf("codec id ");
+                if (idx >= 0) {
+                    codecMap.put(key, line.substring(idx + 9));
                 }
+                // clear key so we don't keep looking
+                key = "";
             }
         }
         List<SoundCard> soundCards = new ArrayList<>();
-        for (String _key : sounds) {
-            soundCards.add(new OpenBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + " " + productMap.get(_key),
-                    productMap.get(_key)));
+        for (Entry<String, String> entry : nameMap.entrySet()) {
+            soundCards.add(new OpenBsdSoundCard(versionMap.get(entry.getKey()), entry.getValue(),
+                    codecMap.get(entry.getKey())));
         }
         return Collections.unmodifiableList(soundCards);
     }
