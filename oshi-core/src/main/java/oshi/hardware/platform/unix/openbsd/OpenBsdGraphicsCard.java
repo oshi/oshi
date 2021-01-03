@@ -42,7 +42,7 @@ import oshi.util.ExecutingCommand;
 final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
 
     private static final String PCI_CLASS_DISPLAY = "Class: 03 Display";
-    private static final Pattern PCI_DUMP_HEADER = Pattern.compile("^\\s\\d+:\\d+:\\d+\\s(.*)$");
+    private static final Pattern PCI_DUMP_HEADER = Pattern.compile(" \\d+:\\d+:\\d+: (.+)");
 
     /**
      * Constructor for OpenBsdGraphicsCard
@@ -74,7 +74,7 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
     public static List<GraphicsCard> getGraphicsCards() {
         List<OpenBsdGraphicsCard> cardList = new ArrayList<>();
         // Enumerate all devices and add if required
-        List<String> devices = ExecutingCommand.runNative("pciconf -lv");
+        List<String> devices = ExecutingCommand.runNative("pcidump -v");
         if (devices.isEmpty()) {
             return Collections.emptyList();
         }
@@ -121,7 +121,7 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
                 } else if (versionInfo.isEmpty()) {
                     idx = line.indexOf("Revision: ");
                     if (idx >= 0) {
-                        versionInfo = line.substring(idx + 10, line.length());
+                        versionInfo = line.substring(idx);
                     }
                 }
             }
