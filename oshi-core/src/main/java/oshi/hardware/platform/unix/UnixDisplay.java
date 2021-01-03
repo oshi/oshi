@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.openbsd;
+package oshi.hardware.platform.unix;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,15 +36,15 @@ import oshi.hardware.common.AbstractDisplay;
  * A Display
  */
 @ThreadSafe
-final class OpenBsdDisplay extends AbstractDisplay {
+public final class UnixDisplay extends AbstractDisplay {
 
     /**
-     * Constructor for OpenBsdDisplay.
+     * Constructor for UnixDisplay.
      *
      * @param edid
      *            a byte array representing a display EDID
      */
-    OpenBsdDisplay(byte[] edid) {
+    UnixDisplay(byte[] edid) {
         super(edid);
     }
 
@@ -54,7 +54,11 @@ final class OpenBsdDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays() {
-        return Collections.unmodifiableList(
-                Xrandr.getEdidArrays().stream().map(OpenBsdDisplay::new).collect(Collectors.toList()));
+        return Collections
+                .unmodifiableList(Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList()));
+    }
+
+    public List<Display> getXDisplays() {
+        return UnixDisplay.getDisplays();
     }
 }

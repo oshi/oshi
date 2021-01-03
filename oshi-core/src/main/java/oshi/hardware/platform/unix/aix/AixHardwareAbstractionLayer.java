@@ -44,6 +44,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.UnixDisplay;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 /**
@@ -89,7 +90,7 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public List<Display> getDisplays() {
-        return AixDisplay.getDisplays();
+        return UnixDisplay.getDisplays();
     }
 
     @Override

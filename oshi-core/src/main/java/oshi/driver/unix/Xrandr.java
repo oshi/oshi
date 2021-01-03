@@ -37,11 +37,14 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class Xrandr {
 
+    private static final String[] XRANDR_VERBOSE = { "xrandr", "--verbose" };
+
     private Xrandr() {
     }
 
     public static List<byte[]> getEdidArrays() {
-        List<String> xrandr = ExecutingCommand.runNative("xrandr --verbose");
+        // Special handling for X commands, don't use LC_ALL
+        List<String> xrandr = ExecutingCommand.runNative(XRANDR_VERBOSE, null);
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
         if (xrandr.isEmpty()) {

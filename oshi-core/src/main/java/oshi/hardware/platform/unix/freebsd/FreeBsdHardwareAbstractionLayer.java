@@ -38,6 +38,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.UnixDisplay;
 
 /**
  * FreeBsdHardwareAbstractionLayer class.
@@ -77,7 +78,7 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<Display> getDisplays() {
-        return FreeBsdDisplay.getDisplays();
+        return UnixDisplay.getDisplays();
     }
 
     @Override
