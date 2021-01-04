@@ -23,10 +23,6 @@
  */
 package oshi.software.os.unix.openbsd;
 
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_MAXFILES;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_NFILES;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +80,7 @@ public class OpenBsdFileSystem extends AbstractFileSystem {
              /dev/wd0d (d1c342b6965d372c.d) on /usr type ffs (rw, local, nodev, wxallowed, ctime=Sun Jan  3 18:02:56 2021)
              */
             String[] split = ParseUtil.whitespaces.split(fs, 7);
-            if (split.length > 7) {
+            if (split.length == 7) {
                 // 1st field is volume name [0-index]
                 // 2nd field is partition/UUID (???)
                 // 4th field is mount point
@@ -129,7 +125,7 @@ public class OpenBsdFileSystem extends AbstractFileSystem {
 
                 fsList.add(new OpenBsdOSFileStore(name, volume, name, path, options, uuid, "", description, type,
                         freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
-                        inodeUsedlMap.getOrDefault(volume, 0L)));
+                        inodeUsedlMap.getOrDefault(volume, 0L) + inodeFreeMap.getOrDefault(volume, 0L)));
             }
         }
         return fsList;
@@ -137,17 +133,11 @@ public class OpenBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        int[] mib = new int[2];
-        mib[0] = CTL_KERN;
-        mib[1] = KERN_NFILES;
-        return OpenBsdSysctlUtil.sysctl(mib, 0);
+        return OpenBsdSysctlUtil.sysctl("kern.nfiles", 0);
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        int[] mib = new int[2];
-        mib[0] = CTL_KERN;
-        mib[1] = KERN_MAXFILES;
-        return OpenBsdSysctlUtil.sysctl(mib, 0);
+        return OpenBsdSysctlUtil.sysctl("kern.maxfiles", 0);
     }
 }

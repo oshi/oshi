@@ -50,10 +50,8 @@ public interface OpenBsdLibc extends CLibrary {
     int KERN_VERSION = 4; // string: compile time info
     int KERN_MAXVNODES = 5; // int: max vnodes
     int KERN_MAXPROC = 6; // int: max processes
-    int KERN_MAXFILES = 7; // int: max open files
     int KERN_ARGMAX = 8; // int: max arguments to exec
     int KERN_CPTIME = 40; // array: cp_time
-    int KERN_NFILES = 56; // int: number of open files
     int KERN_CPTIME2 = 71; // array: cp_time2
 
     int VM_UVMEXP = 4; // struct uvmexp
