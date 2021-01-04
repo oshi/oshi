@@ -95,10 +95,8 @@ final class OpenBsdSoundCard extends AbstractSoundCard {
                 // Codec is on the next line
                 int idx = line.indexOf("codec");
                 if (idx >= 0) {
-                    // "codec id:" or "codecs:"
-                    String codec = line.substring(idx);
-                    idx = codec.indexOf(':');
-                    codecMap.put(key, codec.substring(idx + 1));
+                    idx = line.indexOf(':');
+                    codecMap.put(key, line.substring(idx + 1).trim());
                 }
                 // clear key so we don't keep looking
                 key = "";
