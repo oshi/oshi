@@ -96,7 +96,7 @@ public class OpenBsdOSFileStore extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : new OpenBsdFileSystem().getFileStores()) {
+        for (OSFileStore fileStore : OpenBsdFileSystem.getFileStoreMatching(getName())) {
             if (getName().equals(fileStore.getName()) && getVolume().equals(fileStore.getVolume())
                     && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();
