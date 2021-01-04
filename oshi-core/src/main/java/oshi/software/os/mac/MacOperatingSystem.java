@@ -45,10 +45,12 @@ import com.sun.jna.platform.mac.SystemB.Timeval;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
+import oshi.driver.mac.WindowInfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
+import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
@@ -308,5 +310,10 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return services.toArray(new OSService[0]);
+    }
+
+    @Override
+    public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
+        return Collections.unmodifiableList(WindowInfo.queryDesktopWindows(visibleOnly));
     }
 }

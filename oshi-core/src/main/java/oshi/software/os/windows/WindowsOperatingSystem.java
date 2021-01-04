@@ -67,6 +67,7 @@ import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.EnumWindows;
 import oshi.driver.windows.registry.HkeyUserData;
 import oshi.driver.windows.registry.NetSessionData;
 import oshi.driver.windows.registry.ProcessPerformanceData;
@@ -82,6 +83,7 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
+import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
@@ -505,5 +507,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             return null;
         }
         return systemLog;
+    }
+
+    @Override
+    public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
+        return Collections.unmodifiableList(EnumWindows.queryDesktopWindows(visibleOnly));
     }
 }

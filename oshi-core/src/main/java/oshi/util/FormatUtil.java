@@ -248,4 +248,15 @@ public final class FormatUtil {
     public static String formatError(int errorCode) {
         return String.format(HEX_ERROR, errorCode);
     }
+
+    /**
+     * Rounds a floating point number to the nearest integer
+     *
+     * @param x
+     *            the floating point number
+     * @return the integer
+     */
+    public static int roundToInt(double x) {
+        return (int) Math.round(x);
+    }
 }

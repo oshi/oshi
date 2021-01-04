@@ -244,6 +244,28 @@ public interface OperatingSystem {
      */
     OSService[] getServices();
 
+    /**
+     * Gets windows on the operating system's GUI desktop.
+     * <p>
+     * On Unix-like systems, reports X11 windows only, which may be limited to the
+     * current display and will not report windows used by other window managers.
+     * <p>
+     * While not a guarantee, a best effort is made to return windows in
+     * foreground-to-background order. This ordering may be used along with
+     * {@link OSDesktopWindow#getOrder()} to (probably) determine the frontmost
+     * window.
+     *
+     * @param visibleOnly
+     *            Whether to restrict the list to only windows visible to the user.
+     *            <p>
+     *            This is a best effort attempt at a reasonable definition of
+     *            visibility. Visible windows may be completely transparent.
+     * @return An {@code UnmodifiableList} of
+     *         {@link oshi.software.os.OSDesktopWindow} objects representing the
+     *         desktop windows.
+     */
+    List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly);
+
     /*
      * A class representing the Operating System version details.
      */
