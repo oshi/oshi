@@ -163,4 +163,16 @@ class FormatUtilTest {
     void testFormatError() {
         assertThat("Format error code", FormatUtil.formatError(-1234567000), is("0xB66A00A8"));
     }
+
+    /**
+     * Test round to int
+     */
+    @Test
+    void testRoundToInt() {
+        assertThat("Improper rounding pi", FormatUtil.roundToInt(Math.PI), is(3));
+        assertThat("Improper rounding e", FormatUtil.roundToInt(Math.E), is(3));
+        assertThat("Improper rounding 0", FormatUtil.roundToInt(0d), is(0));
+        assertThat("Improper rounding 1", FormatUtil.roundToInt(1d), is(1));
+    }
+
 }

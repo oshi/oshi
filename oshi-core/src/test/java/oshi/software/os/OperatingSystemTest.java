@@ -358,4 +358,25 @@ class OperatingSystemTest {
             assertThat("Session host shouldn't be null", sess.getHost(), is(notNullValue()));
         }
     }
+
+    /**
+     * Test get desktop windows
+     */
+    @Test
+    void testGetDesktopWindows() {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        List<OSDesktopWindow> allWindows = os.getDesktopWindows(false);
+        List<OSDesktopWindow> visibleWindows = os.getDesktopWindows(true);
+        assertThat("Visible should be a subset of all windows", visibleWindows.size(),
+                is(lessThanOrEqualTo(allWindows.size())));
+        Set<Long> windowIds = new HashSet<>();
+        for (OSDesktopWindow dw : visibleWindows) {
+            assertThat("Visible window should be visible", dw.isVisible(), is(true));
+            assertThat("Height should be nononegative", dw.getLocAndSize().height, is(greaterThanOrEqualTo(0)));
+            assertThat("Width should be nononegative", dw.getLocAndSize().width, is(greaterThanOrEqualTo(0)));
+            windowIds.add(dw.getWindowId());
+        }
+        assertThat("Window IDs should be unique", windowIds.size(), is(visibleWindows.size()));
+    }
 }
