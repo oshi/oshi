@@ -81,8 +81,8 @@ public class OpenBsdFileSystem extends AbstractFileSystem {
              */
             String[] split = ParseUtil.whitespaces.split(fs, 7);
             if (split.length == 7) {
-                // 1st field is volume name [0-index]
-                // 2nd field is partition/UUID (???)
+                // 1st field is volume name [0-index] + partition letter
+                // 2nd field is disklabel UUID (DUID) + partition letter after the dot
                 // 4th field is mount point
                 // 6rd field is fs type
                 // 7th field is options
@@ -116,7 +116,11 @@ public class OpenBsdFileSystem extends AbstractFileSystem {
                 if (volume.startsWith("/dev") || path.equals("/")) {
                     description = "Local Disk";
                 } else if (volume.equals("tmpfs")) {
-                    description = "Ram Disk";
+                    // dynamic size in memory FS
+                    description = "Ram Disk (dynamic)";
+                } else if (volume.equals("mfs")) {
+                    // fixed size in memory FS
+                    description = "Ram Disk (fixed)";
                 } else if (NETWORK_FS_TYPES.contains(type)) {
                     description = "Network Disk";
                 } else {

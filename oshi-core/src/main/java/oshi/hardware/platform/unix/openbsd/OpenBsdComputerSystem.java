@@ -33,19 +33,17 @@ public class OpenBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public String getManufacturer() {
-        return OpenBsdSysctlUtil.sysctl("hw.vendor", "unknown");
+        return OpenBsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
     }
 
     @Override
     public String getModel() {
-        // or version
-        return OpenBsdSysctlUtil.sysctl("hw.product", "unknown");
+        return OpenBsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
     }
 
     @Override
     public String getSerialNumber() {
-        // could also use uuid
-        return OpenBsdSysctlUtil.sysctl("hw.serialno", "unknown");
+        return OpenBsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
     }
 
     @Override
@@ -55,7 +53,10 @@ public class OpenBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     protected Baseboard createBaseboard() {
-        // TODO implement
-        return new OpenBsdBaseboard(Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN, Constants.UNKNOWN);
+        return new OpenBsdBaseboard( OpenBsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN),
+            OpenBsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN),
+            OpenBsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN),
+            OpenBsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN)
+        );
     }
 }
