@@ -19,7 +19,8 @@ jobs:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [8, 11, 15, 16-ea]
-        os: [ubuntu-latest, macos-latest, macos-11.0, windows-latest]
+        # macos-11.0 unreliable for now
+        os: [ubuntu-latest, macos-latest, windows-latest]
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
 

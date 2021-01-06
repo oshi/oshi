@@ -3,6 +3,7 @@
 
 ##### New Features
 * [#1461](https://github.com/oshi/oshi/pull/1461): List TCP and UDP connections - [@dbwiddis](https://github.com/dbwiddis).
+* [#1473](https://github.com/oshi/oshi/pull/1473): List Desktop Windows - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#1464](https://github.com/oshi/oshi/pull/1464): Also get disk statistics from AppleAPFSContainerScheme - [@mpfz0r](https://github.com/mpfz0r).

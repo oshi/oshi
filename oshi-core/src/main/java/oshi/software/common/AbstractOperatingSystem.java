@@ -35,6 +35,8 @@ import java.util.function.Supplier;
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
 import oshi.driver.unix.Who;
+import oshi.driver.unix.Xwininfo;
+import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
@@ -214,6 +216,13 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         StringBuilder sb = new StringBuilder();
         sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());
         return sb.toString();
+    }
+
+    @Override
+    public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
+        // Default X11 implementation for Unix-like operating systems.
+        // Overridden on Windows and macOS
+        return Collections.unmodifiableList(Xwininfo.queryXWindows(visibleOnly));
     }
 
     protected static final class FamilyVersionInfo {
