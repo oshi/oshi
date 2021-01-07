@@ -91,6 +91,22 @@ public final class Dmidecode {
     }
 
     /**
+     * Query the UUID from dmidecode
+     *
+     * @return The UUID if available, null otherwise
+     */
+    public static String queryUUID() {
+        // If root privileges this will work
+        String marker = "UUID:";
+        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+            if (checkLine.contains(marker)) {
+                return checkLine.split(marker)[1].trim();
+            }
+        }
+        return null;
+    }
+
+    /**
      * Query the name and revision from dmidecode
      *
      * @return The a pair containing the name and revision if available, null values

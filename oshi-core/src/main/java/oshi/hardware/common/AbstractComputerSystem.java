@@ -71,7 +71,8 @@ public abstract class AbstractComputerSystem implements ComputerSystem {
         StringBuilder sb = new StringBuilder();
         sb.append("manufacturer=").append(getManufacturer()).append(", ");
         sb.append("model=").append(getModel()).append(", ");
-        sb.append("serial number=").append(getSerialNumber());
+        sb.append("serial number=").append(getSerialNumber()).append(", ");
+        sb.append("uuid=").append(getHardwareUUID());
         return sb.toString();
     }
 }
