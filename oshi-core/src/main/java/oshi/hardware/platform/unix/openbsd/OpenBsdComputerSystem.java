@@ -23,6 +23,10 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
@@ -31,19 +35,32 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 public class OpenBsdComputerSystem extends AbstractComputerSystem {
 
+    private final Supplier<String> manufacturer = memoize(OpenBsdComputerSystem::queryManufacturer);
+
+    private final Supplier<String> model = memoize(OpenBsdComputerSystem::queryModel);
+
+    private final Supplier<String> serialNumber = memoize(OpenBsdComputerSystem::querySerialNumber);
+
+    private final Supplier<String> uuid = memoize(OpenBsdComputerSystem::queryUUID);
+
     @Override
     public String getManufacturer() {
-        return OpenBsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
+        return manufacturer.get();
     }
 
     @Override
     public String getModel() {
-        return OpenBsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
+        return model.get();
     }
 
     @Override
     public String getSerialNumber() {
-        return OpenBsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
+        return serialNumber.get();
+    }
+
+    @Override
+    public String getHardwareUUID() {
+        return uuid.get();
     }
 
     @Override
@@ -53,10 +70,23 @@ public class OpenBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     protected Baseboard createBaseboard() {
-        return new OpenBsdBaseboard( OpenBsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN),
-            OpenBsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN),
-            OpenBsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN),
-            OpenBsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN)
-        );
+        return new OpenBsdBaseboard(manufacturer.get(), model.get(), serialNumber.get(),
+                OpenBsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
+    }
+
+    private static String queryManufacturer() {
+        return OpenBsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
+    }
+
+    private static String queryModel() {
+        return OpenBsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
+    }
+
+    private static String querySerialNumber() {
+        return OpenBsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
+    }
+
+    private static String queryUUID() {
+        return OpenBsdSysctlUtil.sysctl("hw.uuid", Constants.UNKNOWN);
     }
 }

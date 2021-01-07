@@ -38,6 +38,21 @@ import oshi.util.tuples.Triplet;
 public class OpenBsdFirmware extends AbstractFirmware {
     private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(OpenBsdFirmware::readDmesg);
 
+    @Override
+    public String getManufacturer() {
+        return manufVersRelease.get().getA();
+    }
+
+    @Override
+    public String getVersion() {
+        return manufVersRelease.get().getB();
+    }
+
+    @Override
+    public String getReleaseDate() {
+        return manufVersRelease.get().getC();
+    }
+
     private static Triplet<String, String, String> readDmesg() {
         String version = null;
         String vendor = null;
@@ -57,20 +72,5 @@ public class OpenBsdFirmware extends AbstractFirmware {
         return new Triplet<>(Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
                 Util.isBlank(version) ? Constants.UNKNOWN : version,
                 Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
-    }
-
-    @Override
-    public String getManufacturer() {
-        return manufVersRelease.get().getA();
-    }
-
-    @Override
-    public String getVersion() {
-        return manufVersRelease.get().getB();
-    }
-
-    @Override
-    public String getReleaseDate() {
-        return manufVersRelease.get().getC();
     }
 }
