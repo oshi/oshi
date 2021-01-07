@@ -35,7 +35,8 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.tuples.Quartet;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.tuples.Quintet;
 
 /**
  * Hardware data obtained from dmidecode.
@@ -43,22 +44,27 @@ import oshi.util.tuples.Quartet;
 @Immutable
 final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<Quartet<String, String, String, String>> manufModelSerialVers = memoize(
+    private final Supplier<Quintet<String, String, String, String, String>> manufModelSerialUuidVers = memoize(
             FreeBsdComputerSystem::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-        return manufModelSerialVers.get().getA();
+        return manufModelSerialUuidVers.get().getA();
     }
 
     @Override
     public String getModel() {
-        return manufModelSerialVers.get().getB();
+        return manufModelSerialUuidVers.get().getB();
     }
 
     @Override
     public String getSerialNumber() {
-        return manufModelSerialVers.get().getC();
+        return manufModelSerialUuidVers.get().getC();
+    }
+
+    @Override
+    public String getHardwareUUID() {
+        return manufModelSerialUuidVers.get().getD();
     }
 
     @Override
@@ -68,14 +74,15 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new FreeBsdBaseboard(manufModelSerialVers.get().getA(), manufModelSerialVers.get().getB(),
-                manufModelSerialVers.get().getC(), manufModelSerialVers.get().getD());
+        return new FreeBsdBaseboard(manufModelSerialUuidVers.get().getA(), manufModelSerialUuidVers.get().getB(),
+                manufModelSerialUuidVers.get().getC(), manufModelSerialUuidVers.get().getE());
     }
 
-    private static Quartet<String, String, String, String> readDmiDecode() {
+    private static Quintet<String, String, String, String, String> readDmiDecode() {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;
+        String uuid = null;
         String version = null;
 
         // $ sudo dmidecode -t system
@@ -102,6 +109,7 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         final String manufacturerMarker = "Manufacturer:";
         final String productNameMarker = "Product Name:";
         final String serialNumMarker = "Serial Number:";
+        final String uuidMarker = "UUID:";
         final String versionMarker = "Version:";
 
         // Only works with root permissions but it's all we've got
@@ -112,6 +120,8 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
                 model = checkLine.split(productNameMarker)[1].trim();
             } else if (checkLine.contains(serialNumMarker)) {
                 serialNumber = checkLine.split(serialNumMarker)[1].trim();
+            } else if (checkLine.contains(uuidMarker)) {
+                uuid = checkLine.split(uuidMarker)[1].trim();
             } else if (checkLine.contains(versionMarker)) {
                 version = checkLine.split(versionMarker)[1].trim();
             }
@@ -120,10 +130,13 @@ final class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (Util.isBlank(serialNumber)) {
             serialNumber = querySystemSerialNumber();
         }
-        return new Quartet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+        if (Util.isBlank(uuid)) {
+            uuid = BsdSysctlUtil.sysctl("kern.hostuuid", Constants.UNKNOWN);
+        }
+        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
                 Util.isBlank(model) ? Constants.UNKNOWN : model,
                 Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,
-                Util.isBlank(version) ? Constants.UNKNOWN : version);
+                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid, Util.isBlank(version) ? Constants.UNKNOWN : version);
     }
 
     private static String querySystemSerialNumber() {

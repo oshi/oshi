@@ -50,8 +50,7 @@ public interface ComputerSystem {
      * Get the computer system serial number, if available.
      * <P>
      * Performs a best-effort attempt to retrieve a unique serial number from the
-     * computer system. This may originate from the baseboard, BIOS, processor,
-     * hardware UUID, etc.
+     * computer system. This may originate from the baseboard, BIOS, processor, etc.
      * <P>
      * This value is provided for information only. Caution should be exercised if
      * using this result to "fingerprint" a system for licensing or other purposes,
@@ -65,6 +64,15 @@ public interface ComputerSystem {
      * @return the System Serial Number, if available, otherwise returns "unknown"
      */
     String getSerialNumber();
+
+    /**
+     * Get the computer system hardware UUID, if available.
+     * <P>
+     * Performs a best-effort attempt to retrieve the hardware UUID.
+     *
+     * @return the Hardware UUID, if available, otherwise returns "unknown"
+     */
+    String getHardwareUUID();
 
     /**
      * Get the computer system firmware/BIOS.

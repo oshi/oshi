@@ -48,9 +48,8 @@ public class ComputerID {
 
         System.out.println("Here's a unique (?) id for your computer.");
         System.out.println(getComputerIdentifier());
-        System.out.println("If the second field is " + unknownHash
-                + " then I couldn't find a serial number, and running as sudo might change this.");
-
+        System.out.println("If any field is " + unknownHash
+                + " then I couldn't find a serial number or uuid, and running as sudo might change this.");
     }
 
     /**
@@ -74,6 +73,7 @@ public class ComputerID {
 
         String vendor = operatingSystem.getManufacturer();
         String processorSerialNumber = computerSystem.getSerialNumber();
+        String uuid = computerSystem.getHardwareUUID();
         String processorIdentifier = centralProcessor.getProcessorIdentifier().getIdentifier();
         int processors = centralProcessor.getLogicalProcessorCount();
 
@@ -81,6 +81,7 @@ public class ComputerID {
 
         return String.format("%08x", vendor.hashCode()) + delimiter
                 + String.format("%08x", processorSerialNumber.hashCode()) + delimiter
+                + String.format("%08x", uuid.hashCode()) + delimiter
                 + String.format("%08x", processorIdentifier.hashCode()) + delimiter + processors;
     }
 }

@@ -67,6 +67,21 @@ public final class Lshw {
     }
 
     /**
+     * Query the UUID from lshw
+     *
+     * @return The UUID if available, null otherwise
+     */
+    public static String queryUUID() {
+        String uuidMarker = "uuid:";
+        for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
+            if (checkLine.contains(uuidMarker)) {
+                return checkLine.split(uuidMarker)[1].trim();
+            }
+        }
+        return null;
+    }
+
+    /**
      * Query the CPU capacity (max frequency) from lshw
      *
      * @return The CPU capacity (max frequency) if available, -1 otherwise
