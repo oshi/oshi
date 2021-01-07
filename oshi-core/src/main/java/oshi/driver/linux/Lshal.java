@@ -51,4 +51,20 @@ public final class Lshal {
         }
         return null;
     }
+
+    /**
+     * Query the UUID from lshal
+     *
+     * @return The UUID if available, null otherwise
+     */
+    public static String queryUUID() {
+        // if lshal command available (HAL deprecated in newer linuxes)
+        String marker = "system.hardware.uuid =";
+        for (String checkLine : ExecutingCommand.runNative("lshal")) {
+            if (checkLine.contains(marker)) {
+                return ParseUtil.getSingleQuoteStringValue(checkLine);
+            }
+        }
+        return null;
+    }
 }

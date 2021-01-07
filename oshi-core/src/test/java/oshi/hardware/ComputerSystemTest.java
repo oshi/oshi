@@ -26,7 +26,10 @@ package oshi.hardware;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
+
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +39,8 @@ import oshi.SystemInfo;
  * Tests Computer System
  */
 class ComputerSystemTest {
+    private static final Pattern UUID_PATTERN = Pattern
+            .compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}|unknown");
 
     /**
      * Test Computer System
@@ -47,6 +52,8 @@ class ComputerSystemTest {
         assertThat("Computer System's manufacturer shouldn't be null", cs.getManufacturer(), is(notNullValue()));
         assertThat("Computer System's model shouldn't be null", cs.getModel(), is(notNullValue()));
         assertThat("Computer System's serial number shouldn't be null", cs.getSerialNumber(), is(notNullValue()));
+        assertThat("Computer System's UUID should be in UUID format or unknown", cs.getHardwareUUID(),
+                matchesPattern(UUID_PATTERN));
 
         Firmware fw = cs.getFirmware();
         assertThat("Firmware shouldn't be null", fw, is(notNullValue()));

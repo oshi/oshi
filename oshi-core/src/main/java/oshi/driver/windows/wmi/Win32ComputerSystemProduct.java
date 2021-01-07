@@ -41,18 +41,18 @@ public final class Win32ComputerSystemProduct {
      * Computer System ID number
      */
     public enum ComputerSystemProductProperty {
-        IDENTIFYINGNUMBER;
+        IDENTIFYINGNUMBER, UUID;
     }
 
     private Win32ComputerSystemProduct() {
     }
 
     /**
-     * Queries the Computer System.
+     * Queries the Computer System Product.
      *
-     * @return Assigned serial number of the software element.
+     * @return Assigned serial number and UUID.
      */
-    public static WmiResult<ComputerSystemProductProperty> queryIdentifyingNumber() {
+    public static WmiResult<ComputerSystemProductProperty> queryIdentifyingNumberUUID() {
         WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM_PRODUCT,
                 ComputerSystemProductProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(identifyingNumberQuery);
