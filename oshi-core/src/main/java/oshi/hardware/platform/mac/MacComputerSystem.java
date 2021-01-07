@@ -38,7 +38,7 @@ import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * Hardware data obtained from ioreg.
@@ -46,22 +46,27 @@ import oshi.util.tuples.Triplet;
 @Immutable
 final class MacComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<Triplet<String, String, String>> manufacturerModelSerial = memoize(
+    private final Supplier<Quartet<String, String, String, String>> manufacturerModelSerialUUID = memoize(
             MacComputerSystem::platformExpert);
 
     @Override
     public String getManufacturer() {
-        return manufacturerModelSerial.get().getA();
+        return manufacturerModelSerialUUID.get().getA();
     }
 
     @Override
     public String getModel() {
-        return manufacturerModelSerial.get().getB();
+        return manufacturerModelSerialUUID.get().getB();
     }
 
     @Override
     public String getSerialNumber() {
-        return manufacturerModelSerial.get().getC();
+        return manufacturerModelSerialUUID.get().getC();
+    }
+
+    @Override
+    public String getHardwareUUID() {
+        return manufacturerModelSerialUUID.get().getD();
     }
 
     @Override
@@ -74,10 +79,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
         return new MacBaseboard();
     }
 
-    private static Triplet<String, String, String> platformExpert() {
+    private static Quartet<String, String, String, String> platformExpert() {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;
+        String uuid = null;
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
             byte[] data = platformExpert.getByteArrayProperty("manufacturer");
@@ -89,10 +95,12 @@ final class MacComputerSystem extends AbstractComputerSystem {
                 model = Native.toString(data, StandardCharsets.UTF_8);
             }
             serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
+            uuid = platformExpert.getStringProperty("IOPlatformUUID");
             platformExpert.release();
         }
-        return new Triplet<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer,
+        return new Quartet<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer,
                 Util.isBlank(model) ? Constants.UNKNOWN : model,
-                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,
+                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid);
     }
 }

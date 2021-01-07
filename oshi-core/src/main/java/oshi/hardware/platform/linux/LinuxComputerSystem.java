@@ -51,6 +51,8 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<String> serialNumber = memoize(LinuxComputerSystem::querySerialNumber);
 
+    private final Supplier<String> uuid = memoize(LinuxComputerSystem::queryUUID);
+
     @Override
     public String getManufacturer() {
         return manufacturer.get();
@@ -64,6 +66,11 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
     @Override
     public String getSerialNumber() {
         return serialNumber.get();
+    }
+
+    @Override
+    public String getHardwareUUID() {
+        return uuid.get();
     }
 
     @Override
@@ -97,6 +104,15 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
         String result = null;
         if ((result = Sysfs.queryProductSerial()) == null && (result = Dmidecode.querySerialNumber()) == null
                 && (result = Lshal.querySerialNumber()) == null && (result = Lshw.querySerialNumber()) == null) {
+            return Constants.UNKNOWN;
+        }
+        return result;
+    }
+
+    private static String queryUUID() {
+        String result = null;
+        if ((result = Sysfs.queryUUID()) == null && (result = Dmidecode.queryUUID()) == null
+                && (result = Lshal.queryUUID()) == null && (result = Lshw.queryUUID()) == null) {
             return Constants.UNKNOWN;
         }
         return result;

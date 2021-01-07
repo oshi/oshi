@@ -60,6 +60,11 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
     }
 
     @Override
+    public String getHardwareUUID() {
+        return smbiosStrings.get().uuid;
+    }
+
+    @Override
     public Firmware createFirmware() {
         return new SolarisFirmware(smbiosStrings.get().biosVendor, smbiosStrings.get().biosVersion,
                 smbiosStrings.get().biosDate);
@@ -79,6 +84,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;
+        String uuid = null;
 
         String boardManufacturer = null;
         String boardModel = null;
@@ -128,6 +134,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         final String manufacturerMarker = "Manufacturer:";
         final String productMarker = "Product:";
         final String serialNumMarker = "Serial Number:";
+        final String uuidMarker = "UUID:";
         final String versionMarker = "Version:";
 
         int smbTypeId = -1;
@@ -156,6 +163,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                     model = checkLine.split(productMarker)[1].trim();
                 } else if (checkLine.contains(serialNumMarker)) {
                     serialNumber = checkLine.split(serialNumMarker)[1].trim();
+                } else if (checkLine.contains(uuidMarker)) {
+                    uuid = checkLine.split(uuidMarker)[1].trim();
                 }
                 break;
             case 2: // BASEBOARD
@@ -177,7 +186,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         if (Util.isBlank(serialNumber)) {
             serialNumber = readSerialNumber();
         }
-        return new SmbiosStrings(biosVendor, biosVersion, biosDate, manufacturer, model, serialNumber,
+        return new SmbiosStrings(biosVendor, biosVersion, biosDate, manufacturer, model, serialNumber, uuid,
                 boardManufacturer, boardModel, boardVersion, boardSerialNumber);
     }
 
@@ -219,6 +228,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         private final String manufacturer;
         private final String model;
         private final String serialNumber;
+        private final String uuid;
 
         private final String boardManufacturer;
         private final String boardModel;
@@ -226,7 +236,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         private final String boardSerialNumber;
 
         private SmbiosStrings(String biosVendor, String biosVersion, String biosDate, //
-                String manufacturer, String model, String serialNumber, //
+                String manufacturer, String model, String serialNumber, String uuid, //
                 String boardManufacturer, String boardModel, String boardVersion, String boardSerialNumber) {
             this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;
             this.biosVersion = Util.isBlank(biosVersion) ? Constants.UNKNOWN : biosVersion;
@@ -235,6 +245,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
             this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
             this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
+            this.uuid = Util.isBlank(uuid) ? Constants.UNKNOWN : uuid;
 
             this.boardManufacturer = Util.isBlank(boardManufacturer) ? Constants.UNKNOWN : boardManufacturer;
             this.boardModel = Util.isBlank(boardModel) ? Constants.UNKNOWN : boardModel;

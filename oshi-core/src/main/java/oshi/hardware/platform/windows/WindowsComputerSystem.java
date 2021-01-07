@@ -52,7 +52,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<Pair<String, String>> manufacturerModel = memoize(
             WindowsComputerSystem::queryManufacturerModel);
-    private final Supplier<String> serialNumber = memoize(WindowsComputerSystem::querySystemSerialNumber);
+    private final Supplier<Pair<String, String>> serialNumberUUID = memoize(
+            WindowsComputerSystem::querySystemSerialNumberUUID);
 
     @Override
     public String getManufacturer() {
@@ -66,7 +67,12 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     @Override
     public String getSerialNumber() {
-        return serialNumber.get();
+        return serialNumberUUID.get().getA();
+    }
+
+    @Override
+    public String getHardwareUUID() {
+        return serialNumberUUID.get().getB();
     }
 
     @Override
@@ -91,28 +97,32 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
                 Util.isBlank(model) ? Constants.UNKNOWN : model);
     }
 
-    private static String querySystemSerialNumber() {
-        String result;
-        if (((result = querySerialFromBios()) != null || (result = querySerialFromCsProduct()) != null)
-                && !Util.isBlank(result)) {
-            return result;
+    private static Pair<String, String> querySystemSerialNumberUUID() {
+        String serialNumber = null;
+        String uuid = null;
+        WmiResult<ComputerSystemProductProperty> win32ComputerSystemProduct = Win32ComputerSystemProduct
+                .queryIdentifyingNumberUUID();
+        if (win32ComputerSystemProduct.getResultCount() > 0) {
+            serialNumber = WmiUtil.getString(win32ComputerSystemProduct,
+                    ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
+            uuid = WmiUtil.getString(win32ComputerSystemProduct, ComputerSystemProductProperty.UUID, 0);
         }
-        return Constants.UNKNOWN;
+        if (Util.isBlank(serialNumber)) {
+            serialNumber = querySerialFromBios();
+        }
+        if (Util.isBlank(serialNumber)) {
+            serialNumber = Constants.UNKNOWN;
+        }
+        if (Util.isBlank(uuid)) {
+            uuid = Constants.UNKNOWN;
+        }
+        return new Pair<>(serialNumber, uuid);
     }
 
     private static String querySerialFromBios() {
         WmiResult<BiosSerialProperty> serialNum = Win32Bios.querySerialNumber();
         if (serialNum.getResultCount() > 0) {
             return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
-        }
-        return null;
-    }
-
-    private static String querySerialFromCsProduct() {
-        WmiResult<ComputerSystemProductProperty> identifyingNumber = Win32ComputerSystemProduct
-                .queryIdentifyingNumber();
-        if (identifyingNumber.getResultCount() > 0) {
-            return WmiUtil.getString(identifyingNumber, ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
         }
         return null;
     }
