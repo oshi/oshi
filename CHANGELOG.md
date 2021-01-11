@@ -1,5 +1,6 @@
 # 5.4.0 (in progress)
 * Your contribution here
+* [#1478](https://github.com/oshi/oshi/pull/1478): Added configuration properties to exclude/include filestores - [@majster-kat](https://github.com/majster-kat).
 
 ##### New Features
 * [#1461](https://github.com/oshi/oshi/pull/1461): List TCP and UDP connections - [@dbwiddis](https://github.com/dbwiddis).

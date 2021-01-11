@@ -33,7 +33,7 @@ import java.util.Map;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.AbstractUnixFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -47,7 +47,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 @ThreadSafe
-public class SolarisFileSystem extends AbstractFileSystem {
+public class SolarisFileSystem extends AbstractUnixFileSystem {
 
     // System path mounted as tmpfs
     private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
@@ -111,9 +111,9 @@ public class SolarisFileSystem extends AbstractFileSystem {
             String options = split[3];
 
             // Skip non-local drives if requested, and exclude pseudo file systems
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type) || path.equals("/dev")
-                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
-                    || volume.startsWith("rpool") && !path.equals("/")) {
+            if ((localOnly && NETWORK_FS_TYPES.contains(type))
+                    || PSEUDO_FS_TYPES.contains(type)
+                    || isFileStoreExcluded(path, volume)) {
                 continue;
             }
 
