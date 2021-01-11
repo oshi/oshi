@@ -46,7 +46,7 @@ What minimum Java version is required?
 ========
 OSHI 3.x is compatible with Java 7, but will not see any added features.  
 
-OSHI 4.x and later require minimum Java 8 compatibility. This minimum level will be retained through at least 2026.
+OSHI 4.x and later require minimum Java 8 compatibility. This minimum level will be retained through at least OpenJDK 8 EOL.
 
 Which operating systems are supported?
 ========
@@ -59,14 +59,33 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * OpenBSD 6.8
 * Solaris 11 (SunOS 5.11) 
 
-How do I resolve JNA `NoClassDefFound` errors?
+How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?
 ========
-OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes. If you experience issues with `NoClassDefFound` errors for JNA artifacts, consider one or more of the following steps to resolve the conflict:
+OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes.
+If you experience a `NoClassDefFoundError` or `NoSuchMethodError` issues with JNA artifacts, you likely have
+an older version of either `jna` or `jna-platform` in your classpath from a transitive dependency on another project.
+Consider one or more of the following steps to resolve the conflict:
  - Listing OSHI earlier (or first) in your dependency list 
- - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) as a dependency
+ - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` as dependencies.
  - If you are using the Spring Boot Starter Parent version 2.2 and earlier that includes JNA as a dependency:
    - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
-   - If you must use version 2.2 or earlier, override the `jna.version` property 
+   - If you must use version 2.2 or earlier, override the `jna.version` property to the latest JNA version.
+
+Why does OSHI's Process CPU usage differ from the Windows Task Manager?
+========
+CPU usage is generally calculated as (active time / active+idle time). On a multi-processor system, the "idle" time can be accrued on each/any of the logical processors.
+
+For System and per-Processor CPU ticks, the total number of "idle" ticks is available for this calculation, so they should match all operating system displays, and CPU usage will never exceed 100%.
+
+For per-Process CPU ticks, there is no "idle" counter available, so the calculation ends up being (active time / up time). It is possible
+for a multi-threaded process to accrue more active clock time than elapsed clock time, and result in CPU usage over 100%
+(e.g., on a 4-processor system it could in theory reach 400%). This interpretation matches the value displayed in `ps` or `top` on
+Unix-based operating systems. However, Windows scales process CPU usage to the system, so that the sum of all Process CPU percentages
+can never exceed 100% (ignoring roundoff errors). On a 4-processor system, a single-threaded process maximizing usage of one logical
+processor will show (on Windows) as 25% usage. OSHI's calculation for Process CPU load will report the Unix-based calculation in this
+class, which would be closer to 100%.
+
+If you want per-Process CPU load to match the Windows Task Manager display, you should divide OSHI's calculation by the number of logical processors.  This is an entirely cosmetic preference.
 
 How is OSHI different from SIGAR?
 ========
@@ -89,6 +108,18 @@ to fix specific bugs/incompatibilities but none has emerged as a maintained/rele
 development has been entirely done by open source volunteers, and it is under active development as of 2020.
  - **Support** SIGAR is completely unsupported by its authors, and there is no organized community support.
 OSHI is supported actively to fix bugs, respond to questions, and implement new features.
+
+Does OSHI work on ARM hardware?
+========
+Yes, CI is actively conducted on Linux ARM hardware and other platforms will be added when hardware is
+available for such testing. Note that many features (e.g., CPUID, and processor identification such as
+family, model, stepping, and vendor frequency) are based on Intel chips and may have different corresponding
+meanings.
+
+Does OSHI work on Apple M1 hardware?
+========
+No, this is an external (upstream) dependency on JNA, depending further on `libffi`. If you need this
+support, consider assisting the JNA project in resolving this.
 
 Does OSHI work on Raspberry Pi hardware?
 ========
