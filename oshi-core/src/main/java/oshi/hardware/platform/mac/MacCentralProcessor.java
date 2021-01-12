@@ -53,18 +53,36 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
         String cpuName = SysctlUtil.sysctl("machdep.cpu.brand_string", "");
-        int i = SysctlUtil.sysctl("machdep.cpu.stepping", -1);
-        String cpuStepping = i < 0 ? "" : Integer.toString(i);
-        i = SysctlUtil.sysctl("machdep.cpu.model", -1);
-        String cpuModel = i < 0 ? "" : Integer.toString(i);
-        i = SysctlUtil.sysctl("machdep.cpu.family", -1);
-        String cpuFamily = i < 0 ? "" : Integer.toString(i);
-        long processorIdBits = 0L;
-        processorIdBits |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
-        processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
-        String processorID = String.format("%016X", processorIdBits);
+        String cpuVendor;
+        String cpuStepping;
+        String cpuModel;
+        String cpuFamily;
+        String processorID;
+        if (cpuName.startsWith("Apple")) {
+            // Processing an M1 chip
+            cpuVendor = "Apple";
+            cpuStepping = "0"; // No correlation yet
+            cpuModel = "0"; // No correlation yet
+            int i = SysctlUtil.sysctl("hw.cpufamily", 0); // 0 is "unknown"
+            cpuFamily = String.format("0x%08x", i); // M1 is 0x1B588BB3
+            // For processor ID let's combine CPU type:
+            i = SysctlUtil.sysctl("hw.cputype", 0);
+            processorID = String.format("%08x%s", i, cpuFamily);
+        } else {
+            // Processing an Intel chip
+            cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
+            int i = SysctlUtil.sysctl("machdep.cpu.stepping", -1);
+            cpuStepping = i < 0 ? "" : Integer.toString(i);
+            i = SysctlUtil.sysctl("machdep.cpu.model", -1);
+            cpuModel = i < 0 ? "" : Integer.toString(i);
+            i = SysctlUtil.sysctl("machdep.cpu.family", -1);
+            cpuFamily = i < 0 ? "" : Integer.toString(i);
+            long processorIdBits = 0L;
+            processorIdBits |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
+            processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
+            processorID = String.format("%016x", processorIdBits);
+        }
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
         long cpuFreq = SysctlUtil.sysctl("hw.cpufrequency", 0L);
 
