@@ -69,16 +69,18 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
         // hw.disknames=sd0:2cf69345d371cd82,cd0:,sd1:
         String[] devices = OpenBsdSysctlUtil.sysctl("hw.disknames", "").split(",");
         OpenBsdHWDiskStore store;
+        String diskName;
         for (String device : devices) {
+            diskName = (device.split(":")[0]);
             // get partitions using disklabel command (requires root)
             Pair<Map<String, String>, List<HWPartition>> diskdata = Disklabel
-                .getDiskParams((device.split(":")[0]));
+                .getDiskParams(diskName);
             if (diskdata.getA().isEmpty()) {
                 // something must have gone wrong, probably no elevated/root permission
-                store = new OpenBsdHWDiskStore((device.split(":")[0]), Constants.UNKNOWN, Constants.UNKNOWN, 0L);
+                store = new OpenBsdHWDiskStore(diskName, Constants.UNKNOWN, Constants.UNKNOWN, 0L);
             } else {
                 store = new OpenBsdHWDiskStore(
-                    diskdata.getA().get("label"),
+                    diskName,
                     diskdata.getA().get("label"),
                     diskdata.getA().get("duid"),
                     ParseUtil.parseLongOrDefault(diskdata.getA().get("bytes/sector"), 0) * ParseUtil
@@ -87,6 +89,25 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
             }
             store.partitionList = diskdata.getB();
+
+            List<String> output = ExecutingCommand.runNative("systat -b iostat");
+            long now = System.currentTimeMillis();
+            for (String line : output) {
+                String[] split = ParseUtil.whitespaces.split(line);
+                if (split.length < 7 && split[0].equals(diskName)) {
+                    store.readBytes = ParseUtil.parseMultipliedToLongs(split[1]);
+                    store.writeBytes = ParseUtil.parseMultipliedToLongs(split[2]);
+                    store.reads = (long) ParseUtil.parseDoubleOrDefault(split[3], 0d);
+                    store.writes = (long) ParseUtil.parseDoubleOrDefault(split[4], 0d);
+                    // In seconds, multiply for ms
+                    store.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[5], 0d)
+                        * 1000);
+                    // this.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+                    store.timeStamp = now;
+                    break;
+                }
+            }
+
             diskList.add(store);
         }
 
@@ -191,25 +212,22 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
         //                                                                            0 high flops
         //                                                                            0 dma flips
         //
-        List<String> output = ExecutingCommand.runNative("iostat -I " + getName());
+        List<String> output = ExecutingCommand.runNative("systat -b iostat");
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : output) {
             String[] split = ParseUtil.whitespaces.split(line);
-            if (split.length < 7 || !split[0].equals(getName())) {
-                continue;
+            if (split.length < 7 && split[0].equals(getName())) {
+                diskFound = true;
+                this.readBytes = ParseUtil.parseMultipliedToLongs(split[1]);
+                this.writeBytes = ParseUtil.parseMultipliedToLongs(split[2]);
+                this.reads = (long) ParseUtil.parseDoubleOrDefault(split[3], 0d);
+                this.writes = (long) ParseUtil.parseDoubleOrDefault(split[4], 0d);
+                // In seconds, multiply for ms
+                this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[5], 0d) * 1000);
+                // this.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+                this.timeStamp = now;
             }
-            diskFound = true;
-            this.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
-            this.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
-            // In KB
-            this.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
-            this.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
-            // # transactions
-            this.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
-            // In seconds, multiply for ms
-            this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
-            this.timeStamp = now;
         }
         return diskFound;
     }

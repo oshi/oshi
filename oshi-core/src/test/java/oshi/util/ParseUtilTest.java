@@ -38,9 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import oshi.util.tuples.Pair;
 
 /**
@@ -599,5 +597,20 @@ class ParseUtilTest {
         assertThat(ParseUtil.removeLeadingDots("foo"), is("foo"));
         assertThat(ParseUtil.removeLeadingDots("...bar"), is("bar"));
         assertThat(ParseUtil.removeLeadingDots("..."), is(""));
+    }
+
+    @Test
+    void testParseMultipliedToLongs() {
+        assertThat(ParseUtil.parseMultipliedToLongs("Not a number"), is(0L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1"), is(1L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1.2"), is(1L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1 k"), is(1_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1 M"), is(1_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1MB"), is(1_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1MC"), is(1_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1 T"), is(1_000_000_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1073M"), is(1073000000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1073 G"), is(1073000000000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("12K"), is(12000L));
     }
 }
