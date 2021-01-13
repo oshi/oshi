@@ -36,8 +36,8 @@ import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
 import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT2;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
 import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
 import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
 import static oshi.software.os.InternetProtocolStats.TcpState.NONE;
@@ -233,13 +233,13 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
         case 5:
             return CLOSE_WAIT;
         case 6:
-            return FIN_WAIT1;
+            return FIN_WAIT_1;
         case 7:
             return CLOSING;
         case 8:
             return LAST_ACK;
         case 9:
-            return FIN_WAIT2;
+            return FIN_WAIT_2;
         case 10:
             return TIME_WAIT;
         default:
