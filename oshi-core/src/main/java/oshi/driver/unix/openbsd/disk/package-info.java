@@ -22,6 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides functions to query OpenBSD disk information
+ * Provides functions to query OpenBSD information
  */
 package oshi.driver.unix.openbsd.disk;

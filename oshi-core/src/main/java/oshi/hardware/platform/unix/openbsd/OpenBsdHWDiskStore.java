@@ -24,16 +24,11 @@
 package oshi.hardware.platform.unix.openbsd;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.freebsd.disk.GeomDiskList;
-import oshi.driver.unix.freebsd.disk.GeomPartList;
+import oshi.driver.unix.openbsd.disk.Disklabel;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
@@ -41,10 +36,10 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Pair;
 
 /**
- * FreeBSD hard disk implementation.
+ * OpenBSD hard disk implementation.
  */
 @ThreadSafe
 public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
@@ -60,6 +55,68 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
     private OpenBsdHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
+    }
+
+    /**
+     * Gets the disks on this machine.
+     *
+     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects representing the disks
+     */
+    public static List<HWDiskStore> getDisks() {
+        List<OpenBsdHWDiskStore> diskList = new ArrayList<>();
+
+        // Get list of disks from sysctl
+        // hw.disknames=sd0:2cf69345d371cd82,cd0:,sd1:
+        String[] devices = OpenBsdSysctlUtil.sysctl("hw.disknames", "").split(",");
+        OpenBsdHWDiskStore store;
+        for (String device : devices) {
+            // get partitions using disklabel command (requires root)
+            Pair<Map<String, String>, List<HWPartition>> diskdata = Disklabel
+                .getDiskParams((device.split(":")[0]));
+            if (diskdata.getA().isEmpty()) {
+                // something must have gone wrong, probably no elevated/root permission
+                store = new OpenBsdHWDiskStore((device.split(":")[0]), Constants.UNKNOWN, Constants.UNKNOWN, 0L);
+            } else {
+                store = new OpenBsdHWDiskStore(
+                    diskdata.getA().get("label"),
+                    diskdata.getA().get("label"),
+                    diskdata.getA().get("duid"),
+                    ParseUtil.parseLongOrDefault(diskdata.getA().get("bytes/sector"), 0) * ParseUtil
+                        .parseLongOrDefault(diskdata.getA().get("total sectors"), 1)
+                );
+
+            }
+            store.partitionList = diskdata.getB();
+            diskList.add(store);
+        }
+
+        // Run iostat -Ix to enumerate disks by name and get kb r/w
+//        List<String> iostat = ExecutingCommand.runNative("iostat -I");
+//        long now = System.currentTimeMillis();
+//        for (String line : iostat) {
+//            String[] split = ParseUtil.whitespaces.split(line);
+//            if (split.length > 6 && devices.contains(split[0])) {
+//                Triplet<String, String, Long> storeInfo = diskInfoMap.get(split[0]);
+//                OpenBsdHWDiskStore store = (storeInfo == null)
+//                        ? new OpenBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
+//                        : new OpenBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
+//                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
+//                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
+//                // In KB
+//                store.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
+//                store.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
+//                // # transactions
+//                store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+//                // In seconds, multiply for ms
+//                store.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
+//                store.partitionList = Collections
+//                        .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()
+//                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+//                store.timeStamp = now;
+//                diskList.add(store);
+//            }
+//        }
+        return Collections.unmodifiableList(diskList);
     }
 
     @Override
@@ -104,7 +161,37 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public boolean updateAttributes() {
-        List<String> output = ExecutingCommand.runNative("iostat -Ix " + getName());
+        // └─ $ ▶ iostat -I sd0
+        //    tty                 sd0                   cpu
+        // tin     tout    KB/t   xfr     MB       us ni sy sp in id
+        // 7894    75610  28.09 1668381 45761.14    4  0  1  0  0 94
+
+        //        https://man.openbsd.org/systat.1#iostat
+        //
+        //└─ $ ▶ systat -b iostat
+        //
+        //
+        //        0 users Load 2.04 4.02 3.96                          thinkpad.local 00:14:35
+        //        DEVICE          READ    WRITE     RTPS    WTPS     SEC            STATS
+        //        sd0           49937M   25774M  1326555 1695370   945.9
+        //        cd0                0        0        0       0     0.0
+        //        sd1          1573888      204       29       0     0.1
+        //        Totals        49939M   25774M  1326585 1695371   946.0
+        //                                                                       126568 total pages
+        //                                                                       126568 dma pages
+        //                                                                          100 dirty pages
+        //                                                                           14 delwri bufs
+        //                                                                            0 busymap bufs
+        //                                                                         6553 avail kvaslots
+        //                                                                         6553 kvaslots
+        //                                                                            0 pending writes
+        //                                                                           12 pending reads
+        //                                                                            0 cache hits
+        //                                                                            0 high flips
+        //                                                                            0 high flops
+        //                                                                            0 dma flips
+        //
+        List<String> output = ExecutingCommand.runNative("iostat -I " + getName());
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : output) {
@@ -125,53 +212,5 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
             this.timeStamp = now;
         }
         return diskFound;
-    }
-
-    /**
-     * Gets the disks on this machine
-     *
-     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
-     *         representing the disks
-     */
-    public static List<HWDiskStore> getDisks() {
-        // Result
-        List<HWDiskStore> diskList = new ArrayList<>();
-
-        // Get map of disk names to partitions
-        Map<String, List<HWPartition>> partitionMap = GeomPartList.queryPartitions();
-
-        // Get map of disk names to disk info
-        Map<String, Triplet<String, String, Long>> diskInfoMap = GeomDiskList.queryDisks();
-
-        // Get list of disks from sysctl
-        List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(OpenBsdSysctlUtil.sysctl("kern.disks", "")));
-
-        // Run iostat -Ix to enumerate disks by name and get kb r/w
-        List<String> iostat = ExecutingCommand.runNative("iostat -Ix");
-        long now = System.currentTimeMillis();
-        for (String line : iostat) {
-            String[] split = ParseUtil.whitespaces.split(line);
-            if (split.length > 6 && devices.contains(split[0])) {
-                Triplet<String, String, Long> storeInfo = diskInfoMap.get(split[0]);
-                OpenBsdHWDiskStore store = (storeInfo == null)
-                        ? new OpenBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
-                        : new OpenBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
-                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
-                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
-                // In KB
-                store.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
-                store.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
-                // # transactions
-                store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
-                // In seconds, multiply for ms
-                store.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
-                store.partitionList = Collections
-                        .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()
-                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
-                store.timeStamp = now;
-                diskList.add(store);
-            }
-        }
-        return Collections.unmodifiableList(diskList);
     }
 }
