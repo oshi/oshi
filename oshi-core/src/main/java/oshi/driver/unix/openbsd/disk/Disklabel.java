@@ -144,7 +144,7 @@ public final class Disklabel {
     private static Pair<Integer, Integer> getMajorMinor(String diskName, String name) {
         int major = 0;
         int minor = 0;
-        String majorMinor = ExecutingCommand.getFirstAnswer("stat -f \"%Hr,%Lr\" /dev/" + diskName + name);
+        String majorMinor = ExecutingCommand.getFirstAnswer("stat -f %Hr,%Lr /dev/" + diskName + name);
         int comma = majorMinor.indexOf(',');
         if (comma > 0 && comma < majorMinor.length()) {
             major = ParseUtil.parseIntOrDefault(majorMinor.substring(0, comma), 0);
