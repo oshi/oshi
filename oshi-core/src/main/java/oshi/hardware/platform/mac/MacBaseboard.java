@@ -83,11 +83,23 @@ final class MacBaseboard extends AbstractBaseboard {
             if (data != null) {
                 model = Native.toString(data, StandardCharsets.UTF_8);
             }
+            if (Util.isBlank(model)) {
+                data = platformExpert.getByteArrayProperty("model-number");
+                if (data != null) {
+                    model = Native.toString(data, StandardCharsets.UTF_8);
+                }
+            }
             data = platformExpert.getByteArrayProperty("version");
             if (data != null) {
                 version = Native.toString(data, StandardCharsets.UTF_8);
             }
-            serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
+            data = platformExpert.getByteArrayProperty("mlb-serial-number");
+            if (data != null) {
+                serialNumber = Native.toString(data, StandardCharsets.UTF_8);
+            }
+            if (Util.isBlank(serialNumber)) {
+                serialNumber = platformExpert.getStringProperty("IOPlatformSerialNumber");
+            }
             platformExpert.release();
         }
         return new Quartet<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer,
