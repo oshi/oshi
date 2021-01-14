@@ -285,7 +285,7 @@ public interface InternetProtocolStats {
      * The TCP connection state as described in RFC 793.
      */
     enum TcpState {
-        UNKNOWN, CLOSED, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT1, FIN_WAIT2, CLOSE_WAIT, CLOSING, LAST_ACK,
+        UNKNOWN, CLOSED, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT, CLOSING, LAST_ACK,
         TIME_WAIT, NONE;
     }
 

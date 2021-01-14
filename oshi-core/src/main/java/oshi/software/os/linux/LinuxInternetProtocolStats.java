@@ -27,8 +27,8 @@ import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
 import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT2;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
 import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
 import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
 import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
@@ -142,9 +142,9 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         case 0x03:
             return SYN_RECV;
         case 0x04:
-            return FIN_WAIT1;
+            return FIN_WAIT_1;
         case 0x05:
-            return FIN_WAIT2;
+            return FIN_WAIT_2;
         case 0x06:
             return TIME_WAIT;
         case 0x07:

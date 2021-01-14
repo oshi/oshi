@@ -31,8 +31,8 @@ import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
 import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT2;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
 import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
 import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
 import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
@@ -225,9 +225,9 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
         case 5:
             return ESTABLISHED;
         case 6:
-            return FIN_WAIT1;
+            return FIN_WAIT_1;
         case 7:
-            return FIN_WAIT2;
+            return FIN_WAIT_2;
         case 8:
             return CLOSE_WAIT;
         case 9:
