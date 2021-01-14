@@ -50,6 +50,9 @@ public class MacUsbDevice extends AbstractUsbDevice {
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
+    private static final String IOUSB = "IOUSB";
+    private static final String IOSERVICE = "IOService";
+
     public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -85,45 +88,44 @@ public class MacUsbDevice extends AbstractUsbDevice {
         Map<Long, String> serialMap = new HashMap<>();
         Map<Long, List<Long>> hubMap = new HashMap<>();
 
-        // Iterate over USB Controllers. All devices are children of one of
-        // these controllers in the "IOService" plane
         List<Long> usbControllers = new ArrayList<>();
-        IOIterator iter = IOKitUtil.getMatchingServices("IOUSBController");
+        // Iterate over children of root in the IOUSB plane. This does not include
+        // controllers but should map one to one as root hub simulations
+        IORegistryEntry root = IOKitUtil.getRoot();
+        IOIterator iter = root.getChildIterator(IOUSB);
         if (iter != null) {
             // Define keys
             CFStringRef locationIDKey = CFStringRef.createCFString("locationID");
             CFStringRef ioPropertyMatchKey = CFStringRef.createCFString("IOPropertyMatch");
 
+            // Get the device directly under each controller
             IORegistryEntry device = iter.next();
             while (device != null) {
-                // Unique global identifier for this device
-                long id = device.getRegistryEntryID();
+                // The parent of this device is the controller
+                IORegistryEntry controller = device.getParentEntry(IOSERVICE);
+                // Unique global identifier for this controller
+                long id = controller.getRegistryEntryID();
                 usbControllers.add(id);
-
-                // Get device name and store in map
-                nameMap.put(id, device.getName());
-                // The only information we have in registry for this device is
-                // the
-                // locationID. Use that to search for matching PCI device to
-                // obtain
+                nameMap.put(id, controller.getName());
+                // The only information we have in registry for this controller is
+                // the locationID. Use that to search for matching PCI device to obtain
                 // more information.
-                CFTypeRef ref = device.createCFProperty(locationIDKey);
+                CFTypeRef ref = controller.createCFProperty(locationIDKey);
                 if (ref != null) {
                     getControllerIdByLocation(id, ref, locationIDKey, ioPropertyMatchKey, vendorIdMap, productIdMap);
                     ref.release();
                 }
 
-                // Now iterate the children of this device in the "IOService"
-                // plane.
-                // If device parent is root, link to the controller
-                IOIterator childIter = device.getChildIterator("IOService");
+                // Now iterate the children of this controller in the "IOService"
+                // plane. If device parent is root, link to the controller
+                IOIterator childIter = controller.getChildIterator(IOSERVICE);
                 IORegistryEntry childDevice = childIter.next();
                 while (childDevice != null) {
                     // Unique global identifier for this device
                     long childId = childDevice.getRegistryEntryID();
 
                     // Get this device's parent in the "IOUSB" plane
-                    IORegistryEntry parent = childDevice.getParentEntry("IOUSB");
+                    IORegistryEntry parent = childDevice.getParentEntry(IOUSB);
                     // If the parent is not an IOUSBDevice (will be root), set
                     // the parentId to the controller
                     long parentId;
@@ -164,10 +166,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
                     childDevice = childIter.next();
                 }
                 childIter.release();
+                controller.release();
                 device.release();
                 device = iter.next();
             }
             iter.release();
+            root.release();
             locationIDKey.release();
             ioPropertyMatchKey.release();
         }
@@ -230,7 +234,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
             IORegistryEntry matchingService = serviceIterator.next();
             while (matchingService != null && !found) {
                 // Get the parent, which contains the keys we need
-                IORegistryEntry parent = matchingService.getParentEntry("IOService");
+                IORegistryEntry parent = matchingService.getParentEntry(IOSERVICE);
                 // look up the vendor-id by key
                 // vendor-id is a byte array of 4 bytes
                 if (parent != null) {
