@@ -23,14 +23,20 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.platform.mac.SystemB.VMMeter;
@@ -41,7 +47,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU.
@@ -51,6 +59,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
+    private final Supplier<Pair<String, Long>> vendorFreq = memoize(MacCentralProcessor::platformExpert);
+
     @Override
     protected ProcessorIdentifier queryProcessorId() {
         String cpuName = SysctlUtil.sysctl("machdep.cpu.brand_string", "");
@@ -59,16 +69,18 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         String cpuModel;
         String cpuFamily;
         String processorID;
+        long cpuFreq = 0L;
         if (cpuName.startsWith("Apple")) {
             // Processing an M1 chip
-            cpuVendor = "Apple";
+            cpuVendor = vendorFreq.get().getA();
             cpuStepping = "0"; // No correlation yet
             cpuModel = "0"; // No correlation yet
-            int i = SysctlUtil.sysctl("hw.cpufamily", 0); // 0 is "unknown"
-            cpuFamily = String.format("0x%08x", i); // M1 is 0x1B588BB3
+            int family = SysctlUtil.sysctl("hw.cpufamily", 0);
+            cpuFamily = String.format("0x%08x", family); // M1 is 0x1b588bb3
             // For processor ID let's combine CPU type:
-            i = SysctlUtil.sysctl("hw.cputype", 0);
-            processorID = String.format("%08x%s", i, cpuFamily);
+            int type = SysctlUtil.sysctl("hw.cputype", 0);
+            processorID = String.format("%08x%08x", type, family);
+            cpuFreq = vendorFreq.get().getB();
         } else {
             // Processing an Intel chip
             cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
@@ -83,8 +95,11 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
             processorID = String.format("%016x", processorIdBits);
         }
+        long cpuFrequency = SysctlUtil.sysctl("hw.cpufrequency", 0L);
+        if (cpuFrequency > cpuFreq) {
+            cpuFreq = cpuFrequency;
+        }
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
-        long cpuFreq = SysctlUtil.sysctl("hw.cpufrequency", 0L);
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuFreq);
@@ -196,5 +211,23 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             return -1;
         }
         return ParseUtil.unsignedIntToLong(vmstats.v_intr);
+    }
+
+    private static Pair<String, Long> platformExpert() {
+        String manufacturer = null;
+        long freq = 0;
+        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        if (platformExpert != null) {
+            byte[] data = platformExpert.getByteArrayProperty("manufacturer");
+            if (data != null) {
+                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+            }
+            data = platformExpert.getByteArrayProperty("clock-frequency");
+            if (data != null && data.length <= 8) {
+                freq = ParseUtil.byteArrayToLong(data, data.length) * 1000L;
+            }
+            platformExpert.release();
+        }
+        return new Pair<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer, freq);
     }
 }

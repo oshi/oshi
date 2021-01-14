@@ -81,6 +81,7 @@ final class MacFirmware extends AbstractFirmware {
         String releaseDate = null;
 
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        byte[] data;
         if (platformExpert != null) {
             IOIterator iter = platformExpert.getChildIterator("IODeviceTree");
             if (iter != null) {
@@ -88,7 +89,7 @@ final class MacFirmware extends AbstractFirmware {
                 while (entry != null) {
                     switch (entry.getName()) {
                     case "rom":
-                        byte[] data = entry.getByteArrayProperty("vendor");
+                        data = entry.getByteArrayProperty("vendor");
                         if (data != null) {
                             manufacturer = Native.toString(data, StandardCharsets.UTF_8);
                         }
@@ -114,12 +115,33 @@ final class MacFirmware extends AbstractFirmware {
                         }
                         break;
                     default:
+                        if (Util.isBlank(name)) {
+                            name = entry.getStringProperty("IONameMatch");
+                        }
                         break;
                     }
                     entry.release();
                     entry = iter.next();
                 }
                 iter.release();
+            }
+            if (Util.isBlank(manufacturer)) {
+                data = platformExpert.getByteArrayProperty("manufacturer");
+                if (data != null) {
+                    manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+                }
+            }
+            if (Util.isBlank(version)) {
+                data = platformExpert.getByteArrayProperty("target-type");
+                if (data != null) {
+                    version = Native.toString(data, StandardCharsets.UTF_8);
+                }
+            }
+            if (Util.isBlank(name)) {
+                data = platformExpert.getByteArrayProperty("device_type");
+                if (data != null) {
+                    name = Native.toString(data, StandardCharsets.UTF_8);
+                }
             }
             platformExpert.release();
         }
