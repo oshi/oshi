@@ -23,9 +23,15 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.openbsd.disk.Disklabel;
@@ -42,6 +48,8 @@ import oshi.util.tuples.Quartet;
  */
 @ThreadSafe
 public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
+
+    private final Supplier<List<String>> iostat = memoize(this::querySystatIostat, defaultExpiration());
 
     private long reads = 0L;
     private long readBytes = 0L;
@@ -64,6 +72,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
      */
     public static List<HWDiskStore> getDisks() {
         List<OpenBsdHWDiskStore> diskList = new ArrayList<>();
+        List<String> dmesg = null; // Lazily fetch in loop if needed
 
         // Get list of disks from sysctl
         // hw.disknames=sd0:2cf69345d371cd82,cd0:,sd1:
@@ -74,7 +83,27 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
             diskName = device.split(":")[0];
             // get partitions using disklabel command (requires root)
             Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(diskName);
-            store = new OpenBsdHWDiskStore(diskName, diskdata.getA(), diskdata.getB(), diskdata.getC());
+            String model = diskdata.getA();
+            long size = diskdata.getC();
+            if (size <= 1) {
+                if (dmesg == null) {
+                    dmesg = ExecutingCommand.runNative("dmesg");
+                }
+                Pattern diskAt = Pattern.compile(diskName + " at .*<(.+)>");
+                Pattern diskMB = Pattern.compile(diskName + ": .* (\\d+)MB, .*");
+                for (String line : dmesg) {
+                    Matcher m = diskAt.matcher(line);
+                    if (m.matches()) {
+                        model = m.group(1);
+                    }
+                    m = diskMB.matcher(line);
+                    if (m.matches()) {
+                        size = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 20;
+                        break;
+                    }
+                }
+            }
+            store = new OpenBsdHWDiskStore(diskName, model, diskdata.getB(), size);
             store.partitionList = diskdata.getD();
             store.updateAttributes();
 
@@ -156,10 +185,9 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                                                                                     0 high flops
                                                                                     0 dma flips
         */
-        List<String> output = ExecutingCommand.runNative("systat -ab iostat");
         long now = System.currentTimeMillis();
         boolean diskFound = false;
-        for (String line : output) {
+        for (String line : iostat.get()) {
             String[] split = ParseUtil.whitespaces.split(line);
             if (split.length < 7 && split[0].equals(getName())) {
                 diskFound = true;
@@ -174,5 +202,9 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
             }
         }
         return diskFound;
+    }
+
+    private List<String> querySystatIostat() {
+        return ExecutingCommand.runNative("systat -ab iostat");
     }
 }

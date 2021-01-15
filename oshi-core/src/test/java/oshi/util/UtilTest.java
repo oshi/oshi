@@ -70,4 +70,12 @@ class UtilTest {
         assertThat("null should be Blank", Util.isBlank(null), is(true));
         assertThat("\"Not blank\" should not be Blank", Util.isBlank("Not blank"), is(false));
     }
+
+    @Test
+    void testIsBlankOrUnknown() {
+        assertThat("\"\" should be Blank", Util.isBlankOrUnknown(""), is(true));
+        assertThat("null should be Blank", Util.isBlankOrUnknown(null), is(true));
+        assertThat("unknown should be unknown", Util.isBlankOrUnknown(Constants.UNKNOWN), is(true));
+        assertThat("\"Not blank\" should not be Blank", Util.isBlankOrUnknown("Not blank"), is(false));
+    }
 }
