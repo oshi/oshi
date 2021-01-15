@@ -45,6 +45,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -75,10 +76,25 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             cpuVendor = vendorFreq.get().getA();
             cpuStepping = "0"; // No correlation yet
             cpuModel = "0"; // No correlation yet
-            int family = SysctlUtil.sysctl("hw.cpufamily", 0);
+            int family;
+            int type;
+            // M1 should have hw.cputype 0x0100000C (ARM64) and hw.cpufamily for an ARM SoC.
+            // However, under Rosetta, the OS reports hw.cputype for x86 (0x00000007) and
+            // hw.cpufamily for an Intel chip. Test whether Rosetta is translating machine
+            // level instructions and if so, we need to use the command line to go outside
+            // the x86-bound java pprocess to query the sysctl values. See
+            // https://developer.apple.com/documentation/apple_silicon/about_the_rosetta_translation_environment
+            if (SysctlUtil.sysctl("sysctl.proc_translated", 1) == 0) {
+                // We are using native instructions, use native sysctl
+                family = SysctlUtil.sysctl("hw.cpufamily", 0);
+                type = SysctlUtil.sysctl("hw.cputype", 0);
+            } else {
+                // We are (probably) translating instructions, use command line
+                family = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl hw.cpufamily"), 0);
+                type = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl hw.cputype"), 0);
+            }
             cpuFamily = String.format("0x%08x", family); // M1 is 0x1b588bb3
-            // For processor ID let's combine CPU type:
-            int type = SysctlUtil.sysctl("hw.cputype", 0);
+            // Processor ID is an intel concept but CPU type + family conveys same info
             processorID = String.format("%08x%08x", type, family);
             cpuFreq = vendorFreq.get().getB();
         } else {

@@ -8,7 +8,8 @@
 
 ##### Bug fixes / Improvements
 * [#1464](https://github.com/oshi/oshi/pull/1464): Also get disk statistics from AppleAPFSContainerScheme - [@mpfz0r](https://github.com/mpfz0r).
-* [#1485](https://github.com/oshi/oshi/pull/1485): Parse Apple M1 Processor ID info - [@dbwiddis](https://github.com/dbwiddis).
+* [#1485](https://github.com/oshi/oshi/pull/1485), 
+  [#1493](https://github.com/oshi/oshi/pull/1493): Parse Apple M1 Processor ID info - [@dbwiddis](https://github.com/dbwiddis).
 * [#1488](https://github.com/oshi/oshi/pull/1488),
   [#1489](https://github.com/oshi/oshi/pull/1489): Use IOUSB plane to iterate/recurse Mac USB tree - [@dbwiddis](https://github.com/dbwiddis).
 * [#1490](https://github.com/oshi/oshi/pull/1490): Apple M1 Baseboard and Firmware backups - [@dbwiddis](https://github.com/dbwiddis).
