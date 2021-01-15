@@ -89,8 +89,9 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                 if (dmesg == null) {
                     dmesg = ExecutingCommand.runNative("dmesg");
                 }
-                Pattern diskAt = Pattern.compile(diskName + " at .*<(.+)>");
-                Pattern diskMB = Pattern.compile(diskName + ": .* (\\d+)MB, .*");
+                Pattern diskAt = Pattern.compile(diskName + " at .*<(.+)>.*");
+                Pattern diskMB = Pattern
+                        .compile(diskName + ":.* (\\d+)MB, (?:(\\d+) bytes\\/sector, )?(?:(\\d+) sectors).*");
                 for (String line : dmesg) {
                     Matcher m = diskAt.matcher(line);
                     if (m.matches()) {
@@ -98,7 +99,21 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                     }
                     m = diskMB.matcher(line);
                     if (m.matches()) {
-                        size = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 20;
+                        // Group 3 is sectors
+                        long sectors = ParseUtil.parseLongOrDefault(m.group(3), 0L);
+                        // Group 2 is optional capture of bytes per sector
+                        long bytesPerSector = ParseUtil.parseLongOrDefault(m.group(2), 0L);
+                        if (bytesPerSector == 0) {
+                            // if we don't have bytes per sector guess at it based on total size and number
+                            // of sectors
+                            // Group 1 is size in MB, which may round
+                            size = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 20;
+                            // Estimate bytes per sector. Should be "near" a power of 2
+                            bytesPerSector = size / sectors;
+                            // Multiply by 1.5 and round down to nearest power of 2:
+                            bytesPerSector = Long.highestOneBit(bytesPerSector + bytesPerSector >> 1);
+                        }
+                        size = bytesPerSector * sectors;
                         break;
                     }
                 }
