@@ -235,10 +235,10 @@ public abstract class AbstractPowerSource implements PowerSource {
     }
 
     private static List<PowerSource> getPowerSources() {
-        switch (SystemInfo.getCurrentPlatformEnum()) {
+        switch (SystemInfo.getCurrentPlatform()) {
         case WINDOWS:
             return WindowsPowerSource.getPowerSources();
-        case MACOSX:
+        case MACOS:
             return MacPowerSource.getPowerSources();
         case LINUX:
             return LinuxPowerSource.getPowerSources();

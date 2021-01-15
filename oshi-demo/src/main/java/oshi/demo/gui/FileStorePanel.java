@@ -111,7 +111,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         for (OSFileStore store : fileStores) {
             fsCharts[i].setTitle(store.getName());
             List<TextTitle> subtitles = new ArrayList<>();
-            if (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
+            if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
                 subtitles.add(new TextTitle(store.getLabel()));
             }
             long usable = store.getUsableSpace();
