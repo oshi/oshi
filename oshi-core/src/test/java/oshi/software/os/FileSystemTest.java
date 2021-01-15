@@ -66,10 +66,10 @@ class FileSystemTest {
             assertThat("File store total space should be 0 or higher", store.getTotalSpace() >= 0, is(true));
             assertThat("File store usable space should be 0 or higher", store.getUsableSpace() >= 0, is(true));
             assertThat("File store free space should be 0 or higher", store.getFreeSpace() >= 0, is(true));
-            if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
+            if (SystemInfo.getCurrentPlatform() != PlatformEnum.WINDOWS) {
                 assertThat("Number of free inodes should be 0 or higher on non-Windows systems",
                         store.getFreeInodes() >= 0, is(true));
-                if (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.SOLARIS) {
+                if (SystemInfo.getCurrentPlatform() != PlatformEnum.SOLARIS) {
                     assertThat(
                             "Total number of inodes should be greater than or equal to number of free inodes on non-Windows/Solaris systems",
                             store.getTotalInodes() >= store.getFreeInodes(), is(true));

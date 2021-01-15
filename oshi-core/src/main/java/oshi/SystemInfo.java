@@ -23,6 +23,14 @@
  */
 package oshi;
 
+import static oshi.PlatformEnum.AIX;
+import static oshi.PlatformEnum.FREEBSD;
+import static oshi.PlatformEnum.LINUX;
+import static oshi.PlatformEnum.MACOS;
+import static oshi.PlatformEnum.MACOSX;
+import static oshi.PlatformEnum.SOLARIS;
+import static oshi.PlatformEnum.UNKNOWN;
+import static oshi.PlatformEnum.WINDOWS;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -45,7 +53,7 @@ import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
 /**
- * System information. This is the main entry point to Oshi.
+ * System information. This is the main entry point to OSHI.
  * <p>
  * This object provides getters which instantiate the appropriate
  * platform-specific implementations of {@link oshi.software.os.OperatingSystem}
@@ -55,23 +63,23 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static final PlatformEnum currentPlatformEnum;
+    private static final PlatformEnum currentPlatform;
 
     static {
         if (Platform.isWindows()) {
-            currentPlatformEnum = PlatformEnum.WINDOWS;
+            currentPlatform = WINDOWS;
         } else if (Platform.isLinux()) {
-            currentPlatformEnum = PlatformEnum.LINUX;
+            currentPlatform = LINUX;
         } else if (Platform.isMac()) {
-            currentPlatformEnum = PlatformEnum.MACOSX;
+            currentPlatform = MACOS;
         } else if (Platform.isSolaris()) {
-            currentPlatformEnum = PlatformEnum.SOLARIS;
+            currentPlatform = SOLARIS;
         } else if (Platform.isFreeBSD()) {
-            currentPlatformEnum = PlatformEnum.FREEBSD;
+            currentPlatform = FREEBSD;
         } else if (Platform.isAIX()) {
-            currentPlatformEnum = PlatformEnum.AIX;
+            currentPlatform = AIX;
         } else {
-            currentPlatformEnum = PlatformEnum.UNKNOWN;
+            currentPlatform = UNKNOWN;
         }
     }
 
@@ -80,14 +88,24 @@ public class SystemInfo {
     private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfo::createHardware);
 
     /**
-     * <p>
-     * Getter for the field <code>currentPlatformEnum</code>.
-     * </p>
+     * Gets the {@link PlatformEnum} value representing this system.
      *
-     * @return Returns the currentPlatformEnum.
+     * @return Returns the current platform
      */
+    public static PlatformEnum getCurrentPlatform() {
+        return currentPlatform;
+    }
+
+    /**
+     * Gets the {@link PlatformEnum} value representing this system.
+     *
+     * @return Returns the current platform
+     * @deprecated Use {@link #getCurrentPlatform()}
+     */
+    @Deprecated
     public static PlatformEnum getCurrentPlatformEnum() {
-        return currentPlatformEnum;
+        PlatformEnum platform = getCurrentPlatform();
+        return platform.equals(MACOS) ? MACOSX : platform;
     }
 
     /**
@@ -101,13 +119,12 @@ public class SystemInfo {
     }
 
     private static OperatingSystem createOperatingSystem() {
-        switch (currentPlatformEnum) {
-
+        switch (currentPlatform) {
         case WINDOWS:
             return new WindowsOperatingSystem();
         case LINUX:
             return new LinuxOperatingSystem();
-        case MACOSX:
+        case MACOS:
             return new MacOperatingSystem();
         case SOLARIS:
             return new SolarisOperatingSystem();
@@ -116,7 +133,8 @@ public class SystemInfo {
         case AIX:
             return new AixOperatingSystem();
         default:
-            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+            throw new UnsupportedOperationException(
+                    "Operating system not supported: JNA Platform type " + Platform.getOSType());
         }
     }
 
@@ -131,13 +149,12 @@ public class SystemInfo {
     }
 
     private static HardwareAbstractionLayer createHardware() {
-        switch (currentPlatformEnum) {
-
+        switch (currentPlatform) {
         case WINDOWS:
             return new WindowsHardwareAbstractionLayer();
         case LINUX:
             return new LinuxHardwareAbstractionLayer();
-        case MACOSX:
+        case MACOS:
             return new MacHardwareAbstractionLayer();
         case SOLARIS:
             return new SolarisHardwareAbstractionLayer();
@@ -146,7 +163,8 @@ public class SystemInfo {
         case AIX:
             return new AixHardwareAbstractionLayer();
         default:
-            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+            throw new UnsupportedOperationException(
+                    "Operating system not supported: JNA Platform type " + Platform.getOSType());
         }
     }
 }

@@ -53,7 +53,7 @@ public final class ExecutingCommand {
     }
 
     private static String[] getDefaultEnv() {
-        PlatformEnum platform = SystemInfo.getCurrentPlatformEnum();
+        PlatformEnum platform = SystemInfo.getCurrentPlatform();
         if (platform == PlatformEnum.WINDOWS) {
             return new String[] { "LANGUAGE=C" };
         } else if (platform != PlatformEnum.UNKNOWN) {
