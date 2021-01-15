@@ -346,6 +346,6 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             // Subtract 1 for header
             this.threadCount = threadList.size() - 1;
         }
-        this.threadCount = 0;
+        this.threadCount = 1;
     }
 }
