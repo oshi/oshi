@@ -170,10 +170,10 @@ public class OpenBsdOSThread extends AbstractOSThread {
         long now = System.currentTimeMillis();
         this.startTime = now - this.upTime;
         // ps does not provide kerneltime on OpenBSD
-        //this.kernelTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // systime
+        // this.kernelTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // systime
         this.kernelTime = 0L;
         this.userTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // cputime
-        //this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
+        // this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
         this.startMemoryAddress = 0L;
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[3], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[5], 0L);

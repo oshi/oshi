@@ -42,8 +42,10 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.tuples.Pair;
 
@@ -952,7 +954,8 @@ public final class ParseUtil {
     /**
      * Parses a string like "53G" or "54.904 M" to its long value.
      *
-     * @param count A count with a multiplyer like "4096 M"
+     * @param count
+     *            A count with a multiplyer like "4096 M"
      * @return the count parsed to a long
      */
     public static long parseMultipliedToLongs(String count) {
@@ -963,26 +966,26 @@ public final class ParseUtil {
             mem[0] = matcher.group(1);
             mem[1] = matcher.group(3);
         } else {
-            mem = new String[]{count};
+            mem = new String[] { count };
         }
 
         double number = ParseUtil.parseDoubleOrDefault(mem[0], 0L);
         if (mem.length == 2 && mem[1] != null && mem[1].length() >= 1) {
             switch ((mem[1].charAt(0))) {
-                case 'T':
-                    number *= 1_000_000_000_000L;
-                    break;
-                case 'G':
-                    number *= 1_000_000_000L;
-                    break;
-                case 'M':
-                    number *= 1_000_000L;
-                    break;
-                case 'K':
-                case 'k':
-                    number *= 1_000L;
-                    break;
-                default:
+            case 'T':
+                number *= 1_000_000_000_000L;
+                break;
+            case 'G':
+                number *= 1_000_000_000L;
+                break;
+            case 'M':
+                number *= 1_000_000L;
+                break;
+            case 'K':
+            case 'k':
+                number *= 1_000L;
+                break;
+            default:
             }
         }
         return (long) number;

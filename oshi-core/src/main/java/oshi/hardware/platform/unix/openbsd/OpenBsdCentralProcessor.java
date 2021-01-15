@@ -114,17 +114,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[0] = CTL_HW;
         mib[1] = HW_CPUSPEED;
         long freq = OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L;
-        // on OpenBSD SMT/HT/CMT is turned off by default, eg.
-        // hw.ncpufound=4
-        // hw.smt=0
-        // hw.ncpuonline=2
-        // these native calls are failing with "Failed sysctl call: [6, 21], Error code:
-        // 12"
-        // and "Failed sysctl call: [6, 24], Error code: 12"
-        // mib[1] = HW_NCPUFOUND;
-        // long[] freqs = new long[OpenBsdSysctlUtil.sysctl(mib, 1)];
-        // mib[1] = HW_SMT;
-        // int smtOff = OpenBsdSysctlUtil.sysctl(mib, 0);
+        // on OpenBSD SMT/HT/CMT is turned off by default
         long[] freqs = new long[OpenBsdSysctlUtil.sysctl("hw.ncpufound", 1)];
         int smtOff = OpenBsdSysctlUtil.sysctl("hw.smt", 0);
         if (smtOff > 0) {

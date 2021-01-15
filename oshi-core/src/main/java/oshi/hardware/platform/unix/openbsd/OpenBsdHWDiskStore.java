@@ -159,12 +159,12 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
             tty                 sd0                   cpu
          tin     tout    KB/t   xfr     MB       us ni sy sp in id
          7894    75610  28.09 1668381 45761.14    4  0  1  0  0 94
-
+        
                 https:man.openbsd.org/systat.1#iostat
-
+        
         └─ $ ▶ systat -b iostat
-
-
+        
+        
                 0 users Load 2.04 4.02 3.96                          thinkpad.local 00:14:35
                 DEVICE          READ    WRITE     RTPS    WTPS     SEC            STATS
                 sd0           49937M   25774M  1326555 1695370   945.9
@@ -197,7 +197,6 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                 this.writes = (long) ParseUtil.parseDoubleOrDefault(split[4], 0d);
                 // In seconds, multiply for ms
                 this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[5], 0d) * 1000);
-                // this.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
                 this.timeStamp = now;
             }
         }
