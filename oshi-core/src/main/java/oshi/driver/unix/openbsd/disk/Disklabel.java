@@ -40,7 +40,6 @@ public final class Disklabel {
 
     /*-
     * └─ $ ▶ doas disklabel sd1
-    
     */
     public static Quartet<String, String, Long, List<HWPartition>> getDiskParams(String diskName) {
         // disklabel (requires root) supports 15 configurable partitions, `a' through
