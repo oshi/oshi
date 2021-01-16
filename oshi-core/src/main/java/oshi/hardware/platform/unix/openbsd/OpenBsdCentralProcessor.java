@@ -114,20 +114,8 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[0] = CTL_HW;
         mib[1] = HW_CPUSPEED;
         long freq = OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L;
-        // on OpenBSD SMT/HT/CMT is turned off by default
-        long[] freqs = new long[OpenBsdSysctlUtil.sysctl("hw.ncpufound", 1)];
-        int smtOff = OpenBsdSysctlUtil.sysctl("hw.smt", 0);
-        if (smtOff > 0) {
-            // HT switched on
-            Arrays.fill(freqs, freq);
-        } else {
-            for (int c = 0; c < freqs.length; c++) {
-                if (c % 2 == 0) {
-                    freqs[c] = freq;
-                }
-            }
-        }
-
+        long[] freqs = new long[getLogicalProcessorCount()];
+        Arrays.fill(freqs, freq);
         return freqs;
     }
 
@@ -147,7 +135,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         // native call seems to fail here, use fallback
-        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpu", 1);
+        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpuonline", 1);
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
         for (int i = 0; i < logicalProcessorCount; i++) {
             logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));
