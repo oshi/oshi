@@ -27,9 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +43,7 @@ import com.sun.jna.platform.linux.LibC;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -58,10 +59,21 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
-    private static final String UNICODE_SPACE = "\\040";
+    public static final String OSHI_LINUX_FS_PATH_EXCLUDES = "oshi.os.linux.filesystem.path.excludes";
+    public static final String OSHI_LINUX_FS_PATH_INCLUDES = "oshi.os.linux.filesystem.path.includes";
+    public static final String OSHI_LINUX_FS_VOLUME_EXCLUDES = "oshi.os.linux.filesystem.volume.excludes";
+    public static final String OSHI_LINUX_FS_VOLUME_INCLUDES = "oshi.os.linux.filesystem.volume.includes";
 
-    // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
+    private static final List<PathMatcher> FS_PATH_EXCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_PATH_EXCLUDES);
+    private static final List<PathMatcher> FS_PATH_INCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_PATH_INCLUDES);
+    private static final List<PathMatcher> FS_VOLUME_EXCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_EXCLUDES);
+    private static final List<PathMatcher> FS_VOLUME_INCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_INCLUDES);
+
+    private static final String UNICODE_SPACE = "\\040";
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
@@ -126,29 +138,28 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
 
             // Exclude pseudo file systems
+            String volume = split[0].replace(UNICODE_SPACE, " ");
+            String name = volume;
             String path = split[1].replace(UNICODE_SPACE, " ");
+            if (path.equals("/")) {
+                volume = "/";
+            }
             String type = split[2];
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
-                    || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types
-                    || path.equals("/dev") // exclude plain dev directory
-                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes
-                    || path.endsWith("/shm") // exclude shared memory
-            ) {
+
+            // Skip non-local drives if requested, and exclude pseudo file systems
+            if ((localOnly && NETWORK_FS_TYPES.contains(type))
+                    || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
+                            volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                 continue;
             }
-            String options = split[3];
 
-            String name = split[0].replace(UNICODE_SPACE, " ");
-            if (path.equals("/")) {
-                name = "/";
-            }
+            String options = split[3];
 
             // If only updating for one name, skip others
             if (nameToMatch != null && !nameToMatch.equals(name)) {
                 continue;
             }
 
-            String volume = split[0].replace(UNICODE_SPACE, " ");
             String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], "") : "";
 
             String description;

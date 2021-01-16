@@ -6,6 +6,7 @@
 * [#1466](https://github.com/oshi/oshi/pull/1466): OpenBSD port - [@mprins](https://github.com/mprins), [@dbwiddis](https://github.com/dbwiddis).
 * [#1473](https://github.com/oshi/oshi/pull/1473): List Desktop Windows - [@dbwiddis](https://github.com/dbwiddis).
 * [#1476](https://github.com/oshi/oshi/pull/1476): Include ComputerSystem Hardware UUID - [@dbwiddis](https://github.com/dbwiddis).
+* [#1478](https://github.com/oshi/oshi/pull/1478): Added configuration properties to exclude/include filestores - [@majster-kat](https://github.com/majster-kat).
 
 ##### Bug fixes / Improvements
 * [#1464](https://github.com/oshi/oshi/pull/1464): Also get disk statistics from AppleAPFSContainerScheme - [@mpfz0r](https://github.com/mpfz0r).
