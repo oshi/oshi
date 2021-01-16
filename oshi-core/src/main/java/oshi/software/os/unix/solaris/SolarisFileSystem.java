@@ -24,6 +24,7 @@
 package oshi.software.os.unix.solaris;
 
 import java.io.File;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +33,10 @@ import java.util.Map;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractUnixFileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
@@ -46,7 +48,21 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 @ThreadSafe
-public class SolarisFileSystem extends AbstractUnixFileSystem {
+public class SolarisFileSystem extends AbstractFileSystem {
+
+    public static final String OSHI_SOLARIS_FS_PATH_EXCLUDES = "oshi.os.solaris.filesystem.path.excludes";
+    public static final String OSHI_SOLARIS_FS_PATH_INCLUDES = "oshi.os.solaris.filesystem.path.includes";
+    public static final String OSHI_SOLARIS_FS_VOLUME_EXCLUDES = "oshi.os.solaris.filesystem.volume.excludes";
+    public static final String OSHI_SOLARIS_FS_VOLUME_INCLUDES = "oshi.os.solaris.filesystem.volume.includes";
+
+    private static final List<PathMatcher> FS_PATH_EXCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_SOLARIS_FS_PATH_EXCLUDES);
+    private static final List<PathMatcher> FS_PATH_INCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_SOLARIS_FS_PATH_INCLUDES);
+    private static final List<PathMatcher> FS_VOLUME_EXCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_SOLARIS_FS_VOLUME_EXCLUDES);
+    private static final List<PathMatcher> FS_VOLUME_INCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_SOLARIS_FS_VOLUME_INCLUDES);
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
@@ -108,7 +124,8 @@ public class SolarisFileSystem extends AbstractUnixFileSystem {
 
             // Skip non-local drives if requested, and exclude pseudo file systems
             if ((localOnly && NETWORK_FS_TYPES.contains(type))
-                    || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || isFileStoreExcluded(path, volume))) {
+                    || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
+                            volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                 continue;
             }
 

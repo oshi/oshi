@@ -25,6 +25,7 @@ package oshi.software.os.mac;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,9 +52,10 @@ import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractUnixFileSystem;
+import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.Constants;
+import oshi.util.FileSystemUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -63,9 +65,23 @@ import oshi.util.platform.mac.SysctlUtil;
  * the /Volumes directory.
  */
 @ThreadSafe
-public class MacFileSystem extends AbstractUnixFileSystem {
+public class MacFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
+
+    public static final String OSHI_MAC_FS_PATH_EXCLUDES = "oshi.os.mac.filesystem.path.excludes";
+    public static final String OSHI_MAC_FS_PATH_INCLUDES = "oshi.os.mac.filesystem.path.includes";
+    public static final String OSHI_MAC_FS_VOLUME_EXCLUDES = "oshi.os.mac.filesystem.volume.excludes";
+    public static final String OSHI_MAC_FS_VOLUME_INCLUDES = "oshi.os.mac.filesystem.volume.includes";
+
+    private static final List<PathMatcher> FS_PATH_EXCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_MAC_FS_PATH_EXCLUDES);
+    private static final List<PathMatcher> FS_PATH_INCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_MAC_FS_PATH_INCLUDES);
+    private static final List<PathMatcher> FS_VOLUME_EXCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_MAC_FS_VOLUME_EXCLUDES);
+    private static final List<PathMatcher> FS_VOLUME_INCLUDES = FileSystemUtil
+            .loadAndParseFileSystemConfig(OSHI_MAC_FS_VOLUME_INCLUDES);
 
     // Regexp matcher for /dev/disk1 etc.
     private static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d");
@@ -164,7 +180,8 @@ public class MacFileSystem extends AbstractUnixFileSystem {
 
                     // Skip non-local drives if requested, and exclude pseudo file systems
                     if ((localOnly && (flags & MNT_LOCAL) == 0) || !path.equals("/")
-                            && (PSEUDO_FS_TYPES.contains(type) || isFileStoreExcluded(path, volume))) {
+                            && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
+                                    FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                         continue;
                     }
 

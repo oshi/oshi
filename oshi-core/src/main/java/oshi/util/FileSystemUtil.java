@@ -73,6 +73,18 @@ public final class FileSystemUtil {
     }
 
     /**
+     * Load from config and parse file system include/exclude line.
+     *
+     * @param configPropertyName
+     *            The config property containing the line to be parsed.
+     * @return List of PathMatchers to be used to match filestore volume and path.
+     */
+    public static List<PathMatcher> loadAndParseFileSystemConfig(String configPropertyName) {
+        String config = GlobalConfig.get(configPropertyName, "");
+        return parseFileSystemConfig(config);
+    }
+
+    /**
      * Parse file system include/exclude line.
      *
      * @param config
