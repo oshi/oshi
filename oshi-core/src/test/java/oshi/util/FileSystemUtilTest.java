@@ -23,16 +23,14 @@
  */
 package oshi.util;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 class FileSystemUtilTest {
 
@@ -42,59 +40,61 @@ class FileSystemUtilTest {
      */
     @Test
     void testIsFileStoreIncludedByDefault() {
-        assertThat("file store included by default", !isFileStoreExcluded("/any-path", "/any-volume", "", "", "", ""));
+        assertThat("file store included by default", !FileSystemUtil.isFileStoreExcluded("/any-path", "/any-volume",
+                                                                                         new ArrayList<>(), new ArrayList<>(),
+                                                                                         new ArrayList<>(), new ArrayList<>()));
     }
 
     /**
      * Test path includes and excludes.
      */
     @Test
-    void testIsFileStoreIncludedPathIncludeExclude() {
-        assertThat("file store included",
-                !isFileStoreExcluded("/some-path", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
-        assertThat("file store included", !isFileStoreExcluded("/a/b/c/included-dir", "", "some-path,**/included-dir",
-                "**/*excluded-dir", "", ""));
-        assertThat("file store excluded",
-                isFileStoreExcluded("/excluded-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
-        assertThat("file store excluded", isFileStoreExcluded("/x/y/z/123-excluded-dir", "",
-                "some-path,**/included-dir", "**/*excluded-dir", "", ""));
-        // if neither includes nor excludes matches then file store is included by
-        // default
-        assertThat("file store included",
-                !isFileStoreExcluded("/other-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
+    void testIsFileStoreExcludedSimple() {
+        List<PathMatcher> pathExcludes = FileSystemUtil.parseFileSystemConfig("excluded-path");
+        List<PathMatcher> pathIncludes = FileSystemUtil.parseFileSystemConfig("included-path");
+        List<PathMatcher> volumeExcludes = FileSystemUtil.parseFileSystemConfig("excluded-volume");
+        List<PathMatcher> volumeIncludes = FileSystemUtil.parseFileSystemConfig("included-volume");
+
+        assertThat("excluded excluded-path", FileSystemUtil.isFileStoreExcluded("excluded-path", "",
+                                                                                pathIncludes, pathExcludes,
+                                                                                volumeIncludes, volumeExcludes));
+        assertThat("included included-path", !FileSystemUtil.isFileStoreExcluded("included-path", "",
+                                                                                 pathIncludes, pathExcludes,
+                                                                                 volumeIncludes, volumeExcludes));
+
+        assertThat("excluded excluded-volume", FileSystemUtil.isFileStoreExcluded("", "excluded-volume",
+                                                                                  pathIncludes, pathExcludes,
+                                                                                  volumeIncludes, volumeExcludes));
+        assertThat("included included-volume", !FileSystemUtil.isFileStoreExcluded("", "included-volume",
+                                                                                   pathIncludes, pathExcludes,
+                                                                                   volumeIncludes, volumeExcludes));
     }
 
     /**
      * Test that includes has priority over excludes.
      */
     @Test
-    void testIsFileStoreIncludedPathPriority() {
-        assertThat("file store included by default", !isFileStoreExcluded("/any-path", "", "*", "*", "", ""));
-    }
+    void testIsFileStoreExcludedPriority() {
+        List<PathMatcher> pathExcludes = FileSystemUtil.parseFileSystemConfig("path,path-excluded");
+        List<PathMatcher> pathIncludes = FileSystemUtil.parseFileSystemConfig("path");
+        List<PathMatcher> volumeExcludes = FileSystemUtil.parseFileSystemConfig("volume,volume-excluded");
+        List<PathMatcher> volumeIncludes = FileSystemUtil.parseFileSystemConfig("volume");
 
-    /**
-     * Test path includes and excludes.
-     */
-    @Test
-    void testIsFileStoreIncludedVolumeIncludeExclude() {
-        assertThat("file store included", !isFileStoreExcluded("", "/any-volume", "", "",
-                "some-volume,**/included-volume", "**/*excluded-volume"));
-        assertThat("file store included", !isFileStoreExcluded("", "/a/b/c/included-volume", "", "",
-                "some-volume,**/included-volume", "**/*excluded-volume"));
-        assertThat("file store excluded", isFileStoreExcluded("", "/x/y/z/123-excluded-volume", "", "",
-                "some-volume,**/included-volume", "**/*excluded-volume"));
-        // if neither includes nor excludes matches then file store is included by
-        // default
-        assertThat("file store included", !isFileStoreExcluded("", "/other-volume", "", "",
-                "some-volume,**/included-volume", "**/*excluded-volume"));
-    }
+        assertThat("excluded path-exclude", FileSystemUtil.isFileStoreExcluded("path-excluded", "",
+                                                                               pathIncludes, pathExcludes,
+                                                                               volumeIncludes, volumeExcludes));
+        // "path" is both included and excluded and since included has priority, it should be included
+        assertThat("included path", !FileSystemUtil.isFileStoreExcluded("path", "",
+                                                                        pathIncludes, pathExcludes,
+                                                                        volumeIncludes, volumeExcludes));
 
-    /**
-     * Test that includes has priority over excludes.
-     */
-    @Test
-    void testIsFileStoreIncludedVolumePriority() {
-        assertThat("file store included by default", !isFileStoreExcluded("", "/any-volume", "", "", "*", "*"));
+        assertThat("excluded volume-excluded", FileSystemUtil.isFileStoreExcluded("", "volume-excluded",
+                                                                                  pathIncludes, pathExcludes,
+                                                                                  volumeIncludes, volumeExcludes));
+        // "volume" is both included and excluded and since included has priority, it should be included
+        assertThat("included volume", !FileSystemUtil.isFileStoreExcluded("", "volume",
+                                                                          pathIncludes, pathExcludes,
+                                                                          volumeIncludes, volumeExcludes));
     }
 
     @Test
@@ -105,14 +105,14 @@ class FileSystemUtilTest {
     }
 
     @Test
-    void testParseFileSystemConfigWithGlobPrefix() {
+    void testWithGlobPrefix() {
         List<PathMatcher> matchers = FileSystemUtil.parseFileSystemConfig("glob:simple-path");
         assertThat("simple-path is matched", FileSystemUtil.matches(Paths.get("simple-path"), matchers));
         assertThat("other-path is not matched", !FileSystemUtil.matches(Paths.get("other-path"), matchers));
     }
 
     @Test
-    void testParseFileSystemConfigWithMoreItems() {
+    void testWithMoreItems() {
         List<PathMatcher> matchers = FileSystemUtil.parseFileSystemConfig("simple-path1,simple-path2,simple-path3");
         assertThat("simple-path1 is matched", FileSystemUtil.matches(Paths.get("simple-path1"), matchers));
         assertThat("simple-path2 is matched", FileSystemUtil.matches(Paths.get("simple-path2"), matchers));
@@ -121,7 +121,7 @@ class FileSystemUtilTest {
     }
 
     @Test
-    void testParseFileSystemConfigWithMultiDirPattern() {
+    void testWithMultiDirPattern() {
         List<PathMatcher> matchers = FileSystemUtil.parseFileSystemConfig("**/complex-path");
         assertThat("/complex-path is matched", FileSystemUtil.matches(Paths.get("/complex-path"), matchers));
         assertThat("/var/complex-path is matched", FileSystemUtil.matches(Paths.get("/var/complex-path"), matchers));
@@ -129,7 +129,7 @@ class FileSystemUtilTest {
     }
 
     @Test
-    void testParseFileSystemConfigWithSuffixPattern() {
+    void testWithSuffixPattern() {
         List<PathMatcher> matchers = FileSystemUtil.parseFileSystemConfig("suffix-path*");
         assertThat("suffix-path is matched", FileSystemUtil.matches(Paths.get("suffix-path"), matchers));
         assertThat("suffix-path/ is matched", FileSystemUtil.matches(Paths.get("suffix-path/"), matchers));
@@ -141,30 +141,11 @@ class FileSystemUtilTest {
     }
 
     @Test
-    void testParseFileSystemConfigWithSuffixMultiDirPattern() {
+    void testWithSuffixMultiDirPattern() {
         List<PathMatcher> matchers = FileSystemUtil.parseFileSystemConfig("suffix-path/**");
         assertThat("suffix-path/ is not matched", !FileSystemUtil.matches(Paths.get("suffix-path/"), matchers));
         assertThat("suffix-path/a is matched", FileSystemUtil.matches(Paths.get("suffix-path/a"), matchers));
         assertThat("suffix-path/a/b/c is matched", FileSystemUtil.matches(Paths.get("suffix-path/a/b/c"), matchers));
         assertThat("123-suffix-path is not matched", !FileSystemUtil.matches(Paths.get("123-suffix-path"), matchers));
-    }
-
-    private boolean isFileStoreExcluded(String path, String volume, String pathIncludes, String pathExcludes,
-            String volumeIncludes, String volumeExcludes) {
-        return FileSystemUtil.isFileStoreExcluded(path, volume, patternsToMatchers(pathIncludes),
-                patternsToMatchers(pathExcludes), patternsToMatchers(volumeIncludes),
-                patternsToMatchers(volumeExcludes));
-
-    }
-
-    static List<PathMatcher> patternsToMatchers(String globPatterns) {
-        FileSystem fs = FileSystems.getDefault();
-        List<PathMatcher> patterns = new ArrayList<>();
-        for (String item : globPatterns.split(",")) {
-            if (item.length() > 0) {
-                patterns.add(fs.getPathMatcher("glob:" + item));
-            }
-        }
-        return patterns;
     }
 }
