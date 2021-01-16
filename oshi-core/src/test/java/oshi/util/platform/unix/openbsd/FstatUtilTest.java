@@ -29,12 +29,12 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static oshi.PlatformEnum.OPENBSD;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 
 /**
@@ -45,14 +45,15 @@ class FstatUtilTest {
     private static int pid;
 
     @BeforeAll
-    void getPid(){
-        assumeTrue(SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.OPENBSD));
+    void getPid() {
+        assumeTrue(SystemInfo.getCurrentPlatform().equals(OPENBSD));
         pid = new SystemInfo().getOperatingSystem().getProcessId();
     }
 
     @Test
     void testGetOpenFiles() {
-        assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
+        assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid),
+                is(greaterThanOrEqualTo(0L)));
     }
 
     @Test

@@ -14,6 +14,7 @@
 * [#1488](https://github.com/oshi/oshi/pull/1488),
   [#1489](https://github.com/oshi/oshi/pull/1489): Use IOUSB plane to iterate/recurse Mac USB tree - [@dbwiddis](https://github.com/dbwiddis).
 * [#1490](https://github.com/oshi/oshi/pull/1490): Apple M1 Baseboard and Firmware backups - [@dbwiddis](https://github.com/dbwiddis).
+* [#1494](https://github.com/oshi/oshi/pull/1494): Deprecate MACOSX platform enum - [@dbwiddis](https://github.com/dbwiddis).
   
 
 # 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11), 5.3.6 (2020-11-15), 5.3.7 (2020-12-20)

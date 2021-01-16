@@ -38,6 +38,13 @@ public enum PlatformEnum {
     /**
      * macOS (formerly OS X)
      */
+    MACOS,
+    /**
+     * Mac OS X
+     *
+     * @deprecated Use {@link #MACOS}
+     */
+    @Deprecated
     MACOSX,
     /**
      * Solaris (SunOS)
