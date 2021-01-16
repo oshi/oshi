@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -66,7 +66,8 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
 
     private void init(FileSystem fs) {
         List<OSFileStore> fileStores = fs.getFileStores();
-        DefaultPieDataset[] fsData = new DefaultPieDataset[fileStores.size()];
+        @SuppressWarnings("unchecked")
+        DefaultPieDataset<String>[] fsData = new DefaultPieDataset[fileStores.size()];
         JFreeChart[] fsCharts = new JFreeChart[fsData.length];
 
         JPanel fsPanel = new JPanel();
@@ -79,7 +80,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         int modBase = (int) (fileStores.size() * (Config.GUI_HEIGHT + Config.GUI_WIDTH)
                 / (Config.GUI_WIDTH * Math.sqrt(fileStores.size())));
         for (int i = 0; i < fileStores.size(); i++) {
-            fsData[i] = new DefaultPieDataset();
+            fsData[i] = new DefaultPieDataset<>();
             fsCharts[i] = ChartFactory.createPieChart(null, fsData[i], true, true, false);
             configurePlot(fsCharts[i]);
             fsConstraints.gridx = i % modBase;
@@ -102,7 +103,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         timer.start();
     }
 
-    private static boolean updateDatasets(FileSystem fs, DefaultPieDataset[] fsData, JFreeChart[] fsCharts) {
+    private static boolean updateDatasets(FileSystem fs, DefaultPieDataset<String>[] fsData, JFreeChart[] fsCharts) {
         List<OSFileStore> fileStores = fs.getFileStores();
         if (fileStores.size() != fsData.length) {
             return false;
@@ -127,7 +128,8 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
     }
 
     private static void configurePlot(JFreeChart chart) {
-        PiePlot plot = (PiePlot) chart.getPlot();
+        @SuppressWarnings("unchecked")
+        PiePlot<String> plot = (PiePlot<String>) chart.getPlot();
         plot.setSectionPaint(USED, Color.red);
         plot.setSectionPaint(AVAILABLE, Color.green);
         plot.setExplodePercent(USED, 0.10);
