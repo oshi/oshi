@@ -26,6 +26,7 @@ package oshi.hardware.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -117,7 +118,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     @Override
     public long[] getCurrentFreq() {
-        return currentFreq.get();
+        long[] freq = currentFreq.get();
+        if (freq.length == getLogicalProcessorCount()) {
+            return freq;
+        }
+        long[] freqs = new long[getLogicalProcessorCount()];
+        Arrays.fill(freqs, freq[0]);
+        return freqs;
     }
 
     /**

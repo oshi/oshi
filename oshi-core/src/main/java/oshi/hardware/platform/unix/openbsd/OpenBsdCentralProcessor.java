@@ -110,13 +110,12 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected long[] queryCurrentFreq() {
+        long[] freq = new long[1];
         int[] mib = new int[2];
         mib[0] = CTL_HW;
         mib[1] = HW_CPUSPEED;
-        long freq = OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L;
-        long[] freqs = new long[getLogicalProcessorCount()];
-        Arrays.fill(freqs, freq);
-        return freqs;
+        freq[0] = OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L;
+        return freq;
     }
 
     @Override
@@ -136,6 +135,10 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         }
         // native call seems to fail here, use fallback
         int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpuonline", 1);
+        // If we found more procs in dmesg, update
+        if (logicalProcessorCount < coreMap.keySet().size()) {
+            logicalProcessorCount = coreMap.keySet().size();
+        }
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
         for (int i = 0; i < logicalProcessorCount; i++) {
             logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));

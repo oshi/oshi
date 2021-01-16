@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -215,16 +214,15 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
-        long freq = BsdSysctlUtil.sysctl("dev.cpu.0.freq", -1L);
-        if (freq > 0) {
+        long[] freq = new long[1];
+        freq[0] = BsdSysctlUtil.sysctl("dev.cpu.0.freq", -1L);
+        if (freq[0] > 0) {
             // If success, value is in MHz
-            freq *= 1_000_000L;
+            freq[0] *= 1_000_000L;
         } else {
-            freq = BsdSysctlUtil.sysctl("machdep.tsc_freq", -1L);
+            freq[0] = BsdSysctlUtil.sysctl("machdep.tsc_freq", -1L);
         }
-        long[] freqs = new long[getLogicalProcessorCount()];
-        Arrays.fill(freqs, freq);
-        return freqs;
+        return freq;
     }
 
     @Override
