@@ -25,7 +25,6 @@ package oshi.software.os.unix.solaris;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +47,6 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 @ThreadSafe
 public class SolarisFileSystem extends AbstractUnixFileSystem {
-
-    // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
@@ -112,8 +108,7 @@ public class SolarisFileSystem extends AbstractUnixFileSystem {
 
             // Skip non-local drives if requested, and exclude pseudo file systems
             if ((localOnly && NETWORK_FS_TYPES.contains(type))
-                    || PSEUDO_FS_TYPES.contains(type)
-                    || isFileStoreExcluded(path, volume)) {
+                    || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || isFileStoreExcluded(path, volume))) {
                 continue;
             }
 

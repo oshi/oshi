@@ -25,13 +25,12 @@ package oshi.software.os.unix.aix;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.AbstractUnixFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -42,10 +41,7 @@ import oshi.util.ParseUtil;
  * implementation specific means of file storage.
  */
 @ThreadSafe
-public class AixFileSystem extends AbstractFileSystem {
-
-    // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/proc");
+public class AixFileSystem extends AbstractUnixFileSystem {
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
@@ -117,9 +113,8 @@ public class AixFileSystem extends AbstractFileSystem {
                 String options = split[4];
 
                 // Skip non-local drives if requested, and exclude pseudo file systems
-                if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type)
-                        || path.equals("/dev") || !path.startsWith("/")
-                        || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) && !path.equals("/")) {
+                if ((localOnly && NETWORK_FS_TYPES.contains(type))
+                        || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || isFileStoreExcluded(path, volume))) {
                     continue;
                 }
 

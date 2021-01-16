@@ -34,66 +34,59 @@ import java.util.List;
 public final class FileSystemUtil {
 
     private static final String GLOB_PREFIX = "glob:";
+    private static final String REGEX_PREFIX = "regex:";
 
     private FileSystemUtil() {
     }
 
     /**
-     * Evaluates if file store (identified by {@code path} and {@code volume}) should be excluded or not
-     * based on configuration {@code pathIncludes, pathExcludes, volumeIncludes, volumeExcludes}.
+     * Evaluates if file store (identified by {@code path} and {@code volume})
+     * should be excluded or not based on configuration
+     * {@code pathIncludes, pathExcludes, volumeIncludes, volumeExcludes}.
      *
-     * Inclusion has priority over exclusion. If no exclusion/inclusion pattern is specified, then filestore
-     * is not excluded.
+     * Inclusion has priority over exclusion. If no exclusion/inclusion pattern is
+     * specified, then filestore is not excluded.
      *
      * @param path
-     *          Mountpoint of filestore.
+     *            Mountpoint of filestore.
      * @param volume
-     *          Filestore volume.
+     *            Filestore volume.
      * @param pathIncludes
-     *          List of patterns for path inclusions.
+     *            List of patterns for path inclusions.
      * @param pathExcludes
-     *          List of patterns for path exclusions.
+     *            List of patterns for path exclusions.
      * @param volumeIncludes
-     *          List of patterns for volume inclusions.
+     *            List of patterns for volume inclusions.
      * @param volumeExcludes
-     *          List of patterns for volume exclusions.
-     * @return {@code true} if file store should be excluded or {@code false} otherwise.
+     *            List of patterns for volume exclusions.
+     * @return {@code true} if file store should be excluded or {@code false}
+     *         otherwise.
      */
-    public static boolean isFileStoreExcluded(String path, String volume,
-                                              List<PathMatcher> pathIncludes, List<PathMatcher> pathExcludes,
-                                              List<PathMatcher> volumeIncludes, List<PathMatcher> volumeExcludes) {
+    public static boolean isFileStoreExcluded(String path, String volume, List<PathMatcher> pathIncludes,
+            List<PathMatcher> pathExcludes, List<PathMatcher> volumeIncludes, List<PathMatcher> volumeExcludes) {
         Path p = Paths.get(path);
         Path v = Paths.get(volume);
-        if (matches(p, pathIncludes)) {
+        if (matches(p, pathIncludes) || matches(v, volumeIncludes)) {
             return false;
         }
-        if (matches(v, volumeIncludes)) {
-            return false;
-        }
-        if (matches(p, pathExcludes)) {
-            return true;
-        }
-        //noinspection RedundantIfStatement
-        if (matches(v, volumeExcludes)) {
-            return true;
-        }
-        return false;
+        return matches(p, pathExcludes) || matches(v, volumeExcludes);
     }
 
     /**
      * Parse file system include/exclude line.
      *
      * @param config
-     *          The config line to be parsed.
-     * @return  List of PathMatchers to be used to match filestore volume and path.
+     *            The config line to be parsed.
+     * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List<PathMatcher> parseFileSystemConfig(String config) {
         FileSystem fs = FileSystems.getDefault();
         List<PathMatcher> patterns = new ArrayList<>();
         for (String item : config.split(",")) {
             if (item.length() > 0) {
-                // Must add glob: prefix, more details in https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-
-                if (!item.startsWith(GLOB_PREFIX)) {
+                // Using glob: prefix as the defult unless user has specified glob or regex. See
+                // https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-
+                if (!(item.startsWith(GLOB_PREFIX) || item.startsWith(REGEX_PREFIX))) {
                     item = GLOB_PREFIX + item;
                 }
                 patterns.add(fs.getPathMatcher(item));
@@ -102,14 +95,17 @@ public final class FileSystemUtil {
         return patterns;
     }
 
-
     /**
      * Checks if {@code text} matches any of @param patterns}.
      *
-     * @param text     The text to be matched.
-     * @param patterns List of patterns.
-     * @return {@code true} if given text matches at least one glob pattern or {@code false} otherwise.
-     * @see <a href="https://en.wikipedia.org/wiki/Glob_(programming)">Wikipedia  - glob (programming)</a>
+     * @param text
+     *            The text to be matched.
+     * @param patterns
+     *            List of patterns.
+     * @return {@code true} if given text matches at least one glob pattern or
+     *         {@code false} otherwise.
+     * @see <a href="https://en.wikipedia.org/wiki/Glob_(programming)">Wikipedia -
+     *      glob (programming)</a>
      */
     public static boolean matches(Path text, List<PathMatcher> patterns) {
         for (PathMatcher pattern : patterns) {
@@ -121,4 +117,3 @@ public final class FileSystemUtil {
     }
 
 }
-

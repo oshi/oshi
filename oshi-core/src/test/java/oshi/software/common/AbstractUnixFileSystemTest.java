@@ -23,24 +23,26 @@
  */
 package oshi.software.common;
 
-import org.junit.jupiter.api.Test;
-import oshi.SystemInfo;
-import oshi.util.FileSystemUtil;
-import oshi.util.GlobalConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
-public class AbstractUnixFileSystemTest {
+import oshi.SystemInfo;
+import oshi.util.FileSystemUtil;
+import oshi.util.GlobalConfig;
+
+class AbstractUnixFileSystemTest {
 
     @Test
     void testParseFSConfigSimple() {
-        String platformName = SystemInfo.getCurrentPlatformEnum().name().toLowerCase();
-        GlobalConfig.set("oshi.os." + platformName + ".filesystem.path.excludes", "pattern1,*pattern2,pattern3*,**/pattern4,,");
-        List<PathMatcher> patterns = AbstractUnixFileSystem.parseFSConfig("path.excludes");
+        String platformName = SystemInfo.getCurrentPlatform().name().toLowerCase();
+        String configName = "oshi.os." + platformName + ".filesystem.path.excludes";
+        GlobalConfig.set(configName, "pattern1,*pattern2,pattern3*,**/pattern4,,");
+        List<PathMatcher> patterns = AbstractUnixFileSystem.parseFSConfig(configName);
 
         assertThat("excluded pattern1", pathExcluded("pattern1", patterns));
         assertThat("excluded pattern2", pathExcluded("pattern2", patterns));
@@ -52,8 +54,7 @@ public class AbstractUnixFileSystemTest {
     }
 
     private boolean pathExcluded(String path, List<PathMatcher> pathExclusions) {
-        return FileSystemUtil.isFileStoreExcluded(path, "",
-                                                  new ArrayList<>(), pathExclusions,
-                                                  new ArrayList<>(), new ArrayList<>());
+        return FileSystemUtil.isFileStoreExcluded(path, "", new ArrayList<>(), pathExclusions, new ArrayList<>(),
+                new ArrayList<>());
     }
 }

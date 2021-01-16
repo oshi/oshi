@@ -25,13 +25,12 @@ package oshi.software.os.unix.freebsd;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.AbstractUnixFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.linux.LinuxOSFileStore;
 import oshi.util.ExecutingCommand;
@@ -45,10 +44,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 @ThreadSafe
-public final class FreeBsdFileSystem extends AbstractFileSystem {
-
-    // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/system", "/tmp", "/dev/fd");
+public final class FreeBsdFileSystem extends AbstractUnixFileSystem {
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
@@ -109,9 +105,8 @@ public final class FreeBsdFileSystem extends AbstractFileSystem {
             String options = split[3];
 
             // Skip non-local drives if requested, and exclude pseudo file systems
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) || PSEUDO_FS_TYPES.contains(type) || path.equals("/dev")
-                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path)
-                    || volume.startsWith("rpool") && !path.equals("/")) {
+            if ((localOnly && NETWORK_FS_TYPES.contains(type))
+                    || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || isFileStoreExcluded(path, volume))) {
                 continue;
             }
 

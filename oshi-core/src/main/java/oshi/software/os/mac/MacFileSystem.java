@@ -51,7 +51,7 @@ import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.AbstractUnixFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.Constants;
 import oshi.util.platform.mac.SysctlUtil;
@@ -63,7 +63,7 @@ import oshi.util.platform.mac.SysctlUtil;
  * the /Volumes directory.
  */
 @ThreadSafe
-public class MacFileSystem extends AbstractFileSystem {
+public class MacFileSystem extends AbstractUnixFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacFileSystem.class);
 
@@ -155,16 +155,19 @@ public class MacFileSystem extends AbstractFileSystem {
                     // Mount to name will match canonical path., e.g., /dev/disk0s2
                     // Byte arrays are null-terminated strings
 
-                    // Get volume name
+                    // Get volume and path name, and type
                     String volume = Native.toString(fs[f].f_mntfromname, StandardCharsets.UTF_8);
+                    String path = Native.toString(fs[f].f_mntonname, StandardCharsets.UTF_8);
+                    String type = Native.toString(fs[f].f_fstypename, StandardCharsets.UTF_8);
                     // Skip non-local drives if requested, skip system types
                     final int flags = fs[f].f_flags;
-                    if ((localOnly && (flags & MNT_LOCAL) == 0) || volume.equals("devfs")
-                            || volume.startsWith("map ")) {
+
+                    // Skip non-local drives if requested, and exclude pseudo file systems
+                    if ((localOnly && (flags & MNT_LOCAL) == 0) || !path.equals("/")
+                            && (PSEUDO_FS_TYPES.contains(type) || isFileStoreExcluded(path, volume))) {
                         continue;
                     }
 
-                    String type = Native.toString(fs[f].f_fstypename, StandardCharsets.UTF_8);
                     String description = "Volume";
                     if (LOCAL_DISK.matcher(volume).matches()) {
                         description = "Local Disk";
@@ -172,7 +175,6 @@ public class MacFileSystem extends AbstractFileSystem {
                             || NETWORK_FS_TYPES.contains(type)) {
                         description = "Network Drive";
                     }
-                    String path = Native.toString(fs[f].f_mntonname, StandardCharsets.UTF_8);
                     String name = "";
                     File file = new File(path);
                     if (name.isEmpty()) {

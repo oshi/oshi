@@ -23,24 +23,22 @@
  */
 package oshi.util;
 
-import edu.umd.cs.findbugs.ba.bcp.PatternMatcher;
-import org.junit.jupiter.api.Test;
-import oshi.SystemInfo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
-public class FileSystemUtilTest {
+class FileSystemUtilTest {
 
     /**
-     * If no configuration is provided (in oshi.properties) then file store is included by default.
+     * If no configuration is provided (in oshi.properties) then file store is
+     * included by default.
      */
     @Test
     void testIsFileStoreIncludedByDefault() {
@@ -52,12 +50,18 @@ public class FileSystemUtilTest {
      */
     @Test
     void testIsFileStoreIncludedPathIncludeExclude() {
-        assertThat("file store included", !isFileStoreExcluded("/some-path", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
-        assertThat("file store included", !isFileStoreExcluded("/a/b/c/included-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
-        assertThat("file store excluded", isFileStoreExcluded("/excluded-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
-        assertThat("file store excluded", isFileStoreExcluded("/x/y/z/123-excluded-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
-        // if neither includes nor excludes matches then file store is included by default
-        assertThat("file store included", !isFileStoreExcluded("/other-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
+        assertThat("file store included",
+                !isFileStoreExcluded("/some-path", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
+        assertThat("file store included", !isFileStoreExcluded("/a/b/c/included-dir", "", "some-path,**/included-dir",
+                "**/*excluded-dir", "", ""));
+        assertThat("file store excluded",
+                isFileStoreExcluded("/excluded-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
+        assertThat("file store excluded", isFileStoreExcluded("/x/y/z/123-excluded-dir", "",
+                "some-path,**/included-dir", "**/*excluded-dir", "", ""));
+        // if neither includes nor excludes matches then file store is included by
+        // default
+        assertThat("file store included",
+                !isFileStoreExcluded("/other-dir", "", "some-path,**/included-dir", "**/*excluded-dir", "", ""));
     }
 
     /**
@@ -73,11 +77,16 @@ public class FileSystemUtilTest {
      */
     @Test
     void testIsFileStoreIncludedVolumeIncludeExclude() {
-        assertThat("file store included", !isFileStoreExcluded("", "/any-volume", "", "", "some-volume,**/included-volume", "**/*excluded-volume"));
-        assertThat("file store included", !isFileStoreExcluded("", "/a/b/c/included-volume", "", "", "some-volume,**/included-volume", "**/*excluded-volume"));
-        assertThat("file store excluded", isFileStoreExcluded("", "/x/y/z/123-excluded-volume", "", "", "some-volume,**/included-volume", "**/*excluded-volume"));
-        // if neither includes nor excludes matches then file store is included by default
-        assertThat("file store included", !isFileStoreExcluded("", "/other-volume", "", "", "some-volume,**/included-volume", "**/*excluded-volume"));
+        assertThat("file store included", !isFileStoreExcluded("", "/any-volume", "", "",
+                "some-volume,**/included-volume", "**/*excluded-volume"));
+        assertThat("file store included", !isFileStoreExcluded("", "/a/b/c/included-volume", "", "",
+                "some-volume,**/included-volume", "**/*excluded-volume"));
+        assertThat("file store excluded", isFileStoreExcluded("", "/x/y/z/123-excluded-volume", "", "",
+                "some-volume,**/included-volume", "**/*excluded-volume"));
+        // if neither includes nor excludes matches then file store is included by
+        // default
+        assertThat("file store included", !isFileStoreExcluded("", "/other-volume", "", "",
+                "some-volume,**/included-volume", "**/*excluded-volume"));
     }
 
     /**
@@ -126,7 +135,8 @@ public class FileSystemUtilTest {
         assertThat("suffix-path/ is matched", FileSystemUtil.matches(Paths.get("suffix-path/"), matchers));
         assertThat("suffix-path1 is matched", FileSystemUtil.matches(Paths.get("suffix-path1"), matchers));
         assertThat("suffix-path/a is not matched", !FileSystemUtil.matches(Paths.get("suffix-path/a"), matchers));
-        assertThat("suffix-path/a/b/c is not matched", !FileSystemUtil.matches(Paths.get("suffix-path/a/b/c"), matchers));
+        assertThat("suffix-path/a/b/c is not matched",
+                !FileSystemUtil.matches(Paths.get("suffix-path/a/b/c"), matchers));
         assertThat("123-suffix-path is not matched", !FileSystemUtil.matches(Paths.get("123-suffix-path"), matchers));
     }
 
@@ -139,26 +149,22 @@ public class FileSystemUtilTest {
         assertThat("123-suffix-path is not matched", !FileSystemUtil.matches(Paths.get("123-suffix-path"), matchers));
     }
 
-
-
-    private boolean isFileStoreExcluded(String path, String volume, String pathIncludes, String pathExcludes, String volumeIncludes, String volumeExcludes) {
-        return FileSystemUtil.isFileStoreExcluded(path, volume,
-                                                  patternsToMatchers(pathIncludes),
-                                                  patternsToMatchers(pathExcludes),
-                                                  patternsToMatchers(volumeIncludes),
-                                                  patternsToMatchers(volumeExcludes));
+    private boolean isFileStoreExcluded(String path, String volume, String pathIncludes, String pathExcludes,
+            String volumeIncludes, String volumeExcludes) {
+        return FileSystemUtil.isFileStoreExcluded(path, volume, patternsToMatchers(pathIncludes),
+                patternsToMatchers(pathExcludes), patternsToMatchers(volumeIncludes),
+                patternsToMatchers(volumeExcludes));
 
     }
 
     static List<PathMatcher> patternsToMatchers(String globPatterns) {
         FileSystem fs = FileSystems.getDefault();
         List<PathMatcher> patterns = new ArrayList<>();
-        for(String item : globPatterns.split(",")) {
-            if(item.length() > 0) {
+        for (String item : globPatterns.split(",")) {
+            if (item.length() > 0) {
                 patterns.add(fs.getPathMatcher("glob:" + item));
             }
         }
         return patterns;
     }
-
 }

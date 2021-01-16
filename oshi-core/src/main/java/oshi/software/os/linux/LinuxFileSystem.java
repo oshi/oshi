@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.LibC;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.AbstractUnixFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -54,14 +53,11 @@ import oshi.util.platform.linux.ProcPath;
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 @ThreadSafe
-public class LinuxFileSystem extends AbstractFileSystem {
+public class LinuxFileSystem extends AbstractUnixFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
     private static final String UNICODE_SPACE = "\\040";
-
-    // System path mounted as tmpfs
-    private static final List<String> TMP_FS_PATHS = Arrays.asList("/run", "/sys", "/proc", ProcPath.PROC);
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
@@ -126,22 +122,20 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
 
             // Exclude pseudo file systems
-            String path = split[1].replace(UNICODE_SPACE, " ");
-            String type = split[2];
-            if ((localOnly && NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested
-                    || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types
-                    || path.equals("/dev") // exclude plain dev directory
-                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes
-                    || path.endsWith("/shm") // exclude shared memory
-            ) {
-                continue;
-            }
-            String options = split[3];
-
             String name = split[0].replace(UNICODE_SPACE, " ");
+            String path = split[1].replace(UNICODE_SPACE, " ");
             if (path.equals("/")) {
                 name = "/";
             }
+            String type = split[2];
+
+            // Skip non-local drives if requested, and exclude pseudo file systems
+            if ((localOnly && NETWORK_FS_TYPES.contains(type))
+                    || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || isFileStoreExcluded(path, name))) {
+                continue;
+            }
+
+            String options = split[3];
 
             // If only updating for one name, skip others
             if (nameToMatch != null && !nameToMatch.equals(name)) {

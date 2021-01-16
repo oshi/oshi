@@ -23,30 +23,32 @@
  */
 package oshi.software.common;
 
+import java.nio.file.PathMatcher;
+import java.util.List;
+
 import oshi.SystemInfo;
 import oshi.util.FileSystemUtil;
 import oshi.util.GlobalConfig;
 
-import java.nio.file.PathMatcher;
-import java.util.List;
-
 public abstract class AbstractUnixFileSystem extends AbstractFileSystem {
 
-    private static final List<PathMatcher> FS_PATH_INCLUDES = parseFSConfig("path.includes");
-    private static final List<PathMatcher> FS_PATH_EXCLUDES = parseFSConfig("path.excludes");
-    private static final List<PathMatcher> FS_VOLUME_INCLUDES = parseFSConfig("volume.includes");
-    private static final List<PathMatcher> FS_VOLUME_EXCLUDES = parseFSConfig("volume.excludes");
+    private static final String CONFIG_NAME_PREFIX = "oshi.os." + SystemInfo.getCurrentPlatform().name().toLowerCase()
+            + ".filesystem.";
+    private static final List<PathMatcher> FS_PATH_INCLUDES = parseFSConfig(CONFIG_NAME_PREFIX + "path.includes");
+    private static final List<PathMatcher> FS_PATH_EXCLUDES = parseFSConfig(CONFIG_NAME_PREFIX + "path.excludes");
+    private static final List<PathMatcher> FS_VOLUME_INCLUDES = parseFSConfig(CONFIG_NAME_PREFIX + "volume.includes");
+    private static final List<PathMatcher> FS_VOLUME_EXCLUDES = parseFSConfig(CONFIG_NAME_PREFIX + "volume.excludes");
 
     protected static boolean isFileStoreExcluded(String path, String volume) {
-        return FileSystemUtil.isFileStoreExcluded(path, volume,
-                                                  FS_PATH_INCLUDES, FS_PATH_EXCLUDES,
-                                                  FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES);
+        return FileSystemUtil.isFileStoreExcluded(path, volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES,
+                FS_VOLUME_EXCLUDES);
     }
 
-    static List<PathMatcher> parseFSConfig(String configPropertyNamePart) {
-        String platformName = SystemInfo.getCurrentPlatformEnum().name().toLowerCase();
-        String config = GlobalConfig.get("oshi.os." + platformName + ".filesystem." + configPropertyNamePart, "");
-        System.out.println("Initializing with config: " + config);
+    // Package private for testing
+    static List<PathMatcher> parseFSConfig(String configPropertyName) {
+        String config = GlobalConfig.get(configPropertyName, "");
+        // DEBUG
+        System.out.println("Initializing " + configPropertyName + " with config: " + config);
         return FileSystemUtil.parseFileSystemConfig(config);
     }
 }
