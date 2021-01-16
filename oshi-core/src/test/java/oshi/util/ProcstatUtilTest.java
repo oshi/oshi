@@ -43,7 +43,7 @@ class ProcstatUtilTest {
 
     @Test
     void testProcstat() {
-        if (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.FREEBSD)) {
+        if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.FREEBSD)) {
             int pid = new SystemInfo().getOperatingSystem().getProcessId();
 
             assertThat("Open files must be nonnegative", ProcstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));

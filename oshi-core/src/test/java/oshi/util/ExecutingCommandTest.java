@@ -41,7 +41,7 @@ import oshi.SystemInfo;
  */
 class ExecutingCommandTest {
 
-    private static final String ECHO = SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)
+    private static final String ECHO = SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)
             ? "cmd.exe /C echo Test"
             : "echo Test";
     private static final String BAD_COMMAND = "noOSshouldHaveACommandNamedThis";

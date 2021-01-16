@@ -139,7 +139,7 @@ class CentralProcessorTest {
         for (int lp = 0; lp < p.getLogicalProcessorCount(); lp++) {
             assertThat("Logical processor number is negative", p.getLogicalProcessors().get(lp).getProcessorNumber(),
                     is(greaterThanOrEqualTo(0)));
-            switch (SystemInfo.getCurrentPlatformEnum()) {
+            switch (SystemInfo.getCurrentPlatform()) {
             case WINDOWS:
                 if (p.getLogicalProcessorCount() < 64) {
                     assertThat("Processor group should be 0 for Windows systems with less than 64 logical processors",
@@ -154,7 +154,7 @@ class CentralProcessorTest {
                 assertThat("NUMA node number is negative", p.getLogicalProcessors().get(lp).getNumaNode(),
                         is(greaterThanOrEqualTo(0)));
                 break;
-            case MACOSX:
+            case MACOS:
                 assertThat("Processor group should be 0 for macOS systems",
                         p.getLogicalProcessors().get(lp).getProcessorGroup(), is(0));
                 assertThat("NUMA Node should be 0 for macOS systems", p.getLogicalProcessors().get(lp).getNumaNode(),

@@ -23,14 +23,20 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.platform.mac.SystemB.VMMeter;
@@ -39,9 +45,12 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU.
@@ -51,22 +60,62 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
+    private final Supplier<Pair<String, Long>> vendorFreq = memoize(MacCentralProcessor::platformExpert);
+
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
         String cpuName = SysctlUtil.sysctl("machdep.cpu.brand_string", "");
-        int i = SysctlUtil.sysctl("machdep.cpu.stepping", -1);
-        String cpuStepping = i < 0 ? "" : Integer.toString(i);
-        i = SysctlUtil.sysctl("machdep.cpu.model", -1);
-        String cpuModel = i < 0 ? "" : Integer.toString(i);
-        i = SysctlUtil.sysctl("machdep.cpu.family", -1);
-        String cpuFamily = i < 0 ? "" : Integer.toString(i);
-        long processorIdBits = 0L;
-        processorIdBits |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
-        processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
-        String processorID = String.format("%016X", processorIdBits);
+        String cpuVendor;
+        String cpuStepping;
+        String cpuModel;
+        String cpuFamily;
+        String processorID;
+        long cpuFreq = 0L;
+        if (cpuName.startsWith("Apple")) {
+            // Processing an M1 chip
+            cpuVendor = vendorFreq.get().getA();
+            cpuStepping = "0"; // No correlation yet
+            cpuModel = "0"; // No correlation yet
+            int family;
+            int type;
+            // M1 should have hw.cputype 0x0100000C (ARM64) and hw.cpufamily for an ARM SoC.
+            // However, under Rosetta, the OS reports hw.cputype for x86 (0x00000007) and
+            // hw.cpufamily for an Intel chip. Test whether Rosetta is translating machine
+            // level instructions and if so, we need to use the command line to go outside
+            // the x86-bound java pprocess to query the sysctl values. See
+            // https://developer.apple.com/documentation/apple_silicon/about_the_rosetta_translation_environment
+            if (SysctlUtil.sysctl("sysctl.proc_translated", 1) == 0) {
+                // We are using native instructions, use native sysctl
+                family = SysctlUtil.sysctl("hw.cpufamily", 0);
+                type = SysctlUtil.sysctl("hw.cputype", 0);
+            } else {
+                // We are (probably) translating instructions, use command line
+                family = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl hw.cpufamily"), 0);
+                type = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl hw.cputype"), 0);
+            }
+            cpuFamily = String.format("0x%08x", family); // M1 is 0x1b588bb3
+            // Processor ID is an intel concept but CPU type + family conveys same info
+            processorID = String.format("%08x%08x", type, family);
+            cpuFreq = vendorFreq.get().getB();
+        } else {
+            // Processing an Intel chip
+            cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
+            int i = SysctlUtil.sysctl("machdep.cpu.stepping", -1);
+            cpuStepping = i < 0 ? "" : Integer.toString(i);
+            i = SysctlUtil.sysctl("machdep.cpu.model", -1);
+            cpuModel = i < 0 ? "" : Integer.toString(i);
+            i = SysctlUtil.sysctl("machdep.cpu.family", -1);
+            cpuFamily = i < 0 ? "" : Integer.toString(i);
+            long processorIdBits = 0L;
+            processorIdBits |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
+            processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
+            processorID = String.format("%016x", processorIdBits);
+        }
+        long cpuFrequency = SysctlUtil.sysctl("hw.cpufrequency", 0L);
+        if (cpuFrequency > cpuFreq) {
+            cpuFreq = cpuFrequency;
+        }
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
-        long cpuFreq = SysctlUtil.sysctl("hw.cpufrequency", 0L);
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuFreq);
@@ -178,5 +227,23 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             return -1;
         }
         return ParseUtil.unsignedIntToLong(vmstats.v_intr);
+    }
+
+    private static Pair<String, Long> platformExpert() {
+        String manufacturer = null;
+        long freq = 0;
+        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
+        if (platformExpert != null) {
+            byte[] data = platformExpert.getByteArrayProperty("manufacturer");
+            if (data != null) {
+                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+            }
+            data = platformExpert.getByteArrayProperty("clock-frequency");
+            if (data != null && data.length <= 8) {
+                freq = ParseUtil.byteArrayToLong(data, data.length) * 1000L;
+            }
+            platformExpert.release();
+        }
+        return new Pair<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer, freq);
     }
 }

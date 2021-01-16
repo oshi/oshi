@@ -92,7 +92,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         settings.add(perProc);
         cpuOption.add(perSystem);
         settings.add(perSystem);
-        if (SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
+        if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
             perSystem.setSelected(true);
         } else {
             perProc.setSelected(true);
@@ -148,7 +148,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         for (OSProcess p : list) {
             int pid = p.getProcessID();
             // Ignore the Idle process on Windows
-            if (pid > 0 || !SystemInfo.getCurrentPlatformEnum().equals(PlatformEnum.WINDOWS)) {
+            if (pid > 0 || !SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
                 // Set up for appropriate sort
                 if (cpuButton.isSelected()) {
                     processSortValueMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
