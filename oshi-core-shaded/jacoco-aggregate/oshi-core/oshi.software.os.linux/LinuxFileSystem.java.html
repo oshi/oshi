@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxFileSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">LinuxFileSystem.java</span></div><h1>LinuxFileSystem.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -27,9 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +43,8 @@ import com.sun.jna.platform.linux.LibC;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.ExecutingCommand;
+import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -54,66 +56,79 @@ import oshi.util.platform.linux.ProcPath;
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 @ThreadSafe
-<span class="nc" id="L57">public class LinuxFileSystem extends AbstractFileSystem {</span>
+<span class="nc" id="L59">public class LinuxFileSystem extends AbstractFileSystem {</span>
 
-<span class="nc" id="L59">    private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);</span>
+<span class="nc" id="L61">    private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);</span>
+
+    public static final String OSHI_LINUX_FS_PATH_EXCLUDES = &quot;oshi.os.linux.filesystem.path.excludes&quot;;
+    public static final String OSHI_LINUX_FS_PATH_INCLUDES = &quot;oshi.os.linux.filesystem.path.includes&quot;;
+    public static final String OSHI_LINUX_FS_VOLUME_EXCLUDES = &quot;oshi.os.linux.filesystem.volume.excludes&quot;;
+    public static final String OSHI_LINUX_FS_VOLUME_INCLUDES = &quot;oshi.os.linux.filesystem.volume.includes&quot;;
+
+<span class="nc" id="L68">    private static final List&lt;PathMatcher&gt; FS_PATH_EXCLUDES = FileSystemUtil</span>
+<span class="nc" id="L69">            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_PATH_EXCLUDES);</span>
+<span class="nc" id="L70">    private static final List&lt;PathMatcher&gt; FS_PATH_INCLUDES = FileSystemUtil</span>
+<span class="nc" id="L71">            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_PATH_INCLUDES);</span>
+<span class="nc" id="L72">    private static final List&lt;PathMatcher&gt; FS_VOLUME_EXCLUDES = FileSystemUtil</span>
+<span class="nc" id="L73">            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_EXCLUDES);</span>
+<span class="nc" id="L74">    private static final List&lt;PathMatcher&gt; FS_VOLUME_INCLUDES = FileSystemUtil</span>
+<span class="nc" id="L75">            .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_INCLUDES);</span>
 
     private static final String UNICODE_SPACE = &quot;\\040&quot;;
-
-    // System path mounted as tmpfs
-<span class="nc" id="L64">    private static final List&lt;String&gt; TMP_FS_PATHS = Arrays.asList(&quot;/run&quot;, &quot;/sys&quot;, &quot;/proc&quot;, ProcPath.PROC);</span>
 
     @Override
     public List&lt;OSFileStore&gt; getFileStores(boolean localOnly) {
         // Map of volume with device path as key
-<span class="nc" id="L69">        Map&lt;String, String&gt; volumeDeviceMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L70">        File devMapper = new File(&quot;/dev/mapper&quot;);</span>
-<span class="nc" id="L71">        File[] volumes = devMapper.listFiles();</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (volumes != null) {</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            for (File volume : volumes) {</span>
+<span class="nc" id="L82">        Map&lt;String, String&gt; volumeDeviceMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L83">        File devMapper = new File(&quot;/dev/mapper&quot;);</span>
+<span class="nc" id="L84">        File[] volumes = devMapper.listFiles();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (volumes != null) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            for (File volume : volumes) {</span>
                 try {
-<span class="nc" id="L75">                    volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());</span>
-<span class="nc" id="L76">                } catch (IOException e) {</span>
-<span class="nc" id="L77">                    LOG.error(&quot;Couldn't get canonical path for {}. {}&quot;, volume.getName(), e.getMessage());</span>
-<span class="nc" id="L78">                }</span>
+<span class="nc" id="L88">                    volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());</span>
+<span class="nc" id="L89">                } catch (IOException e) {</span>
+<span class="nc" id="L90">                    LOG.error(&quot;Couldn't get canonical path for {}. {}&quot;, volume.getName(), e.getMessage());</span>
+<span class="nc" id="L91">                }</span>
             }
         }
         // Map uuids with device path as key
-<span class="nc" id="L82">        Map&lt;String, String&gt; uuidMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L83">        File uuidDir = new File(&quot;/dev/disk/by-uuid&quot;);</span>
-<span class="nc" id="L84">        File[] uuids = uuidDir.listFiles();</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (uuids != null) {</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            for (File uuid : uuids) {</span>
+<span class="nc" id="L95">        Map&lt;String, String&gt; uuidMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L96">        File uuidDir = new File(&quot;/dev/disk/by-uuid&quot;);</span>
+<span class="nc" id="L97">        File[] uuids = uuidDir.listFiles();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (uuids != null) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            for (File uuid : uuids) {</span>
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) and volumes as key
-<span class="nc" id="L89">                    String canonicalPath = uuid.getCanonicalPath();</span>
-<span class="nc" id="L90">                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase());</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">                    if (volumeDeviceMap.containsKey(canonicalPath)) {</span>
-<span class="nc" id="L92">                        uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase());</span>
+<span class="nc" id="L102">                    String canonicalPath = uuid.getCanonicalPath();</span>
+<span class="nc" id="L103">                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase());</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                    if (volumeDeviceMap.containsKey(canonicalPath)) {</span>
+<span class="nc" id="L105">                        uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase());</span>
                     }
-<span class="nc" id="L94">                } catch (IOException e) {</span>
-<span class="nc" id="L95">                    LOG.error(&quot;Couldn't get canonical path for {}. {}&quot;, uuid.getName(), e.getMessage());</span>
-<span class="nc" id="L96">                }</span>
+<span class="nc" id="L107">                } catch (IOException e) {</span>
+<span class="nc" id="L108">                    LOG.error(&quot;Couldn't get canonical path for {}. {}&quot;, uuid.getName(), e.getMessage());</span>
+<span class="nc" id="L109">                }</span>
             }
         }
 
         // List file systems
-<span class="nc" id="L101">        return getFileStoreMatching(null, uuidMap, localOnly);</span>
+<span class="nc" id="L114">        return getFileStoreMatching(null, uuidMap, localOnly);</span>
     }
 
     // called from LinuxOSFileStore
     static List&lt;OSFileStore&gt; getFileStoreMatching(String nameToMatch, Map&lt;String, String&gt; uuidMap) {
-<span class="nc" id="L106">        return getFileStoreMatching(nameToMatch, uuidMap, false);</span>
+<span class="nc" id="L119">        return getFileStoreMatching(nameToMatch, uuidMap, false);</span>
     }
 
     private static List&lt;OSFileStore&gt; getFileStoreMatching(String nameToMatch, Map&lt;String, String&gt; uuidMap,
             boolean localOnly) {
-<span class="nc" id="L111">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L124">        List&lt;OSFileStore&gt; fsList = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L126">        Map&lt;String, String&gt; labelMap = queryLabelMap();</span>
 
         // Parse /proc/mounts to get fs types
-<span class="nc" id="L114">        List&lt;String&gt; mounts = FileUtil.readFile(ProcPath.MOUNTS);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        for (String mount : mounts) {</span>
-<span class="nc" id="L116">            String[] split = mount.split(&quot; &quot;);</span>
+<span class="nc" id="L129">        List&lt;String&gt; mounts = FileUtil.readFile(ProcPath.MOUNTS);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String mount : mounts) {</span>
+<span class="nc" id="L131">            String[] split = mount.split(&quot; &quot;);</span>
             // As reported in fstab(5) manpage, struct is:
             // 1st field is volume name
             // 2nd field is path with spaces escaped as \040
@@ -121,105 +136,115 @@ import oshi.util.platform.linux.ProcPath;
             // 4th field is mount options
             // 5th field is used by dump(8) (ignored)
             // 6th field is fsck order (ignored)
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (split.length &lt; 6) {</span>
-<span class="nc" id="L125">                continue;</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (split.length &lt; 6) {</span>
+<span class="nc" id="L140">                continue;</span>
             }
 
             // Exclude pseudo file systems
-<span class="nc" id="L129">            String path = split[1].replace(UNICODE_SPACE, &quot; &quot;);</span>
-<span class="nc" id="L130">            String type = split[2];</span>
-<span class="nc bnc" id="L131" title="All 4 branches missed.">            if ((localOnly &amp;&amp; NETWORK_FS_TYPES.contains(type)) // Skip non-local drives if requested</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">                    || PSEUDO_FS_TYPES.contains(type) // exclude non-fs types</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">                    || path.equals(&quot;/dev&quot;) // exclude plain dev directory</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">                    || ParseUtil.filePathStartsWith(TMP_FS_PATHS, path) // well known prefixes</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">                    || path.endsWith(&quot;/shm&quot;) // exclude shared memory</span>
-            ) {
-<span class="nc" id="L137">                continue;</span>
+<span class="nc" id="L144">            String volume = split[0].replace(UNICODE_SPACE, &quot; &quot;);</span>
+<span class="nc" id="L145">            String name = volume;</span>
+<span class="nc" id="L146">            String path = split[1].replace(UNICODE_SPACE, &quot; &quot;);</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            if (path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L148">                volume = &quot;/&quot;;</span>
             }
-<span class="nc" id="L139">            String options = split[3];</span>
+<span class="nc" id="L150">            String type = split[2];</span>
 
-<span class="nc" id="L141">            String name = split[0].replace(UNICODE_SPACE, &quot; &quot;);</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (path.equals(&quot;/&quot;)) {</span>
-<span class="nc" id="L143">                name = &quot;/&quot;;</span>
+            // Skip non-local drives if requested, and exclude pseudo file systems
+<span class="nc bnc" id="L153" title="All 4 branches missed.">            if ((localOnly &amp;&amp; NETWORK_FS_TYPES.contains(type))</span>
+<span class="nc bnc" id="L154" title="All 6 branches missed.">                    || !path.equals(&quot;/&quot;) &amp;&amp; (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,</span>
+                            volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
+<span class="nc" id="L156">                continue;</span>
             }
+
+<span class="nc" id="L159">            String options = split[3];</span>
 
             // If only updating for one name, skip others
-<span class="nc bnc" id="L147" title="All 4 branches missed.">            if (nameToMatch != null &amp;&amp; !nameToMatch.equals(name)) {</span>
-<span class="nc" id="L148">                continue;</span>
+<span class="nc bnc" id="L162" title="All 4 branches missed.">            if (nameToMatch != null &amp;&amp; !nameToMatch.equals(name)) {</span>
+<span class="nc" id="L163">                continue;</span>
             }
 
-<span class="nc" id="L151">            String volume = split[0].replace(UNICODE_SPACE, &quot; &quot;);</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">            String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], &quot;&quot;) : &quot;&quot;;</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">            String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], &quot;&quot;) : &quot;&quot;;</span>
 
             String description;
-<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (volume.startsWith(&quot;/dev&quot;)) {</span>
-<span class="nc" id="L156">                description = &quot;Local Disk&quot;;</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
-<span class="nc" id="L158">                description = &quot;Ram Disk&quot;;</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">            } else if (NETWORK_FS_TYPES.contains(type)) {</span>
-<span class="nc" id="L160">                description = &quot;Network Disk&quot;;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (volume.startsWith(&quot;/dev&quot;)) {</span>
+<span class="nc" id="L170">                description = &quot;Local Disk&quot;;</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
+<span class="nc" id="L172">                description = &quot;Ram Disk&quot;;</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">            } else if (NETWORK_FS_TYPES.contains(type)) {</span>
+<span class="nc" id="L174">                description = &quot;Network Disk&quot;;</span>
             } else {
-<span class="nc" id="L162">                description = &quot;Mount Point&quot;;</span>
+<span class="nc" id="L176">                description = &quot;Mount Point&quot;;</span>
             }
 
             // Add in logical volume found at /dev/mapper, useful when linking
             // file system with drive.
-<span class="nc" id="L167">            String logicalVolume = &quot;&quot;;</span>
-<span class="nc" id="L168">            String volumeMapperDirectory = &quot;/dev/mapper/&quot;;</span>
-<span class="nc" id="L169">            Path link = Paths.get(volume);</span>
-<span class="nc bnc" id="L170" title="All 4 branches missed.">            if (link.toFile().exists() &amp;&amp; Files.isSymbolicLink(link)) {</span>
+<span class="nc" id="L181">            String logicalVolume = &quot;&quot;;</span>
+<span class="nc" id="L182">            String volumeMapperDirectory = &quot;/dev/mapper/&quot;;</span>
+<span class="nc" id="L183">            Path link = Paths.get(volume);</span>
+<span class="nc bnc" id="L184" title="All 4 branches missed.">            if (link.toFile().exists() &amp;&amp; Files.isSymbolicLink(link)) {</span>
                 try {
-<span class="nc" id="L172">                    Path slink = Files.readSymbolicLink(link);</span>
-<span class="nc" id="L173">                    Path full = Paths.get(volumeMapperDirectory + slink.toString());</span>
-<span class="nc bnc" id="L174" title="All 2 branches missed.">                    if (full.toFile().exists()) {</span>
-<span class="nc" id="L175">                        logicalVolume = full.normalize().toString();</span>
+<span class="nc" id="L186">                    Path slink = Files.readSymbolicLink(link);</span>
+<span class="nc" id="L187">                    Path full = Paths.get(volumeMapperDirectory + slink.toString());</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                    if (full.toFile().exists()) {</span>
+<span class="nc" id="L189">                        logicalVolume = full.normalize().toString();</span>
                     }
-<span class="nc" id="L177">                } catch (IOException e) {</span>
-<span class="nc" id="L178">                    LOG.warn(&quot;Couldn't access symbolic path  {}. {}&quot;, link, e.getMessage());</span>
-<span class="nc" id="L179">                }</span>
+<span class="nc" id="L191">                } catch (IOException e) {</span>
+<span class="nc" id="L192">                    LOG.warn(&quot;Couldn't access symbolic path  {}. {}&quot;, link, e.getMessage());</span>
+<span class="nc" id="L193">                }</span>
             }
 
-<span class="nc" id="L182">            long totalInodes = 0L;</span>
-<span class="nc" id="L183">            long freeInodes = 0L;</span>
-<span class="nc" id="L184">            long totalSpace = 0L;</span>
-<span class="nc" id="L185">            long usableSpace = 0L;</span>
-<span class="nc" id="L186">            long freeSpace = 0L;</span>
+<span class="nc" id="L196">            long totalInodes = 0L;</span>
+<span class="nc" id="L197">            long freeInodes = 0L;</span>
+<span class="nc" id="L198">            long totalSpace = 0L;</span>
+<span class="nc" id="L199">            long usableSpace = 0L;</span>
+<span class="nc" id="L200">            long freeSpace = 0L;</span>
 
             try {
-<span class="nc" id="L189">                LibC.Statvfs vfsStat = new LibC.Statvfs();</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                if (0 == LibC.INSTANCE.statvfs(path, vfsStat)) {</span>
-<span class="nc" id="L191">                    totalInodes = vfsStat.f_files.longValue();</span>
-<span class="nc" id="L192">                    freeInodes = vfsStat.f_ffree.longValue();</span>
+<span class="nc" id="L203">                LibC.Statvfs vfsStat = new LibC.Statvfs();</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                if (0 == LibC.INSTANCE.statvfs(path, vfsStat)) {</span>
+<span class="nc" id="L205">                    totalInodes = vfsStat.f_files.longValue();</span>
+<span class="nc" id="L206">                    freeInodes = vfsStat.f_ffree.longValue();</span>
                     // Per stavfs, these units are in fragments
-<span class="nc" id="L194">                    totalSpace = vfsStat.f_blocks.longValue() * vfsStat.f_frsize.longValue();</span>
-<span class="nc" id="L195">                    usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();</span>
-<span class="nc" id="L196">                    freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();</span>
+<span class="nc" id="L208">                    totalSpace = vfsStat.f_blocks.longValue() * vfsStat.f_frsize.longValue();</span>
+<span class="nc" id="L209">                    usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();</span>
+<span class="nc" id="L210">                    freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();</span>
                 } else {
-<span class="nc" id="L198">                    File tmpFile = new File(path);</span>
-<span class="nc" id="L199">                    totalSpace = tmpFile.getTotalSpace();</span>
-<span class="nc" id="L200">                    usableSpace = tmpFile.getUsableSpace();</span>
-<span class="nc" id="L201">                    freeSpace = tmpFile.getFreeSpace();</span>
-<span class="nc" id="L202">                    LOG.warn(&quot;Failed to get information to use statvfs. path: {}, Error code: {}&quot;, path,</span>
-<span class="nc" id="L203">                            Native.getLastError());</span>
+<span class="nc" id="L212">                    File tmpFile = new File(path);</span>
+<span class="nc" id="L213">                    totalSpace = tmpFile.getTotalSpace();</span>
+<span class="nc" id="L214">                    usableSpace = tmpFile.getUsableSpace();</span>
+<span class="nc" id="L215">                    freeSpace = tmpFile.getFreeSpace();</span>
+<span class="nc" id="L216">                    LOG.warn(&quot;Failed to get information to use statvfs. path: {}, Error code: {}&quot;, path,</span>
+<span class="nc" id="L217">                            Native.getLastError());</span>
                 }
-<span class="nc" id="L205">            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L206">                LOG.error(&quot;Failed to get file counts from statvfs. {}&quot;, e.getMessage());</span>
-<span class="nc" id="L207">            }</span>
+<span class="nc" id="L219">            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L220">                LOG.error(&quot;Failed to get file counts from statvfs. {}&quot;, e.getMessage());</span>
+<span class="nc" id="L221">            }</span>
 
-<span class="nc" id="L209">            fsList.add(new LinuxOSFileStore(name, volume, name, path, options, uuid, logicalVolume, description, type,</span>
-                    freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
-<span class="nc" id="L211">        }</span>
-<span class="nc" id="L212">        return fsList;</span>
+<span class="nc" id="L223">            fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,</span>
+                    logicalVolume, description, type, freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
+<span class="nc" id="L225">        }</span>
+<span class="nc" id="L226">        return fsList;</span>
+    }
+
+    private static Map&lt;String, String&gt; queryLabelMap() {
+<span class="nc" id="L230">        Map&lt;String, String&gt; labelMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;lsblk -o mountpoint,label&quot;)) {</span>
+<span class="nc" id="L232">            String[] split = ParseUtil.whitespaces.split(line, 2);</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">            if (split.length == 2) {</span>
+<span class="nc" id="L234">                labelMap.put(split[0], split[1]);</span>
+            }
+<span class="nc" id="L236">        }</span>
+<span class="nc" id="L237">        return labelMap;</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L217">        return getFileDescriptors(0);</span>
+<span class="nc" id="L242">        return getFileDescriptors(0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L222">        return getFileDescriptors(2);</span>
+<span class="nc" id="L247">        return getFileDescriptors(2);</span>
     }
 
     /**
@@ -234,16 +259,16 @@ import oshi.util.platform.linux.ProcPath;
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private static long getFileDescriptors(int index) {
-<span class="nc" id="L237">        String filename = ProcPath.SYS_FS_FILE_NR;</span>
-<span class="nc bnc" id="L238" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
-<span class="nc" id="L239">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
+<span class="nc" id="L262">        String filename = ProcPath.SYS_FS_FILE_NR;</span>
+<span class="nc bnc" id="L263" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
+<span class="nc" id="L264">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
         }
-<span class="nc" id="L241">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
-<span class="nc" id="L243">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
-<span class="nc" id="L244">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
+<span class="nc" id="L266">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
+<span class="nc" id="L268">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
+<span class="nc" id="L269">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
         }
-<span class="nc" id="L246">        return 0L;</span>
+<span class="nc" id="L271">        return 0L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

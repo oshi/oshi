@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -74,10 +74,10 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              assertThat(<span class="jxr_string">"File store total space should be 0 or higher"</span>, store.getTotalSpace() &gt;= 0, is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              assertThat(<span class="jxr_string">"File store usable space should be 0 or higher"</span>, store.getUsableSpace() &gt;= 0, is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              assertThat(<span class="jxr_string">"File store free space should be 0 or higher"</span>, store.getFreeSpace() &gt;= 0, is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.WINDOWS) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatform() != PlatformEnum.WINDOWS) {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  assertThat(<span class="jxr_string">"Number of free inodes should be 0 or higher on non-Windows systems"</span>,
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                          store.getFreeInodes() &gt;= 0, is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatformEnum() != PlatformEnum.SOLARIS) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatform() != PlatformEnum.SOLARIS) {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                      assertThat(
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>                              <span class="jxr_string">"Total number of inodes should be greater than or equal to number of free inodes on non-Windows/Solaris systems"</span>,
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>                              store.getTotalInodes() &gt;= store.getFreeInodes(), is(<strong class="jxr_keyword">true</strong>));
@@ -93,6 +93,6 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

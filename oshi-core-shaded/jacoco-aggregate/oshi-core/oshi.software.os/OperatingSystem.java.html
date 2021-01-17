@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OperatingSystem.java</span></div><h1>OperatingSystem.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -45,8 +45,8 @@ public interface OperatingSystem {
     /**
      * Controls sorting of Process output
      */
-<span class="fc" id="L48">    enum ProcessSort {</span>
-<span class="fc" id="L49">        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
+<span class="nc" id="L48">    enum ProcessSort {</span>
+<span class="nc" id="L49">        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
     }
 
     /**
@@ -244,6 +244,28 @@ public interface OperatingSystem {
      */
     OSService[] getServices();
 
+    /**
+     * Gets windows on the operating system's GUI desktop.
+     * &lt;p&gt;
+     * On Unix-like systems, reports X11 windows only, which may be limited to the
+     * current display and will not report windows used by other window managers.
+     * &lt;p&gt;
+     * While not a guarantee, a best effort is made to return windows in
+     * foreground-to-background order. This ordering may be used along with
+     * {@link OSDesktopWindow#getOrder()} to (probably) determine the frontmost
+     * window.
+     *
+     * @param visibleOnly
+     *            Whether to restrict the list to only windows visible to the user.
+     *            &lt;p&gt;
+     *            This is a best effort attempt at a reasonable definition of
+     *            visibility. Visible windows may be completely transparent.
+     * @return An {@code UnmodifiableList} of
+     *         {@link oshi.software.os.OSDesktopWindow} objects representing the
+     *         desktop windows.
+     */
+    List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly);
+
     /*
      * A class representing the Operating System version details.
      */
@@ -254,20 +276,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="fc" id="L257">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="fc" id="L258">            this.version = version;</span>
-<span class="fc" id="L259">            this.codeName = codeName;</span>
-<span class="fc" id="L260">            this.buildNumber = buildNumber;</span>
+<span class="nc" id="L279">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="nc" id="L280">            this.version = version;</span>
+<span class="nc" id="L281">            this.codeName = codeName;</span>
+<span class="nc" id="L282">            this.buildNumber = buildNumber;</span>
 
-<span class="pc bpc" id="L262" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="pc bpc" id="L263" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="fc" id="L264">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="nc" id="L286">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="pc bpc" id="L266" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="fc" id="L267">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="nc" id="L289">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="fc" id="L269">            this.versionStr = sb.toString();</span>
-<span class="fc" id="L270">        }</span>
+<span class="nc" id="L291">            this.versionStr = sb.toString();</span>
+<span class="nc" id="L292">        }</span>
 
         /**
          * Gets the operating system version.
@@ -275,7 +297,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="fc" id="L278">            return version;</span>
+<span class="nc" id="L300">            return version;</span>
         }
 
         /**
@@ -284,7 +306,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="fc" id="L287">            return codeName;</span>
+<span class="nc" id="L309">            return codeName;</span>
         }
 
         /**
@@ -293,12 +315,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="fc" id="L296">            return buildNumber;</span>
+<span class="nc" id="L318">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="fc" id="L301">            return this.versionStr;</span>
+<span class="nc" id="L323">            return this.versionStr;</span>
         }
     }
 }

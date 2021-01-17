@@ -10,6 +10,7 @@ oshi.driver.unix.aix
 oshi.driver.unix.aix.perfstat
 oshi.driver.unix.freebsd
 oshi.driver.unix.freebsd.disk
+oshi.driver.unix.openbsd.disk
 oshi.driver.unix.solaris
 oshi.driver.unix.solaris.disk
 oshi.driver.unix.solaris.kstat
@@ -21,8 +22,10 @@ oshi.hardware
 oshi.hardware.common
 oshi.hardware.platform.linux
 oshi.hardware.platform.mac
+oshi.hardware.platform.unix
 oshi.hardware.platform.unix.aix
 oshi.hardware.platform.unix.freebsd
+oshi.hardware.platform.unix.openbsd
 oshi.hardware.platform.unix.solaris
 oshi.hardware.platform.windows
 oshi.jna.platform.linux
@@ -30,6 +33,7 @@ oshi.jna.platform.mac
 oshi.jna.platform.unix
 oshi.jna.platform.unix.aix
 oshi.jna.platform.unix.freebsd
+oshi.jna.platform.unix.openbsd
 oshi.jna.platform.unix.solaris
 oshi.jna.platform.windows
 oshi.software.common
@@ -38,12 +42,14 @@ oshi.software.os.linux
 oshi.software.os.mac
 oshi.software.os.unix.aix
 oshi.software.os.unix.freebsd
+oshi.software.os.unix.openbsd
 oshi.software.os.unix.solaris
 oshi.software.os.windows
 oshi.util
 oshi.util.platform.linux
 oshi.util.platform.mac
 oshi.util.platform.unix.freebsd
+oshi.util.platform.unix.openbsd
 oshi.util.platform.unix.solaris
 oshi.util.platform.windows
 oshi.util.tuples

@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -366,9 +366,30 @@
 <a class="jxr_linenumber" name="L358" href="#L358">358</a>             assertThat(<span class="jxr_string">"Session host shouldn't be null"</span>, sess.getHost(), is(notNullValue()));
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>         }
 <a class="jxr_linenumber" name="L360" href="#L360">360</a>     }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> }
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> 
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * Test get desktop windows</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     @Test
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     <strong class="jxr_keyword">void</strong> testGetDesktopWindows() {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         List&lt;OSDesktopWindow&gt; allWindows = os.getDesktopWindows(false);
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         List&lt;OSDesktopWindow&gt; visibleWindows = os.getDesktopWindows(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         assertThat(<span class="jxr_string">"Visible should be a subset of all windows"</span>, visibleWindows.size(),
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                 is(lessThanOrEqualTo(allWindows.size())));
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         Set&lt;Long&gt; windowIds = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <strong class="jxr_keyword">for</strong> (OSDesktopWindow dw : visibleWindows) {
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>             assertThat(<span class="jxr_string">"Visible window should be visible"</span>, dw.isVisible(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>             assertThat(<span class="jxr_string">"Height should be nononegative"</span>, dw.getLocAndSize().height, is(greaterThanOrEqualTo(0)));
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>             assertThat(<span class="jxr_string">"Width should be nononegative"</span>, dw.getLocAndSize().width, is(greaterThanOrEqualTo(0)));
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>             windowIds.add(dw.getWindowId());
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         }
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         assertThat(<span class="jxr_string">"Window IDs should be unique"</span>, windowIds.size(), is(visibleWindows.size()));
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     }
+<a class="jxr_linenumber" name="L382" href="#L382">382</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

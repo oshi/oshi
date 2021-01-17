@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractPowerSource.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractPowerSource.java</span></div><h1>AbstractPowerSource.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -235,10 +235,10 @@ public abstract class AbstractPowerSource implements PowerSource {
     }
 
     private static List&lt;PowerSource&gt; getPowerSources() {
-<span class="nc bnc" id="L238" title="All 7 branches missed.">        switch (SystemInfo.getCurrentPlatformEnum()) {</span>
+<span class="nc bnc" id="L238" title="All 7 branches missed.">        switch (SystemInfo.getCurrentPlatform()) {</span>
         case WINDOWS:
 <span class="nc" id="L240">            return WindowsPowerSource.getPowerSources();</span>
-        case MACOSX:
+        case MACOS:
 <span class="nc" id="L242">            return MacPowerSource.getPowerSources();</span>
         case LINUX:
 <span class="nc" id="L244">            return LinuxPowerSource.getPowerSources();</span>
@@ -262,28 +262,33 @@ public abstract class AbstractPowerSource implements PowerSource {
 <span class="nc" id="L262">        sb.append(&quot;Time Remaining: &quot;).append(formatTimeRemaining(getTimeRemainingEstimated())).append(&quot;, &quot;);</span>
 <span class="nc" id="L263">        sb.append(&quot;Time Remaining Instant: &quot;).append(formatTimeRemaining(getTimeRemainingInstant())).append(&quot;,\n &quot;);</span>
 <span class="nc" id="L264">        sb.append(&quot;Power Usage Rate: &quot;).append(getPowerUsageRate()).append(&quot;mW, &quot;);</span>
-<span class="nc" id="L265">        sb.append(&quot;Voltage: &quot;).append(getVoltage()).append(&quot;V, &quot;);</span>
-<span class="nc" id="L266">        sb.append(&quot;Amperage: &quot;).append(getAmperage()).append(&quot;mA,\n &quot;);</span>
-<span class="nc" id="L267">        sb.append(&quot;Power OnLine: &quot;).append(isPowerOnLine()).append(&quot;, &quot;);</span>
-<span class="nc" id="L268">        sb.append(&quot;Charging: &quot;).append(isCharging()).append(&quot;, &quot;);</span>
-<span class="nc" id="L269">        sb.append(&quot;Discharging: &quot;).append(isDischarging()).append(&quot;,\n &quot;);</span>
-<span class="nc" id="L270">        sb.append(&quot;Capacity Units: &quot;).append(getCapacityUnits()).append(&quot;, &quot;);</span>
-<span class="nc" id="L271">        sb.append(&quot;Current Capacity: &quot;).append(getCurrentCapacity()).append(&quot;, &quot;);</span>
-<span class="nc" id="L272">        sb.append(&quot;Max Capacity: &quot;).append(getMaxCapacity()).append(&quot;, &quot;);</span>
-<span class="nc" id="L273">        sb.append(&quot;Design Capacity: &quot;).append(getDesignCapacity()).append(&quot;,\n &quot;);</span>
-<span class="nc" id="L274">        sb.append(&quot;Cycle Count: &quot;).append(getCycleCount()).append(&quot;, &quot;);</span>
-<span class="nc" id="L275">        sb.append(&quot;Chemistry: &quot;).append(getChemistry()).append(&quot;, &quot;);</span>
-<span class="nc bnc" id="L276" title="All 2 branches missed.">        sb.append(&quot;Manufacture Date: &quot;).append(getManufactureDate() != null ? getManufactureDate() : Constants.UNKNOWN)</span>
-<span class="nc" id="L277">                .append(&quot;, &quot;);</span>
-<span class="nc" id="L278">        sb.append(&quot;Manufacturer: &quot;).append(getManufacturer()).append(&quot;,\n &quot;);</span>
-<span class="nc" id="L279">        sb.append(&quot;SerialNumber: &quot;).append(getSerialNumber()).append(&quot;, &quot;);</span>
-<span class="nc" id="L280">        sb.append(&quot;Temperature: &quot;);</span>
-<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (getTemperature() &gt; 0) {</span>
-<span class="nc" id="L282">            sb.append(getTemperature()).append(&quot;°C&quot;);</span>
+<span class="nc" id="L265">        sb.append(&quot;Voltage: &quot;);</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (getVoltage() &gt; 0) {</span>
+<span class="nc" id="L267">            sb.append(getVoltage()).append(&quot;V, &quot;);</span>
         } else {
-<span class="nc" id="L284">            sb.append(Constants.UNKNOWN);</span>
+<span class="nc" id="L269">            sb.append(Constants.UNKNOWN);</span>
         }
-<span class="nc" id="L286">        return sb.toString();</span>
+<span class="nc" id="L271">        sb.append(&quot;Amperage: &quot;).append(getAmperage()).append(&quot;mA,\n &quot;);</span>
+<span class="nc" id="L272">        sb.append(&quot;Power OnLine: &quot;).append(isPowerOnLine()).append(&quot;, &quot;);</span>
+<span class="nc" id="L273">        sb.append(&quot;Charging: &quot;).append(isCharging()).append(&quot;, &quot;);</span>
+<span class="nc" id="L274">        sb.append(&quot;Discharging: &quot;).append(isDischarging()).append(&quot;,\n &quot;);</span>
+<span class="nc" id="L275">        sb.append(&quot;Capacity Units: &quot;).append(getCapacityUnits()).append(&quot;, &quot;);</span>
+<span class="nc" id="L276">        sb.append(&quot;Current Capacity: &quot;).append(getCurrentCapacity()).append(&quot;, &quot;);</span>
+<span class="nc" id="L277">        sb.append(&quot;Max Capacity: &quot;).append(getMaxCapacity()).append(&quot;, &quot;);</span>
+<span class="nc" id="L278">        sb.append(&quot;Design Capacity: &quot;).append(getDesignCapacity()).append(&quot;,\n &quot;);</span>
+<span class="nc" id="L279">        sb.append(&quot;Cycle Count: &quot;).append(getCycleCount()).append(&quot;, &quot;);</span>
+<span class="nc" id="L280">        sb.append(&quot;Chemistry: &quot;).append(getChemistry()).append(&quot;, &quot;);</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        sb.append(&quot;Manufacture Date: &quot;).append(getManufactureDate() != null ? getManufactureDate() : Constants.UNKNOWN)</span>
+<span class="nc" id="L282">                .append(&quot;, &quot;);</span>
+<span class="nc" id="L283">        sb.append(&quot;Manufacturer: &quot;).append(getManufacturer()).append(&quot;,\n &quot;);</span>
+<span class="nc" id="L284">        sb.append(&quot;SerialNumber: &quot;).append(getSerialNumber()).append(&quot;, &quot;);</span>
+<span class="nc" id="L285">        sb.append(&quot;Temperature: &quot;);</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">        if (getTemperature() &gt; 0) {</span>
+<span class="nc" id="L287">            sb.append(getTemperature()).append(&quot;°C&quot;);</span>
+        } else {
+<span class="nc" id="L289">            sb.append(Constants.UNKNOWN);</span>
+        }
+<span class="nc" id="L291">        return sb.toString();</span>
     }
 
     /**
@@ -295,16 +300,16 @@ public abstract class AbstractPowerSource implements PowerSource {
      */
     private static String formatTimeRemaining(double timeInSeconds) {
         String formattedTimeRemaining;
-<span class="nc bnc" id="L298" title="All 2 branches missed.">        if (timeInSeconds &lt; -1.5) {</span>
-<span class="nc" id="L299">            formattedTimeRemaining = &quot;Charging&quot;;</span>
-<span class="nc bnc" id="L300" title="All 2 branches missed.">        } else if (timeInSeconds &lt; 0) {</span>
-<span class="nc" id="L301">            formattedTimeRemaining = &quot;Unknown&quot;;</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">        if (timeInSeconds &lt; -1.5) {</span>
+<span class="nc" id="L304">            formattedTimeRemaining = &quot;Charging&quot;;</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">        } else if (timeInSeconds &lt; 0) {</span>
+<span class="nc" id="L306">            formattedTimeRemaining = &quot;Unknown&quot;;</span>
         } else {
-<span class="nc" id="L303">            int hours = (int) (timeInSeconds / 3600);</span>
-<span class="nc" id="L304">            int minutes = (int) (timeInSeconds % 3600 / 60);</span>
-<span class="nc" id="L305">            formattedTimeRemaining = String.format(&quot;%d:%02d&quot;, hours, minutes);</span>
+<span class="nc" id="L308">            int hours = (int) (timeInSeconds / 3600);</span>
+<span class="nc" id="L309">            int minutes = (int) (timeInSeconds % 3600 / 60);</span>
+<span class="nc" id="L310">            formattedTimeRemaining = String.format(&quot;%d:%02d&quot;, hours, minutes);</span>
         }
-<span class="nc" id="L307">        return formattedTimeRemaining;</span>
+<span class="nc" id="L312">        return formattedTimeRemaining;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -171,9 +171,21 @@
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">void</strong> testFormatError() {
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         assertThat(<span class="jxr_string">"Format error code"</span>, FormatUtil.formatError(-1234567000), is(<span class="jxr_string">"0xB66A00A8"</span>));
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
-<a class="jxr_linenumber" name="L166" href="#L166">166</a> }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     * Test round to int</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     @Test
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">void</strong> testRoundToInt() {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         assertThat(<span class="jxr_string">"Improper rounding pi"</span>, FormatUtil.roundToInt(Math.PI), is(3));
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         assertThat(<span class="jxr_string">"Improper rounding e"</span>, FormatUtil.roundToInt(Math.E), is(3));
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         assertThat(<span class="jxr_string">"Improper rounding 0"</span>, FormatUtil.roundToInt(0d), is(0));
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         assertThat(<span class="jxr_string">"Improper rounding 1"</span>, FormatUtil.roundToInt(1d), is(1));
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

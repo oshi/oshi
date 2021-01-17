@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsInternetProtocolStats.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsInternetProtocolStats.java</span></div><h1>WindowsInternetProtocolStats.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -23,48 +23,222 @@
  */
 package oshi.software.os.windows;
 
-import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
+import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET; // NOSONAR squid:S1191
+import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET6;
+import static oshi.jna.platform.windows.IPHlpAPI.TCP_TABLE_OWNER_PID_ALL;
+import static oshi.jna.platform.windows.IPHlpAPI.UDP_TABLE_OWNER_PID;
+import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
+import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
+import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
+import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
+import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
+import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
+import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
+import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
+import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
+import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
+import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
+import com.sun.jna.platform.win32.VersionHelpers;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.os.InternetProtocolStats;
+import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_TCP6ROW_OWNER_PID;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_TCP6TABLE_OWNER_PID;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPROW_OWNER_PID;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPTABLE_OWNER_PID;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_UDP6ROW_OWNER_PID;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_UDP6TABLE_OWNER_PID;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPROW_OWNER_PID;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPTABLE_OWNER_PID;
+import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.util.ParseUtil;
 
 @ThreadSafe
-<span class="nc" id="L34">public class WindowsInternetProtocolStats implements InternetProtocolStats {</span>
+<span class="nc" id="L67">public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats {</span>
 
-<span class="nc" id="L36">    private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;</span>
+<span class="nc" id="L69">    private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;</span>
+
+<span class="nc" id="L71">    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();</span>
 
     @Override
     public TcpStats getTCPv4Stats() {
-<span class="nc" id="L40">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
-<span class="nc" id="L41">        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET);</span>
-<span class="nc" id="L42">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
+<span class="nc" id="L75">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
+<span class="nc" id="L76">        IPHLP.GetTcpStatisticsEx(stats, AF_INET);</span>
+<span class="nc" id="L77">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
                 stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
                 stats.dwOutRsts);
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-<span class="nc" id="L49">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
-<span class="nc" id="L50">        IPHLP.GetTcpStatisticsEx(stats, IPHlpAPI.AF_INET6);</span>
-<span class="nc" id="L51">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
+<span class="nc" id="L84">        MIB_TCPSTATS stats = new MIB_TCPSTATS();</span>
+<span class="nc" id="L85">        IPHLP.GetTcpStatisticsEx(stats, AF_INET6);</span>
+<span class="nc" id="L86">        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,</span>
                 stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
                 stats.dwOutRsts);
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-<span class="nc" id="L58">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
-<span class="nc" id="L59">        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET);</span>
-<span class="nc" id="L60">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
+<span class="nc" id="L93">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
+<span class="nc" id="L94">        IPHLP.GetUdpStatisticsEx(stats, AF_INET);</span>
+<span class="nc" id="L95">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-<span class="nc" id="L65">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
-<span class="nc" id="L66">        IPHLP.GetUdpStatisticsEx(stats, IPHlpAPI.AF_INET6);</span>
-<span class="nc" id="L67">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
+<span class="nc" id="L100">        MIB_UDPSTATS stats = new MIB_UDPSTATS();</span>
+<span class="nc" id="L101">        IPHLP.GetUdpStatisticsEx(stats, AF_INET6);</span>
+<span class="nc" id="L102">        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);</span>
+    }
+
+    @Override
+    public List&lt;IPConnection&gt; getConnections() {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (IS_VISTA_OR_GREATER) {</span>
+<span class="nc" id="L108">            List&lt;IPConnection&gt; conns = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L109">            conns.addAll(queryTCPv4Connections());</span>
+<span class="nc" id="L110">            conns.addAll(queryTCPv6Connections());</span>
+<span class="nc" id="L111">            conns.addAll(queryUDPv4Connections());</span>
+<span class="nc" id="L112">            conns.addAll(queryUDPv6Connections());</span>
+<span class="nc" id="L113">            return Collections.unmodifiableList(conns);</span>
+        }
+<span class="nc" id="L115">        return Collections.emptyList();</span>
+    }
+
+    private static List&lt;IPConnection&gt; queryTCPv4Connections() {
+<span class="nc" id="L119">        List&lt;IPConnection&gt; conns = new ArrayList&lt;&gt;();</span>
+        // Get size needed
+<span class="nc" id="L121">        IntByReference sizePtr = new IntByReference();</span>
+<span class="nc" id="L122">        IPHLP.GetExtendedTcpTable(null, sizePtr, false, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);</span>
+        // Get buffer and populate table
+        int size;
+        Memory buf;
+        do {
+<span class="nc" id="L127">            size = sizePtr.getValue();</span>
+<span class="nc" id="L128">            buf = new Memory(size);</span>
+<span class="nc" id="L129">            IPHLP.GetExtendedTcpTable(buf, sizePtr, false, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);</span>
+            // In case size changes and buffer was too small, repeat
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        } while (size &lt; sizePtr.getValue());</span>
+<span class="nc" id="L132">        MIB_TCPTABLE_OWNER_PID tcpTable = new MIB_TCPTABLE_OWNER_PID(buf);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        for (int i = 0; i &lt; tcpTable.dwNumEntries; i++) {</span>
+<span class="nc" id="L134">            MIB_TCPROW_OWNER_PID row = tcpTable.table[i];</span>
+<span class="nc" id="L135">            conns.add(new IPConnection(&quot;tcp4&quot;, ParseUtil.parseIntToIP(row.dwLocalAddr),</span>
+<span class="nc" id="L136">                    ParseUtil.bigEndian16ToLittleEndian(row.dwLocalPort), ParseUtil.parseIntToIP(row.dwRemoteAddr),</span>
+<span class="nc" id="L137">                    ParseUtil.bigEndian16ToLittleEndian(row.dwRemotePort), stateLookup(row.dwState), 0, 0,</span>
+                    row.dwOwningPid));
+        }
+<span class="nc" id="L140">        return conns;</span>
+    }
+
+    private static List&lt;IPConnection&gt; queryTCPv6Connections() {
+<span class="nc" id="L144">        List&lt;IPConnection&gt; conns = new ArrayList&lt;&gt;();</span>
+        // Get size needed
+<span class="nc" id="L146">        IntByReference sizePtr = new IntByReference();</span>
+<span class="nc" id="L147">        IPHLP.GetExtendedTcpTable(null, sizePtr, false, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);</span>
+        // Get buffer and populate table
+        int size;
+        Memory buf;
+        do {
+<span class="nc" id="L152">            size = sizePtr.getValue();</span>
+<span class="nc" id="L153">            buf = new Memory(size);</span>
+<span class="nc" id="L154">            IPHLP.GetExtendedTcpTable(buf, sizePtr, false, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);</span>
+            // In case size changes and buffer was too small, repeat
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        } while (size &lt; sizePtr.getValue());</span>
+<span class="nc" id="L157">        MIB_TCP6TABLE_OWNER_PID tcpTable = new MIB_TCP6TABLE_OWNER_PID(buf);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        for (int i = 0; i &lt; tcpTable.dwNumEntries; i++) {</span>
+<span class="nc" id="L159">            MIB_TCP6ROW_OWNER_PID row = tcpTable.table[i];</span>
+<span class="nc" id="L160">            conns.add(new IPConnection(&quot;tcp6&quot;, row.LocalAddr, ParseUtil.bigEndian16ToLittleEndian(row.dwLocalPort),</span>
+<span class="nc" id="L161">                    row.RemoteAddr, ParseUtil.bigEndian16ToLittleEndian(row.dwRemotePort), stateLookup(row.State), 0, 0,</span>
+                    row.dwOwningPid));
+        }
+<span class="nc" id="L164">        return conns;</span>
+    }
+
+    private static List&lt;IPConnection&gt; queryUDPv4Connections() {
+<span class="nc" id="L168">        List&lt;IPConnection&gt; conns = new ArrayList&lt;&gt;();</span>
+        // Get size needed
+<span class="nc" id="L170">        IntByReference sizePtr = new IntByReference();</span>
+<span class="nc" id="L171">        IPHLP.GetExtendedUdpTable(null, sizePtr, false, AF_INET, UDP_TABLE_OWNER_PID, 0);</span>
+        // Get buffer and populate table
+        int size;
+        Memory buf;
+        do {
+<span class="nc" id="L176">            size = sizePtr.getValue();</span>
+<span class="nc" id="L177">            buf = new Memory(size);</span>
+<span class="nc" id="L178">            IPHLP.GetExtendedUdpTable(buf, sizePtr, false, AF_INET, UDP_TABLE_OWNER_PID, 0);</span>
+            // In case size changes and buffer was too small, repeat
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        } while (size &lt; sizePtr.getValue());</span>
+<span class="nc" id="L181">        MIB_UDPTABLE_OWNER_PID udpTable = new MIB_UDPTABLE_OWNER_PID(buf);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (int i = 0; i &lt; udpTable.dwNumEntries; i++) {</span>
+<span class="nc" id="L183">            MIB_UDPROW_OWNER_PID row = udpTable.table[i];</span>
+<span class="nc" id="L184">            conns.add(new IPConnection(&quot;udp4&quot;, ParseUtil.parseIntToIP(row.dwLocalAddr),</span>
+<span class="nc" id="L185">                    ParseUtil.bigEndian16ToLittleEndian(row.dwLocalPort), new byte[0], 0, TcpState.NONE, 0, 0,</span>
+                    row.dwOwningPid));
+        }
+<span class="nc" id="L188">        return conns;</span>
+    }
+
+    private static List&lt;IPConnection&gt; queryUDPv6Connections() {
+<span class="nc" id="L192">        List&lt;IPConnection&gt; conns = new ArrayList&lt;&gt;();</span>
+        // Get size needed
+<span class="nc" id="L194">        IntByReference sizePtr = new IntByReference();</span>
+<span class="nc" id="L195">        IPHLP.GetExtendedUdpTable(null, sizePtr, false, AF_INET6, UDP_TABLE_OWNER_PID, 0);</span>
+        // Get buffer and populate table
+        int size;
+        Memory buf;
+        do {
+<span class="nc" id="L200">            size = sizePtr.getValue();</span>
+<span class="nc" id="L201">            buf = new Memory(size);</span>
+<span class="nc" id="L202">            IPHLP.GetExtendedUdpTable(buf, sizePtr, false, AF_INET6, UDP_TABLE_OWNER_PID, 0);</span>
+            // In case size changes and buffer was too small, repeat
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        } while (size &lt; sizePtr.getValue());</span>
+<span class="nc" id="L205">        MIB_UDP6TABLE_OWNER_PID udpTable = new MIB_UDP6TABLE_OWNER_PID(buf);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        for (int i = 0; i &lt; udpTable.dwNumEntries; i++) {</span>
+<span class="nc" id="L207">            MIB_UDP6ROW_OWNER_PID row = udpTable.table[i];</span>
+<span class="nc" id="L208">            conns.add(new IPConnection(&quot;udp6&quot;, row.ucLocalAddr, ParseUtil.bigEndian16ToLittleEndian(row.dwLocalPort),</span>
+                    new byte[0], 0, TcpState.NONE, 0, 0, row.dwOwningPid));
+        }
+<span class="nc" id="L211">        return conns;</span>
+    }
+
+    private static TcpState stateLookup(int state) {
+<span class="nc bnc" id="L215" title="All 12 branches missed.">        switch (state) {</span>
+        case 1:
+        case 12:
+<span class="nc" id="L218">            return CLOSED;</span>
+        case 2:
+<span class="nc" id="L220">            return LISTEN;</span>
+        case 3:
+<span class="nc" id="L222">            return SYN_SENT;</span>
+        case 4:
+<span class="nc" id="L224">            return SYN_RECV;</span>
+        case 5:
+<span class="nc" id="L226">            return ESTABLISHED;</span>
+        case 6:
+<span class="nc" id="L228">            return FIN_WAIT_1;</span>
+        case 7:
+<span class="nc" id="L230">            return FIN_WAIT_2;</span>
+        case 8:
+<span class="nc" id="L232">            return CLOSE_WAIT;</span>
+        case 9:
+<span class="nc" id="L234">            return CLOSING;</span>
+        case 10:
+<span class="nc" id="L236">            return LAST_ACK;</span>
+        case 11:
+<span class="nc" id="L238">            return TIME_WAIT;</span>
+        default:
+<span class="nc" id="L240">            return UNKNOWN;</span>
+        }
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

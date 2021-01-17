@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacComputerSystem.java</span></div><h1>MacComputerSystem.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -38,7 +38,7 @@ import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * Hardware data obtained from ioreg.
@@ -46,54 +46,62 @@ import oshi.util.tuples.Triplet;
 @Immutable
 <span class="nc" id="L47">final class MacComputerSystem extends AbstractComputerSystem {</span>
 
-<span class="nc" id="L49">    private final Supplier&lt;Triplet&lt;String, String, String&gt;&gt; manufacturerModelSerial = memoize(</span>
+<span class="nc" id="L49">    private final Supplier&lt;Quartet&lt;String, String, String, String&gt;&gt; manufacturerModelSerialUUID = memoize(</span>
             MacComputerSystem::platformExpert);
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L54">        return manufacturerModelSerial.get().getA();</span>
+<span class="nc" id="L54">        return manufacturerModelSerialUUID.get().getA();</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L59">        return manufacturerModelSerial.get().getB();</span>
+<span class="nc" id="L59">        return manufacturerModelSerialUUID.get().getB();</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L64">        return manufacturerModelSerial.get().getC();</span>
+<span class="nc" id="L64">        return manufacturerModelSerialUUID.get().getC();</span>
+    }
+
+    @Override
+    public String getHardwareUUID() {
+<span class="nc" id="L69">        return manufacturerModelSerialUUID.get().getD();</span>
     }
 
     @Override
     public Firmware createFirmware() {
-<span class="nc" id="L69">        return new MacFirmware();</span>
+<span class="nc" id="L74">        return new MacFirmware();</span>
     }
 
     @Override
     public Baseboard createBaseboard() {
-<span class="nc" id="L74">        return new MacBaseboard();</span>
+<span class="nc" id="L79">        return new MacBaseboard();</span>
     }
 
-    private static Triplet&lt;String, String, String&gt; platformExpert() {
-<span class="nc" id="L78">        String manufacturer = null;</span>
-<span class="nc" id="L79">        String model = null;</span>
-<span class="nc" id="L80">        String serialNumber = null;</span>
-<span class="nc" id="L81">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (platformExpert != null) {</span>
-<span class="nc" id="L83">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L85">                manufacturer = Native.toString(data, StandardCharsets.UTF_8);</span>
+    private static Quartet&lt;String, String, String, String&gt; platformExpert() {
+<span class="nc" id="L83">        String manufacturer = null;</span>
+<span class="nc" id="L84">        String model = null;</span>
+<span class="nc" id="L85">        String serialNumber = null;</span>
+<span class="nc" id="L86">        String uuid = null;</span>
+<span class="nc" id="L87">        IORegistryEntry platformExpert = IOKitUtil.getMatchingService(&quot;IOPlatformExpertDevice&quot;);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (platformExpert != null) {</span>
+<span class="nc" id="L89">            byte[] data = platformExpert.getByteArrayProperty(&quot;manufacturer&quot;);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (data != null) {</span>
+<span class="nc" id="L91">                manufacturer = Native.toString(data, StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L87">            data = platformExpert.getByteArrayProperty(&quot;model&quot;);</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (data != null) {</span>
-<span class="nc" id="L89">                model = Native.toString(data, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L93">            data = platformExpert.getByteArrayProperty(&quot;model&quot;);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (data != null) {</span>
+<span class="nc" id="L95">                model = Native.toString(data, StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L91">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
-<span class="nc" id="L92">            platformExpert.release();</span>
+<span class="nc" id="L97">            serialNumber = platformExpert.getStringProperty(&quot;IOPlatformSerialNumber&quot;);</span>
+<span class="nc" id="L98">            uuid = platformExpert.getStringProperty(&quot;IOPlatformUUID&quot;);</span>
+<span class="nc" id="L99">            platformExpert.release();</span>
         }
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        return new Triplet&lt;&gt;(Util.isBlank(manufacturer) ? &quot;Apple Inc.&quot; : manufacturer,</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model,</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        return new Quartet&lt;&gt;(Util.isBlank(manufacturer) ? &quot;Apple Inc.&quot; : manufacturer,</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model,</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

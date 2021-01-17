@@ -2,3 +2,4 @@ oshi
 oshi.hardware
 oshi.software.os
 oshi.util
+oshi.util.platform.unix.openbsd

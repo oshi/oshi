@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -243,10 +243,10 @@
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>     }
 <a class="jxr_linenumber" name="L236" href="#L236">236</a> 
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;PowerSource&gt; getPowerSources() {
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">switch</strong> (SystemInfo.getCurrentPlatformEnum()) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">switch</strong> (SystemInfo.getCurrentPlatform()) {
 <a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">case</strong> WINDOWS:
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>             <strong class="jxr_keyword">return</strong> WindowsPowerSource.getPowerSources();
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">case</strong> MACOSX:
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">case</strong> MACOS:
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>             <strong class="jxr_keyword">return</strong> MacPowerSource.getPowerSources();
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">case</strong> LINUX:
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">return</strong> LinuxPowerSource.getPowerSources();
@@ -270,53 +270,58 @@
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>         sb.append(<span class="jxr_string">"Time Remaining: "</span>).append(formatTimeRemaining(getTimeRemainingEstimated())).append(<span class="jxr_string">", "</span>);
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>         sb.append(<span class="jxr_string">"Time Remaining Instant: "</span>).append(formatTimeRemaining(getTimeRemainingInstant())).append(<span class="jxr_string">",\n "</span>);
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>         sb.append(<span class="jxr_string">"Power Usage Rate: "</span>).append(getPowerUsageRate()).append(<span class="jxr_string">"mW, "</span>);
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         sb.append(<span class="jxr_string">"Voltage: "</span>).append(getVoltage()).append(<span class="jxr_string">"V, "</span>);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         sb.append(<span class="jxr_string">"Amperage: "</span>).append(getAmperage()).append(<span class="jxr_string">"mA,\n "</span>);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         sb.append(<span class="jxr_string">"Power OnLine: "</span>).append(isPowerOnLine()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         sb.append(<span class="jxr_string">"Charging: "</span>).append(isCharging()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         sb.append(<span class="jxr_string">"Discharging: "</span>).append(isDischarging()).append(<span class="jxr_string">",\n "</span>);
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         sb.append(<span class="jxr_string">"Capacity Units: "</span>).append(getCapacityUnits()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         sb.append(<span class="jxr_string">"Current Capacity: "</span>).append(getCurrentCapacity()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         sb.append(<span class="jxr_string">"Max Capacity: "</span>).append(getMaxCapacity()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         sb.append(<span class="jxr_string">"Design Capacity: "</span>).append(getDesignCapacity()).append(<span class="jxr_string">",\n "</span>);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         sb.append(<span class="jxr_string">"Cycle Count: "</span>).append(getCycleCount()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         sb.append(<span class="jxr_string">"Chemistry: "</span>).append(getChemistry()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         sb.append(<span class="jxr_string">"Manufacture Date: "</span>).append(getManufactureDate() != <strong class="jxr_keyword">null</strong> ? getManufactureDate() : Constants.UNKNOWN)
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 .append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         sb.append(<span class="jxr_string">"Manufacturer: "</span>).append(getManufacturer()).append(<span class="jxr_string">",\n "</span>);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         sb.append(<span class="jxr_string">"SerialNumber: "</span>).append(getSerialNumber()).append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         sb.append(<span class="jxr_string">"Temperature: "</span>);
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">if</strong> (getTemperature() &gt; 0) {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             sb.append(getTemperature()).append(<span class="jxr_string">"°C"</span>);
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>             sb.append(Constants.UNKNOWN);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         }
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">return</strong> sb.toString();
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> 
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * Estimated time remaining on power source, formatted as HH:mm</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * @param timeInSeconds</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     *            The time remaining, in seconds</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * @return formatted String of time remaining</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String formatTimeRemaining(<strong class="jxr_keyword">double</strong> timeInSeconds) {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         String formattedTimeRemaining;
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">if</strong> (timeInSeconds &lt; -1.5) {
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>             formattedTimeRemaining = <span class="jxr_string">"Charging"</span>;
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (timeInSeconds &lt; 0) {
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>             formattedTimeRemaining = <span class="jxr_string">"Unknown"</span>;
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>             <strong class="jxr_keyword">int</strong> hours = (<strong class="jxr_keyword">int</strong>) (timeInSeconds / 3600);
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>             <strong class="jxr_keyword">int</strong> minutes = (<strong class="jxr_keyword">int</strong>) (timeInSeconds % 3600 / 60);
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>             formattedTimeRemaining = String.format(<span class="jxr_string">"%d:%02d"</span>, hours, minutes);
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         }
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <strong class="jxr_keyword">return</strong> formattedTimeRemaining;
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     }
-<a class="jxr_linenumber" name="L309" href="#L309">309</a> }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         sb.append(<span class="jxr_string">"Voltage: "</span>);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">if</strong> (getVoltage() &gt; 0) {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             sb.append(getVoltage()).append(<span class="jxr_string">"V, "</span>);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             sb.append(Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         }
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         sb.append(<span class="jxr_string">"Amperage: "</span>).append(getAmperage()).append(<span class="jxr_string">"mA,\n "</span>);
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         sb.append(<span class="jxr_string">"Power OnLine: "</span>).append(isPowerOnLine()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         sb.append(<span class="jxr_string">"Charging: "</span>).append(isCharging()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         sb.append(<span class="jxr_string">"Discharging: "</span>).append(isDischarging()).append(<span class="jxr_string">",\n "</span>);
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         sb.append(<span class="jxr_string">"Capacity Units: "</span>).append(getCapacityUnits()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         sb.append(<span class="jxr_string">"Current Capacity: "</span>).append(getCurrentCapacity()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         sb.append(<span class="jxr_string">"Max Capacity: "</span>).append(getMaxCapacity()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         sb.append(<span class="jxr_string">"Design Capacity: "</span>).append(getDesignCapacity()).append(<span class="jxr_string">",\n "</span>);
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         sb.append(<span class="jxr_string">"Cycle Count: "</span>).append(getCycleCount()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         sb.append(<span class="jxr_string">"Chemistry: "</span>).append(getChemistry()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         sb.append(<span class="jxr_string">"Manufacture Date: "</span>).append(getManufactureDate() != <strong class="jxr_keyword">null</strong> ? getManufactureDate() : Constants.UNKNOWN)
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 .append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         sb.append(<span class="jxr_string">"Manufacturer: "</span>).append(getManufacturer()).append(<span class="jxr_string">",\n "</span>);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         sb.append(<span class="jxr_string">"SerialNumber: "</span>).append(getSerialNumber()).append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         sb.append(<span class="jxr_string">"Temperature: "</span>);
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">if</strong> (getTemperature() &gt; 0) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>             sb.append(getTemperature()).append(<span class="jxr_string">"°C"</span>);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>             sb.append(Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">return</strong> sb.toString();
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * Estimated time remaining on power source, formatted as HH:mm</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     * @param timeInSeconds</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     *            The time remaining, in seconds</em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     * @return formatted String of time remaining</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String formatTimeRemaining(<strong class="jxr_keyword">double</strong> timeInSeconds) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         String formattedTimeRemaining;
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <strong class="jxr_keyword">if</strong> (timeInSeconds &lt; -1.5) {
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>             formattedTimeRemaining = <span class="jxr_string">"Charging"</span>;
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (timeInSeconds &lt; 0) {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>             formattedTimeRemaining = <span class="jxr_string">"Unknown"</span>;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">int</strong> hours = (<strong class="jxr_keyword">int</strong>) (timeInSeconds / 3600);
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>             <strong class="jxr_keyword">int</strong> minutes = (<strong class="jxr_keyword">int</strong>) (timeInSeconds % 3600 / 60);
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>             formattedTimeRemaining = String.format(<span class="jxr_string">"%d:%02d"</span>, hours, minutes);
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         }
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">return</strong> formattedTimeRemaining;
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

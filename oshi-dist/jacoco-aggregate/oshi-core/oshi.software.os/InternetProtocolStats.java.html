@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>InternetProtocolStats.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">InternetProtocolStats.java</span></div><h1>InternetProtocolStats.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
- * Copyright (c) 2010 - 2020 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -22,6 +22,11 @@
  * SOFTWARE.
  */
 package oshi.software.os;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -64,6 +69,14 @@ public interface InternetProtocolStats {
      */
     UdpStats getUDPv6Stats();
 
+    /**
+     * Gets a list of TCP and UDP connections.
+     *
+     * @return An {@code UnmodifiableList} of {@link IPConnection} objects for TCP
+     *         and UDP connections.
+     */
+    List&lt;IPConnection&gt; getConnections();
+
     final class TcpStats {
         private final long connectionsEstablished;
         private final long connectionsActive;
@@ -78,18 +91,18 @@ public interface InternetProtocolStats {
 
         public TcpStats(long connectionsEstablished, long connectionsActive, long connectionsPassive,
                 long connectionFailures, long connectionsReset, long segmentsSent, long segmentsReceived,
-<span class="fc" id="L81">                long segmentsRetransmitted, long inErrors, long outResets) {</span>
-<span class="fc" id="L82">            this.connectionsEstablished = connectionsEstablished;</span>
-<span class="fc" id="L83">            this.connectionsActive = connectionsActive;</span>
-<span class="fc" id="L84">            this.connectionsPassive = connectionsPassive;</span>
-<span class="fc" id="L85">            this.connectionFailures = connectionFailures;</span>
-<span class="fc" id="L86">            this.connectionsReset = connectionsReset;</span>
-<span class="fc" id="L87">            this.segmentsSent = segmentsSent;</span>
-<span class="fc" id="L88">            this.segmentsReceived = segmentsReceived;</span>
-<span class="fc" id="L89">            this.segmentsRetransmitted = segmentsRetransmitted;</span>
-<span class="fc" id="L90">            this.inErrors = inErrors;</span>
-<span class="fc" id="L91">            this.outResets = outResets;</span>
-<span class="fc" id="L92">        }</span>
+<span class="nc" id="L94">                long segmentsRetransmitted, long inErrors, long outResets) {</span>
+<span class="nc" id="L95">            this.connectionsEstablished = connectionsEstablished;</span>
+<span class="nc" id="L96">            this.connectionsActive = connectionsActive;</span>
+<span class="nc" id="L97">            this.connectionsPassive = connectionsPassive;</span>
+<span class="nc" id="L98">            this.connectionFailures = connectionFailures;</span>
+<span class="nc" id="L99">            this.connectionsReset = connectionsReset;</span>
+<span class="nc" id="L100">            this.segmentsSent = segmentsSent;</span>
+<span class="nc" id="L101">            this.segmentsReceived = segmentsReceived;</span>
+<span class="nc" id="L102">            this.segmentsRetransmitted = segmentsRetransmitted;</span>
+<span class="nc" id="L103">            this.inErrors = inErrors;</span>
+<span class="nc" id="L104">            this.outResets = outResets;</span>
+<span class="nc" id="L105">        }</span>
 
         /**
          * Connections Established is the number of TCP connections for which the
@@ -98,7 +111,7 @@ public interface InternetProtocolStats {
          * @return the connectionsEstablished
          */
         public long getConnectionsEstablished() {
-<span class="fc" id="L101">            return connectionsEstablished;</span>
+<span class="nc" id="L114">            return connectionsEstablished;</span>
         }
 
         /**
@@ -110,7 +123,7 @@ public interface InternetProtocolStats {
          * @return the connectionsActive
          */
         public long getConnectionsActive() {
-<span class="fc" id="L113">            return connectionsActive;</span>
+<span class="nc" id="L126">            return connectionsActive;</span>
         }
 
         /**
@@ -122,7 +135,7 @@ public interface InternetProtocolStats {
          * @return the connectionsPassive
          */
         public long getConnectionsPassive() {
-<span class="fc" id="L125">            return connectionsPassive;</span>
+<span class="nc" id="L138">            return connectionsPassive;</span>
         }
 
         /**
@@ -134,7 +147,7 @@ public interface InternetProtocolStats {
          * @return the connectionFailures
          */
         public long getConnectionFailures() {
-<span class="fc" id="L137">            return connectionFailures;</span>
+<span class="nc" id="L150">            return connectionFailures;</span>
         }
 
         /**
@@ -145,7 +158,7 @@ public interface InternetProtocolStats {
          * @return the connectionsReset
          */
         public long getConnectionsReset() {
-<span class="fc" id="L148">            return connectionsReset;</span>
+<span class="nc" id="L161">            return connectionsReset;</span>
         }
 
         /**
@@ -155,7 +168,7 @@ public interface InternetProtocolStats {
          * @return the segmentsSent
          */
         public long getSegmentsSent() {
-<span class="fc" id="L158">            return segmentsSent;</span>
+<span class="nc" id="L171">            return segmentsSent;</span>
         }
 
         /**
@@ -166,7 +179,7 @@ public interface InternetProtocolStats {
          * @return the segmentsReceived
          */
         public long getSegmentsReceived() {
-<span class="fc" id="L169">            return segmentsReceived;</span>
+<span class="nc" id="L182">            return segmentsReceived;</span>
         }
 
         /**
@@ -176,7 +189,7 @@ public interface InternetProtocolStats {
          * @return the segmentsRetransmitted
          */
         public long getSegmentsRetransmitted() {
-<span class="fc" id="L179">            return segmentsRetransmitted;</span>
+<span class="nc" id="L192">            return segmentsRetransmitted;</span>
         }
 
         /**
@@ -185,7 +198,7 @@ public interface InternetProtocolStats {
          * @return the inErrors
          */
         public long getInErrors() {
-<span class="fc" id="L188">            return inErrors;</span>
+<span class="nc" id="L201">            return inErrors;</span>
         }
 
         /**
@@ -194,12 +207,12 @@ public interface InternetProtocolStats {
          * @return the outResets
          */
         public long getOutResets() {
-<span class="fc" id="L197">            return outResets;</span>
+<span class="nc" id="L210">            return outResets;</span>
         }
 
         @Override
         public String toString() {
-<span class="fc" id="L202">            return &quot;TcpStats [connectionsEstablished=&quot; + connectionsEstablished + &quot;, connectionsActive=&quot;</span>
+<span class="nc" id="L215">            return &quot;TcpStats [connectionsEstablished=&quot; + connectionsEstablished + &quot;, connectionsActive=&quot;</span>
                     + connectionsActive + &quot;, connectionsPassive=&quot; + connectionsPassive + &quot;, connectionFailures=&quot;
                     + connectionFailures + &quot;, connectionsReset=&quot; + connectionsReset + &quot;, segmentsSent=&quot; + segmentsSent
                     + &quot;, segmentsReceived=&quot; + segmentsReceived + &quot;, segmentsRetransmitted=&quot; + segmentsRetransmitted
@@ -214,12 +227,12 @@ public interface InternetProtocolStats {
         private final long datagramsReceivedErrors;
 
         public UdpStats(long datagramsSent, long datagramsReceived, long datagramsNoPort,
-<span class="fc" id="L217">                long datagramsReceivedErrors) {</span>
-<span class="fc" id="L218">            this.datagramsSent = datagramsSent;</span>
-<span class="fc" id="L219">            this.datagramsReceived = datagramsReceived;</span>
-<span class="fc" id="L220">            this.datagramsNoPort = datagramsNoPort;</span>
-<span class="fc" id="L221">            this.datagramsReceivedErrors = datagramsReceivedErrors;</span>
-<span class="fc" id="L222">        }</span>
+<span class="nc" id="L230">                long datagramsReceivedErrors) {</span>
+<span class="nc" id="L231">            this.datagramsSent = datagramsSent;</span>
+<span class="nc" id="L232">            this.datagramsReceived = datagramsReceived;</span>
+<span class="nc" id="L233">            this.datagramsNoPort = datagramsNoPort;</span>
+<span class="nc" id="L234">            this.datagramsReceivedErrors = datagramsReceivedErrors;</span>
+<span class="nc" id="L235">        }</span>
 
         /**
          * Datagrams Sent is the number of UDP datagrams sent from the entity.
@@ -227,7 +240,7 @@ public interface InternetProtocolStats {
          * @return the datagramsSent
          */
         public long getDatagramsSent() {
-<span class="fc" id="L230">            return datagramsSent;</span>
+<span class="nc" id="L243">            return datagramsSent;</span>
         }
 
         /**
@@ -236,7 +249,7 @@ public interface InternetProtocolStats {
          * @return the datagramsReceived
          */
         public long getDatagramsReceived() {
-<span class="fc" id="L239">            return datagramsReceived;</span>
+<span class="nc" id="L252">            return datagramsReceived;</span>
         }
 
         /**
@@ -246,7 +259,7 @@ public interface InternetProtocolStats {
          * @return the datagramsNoPort
          */
         public long getDatagramsNoPort() {
-<span class="fc" id="L249">            return datagramsNoPort;</span>
+<span class="nc" id="L262">            return datagramsNoPort;</span>
         }
 
         /**
@@ -257,14 +270,158 @@ public interface InternetProtocolStats {
          * @return the datagramsReceivedErrors
          */
         public long getDatagramsReceivedErrors() {
-<span class="fc" id="L260">            return datagramsReceivedErrors;</span>
+<span class="nc" id="L273">            return datagramsReceivedErrors;</span>
         }
 
         @Override
         public String toString() {
-<span class="fc" id="L265">            return &quot;UdpStats [datagramsSent=&quot; + datagramsSent + &quot;, datagramsReceived=&quot; + datagramsReceived</span>
+<span class="nc" id="L278">            return &quot;UdpStats [datagramsSent=&quot; + datagramsSent + &quot;, datagramsReceived=&quot; + datagramsReceived</span>
                     + &quot;, datagramsNoPort=&quot; + datagramsNoPort + &quot;, datagramsReceivedErrors=&quot; + datagramsReceivedErrors
                     + &quot;]&quot;;
+        }
+    }
+
+    /**
+     * The TCP connection state as described in RFC 793.
+     */
+<span class="nc" id="L287">    enum TcpState {</span>
+<span class="nc" id="L288">        UNKNOWN, CLOSED, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT, CLOSING, LAST_ACK,</span>
+<span class="nc" id="L289">        TIME_WAIT, NONE;</span>
+    }
+
+    final class IPConnection {
+        private final String type;
+        private final byte[] localAddress;
+        private final int localPort;
+        private final byte[] foreignAddress;
+        private final int foreignPort;
+        private final TcpState state;
+        private final int transmitQueue;
+        private final int receiveQueue;
+        private int owningProcessId;
+
+        public IPConnection(String type, byte[] localAddress, int localPort, byte[] foreignAddress, int foreignPort,
+<span class="nc" id="L304">                TcpState state, int transmitQueue, int receiveQueue, int owningProcessId) {</span>
+<span class="nc" id="L305">            this.type = type;</span>
+<span class="nc" id="L306">            this.localAddress = Arrays.copyOf(localAddress, localAddress.length);</span>
+<span class="nc" id="L307">            this.localPort = localPort;</span>
+<span class="nc" id="L308">            this.foreignAddress = Arrays.copyOf(foreignAddress, foreignAddress.length);</span>
+<span class="nc" id="L309">            this.foreignPort = foreignPort;</span>
+<span class="nc" id="L310">            this.state = state;</span>
+<span class="nc" id="L311">            this.transmitQueue = transmitQueue;</span>
+<span class="nc" id="L312">            this.receiveQueue = receiveQueue;</span>
+<span class="nc" id="L313">            this.owningProcessId = owningProcessId;</span>
+<span class="nc" id="L314">        }</span>
+
+        /**
+         * Returns the connection protocol type, e.g., tcp4, tcp6, udp4, udp6
+         *
+         * @return The protocol type
+         */
+        public String getType() {
+<span class="nc" id="L322">            return type;</span>
+        }
+
+        /**
+         * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6
+         * addresses this is a 16-byte array.
+         * &lt;p&gt;
+         * On Unix operating systems, the 16-bit value may be truncated, giving only the
+         * high order bytes. IPv6 addresses ending in zeroes should be considered
+         * suspect.
+         *
+         * @return The local address, or an empty array if the listener can accept a
+         *         connection on any interface.
+         */
+        public byte[] getLocalAddress() {
+<span class="nc" id="L337">            return Arrays.copyOf(localAddress, localAddress.length);</span>
+        }
+
+        /**
+         * Gets the local port.
+         *
+         * @return The local port, or 0 if unknown, or any port.
+         */
+        public int getLocalPort() {
+<span class="nc" id="L346">            return localPort;</span>
+        }
+
+        /**
+         * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array.
+         * For IPv6 addresses this is a 16-byte array.
+         * &lt;p&gt;
+         * On Unix operating systems, this value may be truncated. IPv6 addresses ending
+         * in zeroes should be considered suspect.
+         *
+         * @return The foreign/remote address, or an empty array if unknown. An empty
+         *         array will also result if
+         */
+        public byte[] getForeignAddress() {
+<span class="nc" id="L360">            return Arrays.copyOf(foreignAddress, foreignAddress.length);</span>
+        }
+
+        /**
+         * Gets the foreign/remote port.
+         *
+         * @return The foreign/remote port, or 0 if unknown.
+         */
+        public int getForeignPort() {
+<span class="nc" id="L369">            return foreignPort;</span>
+        }
+
+        /**
+         * Gets the connection state (TCP connections only).
+         *
+         * @return The connection state if known or relevant, null otherwise.
+         */
+        public TcpState getState() {
+<span class="nc" id="L378">            return state;</span>
+        }
+
+        /**
+         * Gets the size of the transmit queue. Not available on Windows.
+         *
+         * @return The size of the transmit queue, or 0 if unknown.
+         */
+        public int getTransmitQueue() {
+<span class="nc" id="L387">            return transmitQueue;</span>
+        }
+
+        /**
+         * Gets the size of the receive queue. Not available on Windows.
+         *
+         * @return The size of the receive queue, or 0 if unknown.
+         */
+        public int getReceiveQueue() {
+<span class="nc" id="L396">            return receiveQueue;</span>
+        }
+
+        /**
+         * Gets the id of the process which holds this connection.
+         *
+         * @return The process id of the process which holds this connection if known,
+         *         -1 otherwise.
+         */
+        public int getowningProcessId() {
+<span class="nc" id="L406">            return owningProcessId;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L411">            String localIp = &quot;*&quot;;</span>
+            try {
+<span class="nc" id="L413">                localIp = InetAddress.getByAddress(localAddress).toString();</span>
+<span class="nc" id="L414">            } catch (UnknownHostException e) { // NOSONAR squid:S108</span>
+<span class="nc" id="L415">            }</span>
+<span class="nc" id="L416">            String foreignIp = &quot;*&quot;;</span>
+            try {
+<span class="nc" id="L418">                foreignIp = InetAddress.getByAddress(foreignAddress).toString();</span>
+<span class="nc" id="L419">            } catch (UnknownHostException e) { // NOSONAR squid:S108</span>
+<span class="nc" id="L420">            }</span>
+<span class="nc" id="L421">            return &quot;IPConnection [type=&quot; + type + &quot;, localAddress=&quot; + localIp + &quot;, localPort=&quot; + localPort</span>
+                    + &quot;, foreignAddress=&quot; + foreignIp + &quot;, foreignPort=&quot; + foreignPort + &quot;, state=&quot; + state
+                    + &quot;, transmitQueue=&quot; + transmitQueue + &quot;, receiveQueue=&quot; + receiveQueue + &quot;, owningProcessId=&quot;
+                    + owningProcessId + &quot;]&quot;;
         }
     }
 }

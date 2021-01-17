@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2020 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -78,9 +78,17 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertThat(<span class="jxr_string">"null should be Blank"</span>, Util.isBlank(<strong class="jxr_keyword">null</strong>), is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertThat(<span class="jxr_string">"\&quot;Not blank\&quot; should not be Blank"</span>, Util.isBlank(<span class="jxr_string">"Not blank"</span>), is(false));
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      @Test
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">void</strong> testIsBlankOrUnknown() {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertThat(<span class="jxr_string">"\&quot;\&quot; should be Blank"</span>, Util.isBlankOrUnknown(<span class="jxr_string">""</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertThat(<span class="jxr_string">"null should be Blank"</span>, Util.isBlankOrUnknown(<strong class="jxr_keyword">null</strong>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertThat(<span class="jxr_string">"unknown should be unknown"</span>, Util.isBlankOrUnknown(Constants.UNKNOWN), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          assertThat(<span class="jxr_string">"\&quot;Not blank\&quot; should not be Blank"</span>, Util.isBlankOrUnknown(<span class="jxr_string">"Not blank"</span>), is(false));
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2020 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>
