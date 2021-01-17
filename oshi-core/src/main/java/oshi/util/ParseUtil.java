@@ -64,6 +64,7 @@ public final class ParseUtil {
      */
     private static final Pattern HERTZ_PATTERN = Pattern.compile("(\\d+(.\\d+)?) ?([kMGT]?Hz).*");
     private static final Pattern BYTES_PATTERN = Pattern.compile("(\\d+) ?([kMGT]?B).*");
+    private static final Pattern UNITS_PATTERN = Pattern.compile("(\\d+(.\\d+)?)[\\s]?([kKMGT])?");
 
     /*
      * Used to check validity of a hexadecimal string
@@ -948,6 +949,46 @@ public final class ParseUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Parses a string like "53G" or "54.904 M" to its long value.
+     *
+     * @param count
+     *            A count with a multiplyer like "4096 M"
+     * @return the count parsed to a long
+     */
+    public static long parseMultipliedToLongs(String count) {
+        Matcher matcher = UNITS_PATTERN.matcher(count.trim());
+        String[] mem;
+        if (matcher.find() && matcher.groupCount() == 3) {
+            mem = new String[2];
+            mem[0] = matcher.group(1);
+            mem[1] = matcher.group(3);
+        } else {
+            mem = new String[] { count };
+        }
+
+        double number = ParseUtil.parseDoubleOrDefault(mem[0], 0L);
+        if (mem.length == 2 && mem[1] != null && mem[1].length() >= 1) {
+            switch ((mem[1].charAt(0))) {
+            case 'T':
+                number *= 1_000_000_000_000L;
+                break;
+            case 'G':
+                number *= 1_000_000_000L;
+                break;
+            case 'M':
+                number *= 1_000_000L;
+                break;
+            case 'K':
+            case 'k':
+                number *= 1_000L;
+                break;
+            default:
+            }
+        }
+        return (long) number;
     }
 
     /**

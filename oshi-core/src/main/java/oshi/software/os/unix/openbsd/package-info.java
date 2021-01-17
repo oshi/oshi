@@ -21,40 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.aix;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.Xrandr;
-import oshi.hardware.Display;
-import oshi.hardware.common.AbstractDisplay;
-
 /**
- * A Display
+ * Provides information about Software and OS on OpenBSD
  */
-@ThreadSafe
-final class AixDisplay extends AbstractDisplay {
-
-    /**
-     * Constructor for SolarisDisplay.
-     *
-     * @param edid
-     *            a byte array representing a display EDID
-     */
-    AixDisplay(byte[] edid) {
-        super(edid);
-    }
-
-    /**
-     * Gets Display Information
-     *
-     * @return An array of Display objects representing monitors, etc.
-     */
-    public static List<Display> getDisplays() {
-        return Collections
-                .unmodifiableList(Xrandr.getEdidArrays().stream().map(AixDisplay::new).collect(Collectors.toList()));
-    }
-}
+package oshi.software.os.unix.openbsd;

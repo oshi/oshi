@@ -21,49 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
-
 /**
- * Enum of supported operating systems.
+ * Provides utilities for OpenBSD
  */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOS,
-    /**
-     * Mac OS X
-     *
-     * @deprecated Use {@link #MACOS}
-     */
-    @Deprecated
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD
-     */
-    OPENBSD,
-    /**
-     * WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
-}
+package oshi.util.platform.unix.openbsd;

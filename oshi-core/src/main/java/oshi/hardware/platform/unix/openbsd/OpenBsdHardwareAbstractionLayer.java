@@ -21,17 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.aix;
-
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
+package oshi.hardware.platform.unix.openbsd;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.aix.Lscfg;
-import oshi.driver.unix.aix.perfstat.PerfstatDisk;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -45,47 +39,41 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.UnixDisplay;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 /**
- * AIXHardwareAbstractionLayer class.
+ * OpenBsdHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
-
-    // Memoized hardware listing
-    private final Supplier<List<String>> lscfg = memoize(Lscfg::queryAllDevices, defaultExpiration());
-    // Memoized disk stats to pass to disk object(s)
-    private final Supplier<perfstat_disk_t[]> diskStats = memoize(PerfstatDisk::queryDiskStats, defaultExpiration());
+public final class OpenBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new AixComputerSystem(lscfg);
+        return new OpenBsdComputerSystem();
     }
 
     @Override
     public GlobalMemory createMemory() {
-        return new AixGlobalMemory(lscfg);
+        return new OpenBsdGlobalMemory();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new AixCentralProcessor();
+        return new OpenBsdCentralProcessor();
     }
 
     @Override
     public Sensors createSensors() {
-        return new AixSensors(lscfg);
+        return new OpenBsdSensors();
     }
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return AixPowerSource.getPowerSources();
+        return OpenBsdPowerSource.getPowerSources();
     }
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return AixHWDiskStore.getDisks(diskStats);
+        return OpenBsdHWDiskStore.getDisks();
     }
 
     @Override
@@ -95,21 +83,21 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return AixNetworkIF.getNetworks(includeLocalInterfaces);
+        return OpenBsdNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return AixUsbDevice.getUsbDevices(tree, lscfg);
+        return OpenBsdUsbDevice.getUsbDevices(tree);
     }
 
     @Override
     public List<SoundCard> getSoundCards() {
-        return AixSoundCard.getSoundCards(lscfg);
+        return OpenBsdSoundCard.getSoundCards();
     }
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return AixGraphicsCard.getGraphicsCards(lscfg);
+        return OpenBsdGraphicsCard.getGraphicsCards();
     }
 }

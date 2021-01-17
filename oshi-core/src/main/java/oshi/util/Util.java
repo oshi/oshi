@@ -85,4 +85,15 @@ public final class Util {
     public static boolean isBlank(String s) {
         return s == null || s.isEmpty();
     }
+
+    /**
+     * Tests if a String is either null or empty or the unknown constant.
+     *
+     * @param s
+     *            The string to test
+     * @return True if the String is either null or empty or the unknown constant.
+     */
+    public static boolean isBlankOrUnknown(String s) {
+        return isBlank(s) || Constants.UNKNOWN.equals(s);
+    }
 }

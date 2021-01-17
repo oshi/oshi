@@ -21,40 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.freebsd;
+package oshi.util.platform.unix.openbsd;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static oshi.PlatformEnum.OPENBSD;
 
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.Xrandr;
-import oshi.hardware.Display;
-import oshi.hardware.common.AbstractDisplay;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
+import oshi.SystemInfo;
 
 /**
- * A Display
+ * Test general utility methods for {@link FstatUtil}.
  */
-@ThreadSafe
-final class FreeBsdDisplay extends AbstractDisplay {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class FstatUtilTest {
+    private static int pid;
 
-    /**
-     * Constructor for FreeBsdDisplay.
-     *
-     * @param edid
-     *            a byte array representing a display EDID
-     */
-    FreeBsdDisplay(byte[] edid) {
-        super(edid);
+    @BeforeAll
+    void getPid() {
+        assumeTrue(SystemInfo.getCurrentPlatform().equals(OPENBSD));
+        pid = new SystemInfo().getOperatingSystem().getProcessId();
     }
 
-    /**
-     * Gets Display Information
-     *
-     * @return An array of Display objects representing monitors, etc.
-     */
-    public static List<Display> getDisplays() {
-        return Collections.unmodifiableList(
-                Xrandr.getEdidArrays().stream().map(FreeBsdDisplay::new).collect(Collectors.toList()));
+    @Test
+    void testGetOpenFiles() {
+        assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid),
+                is(greaterThanOrEqualTo(0L)));
+    }
+
+    @Test
+    void testGetCwd() {
+        assertThat("Cwd should not be empty", FstatUtil.getCwd(pid), is(not(emptyString())));
     }
 }

@@ -21,10 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.unix;
+package oshi.util.platform.unix.openbsd;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -32,42 +30,45 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Utility to query xrandr
+ * Reads from fstat.
  */
 @ThreadSafe
-public final class Xrandr {
-
-    private static final String[] XRANDR_VERBOSE = { "xrandr", "--verbose" };
-
-    private Xrandr() {
+public final class FstatUtil {
+    private FstatUtil() {
     }
 
-    public static List<byte[]> getEdidArrays() {
-        // Special handling for X commands, don't use LC_ALL
-        List<String> xrandr = ExecutingCommand.runNative(XRANDR_VERBOSE, null);
-        // xrandr reports edid in multiple lines. After seeing a line containing
-        // EDID, read subsequent lines of hex until 256 characters are reached
-        if (xrandr.isEmpty()) {
-            return Collections.emptyList();
+    /**
+     * Gets current working directory info (using {@code ps} actually).
+     *
+     * @param pid
+     *            a process ID
+     * @return the current working directory for that process.
+     */
+    public static String getCwd(int pid) {
+        List<String> ps = ExecutingCommand.runNative("ps -axwwo cwd -p " + pid);
+        if (!ps.isEmpty()) {
+            return ps.get(1);
         }
-        List<byte[]> displays = new ArrayList<>();
-        StringBuilder sb = null;
-        for (String s : xrandr) {
-            if (s.contains("EDID")) {
-                sb = new StringBuilder();
-            } else if (sb != null) {
-                sb.append(s.trim());
-                if (sb.length() < 256) {
-                    continue;
-                }
-                String edidStr = sb.toString();
-                byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
-                if (edid.length >= 128) {
-                    displays.add(edid);
-                }
-                sb = null;
+        return "";
+    }
+
+    /**
+     * Gets open number of files.
+     *
+     * @param pid
+     *            The process ID
+     * @return the number of open files.
+     */
+    public static long getOpenFiles(int pid) {
+        long fd = 0L;
+        List<String> fstat = ExecutingCommand.runNative("fstat -sp " + pid);
+        for (String line : fstat) {
+            String[] split = ParseUtil.whitespaces.split(line.trim(), 11);
+            if (split.length == 11 && !"pipe".contains(split[4]) && !"unix".contains(split[4])) {
+                fd++;
             }
         }
-        return displays;
+        // subtract 1 for header row
+        return fd - 1;
     }
 }

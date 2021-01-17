@@ -21,49 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.hardware.platform.unix;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.Xrandr;
+import oshi.hardware.Display;
+import oshi.hardware.common.AbstractDisplay;
 
 /**
- * Enum of supported operating systems.
+ * A Display
  */
-public enum PlatformEnum {
+@ThreadSafe
+public final class UnixDisplay extends AbstractDisplay {
+
     /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOS,
-    /**
-     * Mac OS X
+     * Constructor for UnixDisplay.
      *
-     * @deprecated Use {@link #MACOS}
+     * @param edid
+     *            a byte array representing a display EDID
      */
-    @Deprecated
-    MACOSX,
+    UnixDisplay(byte[] edid) {
+        super(edid);
+    }
+
     /**
-     * Solaris (SunOS)
+     * Gets Display Information
+     *
+     * @return An array of Display objects representing monitors, etc.
      */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD
-     */
-    OPENBSD,
-    /**
-     * WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+    public static List<Display> getDisplays() {
+        return Collections
+                .unmodifiableList(Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList()));
+    }
+
+    public List<Display> getXDisplays() {
+        return UnixDisplay.getDisplays();
+    }
 }

@@ -29,10 +29,13 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static oshi.PlatformEnum.FREEBSD;
+import static oshi.PlatformEnum.OPENBSD;
+import static oshi.PlatformEnum.SOLARIS;
+import static oshi.PlatformEnum.WINDOWS;
 
 import org.junit.jupiter.api.Test;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 
 /**
@@ -42,9 +45,9 @@ class LsofUtilTest {
 
     @Test
     void testLsof() {
-        if (!SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)
-                && !SystemInfo.getCurrentPlatform().equals(PlatformEnum.FREEBSD)
-                && !SystemInfo.getCurrentPlatform().equals(PlatformEnum.SOLARIS)) {
+        if (!SystemInfo.getCurrentPlatform().equals(WINDOWS) && !SystemInfo.getCurrentPlatform().equals(FREEBSD)
+                && !SystemInfo.getCurrentPlatform().equals(OPENBSD)
+                && !SystemInfo.getCurrentPlatform().equals(SOLARIS)) {
             int pid = new SystemInfo().getOperatingSystem().getProcessId();
 
             assertThat("Open files must be nonnegative", LsofUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));

@@ -38,9 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import oshi.util.tuples.Pair;
 
 /**
@@ -576,16 +574,22 @@ class ParseUtilTest {
 
     @Test
     void testHexStringToInt() {
-        assertThat(ParseUtil.hexStringToInt("ff", 0), is(255));
-        assertThat(ParseUtil.hexStringToInt("830f53a0", 0), is(-2096147552));
-        assertThat(ParseUtil.hexStringToInt("pqwe", 0), is(0));
+        assertThat("Parsing ff failed", ParseUtil.hexStringToInt("ff", 0), is(255));
+        assertThat("Parsing 830f53a0 failed", ParseUtil.hexStringToInt("830f53a0", 0), is(-2096147552));
+        assertThat("Parsing pqwe failed", ParseUtil.hexStringToInt("pqwe", 0), is(0));
+        assertThat("Parsing 0xff failed", ParseUtil.hexStringToInt("0xff", 0), is(255));
+        assertThat("Parsing 0x830f53a0 failed", ParseUtil.hexStringToInt("0x830f53a0", 0), is(-2096147552));
+        assertThat("Parsing 0xpqwe failed", ParseUtil.hexStringToInt("0xpqwe", 0), is(0));
     }
 
     @Test
     void testHexStringToLong() {
-        assertThat(ParseUtil.hexStringToLong("ff", 0L), is(255L));
-        assertThat(ParseUtil.hexStringToLong("ffffffff830f53a0", 0L), is(-2096147552L));
-        assertThat(ParseUtil.hexStringToLong("pqwe", 0L), is(0L));
+        assertThat("Parsing ff failed", ParseUtil.hexStringToLong("ff", 0L), is(255L));
+        assertThat("Parsing 830f53a0 failed", ParseUtil.hexStringToLong("ffffffff830f53a0", 0L), is(-2096147552L));
+        assertThat("Parsing pqwe failed", ParseUtil.hexStringToLong("pqwe", 0L), is(0L));
+        assertThat("Parsing 0xff failed", ParseUtil.hexStringToLong("0xff", 0L), is(255L));
+        assertThat("Parsing 0x830f53a0 failed", ParseUtil.hexStringToLong("0xffffffff830f53a0", 0L), is(-2096147552L));
+        assertThat("Parsing 0xpqwe failed", ParseUtil.hexStringToLong("0xpqwe", 0L), is(0L));
     }
 
     @Test
@@ -593,5 +597,20 @@ class ParseUtilTest {
         assertThat(ParseUtil.removeLeadingDots("foo"), is("foo"));
         assertThat(ParseUtil.removeLeadingDots("...bar"), is("bar"));
         assertThat(ParseUtil.removeLeadingDots("..."), is(""));
+    }
+
+    @Test
+    void testParseMultipliedToLongs() {
+        assertThat(ParseUtil.parseMultipliedToLongs("Not a number"), is(0L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1"), is(1L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1.2"), is(1L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1 k"), is(1_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1 M"), is(1_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1MB"), is(1_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1MC"), is(1_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1 T"), is(1_000_000_000_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1073M"), is(1073000000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("1073 G"), is(1073000000000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("12K"), is(12000L));
     }
 }

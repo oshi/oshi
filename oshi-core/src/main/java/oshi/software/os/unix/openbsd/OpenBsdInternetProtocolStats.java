@@ -21,49 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.software.os.unix.openbsd;
 
-/**
- * Enum of supported operating systems.
- */
-public enum PlatformEnum {
-    /**
-     * Microsoft Windows
-     */
-    WINDOWS,
-    /**
-     * A flavor of Linux
-     */
-    LINUX,
-    /**
-     * macOS (formerly OS X)
-     */
-    MACOS,
-    /**
-     * Mac OS X
-     *
-     * @deprecated Use {@link #MACOS}
-     */
-    @Deprecated
-    MACOSX,
-    /**
-     * Solaris (SunOS)
-     */
-    SOLARIS,
-    /**
-     * FreeBSD
-     */
-    FREEBSD,
-    /**
-     * IBM AIX
-     */
-    AIX,
-    /**
-     * OpenBSD
-     */
-    OPENBSD,
-    /**
-     * WindowsCE, or an unspecified system
-     */
-    UNKNOWN;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.NetStat;
+import oshi.software.common.AbstractInternetProtocolStats;
+
+@ThreadSafe
+public class OpenBsdInternetProtocolStats extends AbstractInternetProtocolStats {
+
+    @Override
+    public TcpStats getTCPv4Stats() {
+        return NetStat.queryTcpStats("netstat -s -p tcp");
+    }
+
+    @Override
+    public TcpStats getTCPv6Stats() {
+        // Stats are no different for inet6
+        return new TcpStats(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+    }
+
+    @Override
+    public UdpStats getUDPv4Stats() {
+        return NetStat.queryUdpStats("netstat -s -p udp");
+    }
+
+    @Override
+    public UdpStats getUDPv6Stats() {
+        // Stats are no different for inet6
+        return new UdpStats(0L, 0L, 0L, 0L);
+    }
 }

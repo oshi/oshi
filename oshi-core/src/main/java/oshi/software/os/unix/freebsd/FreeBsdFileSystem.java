@@ -64,7 +64,8 @@ public final class FreeBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
-        // Find any partition UUIDs and map them
+        // TODO map mount point to UUID?
+        // is /etc/fstab useful for this?
         Map<String, String> uuidMap = new HashMap<>();
         // Now grab dmssg output
         String device = "";
