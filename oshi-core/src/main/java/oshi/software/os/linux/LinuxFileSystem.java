@@ -43,6 +43,7 @@ import com.sun.jna.platform.linux.LibC;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -121,6 +122,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
     private static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap,
             boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
+
+        Map<String, String> labelMap = queryLabelMap();
 
         // Parse /proc/mounts to get fs types
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
@@ -217,10 +220,21 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
             }
 
-            fsList.add(new LinuxOSFileStore(name, volume, name, path, options, uuid, logicalVolume, description, type,
-                    freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
+            fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,
+                    logicalVolume, description, type, freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
         }
         return fsList;
+    }
+
+    private static Map<String, String> queryLabelMap() {
+        Map<String, String> labelMap = new HashMap<>();
+        for (String line : ExecutingCommand.runNative("lsblk -o mountpoint,label")) {
+            String[] split = ParseUtil.whitespaces.split(line, 2);
+            if (split.length == 2) {
+                labelMap.put(split[0], split[1]);
+            }
+        }
+        return labelMap;
     }
 
     @Override
