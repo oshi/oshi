@@ -51,8 +51,9 @@ public interface OSFileStore {
     /**
      * Label of the File System
      *
-     * @return The volume label of the file system, on Windows. Other operating
-     *         systems is redundant with the name.
+     * @return The volume label of the file system. Only relevant on Windows and on
+     *         Linux, if assigned; otherwise defaults to the FileSystem name. On
+     *         other operating systems is redundant with the name.
      */
     String getLabel();
 
