@@ -88,9 +88,27 @@ public class SystemInfo {
         }
     }
 
+    private static final String NOT_SUPPORTED = "Operating system not supported: JNA Platform type ";
+
     private final Supplier<OperatingSystem> os = memoize(SystemInfo::createOperatingSystem);
 
     private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfo::createHardware);
+
+    /**
+     * Create a new instance of {@link SystemInfo}. This is the main entry point to
+     * OSHI and provides access to cross-platform code.
+     * <p>
+     * Platform-specific Hardware and Software objects are retrieved via memoized
+     * suppliers. To conserve memory at the cost of additional processing time,
+     * create a new version of SystemInfo() for subsequent calls. To conserve
+     * processing time at the cost of additional memory usage, re-use the same
+     * {@link SystemInfo} object for future queries.
+     */
+    public SystemInfo() {
+        if (getCurrentPlatform().equals(PlatformEnum.UNKNOWN)) {
+            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+        }
+    }
 
     /**
      * Gets the {@link PlatformEnum} value representing this system.
@@ -140,8 +158,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdOperatingSystem();
         default:
-            throw new UnsupportedOperationException(
-                    "Operating system not supported: JNA Platform type " + Platform.getOSType());
+            return null;
         }
     }
 
@@ -172,8 +189,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdHardwareAbstractionLayer();
         default:
-            throw new UnsupportedOperationException(
-                    "Operating system not supported: JNA Platform type " + Platform.getOSType());
+            return null;
         }
     }
 }

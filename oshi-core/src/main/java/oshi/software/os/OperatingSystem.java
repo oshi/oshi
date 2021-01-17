@@ -266,7 +266,7 @@ public interface OperatingSystem {
      */
     List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly);
 
-    /*
+    /**
      * A class representing the Operating System version details.
      */
     @Immutable

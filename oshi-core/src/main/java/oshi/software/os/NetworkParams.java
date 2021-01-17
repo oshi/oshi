@@ -33,49 +33,38 @@ import oshi.annotation.concurrent.ThreadSafe;
 public interface NetworkParams {
 
     /**
-     * <p>
-     * getHostName.
-     * </p>
+     * Gets the HostName of the machine executing OSHI.
      *
-     * @return Gets host name
+     * @return the hostname
      */
     String getHostName();
 
     /**
-     * <p>
-     * getDomainName.
-     * </p>
+     * Gets the Domain Name of the machine executing OSHI.
      *
-     * @return Gets domain name
+     * @return the domain name
      */
     String getDomainName();
 
     /**
-     * <p>
-     * getDnsServers.
-     * </p>
+     * Gets the DNS Servers configured for this machine.
      *
-     * @return Gets DNS servers
+     * @return the DNS servers
      */
     String[] getDnsServers();
 
     /**
-     * <p>
-     * getIpv4DefaultGateway.
-     * </p>
+     * Gets the default gateway(routing destination for 0.0.0.0/0) for IPv4
+     * connections.
      *
-     * @return Gets default gateway(routing destination for 0.0.0.0/0) for IPv4,
-     *         empty string if not defined.
+     * @return default gateway for IPv4, or empty string if not defined.
      */
     String getIpv4DefaultGateway();
 
     /**
-     * <p>
-     * getIpv6DefaultGateway.
-     * </p>
+     * Gets default gateway(routing destination for ::/0) for IPv6 connections.
      *
-     * @return Gets default gateway(routing destination for ::/0) for IPv6, empty
-     *         string if not defined.
+     * @return default gateway for IPv6, or empty string if not defined.
      */
     String getIpv6DefaultGateway();
 }

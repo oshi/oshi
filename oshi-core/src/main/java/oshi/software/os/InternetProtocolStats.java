@@ -28,6 +28,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -77,6 +78,10 @@ public interface InternetProtocolStats {
      */
     List<IPConnection> getConnections();
 
+    /**
+     * Encapsulates statistics associated with a TCP connection.
+     */
+    @Immutable
     final class TcpStats {
         private final long connectionsEstablished;
         private final long connectionsActive;
@@ -220,6 +225,10 @@ public interface InternetProtocolStats {
         }
     }
 
+    /**
+     * Encapsulates statistics associated with a UDP connection.
+     */
+    @Immutable
     final class UdpStats {
         private final long datagramsSent;
         private final long datagramsReceived;
@@ -289,6 +298,10 @@ public interface InternetProtocolStats {
         TIME_WAIT, NONE;
     }
 
+    /**
+     * Encapsulates information associated with an IP connection.
+     */
+    @Immutable
     final class IPConnection {
         private final String type;
         private final byte[] localAddress;
