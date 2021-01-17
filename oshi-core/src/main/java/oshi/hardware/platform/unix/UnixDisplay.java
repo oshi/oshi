@@ -57,8 +57,4 @@ public final class UnixDisplay extends AbstractDisplay {
         return Collections
                 .unmodifiableList(Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList()));
     }
-
-    public List<Display> getXDisplays() {
-        return UnixDisplay.getDisplays();
-    }
 }

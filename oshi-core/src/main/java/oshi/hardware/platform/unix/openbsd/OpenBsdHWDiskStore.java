@@ -49,7 +49,7 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
-    private final Supplier<List<String>> iostat = memoize(this::querySystatIostat, defaultExpiration());
+    private final Supplier<List<String>> iostat = memoize(OpenBsdHWDiskStore::querySystatIostat, defaultExpiration());
 
     private long reads = 0L;
     private long readBytes = 0L;
@@ -170,15 +170,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
     @Override
     public boolean updateAttributes() {
         /*-
-         └─ $ ▶ iostat -I sd0
-            tty                 sd0                   cpu
-         tin     tout    KB/t   xfr     MB       us ni sy sp in id
-         7894    75610  28.09 1668381 45761.14    4  0  1  0  0 94
-
-                https:man.openbsd.org/systat.1#iostat
-
         └─ $ ▶ systat -b iostat
-
                 0 users Load 2.04 4.02 3.96                          thinkpad.local 00:14:35
                 DEVICE          READ    WRITE     RTPS    WTPS     SEC            STATS
                 sd0           49937M   25774M  1326555 1695370   945.9
@@ -217,7 +209,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
         return diskFound;
     }
 
-    private List<String> querySystatIostat() {
+    private static List<String> querySystatIostat() {
         return ExecutingCommand.runNative("systat -ab iostat");
     }
 }

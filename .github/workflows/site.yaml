@@ -1,6 +1,7 @@
 name: Site
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - site

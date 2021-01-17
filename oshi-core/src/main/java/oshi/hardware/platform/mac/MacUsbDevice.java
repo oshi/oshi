@@ -101,21 +101,26 @@ public class MacUsbDevice extends AbstractUsbDevice {
             // Get the device directly under each controller
             IORegistryEntry device = iter.next();
             while (device != null) {
+                long id = 0L;
                 // The parent of this device in IOService plane is the controller
                 IORegistryEntry controller = device.getParentEntry(IOSERVICE);
-                // Unique global identifier for this controller
-                long id = controller.getRegistryEntryID();
-                usbControllers.add(id);
-                nameMap.put(id, controller.getName());
-                // The only information we have in registry for this controller is
-                // the locationID. Use that to search for matching PCI device to obtain
-                // more information for the controller
-                CFTypeRef ref = controller.createCFProperty(locationIDKey);
-                if (ref != null) {
-                    getControllerIdByLocation(id, ref, locationIDKey, ioPropertyMatchKey, vendorIdMap, productIdMap);
-                    ref.release();
+                if (controller != null) {
+                    // Unique global identifier for this controller
+                    id = controller.getRegistryEntryID();
+                    // Populate other data for the controller
+                    nameMap.put(id, controller.getName());
+                    // The only information we have in registry for this controller is
+                    // the locationID. Use that to search for matching PCI device to obtain
+                    // more information for the controller
+                    CFTypeRef ref = controller.createCFProperty(locationIDKey);
+                    if (ref != null) {
+                        getControllerIdByLocation(id, ref, locationIDKey, ioPropertyMatchKey, vendorIdMap,
+                                productIdMap);
+                        ref.release();
+                    }
+                    controller.release();
                 }
-                controller.release();
+                usbControllers.add(id);
 
                 // Now recursively add this device and its children to the maps
                 // id is the coontroller ID and the first parent ID
