@@ -144,148 +144,147 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine
      *
-     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
-     *         representing the disks
+     * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List&lt;HWDiskStore&gt; getDisks() {
-<span class="nc" id="L151">        return Collections.unmodifiableList(getDisks(null));</span>
+<span class="nc" id="L150">        return getDisks(null);</span>
     }
 
-    private static List&lt;LinuxHWDiskStore&gt; getDisks(LinuxHWDiskStore storeToUpdate) {
-<span class="nc" id="L155">        LinuxHWDiskStore store = null;</span>
-<span class="nc" id="L156">        List&lt;LinuxHWDiskStore&gt; result = new ArrayList&lt;&gt;();</span>
+    private static List&lt;HWDiskStore&gt; getDisks(LinuxHWDiskStore storeToUpdate) {
+<span class="nc" id="L154">        LinuxHWDiskStore store = null;</span>
+<span class="nc" id="L155">        List&lt;HWDiskStore&gt; result = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L158">        Map&lt;String, String&gt; mountsMap = readMountsMap();</span>
+<span class="nc" id="L157">        Map&lt;String, String&gt; mountsMap = readMountsMap();</span>
 
-<span class="nc" id="L160">        UdevContext udev = Udev.INSTANCE.udev_new();</span>
+<span class="nc" id="L159">        UdevContext udev = Udev.INSTANCE.udev_new();</span>
         try {
-<span class="nc" id="L162">            UdevEnumerate enumerate = udev.enumerateNew();</span>
+<span class="nc" id="L161">            UdevEnumerate enumerate = udev.enumerateNew();</span>
             try {
-<span class="nc" id="L164">                enumerate.addMatchSubsystem(BLOCK);</span>
-<span class="nc" id="L165">                enumerate.scanDevices();</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">                for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {</span>
-<span class="nc" id="L167">                    String syspath = entry.getName();</span>
-<span class="nc" id="L168">                    UdevDevice device = udev.deviceNewFromSyspath(syspath);</span>
-<span class="nc bnc" id="L169" title="All 2 branches missed.">                    if (device != null) {</span>
+<span class="nc" id="L163">                enumerate.addMatchSubsystem(BLOCK);</span>
+<span class="nc" id="L164">                enumerate.scanDevices();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">                for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {</span>
+<span class="nc" id="L166">                    String syspath = entry.getName();</span>
+<span class="nc" id="L167">                    UdevDevice device = udev.deviceNewFromSyspath(syspath);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                    if (device != null) {</span>
                         try {
                             // devnode is what we use as name, like /dev/sda
-<span class="nc" id="L172">                            String devnode = device.getDevnode();</span>
+<span class="nc" id="L171">                            String devnode = device.getDevnode();</span>
                             // Ignore loopback and ram disks; do nothing
-<span class="nc bnc" id="L174" title="All 4 branches missed.">                            if (devnode != null &amp;&amp; !devnode.startsWith(&quot;/dev/loop&quot;)</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">                                    &amp;&amp; !devnode.startsWith(&quot;/dev/ram&quot;)) {</span>
-<span class="nc bnc" id="L176" title="All 2 branches missed.">                                if (DISK.equals(device.getDevtype())) {</span>
+<span class="nc bnc" id="L173" title="All 4 branches missed.">                            if (devnode != null &amp;&amp; !devnode.startsWith(&quot;/dev/loop&quot;)</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">                                    &amp;&amp; !devnode.startsWith(&quot;/dev/ram&quot;)) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                                if (DISK.equals(device.getDevtype())) {</span>
                                     // Null model and serial in virtual environments
-<span class="nc" id="L178">                                    String devModel = device.getPropertyValue(ID_MODEL);</span>
-<span class="nc" id="L179">                                    String devSerial = device.getPropertyValue(ID_SERIAL_SHORT);</span>
-<span class="nc" id="L180">                                    long devSize = ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)</span>
+<span class="nc" id="L177">                                    String devModel = device.getPropertyValue(ID_MODEL);</span>
+<span class="nc" id="L178">                                    String devSerial = device.getPropertyValue(ID_SERIAL_SHORT);</span>
+<span class="nc" id="L179">                                    long devSize = ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)</span>
                                             * SECTORSIZE;
-<span class="nc" id="L182">                                    store = new LinuxHWDiskStore(devnode,</span>
-<span class="nc bnc" id="L183" title="All 2 branches missed.">                                            devModel == null ? Constants.UNKNOWN : devModel,</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">                                            devSerial == null ? Constants.UNKNOWN : devSerial, devSize);</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">                                    if (storeToUpdate == null) {</span>
+<span class="nc" id="L181">                                    store = new LinuxHWDiskStore(devnode,</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                                            devModel == null ? Constants.UNKNOWN : devModel,</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                                            devSerial == null ? Constants.UNKNOWN : devSerial, devSize);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">                                    if (storeToUpdate == null) {</span>
                                         // If getting all stores, add to the list with stats
-<span class="nc" id="L187">                                        computeDiskStats(store, device.getSysattrValue(STAT));</span>
-<span class="nc" id="L188">                                        result.add(store);</span>
-<span class="nc bnc" id="L189" title="All 2 branches missed.">                                    } else if (store.getName().equals(storeToUpdate.getName())</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                                            &amp;&amp; store.getModel().equals(storeToUpdate.getModel())</span>
-<span class="nc bnc" id="L191" title="All 2 branches missed.">                                            &amp;&amp; store.getSerial().equals(storeToUpdate.getSerial())</span>
-<span class="nc bnc" id="L192" title="All 2 branches missed.">                                            &amp;&amp; store.getSize() == storeToUpdate.getSize()) {</span>
+<span class="nc" id="L186">                                        computeDiskStats(store, device.getSysattrValue(STAT));</span>
+<span class="nc" id="L187">                                        result.add(store);</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                                    } else if (store.getName().equals(storeToUpdate.getName())</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">                                            &amp;&amp; store.getModel().equals(storeToUpdate.getModel())</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                                            &amp;&amp; store.getSerial().equals(storeToUpdate.getSerial())</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                                            &amp;&amp; store.getSize() == storeToUpdate.getSize()) {</span>
                                         // If we are only updating a single disk, the name, model, serial, and size are
                                         // sufficient to test if this is a match. Add the (old) object, release handle
                                         // and return.
-<span class="nc" id="L196">                                        computeDiskStats(storeToUpdate, device.getSysattrValue(STAT));</span>
-<span class="nc" id="L197">                                        result.add(storeToUpdate);</span>
+<span class="nc" id="L195">                                        computeDiskStats(storeToUpdate, device.getSysattrValue(STAT));</span>
+<span class="nc" id="L196">                                        result.add(storeToUpdate);</span>
                                         break;
                                     }
-<span class="nc bnc" id="L200" title="All 4 branches missed.">                                } else if (storeToUpdate == null &amp;&amp; store != null // only add if getting new list</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">                                        &amp;&amp; PARTITION.equals(device.getDevtype())) {</span>
+<span class="nc bnc" id="L199" title="All 4 branches missed.">                                } else if (storeToUpdate == null &amp;&amp; store != null // only add if getting new list</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">                                        &amp;&amp; PARTITION.equals(device.getDevtype())) {</span>
                                     // udev_device_get_parent_*() does not take a reference on the returned device,
                                     // it is automatically unref'd with the parent
-<span class="nc" id="L204">                                    UdevDevice parent = device.getParentWithSubsystemDevtype(BLOCK, DISK);</span>
-<span class="nc bnc" id="L205" title="All 4 branches missed.">                                    if (parent != null &amp;&amp; store.getName().equals(parent.getDevnode())) {</span>
+<span class="nc" id="L203">                                    UdevDevice parent = device.getParentWithSubsystemDevtype(BLOCK, DISK);</span>
+<span class="nc bnc" id="L204" title="All 4 branches missed.">                                    if (parent != null &amp;&amp; store.getName().equals(parent.getDevnode())) {</span>
                                         // `store` should still point to the parent HWDiskStore this partition is
                                         // attached to. If not, it's an error, so skip.
-<span class="nc" id="L208">                                        String name = device.getDevnode();</span>
-<span class="nc" id="L209">                                        store.partitionList.add(new HWPartition(name, device.getSysname(),</span>
-<span class="nc bnc" id="L210" title="All 2 branches missed.">                                                device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION</span>
-<span class="nc" id="L211">                                                        : device.getPropertyValue(ID_FS_TYPE),</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">                                                device.getPropertyValue(ID_FS_UUID) == null ? &quot;&quot;</span>
-<span class="nc" id="L213">                                                        : device.getPropertyValue(ID_FS_UUID),</span>
-<span class="nc" id="L214">                                                ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)</span>
+<span class="nc" id="L207">                                        String name = device.getDevnode();</span>
+<span class="nc" id="L208">                                        store.partitionList.add(new HWPartition(name, device.getSysname(),</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">                                                device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION</span>
+<span class="nc" id="L210">                                                        : device.getPropertyValue(ID_FS_TYPE),</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                                                device.getPropertyValue(ID_FS_UUID) == null ? &quot;&quot;</span>
+<span class="nc" id="L212">                                                        : device.getPropertyValue(ID_FS_UUID),</span>
+<span class="nc" id="L213">                                                ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)</span>
                                                         * SECTORSIZE,
-<span class="nc" id="L216">                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),</span>
-<span class="nc" id="L217">                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),</span>
-<span class="nc" id="L218">                                                mountsMap.getOrDefault(name, &quot;&quot;)));</span>
+<span class="nc" id="L215">                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),</span>
+<span class="nc" id="L216">                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),</span>
+<span class="nc" id="L217">                                                mountsMap.getOrDefault(name, &quot;&quot;)));</span>
                                     }
                                 }
                             }
                         } finally {
-<span class="nc" id="L223">                            device.unref();</span>
+<span class="nc" id="L222">                            device.unref();</span>
                         }
                     }
                 }
             } finally {
-<span class="nc" id="L228">                enumerate.unref();</span>
+<span class="nc" id="L227">                enumerate.unref();</span>
             }
         } finally {
-<span class="nc" id="L231">            udev.unref();</span>
+<span class="nc" id="L230">            udev.unref();</span>
         }
         // Iterate the list and make the partitions unmodifiable
-<span class="nc bnc" id="L234" title="All 2 branches missed.">        for (LinuxHWDiskStore hwds : result) {</span>
-<span class="nc" id="L235">            hwds.partitionList = Collections.unmodifiableList(hwds.partitionList.stream()</span>
-<span class="nc" id="L236">                    .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));</span>
-<span class="nc" id="L237">        }</span>
-<span class="nc" id="L238">        return result;</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        for (HWDiskStore hwds : result) {</span>
+<span class="nc" id="L234">            ((LinuxHWDiskStore) hwds).partitionList = Collections.unmodifiableList(hwds.getPartitions().stream()</span>
+<span class="nc" id="L235">                    .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));</span>
+<span class="nc" id="L236">        }</span>
+<span class="nc" id="L237">        return result;</span>
     }
 
     @Override
     public boolean updateAttributes() {
         // If this returns non-empty (the same store, but updated) then we were
         // successful in the update
-<span class="nc bnc" id="L245" title="All 2 branches missed.">        return !getDisks(this).isEmpty();</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        return !getDisks(this).isEmpty();</span>
     }
 
     private static Map&lt;String, String&gt; readMountsMap() {
-<span class="nc" id="L249">        Map&lt;String, String&gt; mountsMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L250">        List&lt;String&gt; mounts = FileUtil.readFile(ProcPath.MOUNTS);</span>
-<span class="nc bnc" id="L251" title="All 2 branches missed.">        for (String mount : mounts) {</span>
-<span class="nc" id="L252">            String[] split = ParseUtil.whitespaces.split(mount);</span>
-<span class="nc bnc" id="L253" title="All 4 branches missed.">            if (split.length &lt; 2 || !split[0].startsWith(&quot;/dev/&quot;)) {</span>
-<span class="nc" id="L254">                continue;</span>
+<span class="nc" id="L248">        Map&lt;String, String&gt; mountsMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L249">        List&lt;String&gt; mounts = FileUtil.readFile(ProcPath.MOUNTS);</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        for (String mount : mounts) {</span>
+<span class="nc" id="L251">            String[] split = ParseUtil.whitespaces.split(mount);</span>
+<span class="nc bnc" id="L252" title="All 4 branches missed.">            if (split.length &lt; 2 || !split[0].startsWith(&quot;/dev/&quot;)) {</span>
+<span class="nc" id="L253">                continue;</span>
             }
-<span class="nc" id="L256">            mountsMap.put(split[0], split[1]);</span>
-<span class="nc" id="L257">        }</span>
-<span class="nc" id="L258">        return mountsMap;</span>
+<span class="nc" id="L255">            mountsMap.put(split[0], split[1]);</span>
+<span class="nc" id="L256">        }</span>
+<span class="nc" id="L257">        return mountsMap;</span>
     }
 
     private static void computeDiskStats(LinuxHWDiskStore store, String devstat) {
-<span class="nc" id="L262">        long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');</span>
-<span class="nc" id="L263">        store.timeStamp = System.currentTimeMillis();</span>
+<span class="nc" id="L261">        long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');</span>
+<span class="nc" id="L262">        store.timeStamp = System.currentTimeMillis();</span>
 
         // Reads and writes are converted in bytes
-<span class="nc" id="L266">        store.reads = devstatArray[UdevStat.READS.ordinal()];</span>
-<span class="nc" id="L267">        store.readBytes = devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE;</span>
-<span class="nc" id="L268">        store.writes = devstatArray[UdevStat.WRITES.ordinal()];</span>
-<span class="nc" id="L269">        store.writeBytes = devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE;</span>
-<span class="nc" id="L270">        store.currentQueueLength = devstatArray[UdevStat.QUEUE_LENGTH.ordinal()];</span>
-<span class="nc" id="L271">        store.transferTime = devstatArray[UdevStat.ACTIVE_MS.ordinal()];</span>
-<span class="nc" id="L272">    }</span>
+<span class="nc" id="L265">        store.reads = devstatArray[UdevStat.READS.ordinal()];</span>
+<span class="nc" id="L266">        store.readBytes = devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE;</span>
+<span class="nc" id="L267">        store.writes = devstatArray[UdevStat.WRITES.ordinal()];</span>
+<span class="nc" id="L268">        store.writeBytes = devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE;</span>
+<span class="nc" id="L269">        store.currentQueueLength = devstatArray[UdevStat.QUEUE_LENGTH.ordinal()];</span>
+<span class="nc" id="L270">        store.transferTime = devstatArray[UdevStat.ACTIVE_MS.ordinal()];</span>
+<span class="nc" id="L271">    }</span>
 
     // Order the field is in udev stats
-<span class="nc" id="L275">    enum UdevStat {</span>
+<span class="nc" id="L274">    enum UdevStat {</span>
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order. Use 0-ordered index here
-<span class="nc" id="L278">        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);</span>
+<span class="nc" id="L277">        READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);</span>
 
         private int order;
 
         public int getOrder() {
-<span class="nc" id="L283">            return this.order;</span>
+<span class="nc" id="L282">            return this.order;</span>
         }
 
-<span class="nc" id="L286">        UdevStat(int order) {</span>
-<span class="nc" id="L287">            this.order = order;</span>
-<span class="nc" id="L288">        }</span>
+<span class="nc" id="L285">        UdevStat(int order) {</span>
+<span class="nc" id="L286">            this.order = order;</span>
+<span class="nc" id="L287">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

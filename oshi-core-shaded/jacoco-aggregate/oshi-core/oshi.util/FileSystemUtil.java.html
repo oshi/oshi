@@ -64,12 +64,12 @@ public final class FileSystemUtil {
      */
     public static boolean isFileStoreExcluded(String path, String volume, List&lt;PathMatcher&gt; pathIncludes,
             List&lt;PathMatcher&gt; pathExcludes, List&lt;PathMatcher&gt; volumeIncludes, List&lt;PathMatcher&gt; volumeExcludes) {
-<span class="nc" id="L67">        Path p = Paths.get(path);</span>
-<span class="nc" id="L68">        Path v = Paths.get(volume);</span>
-<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (matches(p, pathIncludes) || matches(v, volumeIncludes)) {</span>
-<span class="nc" id="L70">            return false;</span>
+<span class="fc" id="L67">        Path p = Paths.get(path);</span>
+<span class="fc" id="L68">        Path v = Paths.get(volume);</span>
+<span class="fc bfc" id="L69" title="All 4 branches covered.">        if (matches(p, pathIncludes) || matches(v, volumeIncludes)) {</span>
+<span class="fc" id="L70">            return false;</span>
         }
-<span class="nc bnc" id="L72" title="All 4 branches missed.">        return matches(p, pathExcludes) || matches(v, volumeExcludes);</span>
+<span class="fc bfc" id="L72" title="All 4 branches covered.">        return matches(p, pathExcludes) || matches(v, volumeExcludes);</span>
     }
 
     /**
@@ -80,8 +80,8 @@ public final class FileSystemUtil {
      * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List&lt;PathMatcher&gt; loadAndParseFileSystemConfig(String configPropertyName) {
-<span class="nc" id="L83">        String config = GlobalConfig.get(configPropertyName, &quot;&quot;);</span>
-<span class="nc" id="L84">        return parseFileSystemConfig(config);</span>
+<span class="fc" id="L83">        String config = GlobalConfig.get(configPropertyName, &quot;&quot;);</span>
+<span class="fc" id="L84">        return parseFileSystemConfig(config);</span>
     }
 
     /**
@@ -92,19 +92,19 @@ public final class FileSystemUtil {
      * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List&lt;PathMatcher&gt; parseFileSystemConfig(String config) {
-<span class="nc" id="L95">        FileSystem fs = FileSystems.getDefault();</span>
-<span class="nc" id="L96">        List&lt;PathMatcher&gt; patterns = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (String item : config.split(&quot;,&quot;)) {</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (item.length() &gt; 0) {</span>
+<span class="fc" id="L95">        FileSystem fs = FileSystems.getDefault();</span>
+<span class="fc" id="L96">        List&lt;PathMatcher&gt; patterns = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (String item : config.split(&quot;,&quot;)) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            if (item.length() &gt; 0) {</span>
                 // Using glob: prefix as the defult unless user has specified glob or regex. See
                 // https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-
-<span class="nc bnc" id="L101" title="All 4 branches missed.">                if (!(item.startsWith(GLOB_PREFIX) || item.startsWith(REGEX_PREFIX))) {</span>
-<span class="nc" id="L102">                    item = GLOB_PREFIX + item;</span>
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">                if (!(item.startsWith(GLOB_PREFIX) || item.startsWith(REGEX_PREFIX))) {</span>
+<span class="fc" id="L102">                    item = GLOB_PREFIX + item;</span>
                 }
-<span class="nc" id="L104">                patterns.add(fs.getPathMatcher(item));</span>
+<span class="fc" id="L104">                patterns.add(fs.getPathMatcher(item));</span>
             }
         }
-<span class="nc" id="L107">        return patterns;</span>
+<span class="fc" id="L107">        return patterns;</span>
     }
 
     /**
@@ -120,12 +120,12 @@ public final class FileSystemUtil {
      *      glob (programming)&lt;/a&gt;
      */
     public static boolean matches(Path text, List&lt;PathMatcher&gt; patterns) {
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (PathMatcher pattern : patterns) {</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (pattern.matches(text)) {</span>
-<span class="nc" id="L125">                return true;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (PathMatcher pattern : patterns) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            if (pattern.matches(text)) {</span>
+<span class="fc" id="L125">                return true;</span>
             }
-<span class="nc" id="L127">        }</span>
-<span class="nc" id="L128">        return false;</span>
+<span class="fc" id="L127">        }</span>
+<span class="fc" id="L128">        return false;</span>
     }
 
 }

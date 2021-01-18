@@ -25,7 +25,6 @@ package oshi.hardware.platform.unix.freebsd;
 
 import java.net.NetworkInterface;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -43,7 +42,7 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class FreeBsdNetworkIF extends AbstractNetworkIF {
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkIF.class);</span>
+<span class="nc" id="L45">    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkIF.class);</span>
 
     private long bytesRecv;
     private long bytesSent;
@@ -56,98 +55,97 @@ public final class FreeBsdNetworkIF extends AbstractNetworkIF {
     private long timeStamp;
 
     public FreeBsdNetworkIF(NetworkInterface netint) throws InstantiationException {
-<span class="nc" id="L59">        super(netint);</span>
-<span class="nc" id="L60">        updateAttributes();</span>
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L58">        super(netint);</span>
+<span class="nc" id="L59">        updateAttributes();</span>
+<span class="nc" id="L60">    }</span>
 
     /**
      * Gets all network interfaces on this machine
      *
      * @param includeLocalInterfaces
      *            include local interfaces in the result
-     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
-     *         the interfaces
+     * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List&lt;NetworkIF&gt; getNetworks(boolean includeLocalInterfaces) {
-<span class="nc" id="L72">        List&lt;NetworkIF&gt; ifList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {</span>
+<span class="nc" id="L70">        List&lt;NetworkIF&gt; ifList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {</span>
             try {
-<span class="nc" id="L75">                ifList.add(new FreeBsdNetworkIF(ni));</span>
-<span class="nc" id="L76">            } catch (InstantiationException e) {</span>
-<span class="nc" id="L77">                LOG.debug(&quot;Network Interface Instantiation failed: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L78">            }</span>
-<span class="nc" id="L79">        }</span>
-<span class="nc" id="L80">        return Collections.unmodifiableList(ifList);</span>
+<span class="nc" id="L73">                ifList.add(new FreeBsdNetworkIF(ni));</span>
+<span class="nc" id="L74">            } catch (InstantiationException e) {</span>
+<span class="nc" id="L75">                LOG.debug(&quot;Network Interface Instantiation failed: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L76">            }</span>
+<span class="nc" id="L77">        }</span>
+<span class="nc" id="L78">        return ifList;</span>
     }
 
     @Override
     public long getBytesRecv() {
-<span class="nc" id="L85">        return this.bytesRecv;</span>
+<span class="nc" id="L83">        return this.bytesRecv;</span>
     }
 
     @Override
     public long getBytesSent() {
-<span class="nc" id="L90">        return this.bytesSent;</span>
+<span class="nc" id="L88">        return this.bytesSent;</span>
     }
 
     @Override
     public long getPacketsRecv() {
-<span class="nc" id="L95">        return this.packetsRecv;</span>
+<span class="nc" id="L93">        return this.packetsRecv;</span>
     }
 
     @Override
     public long getPacketsSent() {
-<span class="nc" id="L100">        return this.packetsSent;</span>
+<span class="nc" id="L98">        return this.packetsSent;</span>
     }
 
     @Override
     public long getInErrors() {
-<span class="nc" id="L105">        return this.inErrors;</span>
+<span class="nc" id="L103">        return this.inErrors;</span>
     }
 
     @Override
     public long getOutErrors() {
-<span class="nc" id="L110">        return this.outErrors;</span>
+<span class="nc" id="L108">        return this.outErrors;</span>
     }
 
     @Override
     public long getInDrops() {
-<span class="nc" id="L115">        return this.inDrops;</span>
+<span class="nc" id="L113">        return this.inDrops;</span>
     }
 
     @Override
     public long getCollisions() {
-<span class="nc" id="L120">        return this.collisions;</span>
+<span class="nc" id="L118">        return this.collisions;</span>
     }
 
     @Override
     public long getSpeed() {
-<span class="nc" id="L125">        return 0;</span>
+<span class="nc" id="L123">        return 0;</span>
     }
 
     @Override
     public long getTimeStamp() {
-<span class="nc" id="L130">        return this.timeStamp;</span>
+<span class="nc" id="L128">        return this.timeStamp;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L135">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + getName(), 1);</span>
-<span class="nc" id="L136">        this.timeStamp = System.currentTimeMillis();</span>
-<span class="nc" id="L137">        String[] split = ParseUtil.whitespaces.split(stats);</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
+<span class="nc" id="L133">        String stats = ExecutingCommand.getAnswerAt(&quot;netstat -bI &quot; + getName(), 1);</span>
+<span class="nc" id="L134">        this.timeStamp = System.currentTimeMillis();</span>
+<span class="nc" id="L135">        String[] split = ParseUtil.whitespaces.split(stats);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (split.length &lt; 12) {</span>
             // No update
-<span class="nc" id="L140">            return false;</span>
+<span class="nc" id="L138">            return false;</span>
         }
-<span class="nc" id="L142">        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);</span>
-<span class="nc" id="L143">        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);</span>
-<span class="nc" id="L144">        this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);</span>
-<span class="nc" id="L145">        this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);</span>
-<span class="nc" id="L146">        this.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);</span>
-<span class="nc" id="L147">        this.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);</span>
-<span class="nc" id="L148">        this.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);</span>
-<span class="nc" id="L149">        this.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);</span>
-<span class="nc" id="L150">        return true;</span>
+<span class="nc" id="L140">        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);</span>
+<span class="nc" id="L141">        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);</span>
+<span class="nc" id="L142">        this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);</span>
+<span class="nc" id="L143">        this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);</span>
+<span class="nc" id="L144">        this.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);</span>
+<span class="nc" id="L145">        this.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);</span>
+<span class="nc" id="L146">        this.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);</span>
+<span class="nc" id="L147">        this.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);</span>
+<span class="nc" id="L148">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
