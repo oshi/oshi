@@ -7,14 +7,15 @@ Releasing OSHI
 
 ### Snapshots
 
-* Snapshot releases may be deployed using `mvn clean deploy`
-	* The version number in the pom.xml must end in -SNAPSHOT
+* Other than during releases, the version number in the pom.xml should end in -SNAPSHOT
+* A GitHub Action deploys snapshots for pushes to the master branch. Snapshot releases may also be
+manually deployed using `mvn clean deploy`
 
 ### Prepare
 
-* Make sure tests are green on [Travis CI](https://travis-ci.org/oshi/oshi).
+* Make sure tests pass on all configured CI operating systems. 
+* Manually run tests on any non-covered OS using `mvn clean test`.
 * Review [SonarQube](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent) for any bugs.
-* Run `mvn clean test` on every OS you have access to
 * Choose an appropriate [version number](https://semver.org/) for the release
  	* Proactively change version numbers in the download links on [README.md](README.md).
 	* Copy [README.md](README.md) to [src/site/markdown/README.md](src/site/markdown/README.md)

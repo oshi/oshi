@@ -1,5 +1,7 @@
-# 5.4.0 (in progress)
+# 5.4.1 (in progress)
 * Your contribution here
+
+# 5.4.0 (2021-01-18)
 
 ##### New Features
 * [#1461](https://github.com/oshi/oshi/pull/1461): List TCP and UDP connections - [@dbwiddis](https://github.com/dbwiddis).
