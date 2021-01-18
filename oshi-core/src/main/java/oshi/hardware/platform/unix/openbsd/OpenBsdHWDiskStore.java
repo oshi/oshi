@@ -101,7 +101,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                         long sectors = ParseUtil.parseLongOrDefault(m.group(3), 0L);
                         // Group 2 is optional capture of bytes per sector
                         long bytesPerSector = ParseUtil.parseLongOrDefault(m.group(2), 0L);
-                        if (bytesPerSector == 0) {
+                        if (bytesPerSector == 0 && sectors > 0) {
                             // if we don't have bytes per sector guess at it based on total size and number
                             // of sectors
                             // Group 1 is size in MB, which may round
