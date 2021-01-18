@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -51,8 +50,8 @@ final class AixSoundCard extends AbstractSoundCard {
      *            The codec
      */
     AixSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L54">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L55">    }</span>
+<span class="nc" id="L53">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L54">    }</span>
 
     /**
      * Gets sound cards
@@ -63,17 +62,17 @@ final class AixSoundCard extends AbstractSoundCard {
      * @return sound cards
      */
     public static List&lt;SoundCard&gt; getSoundCards(Supplier&lt;List&lt;String&gt;&gt; lscfg) {
-<span class="nc" id="L66">        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        for (String line : lscfg.get()) {</span>
-<span class="nc" id="L68">            String s = line.trim();</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (s.startsWith(&quot;paud&quot;)) {</span>
-<span class="nc" id="L70">                String[] split = ParseUtil.whitespaces.split(s, 3);</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">                if (split.length == 3) {</span>
-<span class="nc" id="L72">                    soundCards.add(new AixSoundCard(Constants.UNKNOWN, split[2], Constants.UNKNOWN));</span>
+<span class="nc" id="L65">        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (String line : lscfg.get()) {</span>
+<span class="nc" id="L67">            String s = line.trim();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (s.startsWith(&quot;paud&quot;)) {</span>
+<span class="nc" id="L69">                String[] split = ParseUtil.whitespaces.split(s, 3);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                if (split.length == 3) {</span>
+<span class="nc" id="L71">                    soundCards.add(new AixSoundCard(Constants.UNKNOWN, split[2], Constants.UNKNOWN));</span>
                 }
             }
-<span class="nc" id="L75">        }</span>
-<span class="nc" id="L76">        return Collections.unmodifiableList(soundCards);</span>
+<span class="nc" id="L74">        }</span>
+<span class="nc" id="L75">        return soundCards;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

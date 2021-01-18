@@ -110,7 +110,7 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L110">            conns.addAll(queryTCPv6Connections());</span>
 <span class="nc" id="L111">            conns.addAll(queryUDPv4Connections());</span>
 <span class="nc" id="L112">            conns.addAll(queryUDPv6Connections());</span>
-<span class="nc" id="L113">            return Collections.unmodifiableList(conns);</span>
+<span class="nc" id="L113">            return conns;</span>
         }
 <span class="nc" id="L115">        return Collections.emptyList();</span>
     }

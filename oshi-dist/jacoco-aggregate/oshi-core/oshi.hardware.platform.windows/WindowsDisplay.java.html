@@ -24,7 +24,6 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -51,12 +50,12 @@ import oshi.hardware.common.AbstractDisplay;
 @Immutable
 final class WindowsDisplay extends AbstractDisplay {
 
-<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);</span>
+<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);</span>
 
-<span class="nc" id="L56">    private static final SetupApi SU = SetupApi.INSTANCE;</span>
-<span class="nc" id="L57">    private static final Advapi32 ADV = Advapi32.INSTANCE;</span>
+<span class="nc" id="L55">    private static final SetupApi SU = SetupApi.INSTANCE;</span>
+<span class="nc" id="L56">    private static final Advapi32 ADV = Advapi32.INSTANCE;</span>
 
-<span class="nc" id="L59">    private static final Guid.GUID GUID_DEVINTERFACE_MONITOR = new Guid.GUID(&quot;E6F07B5F-EE97-4a90-B076-33F57BF4EAA7&quot;);</span>
+<span class="nc" id="L58">    private static final Guid.GUID GUID_DEVINTERFACE_MONITOR = new Guid.GUID(&quot;E6F07B5F-EE97-4a90-B076-33F57BF4EAA7&quot;);</span>
 
     /**
      * Constructor for WindowsDisplay.
@@ -65,9 +64,9 @@ final class WindowsDisplay extends AbstractDisplay {
      *            a byte array representing a display EDID
      */
     WindowsDisplay(byte[] edid) {
-<span class="nc" id="L68">        super(edid);</span>
-<span class="nc" id="L69">        LOG.debug(&quot;Initialized WindowsDisplay&quot;);</span>
-<span class="nc" id="L70">    }</span>
+<span class="nc" id="L67">        super(edid);</span>
+<span class="nc" id="L68">        LOG.debug(&quot;Initialized WindowsDisplay&quot;);</span>
+<span class="nc" id="L69">    }</span>
 
     /**
      * Gets Display Information
@@ -75,38 +74,38 @@ final class WindowsDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List&lt;Display&gt; getDisplays() {
-<span class="nc" id="L78">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L77">        List&lt;Display&gt; displays = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L80">        WinNT.HANDLE hDevInfo = SU.SetupDiGetClassDevs(GUID_DEVINTERFACE_MONITOR, null, null,</span>
+<span class="nc" id="L79">        WinNT.HANDLE hDevInfo = SU.SetupDiGetClassDevs(GUID_DEVINTERFACE_MONITOR, null, null,</span>
                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (!hDevInfo.equals(WinBase.INVALID_HANDLE_VALUE)) {</span>
-<span class="nc" id="L83">            SP_DEVICE_INTERFACE_DATA deviceInterfaceData = new SetupApi.SP_DEVICE_INTERFACE_DATA();</span>
-<span class="nc" id="L84">            deviceInterfaceData.cbSize = deviceInterfaceData.size();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (!hDevInfo.equals(WinBase.INVALID_HANDLE_VALUE)) {</span>
+<span class="nc" id="L82">            SP_DEVICE_INTERFACE_DATA deviceInterfaceData = new SetupApi.SP_DEVICE_INTERFACE_DATA();</span>
+<span class="nc" id="L83">            deviceInterfaceData.cbSize = deviceInterfaceData.size();</span>
 
             // build a DevInfo Data structure
-<span class="nc" id="L87">            SP_DEVINFO_DATA info = new SetupApi.SP_DEVINFO_DATA();</span>
+<span class="nc" id="L86">            SP_DEVINFO_DATA info = new SetupApi.SP_DEVINFO_DATA();</span>
 
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            for (int memberIndex = 0; SU.SetupDiEnumDeviceInfo(hDevInfo, memberIndex, info); memberIndex++) {</span>
-<span class="nc" id="L90">                HKEY key = SU.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0, SetupApi.DIREG_DEV,</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            for (int memberIndex = 0; SU.SetupDiEnumDeviceInfo(hDevInfo, memberIndex, info); memberIndex++) {</span>
+<span class="nc" id="L89">                HKEY key = SU.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0, SetupApi.DIREG_DEV,</span>
                         WinNT.KEY_QUERY_VALUE);
 
-<span class="nc" id="L93">                byte[] edid = new byte[1];</span>
+<span class="nc" id="L92">                byte[] edid = new byte[1];</span>
 
-<span class="nc" id="L95">                IntByReference pType = new IntByReference();</span>
-<span class="nc" id="L96">                IntByReference lpcbData = new IntByReference();</span>
+<span class="nc" id="L94">                IntByReference pType = new IntByReference();</span>
+<span class="nc" id="L95">                IntByReference lpcbData = new IntByReference();</span>
 
-<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {</span>
-<span class="nc" id="L99">                    edid = new byte[lpcbData.getValue()];</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">                    if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {</span>
-<span class="nc" id="L101">                        Display display = new WindowsDisplay(edid);</span>
-<span class="nc" id="L102">                        displays.add(display);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {</span>
+<span class="nc" id="L98">                    edid = new byte[lpcbData.getValue()];</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                    if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {</span>
+<span class="nc" id="L100">                        Display display = new WindowsDisplay(edid);</span>
+<span class="nc" id="L101">                        displays.add(display);</span>
                     }
                 }
-<span class="nc" id="L105">                Advapi32.INSTANCE.RegCloseKey(key);</span>
+<span class="nc" id="L104">                Advapi32.INSTANCE.RegCloseKey(key);</span>
             }
-<span class="nc" id="L107">            SU.SetupDiDestroyDeviceInfoList(hDevInfo);</span>
+<span class="nc" id="L106">            SU.SetupDiDestroyDeviceInfoList(hDevInfo);</span>
         }
-<span class="nc" id="L109">        return Collections.unmodifiableList(displays);</span>
+<span class="nc" id="L108">        return displays;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

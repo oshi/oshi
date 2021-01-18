@@ -268,9 +268,9 @@ public class WindowsOSProcess extends AbstractOSProcess {
 <span class="nc bnc" id="L268" title="All 2 branches missed.">        if (threads == null) {</span>
 <span class="nc" id="L269">            return Collections.emptyList();</span>
         }
-<span class="nc" id="L271">        return Collections.unmodifiableList(threads.entrySet().stream()</span>
+<span class="nc" id="L271">        return threads.entrySet().stream()</span>
 <span class="nc" id="L272">                .map(entry -&gt; new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))</span>
-<span class="nc" id="L273">                .collect(Collectors.toList()));</span>
+<span class="nc" id="L273">                .collect(Collectors.toList());</span>
     }
 
     @Override

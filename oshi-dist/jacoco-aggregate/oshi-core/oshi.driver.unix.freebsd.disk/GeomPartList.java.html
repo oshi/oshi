@@ -24,7 +24,6 @@
 package oshi.driver.unix.freebsd.disk;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -52,95 +51,94 @@ public final class GeomPartList {
     /**
      * Queries partition data using geom, mount, and stat commands
      *
-     * @return A map with disk name as the key and an {@code UnmodifiableList} of
-     *         partitions as the value
+     * @return A map with disk name as the key and a List of partitions as the value
      */
     public static Map&lt;String, List&lt;HWPartition&gt;&gt; queryPartitions() {
-<span class="nc" id="L59">        Map&lt;String, String&gt; mountMap = Mount.queryPartitionToMountMap();</span>
+<span class="nc" id="L57">        Map&lt;String, String&gt; mountMap = Mount.queryPartitionToMountMap();</span>
         // Map of device name to partitions, to be returned
-<span class="nc" id="L61">        Map&lt;String, List&lt;HWPartition&gt;&gt; partitionMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L59">        Map&lt;String, List&lt;HWPartition&gt;&gt; partitionMap = new HashMap&lt;&gt;();</span>
         // The Disk Store associated with a partition, key to the map
-<span class="nc" id="L63">        String diskName = null;</span>
+<span class="nc" id="L61">        String diskName = null;</span>
         // List to hold partitions, will be added as value to the map
-<span class="nc" id="L65">        List&lt;HWPartition&gt; partList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L63">        List&lt;HWPartition&gt; partList = new ArrayList&lt;&gt;();</span>
         // Parameters needed for constructor.
-<span class="nc" id="L67">        String partName = null; // Non-null identifies a valid partition</span>
-<span class="nc" id="L68">        String identification = Constants.UNKNOWN;</span>
-<span class="nc" id="L69">        String type = Constants.UNKNOWN;</span>
-<span class="nc" id="L70">        String uuid = Constants.UNKNOWN;</span>
-<span class="nc" id="L71">        long size = 0;</span>
-<span class="nc" id="L72">        String mountPoint = &quot;&quot;;</span>
+<span class="nc" id="L65">        String partName = null; // Non-null identifies a valid partition</span>
+<span class="nc" id="L66">        String identification = Constants.UNKNOWN;</span>
+<span class="nc" id="L67">        String type = Constants.UNKNOWN;</span>
+<span class="nc" id="L68">        String uuid = Constants.UNKNOWN;</span>
+<span class="nc" id="L69">        long size = 0;</span>
+<span class="nc" id="L70">        String mountPoint = &quot;&quot;;</span>
 
-<span class="nc" id="L74">        List&lt;String&gt; geom = ExecutingCommand.runNative(GEOM_PART_LIST);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (String line : geom) {</span>
-<span class="nc" id="L76">            line = line.trim();</span>
+<span class="nc" id="L72">        List&lt;String&gt; geom = ExecutingCommand.runNative(GEOM_PART_LIST);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (String line : geom) {</span>
+<span class="nc" id="L74">            line = line.trim();</span>
             // Marks the DiskStore device for a partition.
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (line.startsWith(&quot;Geom name:&quot;)) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (line.startsWith(&quot;Geom name:&quot;)) {</span>
                 // Save any previous partition list in the map
-<span class="nc bnc" id="L80" title="All 4 branches missed.">                if (diskName != null &amp;&amp; !partList.isEmpty()) {</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">                if (diskName != null &amp;&amp; !partList.isEmpty()) {</span>
                     // Store map (old diskName)
-<span class="nc" id="L82">                    partitionMap.put(diskName, partList);</span>
+<span class="nc" id="L80">                    partitionMap.put(diskName, partList);</span>
                     // Reset the list
-<span class="nc" id="L84">                    partList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L82">                    partList = new ArrayList&lt;&gt;();</span>
                 }
                 // Now use new diskName
-<span class="nc" id="L87">                diskName = line.substring(line.lastIndexOf(' ') + 1);</span>
+<span class="nc" id="L85">                diskName = line.substring(line.lastIndexOf(' ') + 1);</span>
             }
             // If we don't have a valid store, don't bother parsing anything
-<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (diskName != null) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (diskName != null) {</span>
                 // Marks the beginning of partition data
-<span class="nc bnc" id="L92" title="All 2 branches missed.">                if (line.contains(&quot;Name:&quot;)) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                if (line.contains(&quot;Name:&quot;)) {</span>
                     // Add the current partition to the list, if any
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                    if (partName != null) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                    if (partName != null) {</span>
                         // FreeBSD Major # is 0.
                         // Minor # is filesize of /dev entry.
-<span class="nc" id="L97">                        int minor = ParseUtil</span>
-<span class="nc" id="L98">                                .parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);</span>
-<span class="nc" id="L99">                        partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));</span>
-<span class="nc" id="L100">                        partName = null;</span>
-<span class="nc" id="L101">                        identification = Constants.UNKNOWN;</span>
-<span class="nc" id="L102">                        type = Constants.UNKNOWN;</span>
-<span class="nc" id="L103">                        uuid = Constants.UNKNOWN;</span>
-<span class="nc" id="L104">                        size = 0;</span>
+<span class="nc" id="L95">                        int minor = ParseUtil</span>
+<span class="nc" id="L96">                                .parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);</span>
+<span class="nc" id="L97">                        partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));</span>
+<span class="nc" id="L98">                        partName = null;</span>
+<span class="nc" id="L99">                        identification = Constants.UNKNOWN;</span>
+<span class="nc" id="L100">                        type = Constants.UNKNOWN;</span>
+<span class="nc" id="L101">                        uuid = Constants.UNKNOWN;</span>
+<span class="nc" id="L102">                        size = 0;</span>
                     }
                     // Verify new entry is a partition
                     // (will happen in 'providers' section)
-<span class="nc" id="L108">                    String part = line.substring(line.lastIndexOf(' ') + 1);</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                    if (part.startsWith(diskName)) {</span>
-<span class="nc" id="L110">                        partName = part;</span>
-<span class="nc" id="L111">                        identification = part;</span>
-<span class="nc" id="L112">                        mountPoint = mountMap.getOrDefault(part, &quot;&quot;);</span>
+<span class="nc" id="L106">                    String part = line.substring(line.lastIndexOf(' ') + 1);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                    if (part.startsWith(diskName)) {</span>
+<span class="nc" id="L108">                        partName = part;</span>
+<span class="nc" id="L109">                        identification = part;</span>
+<span class="nc" id="L110">                        mountPoint = mountMap.getOrDefault(part, &quot;&quot;);</span>
                     }
                 }
                 // If we don't have a valid partition, don't parse anything until we do.
-<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (partName != null) {</span>
-<span class="nc" id="L117">                    String[] split = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                    if (split.length &gt;= 2) {</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">                        if (line.startsWith(&quot;Mediasize:&quot;)) {</span>
-<span class="nc" id="L120">                            size = ParseUtil.parseLongOrDefault(split[1], 0L);</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">                        } else if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
-<span class="nc" id="L122">                            uuid = split[1];</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">                        } else if (line.startsWith(&quot;type:&quot;)) {</span>
-<span class="nc" id="L124">                            type = split[1];</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (partName != null) {</span>
+<span class="nc" id="L115">                    String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                    if (split.length &gt;= 2) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                        if (line.startsWith(&quot;Mediasize:&quot;)) {</span>
+<span class="nc" id="L118">                            size = ParseUtil.parseLongOrDefault(split[1], 0L);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                        } else if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
+<span class="nc" id="L120">                            uuid = split[1];</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                        } else if (line.startsWith(&quot;type:&quot;)) {</span>
+<span class="nc" id="L122">                            type = split[1];</span>
                         }
                     }
                 }
             }
-<span class="nc" id="L129">        }</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (diskName != null) {</span>
+<span class="nc" id="L127">        }</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (diskName != null) {</span>
             // Process last partition
-<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (partName != null) {</span>
-<span class="nc" id="L133">                int minor = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);</span>
-<span class="nc" id="L134">                partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (partName != null) {</span>
+<span class="nc" id="L131">                int minor = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);</span>
+<span class="nc" id="L132">                partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));</span>
             }
             // Process last diskstore
-<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (!partList.isEmpty()) {</span>
-<span class="nc" id="L138">                partList = partList.stream().sorted(Comparator.comparing(HWPartition::getName))</span>
-<span class="nc" id="L139">                        .collect(Collectors.toList());</span>
-<span class="nc" id="L140">                partitionMap.put(diskName, Collections.unmodifiableList(partList));</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (!partList.isEmpty()) {</span>
+<span class="nc" id="L136">                partList = partList.stream().sorted(Comparator.comparing(HWPartition::getName))</span>
+<span class="nc" id="L137">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L138">                partitionMap.put(diskName, partList);</span>
             }
         }
-<span class="nc" id="L143">        return partitionMap;</span>
+<span class="nc" id="L141">        return partitionMap;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

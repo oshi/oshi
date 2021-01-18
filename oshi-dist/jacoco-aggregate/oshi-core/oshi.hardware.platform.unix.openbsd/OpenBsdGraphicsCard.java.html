@@ -72,7 +72,7 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
      *         objects.
      */
     public static List&lt;GraphicsCard&gt; getGraphicsCards() {
-<span class="nc" id="L75">        List&lt;OpenBsdGraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L75">        List&lt;GraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
         // Enumerate all devices and add if required
 <span class="nc" id="L77">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;pcidump -v&quot;);</span>
 <span class="nc bnc" id="L78" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
@@ -133,7 +133,7 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
 <span class="nc bnc" id="L133" title="All 2 branches missed.">                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
 <span class="nc bnc" id="L134" title="All 2 branches missed.">                    versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
         }
-<span class="nc" id="L136">        return Collections.unmodifiableList(cardList);</span>
+<span class="nc" id="L136">        return cardList;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

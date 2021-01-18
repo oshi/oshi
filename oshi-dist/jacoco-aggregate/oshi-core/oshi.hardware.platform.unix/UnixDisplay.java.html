@@ -23,7 +23,6 @@
  */
 package oshi.hardware.platform.unix;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,8 +44,8 @@ public final class UnixDisplay extends AbstractDisplay {
      *            a byte array representing a display EDID
      */
     UnixDisplay(byte[] edid) {
-<span class="nc" id="L48">        super(edid);</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L47">        super(edid);</span>
+<span class="nc" id="L48">    }</span>
 
     /**
      * Gets Display Information
@@ -54,8 +53,7 @@ public final class UnixDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List&lt;Display&gt; getDisplays() {
-<span class="nc" id="L57">        return Collections</span>
-<span class="nc" id="L58">                .unmodifiableList(Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList()));</span>
+<span class="nc" id="L56">        return Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
