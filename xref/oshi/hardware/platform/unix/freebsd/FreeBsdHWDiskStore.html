@@ -138,51 +138,50 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * Gets the disks on this machine</em>
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     *         representing the disks</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks() {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <em class="jxr_comment">// Result</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         List&lt;HWDiskStore&gt; diskList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> 
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <em class="jxr_comment">// Get map of disk names to partitions</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         Map&lt;String, List&lt;HWPartition&gt;&gt; partitionMap = GeomPartList.queryPartitions();
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <em class="jxr_comment">// Get map of disk names to disk info</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Map&lt;String, Triplet&lt;String, String, Long&gt;&gt; diskInfoMap = GeomDiskList.queryDisks();
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <em class="jxr_comment">// Get list of disks from sysctl</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.disks"</span>, <span class="jxr_string">""</span>)));
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <em class="jxr_comment">// Run iostat -Ix to enumerate disks by name and get kb r/w</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         List&lt;String&gt; iostat = ExecutingCommand.runNative(<span class="jxr_string">"iostat -Ix"</span>);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">for</strong> (String line : iostat) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             String[] split = ParseUtil.whitespaces.split(line);
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             <strong class="jxr_keyword">if</strong> (split.length &gt; 6 &amp;&amp; devices.contains(split[0])) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 Triplet&lt;String, String, Long&gt; storeInfo = diskInfoMap.get(split[0]);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 <a name="FreeBsdHWDiskStore" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#FreeBsdHWDiskStore">FreeBsdHWDiskStore</a> store = (storeInfo == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>                         ? <strong class="jxr_keyword">new</strong> <a name="FreeBsdHWDiskStore" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#FreeBsdHWDiskStore">FreeBsdHWDiskStore</a>(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                         : <strong class="jxr_keyword">new</strong> <a name="FreeBsdHWDiskStore" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#FreeBsdHWDiskStore">FreeBsdHWDiskStore</a>(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>                 store.reads = (<strong class="jxr_keyword">long</strong>) ParseUtil.parseDoubleOrDefault(split[1], 0d);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 store.writes = (<strong class="jxr_keyword">long</strong>) ParseUtil.parseDoubleOrDefault(split[2], 0d);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 <em class="jxr_comment">// In KB</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 store.readBytes = (<strong class="jxr_keyword">long</strong>) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 store.writeBytes = (<strong class="jxr_keyword">long</strong>) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 <em class="jxr_comment">// # transactions</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>                 <em class="jxr_comment">// In seconds, multiply for ms</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 store.transferTime = (<strong class="jxr_keyword">long</strong>) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                 store.partitionList = Collections
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>                         .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>                                 .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 store.timeStamp = now;
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>                 diskList.add(store);
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>             }
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         }
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(diskList);
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * @return a list of {@link HWDiskStore} objects representing the disks</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks() {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <em class="jxr_comment">// Result</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         List&lt;HWDiskStore&gt; diskList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <em class="jxr_comment">// Get map of disk names to partitions</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         Map&lt;String, List&lt;HWPartition&gt;&gt; partitionMap = GeomPartList.queryPartitions();
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// Get map of disk names to disk info</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         Map&lt;String, Triplet&lt;String, String, Long&gt;&gt; diskInfoMap = GeomDiskList.queryDisks();
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <em class="jxr_comment">// Get list of disks from sysctl</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.disks"</span>, <span class="jxr_string">""</span>)));
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <em class="jxr_comment">// Run iostat -Ix to enumerate disks by name and get kb r/w</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         List&lt;String&gt; iostat = ExecutingCommand.runNative(<span class="jxr_string">"iostat -Ix"</span>);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">for</strong> (String line : iostat) {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <strong class="jxr_keyword">if</strong> (split.length &gt; 6 &amp;&amp; devices.contains(split[0])) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 Triplet&lt;String, String, Long&gt; storeInfo = diskInfoMap.get(split[0]);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 <a name="FreeBsdHWDiskStore" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#FreeBsdHWDiskStore">FreeBsdHWDiskStore</a> store = (storeInfo == <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>                         ? <strong class="jxr_keyword">new</strong> <a name="FreeBsdHWDiskStore" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#FreeBsdHWDiskStore">FreeBsdHWDiskStore</a>(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>                         : <strong class="jxr_keyword">new</strong> <a name="FreeBsdHWDiskStore" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdHWDiskStore.html#FreeBsdHWDiskStore">FreeBsdHWDiskStore</a>(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 store.reads = (<strong class="jxr_keyword">long</strong>) ParseUtil.parseDoubleOrDefault(split[1], 0d);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                 store.writes = (<strong class="jxr_keyword">long</strong>) ParseUtil.parseDoubleOrDefault(split[2], 0d);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 <em class="jxr_comment">// In KB</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 store.readBytes = (<strong class="jxr_keyword">long</strong>) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 store.writeBytes = (<strong class="jxr_keyword">long</strong>) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 <em class="jxr_comment">// # transactions</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 <em class="jxr_comment">// In seconds, multiply for ms</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                 store.transferTime = (<strong class="jxr_keyword">long</strong>) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 store.partitionList = Collections
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>                         .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                                 .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                 store.timeStamp = now;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 diskList.add(store);
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">return</strong> diskList;
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

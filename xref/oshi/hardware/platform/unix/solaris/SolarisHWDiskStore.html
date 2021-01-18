@@ -135,45 +135,44 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * Gets the disks on this machine</em>
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     *         representing the disks</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks() {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <em class="jxr_comment">// Create map to correlate disk name with block device mount point for</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <em class="jxr_comment">// later use in partition info</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         Map&lt;String, String&gt; deviceMap = Iostat.queryPartitionToMountMap();
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <em class="jxr_comment">// Create map to correlate disk name with block device mount point for</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <em class="jxr_comment">// later use in partition info. Run lshal, if available, to get block device</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <em class="jxr_comment">// major (we'll use partition # for minor)</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         Map&lt;String, Integer&gt; majorMap = Lshal.queryDiskToMajorMap();
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <em class="jxr_comment">// Create map of model, vendor, product, serial, size</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <em class="jxr_comment">// We'll use Model if available, otherwise Vendor+Product</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         Map&lt;String, Quintet&lt;String, String, String, String, Long&gt;&gt; deviceStringMap = <a name="Iostat" href="../../../../../oshi/driver/unix/solaris/disk/Iostat.html#Iostat">Iostat</a>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 .queryDeviceStrings(deviceMap.keySet());
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         List&lt;SolarisHWDiskStore&gt; storeList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;String, Quintet&lt;String, String, String, String, Long&gt;&gt; entry : deviceStringMap.entrySet()) {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             String storeName = entry.getKey();
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>             Quintet&lt;String, String, String, String, Long&gt; val = entry.getValue();
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             storeList.add(createStore(storeName, val.getA(), val.getB(), val.getC(), val.getD(), val.getE(),
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>                     deviceMap.getOrDefault(storeName, <span class="jxr_string">""</span>), majorMap.getOrDefault(storeName, 0)));
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         }
-<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(storeList);
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     }
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a> createStore(String diskName, String model, String vendor, String product,
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>             String serial, <strong class="jxr_keyword">long</strong> size, String mount, <strong class="jxr_keyword">int</strong> major) {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/plat<a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a>SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a> store = <strong class="jxr_keyword">new</strong> <a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a>(diskName,
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 model.isEmpty() ? (vendor + <span class="jxr_string">" "</span> + product).trim() : model, serial, size);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         store.partitionList = Collections.unmodifiableList(Prtvtoc.queryPartitions(mount, major).stream()
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         store.updateAttributes();
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">return</strong> store;
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @return a list of {@link HWDiskStore} objects representing the disks</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks() {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <em class="jxr_comment">// Create map to correlate disk name with block device mount point for</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <em class="jxr_comment">// later use in partition info</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         Map&lt;String, String&gt; deviceMap = Iostat.queryPartitionToMountMap();
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <em class="jxr_comment">// Create map to correlate disk name with block device mount point for</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <em class="jxr_comment">// later use in partition info. Run lshal, if available, to get block device</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <em class="jxr_comment">// major (we'll use partition # for minor)</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         Map&lt;String, Integer&gt; majorMap = Lshal.queryDiskToMajorMap();
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// Create map of model, vendor, product, serial, size</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <em class="jxr_comment">// We'll use Model if available, otherwise Vendor+Product</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Map&lt;String, Quintet&lt;String, String, String, String, Long&gt;&gt; deviceStringMap = <a name="Iostat" href="../../../../../oshi/driver/unix/solaris/disk/Iostat.html#Iostat">Iostat</a>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 .queryDeviceStrings(deviceMap.keySet());
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         List&lt;HWDiskStore&gt; storeList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;String, Quintet&lt;String, String, String, String, Long&gt;&gt; entry : deviceStringMap.entrySet()) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             String storeName = entry.getKey();
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             Quintet&lt;String, String, String, String, Long&gt; val = entry.getValue();
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>             storeList.add(createStore(storeName, val.getA(), val.getB(), val.getC(), val.getD(), val.getE(),
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                     deviceMap.getOrDefault(storeName, <span class="jxr_string">""</span>), majorMap.getOrDefault(storeName, 0)));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong> storeList;
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a> createStore(String diskName, String model, String vendor, String product,
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             String serial, <strong class="jxr_keyword">long</strong> size, String mount, <strong class="jxr_keyword">int</strong> major) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/plat<a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a>SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a> store = <strong class="jxr_keyword">new</strong> <a name="SolarisHWDiskStore" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisHWDiskStore.html#SolarisHWDiskStore">SolarisHWDiskStore</a>(diskName,
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 model.isEmpty() ? (vendor + <span class="jxr_string">" "</span> + product).trim() : model, serial, size);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         store.partitionList = Collections.unmodifiableList(Prtvtoc.queryPartitions(mount, major).stream()
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         store.updateAttributes();
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">return</strong> store;
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

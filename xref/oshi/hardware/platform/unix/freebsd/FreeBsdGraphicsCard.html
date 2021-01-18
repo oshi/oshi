@@ -78,7 +78,7 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     *         objects.</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;GraphicsCard&gt; getGraphicsCards() {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          List&lt;FreeBsdGraphicsCard&gt; cardList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          List&lt;GraphicsCard&gt; cardList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_comment">// Enumerate all devices and add if required</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          List&lt;String&gt; devices = ExecutingCommand.runNative(<span class="jxr_string">"pciconf -lv"</span>);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">if</strong> (devices.isEmpty()) {
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         }
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(cardList);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">return</strong> cardList;
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> }
 </pre>
