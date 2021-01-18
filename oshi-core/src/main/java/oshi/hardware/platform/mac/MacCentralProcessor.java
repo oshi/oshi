@@ -90,8 +90,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                 type = SysctlUtil.sysctl("hw.cputype", 0);
             } else {
                 // We are (probably) translating instructions, use command line
-                family = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl hw.cpufamily"), 0);
-                type = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl hw.cputype"), 0);
+                family = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl -n hw.cpufamily"), 0);
+                type = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("sysctl -n hw.cputype"), 0);
             }
             cpuFamily = String.format("0x%08x", family); // M1 is 0x1b588bb3
             // Processor ID is an intel concept but CPU type + family conveys same info
