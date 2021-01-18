@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
@@ -57,8 +56,8 @@ final class SolarisGraphicsCard extends AbstractGraphicsCard {
      *            The VRAM
      */
     SolarisGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
-<span class="nc" id="L60">        super(name, deviceId, vendor, versionInfo, vram);</span>
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L59">        super(name, deviceId, vendor, versionInfo, vram);</span>
+<span class="nc" id="L60">    }</span>
 
     /**
      * public method used by
@@ -70,70 +69,70 @@ final class SolarisGraphicsCard extends AbstractGraphicsCard {
      *         objects.
      */
     public static List&lt;GraphicsCard&gt; getGraphicsCards() {
-<span class="nc" id="L73">        List&lt;GraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L72">        List&lt;GraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
         // Enumerate all devices and add if required
-<span class="nc" id="L75">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;prtconf -pv&quot;);</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
-<span class="nc" id="L77">            return cardList;</span>
+<span class="nc" id="L74">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;prtconf -pv&quot;);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
+<span class="nc" id="L76">            return cardList;</span>
         }
-<span class="nc" id="L79">        String name = &quot;&quot;;</span>
-<span class="nc" id="L80">        String vendorId = &quot;&quot;;</span>
-<span class="nc" id="L81">        String productId = &quot;&quot;;</span>
-<span class="nc" id="L82">        String classCode = &quot;&quot;;</span>
-<span class="nc" id="L83">        List&lt;String&gt; versionInfoList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (String line : devices) {</span>
+<span class="nc" id="L78">        String name = &quot;&quot;;</span>
+<span class="nc" id="L79">        String vendorId = &quot;&quot;;</span>
+<span class="nc" id="L80">        String productId = &quot;&quot;;</span>
+<span class="nc" id="L81">        String classCode = &quot;&quot;;</span>
+<span class="nc" id="L82">        List&lt;String&gt; versionInfoList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        for (String line : devices) {</span>
             // Node 0x... identifies start of a new device. Save previous if it's a graphics
             // card
-<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (line.contains(&quot;Node 0x&quot;)) {</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">                if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">                    cardList.add(new SolarisGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">                            productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">                            vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">                            versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(&quot;, &quot;, versionInfoList), 0L));</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (line.contains(&quot;Node 0x&quot;)) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                    cardList.add(new SolarisGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                            productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                            vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                            versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(&quot;, &quot;, versionInfoList), 0L));</span>
                 }
                 // Reset strings
-<span class="nc" id="L95">                name = &quot;&quot;;</span>
-<span class="nc" id="L96">                vendorId = Constants.UNKNOWN;</span>
-<span class="nc" id="L97">                productId = Constants.UNKNOWN;</span>
-<span class="nc" id="L98">                classCode = &quot;&quot;;</span>
-<span class="nc" id="L99">                versionInfoList.clear();</span>
+<span class="nc" id="L94">                name = &quot;&quot;;</span>
+<span class="nc" id="L95">                vendorId = Constants.UNKNOWN;</span>
+<span class="nc" id="L96">                productId = Constants.UNKNOWN;</span>
+<span class="nc" id="L97">                classCode = &quot;&quot;;</span>
+<span class="nc" id="L98">                versionInfoList.clear();</span>
             } else {
-<span class="nc" id="L101">                String[] split = line.trim().split(&quot;:&quot;, 2);</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">                if (split.length == 2) {</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">                    if (split[0].equals(&quot;model&quot;)) {</span>
+<span class="nc" id="L100">                String[] split = line.trim().split(&quot;:&quot;, 2);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">                if (split.length == 2) {</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">                    if (split[0].equals(&quot;model&quot;)) {</span>
                         // This is preferred, always set it
-<span class="nc" id="L105">                        name = ParseUtil.getSingleQuoteStringValue(line);</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;name&quot;)) {</span>
+<span class="nc" id="L104">                        name = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;name&quot;)) {</span>
                         // Name is backup for model if model doesn't exist, so only
                         // put if name blank
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                        if (name.isEmpty()) {</span>
-<span class="nc" id="L110">                            name = ParseUtil.getSingleQuoteStringValue(line);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                        if (name.isEmpty()) {</span>
+<span class="nc" id="L109">                            name = ParseUtil.getSingleQuoteStringValue(line);</span>
                         }
-<span class="nc bnc" id="L112" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;vendor-id&quot;)) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;vendor-id&quot;)) {</span>
                         // Format: vendor-id: 00008086
-<span class="nc" id="L114">                        vendorId = &quot;0x&quot; + line.substring(line.length() - 4);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;device-id&quot;)) {</span>
+<span class="nc" id="L113">                        vendorId = &quot;0x&quot; + line.substring(line.length() - 4);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;device-id&quot;)) {</span>
                         // Format: device-id: 00002440
-<span class="nc" id="L117">                        productId = &quot;0x&quot; + line.substring(line.length() - 4);</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;revision-id&quot;)) {</span>
+<span class="nc" id="L116">                        productId = &quot;0x&quot; + line.substring(line.length() - 4);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;revision-id&quot;)) {</span>
                         // Format: revision-id: 00000002
-<span class="nc" id="L120">                        versionInfoList.add(line.trim());</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;class-code&quot;)) {</span>
+<span class="nc" id="L119">                        versionInfoList.add(line.trim());</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                    } else if (split[0].equals(&quot;class-code&quot;)) {</span>
                         // Format: 00030000
                         // Display class is 0003xx, first 6 bytes of this code
-<span class="nc" id="L124">                        classCode = line.substring(line.length() - 8, line.length() - 4);</span>
+<span class="nc" id="L123">                        classCode = line.substring(line.length() - 8, line.length() - 4);</span>
                     }
                 }
             }
-<span class="nc" id="L128">        }</span>
+<span class="nc" id="L127">        }</span>
         // In case we reached end before saving
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">            cardList.add(new SolarisGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">                    productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">                    versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(&quot;, &quot;, versionInfoList), 0L));</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            cardList.add(new SolarisGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                    productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                    versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(&quot;, &quot;, versionInfoList), 0L));</span>
         }
-<span class="nc" id="L136">        return Collections.unmodifiableList(cardList);</span>
+<span class="nc" id="L135">        return cardList;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

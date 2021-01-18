@@ -28,7 +28,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.net.NetworkInterface;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -49,7 +48,7 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 @ThreadSafe
 public final class AixNetworkIF extends AbstractNetworkIF {
 
-<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(AixNetworkIF.class);</span>
+<span class="nc" id="L51">    private static final Logger LOG = LoggerFactory.getLogger(AixNetworkIF.class);</span>
 
     private long bytesRecv;
     private long bytesSent;
@@ -66,104 +65,103 @@ public final class AixNetworkIF extends AbstractNetworkIF {
 
     public AixNetworkIF(NetworkInterface netint, Supplier&lt;perfstat_netinterface_t[]&gt; netstats)
             throws InstantiationException {
-<span class="nc" id="L69">        super(netint);</span>
-<span class="nc" id="L70">        this.netstats = netstats;</span>
-<span class="nc" id="L71">        updateAttributes();</span>
-<span class="nc" id="L72">    }</span>
+<span class="nc" id="L68">        super(netint);</span>
+<span class="nc" id="L69">        this.netstats = netstats;</span>
+<span class="nc" id="L70">        updateAttributes();</span>
+<span class="nc" id="L71">    }</span>
 
     /**
      * Gets all network interfaces on this machine
      *
      * @param includeLocalInterfaces
      *            include local interfaces in the result
-     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
-     *         the interfaces
+     * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List&lt;NetworkIF&gt; getNetworks(boolean includeLocalInterfaces) {
-<span class="nc" id="L83">        Supplier&lt;perfstat_netinterface_t[]&gt; netstats = memoize(PerfstatNetInterface::queryNetInterfaces,</span>
-<span class="nc" id="L84">                defaultExpiration());</span>
-<span class="nc" id="L85">        List&lt;NetworkIF&gt; ifList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {</span>
+<span class="nc" id="L81">        Supplier&lt;perfstat_netinterface_t[]&gt; netstats = memoize(PerfstatNetInterface::queryNetInterfaces,</span>
+<span class="nc" id="L82">                defaultExpiration());</span>
+<span class="nc" id="L83">        List&lt;NetworkIF&gt; ifList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {</span>
             try {
-<span class="nc" id="L88">                ifList.add(new AixNetworkIF(ni, netstats));</span>
-<span class="nc" id="L89">            } catch (InstantiationException e) {</span>
-<span class="nc" id="L90">                LOG.debug(&quot;Network Interface Instantiation failed: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L91">            }</span>
-<span class="nc" id="L92">        }</span>
-<span class="nc" id="L93">        return Collections.unmodifiableList(ifList);</span>
+<span class="nc" id="L86">                ifList.add(new AixNetworkIF(ni, netstats));</span>
+<span class="nc" id="L87">            } catch (InstantiationException e) {</span>
+<span class="nc" id="L88">                LOG.debug(&quot;Network Interface Instantiation failed: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L89">            }</span>
+<span class="nc" id="L90">        }</span>
+<span class="nc" id="L91">        return ifList;</span>
     }
 
     @Override
     public long getBytesRecv() {
-<span class="nc" id="L98">        return this.bytesRecv;</span>
+<span class="nc" id="L96">        return this.bytesRecv;</span>
     }
 
     @Override
     public long getBytesSent() {
-<span class="nc" id="L103">        return this.bytesSent;</span>
+<span class="nc" id="L101">        return this.bytesSent;</span>
     }
 
     @Override
     public long getPacketsRecv() {
-<span class="nc" id="L108">        return this.packetsRecv;</span>
+<span class="nc" id="L106">        return this.packetsRecv;</span>
     }
 
     @Override
     public long getPacketsSent() {
-<span class="nc" id="L113">        return this.packetsSent;</span>
+<span class="nc" id="L111">        return this.packetsSent;</span>
     }
 
     @Override
     public long getInErrors() {
-<span class="nc" id="L118">        return this.inErrors;</span>
+<span class="nc" id="L116">        return this.inErrors;</span>
     }
 
     @Override
     public long getOutErrors() {
-<span class="nc" id="L123">        return this.outErrors;</span>
+<span class="nc" id="L121">        return this.outErrors;</span>
     }
 
     @Override
     public long getInDrops() {
-<span class="nc" id="L128">        return this.inDrops;</span>
+<span class="nc" id="L126">        return this.inDrops;</span>
     }
 
     @Override
     public long getCollisions() {
-<span class="nc" id="L133">        return this.collisions;</span>
+<span class="nc" id="L131">        return this.collisions;</span>
     }
 
     @Override
     public long getSpeed() {
-<span class="nc" id="L138">        return this.speed;</span>
+<span class="nc" id="L136">        return this.speed;</span>
     }
 
     @Override
     public long getTimeStamp() {
-<span class="nc" id="L143">        return this.timeStamp;</span>
+<span class="nc" id="L141">        return this.timeStamp;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L148">        perfstat_netinterface_t[] stats = netstats.get();</span>
-<span class="nc" id="L149">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (perfstat_netinterface_t stat : stats) {</span>
-<span class="nc" id="L151">            String name = Native.toString(stat.name);</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (name.equals(this.getName())) {</span>
-<span class="nc" id="L153">                this.bytesSent = stat.obytes;</span>
-<span class="nc" id="L154">                this.bytesRecv = stat.ibytes;</span>
-<span class="nc" id="L155">                this.packetsSent = stat.opackets;</span>
-<span class="nc" id="L156">                this.packetsRecv = stat.ipackets;</span>
-<span class="nc" id="L157">                this.outErrors = stat.oerrors;</span>
-<span class="nc" id="L158">                this.inErrors = stat.ierrors;</span>
-<span class="nc" id="L159">                this.collisions = stat.collisions;</span>
-<span class="nc" id="L160">                this.inDrops = stat.if_iqdrops;</span>
-<span class="nc" id="L161">                this.speed = stat.bitrate;</span>
-<span class="nc" id="L162">                this.timeStamp = now;</span>
-<span class="nc" id="L163">                return true;</span>
+<span class="nc" id="L146">        perfstat_netinterface_t[] stats = netstats.get();</span>
+<span class="nc" id="L147">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        for (perfstat_netinterface_t stat : stats) {</span>
+<span class="nc" id="L149">            String name = Native.toString(stat.name);</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (name.equals(this.getName())) {</span>
+<span class="nc" id="L151">                this.bytesSent = stat.obytes;</span>
+<span class="nc" id="L152">                this.bytesRecv = stat.ibytes;</span>
+<span class="nc" id="L153">                this.packetsSent = stat.opackets;</span>
+<span class="nc" id="L154">                this.packetsRecv = stat.ipackets;</span>
+<span class="nc" id="L155">                this.outErrors = stat.oerrors;</span>
+<span class="nc" id="L156">                this.inErrors = stat.ierrors;</span>
+<span class="nc" id="L157">                this.collisions = stat.collisions;</span>
+<span class="nc" id="L158">                this.inDrops = stat.if_iqdrops;</span>
+<span class="nc" id="L159">                this.speed = stat.bitrate;</span>
+<span class="nc" id="L160">                this.timeStamp = now;</span>
+<span class="nc" id="L161">                return true;</span>
             }
         }
-<span class="nc" id="L166">        return false;</span>
+<span class="nc" id="L164">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

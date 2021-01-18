@@ -45,8 +45,8 @@ public interface OperatingSystem {
     /**
      * Controls sorting of Process output
      */
-<span class="nc" id="L48">    enum ProcessSort {</span>
-<span class="nc" id="L49">        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
+<span class="fc" id="L48">    enum ProcessSort {</span>
+<span class="fc" id="L49">        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME</span>
     }
 
     /**
@@ -99,19 +99,19 @@ public interface OperatingSystem {
      * command-line variant by default using the {@code oshi.os.unix.whoCommand}
      * configuration property.
      *
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSSession}
-     *         objects representing logged-in users
+     * @return A list of {@link oshi.software.os.OSSession} objects representing
+     *         logged-in users
      */
     List&lt;OSSession&gt; getSessions();
 
     /**
      * Gets currently running processes. No order is guaranteed.
      *
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects for the specified number (or all) of currently running
-     *         processes, sorted as specified. The list may contain null elements or
-     *         processes with a state of {@link OSProcess.State#INVALID} if a
-     *         process terminates during iteration.
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the
+     *         specified number (or all) of currently running processes, sorted as
+     *         specified. The list may contain null elements or processes with a
+     *         state of {@link OSProcess.State#INVALID} if a process terminates
+     *         during iteration.
      */
     List&lt;OSProcess&gt; getProcesses();
 
@@ -126,11 +126,11 @@ public interface OperatingSystem {
      *            Max number of results to return, or 0 to return all results
      * @param sort
      *            If not null, determines sorting of results
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects for the specified number (or all) of currently running
-     *         processes, sorted as specified. The list may contain null elements or
-     *         processes with a state of {@link OSProcess.State#INVALID} if a
-     *         process terminates during iteration.
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the
+     *         specified number (or all) of currently running processes, sorted as
+     *         specified. The list may contain null elements or processes with a
+     *         state of {@link OSProcess.State#INVALID} if a process terminates
+     *         during iteration.
      */
     List&lt;OSProcess&gt; getProcesses(int limit, ProcessSort sort);
 
@@ -140,8 +140,8 @@ public interface OperatingSystem {
      *
      * @param pids
      *            A collection of process IDs
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects for the specified process ids if it is running
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the
+     *         specified process ids if it is running
      */
     List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids);
 
@@ -169,12 +169,11 @@ public interface OperatingSystem {
      *            Max number of results to return, or 0 to return all results
      * @param sort
      *            If not null, determines sorting of results
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects representing the specified number (or all) of currently
-     *         running child processes of the provided PID, sorted as specified. The
-     *         list may contain null elements or processes with a state of
-     *         {@link OSProcess.State#INVALID} if a process terminates during
-     *         iteration.
+     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
+     *         specified number (or all) of currently running child processes of the
+     *         provided PID, sorted as specified. The list may contain null elements
+     *         or processes with a state of {@link OSProcess.State#INVALID} if a
+     *         process terminates during iteration.
      */
     List&lt;OSProcess&gt; getChildProcesses(int parentPid, int limit, ProcessSort sort);
 
@@ -260,13 +259,12 @@ public interface OperatingSystem {
      *            &lt;p&gt;
      *            This is a best effort attempt at a reasonable definition of
      *            visibility. Visible windows may be completely transparent.
-     * @return An {@code UnmodifiableList} of
-     *         {@link oshi.software.os.OSDesktopWindow} objects representing the
-     *         desktop windows.
+     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects
+     *         representing the desktop windows.
      */
     List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly);
 
-    /*
+    /**
      * A class representing the Operating System version details.
      */
     @Immutable
@@ -276,20 +274,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="nc" id="L279">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="nc" id="L280">            this.version = version;</span>
-<span class="nc" id="L281">            this.codeName = codeName;</span>
-<span class="nc" id="L282">            this.buildNumber = buildNumber;</span>
+<span class="fc" id="L277">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="fc" id="L278">            this.version = version;</span>
+<span class="fc" id="L279">            this.codeName = codeName;</span>
+<span class="fc" id="L280">            this.buildNumber = buildNumber;</span>
 
-<span class="nc bnc" id="L284" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="nc bnc" id="L285" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="nc" id="L286">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="pc bpc" id="L283" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="fc" id="L284">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="nc bnc" id="L288" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="nc" id="L289">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="fc" id="L287">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="nc" id="L291">            this.versionStr = sb.toString();</span>
-<span class="nc" id="L292">        }</span>
+<span class="fc" id="L289">            this.versionStr = sb.toString();</span>
+<span class="fc" id="L290">        }</span>
 
         /**
          * Gets the operating system version.
@@ -297,7 +295,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="nc" id="L300">            return version;</span>
+<span class="fc" id="L298">            return version;</span>
         }
 
         /**
@@ -306,7 +304,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="nc" id="L309">            return codeName;</span>
+<span class="fc" id="L307">            return codeName;</span>
         }
 
         /**
@@ -315,12 +313,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="nc" id="L318">            return buildNumber;</span>
+<span class="fc" id="L316">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L323">            return this.versionStr;</span>
+<span class="fc" id="L321">            return this.versionStr;</span>
         }
     }
 }

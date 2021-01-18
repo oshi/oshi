@@ -24,7 +24,6 @@
 package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
@@ -52,8 +51,8 @@ final class MacSoundCard extends AbstractSoundCard {
      *            The codec
      */
     MacSoundCard(String kernelVersion, String name, String codec) {
-<span class="nc" id="L55">        super(kernelVersion, name, codec);</span>
-<span class="nc" id="L56">    }</span>
+<span class="nc" id="L54">        super(kernelVersion, name, codec);</span>
+<span class="nc" id="L55">    }</span>
 
     /**
      * public method used by
@@ -63,7 +62,7 @@ final class MacSoundCard extends AbstractSoundCard {
      * @return List of {@link oshi.hardware.platform.mac.MacSoundCard} objects.
      */
     public static List&lt;SoundCard&gt; getSoundCards() {
-<span class="nc" id="L66">        List&lt;MacSoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L65">        List&lt;SoundCard&gt; soundCards = new ArrayList&lt;&gt;();</span>
 
         // /System/Library/Extensions/AppleHDA.kext/Contents/Info.plist
 
@@ -72,28 +71,28 @@ final class MacSoundCard extends AbstractSoundCard {
         // &lt;key&gt;com.apple.driver.AppleHDAController&lt;/key&gt;
         // &lt;string&gt;1.7.2a1&lt;/string&gt;
 
-<span class="nc" id="L75">        String manufacturer = APPLE;</span>
-<span class="nc" id="L76">        String kernelVersion = &quot;AppleHDAController&quot;;</span>
-<span class="nc" id="L77">        String codec = &quot;AppleHDACodec&quot;;</span>
+<span class="nc" id="L74">        String manufacturer = APPLE;</span>
+<span class="nc" id="L75">        String kernelVersion = &quot;AppleHDAController&quot;;</span>
+<span class="nc" id="L76">        String codec = &quot;AppleHDACodec&quot;;</span>
 
-<span class="nc" id="L79">        boolean version = false;</span>
-<span class="nc" id="L80">        String versionMarker = &quot;&lt;key&gt;com.apple.driver.AppleHDAController&lt;/key&gt;&quot;;</span>
+<span class="nc" id="L78">        boolean version = false;</span>
+<span class="nc" id="L79">        String versionMarker = &quot;&lt;key&gt;com.apple.driver.AppleHDAController&lt;/key&gt;&quot;;</span>
 
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (final String checkLine : FileUtil</span>
-<span class="nc" id="L83">                .readFile(&quot;/System/Library/Extensions/AppleHDA.kext/Contents/Info.plist&quot;)) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L85">                version = true;</span>
-<span class="nc" id="L86">                continue;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (final String checkLine : FileUtil</span>
+<span class="nc" id="L82">                .readFile(&quot;/System/Library/Extensions/AppleHDA.kext/Contents/Info.plist&quot;)) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L84">                version = true;</span>
+<span class="nc" id="L85">                continue;</span>
             }
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (version) {</span>
-<span class="nc" id="L89">                kernelVersion = &quot;AppleHDAController &quot;</span>
-<span class="nc" id="L90">                        + ParseUtil.getTextBetweenStrings(checkLine, &quot;&lt;string&gt;&quot;, &quot;&lt;/string&gt;&quot;);</span>
-<span class="nc" id="L91">                version = false;</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (version) {</span>
+<span class="nc" id="L88">                kernelVersion = &quot;AppleHDAController &quot;</span>
+<span class="nc" id="L89">                        + ParseUtil.getTextBetweenStrings(checkLine, &quot;&lt;string&gt;&quot;, &quot;&lt;/string&gt;&quot;);</span>
+<span class="nc" id="L90">                version = false;</span>
             }
-<span class="nc" id="L93">        }</span>
-<span class="nc" id="L94">        soundCards.add(new MacSoundCard(kernelVersion, manufacturer, codec));</span>
+<span class="nc" id="L92">        }</span>
+<span class="nc" id="L93">        soundCards.add(new MacSoundCard(kernelVersion, manufacturer, codec));</span>
 
-<span class="nc" id="L96">        return Collections.unmodifiableList(soundCards);</span>
+<span class="nc" id="L95">        return soundCards;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

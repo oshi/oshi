@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -56,8 +55,8 @@ final class AixGraphicsCard extends AbstractGraphicsCard {
      *            The VRAM
      */
     AixGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
-<span class="nc" id="L59">        super(name, deviceId, vendor, versionInfo, vram);</span>
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L58">        super(name, deviceId, vendor, versionInfo, vram);</span>
+<span class="nc" id="L59">    }</span>
 
     /**
      * Gets graphics cards
@@ -68,31 +67,31 @@ final class AixGraphicsCard extends AbstractGraphicsCard {
      * @return List of graphics cards
      */
     public static List&lt;GraphicsCard&gt; getGraphicsCards(Supplier&lt;List&lt;String&gt;&gt; lscfg) {
-<span class="nc" id="L71">        List&lt;GraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L72">        boolean display = false;</span>
-<span class="nc" id="L73">        String name = null;</span>
-<span class="nc" id="L74">        String vendor = null;</span>
-<span class="nc" id="L75">        List&lt;String&gt; versionInfo = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        for (String line : lscfg.get()) {</span>
-<span class="nc" id="L77">            String s = line.trim();</span>
-<span class="nc bnc" id="L78" title="All 4 branches missed.">            if (s.startsWith(&quot;Name:&quot;) &amp;&amp; s.contains(&quot;display&quot;)) {</span>
-<span class="nc" id="L79">                display = true;</span>
-<span class="nc bnc" id="L80" title="All 4 branches missed.">            } else if (display &amp;&amp; s.toLowerCase().contains(&quot;graphics&quot;)) {</span>
-<span class="nc" id="L81">                name = s;</span>
-<span class="nc bnc" id="L82" title="All 4 branches missed.">            } else if (display &amp;&amp; name != null) {</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">                if (s.startsWith(&quot;Manufacture ID&quot;)) {</span>
-<span class="nc" id="L84">                    vendor = ParseUtil.removeLeadingDots(s.substring(14));</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">                } else if (s.contains(&quot;Level&quot;)) {</span>
-<span class="nc" id="L86">                    versionInfo.add(s.replaceAll(&quot;\\.\\.+&quot;, &quot;=&quot;));</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Hardware Location Code&quot;)) {</span>
-<span class="nc" id="L88">                    cardList.add(new AixGraphicsCard(name, Constants.UNKNOWN,</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">                            Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : String.join(&quot;,&quot;, versionInfo), 0L));</span>
-<span class="nc" id="L91">                    display = false;</span>
+<span class="nc" id="L70">        List&lt;GraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L71">        boolean display = false;</span>
+<span class="nc" id="L72">        String name = null;</span>
+<span class="nc" id="L73">        String vendor = null;</span>
+<span class="nc" id="L74">        List&lt;String&gt; versionInfo = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (String line : lscfg.get()) {</span>
+<span class="nc" id="L76">            String s = line.trim();</span>
+<span class="nc bnc" id="L77" title="All 4 branches missed.">            if (s.startsWith(&quot;Name:&quot;) &amp;&amp; s.contains(&quot;display&quot;)) {</span>
+<span class="nc" id="L78">                display = true;</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">            } else if (display &amp;&amp; s.toLowerCase().contains(&quot;graphics&quot;)) {</span>
+<span class="nc" id="L80">                name = s;</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">            } else if (display &amp;&amp; name != null) {</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                if (s.startsWith(&quot;Manufacture ID&quot;)) {</span>
+<span class="nc" id="L83">                    vendor = ParseUtil.removeLeadingDots(s.substring(14));</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                } else if (s.contains(&quot;Level&quot;)) {</span>
+<span class="nc" id="L85">                    versionInfo.add(s.replaceAll(&quot;\\.\\.+&quot;, &quot;=&quot;));</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Hardware Location Code&quot;)) {</span>
+<span class="nc" id="L87">                    cardList.add(new AixGraphicsCard(name, Constants.UNKNOWN,</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                            Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : String.join(&quot;,&quot;, versionInfo), 0L));</span>
+<span class="nc" id="L90">                    display = false;</span>
                 }
             }
-<span class="nc" id="L94">        }</span>
-<span class="nc" id="L95">        return Collections.unmodifiableList(cardList);</span>
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">        return cardList;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -45,15 +45,15 @@ public class OSDesktopWindow {
 
     public OSDesktopWindow(long windowId, String title, String command, Rectangle locAndSize, long owningProcessId,
             int order, boolean visible) {
-<span class="nc" id="L48">        super();</span>
-<span class="nc" id="L49">        this.windowId = windowId;</span>
-<span class="nc" id="L50">        this.title = title;</span>
-<span class="nc" id="L51">        this.command = command;</span>
-<span class="nc" id="L52">        this.locAndSize = locAndSize;</span>
-<span class="nc" id="L53">        this.owningProcessId = owningProcessId;</span>
-<span class="nc" id="L54">        this.order = order;</span>
-<span class="nc" id="L55">        this.visible = visible;</span>
-<span class="nc" id="L56">    }</span>
+<span class="fc" id="L48">        super();</span>
+<span class="fc" id="L49">        this.windowId = windowId;</span>
+<span class="fc" id="L50">        this.title = title;</span>
+<span class="fc" id="L51">        this.command = command;</span>
+<span class="fc" id="L52">        this.locAndSize = locAndSize;</span>
+<span class="fc" id="L53">        this.owningProcessId = owningProcessId;</span>
+<span class="fc" id="L54">        this.order = order;</span>
+<span class="fc" id="L55">        this.visible = visible;</span>
+<span class="fc" id="L56">    }</span>
 
     /**
      * Gets the operating system's handle, window ID, or other unique identifier for
@@ -66,7 +66,7 @@ public class OSDesktopWindow {
      * @return the windowId
      */
     public long getWindowId() {
-<span class="nc" id="L69">        return windowId;</span>
+<span class="fc" id="L69">        return windowId;</span>
     }
 
     /**
@@ -94,7 +94,7 @@ public class OSDesktopWindow {
      * @return the location and size
      */
     public Rectangle getLocAndSize() {
-<span class="nc" id="L97">        return locAndSize;</span>
+<span class="fc" id="L97">        return locAndSize;</span>
     }
 
     /**
@@ -133,7 +133,7 @@ public class OSDesktopWindow {
      *         not be determined, {@code false} otherwise.
      */
     public boolean isVisible() {
-<span class="nc" id="L136">        return visible;</span>
+<span class="fc" id="L136">        return visible;</span>
     }
 
     @Override

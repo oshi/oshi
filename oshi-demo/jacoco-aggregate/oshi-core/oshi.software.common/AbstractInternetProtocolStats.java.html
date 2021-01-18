@@ -23,7 +23,6 @@
  */
 package oshi.software.common;
 
-import java.util.Collections;
 import java.util.List;
 
 import oshi.driver.unix.NetStat;
@@ -32,12 +31,12 @@ import oshi.software.os.InternetProtocolStats;
 public abstract class AbstractInternetProtocolStats implements InternetProtocolStats {
 
     public AbstractInternetProtocolStats() {
-<span class="nc" id="L35">        super();</span>
-<span class="nc" id="L36">    }</span>
+<span class="nc" id="L34">        super();</span>
+<span class="nc" id="L35">    }</span>
 
     @Override
     public List&lt;IPConnection&gt; getConnections() {
-<span class="nc" id="L40">        return Collections.unmodifiableList(NetStat.queryNetstat());</span>
+<span class="nc" id="L39">        return NetStat.queryNetstat();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

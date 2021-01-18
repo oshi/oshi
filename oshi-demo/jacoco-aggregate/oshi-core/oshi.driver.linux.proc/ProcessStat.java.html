@@ -496,7 +496,7 @@ public final class ProcessStat {
     }
 
     /**
-     * Gets an List of thread ids for a process from the {@code /proc/[pid]/task/}
+     * Gets a List of thread ids for a process from the {@code /proc/[pid]/task/}
      * directory with only numeric digit filenames, corresponding to the threads.
      *
      * @param pid

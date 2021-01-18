@@ -130,49 +130,48 @@ public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine
      *
-     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
-     *         representing the disks
+     * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List&lt;HWDiskStore&gt; getDisks() {
         // Result
-<span class="nc" id="L138">        List&lt;HWDiskStore&gt; diskList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L137">        List&lt;HWDiskStore&gt; diskList = new ArrayList&lt;&gt;();</span>
 
         // Get map of disk names to partitions
-<span class="nc" id="L141">        Map&lt;String, List&lt;HWPartition&gt;&gt; partitionMap = GeomPartList.queryPartitions();</span>
+<span class="nc" id="L140">        Map&lt;String, List&lt;HWPartition&gt;&gt; partitionMap = GeomPartList.queryPartitions();</span>
 
         // Get map of disk names to disk info
-<span class="nc" id="L144">        Map&lt;String, Triplet&lt;String, String, Long&gt;&gt; diskInfoMap = GeomDiskList.queryDisks();</span>
+<span class="nc" id="L143">        Map&lt;String, Triplet&lt;String, String, Long&gt;&gt; diskInfoMap = GeomDiskList.queryDisks();</span>
 
         // Get list of disks from sysctl
-<span class="nc" id="L147">        List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl(&quot;kern.disks&quot;, &quot;&quot;)));</span>
+<span class="nc" id="L146">        List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl(&quot;kern.disks&quot;, &quot;&quot;)));</span>
 
         // Run iostat -Ix to enumerate disks by name and get kb r/w
-<span class="nc" id="L150">        List&lt;String&gt; iostat = ExecutingCommand.runNative(&quot;iostat -Ix&quot;);</span>
-<span class="nc" id="L151">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">        for (String line : iostat) {</span>
-<span class="nc" id="L153">            String[] split = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L154" title="All 4 branches missed.">            if (split.length &gt; 6 &amp;&amp; devices.contains(split[0])) {</span>
-<span class="nc" id="L155">                Triplet&lt;String, String, Long&gt; storeInfo = diskInfoMap.get(split[0]);</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">                FreeBsdHWDiskStore store = (storeInfo == null)</span>
-<span class="nc" id="L157">                        ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)</span>
-<span class="nc" id="L158">                        : new FreeBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());</span>
-<span class="nc" id="L159">                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);</span>
-<span class="nc" id="L160">                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);</span>
+<span class="nc" id="L149">        List&lt;String&gt; iostat = ExecutingCommand.runNative(&quot;iostat -Ix&quot;);</span>
+<span class="nc" id="L150">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        for (String line : iostat) {</span>
+<span class="nc" id="L152">            String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L153" title="All 4 branches missed.">            if (split.length &gt; 6 &amp;&amp; devices.contains(split[0])) {</span>
+<span class="nc" id="L154">                Triplet&lt;String, String, Long&gt; storeInfo = diskInfoMap.get(split[0]);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">                FreeBsdHWDiskStore store = (storeInfo == null)</span>
+<span class="nc" id="L156">                        ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)</span>
+<span class="nc" id="L157">                        : new FreeBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());</span>
+<span class="nc" id="L158">                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);</span>
+<span class="nc" id="L159">                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);</span>
                 // In KB
-<span class="nc" id="L162">                store.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);</span>
-<span class="nc" id="L163">                store.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);</span>
+<span class="nc" id="L161">                store.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);</span>
+<span class="nc" id="L162">                store.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);</span>
                 // # transactions
-<span class="nc" id="L165">                store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);</span>
+<span class="nc" id="L164">                store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);</span>
                 // In seconds, multiply for ms
-<span class="nc" id="L167">                store.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);</span>
-<span class="nc" id="L168">                store.partitionList = Collections</span>
-<span class="nc" id="L169">                        .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()</span>
-<span class="nc" id="L170">                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));</span>
-<span class="nc" id="L171">                store.timeStamp = now;</span>
-<span class="nc" id="L172">                diskList.add(store);</span>
+<span class="nc" id="L166">                store.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);</span>
+<span class="nc" id="L167">                store.partitionList = Collections</span>
+<span class="nc" id="L168">                        .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()</span>
+<span class="nc" id="L169">                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));</span>
+<span class="nc" id="L170">                store.timeStamp = now;</span>
+<span class="nc" id="L171">                diskList.add(store);</span>
             }
-<span class="nc" id="L174">        }</span>
-<span class="nc" id="L175">        return Collections.unmodifiableList(diskList);</span>
+<span class="nc" id="L173">        }</span>
+<span class="nc" id="L174">        return diskList;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
