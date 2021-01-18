@@ -26,7 +26,6 @@ package oshi.hardware.platform.linux;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +88,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
         // Get list of power source names
         File f = new File(PS_PATH);
         String[] psNames = f.list();
-        List<LinuxPowerSource> psList = new ArrayList<>();
+        List<PowerSource> psList = new ArrayList<>();
         // Empty directory will give null rather than empty array, so fix
         if (psNames != null) {
             // For each power source, output various info
@@ -158,6 +157,6 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                 }
             }
         }
-        return Collections.unmodifiableList(psList);
+        return psList;
     }
 }

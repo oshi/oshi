@@ -73,8 +73,7 @@ public interface InternetProtocolStats {
     /**
      * Gets a list of TCP and UDP connections.
      *
-     * @return An {@code UnmodifiableList} of {@link IPConnection} objects for TCP
-     *         and UDP connections.
+     * @return A list of {@link IPConnection} objects for TCP and UDP connections.
      */
     List<IPConnection> getConnections();
 

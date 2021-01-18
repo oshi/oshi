@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.openbsd;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -107,6 +106,6 @@ final class OpenBsdSoundCard extends AbstractSoundCard {
             soundCards.add(new OpenBsdSoundCard(versionMap.get(entry.getKey()), entry.getValue(),
                     codecMap.get(entry.getKey())));
         }
-        return Collections.unmodifiableList(soundCards);
+        return soundCards;
     }
 }

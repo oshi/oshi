@@ -134,8 +134,7 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
      * @param diskStats
      *            Memoized supplier of disk statistics
      *
-     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
-     *         representing the disks
+     * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List<HWDiskStore> getDisks(Supplier<perfstat_disk_t[]> diskStats) {
         Map<String, Pair<Integer, Integer>> majMinMap = Ls.queryDeviceMajorMinor();
@@ -147,10 +146,10 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
             String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();
             storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats, majMinMap));
         }
-        return Collections.unmodifiableList(storeList.stream()
+        return storeList.stream()
                 .sorted(Comparator.comparingInt(
                         s -> s.getPartitions().isEmpty() ? Integer.MAX_VALUE : s.getPartitions().get(0).getMajor()))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
     }
 
     private static AixHWDiskStore createStore(String diskName, String model, String serial, long size,

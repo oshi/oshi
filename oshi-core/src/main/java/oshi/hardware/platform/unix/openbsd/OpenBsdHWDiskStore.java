@@ -27,7 +27,6 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -67,11 +66,10 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine.
      *
-     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
-     *         representing the disks
+     * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List<HWDiskStore> getDisks() {
-        List<OpenBsdHWDiskStore> diskList = new ArrayList<>();
+        List<HWDiskStore> diskList = new ArrayList<>();
         List<String> dmesg = null; // Lazily fetch in loop if needed
 
         // Get list of disks from sysctl
@@ -124,7 +122,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
             diskList.add(store);
         }
-        return Collections.unmodifiableList(diskList);
+        return diskList;
     }
 
     @Override

@@ -33,7 +33,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -264,19 +263,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         List<OSSession> whoList = HkeyUserData.queryUserSessions();
         whoList.addAll(SessionWtsData.queryUserSessions());
         whoList.addAll(NetSessionData.queryUserSessions());
-        return Collections.unmodifiableList(whoList);
+        return whoList;
     }
 
     @Override
     public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
         List<OSProcess> procList = processMapToList(null);
-        List<OSProcess> sorted = processSort(procList, limit, sort);
-        return Collections.unmodifiableList(sorted);
+        return processSort(procList, limit, sort);
     }
 
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return Collections.unmodifiableList(processMapToList(pids));
+        return processMapToList(pids);
     }
 
     @Override
@@ -296,8 +294,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
         // Get modifiable version
         List<OSProcess> procList = processMapToList(childPids);
-        List<OSProcess> sorted = processSort(procList, limit, sort);
-        return Collections.unmodifiableList(sorted);
+        return processSort(procList, limit, sort);
     }
 
     @Override
@@ -511,6 +508,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
-        return Collections.unmodifiableList(EnumWindows.queryDesktopWindows(visibleOnly));
+        return EnumWindows.queryDesktopWindows(visibleOnly);
     }
 }

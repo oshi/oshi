@@ -24,7 +24,6 @@
 package oshi.hardware.platform.linux;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
@@ -68,17 +67,16 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
      *         objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
-        List<LinuxGraphicsCard> cardList = getGraphicsCardsFromLspci();
+        List<GraphicsCard> cardList = getGraphicsCardsFromLspci();
         if (cardList.isEmpty()) {
             cardList = getGraphicsCardsFromLshw();
         }
-
-        return Collections.unmodifiableList(cardList);
+        return cardList;
     }
 
     // Faster, use as primary
-    private static List<LinuxGraphicsCard> getGraphicsCardsFromLspci() {
-        List<LinuxGraphicsCard> cardList = new ArrayList<>();
+    private static List<GraphicsCard> getGraphicsCardsFromLspci() {
+        List<GraphicsCard> cardList = new ArrayList<>();
         // Machine readable version
         List<String> lspci = ExecutingCommand.runNative("lspci -vnnm");
         String name = Constants.UNKNOWN;
@@ -147,8 +145,8 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     }
 
     // Slower, use as backup
-    private static List<LinuxGraphicsCard> getGraphicsCardsFromLshw() {
-        List<LinuxGraphicsCard> cardList = new ArrayList<>();
+    private static List<GraphicsCard> getGraphicsCardsFromLshw() {
+        List<GraphicsCard> cardList = new ArrayList<>();
         List<String> lshw = ExecutingCommand.runNative("lshw -C display");
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;

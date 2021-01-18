@@ -24,7 +24,6 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -106,6 +105,6 @@ final class WindowsDisplay extends AbstractDisplay {
             }
             SU.SetupDiDestroyDeviceInfoList(hDevInfo);
         }
-        return Collections.unmodifiableList(displays);
+        return displays;
     }
 }

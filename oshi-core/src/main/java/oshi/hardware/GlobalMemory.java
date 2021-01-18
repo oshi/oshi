@@ -67,7 +67,7 @@ public interface GlobalMemory {
      * On Linux, requires elevated permissions. On FreeBSD and Solaris, requires
      * installation of dmidecode.
      *
-     * @return An {@code UnmodifiableList} of PhysicalMemory objects.
+     * @return A list of PhysicalMemory objects.
      */
     List<PhysicalMemory> getPhysicalMemory();
 }

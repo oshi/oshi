@@ -27,10 +27,11 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
@@ -191,7 +192,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     @Override
     public List<OSSession> getSessions() {
-        return Collections.unmodifiableList(Who.queryWho());
+        return Who.queryWho();
     }
 
     @Override
@@ -201,14 +202,15 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        List<OSProcess> returnValue = new ArrayList<>(pids.size());
-        for (Integer pid : pids) {
-            OSProcess process = getProcess(pid);
-            if (process != null) {
-                returnValue.add(process);
-            }
-        }
-        return Collections.unmodifiableList(returnValue);
+        return pids.stream().map(this::getProcess).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        // filter processes whose parent process id matches
+        List<OSProcess> procList = getProcesses(0, null).stream().filter(proc -> parentPid == proc.getParentProcessID())
+                .collect(Collectors.toList());
+        return processSort(procList, limit, sort);
     }
 
     @Override
@@ -222,7 +224,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
         // Default X11 implementation for Unix-like operating systems.
         // Overridden on Windows and macOS
-        return Collections.unmodifiableList(Xwininfo.queryXWindows(visibleOnly));
+        return Xwininfo.queryXWindows(visibleOnly);
     }
 
     protected static final class FamilyVersionInfo {

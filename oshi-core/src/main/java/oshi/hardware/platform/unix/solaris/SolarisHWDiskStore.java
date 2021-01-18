@@ -127,8 +127,7 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine
      *
-     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
-     *         representing the disks
+     * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List<HWDiskStore> getDisks() {
         // Create map to correlate disk name with block device mount point for
@@ -145,7 +144,7 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
         Map<String, Quintet<String, String, String, String, Long>> deviceStringMap = Iostat
                 .queryDeviceStrings(deviceMap.keySet());
 
-        List<SolarisHWDiskStore> storeList = new ArrayList<>();
+        List<HWDiskStore> storeList = new ArrayList<>();
         for (Entry<String, Quintet<String, String, String, String, Long>> entry : deviceStringMap.entrySet()) {
             String storeName = entry.getKey();
             Quintet<String, String, String, String, Long> val = entry.getValue();
@@ -153,7 +152,7 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
                     deviceMap.getOrDefault(storeName, ""), majorMap.getOrDefault(storeName, 0)));
         }
 
-        return Collections.unmodifiableList(storeList);
+        return storeList;
     }
 
     private static SolarisHWDiskStore createStore(String diskName, String model, String vendor, String product,

@@ -24,7 +24,6 @@
 package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
@@ -63,7 +62,7 @@ final class MacSoundCard extends AbstractSoundCard {
      * @return List of {@link oshi.hardware.platform.mac.MacSoundCard} objects.
      */
     public static List<SoundCard> getSoundCards() {
-        List<MacSoundCard> soundCards = new ArrayList<>();
+        List<SoundCard> soundCards = new ArrayList<>();
 
         // /System/Library/Extensions/AppleHDA.kext/Contents/Info.plist
 
@@ -93,6 +92,6 @@ final class MacSoundCard extends AbstractSoundCard {
         }
         soundCards.add(new MacSoundCard(kernelVersion, manufacturer, codec));
 
-        return Collections.unmodifiableList(soundCards);
+        return soundCards;
     }
 }

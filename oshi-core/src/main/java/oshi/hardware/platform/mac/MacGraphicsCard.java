@@ -24,7 +24,6 @@
 package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
@@ -66,7 +65,7 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
      * @return List of {@link oshi.hardware.platform.mac.MacGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
-        List<MacGraphicsCard> cardList = new ArrayList<>();
+        List<GraphicsCard> cardList = new ArrayList<>();
         List<String> sp = ExecutingCommand.runNative("system_profiler SPDisplaysDataType");
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
@@ -100,6 +99,6 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
         }
         cardList.add(new MacGraphicsCard(name, deviceId, vendor,
                 versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram));
-        return Collections.unmodifiableList(cardList);
+        return cardList;
     }
 }

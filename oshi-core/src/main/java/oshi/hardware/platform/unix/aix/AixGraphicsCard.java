@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -92,6 +91,6 @@ final class AixGraphicsCard extends AbstractGraphicsCard {
                 }
             }
         }
-        return Collections.unmodifiableList(cardList);
+        return cardList;
     }
 }

@@ -59,20 +59,18 @@ public interface HardwareAbstractionLayer {
     GlobalMemory getMemory();
 
     /**
-     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.PowerSource}
-     * objects, representing batteries, etc.
+     * Instantiates a list of {@link oshi.hardware.PowerSource} objects,
+     * representing batteries, etc.
      *
-     * @return An {@code UnmodifiableList} of PowerSource objects or an empty array
-     *         if none are present.
+     * @return A list of PowerSource objects or an empty array if none are present.
      */
     List<PowerSource> getPowerSources();
 
     /**
-     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.HWDiskStore}
-     * objects, representing physical hard disks or other similar storage devices.
+     * Instantiates a list of {@link oshi.hardware.HWDiskStore} objects,
+     * representing physical hard disks or other similar storage devices.
      *
-     * @return An {@code UnmodifiableList} of HWDiskStore objects or an empty list
-     *         if none are present.
+     * @return A list of HWDiskStore objects or an empty list if none are present.
      */
     List<HWDiskStore> getDiskStores();
 
@@ -80,8 +78,7 @@ public interface HardwareAbstractionLayer {
      * Gets a list of non-local {@link NetworkIF} objects, representing a network
      * interface. The list excludes local interfaces.
      *
-     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
-     *         the interfaces
+     * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     List<NetworkIF> getNetworkIFs();
 
@@ -91,17 +88,15 @@ public interface HardwareAbstractionLayer {
      * @param includeLocalInterfaces
      *            whether to include local interfaces (loopback or no hardware
      *            address) in the result
-     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
-     *         the interfaces
+     * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces);
 
     /**
-     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.Display}
-     * objects, representing monitors or other video output devices.
+     * Instantiates a list of {@link oshi.hardware.Display} objects, representing
+     * monitors or other video output devices.
      *
-     * @return An {@code UnmodifiableList} of Display objects or an empty array if
-     *         none are present.
+     * @return A list of Display objects or an empty array if none are present.
      */
     List<Display> getDisplays();
 
@@ -114,9 +109,8 @@ public interface HardwareAbstractionLayer {
     Sensors getSensors();
 
     /**
-     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.UsbDevice}
-     * objects, representing devices connected via a usb port (including internal
-     * devices).
+     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing
+     * devices connected via a usb port (including internal devices).
      * <p>
      * If the value of {@code tree} is true, the top level devices returned from
      * this method are the USB Controllers; connected hubs and devices in its device
@@ -128,27 +122,25 @@ public interface HardwareAbstractionLayer {
      *            accessible via {@link UsbDevice#getConnectedDevices()}. If
      *            {@code false} returns devices as a flat list with no connected
      *            device information.
-     * @return An {@code UnmodifiableList} of UsbDevice objects representing
-     *         (optionally) the USB Controllers and devices connected to them, or an
-     *         empty array if none are present
+     * @return A list of UsbDevice objects representing (optionally) the USB
+     *         Controllers and devices connected to them, or an empty array if none
+     *         are present
      */
     List<UsbDevice> getUsbDevices(boolean tree);
 
     /**
-     * Instantiates an {@code UnmodifiableList} of {@link oshi.hardware.SoundCard}
-     * objects, representing the Sound cards.
+     * Instantiates a list of {@link oshi.hardware.SoundCard} objects, representing
+     * the Sound cards.
      *
-     * @return An {@code UnmodifiableList} of SoundCard objects or an empty array if
-     *         none are present.
+     * @return A list of SoundCard objects or an empty array if none are present.
      */
     List<SoundCard> getSoundCards();
 
     /**
-     * Instantiates an {@code UnmodifiableList} of
-     * {@link oshi.hardware.GraphicsCard} objects, representing the Graphics cards.
+     * Instantiates a list of {@link oshi.hardware.GraphicsCard} objects,
+     * representing the Graphics cards.
      *
-     * @return An {@code UnmodifiableList} of objects or an empty array if none are
-     *         present.
+     * @return A list of objects or an empty array if none are present.
      */
     List<GraphicsCard> getGraphicsCards();
 }

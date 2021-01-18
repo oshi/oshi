@@ -50,11 +50,19 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * {@inheritDoc}
+     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing
+     * devices connected via a usb port (including internal devices).
+     * <p>
+     * If the value of {@code tree} is true, the top level devices returned from
+     * this method are the USB Controllers; connected hubs and devices in its device
+     * tree share that controller's bandwidth. If the value of {@code tree} is
+     * false, USB devices (not controllers) are listed in a single flat list.
      *
      * @param tree
-     *            a boolean.
-     * @return an array of {@link oshi.hardware.UsbDevice} objects.
+     *            If true, returns a list of controllers, which requires recursive
+     *            iteration of connected devices. If false, returns a flat list of
+     *            devices excluding controllers.
+     * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
         List<UsbDevice> devices = getUsbDevices();

@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +90,6 @@ final class SolarisSoundCard extends AbstractSoundCard {
             soundCards.add(new SolarisSoundCard(productMap.get(_key) + " " + DEFAULT_AUDIO_DRIVER,
                     vendorMap.get(_key) + " " + productMap.get(_key), productMap.get(_key)));
         }
-        return Collections.unmodifiableList(soundCards);
+        return soundCards;
     }
 }

@@ -25,7 +25,6 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -173,10 +172,10 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * @return List of {@link oshi.hardware.platform.linux.LinuxSoundCard} objects.
      */
     public static List<SoundCard> getSoundCards() {
-        List<LinuxSoundCard> soundCards = new ArrayList<>();
+        List<SoundCard> soundCards = new ArrayList<>();
         for (File cardFile : getCardFolders()) {
             soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));
         }
-        return Collections.unmodifiableList(soundCards);
+        return soundCards;
     }
 }

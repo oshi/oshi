@@ -25,7 +25,6 @@ package oshi.hardware.platform.unix.openbsd;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,11 +67,11 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
                 psNames.add(line.substring(0, dot));
             }
         }
-        List<OpenBsdPowerSource> psList = new ArrayList<>();
+        List<PowerSource> psList = new ArrayList<>();
         for (String name : psNames) {
             psList.add(getPowerSource(name));
         }
-        return Collections.unmodifiableList(psList);
+        return psList;
     }
 
     private static OpenBsdPowerSource getPowerSource(String name) {

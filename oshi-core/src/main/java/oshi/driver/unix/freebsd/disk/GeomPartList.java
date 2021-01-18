@@ -24,7 +24,6 @@
 package oshi.driver.unix.freebsd.disk;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +51,7 @@ public final class GeomPartList {
     /**
      * Queries partition data using geom, mount, and stat commands
      *
-     * @return A map with disk name as the key and an {@code UnmodifiableList} of
-     *         partitions as the value
+     * @return A map with disk name as the key and a List of partitions as the value
      */
     public static Map<String, List<HWPartition>> queryPartitions() {
         Map<String, String> mountMap = Mount.queryPartitionToMountMap();
@@ -137,7 +135,7 @@ public final class GeomPartList {
             if (!partList.isEmpty()) {
                 partList = partList.stream().sorted(Comparator.comparing(HWPartition::getName))
                         .collect(Collectors.toList());
-                partitionMap.put(diskName, Collections.unmodifiableList(partList));
+                partitionMap.put(diskName, partList);
             }
         }
         return partitionMap;

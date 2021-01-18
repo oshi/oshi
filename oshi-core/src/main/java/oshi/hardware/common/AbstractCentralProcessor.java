@@ -70,7 +70,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * Create a Processor
      */
     protected AbstractCentralProcessor() {
-        // Populate logical processor array
+        // Populate logical processor array.
         this.logicalProcessors = Collections.unmodifiableList(initProcessorCounts());
         // Init processor counts
         Set<String> physProcPkgs = new HashSet<>();
