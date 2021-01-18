@@ -38,29 +38,27 @@ public interface FileSystem {
     /**
      * Get file stores on this machine
      *
-     * Instantiates an {@code UnmodifiableList} of
-     * {@link oshi.software.os.OSFileStore} objects, representing a storage pool,
-     * device, partition, volume, concrete file system or other implementation
-     * specific means of file storage.
+     * Instantiates a list of {@link oshi.software.os.OSFileStore} objects,
+     * representing a storage pool, device, partition, volume, concrete file system
+     * or other implementation specific means of file storage.
      *
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSFileStore}
-     *         objects or an empty array if none are present.
+     * @return A list of {@link oshi.software.os.OSFileStore} objects or an empty
+     *         array if none are present.
      */
     List<OSFileStore> getFileStores();
 
     /**
      * Get file stores on this machine
      *
-     * Instantiates an {@code UnmodifiableList} of
-     * {@link oshi.software.os.OSFileStore} objects, representing a storage pool,
-     * device, partition, volume, concrete file system or other implementation
-     * specific means of file storage.
+     * Instantiates a list of {@link oshi.software.os.OSFileStore} objects,
+     * representing a storage pool, device, partition, volume, concrete file system
+     * or other implementation specific means of file storage.
      *
      * @param localOnly
      *            If true, filters the list to only local file stores.
      *
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSFileStore}
-     *         objects or an empty array if none are present.
+     * @return A list of {@link oshi.software.os.OSFileStore} objects or an empty
+     *         array if none are present.
      */
     List<OSFileStore> getFileStores(boolean localOnly);
 

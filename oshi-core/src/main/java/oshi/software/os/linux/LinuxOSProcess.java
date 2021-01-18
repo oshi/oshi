@@ -36,7 +36,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -213,9 +212,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<OSThread> threadDetails = ProcessStat.getThreadIds(getProcessID()).stream()
-                .map(id -> new LinuxOSThread(getProcessID(), id)).collect(Collectors.toList());
-        return Collections.unmodifiableList(threadDetails);
+        return ProcessStat.getThreadIds(getProcessID()).stream().map(id -> new LinuxOSThread(getProcessID(), id))
+                .collect(Collectors.toList());
     }
 
     @Override

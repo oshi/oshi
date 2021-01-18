@@ -110,7 +110,7 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
             conns.addAll(queryTCPv6Connections());
             conns.addAll(queryUDPv4Connections());
             conns.addAll(queryUDPv6Connections());
-            return Collections.unmodifiableList(conns);
+            return conns;
         }
         return Collections.emptyList();
     }

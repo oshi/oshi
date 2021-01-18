@@ -72,7 +72,7 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
      *         objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
-        List<OpenBsdGraphicsCard> cardList = new ArrayList<>();
+        List<GraphicsCard> cardList = new ArrayList<>();
         // Enumerate all devices and add if required
         List<String> devices = ExecutingCommand.runNative("pcidump -v");
         if (devices.isEmpty()) {
@@ -133,6 +133,6 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
         }
-        return Collections.unmodifiableList(cardList);
+        return cardList;
     }
 }

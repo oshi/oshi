@@ -28,7 +28,6 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -157,7 +156,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSSession> getSessions() {
-        return Collections.unmodifiableList(USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent());
+        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();
     }
 
     @Override
@@ -174,8 +173,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
         }
         // Sort
-        List<OSProcess> sorted = processSort(procs, limit, sort);
-        return Collections.unmodifiableList(sorted);
+        return processSort(procs, limit, sort);
     }
 
     @Override
@@ -201,8 +199,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-        List<OSProcess> sorted = processSort(procs, limit, sort);
-        return Collections.unmodifiableList(sorted);
+        return processSort(procs, limit, sort);
     }
 
     private static int getParentPidFromProcFile(int pid) {

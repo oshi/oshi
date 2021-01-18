@@ -23,7 +23,6 @@
  */
 package oshi.hardware.platform.unix;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,6 @@ public final class UnixDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays() {
-        return Collections
-                .unmodifiableList(Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList()));
+        return Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList());
     }
 }

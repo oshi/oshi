@@ -24,7 +24,6 @@
 package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -96,6 +95,6 @@ final class MacDisplay extends AbstractDisplay {
             serviceIterator.release();
             cfEdid.release();
         }
-        return Collections.unmodifiableList(displays);
+        return displays;
     }
 }

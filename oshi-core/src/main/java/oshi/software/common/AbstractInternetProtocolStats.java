@@ -23,7 +23,6 @@
  */
 package oshi.software.common;
 
-import java.util.Collections;
 import java.util.List;
 
 import oshi.driver.unix.NetStat;
@@ -37,6 +36,6 @@ public abstract class AbstractInternetProtocolStats implements InternetProtocolS
 
     @Override
     public List<IPConnection> getConnections() {
-        return Collections.unmodifiableList(NetStat.queryNetstat());
+        return NetStat.queryNetstat();
     }
 }

@@ -37,7 +37,6 @@ import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -82,7 +81,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         conns.addAll(queryConnections("tcp", 6, pidMap));
         conns.addAll(queryConnections("udp", 4, pidMap));
         conns.addAll(queryConnections("udp", 6, pidMap));
-        return Collections.unmodifiableList(conns);
+        return conns;
     }
 
     private static List<IPConnection> queryConnections(String protocol, int ipver, Map<Integer, Integer> pidMap) {

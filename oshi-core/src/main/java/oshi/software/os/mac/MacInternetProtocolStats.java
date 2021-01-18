@@ -49,7 +49,6 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -154,7 +153,7 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
                 }
             }
         }
-        return Collections.unmodifiableList(conns);
+        return conns;
     }
 
     private static List<Integer> queryFdList(int pid) {

@@ -99,19 +99,19 @@ public interface OperatingSystem {
      * command-line variant by default using the {@code oshi.os.unix.whoCommand}
      * configuration property.
      *
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSSession}
-     *         objects representing logged-in users
+     * @return A list of {@link oshi.software.os.OSSession} objects representing
+     *         logged-in users
      */
     List<OSSession> getSessions();
 
     /**
      * Gets currently running processes. No order is guaranteed.
      *
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects for the specified number (or all) of currently running
-     *         processes, sorted as specified. The list may contain null elements or
-     *         processes with a state of {@link OSProcess.State#INVALID} if a
-     *         process terminates during iteration.
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the
+     *         specified number (or all) of currently running processes, sorted as
+     *         specified. The list may contain null elements or processes with a
+     *         state of {@link OSProcess.State#INVALID} if a process terminates
+     *         during iteration.
      */
     List<OSProcess> getProcesses();
 
@@ -126,11 +126,11 @@ public interface OperatingSystem {
      *            Max number of results to return, or 0 to return all results
      * @param sort
      *            If not null, determines sorting of results
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects for the specified number (or all) of currently running
-     *         processes, sorted as specified. The list may contain null elements or
-     *         processes with a state of {@link OSProcess.State#INVALID} if a
-     *         process terminates during iteration.
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the
+     *         specified number (or all) of currently running processes, sorted as
+     *         specified. The list may contain null elements or processes with a
+     *         state of {@link OSProcess.State#INVALID} if a process terminates
+     *         during iteration.
      */
     List<OSProcess> getProcesses(int limit, ProcessSort sort);
 
@@ -140,8 +140,8 @@ public interface OperatingSystem {
      *
      * @param pids
      *            A collection of process IDs
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects for the specified process ids if it is running
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the
+     *         specified process ids if it is running
      */
     List<OSProcess> getProcesses(Collection<Integer> pids);
 
@@ -169,12 +169,11 @@ public interface OperatingSystem {
      *            Max number of results to return, or 0 to return all results
      * @param sort
      *            If not null, determines sorting of results
-     * @return An {@code UnmodifiableList} of {@link oshi.software.os.OSProcess}
-     *         objects representing the specified number (or all) of currently
-     *         running child processes of the provided PID, sorted as specified. The
-     *         list may contain null elements or processes with a state of
-     *         {@link OSProcess.State#INVALID} if a process terminates during
-     *         iteration.
+     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
+     *         specified number (or all) of currently running child processes of the
+     *         provided PID, sorted as specified. The list may contain null elements
+     *         or processes with a state of {@link OSProcess.State#INVALID} if a
+     *         process terminates during iteration.
      */
     List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort);
 
@@ -260,9 +259,8 @@ public interface OperatingSystem {
      *            <p>
      *            This is a best effort attempt at a reasonable definition of
      *            visibility. Visible windows may be completely transparent.
-     * @return An {@code UnmodifiableList} of
-     *         {@link oshi.software.os.OSDesktopWindow} objects representing the
-     *         desktop windows.
+     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects
+     *         representing the desktop windows.
      */
     List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly);
 

@@ -25,7 +25,6 @@ package oshi.hardware.platform.mac;
 
 import java.net.NetworkInterface;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -68,8 +67,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
      *
      * @param includeLocalInterfaces
      *            include local interfaces in the result
-     * @return An {@code UnmodifiableList} of {@link NetworkIF} objects representing
-     *         the interfaces
+     * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         // One time fetch of stats
@@ -82,7 +80,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }
         }
-        return Collections.unmodifiableList(ifList);
+        return ifList;
     }
 
     @Override

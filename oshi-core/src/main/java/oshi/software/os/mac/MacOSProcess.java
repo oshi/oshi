@@ -35,7 +35,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -226,7 +225,7 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         long now = System.currentTimeMillis();
-        List<MacOSThread> details = new ArrayList<>();
+        List<OSThread> details = new ArrayList<>();
         List<ThreadStats> stats = ThreadInfo.queryTaskThreads(getProcessID());
         for (ThreadStats stat : stats) {
             // For long running threads the start time calculation can overestimate
@@ -237,7 +236,7 @@ public class MacOSProcess extends AbstractOSProcess {
             details.add(new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
                     stat.getUserTime(), start, now - start, stat.getPriority()));
         }
-        return Collections.unmodifiableList(details);
+        return details;
     }
 
     @Override

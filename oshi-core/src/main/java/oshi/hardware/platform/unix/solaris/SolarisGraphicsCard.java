@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
@@ -133,6 +132,6 @@ final class SolarisGraphicsCard extends AbstractGraphicsCard {
                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), 0L));
         }
-        return Collections.unmodifiableList(cardList);
+        return cardList;
     }
 }

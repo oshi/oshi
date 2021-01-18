@@ -162,8 +162,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine
      *
-     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects
-     *         representing the disks
+     * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List<HWDiskStore> getDisks() {
         List<HWDiskStore> result;
@@ -203,7 +202,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             // Add to list
             result.add(ds);
         }
-        return Collections.unmodifiableList(result);
+        return result;
     }
 
     /**

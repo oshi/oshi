@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -73,6 +72,6 @@ final class AixSoundCard extends AbstractSoundCard {
                 }
             }
         }
-        return Collections.unmodifiableList(soundCards);
+        return soundCards;
     }
 }
