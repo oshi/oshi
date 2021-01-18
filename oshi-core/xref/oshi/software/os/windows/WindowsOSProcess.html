@@ -276,9 +276,9 @@
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">if</strong> (threads == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>             <strong class="jxr_keyword">return</strong> Collections.emptyList();
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>         }
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(threads.entrySet().stream()
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">return</strong> threads.entrySet().stream()
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>                 .map(entry -&gt; <strong class="jxr_keyword">new</strong> <a name="WindowsOSThread" href="../../../../oshi/software/os/windows/WindowsOSThread.html#WindowsOSThread">WindowsOSThread</a>(getProcessID(), entry.getKey(), <strong class="jxr_keyword">this</strong>.name, entry.getValue()))
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 .collect(Collectors.toList()));
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 .collect(Collectors.toList());
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>     }
 <a class="jxr_linenumber" name="L275" href="#L275">275</a> 
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>     @Override

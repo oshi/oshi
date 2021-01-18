@@ -316,164 +316,163 @@
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">     * Gets the disks on this machine</em>
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">     * @return an {@code UnmodifiableList} of {@link HWDiskStore} objects</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     *         representing the disks</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks() {
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         Map&lt;String, String&gt; mountPointMap = Fsstat.queryPartitionToMountMap();
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         Map&lt;String, String&gt; logicalVolumeMap = Diskutil.queryLogicalVolumeMap();
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         Map&lt;CFKey, CFStringRef&gt; cfKeyMap = mapCFKeys();
-<a class="jxr_linenumber" name="L318" href="#L318">318</a> 
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         List&lt;HWDiskStore&gt; diskList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> 
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <em class="jxr_comment">// Open a DiskArbitration session</em>
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">if</strong> (session == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>             LOG.error(<span class="jxr_string">"Unable to open session to DiskArbitration framework."</span>);
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>             <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         }
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_comment">// Get IOMedia objects representing whole drives</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>         List&lt;String&gt; bsdNames = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         IOIterator iter = IOKitUtil.getMatchingServices(<span class="jxr_string">"IOMedia"</span>);
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>             IORegistryEntry media = iter.next();
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>             <strong class="jxr_keyword">while</strong> (media != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 Boolean whole = media.getBooleanProperty(<span class="jxr_string">"Whole"</span>);
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 <strong class="jxr_keyword">if</strong> (whole != <strong class="jxr_keyword">null</strong> &amp;&amp; whole) {
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                     DADiskRef disk = DA.DADiskCreateFromIOMedia(CF.CFAllocatorGetDefault(), session, media);
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>                     bsdNames.add(DA.DADiskGetBSDName(disk));
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>                     disk.release();
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 }
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>                 media.release();
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 media = iter.next();
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>             }
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>             iter.release();
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         }
-<a class="jxr_linenumber" name="L345" href="#L345">345</a> 
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <em class="jxr_comment">// Now iterate the bsdNames</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">for</strong> (String bsdName : bsdNames) {
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>             String model = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>             String serial = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>             <strong class="jxr_keyword">long</strong> size = 0L;
-<a class="jxr_linenumber" name="L351" href="#L351">351</a> 
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <em class="jxr_comment">// Get a reference to the disk - only matching /dev/disk*</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>             String path = <span class="jxr_string">"/dev/"</span> + bsdName;
-<a class="jxr_linenumber" name="L354" href="#L354">354</a> 
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>             <em class="jxr_comment">// Get the DiskArbitration dictionary for this disk, which has model</em>
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>             <em class="jxr_comment">// and size (capacity)</em>
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>             DADiskRef disk = DA.DADiskCreateFromBSDName(CF.CFAllocatorGetDefault(), session, path);
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>             <strong class="jxr_keyword">if</strong> (disk != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>                 CFDictionaryRef diskInfo = DA.DADiskCopyDescription(disk);
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>                 <strong class="jxr_keyword">if</strong> (diskInfo != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                     <em class="jxr_comment">// Parse out model and size from their respective keys</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>                     Pointer result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>                     CFStringRef modelPtr = <strong class="jxr_keyword">new</strong> CFStringRef(result);
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>                     model = modelPtr.stringValue();
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                     <strong class="jxr_keyword">if</strong> (model == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                         model = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                     }
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>                     result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     CFNumberRef sizePtr = <strong class="jxr_keyword">new</strong> CFNumberRef(result);
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>                     size = sizePtr.longValue();
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>                     diskInfo.release();
-<a class="jxr_linenumber" name="L372" href="#L372">372</a> 
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>                     <em class="jxr_comment">// Use the model as a key to get serial from IOKit</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>                     <strong class="jxr_keyword">if</strong> (!<span class="jxr_string">"Disk Image"</span>.equals(model)) {
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>                         CFStringRef modelNameRef = CFStringRef.createCFString(model);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>                         CFMutableDictionaryRef propertyDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(),
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>                                 <strong class="jxr_keyword">new</strong> CFIndex(0), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>                         propertyDict.setValue(cfKeyMap.get(CFKey.MODEL), modelNameRef);
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>                         CFMutableDictionaryRef matchingDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(),
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>                                 <strong class="jxr_keyword">new</strong> CFIndex(0), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                         matchingDict.setValue(cfKeyMap.get(CFKey.IO_PROPERTY_MATCH), propertyDict);
-<a class="jxr_linenumber" name="L382" href="#L382">382</a> 
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>                         <em class="jxr_comment">// search for all IOservices that match the model</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>                         IOIterator serviceIterator = IOKitUtil.getMatchingServices(matchingDict);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>                         <em class="jxr_comment">// getMatchingServices releases matchingDict</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>                         modelNameRef.release();
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>                         propertyDict.release();
-<a class="jxr_linenumber" name="L388" href="#L388">388</a> 
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>                         <strong class="jxr_keyword">if</strong> (serviceIterator != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>                             IORegistryEntry sdService = serviceIterator.next();
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>                             <strong class="jxr_keyword">while</strong> (sdService != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>                                 <em class="jxr_comment">// look up the serial number</em>
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>                                 serial = sdService.getStringProperty(<span class="jxr_string">"Serial Number"</span>);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>                                 sdService.release();
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>                                 <strong class="jxr_keyword">if</strong> (serial != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>                                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>                                 }
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>                                 <em class="jxr_comment">// iterate</em>
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>                                 sdService.release();
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>                                 sdService = serviceIterator.next();
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>                             }
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>                             serviceIterator.release();
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>                         }
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>                         <strong class="jxr_keyword">if</strong> (serial == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>                             serial = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>                         }
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>                     }
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>                 }
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>                 disk.release();
-<a class="jxr_linenumber" name="L410" href="#L410">410</a> 
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>                 <em class="jxr_comment">// If empty, ignore</em>
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>                 <strong class="jxr_keyword">if</strong> (size &lt;= 0) {
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>                     <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>                 }
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>                 <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> diskStore = <strong class="jxr_keyword">new</strong> <a name="MacHWDiskStore" href="../../../../oshi/hardware/platform/mac/MacHWDiskStore.html#MacHWDiskStore">MacHWDiskStore</a>(bsdName, model.trim(), serial.trim(), size, session,
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>                         mountPointMap, logicalVolumeMap, cfKeyMap);
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>                 diskList.add(diskStore);
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>             }
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         }
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <em class="jxr_comment">// Close DA session</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         session.release();
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         <strong class="jxr_keyword">for</strong> (CFTypeRef value : cfKeyMap.values()) {
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>             value.release();
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         }
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(diskList);
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>     }
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     * Temporarily cache pointers to keys. The values from this map must be released</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">     * after use.}</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a> <em class="jxr_javadoccomment">     * @return A map of keys in the {@link CFKey} enum to corresponding</em>
-<a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">     *         {@link CFStringRef}.</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;CFKey, CFStringRef&gt; mapCFKeys() {
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         Map&lt;CFKey, CFStringRef&gt; keyMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(CFKey.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <strong class="jxr_keyword">for</strong> (CFKey cfKey : CFKey.values()) {
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>             keyMap.put(cfKey, CFStringRef.createCFString(cfKey.getKey()));
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         }
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>         <strong class="jxr_keyword">return</strong> keyMap;
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     }
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> 
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_comment">     * Strings to convert to CFStringRef for pointer lookups</em>
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>     <strong class="jxr_keyword">private</strong> enum CFKey {
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         IO_PROPERTY_MATCH(<span class="jxr_string">"IOPropertyMatch"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         STATISTICS(<span class="jxr_string">"Statistics"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         READ_OPS(<span class="jxr_string">"Operations (Read)"</span>), READ_BYTES(<span class="jxr_string">"Bytes (Read)"</span>), READ_TIME(<span class="jxr_string">"Total Time (Read)"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         WRITE_OPS(<span class="jxr_string">"Operations (Write)"</span>), WRITE_BYTES(<span class="jxr_string">"Bytes (Write)"</span>), WRITE_TIME(<span class="jxr_string">"Total Time (Write)"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a> 
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>         BSD_UNIT(<span class="jxr_string">"BSD Unit"</span>), LEAF(<span class="jxr_string">"Leaf"</span>), WHOLE(<span class="jxr_string">"Whole"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> 
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         DA_MEDIA_NAME(<span class="jxr_string">"DAMediaName"</span>), DA_VOLUME_NAME(<span class="jxr_string">"DAVolumeName"</span>), DA_MEDIA_SIZE(<span class="jxr_string">"DAMediaSize"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         DA_DEVICE_MODEL(<span class="jxr_string">"DADeviceModel"</span>), MODEL(<span class="jxr_string">"Model"</span>);
-<a class="jxr_linenumber" name="L457" href="#L457">457</a> 
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String key;
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>         CFKey(String key) {
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>             <strong class="jxr_keyword">this</strong>.key = key;
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         }
-<a class="jxr_linenumber" name="L463" href="#L463">463</a> 
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         <strong class="jxr_keyword">public</strong> String getKey() {
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.key;
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         }
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
-<a class="jxr_linenumber" name="L468" href="#L468">468</a> }
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">     * @return a list of {@link HWDiskStore} objects representing the disks</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks() {
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         Map&lt;String, String&gt; mountPointMap = Fsstat.queryPartitionToMountMap();
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         Map&lt;String, String&gt; logicalVolumeMap = Diskutil.queryLogicalVolumeMap();
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         Map&lt;CFKey, CFStringRef&gt; cfKeyMap = mapCFKeys();
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> 
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         List&lt;HWDiskStore&gt; diskList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <em class="jxr_comment">// Open a DiskArbitration session</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">if</strong> (session == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>             LOG.error(<span class="jxr_string">"Unable to open session to DiskArbitration framework."</span>);
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>             <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         }
+<a class="jxr_linenumber" name="L326" href="#L326">326</a> 
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// Get IOMedia objects representing whole drives</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         List&lt;String&gt; bsdNames = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         IOIterator iter = IOKitUtil.getMatchingServices(<span class="jxr_string">"IOMedia"</span>);
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             IORegistryEntry media = iter.next();
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>             <strong class="jxr_keyword">while</strong> (media != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 Boolean whole = media.getBooleanProperty(<span class="jxr_string">"Whole"</span>);
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 <strong class="jxr_keyword">if</strong> (whole != <strong class="jxr_keyword">null</strong> &amp;&amp; whole) {
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                     DADiskRef disk = DA.DADiskCreateFromIOMedia(CF.CFAllocatorGetDefault(), session, media);
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                     bsdNames.add(DA.DADiskGetBSDName(disk));
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                     disk.release();
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                 }
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 media.release();
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                 media = iter.next();
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>             }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>             iter.release();
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         }
+<a class="jxr_linenumber" name="L344" href="#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <em class="jxr_comment">// Now iterate the bsdNames</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">for</strong> (String bsdName : bsdNames) {
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>             String model = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>             String serial = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>             <strong class="jxr_keyword">long</strong> size = 0L;
+<a class="jxr_linenumber" name="L350" href="#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             <em class="jxr_comment">// Get a reference to the disk - only matching /dev/disk*</em>
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             String path = <span class="jxr_string">"/dev/"</span> + bsdName;
+<a class="jxr_linenumber" name="L353" href="#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>             <em class="jxr_comment">// Get the DiskArbitration dictionary for this disk, which has model</em>
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>             <em class="jxr_comment">// and size (capacity)</em>
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>             DADiskRef disk = DA.DADiskCreateFromBSDName(CF.CFAllocatorGetDefault(), session, path);
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>             <strong class="jxr_keyword">if</strong> (disk != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                 CFDictionaryRef diskInfo = DA.DADiskCopyDescription(disk);
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                 <strong class="jxr_keyword">if</strong> (diskInfo != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                     <em class="jxr_comment">// Parse out model and size from their respective keys</em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                     Pointer result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>                     CFStringRef modelPtr = <strong class="jxr_keyword">new</strong> CFStringRef(result);
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>                     model = modelPtr.stringValue();
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                     <strong class="jxr_keyword">if</strong> (model == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>                         model = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                     }
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>                     result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>                     CFNumberRef sizePtr = <strong class="jxr_keyword">new</strong> CFNumberRef(result);
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     size = sizePtr.longValue();
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>                     diskInfo.release();
+<a class="jxr_linenumber" name="L371" href="#L371">371</a> 
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                     <em class="jxr_comment">// Use the model as a key to get serial from IOKit</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>                     <strong class="jxr_keyword">if</strong> (!<span class="jxr_string">"Disk Image"</span>.equals(model)) {
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                         CFStringRef modelNameRef = CFStringRef.createCFString(model);
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                         CFMutableDictionaryRef propertyDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(),
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                                 <strong class="jxr_keyword">new</strong> CFIndex(0), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>                         propertyDict.setValue(cfKeyMap.get(CFKey.MODEL), modelNameRef);
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>                         CFMutableDictionaryRef matchingDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(),
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>                                 <strong class="jxr_keyword">new</strong> CFIndex(0), <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>                         matchingDict.setValue(cfKeyMap.get(CFKey.IO_PROPERTY_MATCH), propertyDict);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>                         <em class="jxr_comment">// search for all IOservices that match the model</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>                         IOIterator serviceIterator = IOKitUtil.getMatchingServices(matchingDict);
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                         <em class="jxr_comment">// getMatchingServices releases matchingDict</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                         modelNameRef.release();
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>                         propertyDict.release();
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> 
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>                         <strong class="jxr_keyword">if</strong> (serviceIterator != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>                             IORegistryEntry sdService = serviceIterator.next();
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>                             <strong class="jxr_keyword">while</strong> (sdService != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                                 <em class="jxr_comment">// look up the serial number</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>                                 serial = sdService.getStringProperty(<span class="jxr_string">"Serial Number"</span>);
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                                 sdService.release();
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>                                 <strong class="jxr_keyword">if</strong> (serial != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>                                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>                                 }
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>                                 <em class="jxr_comment">// iterate</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>                                 sdService.release();
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                                 sdService = serviceIterator.next();
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                             }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>                             serviceIterator.release();
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                         }
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                         <strong class="jxr_keyword">if</strong> (serial == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>                             serial = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                         }
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                     }
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                 }
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                 disk.release();
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>                 <em class="jxr_comment">// If empty, ignore</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>                 <strong class="jxr_keyword">if</strong> (size &lt;= 0) {
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>                     <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>                 }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>                 <a name="HWDiskStore" href="../../../../oshi/hardware/HWDiskStore.html#HWDiskStore">HWDiskStore</a> diskStore = <strong class="jxr_keyword">new</strong> <a name="MacHWDiskStore" href="../../../../oshi/hardware/platform/mac/MacHWDiskStore.html#MacHWDiskStore">MacHWDiskStore</a>(bsdName, model.trim(), serial.trim(), size, session,
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>                         mountPointMap, logicalVolumeMap, cfKeyMap);
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>                 diskList.add(diskStore);
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>             }
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         }
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         <em class="jxr_comment">// Close DA session</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         session.release();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <strong class="jxr_keyword">for</strong> (CFTypeRef value : cfKeyMap.values()) {
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>             value.release();
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         }
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <strong class="jxr_keyword">return</strong> diskList;
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     }
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * Temporarily cache pointers to keys. The values from this map must be released</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     * after use.}</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">     * @return A map of keys in the {@link CFKey} enum to corresponding</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a> <em class="jxr_javadoccomment">     *         {@link CFStringRef}.</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;CFKey, CFStringRef&gt; mapCFKeys() {
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         Map&lt;CFKey, CFStringRef&gt; keyMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(CFKey.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <strong class="jxr_keyword">for</strong> (CFKey cfKey : CFKey.values()) {
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             keyMap.put(cfKey, CFStringRef.createCFString(cfKey.getKey()));
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">return</strong> keyMap;
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>     }
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> 
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>     <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_comment">     * Strings to convert to CFStringRef for pointer lookups</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <strong class="jxr_keyword">private</strong> enum CFKey {
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         IO_PROPERTY_MATCH(<span class="jxr_string">"IOPropertyMatch"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> 
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         STATISTICS(<span class="jxr_string">"Statistics"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         READ_OPS(<span class="jxr_string">"Operations (Read)"</span>), READ_BYTES(<span class="jxr_string">"Bytes (Read)"</span>), READ_TIME(<span class="jxr_string">"Total Time (Read)"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         WRITE_OPS(<span class="jxr_string">"Operations (Write)"</span>), WRITE_BYTES(<span class="jxr_string">"Bytes (Write)"</span>), WRITE_TIME(<span class="jxr_string">"Total Time (Write)"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         BSD_UNIT(<span class="jxr_string">"BSD Unit"</span>), LEAF(<span class="jxr_string">"Leaf"</span>), WHOLE(<span class="jxr_string">"Whole"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> 
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         DA_MEDIA_NAME(<span class="jxr_string">"DAMediaName"</span>), DA_VOLUME_NAME(<span class="jxr_string">"DAVolumeName"</span>), DA_MEDIA_SIZE(<span class="jxr_string">"DAMediaSize"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         DA_DEVICE_MODEL(<span class="jxr_string">"DADeviceModel"</span>), MODEL(<span class="jxr_string">"Model"</span>);
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> 
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String key;
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> 
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         CFKey(String key) {
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>             <strong class="jxr_keyword">this</strong>.key = key;
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         }
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">public</strong> String getKey() {
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.key;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     }
+<a class="jxr_linenumber" name="L467" href="#L467">467</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
