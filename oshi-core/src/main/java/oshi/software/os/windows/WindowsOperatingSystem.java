@@ -29,7 +29,6 @@ import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,6 +63,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.EnumWindows;
@@ -78,6 +78,7 @@ import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
+import oshi.jna.platform.windows.WinNT.TOKEN_ELEVATION;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -104,6 +105,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final String WIN_VERSION_PROPERTIES = "oshi.windows.versions.properties";
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+
+    private static final int TOKENELEVATION = 0x14;
 
     /**
      * Windows event log name
@@ -239,13 +242,24 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public boolean queryElevated() {
-        try {
-            File dir = new File(System.getenv("windir") + "\\system32\\config\\systemprofile");
-            return dir.isDirectory();
-        } catch (SecurityException e) {
+    public boolean isElevated() {
+        HANDLEByReference hToken = new HANDLEByReference();
+        boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(), WinNT.TOKEN_QUERY,
+                hToken);
+        if (!success) {
+            LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
             return false;
         }
+        try {
+            TOKEN_ELEVATION elevation = new TOKEN_ELEVATION();
+            if (Advapi32.INSTANCE.GetTokenInformation(hToken.getValue(), TOKENELEVATION, elevation, elevation.size(),
+                    new IntByReference())) {
+                return elevation.TokenIsElevated > 0;
+            }
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+        }
+        return false;
     }
 
     @Override
