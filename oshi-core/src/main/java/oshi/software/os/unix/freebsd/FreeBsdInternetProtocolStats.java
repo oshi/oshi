@@ -59,11 +59,6 @@ public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats 
     }
 
     @Override
-    public TcpStats getTCPv6Stats() {
-        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
-    }
-
-    @Override
     public UdpStats getUDPv4Stats() {
         BsdUdpstat stat = udpstat.get();
         return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
