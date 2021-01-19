@@ -1,7 +1,7 @@
 # 5.4.1 (in progress)
 
 ##### Bug fixes / Improvements
-* [#1497](https://github.com/oshi/oshi/pull/1497): Identify Rosetta as virtual architecture - [@dbwiddis](https://github.com/dbwiddis).
+* [#1498](https://github.com/oshi/oshi/pull/1498): Identify Rosetta as virtual architecture - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.4.0 (2021-01-18)
 

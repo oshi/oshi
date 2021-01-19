@@ -99,7 +99,7 @@ jobs:
           source .bashrc
           cd ~/git/oshi
           git checkout master
-          git reset --hard HEAD~5
+          git reset --hard HEAD~2
           git pull
           mvn clean test -B -Djacoco.skip=true
           
