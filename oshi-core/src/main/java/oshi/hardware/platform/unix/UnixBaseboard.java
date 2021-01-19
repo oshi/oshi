@@ -21,22 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.freebsd;
+package oshi.hardware.platform.unix;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 
 /**
- * Baseboard data obtained by dmidecode
+ * Baseboard data obtained by a calling class
  */
 @Immutable
-final class FreeBsdBaseboard extends AbstractBaseboard {
+public final class UnixBaseboard extends AbstractBaseboard {
+
     private final String manufacturer;
     private final String model;
     private final String serialNumber;
     private final String version;
 
-    FreeBsdBaseboard(String manufacturer, String model, String serialNumber, String version) {
+    public UnixBaseboard(String manufacturer, String model, String serialNumber, String version) {
         this.manufacturer = manufacturer;
         this.model = model;
         this.serialNumber = serialNumber;

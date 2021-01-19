@@ -89,11 +89,6 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected boolean queryElevated() {
-        return System.getenv("SUDO_COMMAND") != null;
-    }
-
-    @Override
     public FileSystem getFileSystem() {
         return new FreeBsdFileSystem();
     }

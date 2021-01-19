@@ -42,7 +42,9 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
+import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
+import oshi.util.ParseUtil;
 
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
@@ -52,8 +54,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
     private final Supplier<FamilyVersionInfo> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
     private final Supplier<Integer> bitness = memoize(this::queryPlatformBitness);
-    // Test if sudo or admin privileges: 1 = unknown, 0 = no, 1 = yes
-    private final Supplier<Boolean> elevated = memoize(this::queryElevated);
 
     /*
      * Comparators for use in processSort().
@@ -121,15 +121,13 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     @Override
     public boolean isElevated() {
-        return elevated.get();
+        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"), -1);
     }
 
     @Override
     public OSService[] getServices() {
         return new OSService[0];
     }
-
-    protected abstract boolean queryElevated();
 
     /**
      * Sorts an array of processes using the specified sorting, returning an array

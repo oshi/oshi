@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.openbsd;
+package oshi.hardware.platform.unix;
 
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -37,12 +37,12 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * OpenBsdNetworks class.
+ * BsdNetworkIF applicable to FreeBSD and OpenBSD.
  */
 @ThreadSafe
-public final class OpenBsdNetworkIF extends AbstractNetworkIF {
+public final class BsdNetworkIF extends AbstractNetworkIF {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdNetworkIF.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BsdNetworkIF.class);
 
     private long bytesRecv;
     private long bytesSent;
@@ -54,7 +54,7 @@ public final class OpenBsdNetworkIF extends AbstractNetworkIF {
     private long collisions;
     private long timeStamp;
 
-    public OpenBsdNetworkIF(NetworkInterface netint) throws InstantiationException {
+    public BsdNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
     }
@@ -70,7 +70,7 @@ public final class OpenBsdNetworkIF extends AbstractNetworkIF {
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
             try {
-                ifList.add(new OpenBsdNetworkIF(ni));
+                ifList.add(new BsdNetworkIF(ni));
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }

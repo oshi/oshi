@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.hardware.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
@@ -70,7 +71,7 @@ public class OpenBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     protected Baseboard createBaseboard() {
-        return new OpenBsdBaseboard(manufacturer.get(), model.get(), serialNumber.get(),
+        return new UnixBaseboard(manufacturer.get(), model.get(), serialNumber.get(),
                 OpenBsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
     }
 

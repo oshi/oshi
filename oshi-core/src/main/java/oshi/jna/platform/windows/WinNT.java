@@ -21,46 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.jna.platform.windows;
 
-import oshi.annotation.concurrent.Immutable;
-import oshi.hardware.common.AbstractBaseboard;
+import com.sun.jna.Structure; // NOSONAR squid:S1191
+import com.sun.jna.Structure.FieldOrder;
 
-/**
- * Baseboard data obtained by smbios
- */
-@Immutable
-final class SolarisBaseboard extends AbstractBaseboard {
+public interface WinNT extends com.sun.jna.platform.win32.WinNT {
 
-    private final String manufacturer;
-    private final String model;
-    private final String serialNumber;
-    private final String version;
-
-    SolarisBaseboard(String manufacturer, String model, String serialNumber, String version) {
-        this.manufacturer = manufacturer;
-        this.model = model;
-        this.serialNumber = serialNumber;
-        this.version = version;
-    }
-
-    @Override
-    public String getManufacturer() {
-        return this.manufacturer;
-    }
-
-    @Override
-    public String getModel() {
-        return this.model;
-    }
-
-    @Override
-    public String getSerialNumber() {
-        return this.serialNumber;
-    }
-
-    @Override
-    public String getVersion() {
-        return this.version;
+    @FieldOrder({ "TokenIsElevated" })
+    class TOKEN_ELEVATION extends Structure {
+        public int TokenIsElevated;
     }
 }

@@ -140,11 +140,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    protected boolean queryElevated() {
-        return System.getenv("SUDO_COMMAND") != null;
-    }
-
-    @Override
     public FileSystem getFileSystem() {
         return new LinuxFileSystem();
     }
