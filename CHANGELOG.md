@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#1498](https://github.com/oshi/oshi/pull/1498): Identify Rosetta as virtual architecture - [@dbwiddis](https://github.com/dbwiddis).
+* [#1501](https://github.com/oshi/oshi/pull/1501): Get bare metal Apple M1 CPU info from IODeviceTree - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.4.0 (2021-01-18)
 
