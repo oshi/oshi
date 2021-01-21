@@ -49,10 +49,13 @@ import java.util.regex.Pattern;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime2;
+import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime2New;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTimeNew;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -192,15 +195,15 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[0] = CTL_KERN;
         mib[1] = KERN_CPTIME;
         Memory m = OpenBsdSysctlUtil.sysctl(mib);
-        // array of 5 or 6 longs
-        long[] cpuTicks = cpTimeToTicks(m);
+        // array of 5 or 6 native longs
+        NativeLong[] cpuTicks = cpTimeToTicks(m);
         if (cpuTicks.length >= 5) {
-            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
-            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER].longValue();
+            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE].longValue();
+            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS].longValue();
             int offset = cpuTicks.length > 5 ? 1 : 0;
-            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
-            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset].longValue();
+            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset].longValue();
         }
         return ticks;
     }
@@ -220,7 +223,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             mib[2] = cpu;
             Memory m = OpenBsdSysctlUtil.sysctl(mib);
             // array of 5 or 6 longs
-            long[] cpuTicks = cpTimeToTicks(m);
+            long[] cpuTicks = cpTime2ToTicks(m);
             if (cpuTicks.length >= 5) {
                 ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
                 ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
@@ -241,12 +244,31 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      *            A buffer containing a long array
      * @return The long array
      */
-    private static long[] cpTimeToTicks(Memory m) {
+    private static NativeLong[] cpTimeToTicks(Memory m) {
         if (m != null) {
             if (m.size() == 5 * Native.LONG_SIZE) {
                 return new CpTime(m).cpu_ticks;
             } else if (m.size() == 6 * Native.LONG_SIZE) {
                 return new CpTimeNew(m).cpu_ticks;
+            }
+        }
+        return new NativeLong[0];
+    }
+
+    /**
+     * Parse memory buffer returned from sysctl kern.cptime2 to array of 5 or 6
+     * longs depending on version
+     *
+     * @param m
+     *            A buffer containing a long array
+     * @return The long array
+     */
+    private static long[] cpTime2ToTicks(Memory m) {
+        if (m != null) {
+            if (m.size() == 5 * 8) {
+                return new CpTime2(m).cpu_ticks;
+            } else if (m.size() == 6 * 8) {
+                return new CpTime2New(m).cpu_ticks;
             }
         }
         return new long[0];
