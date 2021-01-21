@@ -79,14 +79,17 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             cpuVendor = vendor.get();
             cpuStepping = "0"; // No correlation yet
             cpuModel = "0"; // No correlation yet
+            int type = SysctlUtil.sysctl("hw.cputype", 0);
+            int family = SysctlUtil.sysctl("hw.cpufamily", 0);
             // M1 should have hw.cputype 0x0100000C (ARM64) and hw.cpufamily 0x1b588bb3 for
             // an ARM SoC. However, under Rosetta 2, low level cpuid calls in the translated
             // environment report hw.cputype for x86 (0x00000007) and hw.cpufamily for an
             // Intel Westmere chip (0x573b5eec), family 6, model 44, stepping 0.
             // Test if under Rosetta and generate correct chip
-            boolean rosetta = SysctlUtil.sysctl("sysctl.proc_translated", 0) > 0;
-            int type = rosetta ? typeFamilyFreq.get().getA() : SysctlUtil.sysctl("hw.cputype", 0);
-            int family = rosetta ? typeFamilyFreq.get().getB() : SysctlUtil.sysctl("hw.cpufamily", 0);
+            if (family == 0x573b5eec) {
+                type = typeFamilyFreq.get().getA();
+                family = typeFamilyFreq.get().getB();
+            }
             cpuFreq = typeFamilyFreq.get().getC();
             // Translate to output
             cpuFamily = String.format("0x%08x", family);
@@ -150,13 +153,13 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         long[] freq = new long[1];
-        freq[0] = SysctlUtil.sysctl("hw.cpufrequency", -1L);
+        freq[0] = SysctlUtil.sysctl("hw.cpufrequency", getProcessorIdentifier().getVendorFreq());
         return freq;
     }
 
     @Override
     public long queryMaxFreq() {
-        return SysctlUtil.sysctl("hw.cpufrequency_max", -1L);
+        return SysctlUtil.sysctl("hw.cpufrequency_max", getProcessorIdentifier().getVendorFreq());
     }
 
     @Override
