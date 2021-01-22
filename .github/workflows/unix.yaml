@@ -83,15 +83,13 @@ jobs:
     - name: Test in OpenBSD
       uses: appleboy/ssh-action@master    
       with:
-        host: oshi.nsdyn.com
+        host: ${{ secrets.OPENBSD_OSHI_DOMAIN }}
         username: oshi
         password: ${{ secrets.OPENBSD_OSHI_PW }}
         port: 22
         script_stop: true
         command_timeout: 45m
         script: |
-          source .profile
-          source .bashrc
           cd ~/git/oshi
           git checkout master
           git reset --hard HEAD~2
