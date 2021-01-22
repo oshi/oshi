@@ -247,9 +247,9 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
      * @return The array
      */
     private static long[] cpTimeToTicks(Memory m, boolean force64bit) {
-        int longBytes = force64bit ? 8 : Native.LONG_SIZE;
+        long longBytes = force64bit ? 8L : Native.LONG_SIZE;
         int arraySize = m == null ? 0 : (int) (m.size() / longBytes);
-        if (force64bit) {
+        if (force64bit && m != null) {
             return m.getLongArray(0, arraySize);
         }
         long[] ticks = new long[arraySize];
