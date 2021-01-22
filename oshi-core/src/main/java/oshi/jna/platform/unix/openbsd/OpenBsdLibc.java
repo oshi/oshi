@@ -118,26 +118,5 @@ public interface OpenBsdLibc extends CLibrary {
         public long tv_usec; // microseconds
     }
 
-    @FieldOrder({ "cpu_ticks" })
-    class CpTime extends Structure {
-        public long[] cpu_ticks = new long[CPUSTATES];
-
-        public CpTime(Pointer p) {
-            super(p);
-            read();
-        }
-    }
-
-    @FieldOrder({ "cpu_ticks" })
-    class CpTimeNew extends Structure {
-        public long[] cpu_ticks = new long[CPUSTATES + 1];
-
-        public CpTimeNew(Pointer p) {
-            super(p);
-            read();
-        }
-
-    }
-
     int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
 }
