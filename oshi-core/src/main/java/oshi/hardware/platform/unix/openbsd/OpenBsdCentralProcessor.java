@@ -49,14 +49,9 @@ import java.util.regex.Pattern;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
 
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime2;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTime2New;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc.CpTimeNew;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
@@ -196,14 +191,14 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[1] = KERN_CPTIME;
         Memory m = OpenBsdSysctlUtil.sysctl(mib);
         // array of 5 or 6 native longs
-        NativeLong[] cpuTicks = cpTimeToTicks(m);
+        long[] cpuTicks = cpTimeToTicks(m, false);
         if (cpuTicks.length >= 5) {
-            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER].longValue();
-            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE].longValue();
-            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS].longValue();
+            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
+            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
             int offset = cpuTicks.length > 5 ? 1 : 0;
-            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset].longValue();
-            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset].longValue();
+            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
+            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
         }
         return ticks;
     }
@@ -223,7 +218,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             mib[2] = cpu;
             Memory m = OpenBsdSysctlUtil.sysctl(mib);
             // array of 5 or 6 longs
-            long[] cpuTicks = cpTime2ToTicks(m);
+            long[] cpuTicks = cpTimeToTicks(m, true);
             if (cpuTicks.length >= 5) {
                 ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
                 ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
@@ -237,41 +232,31 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Parse memory buffer returned from sysctl kern.cptime to array of 5 or 6 longs
-     * depending on version
+     * Parse memory buffer returned from sysctl kern.cptime or kern.cptime2 to an
+     * array of 5 or 6 longs depending on version.
+     * <p>
+     * Versions 6.4 and later have a 6-element array while earlier versions have
+     * only 5 elements. Additionally kern.cptime uses a native-sized long (32- or
+     * 64-bit) value while kern.cptime2 is always a 64-bit value.
      *
      * @param m
-     *            A buffer containing a long array
-     * @return The long array
+     *            A buffer containing the array.
+     * @param force64bit
+     *            True if the buffer is filled with 64-bit longs, false if native
+     *            long sized values
+     * @return The array
      */
-    private static NativeLong[] cpTimeToTicks(Memory m) {
-        if (m != null) {
-            if (m.size() == 5 * Native.LONG_SIZE) {
-                return new CpTime(m).cpu_ticks;
-            } else if (m.size() == 6 * Native.LONG_SIZE) {
-                return new CpTimeNew(m).cpu_ticks;
-            }
+    private static long[] cpTimeToTicks(Memory m, boolean force64bit) {
+        int longBytes = force64bit ? 8 : Native.LONG_SIZE;
+        int arraySize = m == null ? 0 : (int) (m.size() / longBytes);
+        if (force64bit) {
+            return m.getLongArray(0, arraySize);
         }
-        return new NativeLong[0];
-    }
-
-    /**
-     * Parse memory buffer returned from sysctl kern.cptime2 to array of 5 or 6
-     * longs depending on version
-     *
-     * @param m
-     *            A buffer containing a long array
-     * @return The long array
-     */
-    private static long[] cpTime2ToTicks(Memory m) {
-        if (m != null) {
-            if (m.size() == 5 * 8) {
-                return new CpTime2(m).cpu_ticks;
-            } else if (m.size() == 6 * 8) {
-                return new CpTime2New(m).cpu_ticks;
-            }
+        long[] ticks = new long[arraySize];
+        for (int i = 0; i < arraySize; i++) {
+            ticks[i] = m.getNativeLong(i * longBytes).longValue();
         }
-        return new long[0];
+        return ticks;
     }
 
     /**

@@ -24,7 +24,6 @@
 package oshi.jna.platform.unix.openbsd;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -117,48 +116,6 @@ public interface OpenBsdLibc extends CLibrary {
     class Timeval extends Structure {
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
-    }
-
-    // Sysctl kern.cptime uses native long size
-    @FieldOrder({ "cpu_ticks" })
-    class CpTime extends Structure {
-        public NativeLong[] cpu_ticks = new NativeLong[CPUSTATES];
-
-        public CpTime(Pointer p) {
-            super(p);
-            read();
-        }
-    }
-
-    @FieldOrder({ "cpu_ticks" })
-    class CpTimeNew extends Structure {
-        public NativeLong[] cpu_ticks = new NativeLong[CPUSTATES + 1];
-
-        public CpTimeNew(Pointer p) {
-            super(p);
-            read();
-        }
-    }
-
-    // Sysctl kern.cptime2 uses 64-bit size
-    @FieldOrder({ "cpu_ticks" })
-    class CpTime2 extends Structure {
-        public long[] cpu_ticks = new long[CPUSTATES];
-
-        public CpTime2(Pointer p) {
-            super(p);
-            read();
-        }
-    }
-
-    @FieldOrder({ "cpu_ticks" })
-    class CpTime2New extends Structure {
-        public long[] cpu_ticks = new long[CPUSTATES + 1];
-
-        public CpTime2New(Pointer p) {
-            super(p);
-            read();
-        }
     }
 
     int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
