@@ -151,7 +151,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             this.writes = stats.writeMap.getOrDefault(index, 0L);
             this.writeBytes = stats.writeByteMap.getOrDefault(index, 0L);
             this.currentQueueLength = stats.queueLengthMap.getOrDefault(index, 0L);
-            this.transferTime = stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp);
+            this.transferTime = stats.diskTimeMap.getOrDefault(index, 0L);
             this.timeStamp = stats.timeStamp;
             return true;
         } else {
@@ -185,7 +185,13 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             ds.writes = stats.writeMap.getOrDefault(index, 0L);
             ds.writeBytes = stats.writeByteMap.getOrDefault(index, 0L);
             ds.currentQueueLength = stats.queueLengthMap.getOrDefault(index, 0L);
-            ds.transferTime = stats.timeStamp - stats.idleTimeMap.getOrDefault(index, stats.timeStamp);
+            // DiskTime (sum of readTime+writeTime) slightly overestimates actual transfer
+            // time because it includes waiting time in the queue and can exceed 100%.
+            // However, alternative calculations require use of a timestamp with 1/64-second
+            // resolution producing unacceptable variation in what should be a monotonically
+            // increasing counter. See extended discussion and experiments here:
+            // https://github.com/oshi/oshi/issues/1504
+            ds.transferTime = stats.diskTimeMap.getOrDefault(index, 0L);
             ds.timeStamp = stats.timeStamp;
             // Get partitions
             List<HWPartition> partitions = new ArrayList<>();
@@ -225,10 +231,10 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
         List<Long> writeList = valueMap.get(PhysicalDiskProperty.DISKWRITESPERSEC);
         List<Long> writeByteList = valueMap.get(PhysicalDiskProperty.DISKWRITEBYTESPERSEC);
         List<Long> queueLengthList = valueMap.get(PhysicalDiskProperty.CURRENTDISKQUEUELENGTH);
-        List<Long> idleTimeList = valueMap.get(PhysicalDiskProperty.PERCENTIDLETIME);
+        List<Long> diskTimeList = valueMap.get(PhysicalDiskProperty.PERCENTDISKTIME);
 
         if (instances.isEmpty() || readList == null || readByteList == null || writeList == null
-                || writeByteList == null || queueLengthList == null || idleTimeList == null) {
+                || writeByteList == null || queueLengthList == null || diskTimeList == null) {
             return stats;
         }
         for (int i = 0; i < instances.size(); i++) {
@@ -242,7 +248,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             stats.writeMap.put(name, writeList.get(i));
             stats.writeByteMap.put(name, writeByteList.get(i));
             stats.queueLengthMap.put(name, queueLengthList.get(i));
-            stats.idleTimeMap.put(name, idleTimeList.get(i) / 10_000L);
+            stats.diskTimeMap.put(name, diskTimeList.get(i) / 10_000L);
         }
         return stats;
     }
@@ -339,7 +345,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
         private final Map<String, Long> writeMap = new HashMap<>();
         private final Map<String, Long> writeByteMap = new HashMap<>();
         private final Map<String, Long> queueLengthMap = new HashMap<>();
-        private final Map<String, Long> idleTimeMap = new HashMap<>();
+        private final Map<String, Long> diskTimeMap = new HashMap<>();
         private long timeStamp;
     }
 
