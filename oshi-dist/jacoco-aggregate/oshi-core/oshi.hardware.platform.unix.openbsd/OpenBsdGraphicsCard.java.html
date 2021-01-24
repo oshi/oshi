@@ -89,51 +89,49 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
                 // Identifies start of a new device. Save previous if it's a graphics card
 <span class="nc bnc" id="L90" title="All 2 branches missed.">                if (classCodeFound) {</span>
 <span class="nc bnc" id="L91" title="All 2 branches missed.">                    cardList.add(new OpenBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">                            productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">                            vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+<span class="nc bnc" id="L92" title="All 4 branches missed.">                            productId.isEmpty() ? &quot;0x0000&quot; : productId, vendorId.isEmpty() ? &quot;0x0000&quot; : vendorId,</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
                 }
                 // Device name is the captured pattern
-<span class="nc" id="L97">                name = m.group(1);</span>
+<span class="nc" id="L96">                name = m.group(1);</span>
                 // Reset values
-<span class="nc" id="L99">                vendorId = &quot;&quot;;</span>
-<span class="nc" id="L100">                productId = &quot;&quot;;</span>
-<span class="nc" id="L101">                classCodeFound = false;</span>
-<span class="nc" id="L102">                versionInfo = &quot;&quot;;</span>
+<span class="nc" id="L98">                vendorId = &quot;&quot;;</span>
+<span class="nc" id="L99">                productId = &quot;&quot;;</span>
+<span class="nc" id="L100">                classCodeFound = false;</span>
+<span class="nc" id="L101">                versionInfo = &quot;&quot;;</span>
             } else {
                 int idx;
                 // Look for:
                 // 0x0000: Vendor ID: 1ab8, Product ID: 4005
                 // 0x0008: Class: 03 Display, Subclass: 00 VGA
                 // ....... Interface: 00, Revision: 00
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (!classCodeFound) {</span>
-<span class="nc" id="L110">                    idx = line.indexOf(&quot;Vendor ID: &quot;);</span>
-<span class="nc bnc" id="L111" title="All 4 branches missed.">                    if (idx &gt;= 0 &amp;&amp; line.length() &gt;= idx + 15) {</span>
-<span class="nc" id="L112">                        vendorId = line.substring(idx + 11, idx + 15);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (!classCodeFound) {</span>
+<span class="nc" id="L109">                    idx = line.indexOf(&quot;Vendor ID: &quot;);</span>
+<span class="nc bnc" id="L110" title="All 4 branches missed.">                    if (idx &gt;= 0 &amp;&amp; line.length() &gt;= idx + 15) {</span>
+<span class="nc" id="L111">                        vendorId = &quot;0x&quot; + line.substring(idx + 11, idx + 15);</span>
                     }
-<span class="nc" id="L114">                    idx = line.indexOf(&quot;Product ID: &quot;);</span>
-<span class="nc bnc" id="L115" title="All 4 branches missed.">                    if (idx &gt;= 0 &amp;&amp; line.length() &gt;= idx + 16) {</span>
-<span class="nc" id="L116">                        productId = line.substring(idx + 12, idx + 16);</span>
+<span class="nc" id="L113">                    idx = line.indexOf(&quot;Product ID: &quot;);</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">                    if (idx &gt;= 0 &amp;&amp; line.length() &gt;= idx + 16) {</span>
+<span class="nc" id="L115">                        productId = &quot;0x&quot; + line.substring(idx + 12, idx + 16);</span>
                     }
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                    if (line.contains(PCI_CLASS_DISPLAY)) {</span>
-<span class="nc" id="L119">                        classCodeFound = true;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                    if (line.contains(PCI_CLASS_DISPLAY)) {</span>
+<span class="nc" id="L118">                        classCodeFound = true;</span>
                     }
-<span class="nc bnc" id="L121" title="All 2 branches missed.">                } else if (versionInfo.isEmpty()) {</span>
-<span class="nc" id="L122">                    idx = line.indexOf(&quot;Revision: &quot;);</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">                    if (idx &gt;= 0) {</span>
-<span class="nc" id="L124">                        versionInfo = line.substring(idx);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                } else if (versionInfo.isEmpty()) {</span>
+<span class="nc" id="L121">                    idx = line.indexOf(&quot;Revision: &quot;);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                    if (idx &gt;= 0) {</span>
+<span class="nc" id="L123">                        versionInfo = line.substring(idx);</span>
                     }
                 }
             }
-<span class="nc" id="L128">        }</span>
+<span class="nc" id="L127">        }</span>
         // In case we reached end before saving
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (classCodeFound) {</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">            cardList.add(new OpenBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">                    productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">                    versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (classCodeFound) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            cardList.add(new OpenBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">                    productId.isEmpty() ? &quot;0x0000&quot; : productId, vendorId.isEmpty() ? &quot;0x0000&quot; : vendorId,</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                    versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
         }
-<span class="nc" id="L136">        return cardList;</span>
+<span class="nc" id="L134">        return cardList;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

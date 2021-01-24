@@ -27,6 +27,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.util.FormatUtil;
 
+/**
+ * Common methods for platform HWDiskStore classes
+ */
 @ThreadSafe
 public abstract class AbstractHWDiskStore implements HWDiskStore {
 
@@ -35,47 +38,47 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     private final String serial;
     private final long size;
 
-<span class="nc" id="L38">    protected AbstractHWDiskStore(String name, String model, String serial, long size) {</span>
-<span class="nc" id="L39">        this.name = name;</span>
-<span class="nc" id="L40">        this.model = model;</span>
-<span class="nc" id="L41">        this.serial = serial;</span>
-<span class="nc" id="L42">        this.size = size;</span>
-<span class="nc" id="L43">    }</span>
+<span class="nc" id="L41">    protected AbstractHWDiskStore(String name, String model, String serial, long size) {</span>
+<span class="nc" id="L42">        this.name = name;</span>
+<span class="nc" id="L43">        this.model = model;</span>
+<span class="nc" id="L44">        this.serial = serial;</span>
+<span class="nc" id="L45">        this.size = size;</span>
+<span class="nc" id="L46">    }</span>
 
     @Override
     public String getName() {
-<span class="nc" id="L47">        return this.name;</span>
+<span class="nc" id="L50">        return this.name;</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L52">        return this.model;</span>
+<span class="nc" id="L55">        return this.model;</span>
     }
 
     @Override
     public String getSerial() {
-<span class="nc" id="L57">        return this.serial;</span>
+<span class="nc" id="L60">        return this.serial;</span>
     }
 
     @Override
     public long getSize() {
-<span class="nc" id="L62">        return this.size;</span>
+<span class="nc" id="L65">        return this.size;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc bnc" id="L67" title="All 4 branches missed.">        boolean readwrite = getReads() &gt; 0 || getWrites() &gt; 0;</span>
-<span class="nc" id="L68">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L69">        sb.append(getName()).append(&quot;: &quot;);</span>
-<span class="nc" id="L70">        sb.append(&quot;(model: &quot;).append(getModel());</span>
-<span class="nc" id="L71">        sb.append(&quot; - S/N: &quot;).append(getSerial()).append(&quot;) &quot;);</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        sb.append(&quot;size: &quot;).append(getSize() &gt; 0 ? FormatUtil.formatBytesDecimal(getSize()) : &quot;?&quot;).append(&quot;, &quot;);</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        sb.append(&quot;reads: &quot;).append(readwrite ? getReads() : &quot;?&quot;);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        sb.append(&quot; (&quot;).append(readwrite ? FormatUtil.formatBytes(getReadBytes()) : &quot;?&quot;).append(&quot;), &quot;);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        sb.append(&quot;writes: &quot;).append(readwrite ? getWrites() : &quot;?&quot;);</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        sb.append(&quot; (&quot;).append(readwrite ? FormatUtil.formatBytes(getWriteBytes()) : &quot;?&quot;).append(&quot;), &quot;);</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        sb.append(&quot;xfer: &quot;).append(readwrite ? getTransferTime() : &quot;?&quot;);</span>
-<span class="nc" id="L78">        return sb.toString();</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">        boolean readwrite = getReads() &gt; 0 || getWrites() &gt; 0;</span>
+<span class="nc" id="L71">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L72">        sb.append(getName()).append(&quot;: &quot;);</span>
+<span class="nc" id="L73">        sb.append(&quot;(model: &quot;).append(getModel());</span>
+<span class="nc" id="L74">        sb.append(&quot; - S/N: &quot;).append(getSerial()).append(&quot;) &quot;);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        sb.append(&quot;size: &quot;).append(getSize() &gt; 0 ? FormatUtil.formatBytesDecimal(getSize()) : &quot;?&quot;).append(&quot;, &quot;);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        sb.append(&quot;reads: &quot;).append(readwrite ? getReads() : &quot;?&quot;);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        sb.append(&quot; (&quot;).append(readwrite ? FormatUtil.formatBytes(getReadBytes()) : &quot;?&quot;).append(&quot;), &quot;);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        sb.append(&quot;writes: &quot;).append(readwrite ? getWrites() : &quot;?&quot;);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        sb.append(&quot; (&quot;).append(readwrite ? FormatUtil.formatBytes(getWriteBytes()) : &quot;?&quot;).append(&quot;), &quot;);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        sb.append(&quot;xfer: &quot;).append(readwrite ? getTransferTime() : &quot;?&quot;);</span>
+<span class="nc" id="L81">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

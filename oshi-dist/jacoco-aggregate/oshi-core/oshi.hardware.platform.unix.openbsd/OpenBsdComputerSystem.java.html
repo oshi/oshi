@@ -27,67 +27,73 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
+import oshi.hardware.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
-<span class="nc" id="L36">public class OpenBsdComputerSystem extends AbstractComputerSystem {</span>
+/**
+ * OpenBSD ComputerSystem implementation
+ */
+@Immutable
+<span class="nc" id="L42">public class OpenBsdComputerSystem extends AbstractComputerSystem {</span>
 
-<span class="nc" id="L38">    private final Supplier&lt;String&gt; manufacturer = memoize(OpenBsdComputerSystem::queryManufacturer);</span>
+<span class="nc" id="L44">    private final Supplier&lt;String&gt; manufacturer = memoize(OpenBsdComputerSystem::queryManufacturer);</span>
 
-<span class="nc" id="L40">    private final Supplier&lt;String&gt; model = memoize(OpenBsdComputerSystem::queryModel);</span>
+<span class="nc" id="L46">    private final Supplier&lt;String&gt; model = memoize(OpenBsdComputerSystem::queryModel);</span>
 
-<span class="nc" id="L42">    private final Supplier&lt;String&gt; serialNumber = memoize(OpenBsdComputerSystem::querySerialNumber);</span>
+<span class="nc" id="L48">    private final Supplier&lt;String&gt; serialNumber = memoize(OpenBsdComputerSystem::querySerialNumber);</span>
 
-<span class="nc" id="L44">    private final Supplier&lt;String&gt; uuid = memoize(OpenBsdComputerSystem::queryUUID);</span>
+<span class="nc" id="L50">    private final Supplier&lt;String&gt; uuid = memoize(OpenBsdComputerSystem::queryUUID);</span>
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L48">        return manufacturer.get();</span>
+<span class="nc" id="L54">        return manufacturer.get();</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L53">        return model.get();</span>
+<span class="nc" id="L59">        return model.get();</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L58">        return serialNumber.get();</span>
+<span class="nc" id="L64">        return serialNumber.get();</span>
     }
 
     @Override
     public String getHardwareUUID() {
-<span class="nc" id="L63">        return uuid.get();</span>
+<span class="nc" id="L69">        return uuid.get();</span>
     }
 
     @Override
     protected Firmware createFirmware() {
-<span class="nc" id="L68">        return new OpenBsdFirmware();</span>
+<span class="nc" id="L74">        return new OpenBsdFirmware();</span>
     }
 
     @Override
     protected Baseboard createBaseboard() {
-<span class="nc" id="L73">        return new OpenBsdBaseboard(manufacturer.get(), model.get(), serialNumber.get(),</span>
-<span class="nc" id="L74">                OpenBsdSysctlUtil.sysctl(&quot;hw.product&quot;, Constants.UNKNOWN));</span>
+<span class="nc" id="L79">        return new UnixBaseboard(manufacturer.get(), model.get(), serialNumber.get(),</span>
+<span class="nc" id="L80">                OpenBsdSysctlUtil.sysctl(&quot;hw.product&quot;, Constants.UNKNOWN));</span>
     }
 
     private static String queryManufacturer() {
-<span class="nc" id="L78">        return OpenBsdSysctlUtil.sysctl(&quot;hw.vendor&quot;, Constants.UNKNOWN);</span>
+<span class="nc" id="L84">        return OpenBsdSysctlUtil.sysctl(&quot;hw.vendor&quot;, Constants.UNKNOWN);</span>
     }
 
     private static String queryModel() {
-<span class="nc" id="L82">        return OpenBsdSysctlUtil.sysctl(&quot;hw.version&quot;, Constants.UNKNOWN);</span>
+<span class="nc" id="L88">        return OpenBsdSysctlUtil.sysctl(&quot;hw.version&quot;, Constants.UNKNOWN);</span>
     }
 
     private static String querySerialNumber() {
-<span class="nc" id="L86">        return OpenBsdSysctlUtil.sysctl(&quot;hw.serialno&quot;, Constants.UNKNOWN);</span>
+<span class="nc" id="L92">        return OpenBsdSysctlUtil.sysctl(&quot;hw.serialno&quot;, Constants.UNKNOWN);</span>
     }
 
     private static String queryUUID() {
-<span class="nc" id="L90">        return OpenBsdSysctlUtil.sysctl(&quot;hw.uuid&quot;, Constants.UNKNOWN);</span>
+<span class="nc" id="L96">        return OpenBsdSysctlUtil.sysctl(&quot;hw.uuid&quot;, Constants.UNKNOWN);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
