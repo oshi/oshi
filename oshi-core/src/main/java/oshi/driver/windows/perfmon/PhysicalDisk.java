@@ -53,7 +53,7 @@ public final class PhysicalDisk {
         DISKWRITESPERSEC("Disk Writes/sec"), //
         DISKWRITEBYTESPERSEC("Disk Write Bytes/sec"), //
         CURRENTDISKQUEUELENGTH("Current Disk Queue Length"), //
-        PERCENTIDLETIME("% Idle Time");
+        PERCENTDISKTIME("% Disk Time");
 
         private final String counter;
 
