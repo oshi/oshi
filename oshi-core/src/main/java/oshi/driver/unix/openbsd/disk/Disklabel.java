@@ -26,6 +26,7 @@ package oshi.driver.unix.openbsd.disk;
 import java.util.ArrayList;
 import java.util.List;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWPartition;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -33,14 +34,23 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
+/**
+ * Utility class parsing partition information from disklabel command
+ */
+@ThreadSafe
 public final class Disklabel {
 
     private Disklabel() {
     }
 
-    /*-
-    * └─ $ ▶ doas disklabel sd1
-    */
+    /**
+     * Gets disk and partition information
+     *
+     * @param diskName
+     *            The disk to fetch partition information from
+     * @return A quartet containing the disk's name/label, DUID, size, and a list of
+     *         partitions
+     */
     public static Quartet<String, String, Long, List<HWPartition>> getDiskParams(String diskName) {
         // disklabel (requires root) supports 15 configurable partitions, `a' through
         // `p', excluding `c'.

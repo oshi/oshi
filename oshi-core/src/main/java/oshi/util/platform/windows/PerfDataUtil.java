@@ -38,6 +38,7 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -58,6 +59,10 @@ public final class PerfDataUtil {
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
+    /**
+     * Encapsulates the three string components of a performance counter
+     */
+    @Immutable
     public static class PerfCounter {
         private String object;
         private String instance;

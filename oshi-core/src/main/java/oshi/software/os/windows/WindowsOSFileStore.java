@@ -29,6 +29,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSFileStore;
 import oshi.software.os.OSFileStore;
 
+/**
+ * OSFileStore implementation
+ */
 @ThreadSafe
 public class WindowsOSFileStore extends AbstractOSFileStore {
 

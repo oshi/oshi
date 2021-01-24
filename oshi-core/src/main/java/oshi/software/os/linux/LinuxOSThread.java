@@ -25,6 +25,7 @@ package oshi.software.os.linux;
 
 import java.util.Map;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
@@ -32,6 +33,10 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
 public class LinuxOSThread extends AbstractOSThread {
 
     private static final int[] PROC_TASK_STAT_ORDERS = new int[LinuxOSThread.ThreadPidStat.values().length];

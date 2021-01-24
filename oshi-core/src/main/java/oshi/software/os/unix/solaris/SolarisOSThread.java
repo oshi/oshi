@@ -27,11 +27,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
 public class SolarisOSThread extends AbstractOSThread {
 
     private int threadId;

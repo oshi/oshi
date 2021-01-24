@@ -38,7 +38,7 @@ public final class SystemInformation {
     private static final String SYSTEM = "System";
     private static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
 
-    /*
+    /**
      * Context switch property
      */
     public enum ContextSwitchProperty implements PdhCounterProperty {

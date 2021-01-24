@@ -38,7 +38,7 @@ public final class MemoryInformation {
     private static final String MEMORY = "Memory";
     private static final String WIN32_PERF_RAW_DATA_PERF_OS_MEMORY = "Win32_PerfRawData_PerfOS_Memory";
 
-    /*
+    /**
      * For pages in/out
      */
     public enum PageSwapProperty implements PdhCounterProperty {

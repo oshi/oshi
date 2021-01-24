@@ -69,6 +69,9 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
+/**
+ * Internet Protocol Stats implementation
+ */
 @ThreadSafe
 public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
 

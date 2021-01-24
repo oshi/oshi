@@ -35,6 +35,9 @@ import oshi.driver.unix.aix.perfstat.PerfstatProtocol;
 import oshi.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 import oshi.software.common.AbstractInternetProtocolStats;
 
+/**
+ * Internet Protocol Stats implementation
+ */
 @ThreadSafe
 public class AixInternetProtocolStats extends AbstractInternetProtocolStats {
 

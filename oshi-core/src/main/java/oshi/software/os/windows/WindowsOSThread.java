@@ -35,11 +35,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.registry.ThreadPerformanceData.PerfCounterBlock;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
 
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
 public class WindowsOSThread extends AbstractOSThread {
 
     private final int threadId;

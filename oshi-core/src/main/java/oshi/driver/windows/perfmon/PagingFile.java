@@ -38,7 +38,7 @@ public final class PagingFile {
     private static final String PAGING_FILE = "Paging File";
     private static final String WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE = "Win32_PerfRawData_PerfOS_PagingFile";
 
-    /*
+    /**
      * For swap file usage
      */
     public enum PagingPercentProperty implements PdhCounterProperty {

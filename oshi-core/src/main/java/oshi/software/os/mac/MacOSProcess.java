@@ -60,6 +60,9 @@ import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.platform.mac.SysctlUtil;
 
+/**
+ * OSProcess implemenation
+ */
 @ThreadSafe
 public class MacOSProcess extends AbstractOSProcess {
 

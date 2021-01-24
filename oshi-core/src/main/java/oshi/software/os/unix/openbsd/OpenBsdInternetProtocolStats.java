@@ -27,6 +27,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.NetStat;
 import oshi.software.common.AbstractInternetProtocolStats;
 
+/**
+ * Internet Protocol Stats implementation
+ */
 @ThreadSafe
 public class OpenBsdInternetProtocolStats extends AbstractInternetProtocolStats {
 

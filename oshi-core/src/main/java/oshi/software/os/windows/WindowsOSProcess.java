@@ -70,6 +70,9 @@ import oshi.util.GlobalConfig;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
+/**
+ * OSProcess implemenation
+ */
 @ThreadSafe
 public class WindowsOSProcess extends AbstractOSProcess {
 

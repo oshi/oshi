@@ -48,6 +48,9 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.ProcstatUtil;
 
+/**
+ * OSProcess implemenation
+ */
 @ThreadSafe
 public class FreeBsdOSProcess extends AbstractOSProcess {
 

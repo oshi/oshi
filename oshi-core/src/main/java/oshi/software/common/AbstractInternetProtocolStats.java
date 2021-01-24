@@ -28,6 +28,9 @@ import java.util.List;
 import oshi.driver.unix.NetStat;
 import oshi.software.os.InternetProtocolStats;
 
+/**
+ * Common implementations for IP Stats
+ */
 public abstract class AbstractInternetProtocolStats implements InternetProtocolStats {
 
     public AbstractInternetProtocolStats() {

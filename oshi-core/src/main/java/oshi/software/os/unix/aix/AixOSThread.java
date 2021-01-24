@@ -25,11 +25,16 @@ package oshi.software.os.unix.aix;
 
 import java.util.List;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
 public class AixOSThread extends AbstractOSThread {
 
     private int threadId;

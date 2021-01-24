@@ -30,6 +30,9 @@ import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * Internet Protocol Stats implementation
+ */
 @ThreadSafe
 public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats {
 

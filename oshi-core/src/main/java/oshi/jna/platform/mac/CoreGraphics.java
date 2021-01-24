@@ -54,18 +54,27 @@ public interface CoreGraphics extends Library {
     int kCGWindowListOptionIncludingWindow = 1 << 3;
     int kCGWindowListExcludeDesktopElements = 1 << 4;
 
+    /**
+     * A point with X and Y coordinates
+     */
     @FieldOrder({ "x", "y" })
     class CGPoint extends Structure {
         public double x;
         public double y;
     }
 
+    /**
+     * A size with width and height
+     */
     @FieldOrder({ "width", "height" })
     class CGSize extends Structure {
         public double width;
         public double height;
     }
 
+    /**
+     * A rectangle with origin and size
+     */
     @FieldOrder({ "origin", "size" })
     class CGRect extends Structure {
         public CGPoint origin;

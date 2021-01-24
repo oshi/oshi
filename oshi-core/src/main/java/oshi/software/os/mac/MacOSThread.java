@@ -23,11 +23,14 @@
  */
 package oshi.software.os.mac;
 
-import oshi.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
 
-@Immutable
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
 public class MacOSThread extends AbstractOSThread {
 
     private final int threadId;

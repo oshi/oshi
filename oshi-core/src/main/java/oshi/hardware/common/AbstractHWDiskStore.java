@@ -27,6 +27,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.util.FormatUtil;
 
+/**
+ * Common methods for platform HWDiskStore classes
+ */
 @ThreadSafe
 public abstract class AbstractHWDiskStore implements HWDiskStore {
 

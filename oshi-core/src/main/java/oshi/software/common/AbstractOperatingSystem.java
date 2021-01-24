@@ -46,6 +46,9 @@ import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 
+/**
+ * Common methods for OperatingSystem implementations
+ */
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
@@ -225,6 +228,9 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return Xwininfo.queryXWindows(visibleOnly);
     }
 
+    /**
+     * Encapsulates OS Family and version information
+     */
     protected static final class FamilyVersionInfo {
         private final String family;
         private final OSVersionInfo versionInfo;

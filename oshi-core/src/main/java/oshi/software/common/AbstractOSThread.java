@@ -28,8 +28,13 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSThread;
 
+/**
+ * Common methods for OSThread implementation
+ */
+@ThreadSafe
 public abstract class AbstractOSThread implements OSThread {
 
     private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad, defaultExpiration());

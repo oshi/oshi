@@ -80,6 +80,9 @@ public interface OpenBsdLibc extends CLibrary {
     int UINT64_SIZE = Native.getNativeSize(long.class);
     int INT_SIZE = Native.getNativeSize(int.class);
 
+    /**
+     * OpenBSD Cache stats for memory
+     */
     @FieldOrder({ "numbufs", "numbufpages", "numdirtypages", "numcleanpages", "pendingwrites", "pendingreads",
             "numwrites", "numreads", "cachehits", "busymapped", "dmapages", "highpages", "delwribufs", "kvaslots",
             "kvaslots_avail", "highflips", "highflops", "dmaflips" })

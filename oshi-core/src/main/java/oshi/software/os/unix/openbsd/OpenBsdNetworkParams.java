@@ -23,9 +23,14 @@
  */
 package oshi.software.os.unix.openbsd;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
+/**
+ * OpenBsdNetworkParams class.
+ */
+@ThreadSafe
 public class OpenBsdNetworkParams extends AbstractNetworkParams {
     @Override
     public String getIpv4DefaultGateway() {

@@ -50,6 +50,7 @@ import java.util.regex.Pattern;
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.util.ExecutingCommand;
@@ -58,6 +59,10 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
+/**
+ * OpenBSD Central Processor implementation
+ */
+@ThreadSafe
 public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     private final Supplier<Pair<Long, Long>> vmStats = memoize(OpenBsdCentralProcessor::queryVmStats,
             defaultExpiration());

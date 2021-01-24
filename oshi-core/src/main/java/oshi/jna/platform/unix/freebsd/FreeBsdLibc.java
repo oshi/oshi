@@ -43,6 +43,9 @@ public interface FreeBsdLibc extends CLibrary {
     int UTX_IDSIZE = 8;
     int UTX_HOSTSIZE = 128;
 
+    /**
+     * Connection info
+     */
     @FieldOrder({ "ut_type", "ut_tv", "ut_id", "ut_pid", "ut_user", "ut_line", "ut_host", "ut_spare" })
     class FreeBsdUtmpx extends Structure {
         public short ut_type; // type of entry
@@ -88,6 +91,9 @@ public interface FreeBsdLibc extends CLibrary {
         public long tv_usec; // microseconds
     }
 
+    /**
+     * CPU Ticks
+     */
     @FieldOrder({ "cpu_ticks" })
     class CpTime extends Structure {
         public long[] cpu_ticks = new long[CPUSTATES];

@@ -27,6 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
@@ -34,6 +35,10 @@ import oshi.hardware.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
+/**
+ * OpenBSD ComputerSystem implementation
+ */
+@Immutable
 public class OpenBsdComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<String> manufacturer = memoize(OpenBsdComputerSystem::queryManufacturer);

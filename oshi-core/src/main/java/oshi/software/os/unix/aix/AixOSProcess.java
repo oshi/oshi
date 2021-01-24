@@ -50,6 +50,9 @@ import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
+/**
+ * OSProcess implemenation
+ */
 @ThreadSafe
 public class AixOSProcess extends AbstractOSProcess {
 

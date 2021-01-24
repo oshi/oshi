@@ -40,10 +40,9 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
- * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which
+ * The FreeBSD File System contains {@link oshi.software.os.OSFileStore}s which
  * are a storage pool, device, partition, volume, concrete file system or other
- * implementation specific means of file storage. In Linux, these are found in
- * the /proc/mount filesystem, excluding temporary and kernel mounts.
+ * implementation specific means of file storage.
  */
 @ThreadSafe
 public final class FreeBsdFileSystem extends AbstractFileSystem {

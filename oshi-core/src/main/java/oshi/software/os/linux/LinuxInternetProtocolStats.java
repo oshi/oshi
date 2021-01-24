@@ -49,6 +49,9 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Pair;
 
+/**
+ * Internet Protocol Stats implementation
+ */
 @ThreadSafe
 public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
 

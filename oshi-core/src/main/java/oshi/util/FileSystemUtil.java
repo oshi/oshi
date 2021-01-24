@@ -31,6 +31,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import oshi.annotation.concurrent.ThreadSafe;
+
+/**
+ * Utility class for common filesystem code
+ */
+@ThreadSafe
 public final class FileSystemUtil {
 
     private static final String GLOB_PREFIX = "glob:";

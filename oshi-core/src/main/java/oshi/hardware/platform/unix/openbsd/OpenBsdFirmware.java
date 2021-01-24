@@ -28,6 +28,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
+import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -35,6 +36,10 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Triplet;
 
+/**
+ * OpenBSD Firmware implementation
+ */
+@Immutable
 public class OpenBsdFirmware extends AbstractFirmware {
     private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(OpenBsdFirmware::readDmesg);
 

@@ -63,6 +63,9 @@ import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPTABLE_OWNER_PID;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ParseUtil;
 
+/**
+ * Internet Protocol Stats implementation
+ */
 @ThreadSafe
 public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats {
 

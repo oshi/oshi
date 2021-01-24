@@ -26,6 +26,9 @@ package oshi.software.common;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSFileStore;
 
+/**
+ * Common implementations for OSFileStore
+ */
 @ThreadSafe
 public abstract class AbstractOSFileStore implements OSFileStore {
 

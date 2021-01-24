@@ -31,6 +31,9 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.GlobalConfig;
 
+/**
+ * Common methods for filesystem implementations
+ */
 @ThreadSafe
 public abstract class AbstractFileSystem implements FileSystem {
 
