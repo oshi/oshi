@@ -94,6 +94,7 @@ jobs:
           git checkout master
           git reset --hard HEAD~2
           git pull
-          mvn clean test -B -Djacoco.skip=true
-          doas mvn clean test -B -Djacoco.skip=true
+          doas mvn clean
+          mvn test -B -Djacoco.skip=true
+          doas mvn test -B -Djacoco.skip=true
           
