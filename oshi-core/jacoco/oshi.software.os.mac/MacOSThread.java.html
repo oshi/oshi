@@ -23,11 +23,14 @@
  */
 package oshi.software.os.mac;
 
-import oshi.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
 
-@Immutable
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
 public class MacOSThread extends AbstractOSThread {
 
     private final int threadId;
@@ -40,49 +43,49 @@ public class MacOSThread extends AbstractOSThread {
 
     public MacOSThread(int pid, int threadId, State state, long kernelTime, long userTime, long startTime, long upTime,
             int priority) {
-<span class="nc" id="L43">        super(pid);</span>
-<span class="nc" id="L44">        this.threadId = threadId;</span>
-<span class="nc" id="L45">        this.state = state;</span>
-<span class="nc" id="L46">        this.kernelTime = kernelTime;</span>
-<span class="nc" id="L47">        this.userTime = userTime;</span>
-<span class="nc" id="L48">        this.startTime = startTime;</span>
-<span class="nc" id="L49">        this.upTime = upTime;</span>
-<span class="nc" id="L50">        this.priority = priority;</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L46">        super(pid);</span>
+<span class="nc" id="L47">        this.threadId = threadId;</span>
+<span class="nc" id="L48">        this.state = state;</span>
+<span class="nc" id="L49">        this.kernelTime = kernelTime;</span>
+<span class="nc" id="L50">        this.userTime = userTime;</span>
+<span class="nc" id="L51">        this.startTime = startTime;</span>
+<span class="nc" id="L52">        this.upTime = upTime;</span>
+<span class="nc" id="L53">        this.priority = priority;</span>
+<span class="nc" id="L54">    }</span>
 
     @Override
     public int getThreadId() {
-<span class="nc" id="L55">        return threadId;</span>
+<span class="nc" id="L58">        return threadId;</span>
     }
 
     @Override
     public State getState() {
-<span class="nc" id="L60">        return state;</span>
+<span class="nc" id="L63">        return state;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L65">        return kernelTime;</span>
+<span class="nc" id="L68">        return kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L70">        return userTime;</span>
+<span class="nc" id="L73">        return userTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L75">        return startTime;</span>
+<span class="nc" id="L78">        return startTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L80">        return upTime;</span>
+<span class="nc" id="L83">        return upTime;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L85">        return priority;</span>
+<span class="nc" id="L88">        return priority;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

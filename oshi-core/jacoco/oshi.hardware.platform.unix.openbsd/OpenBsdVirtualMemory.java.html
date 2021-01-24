@@ -35,7 +35,7 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
 
 /**
- * Memory obtained by swapinfo
+ * Memory info on OpenBSD
  */
 @ThreadSafe
 final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
