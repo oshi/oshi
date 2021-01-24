@@ -23,18 +23,23 @@
  */
 package oshi.software.os.unix.openbsd;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
-<span class="nc" id="L29">public class OpenBsdNetworkParams extends AbstractNetworkParams {</span>
+/**
+ * OpenBsdNetworkParams class.
+ */
+@ThreadSafe
+<span class="nc" id="L34">public class OpenBsdNetworkParams extends AbstractNetworkParams {</span>
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L32">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
+<span class="nc" id="L37">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
     }
 
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L37">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
+<span class="nc" id="L42">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

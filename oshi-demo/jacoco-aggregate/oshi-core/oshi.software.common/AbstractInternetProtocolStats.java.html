@@ -28,15 +28,30 @@ import java.util.List;
 import oshi.driver.unix.NetStat;
 import oshi.software.os.InternetProtocolStats;
 
+/**
+ * Common implementations for IP Stats
+ */
 public abstract class AbstractInternetProtocolStats implements InternetProtocolStats {
 
     public AbstractInternetProtocolStats() {
-<span class="nc" id="L34">        super();</span>
-<span class="nc" id="L35">    }</span>
+<span class="nc" id="L37">        super();</span>
+<span class="nc" id="L38">    }</span>
+
+    @Override
+    public TcpStats getTCPv6Stats() {
+        // Default when OS doesn't have separate TCPv6 stats
+<span class="nc" id="L43">        return new TcpStats(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);</span>
+    }
+
+    @Override
+    public UdpStats getUDPv6Stats() {
+        // Default when OS doesn't have separate UDPv6 stats
+<span class="nc" id="L49">        return new UdpStats(0L, 0L, 0L, 0L);</span>
+    }
 
     @Override
     public List&lt;IPConnection&gt; getConnections() {
-<span class="nc" id="L39">        return NetStat.queryNetstat();</span>
+<span class="nc" id="L54">        return NetStat.queryNetstat();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

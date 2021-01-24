@@ -26,6 +26,7 @@ package oshi.driver.unix.openbsd.disk;
 import java.util.ArrayList;
 import java.util.List;
 
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWPartition;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -33,14 +34,23 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
+/**
+ * Utility class parsing partition information from disklabel command
+ */
+@ThreadSafe
 public final class Disklabel {
 
     private Disklabel() {
     }
 
-    /*-
-    * └─ $ ▶ doas disklabel sd1
-    */
+    /**
+     * Gets disk and partition information
+     *
+     * @param diskName
+     *            The disk to fetch partition information from
+     * @return A quartet containing the disk's name/label, DUID, size, and a list of
+     *         partitions
+     */
     public static Quartet&lt;String, String, Long, List&lt;HWPartition&gt;&gt; getDiskParams(String diskName) {
         // disklabel (requires root) supports 15 configurable partitions, `a' through
         // `p', excluding `c'.
@@ -50,17 +60,17 @@ public final class Disklabel {
         // and the 'i' partition is usually the boot record
 
         // Create a list for all the other partitions
-<span class="nc" id="L53">        List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L63">        List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
         // Save some values to return to the caller to populate HWDiskStore values
-<span class="nc" id="L55">        String totalMarker = &quot;total sectors:&quot;;</span>
-<span class="nc" id="L56">        long totalSectors = 1L;</span>
-<span class="nc" id="L57">        String bpsMarker = &quot;bytes/sector:&quot;;</span>
-<span class="nc" id="L58">        int bytesPerSector = 1;</span>
-<span class="nc" id="L59">        String labelMarker = &quot;label:&quot;;</span>
-<span class="nc" id="L60">        String label = &quot;&quot;;</span>
-<span class="nc" id="L61">        String duidMarker = &quot;duid:&quot;;</span>
-<span class="nc" id="L62">        String duid = &quot;&quot;;</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;disklabel -n &quot; + diskName)) {</span>
+<span class="nc" id="L65">        String totalMarker = &quot;total sectors:&quot;;</span>
+<span class="nc" id="L66">        long totalSectors = 1L;</span>
+<span class="nc" id="L67">        String bpsMarker = &quot;bytes/sector:&quot;;</span>
+<span class="nc" id="L68">        int bytesPerSector = 1;</span>
+<span class="nc" id="L69">        String labelMarker = &quot;label:&quot;;</span>
+<span class="nc" id="L70">        String label = &quot;&quot;;</span>
+<span class="nc" id="L71">        String duidMarker = &quot;duid:&quot;;</span>
+<span class="nc" id="L72">        String duid = &quot;&quot;;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;disklabel -n &quot; + diskName)) {</span>
             // Check for values in the header we need for the HWDiskstore
             // # /dev/rsd1c:
             // type: SCSI
@@ -77,14 +87,14 @@ public final class Disklabel {
             // boundstart: 0
             // boundend: 15693824
             // drivedata: 0
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (line.contains(totalMarker)) {</span>
-<span class="nc" id="L81">                totalSectors = ParseUtil.getFirstIntValue(line);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            } else if (line.contains(bpsMarker)) {</span>
-<span class="nc" id="L83">                bytesPerSector = ParseUtil.getFirstIntValue(line);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            } else if (line.contains(labelMarker)) {</span>
-<span class="nc" id="L85">                label = line.split(labelMarker)[1].trim();</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            } else if (line.contains(duidMarker)) {</span>
-<span class="nc" id="L87">                duid = line.split(duidMarker)[1].trim();</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (line.contains(totalMarker)) {</span>
+<span class="nc" id="L91">                totalSectors = ParseUtil.getFirstIntValue(line);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            } else if (line.contains(bpsMarker)) {</span>
+<span class="nc" id="L93">                bytesPerSector = ParseUtil.getFirstIntValue(line);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            } else if (line.contains(labelMarker)) {</span>
+<span class="nc" id="L95">                label = line.split(labelMarker)[1].trim();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            } else if (line.contains(duidMarker)) {</span>
+<span class="nc" id="L97">                duid = line.split(duidMarker)[1].trim();</span>
             }
             /*-
             16 partitions:
@@ -103,53 +113,53 @@ public final class Disklabel {
               l:        387166336        112937088  4.2BSD   4096 32768 26062 # /home
              Note size is in sectors
              */
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (line.trim().indexOf(':') == 1) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            if (line.trim().indexOf(':') == 1) {</span>
                 // partition table values have a single letter followed by a colon
-<span class="nc" id="L108">                String[] split = ParseUtil.whitespaces.split(line.trim(), 9);</span>
-<span class="nc" id="L109">                String name = split[0].substring(0, 1);</span>
+<span class="nc" id="L118">                String[] split = ParseUtil.whitespaces.split(line.trim(), 9);</span>
+<span class="nc" id="L119">                String name = split[0].substring(0, 1);</span>
                 // get major and minor from stat
-<span class="nc" id="L111">                Pair&lt;Integer, Integer&gt; majorMinor = getMajorMinor(diskName, name);</span>
+<span class="nc" id="L121">                Pair&lt;Integer, Integer&gt; majorMinor = getMajorMinor(diskName, name);</span>
                 // add partitions
-<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (split.length &gt; 4) {</span>
-<span class="nc" id="L114">                    partitions.add(new HWPartition(diskName + name, name, split[3], duid + &quot;.&quot; + name,</span>
-<span class="nc" id="L115">                            ParseUtil.parseLongOrDefault(split[1], 0L) * bytesPerSector, majorMinor.getA(),</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">                            majorMinor.getB(), split.length &gt; 5 ? split[split.length - 1] : &quot;&quot;));</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                if (split.length &gt; 4) {</span>
+<span class="nc" id="L124">                    partitions.add(new HWPartition(diskName + name, name, split[3], duid + &quot;.&quot; + name,</span>
+<span class="nc" id="L125">                            ParseUtil.parseLongOrDefault(split[1], 0L) * bytesPerSector, majorMinor.getA(),</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                            majorMinor.getB(), split.length &gt; 5 ? split[split.length - 1] : &quot;&quot;));</span>
                 }
             }
-<span class="nc" id="L119">        }</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (partitions.isEmpty()) {</span>
-<span class="nc" id="L121">            return getDiskParamsNoRoot(diskName);</span>
+<span class="nc" id="L129">        }</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (partitions.isEmpty()) {</span>
+<span class="nc" id="L131">            return getDiskParamsNoRoot(diskName);</span>
         }
-<span class="nc" id="L123">        return new Quartet&lt;&gt;(label, duid, totalSectors * bytesPerSector, partitions);</span>
+<span class="nc" id="L133">        return new Quartet&lt;&gt;(label, duid, totalSectors * bytesPerSector, partitions);</span>
     }
 
     private static Quartet&lt;String, String, Long, List&lt;HWPartition&gt;&gt; getDiskParamsNoRoot(String diskName) {
-<span class="nc" id="L127">        List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;df&quot;)) {</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (line.startsWith(&quot;/dev/&quot; + diskName)) {</span>
-<span class="nc" id="L130">                String[] split = ParseUtil.whitespaces.split(line);</span>
-<span class="nc" id="L131">                String name = split[0].substring(5 + diskName.length());</span>
-<span class="nc" id="L132">                Pair&lt;Integer, Integer&gt; majorMinor = getMajorMinor(diskName, name);</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">                if (split.length &gt; 5) {</span>
-<span class="nc" id="L134">                    long partSize = ParseUtil.parseLongOrDefault(split[1], 1L) * 512L;</span>
-<span class="nc" id="L135">                    partitions.add(new HWPartition(split[0], split[0].substring(5), Constants.UNKNOWN,</span>
-<span class="nc" id="L136">                            Constants.UNKNOWN, partSize, majorMinor.getA(), majorMinor.getB(), split[5]));</span>
+<span class="nc" id="L137">        List&lt;HWPartition&gt; partitions = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;df&quot;)) {</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (line.startsWith(&quot;/dev/&quot; + diskName)) {</span>
+<span class="nc" id="L140">                String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc" id="L141">                String name = split[0].substring(5 + diskName.length());</span>
+<span class="nc" id="L142">                Pair&lt;Integer, Integer&gt; majorMinor = getMajorMinor(diskName, name);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">                if (split.length &gt; 5) {</span>
+<span class="nc" id="L144">                    long partSize = ParseUtil.parseLongOrDefault(split[1], 1L) * 512L;</span>
+<span class="nc" id="L145">                    partitions.add(new HWPartition(split[0], split[0].substring(5), Constants.UNKNOWN,</span>
+<span class="nc" id="L146">                            Constants.UNKNOWN, partSize, majorMinor.getA(), majorMinor.getB(), split[5]));</span>
                 }
             }
-<span class="nc" id="L139">        }</span>
-<span class="nc" id="L140">        return new Quartet&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN, 0L, partitions);</span>
+<span class="nc" id="L149">        }</span>
+<span class="nc" id="L150">        return new Quartet&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN, 0L, partitions);</span>
     }
 
     private static Pair&lt;Integer, Integer&gt; getMajorMinor(String diskName, String name) {
-<span class="nc" id="L144">        int major = 0;</span>
-<span class="nc" id="L145">        int minor = 0;</span>
-<span class="nc" id="L146">        String majorMinor = ExecutingCommand.getFirstAnswer(&quot;stat -f %Hr,%Lr /dev/&quot; + diskName + name);</span>
-<span class="nc" id="L147">        int comma = majorMinor.indexOf(',');</span>
-<span class="nc bnc" id="L148" title="All 4 branches missed.">        if (comma &gt; 0 &amp;&amp; comma &lt; majorMinor.length()) {</span>
-<span class="nc" id="L149">            major = ParseUtil.parseIntOrDefault(majorMinor.substring(0, comma), 0);</span>
-<span class="nc" id="L150">            minor = ParseUtil.parseIntOrDefault(majorMinor.substring(comma + 1), 0);</span>
+<span class="nc" id="L154">        int major = 0;</span>
+<span class="nc" id="L155">        int minor = 0;</span>
+<span class="nc" id="L156">        String majorMinor = ExecutingCommand.getFirstAnswer(&quot;stat -f %Hr,%Lr /dev/&quot; + diskName + name);</span>
+<span class="nc" id="L157">        int comma = majorMinor.indexOf(',');</span>
+<span class="nc bnc" id="L158" title="All 4 branches missed.">        if (comma &gt; 0 &amp;&amp; comma &lt; majorMinor.length()) {</span>
+<span class="nc" id="L159">            major = ParseUtil.parseIntOrDefault(majorMinor.substring(0, comma), 0);</span>
+<span class="nc" id="L160">            minor = ParseUtil.parseIntOrDefault(majorMinor.substring(comma + 1), 0);</span>
         }
-<span class="nc" id="L152">        return new Pair&lt;&gt;(major, minor);</span>
+<span class="nc" id="L162">        return new Pair&lt;&gt;(major, minor);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
