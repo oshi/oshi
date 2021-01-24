@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Test in FreeBSD
         id: test-freebsd
-        uses: vmactions/freebsd-vm@v0.1.0
+        uses: vmactions/freebsd-vm@v0.1.1
         with:
           usesh: true
           prepare: |
@@ -71,4 +71,29 @@ jobs:
           git reset --hard HEAD~2
           git pull
           mvn clean test -B -Djacoco.skip=true
+          
+
+  # SSH into OpenBSD server and run test on OpenBSD 6.8 32-bit
+  # Configured to pull latest from oshi master branch
+  # To test on a PR, log into the openbsd server and create a new branch
+  testopenbsd:
+    runs-on: ubuntu-latest
+    name: Test JDK 8, openbsd
+    steps:
+    - name: Test in OpenBSD
+      uses: appleboy/ssh-action@master    
+      with:
+        host: ${{ secrets.OPENBSD_OSHI_DOMAIN }}
+        username: oshi
+        password: ${{ secrets.OPENBSD_OSHI_PW }}
+        port: 22
+        script_stop: true
+        command_timeout: 45m
+        script: |
+          cd ~/git/oshi
+          git checkout master
+          git reset --hard HEAD~2
+          git pull
+          mvn clean test -B -Djacoco.skip=true
+          doas mvn clean test -B -Djacoco.skip=true
           
