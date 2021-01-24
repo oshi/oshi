@@ -141,8 +141,8 @@ public class MacUsbDevice extends AbstractUsbDevice {
             locationIDKey.release();
             ioPropertyMatchKey.release();
             iter.release();
-            root.release();
         }
+        root.release();
 
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();

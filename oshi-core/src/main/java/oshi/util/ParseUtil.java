@@ -347,15 +347,32 @@ public final class ParseUtil {
     }
 
     /**
-     * Convert a byte array to its integer representation.
+     * Convert a byte array to its (long) integer representation assuming big endian
+     * ordering.
      *
      * @param bytes
      *            An array of bytes no smaller than the size to be converted
      * @param size
      *            Number of bytes to convert to the long. May not exceed 8.
-     * @return An integer representing the byte array as a 64-bit number
+     * @return A long integer representing the byte array
      */
     public static long byteArrayToLong(byte[] bytes, int size) {
+        return byteArrayToLong(bytes, size, true);
+    }
+
+    /**
+     * Convert a byte array to its (long) integer representation in the specified
+     * endianness.
+     *
+     * @param bytes
+     *            An array of bytes no smaller than the size to be converted
+     * @param size
+     *            Number of bytes to convert to the long. May not exceed 8.
+     * @param bigEndian
+     *            True to parse big-endian, false to parse little-endian
+     * @return An long integer representing the byte array
+     */
+    public static long byteArrayToLong(byte[] bytes, int size, boolean bigEndian) {
         if (size > 8) {
             throw new IllegalArgumentException("Can't convert more than 8 bytes.");
         }
@@ -364,7 +381,11 @@ public final class ParseUtil {
         }
         long total = 0L;
         for (int i = 0; i < size; i++) {
-            total = total << 8 | bytes[i] & 0xff;
+            if (bigEndian) {
+                total = total << 8 | bytes[i] & 0xff;
+            } else {
+                total = total << 8 | bytes[size - i - 1] & 0xff;
+            }
         }
         return total;
     }

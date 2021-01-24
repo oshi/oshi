@@ -28,13 +28,16 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR
+import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
@@ -49,7 +52,7 @@ import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU.
@@ -59,7 +62,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
-    private final Supplier<Pair<String, Long>> vendorFreq = memoize(MacCentralProcessor::platformExpert);
+    private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
+    private final Supplier<Triplet<Integer, Integer, Long>> typeFamilyFreq = memoize(MacCentralProcessor::appleArmCpu);
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -72,20 +76,25 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         long cpuFreq = 0L;
         if (cpuName.startsWith("Apple")) {
             // Processing an M1 chip
-            cpuVendor = vendorFreq.get().getA();
+            cpuVendor = vendor.get();
             cpuStepping = "0"; // No correlation yet
             cpuModel = "0"; // No correlation yet
-            // M1 should have hw.cputype 0x0100000C (ARM64) and hw.cpufamily for an ARM SoC.
-            // However, under Rosetta 2, low level cpuid calls in the translated environment
-            // report hw.cputype for x86 (0x00000007) and hw.cpufamily for an Intel Westmere
-            // chip (0x573b5eec), family 6, model 44, stepping 0.
-            // Encode this emulated architecture in the properties
-            int family = SysctlUtil.sysctl("hw.cpufamily", 0);
             int type = SysctlUtil.sysctl("hw.cputype", 0);
-            cpuFamily = String.format("0x%08x", family); // M1 is 0x1b588bb3
+            int family = SysctlUtil.sysctl("hw.cpufamily", 0);
+            // M1 should have hw.cputype 0x0100000C (ARM64) and hw.cpufamily 0x1b588bb3 for
+            // an ARM SoC. However, under Rosetta 2, low level cpuid calls in the translated
+            // environment report hw.cputype for x86 (0x00000007) and hw.cpufamily for an
+            // Intel Westmere chip (0x573b5eec), family 6, model 44, stepping 0.
+            // Test if under Rosetta and generate correct chip
+            if (family == 0x573b5eec) {
+                type = typeFamilyFreq.get().getA();
+                family = typeFamilyFreq.get().getB();
+            }
+            cpuFreq = typeFamilyFreq.get().getC();
+            // Translate to output
+            cpuFamily = String.format("0x%08x", family);
             // Processor ID is an intel concept but CPU type + family conveys same info
             processorID = String.format("%08x%08x", type, family);
-            cpuFreq = vendorFreq.get().getB();
         } else {
             // Processing an Intel chip
             cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
@@ -100,9 +109,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
             processorID = String.format("%016x", processorIdBits);
         }
-        long cpuFrequency = SysctlUtil.sysctl("hw.cpufrequency", 0L);
-        if (cpuFrequency > cpuFreq) {
-            cpuFreq = cpuFrequency;
+        if (cpuFreq == 0) {
+            cpuFreq = SysctlUtil.sysctl("hw.cpufrequency", 0L);
         }
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
 
@@ -145,13 +153,13 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         long[] freq = new long[1];
-        freq[0] = SysctlUtil.sysctl("hw.cpufrequency", -1L);
+        freq[0] = SysctlUtil.sysctl("hw.cpufrequency", getProcessorIdentifier().getVendorFreq());
         return freq;
     }
 
     @Override
     public long queryMaxFreq() {
-        return SysctlUtil.sysctl("hw.cpufrequency_max", -1L);
+        return SysctlUtil.sysctl("hw.cpufrequency_max", getProcessorIdentifier().getVendorFreq());
     }
 
     @Override
@@ -218,21 +226,64 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         return ParseUtil.unsignedIntToLong(vmstats.v_intr);
     }
 
-    private static Pair<String, Long> platformExpert() {
+    private static String platformExpert() {
         String manufacturer = null;
-        long freq = 0;
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
+            // Get manufacturer from IOPlatformExpertDevice
             byte[] data = platformExpert.getByteArrayProperty("manufacturer");
             if (data != null) {
                 manufacturer = Native.toString(data, StandardCharsets.UTF_8);
             }
-            data = platformExpert.getByteArrayProperty("clock-frequency");
-            if (data != null && data.length <= 8) {
-                freq = ParseUtil.byteArrayToLong(data, data.length) * 1000L;
-            }
             platformExpert.release();
         }
-        return new Pair<>(Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer, freq);
+        return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
+    }
+
+    private static Triplet<Integer, Integer, Long> appleArmCpu() {
+        int type = 0;
+        int family = 0;
+        long freq = 0L;
+        // All CPUs are an IOPlatformDevice parent of AppleARMCPU
+        // Iterate each CPU and save frequency and "compatible" strings
+        IOIterator iter = IOKitUtil.getMatchingServices("AppleARMCPU");
+        if (iter != null) {
+            Set<String> compatibleStrSet = new HashSet<>();
+            IORegistryEntry cpu = iter.next();
+            while (cpu != null) {
+                // Parent is the cpu device. Use DeviceTree for non-cached data
+                IORegistryEntry device = cpu.getParentEntry("IODeviceTree");
+                // Accurate CPU vendor frequency in kHz as little-endian byte array
+                byte[] data = device.getByteArrayProperty("clock-frequency");
+                if (data != null) {
+                    long cpuFreq = ParseUtil.byteArrayToLong(data, data.length, false) * 1000L;
+                    if (cpuFreq > freq) {
+                        freq = cpuFreq;
+                    }
+                }
+                // Compatible key is null-delimited C string array in byte array
+                data = device.getByteArrayProperty("compatible");
+                if (data != null) {
+                    for (String s : new String(data, StandardCharsets.UTF_8).split("\0")) {
+                        if (!s.isEmpty()) {
+                            compatibleStrSet.add(s);
+                        }
+                    }
+                }
+                cpu.release();
+                cpu = iter.next();
+            }
+            iter.release();
+            // Match strings in "compatible" field with expectation for M1 chip
+            // Hard coded for M1 for now. Need to update and make more configurable for M1X,
+            // M2, etc.
+            List<String> m1compatible = Arrays.asList("ARM,v8", "apple,firestorm", "apple,icestorm");
+            compatibleStrSet.retainAll(m1compatible);
+            if (compatibleStrSet.size() == m1compatible.size()) {
+                type = 0x0100000C;
+                family = 0x1b588bb3;
+            }
+        }
+        return new Triplet<>(type, family, freq);
     }
 }
