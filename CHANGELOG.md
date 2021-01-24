@@ -1,12 +1,8 @@
-# 5.4.1 (in progress)
+# 5.4.2 (in progress)
 
-##### Bug fixes / Improvements
-* [#1498](https://github.com/oshi/oshi/pull/1498): Identify Rosetta as virtual architecture - [@dbwiddis](https://github.com/dbwiddis).
-* [#1501](https://github.com/oshi/oshi/pull/1501): Get bare metal Apple M1 CPU info from IODeviceTree - [@dbwiddis](https://github.com/dbwiddis).
-* [#1502](https://github.com/oshi/oshi/pull/1502): Fix bitness mismatch on 32-bit OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
-* [#1505](https://github.com/oshi/oshi/pull/1505): Fix windows disk transfer time (yet again) - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
 
-# 5.4.0 (2021-01-18)
+# 5.4.0 (2021-01-18), 5.4.1 (2021-01-24)
 
 ##### New Features
 * [#1461](https://github.com/oshi/oshi/pull/1461): List TCP and UDP connections - [@dbwiddis](https://github.com/dbwiddis).
@@ -25,6 +21,10 @@
 * [#1494](https://github.com/oshi/oshi/pull/1494): Deprecate MACOSX platform enum - [@dbwiddis](https://github.com/dbwiddis).
 * [#1495](https://github.com/oshi/oshi/pull/1495): Report Linux filesystem label - [@dbwiddis](https://github.com/dbwiddis).
 * [#1497](https://github.com/oshi/oshi/pull/1497): Don't unnecessarily make lists unmodifiable - [@dbwiddis](https://github.com/dbwiddis).
+* [#1498](https://github.com/oshi/oshi/pull/1498): Identify Rosetta as virtual architecture - [@dbwiddis](https://github.com/dbwiddis).
+* [#1501](https://github.com/oshi/oshi/pull/1501): Get bare metal Apple M1 CPU info from IODeviceTree - [@dbwiddis](https://github.com/dbwiddis).
+* [#1502](https://github.com/oshi/oshi/pull/1502): Fix bitness mismatch on 32-bit OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
+* [#1505](https://github.com/oshi/oshi/pull/1505): Fix windows disk transfer time (yet again) - [@dbwiddis](https://github.com/dbwiddis).
   
 
 # 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11), 5.3.6 (2020-11-15), 5.3.7 (2020-12-20)
