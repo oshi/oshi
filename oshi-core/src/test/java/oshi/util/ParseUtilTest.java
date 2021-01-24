@@ -38,7 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
+
 import oshi.util.tuples.Pair;
 
 /**
@@ -138,10 +140,13 @@ class ParseUtilTest {
     void testStringAndByteArrayToLong() {
         byte[] temp = { (byte) 'a', (byte) 'b', (byte) 'c', (byte) 'd', (byte) 'e' };
         long abcde = (long) temp[0] << 32 | temp[1] << 24 | temp[2] << 16 | temp[3] << 8 | temp[4];
+        long edcba = (long) temp[4] << 32 | temp[3] << 24 | temp[2] << 16 | temp[1] << 8 | temp[0];
         // Test string
         assertThat("parse \"abcde\"", ParseUtil.strToLong("abcde", 5), is(abcde));
         // Test byte array
-        assertThat("parse " + abcde, ParseUtil.byteArrayToLong(temp, 5), is(abcde));
+        assertThat("Incorrect parsing of " + abcde, ParseUtil.byteArrayToLong(temp, 5), is(abcde));
+        assertThat("Incorrect parsing of " + abcde + " BE", ParseUtil.byteArrayToLong(temp, 5, true), is(abcde));
+        assertThat("Incorrect parsing of " + edcba + " LE", ParseUtil.byteArrayToLong(temp, 5, false), is(edcba));
     }
 
     @Test
