@@ -41,8 +41,7 @@ class FileSystemUtilTest {
     @Test
     void testIsFileStoreIncludedByDefault() {
         assertThat("file store included by default", !FileSystemUtil.isFileStoreExcluded("/any-path", "/any-volume",
-                                                                                         new ArrayList<>(), new ArrayList<>(),
-                                                                                         new ArrayList<>(), new ArrayList<>()));
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
     }
 
     /**
@@ -55,19 +54,15 @@ class FileSystemUtilTest {
         List<PathMatcher> volumeExcludes = FileSystemUtil.parseFileSystemConfig("excluded-volume");
         List<PathMatcher> volumeIncludes = FileSystemUtil.parseFileSystemConfig("included-volume");
 
-        assertThat("excluded excluded-path", FileSystemUtil.isFileStoreExcluded("excluded-path", "",
-                                                                                pathIncludes, pathExcludes,
-                                                                                volumeIncludes, volumeExcludes));
-        assertThat("included included-path", !FileSystemUtil.isFileStoreExcluded("included-path", "",
-                                                                                 pathIncludes, pathExcludes,
-                                                                                 volumeIncludes, volumeExcludes));
+        assertThat("excluded excluded-path", FileSystemUtil.isFileStoreExcluded("excluded-path", "", pathIncludes,
+                pathExcludes, volumeIncludes, volumeExcludes));
+        assertThat("included included-path", !FileSystemUtil.isFileStoreExcluded("included-path", "", pathIncludes,
+                pathExcludes, volumeIncludes, volumeExcludes));
 
-        assertThat("excluded excluded-volume", FileSystemUtil.isFileStoreExcluded("", "excluded-volume",
-                                                                                  pathIncludes, pathExcludes,
-                                                                                  volumeIncludes, volumeExcludes));
-        assertThat("included included-volume", !FileSystemUtil.isFileStoreExcluded("", "included-volume",
-                                                                                   pathIncludes, pathExcludes,
-                                                                                   volumeIncludes, volumeExcludes));
+        assertThat("excluded excluded-volume", FileSystemUtil.isFileStoreExcluded("", "excluded-volume", pathIncludes,
+                pathExcludes, volumeIncludes, volumeExcludes));
+        assertThat("included included-volume", !FileSystemUtil.isFileStoreExcluded("", "included-volume", pathIncludes,
+                pathExcludes, volumeIncludes, volumeExcludes));
     }
 
     /**
@@ -80,21 +75,19 @@ class FileSystemUtilTest {
         List<PathMatcher> volumeExcludes = FileSystemUtil.parseFileSystemConfig("volume,volume-excluded");
         List<PathMatcher> volumeIncludes = FileSystemUtil.parseFileSystemConfig("volume");
 
-        assertThat("excluded path-exclude", FileSystemUtil.isFileStoreExcluded("path-excluded", "",
-                                                                               pathIncludes, pathExcludes,
-                                                                               volumeIncludes, volumeExcludes));
-        // "path" is both included and excluded and since included has priority, it should be included
-        assertThat("included path", !FileSystemUtil.isFileStoreExcluded("path", "",
-                                                                        pathIncludes, pathExcludes,
-                                                                        volumeIncludes, volumeExcludes));
+        assertThat("excluded path-exclude", FileSystemUtil.isFileStoreExcluded("path-excluded", "", pathIncludes,
+                pathExcludes, volumeIncludes, volumeExcludes));
+        // "path" is both included and excluded and since included has priority, it
+        // should be included
+        assertThat("included path", !FileSystemUtil.isFileStoreExcluded("path", "", pathIncludes, pathExcludes,
+                volumeIncludes, volumeExcludes));
 
-        assertThat("excluded volume-excluded", FileSystemUtil.isFileStoreExcluded("", "volume-excluded",
-                                                                                  pathIncludes, pathExcludes,
-                                                                                  volumeIncludes, volumeExcludes));
-        // "volume" is both included and excluded and since included has priority, it should be included
-        assertThat("included volume", !FileSystemUtil.isFileStoreExcluded("", "volume",
-                                                                          pathIncludes, pathExcludes,
-                                                                          volumeIncludes, volumeExcludes));
+        assertThat("excluded volume-excluded", FileSystemUtil.isFileStoreExcluded("", "volume-excluded", pathIncludes,
+                pathExcludes, volumeIncludes, volumeExcludes));
+        // "volume" is both included and excluded and since included has priority, it
+        // should be included
+        assertThat("included volume", !FileSystemUtil.isFileStoreExcluded("", "volume", pathIncludes, pathExcludes,
+                volumeIncludes, volumeExcludes));
     }
 
     @Test
