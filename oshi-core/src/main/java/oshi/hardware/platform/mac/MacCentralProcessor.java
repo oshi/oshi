@@ -253,20 +253,22 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             while (cpu != null) {
                 // Parent is the cpu device. Use DeviceTree for non-cached data
                 IORegistryEntry device = cpu.getParentEntry("IODeviceTree");
-                // Accurate CPU vendor frequency in kHz as little-endian byte array
-                byte[] data = device.getByteArrayProperty("clock-frequency");
-                if (data != null) {
-                    long cpuFreq = ParseUtil.byteArrayToLong(data, data.length, false) * 1000L;
-                    if (cpuFreq > freq) {
-                        freq = cpuFreq;
+                if (device != null) {
+                    // Accurate CPU vendor frequency in kHz as little-endian byte array
+                    byte[] data = device.getByteArrayProperty("clock-frequency");
+                    if (data != null) {
+                        long cpuFreq = ParseUtil.byteArrayToLong(data, data.length, false) * 1000L;
+                        if (cpuFreq > freq) {
+                            freq = cpuFreq;
+                        }
                     }
-                }
-                // Compatible key is null-delimited C string array in byte array
-                data = device.getByteArrayProperty("compatible");
-                if (data != null) {
-                    for (String s : new String(data, StandardCharsets.UTF_8).split("\0")) {
-                        if (!s.isEmpty()) {
-                            compatibleStrSet.add(s);
+                    // Compatible key is null-delimited C string array in byte array
+                    data = device.getByteArrayProperty("compatible");
+                    if (data != null) {
+                        for (String s : new String(data, StandardCharsets.UTF_8).split("\0")) {
+                            if (!s.isEmpty()) {
+                                compatibleStrSet.add(s);
+                            }
                         }
                     }
                 }
