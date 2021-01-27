@@ -98,7 +98,7 @@ public final class FileSystemUtil {
      * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List<PathMatcher> parseFileSystemConfig(String config) {
-        FileSystem fs = FileSystems.getDefault();
+        FileSystem fs = FileSystems.getDefault(); // can't be closed
         List<PathMatcher> patterns = new ArrayList<>();
         for (String item : config.split(",")) {
             if (item.length() > 0) {

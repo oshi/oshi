@@ -63,7 +63,12 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
-    private final Supplier<Triplet<Integer, Integer, Long>> typeFamilyFreq = memoize(MacCentralProcessor::appleArmCpu);
+    private final Supplier<Triplet<Integer, Integer, Long>> typeFamilyFreq = memoize(MacCentralProcessor::queryArmCpu);
+
+    private static final int ROSETTA_CPUTYPE = 0x00000007;
+    private static final int ROSETTA_CPUFAMILY = 0x573b5eec;
+    private static final int M1_CPUTYPE = 0x0100000C;
+    private static final int M1_CPUFAMILY = 0x1b588bb3;
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -86,7 +91,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             // environment report hw.cputype for x86 (0x00000007) and hw.cpufamily for an
             // Intel Westmere chip (0x573b5eec), family 6, model 44, stepping 0.
             // Test if under Rosetta and generate correct chip
-            if (family == 0x573b5eec) {
+            if (family == ROSETTA_CPUFAMILY) {
                 type = typeFamilyFreq.get().getA();
                 family = typeFamilyFreq.get().getB();
             }
@@ -240,22 +245,20 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
     }
 
-    private static Triplet<Integer, Integer, Long> appleArmCpu() {
-        int type = 0;
-        int family = 0;
+    private static Triplet<Integer, Integer, Long> queryArmCpu() {
+        int type = ROSETTA_CPUTYPE;
+        int family = ROSETTA_CPUFAMILY;
         long freq = 0L;
-        // All CPUs are an IOPlatformDevice parent of AppleARMCPU
+        // All CPUs are an IOPlatformDevice
         // Iterate each CPU and save frequency and "compatible" strings
-        IOIterator iter = IOKitUtil.getMatchingServices("AppleARMCPU");
+        IOIterator iter = IOKitUtil.getMatchingServices("IOPlatformDevice");
         if (iter != null) {
             Set<String> compatibleStrSet = new HashSet<>();
             IORegistryEntry cpu = iter.next();
             while (cpu != null) {
-                // Parent is the cpu device. Use DeviceTree for non-cached data
-                IORegistryEntry device = cpu.getParentEntry("IODeviceTree");
-                if (device != null) {
+                if (cpu.getName().startsWith("cpu")) {
                     // Accurate CPU vendor frequency in kHz as little-endian byte array
-                    byte[] data = device.getByteArrayProperty("clock-frequency");
+                    byte[] data = cpu.getByteArrayProperty("clock-frequency");
                     if (data != null) {
                         long cpuFreq = ParseUtil.byteArrayToLong(data, data.length, false) * 1000L;
                         if (cpuFreq > freq) {
@@ -263,7 +266,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                         }
                     }
                     // Compatible key is null-delimited C string array in byte array
-                    data = device.getByteArrayProperty("compatible");
+                    data = cpu.getByteArrayProperty("compatible");
                     if (data != null) {
                         for (String s : new String(data, StandardCharsets.UTF_8).split("\0")) {
                             if (!s.isEmpty()) {
@@ -282,8 +285,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             List<String> m1compatible = Arrays.asList("ARM,v8", "apple,firestorm", "apple,icestorm");
             compatibleStrSet.retainAll(m1compatible);
             if (compatibleStrSet.size() == m1compatible.size()) {
-                type = 0x0100000C;
-                family = 0x1b588bb3;
+                type = M1_CPUTYPE;
+                family = M1_CPUFAMILY;
             }
         }
         return new Triplet<>(type, family, freq);

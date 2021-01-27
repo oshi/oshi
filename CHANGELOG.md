@@ -1,6 +1,7 @@
 # 5.4.2 (in progress)
 
-* Your contribution here
+##### Bug fixes / Improvements
+* [#1509](https://github.com/oshi/oshi/pull/1509): Directly read M1 CPU IOPlatformDevice registry entries - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.4.0 (2021-01-18), 5.4.1 (2021-01-24)
 
