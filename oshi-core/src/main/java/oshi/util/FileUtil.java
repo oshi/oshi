@@ -192,14 +192,18 @@ public final class FileUtil {
 
     /**
      * Read a file and return a map of string keys to string values contained
-     * therein. Intended primarily for Linux /proc/[pid]/io
+     * therein. Intended primarily for Linux {@code /proc/[pid]} files to provide
+     * more detailed or accurate information not available in the API.
      *
      * @param filename
      *            The file to read
      * @param separator
-     *            Characters in each line of the file that separate the key and the
-     *            value
-     * @return The map contained in the file, if any; otherwise empty map
+     *            Character(s) in each line of the file that separate the key and
+     *            the value.
+     *
+     * @return The map contained in the file, delimited by the separator, with the
+     *         value whitespace trimmed. If keys and values are not parsed, an empty
+     *         map is returned.
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
         Map<String, String> map = new HashMap<>();
