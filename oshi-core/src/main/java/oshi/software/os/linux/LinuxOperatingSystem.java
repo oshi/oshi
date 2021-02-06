@@ -155,23 +155,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        List<OSProcess> procs = new ArrayList<>();
-        File[] pids = ProcessStat.getPidFiles();
-
-        // now for each file (with digit name) get process info
-        for (File pidFile : pids) {
-            int pid = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
-            OSProcess proc = new LinuxOSProcess(pid);
-            if (!proc.getState().equals(State.INVALID)) {
-                procs.add(proc);
-            }
-        }
-        // Sort
-        return processSort(procs, limit, sort);
-    }
-
-    @Override
     public OSProcess getProcess(int pid) {
         OSProcess proc = new LinuxOSProcess(pid);
         if (!proc.getState().equals(State.INVALID)) {
@@ -181,20 +164,24 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> queryAllProcesses() {
+        return queryChildProcesses(-1);
+    }
+
+    @Override
+    public List<OSProcess> queryChildProcesses(int parentPid) {
         List<OSProcess> procs = new ArrayList<>();
-        File[] procFiles = ProcessStat.getPidFiles();
         // now for each file (with digit name) get process info
-        for (File procFile : procFiles) {
+        for (File procFile : ProcessStat.getPidFiles()) {
             int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);
-            if (parentPid == getParentPidFromProcFile(pid)) {
+            if (parentPid == -1 || parentPid == getParentPidFromProcFile(pid)) {
                 OSProcess proc = new LinuxOSProcess(pid);
                 if (!proc.getState().equals(State.INVALID)) {
                     procs.add(proc);
                 }
             }
         }
-        return processSort(procs, limit, sort);
+        return procs;
     }
 
     private static int getParentPidFromProcFile(int pid) {
@@ -545,7 +532,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         // Get running services
         List<OSService> services = new ArrayList<>();
         Set<String> running = new HashSet<>();
-        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
             OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
             services.add(s);
             running.add(p.getName());

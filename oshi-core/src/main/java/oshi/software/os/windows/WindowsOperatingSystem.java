@@ -281,18 +281,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        List<OSProcess> procList = processMapToList(null);
-        return processSort(procList, limit, sort);
-    }
-
-    @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         return processMapToList(pids);
     }
 
     @Override
-    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> queryAllProcesses() {
+        return processMapToList(null);
+    }
+
+    @Override
+    public List<OSProcess> queryChildProcesses(int parentPid) {
         Set<Integer> childPids = new HashSet<>();
         // Get processes from ToolHelp API for parent PID
         Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
@@ -307,8 +306,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             Kernel32.INSTANCE.CloseHandle(snapshot);
         }
         // Get modifiable version
-        List<OSProcess> procList = processMapToList(childPids);
-        return processSort(procList, limit, sort);
+        return processMapToList(childPids);
     }
 
     @Override

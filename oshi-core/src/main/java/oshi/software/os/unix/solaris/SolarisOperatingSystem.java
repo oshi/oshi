@@ -99,13 +99,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
-        return processSort(procs, limit, sort);
-    }
-
-    @Override
     public OSProcess getProcess(int pid) {
         List<OSProcess> procs = getProcessListFromPS(
                 "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid);
@@ -116,17 +109,19 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> queryAllProcesses() {
+        return getProcessListFromPS("ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
+    }
+
+    @Override
+    public List<OSProcess> queryChildProcesses(int parentPid) {
         // Get list of children
         List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
         if (childPids.isEmpty()) {
             return Collections.emptyList();
         }
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
-                        + String.join(",", childPids),
-                -1);
-        return processSort(procs, limit, sort);
+        return getProcessListFromPS("ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
+                + String.join(",", childPids), -1);
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {

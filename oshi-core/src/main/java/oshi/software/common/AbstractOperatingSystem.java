@@ -23,13 +23,15 @@
  */
 package oshi.software.common;
 
+import static oshi.software.os.OperatingSystem.ProcessFiltering.ALL_PROCESSES;
+import static oshi.software.os.OperatingSystem.ProcessSorting.NO_SORTING;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -57,27 +59,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
     private final Supplier<FamilyVersionInfo> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
     private final Supplier<Integer> bitness = memoize(this::queryPlatformBitness);
-
-    /*
-     * Comparators for use in processSort().
-     */
-    private static final Comparator<OSProcess> CPU_DESC_SORT = Comparator
-            .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();
-
-    private static final Comparator<OSProcess> RSS_DESC_SORT = Comparator.comparingLong(OSProcess::getResidentSetSize)
-            .reversed();
-
-    private static final Comparator<OSProcess> UPTIME_ASC_SORT = Comparator.comparingLong(OSProcess::getUpTime);
-
-    private static final Comparator<OSProcess> UPTIME_DESC_SORT = UPTIME_ASC_SORT.reversed();
-
-    private static final Comparator<OSProcess> PID_ASC_SORT = Comparator.comparingInt(OSProcess::getProcessID);
-
-    private static final Comparator<OSProcess> PARENTPID_ASC_SORT = Comparator
-            .comparingInt(OSProcess::getParentProcessID);
-
-    private static final Comparator<OSProcess> NAME_ASC_SORT = Comparator.comparing(OSProcess::getName,
-            String.CASE_INSENSITIVE_ORDER);
 
     @Override
     public String getManufacturer() {
@@ -132,65 +113,6 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return new OSService[0];
     }
 
-    /**
-     * Sorts an array of processes using the specified sorting, returning an array
-     * with the top limit results if positive.
-     *
-     * @param processes
-     *            The array to sort
-     * @param limit
-     *            The number of results to return if positive; if zero returns all
-     *            results
-     * @param sort
-     *            The sorting to use, or null
-     * @return An array of size limit (if positive) or of all processes, sorted as
-     *         specified
-     */
-    protected List<OSProcess> processSort(List<OSProcess> processes, int limit, ProcessSort sort) {
-        if (sort != null) {
-            switch (sort) {
-            case CPU:
-                processes.sort(CPU_DESC_SORT);
-                break;
-            case MEMORY:
-                processes.sort(RSS_DESC_SORT);
-                break;
-            case OLDEST:
-                processes.sort(UPTIME_DESC_SORT);
-                break;
-            case NEWEST:
-                processes.sort(UPTIME_ASC_SORT);
-                break;
-            case PID:
-                processes.sort(PID_ASC_SORT);
-                break;
-            case PARENTPID:
-                processes.sort(PARENTPID_ASC_SORT);
-                break;
-            case NAME:
-                processes.sort(NAME_ASC_SORT);
-                break;
-            default:
-                // Should never get here! If you get this exception you've
-                // added something to the enum without adding it here. Tsk.
-                throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
-            }
-        }
-        // Return max of limit or process size
-        // Nonpositive limit means return all
-        int maxProcs = processes.size();
-        if (limit > 0 && maxProcs > limit) {
-            maxProcs = limit;
-        } else {
-            return processes;
-        }
-        List<OSProcess> procs = new ArrayList<>();
-        for (int i = 0; i < maxProcs; i++) {
-            procs.add(processes.get(i));
-        }
-        return procs;
-    }
-
     @Override
     public List<OSSession> getSessions() {
         return Who.queryWho();
@@ -198,7 +120,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     @Override
     public List<OSProcess> getProcesses() {
-        return getProcesses(0, null);
+        return getProcesses(null, null, 0);
     }
 
     @Override
@@ -206,12 +128,71 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return pids.stream().map(this::getProcess).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
+        return getProcesses(null, convertSortToComparator(sort), limit);
+    }
+
+    @Override
+    public List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit) {
+        return queryAllProcesses().stream().filter(filter == null ? ALL_PROCESSES : filter)
+                .sorted(sort == null ? NO_SORTING : sort).limit(limit > 0 ? limit : Long.MAX_VALUE)
+                .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("deprecation")
     @Override
     public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        // filter processes whose parent process id matches
-        List<OSProcess> procList = getProcesses(0, null).stream().filter(proc -> parentPid == proc.getParentProcessID())
+        return getChildProcesses(parentPid, null, convertSortToComparator(sort), limit);
+    }
+
+    @Override
+    public List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
+            int limit) {
+        return queryChildProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)
+                .sorted(sort == null ? NO_SORTING : sort).limit(limit > 0 ? limit : Long.MAX_VALUE)
                 .collect(Collectors.toList());
-        return processSort(procList, limit, sort);
+    }
+
+    protected abstract List<OSProcess> queryAllProcesses();
+
+    protected abstract List<OSProcess> queryChildProcesses(int parentPid);
+
+    /**
+     * Temporary method to convert deprecated ProcessSort to its corresponding
+     * comparator. Remove when the deprecated enum is removed.
+     *
+     * @param sort
+     *            The process sort
+     * @return The corresponding comparator
+     */
+    @SuppressWarnings("deprecation")
+    private Comparator<OSProcess> convertSortToComparator(ProcessSort sort) {
+        if (sort != null) {
+            switch (sort) {
+            case CPU:
+                return ProcessSorting.CPU_DESC;
+            case MEMORY:
+                return ProcessSorting.RSS_DESC;
+            case OLDEST:
+                return ProcessSorting.UPTIME_DESC;
+            case NEWEST:
+                return ProcessSorting.UPTIME_ASC;
+            case PID:
+                return ProcessSorting.PID_ASC;
+            case PARENTPID:
+                return ProcessSorting.PARENTPID_ASC;
+            case NAME:
+                return ProcessSorting.NAME_ASC;
+            default:
+                // Should never get here! If you get this exception you've
+                // added something to the enum without adding it here. Tsk.
+                // But that enum is now deprecated so double-tsk if you add!
+                throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
+            }
+        }
+        return ProcessSorting.NO_SORTING;
     }
 
     @Override

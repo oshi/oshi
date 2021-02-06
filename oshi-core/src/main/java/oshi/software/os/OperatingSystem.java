@@ -24,10 +24,13 @@
 package oshi.software.os;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.OSProcess.State;
 import oshi.util.Constants;
 import oshi.util.Util;
 
@@ -43,10 +46,91 @@ import oshi.util.Util;
 public interface OperatingSystem {
 
     /**
-     * Controls sorting of Process output
+     * Controls sorting of Process lists.
+     *
+     * @deprecated Use comparators from {@link ProcessSorting}.
      */
+    @Deprecated
     enum ProcessSort {
         CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
+    }
+
+    /**
+     * Constants which may be used to filter Process lists in
+     * {@link #getProcesses(Predicate, Comparator, int)} and
+     * {@link #getChildProcesses(int, Predicate, Comparator, int)}.
+     */
+    final class ProcessFiltering {
+        private ProcessFiltering() {
+        }
+
+        /**
+         * No filtering.
+         */
+        public static final Predicate<OSProcess> ALL_PROCESSES = p -> true;
+        /**
+         * Exclude processes with {@link State#INVALID} process state.
+         */
+        public static final Predicate<OSProcess> VALID_PROCESS = p -> !p.getState().equals(State.INVALID);
+        /**
+         * Exclude child processes. Only include processes which are their own parent.
+         */
+        public static final Predicate<OSProcess> NO_PARENT = p -> p.getParentProcessID() == p.getProcessID();
+        /**
+         * Only incude 64-bit processes.
+         */
+        public static final Predicate<OSProcess> BITNESS_64 = p -> p.getBitness() == 64;
+        /**
+         * Only include 32-bit processes.
+         */
+        public static final Predicate<OSProcess> BITNESS_32 = p -> p.getBitness() == 32;
+    }
+
+    /**
+     * Constants which may be used to sort Process lists in
+     * {@link #getProcesses(Predicate, Comparator, int)} and
+     * {@link #getChildProcesses(int, Predicate, Comparator, int)}.
+     */
+    final class ProcessSorting {
+        private ProcessSorting() {
+        }
+
+        /**
+         * No sorting
+         */
+        public static final Comparator<OSProcess> NO_SORTING = (p1, p2) -> 0;
+        /**
+         * Sort by decreasing cumulative CPU percentage
+         */
+        public static final Comparator<OSProcess> CPU_DESC = Comparator
+                .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();
+        /**
+         * Sort by decreasing Resident Set Size (RSS)
+         */
+        public static final Comparator<OSProcess> RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)
+                .reversed();
+        /**
+         * Sort by up time, newest processes first
+         */
+        public static final Comparator<OSProcess> UPTIME_ASC = Comparator.comparingLong(OSProcess::getUpTime);
+        /**
+         * Sort by up time, oldest processes first
+         */
+        public static final Comparator<OSProcess> UPTIME_DESC = UPTIME_ASC.reversed();
+        /**
+         * Sort by Process Id
+         */
+        public static final Comparator<OSProcess> PID_ASC = Comparator.comparingInt(OSProcess::getProcessID);
+        /**
+         * Sort by Parent Process Id
+         */
+        public static final Comparator<OSProcess> PARENTPID_ASC = Comparator
+                .comparingInt(OSProcess::getParentProcessID);
+        /**
+         * Sort by Process Name (case insensitive)
+         */
+        public static final Comparator<OSProcess> NAME_ASC = Comparator.comparing(OSProcess::getName,
+                String.CASE_INSENSITIVE_ORDER);
     }
 
     /**
@@ -116,6 +200,29 @@ public interface OperatingSystem {
     List<OSProcess> getProcesses();
 
     /**
+     * Gets currently running processes, optionally filtering, sorting, and limited
+     * to the top "N".
+     *
+     * @param filter
+     *            An optional {@link Predicate} limiting the results to the
+     *            specified filter. Some common predicates are available in
+     *            {@link ProcessSorting}. May be {@code null} for no filtering.
+     * @param sort
+     *            An optional {@link Comparator} specifying the sorting order. Some
+     *            common comparators are available in {@link ProcessSorting}. May be
+     *            {@code null} for no sorting.
+     * @param limit
+     *            Max number of results to return, or 0 to return all results
+     * @return A list of {@link oshi.software.os.OSProcess} objects, optionally
+     *         filtered, sorted, and limited to the specified number.
+     *         <p>
+     *         The list may contain processes with a state of
+     *         {@link OSProcess.State#INVALID} if a process terminates during
+     *         iteration.
+     */
+    List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit);
+
+    /**
      * Gets currently running processes, optionally limited to the top "N" for a
      * particular sorting order. If a positive limit is specified, returns only that
      * number of processes; zero will return all processes. The order may be
@@ -131,7 +238,10 @@ public interface OperatingSystem {
      *         specified. The list may contain null elements or processes with a
      *         state of {@link OSProcess.State#INVALID} if a process terminates
      *         during iteration.
+     * @deprecated Use {@link #getProcesses(Predicate, Comparator, int)} with
+     *             sorting constants from {@link ProcessSorting}.
      */
+    @Deprecated
     List<OSProcess> getProcesses(int limit, ProcessSort sort);
 
     /**
@@ -174,8 +284,38 @@ public interface OperatingSystem {
      *         provided PID, sorted as specified. The list may contain null elements
      *         or processes with a state of {@link OSProcess.State#INVALID} if a
      *         process terminates during iteration.
+     * @deprecated Use {@link #getChildProcesses(int, Predicate, Comparator, int)}
+     *             with sorting constants from {@link ProcessSorting}.
      */
+    @Deprecated
     List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort);
+
+    /**
+     * Gets currently running child processes of provided parent PID, optionally
+     * filtering, sorting, and limited to the top "N".
+     *
+     * @param parentPid
+     *            The Process ID whose children to list.
+     * @param filter
+     *            An optional {@link Predicate} limiting the results to the
+     *            specified filter. Some common predicates are available in
+     *            {@link ProcessSorting}. May be {@code null} for no filtering.
+     * @param sort
+     *            An optional {@link Comparator} specifying the sorting order. Some
+     *            common comparators are available in {@link ProcessSorting}. May be
+     *            {@code null} for no sorting.
+     * @param limit
+     *            Max number of results to return, or 0 to return all results
+     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
+     *         currently running child processes of the provided PID, optionally
+     *         filtered, sorted, and limited to the specified number.
+     *         <p>
+     *         The list may contain processes with a state of
+     *         {@link OSProcess.State#INVALID} if a process terminates during
+     *         iteration.
+     */
+    List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
+            int limit);
 
     /**
      * Gets the current process ID

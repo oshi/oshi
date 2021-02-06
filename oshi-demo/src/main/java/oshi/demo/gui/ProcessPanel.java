@@ -108,7 +108,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         settings.add(memButton);
         cpuButton.setSelected(true);
 
-        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(0, null), si), COLUMNS);
+        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);
         JTable procTable = new JTable(model);
         JScrollPane scrollV = new JScrollPane(procTable);
         scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -119,7 +119,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 
         Timer timer = new Timer(Config.REFRESH_SLOW, e -> {
             DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();
-            Object[][] newData = parseProcesses(os.getProcesses(0, null), si);
+            Object[][] newData = parseProcesses(os.getProcesses(null, null, 0), si);
             int rowCount = tableModel.getRowCount();
             for (int row = 0; row < newData.length; row++) {
                 if (row < rowCount) {

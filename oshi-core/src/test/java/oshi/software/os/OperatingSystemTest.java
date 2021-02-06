@@ -53,7 +53,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
-import oshi.software.os.OperatingSystem.ProcessSort;
+import oshi.software.os.OperatingSystem.ProcessFiltering;
+import oshi.software.os.OperatingSystem.ProcessSorting;
 
 /**
  * Test OS
@@ -93,7 +94,8 @@ class OperatingSystemTest {
                 "The current process' permissions (if has sudo or Administrator privileges) should be determined correctly",
                 os.isElevated(), is(anything()));
 
-        assertThat("OS should have at least 1 currently running process", os.getProcesses(0, null), is(not(empty())));
+        assertThat("OS should have at least 1 currently running process", os.getProcesses(null, null, 0),
+                is(not(empty())));
     }
 
     @Test
@@ -181,7 +183,7 @@ class OperatingSystemTest {
         assertThat("OS current running process id should be 0 or higher", os.getProcessId(),
                 is(greaterThanOrEqualTo(0)));
 
-        List<OSProcess> processes = os.getProcesses(5, null);
+        List<OSProcess> processes = os.getProcesses(null, null, 0);
         assertThat("Currently running processes shouldn't be null", processes, is(notNullValue()));
         assertThat("every OS should have at least one process running on it", processes, is(not(empty())));
         // the list of pids we want info on
@@ -226,7 +228,7 @@ class OperatingSystemTest {
         //
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        List<OSProcess> processes = os.getProcesses(0, null);
+        List<OSProcess> processes = os.getProcesses(null, null, 0);
         Set<Integer> zeroChildSet = new HashSet<>();
         Set<Integer> oneChildSet = new HashSet<>();
         Set<Integer> manyChildSet = new HashSet<>();
@@ -250,7 +252,7 @@ class OperatingSystemTest {
         int matched = 0;
         int total = 0;
         for (Integer i : zeroChildSet) {
-            if (os.getChildProcesses(i, 0, null).isEmpty()) {
+            if (os.getChildProcesses(i, null, null, 0).isEmpty()) {
                 matched++;
             }
             // Quit if enough to test
@@ -265,7 +267,7 @@ class OperatingSystemTest {
         matched = 0;
         total = 0;
         for (Integer i : oneChildSet) {
-            if (os.getChildProcesses(i, 0, null).size() == 1) {
+            if (os.getChildProcesses(i, null, null, 0).size() == 1) {
                 matched++;
             }
             // Quit if enough to test
@@ -281,7 +283,8 @@ class OperatingSystemTest {
         total = 0;
         for (Integer i : manyChildSet) {
             // Use a non-null sorting for test purposes
-            if (os.getChildProcesses(i, Integer.MAX_VALUE, ProcessSort.PID).size() > 1) {
+            if (os.getChildProcesses(i, ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC, Integer.MAX_VALUE)
+                    .size() > 1) {
                 matched++;
             }
             // Quit if enough to test
@@ -301,7 +304,7 @@ class OperatingSystemTest {
 
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        for (OSProcess process : os.getProcesses(0, null)) {
+        for (OSProcess process : os.getProcesses(null, null, 0)) {
             if (!process.getCommandLine().trim().isEmpty()) {
                 processesWithNonEmptyCmdLine++;
             }
