@@ -150,10 +150,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             WmiResult<DeviceIdProperty> serialNumbers = Win32DiskDrive.queryDiskDriveId(whereClause);
             for (int i = 0; i < serialNumbers.getResultCount(); i++) {
                 String pnpDeviceID = WmiUtil.getString(serialNumbers, DeviceIdProperty.PNPDEVICEID, i);
-                if (deviceStringCache.containsKey(pnpDeviceID)) {
-                    pnpToSerialMap.put(pnpDeviceID, ParseUtil
-                            .hexStringToString(WmiUtil.getString(serialNumbers, DeviceIdProperty.SERIALNUMBER, i)));
-                }
+                pnpToSerialMap.put(pnpDeviceID, ParseUtil
+                        .hexStringToString(WmiUtil.getString(serialNumbers, DeviceIdProperty.SERIALNUMBER, i)));
             }
             // Query Win32_PnPEntity to populate the maps
             WmiResult<PnPEntityProperty> pnpEntity = Win32PnPEntity.queryDeviceId(whereClause);
