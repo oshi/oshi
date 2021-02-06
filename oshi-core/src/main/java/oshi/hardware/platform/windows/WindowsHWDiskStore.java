@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -65,8 +66,11 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStore.class);
 
     private static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
-
     private static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
+
+    // A reasonable size for the buffer to accommodate the largest possible volume
+    // GUID path is 50 characters.
+    private static final int GUID_BUFSIZE = 100;
 
     private long reads = 0L;
     private long readBytes = 0L;
@@ -301,10 +305,13 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             for (int j = 0; j < logicalDrives.size(); j++) {
                 Pair<String, Long> logicalDrive = logicalDrives.get(j);
                 if (logicalDrive != null && !logicalDrive.getA().isEmpty()) {
+                    char[] volumeChr = new char[GUID_BUFSIZE];
+                    Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive.getA(), volumeChr, GUID_BUFSIZE);
+                    String uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), "");
                     HWPartition pt = new HWPartition(
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
-                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), "",
+                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,
                             logicalDrive.getB(),
                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i),
