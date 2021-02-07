@@ -92,6 +92,7 @@ import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Microsoft Windows, commonly referred to as Windows, is a group of several
@@ -135,10 +136,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
         if (versionInfo.getResultCount() < 1) {
-            return new FamilyVersionInfo("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
+            return new Pair<>("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
         }
         // Guaranteed that versionInfo is not null and lists non-empty
         // before calling the parse*() methods
@@ -146,7 +147,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         String buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
         String version = parseVersion(versionInfo, suiteMask, buildNumber);
         String codeName = parseCodeName(suiteMask);
-        return new FamilyVersionInfo("Windows", new OSVersionInfo(version, codeName, buildNumber));
+        return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
     }
 
     private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {

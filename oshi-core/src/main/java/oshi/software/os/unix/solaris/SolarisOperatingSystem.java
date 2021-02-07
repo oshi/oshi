@@ -48,6 +48,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
+import oshi.util.tuples.Pair;
 
 /**
  * Solaris is a non-free Unix operating system originally developed by Sun
@@ -65,14 +66,14 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
         String version = split[0];
         String buildNumber = null;
         if (split.length > 1) {
             buildNumber = split[1];
         }
-        return new FamilyVersionInfo("SunOS", new OSVersionInfo(version, "Solaris", buildNumber));
+        return new Pair<>("SunOS", new OSVersionInfo(version, "Solaris", buildNumber));
     }
 
     @Override

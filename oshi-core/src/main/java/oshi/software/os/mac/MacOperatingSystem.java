@@ -59,6 +59,7 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * macOS, previously Mac OS X and later OS X) is a series of proprietary
@@ -124,12 +125,12 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         String family = this.major > 10 || (this.major == 10 && this.minor >= 12) ? "macOS"
                 : System.getProperty("os.name");
         String codeName = parseCodeName();
         String buildNumber = SysctlUtil.sysctl("kern.osversion", "");
-        return new FamilyVersionInfo(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
+        return new Pair<>(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
     }
 
     private String parseCodeName() {

@@ -77,7 +77,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         perfstat_partition_config_t cfg = config.get();
 
         String systemName = System.getProperty("os.name");
@@ -96,7 +96,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
                 releaseNumber = releaseNumber.substring(idx + 1);
             }
         }
-        return new FamilyVersionInfo(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
+        return new Pair<>(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
     }
 
     @Override

@@ -27,26 +27,18 @@ import static oshi.software.os.OperatingSystem.ProcessFiltering.ALL_PROCESSES;
 import static oshi.software.os.OperatingSystem.ProcessSorting.NO_SORTING;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Platform; // NOSONAR squid:S1191
 
-import oshi.driver.unix.Who;
-import oshi.driver.unix.Xwininfo;
-import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSService;
-import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
-import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
-import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Common methods for OperatingSystem implementations
@@ -57,7 +49,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected static final boolean USE_WHO_COMMAND = GlobalConfig.get(OSHI_OS_UNIX_WHOCOMMAND, false);
 
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
-    private final Supplier<FamilyVersionInfo> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
+    private final Supplier<Pair<String, OSVersionInfo>> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
     private final Supplier<Integer> bitness = memoize(this::queryPlatformBitness);
 
     @Override
@@ -69,15 +61,15 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     @Override
     public String getFamily() {
-        return familyVersionInfo.get().family;
+        return familyVersionInfo.get().getA();
     }
 
     @Override
     public OSVersionInfo getVersionInfo() {
-        return familyVersionInfo.get().versionInfo;
+        return familyVersionInfo.get().getB();
     }
 
-    protected abstract FamilyVersionInfo queryFamilyVersionInfo();
+    protected abstract Pair<String, OSVersionInfo> queryFamilyVersionInfo();
 
     @Override
     public int getBitness() {
@@ -104,48 +96,13 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected abstract int queryBitness(int jvmBitness);
 
     @Override
-    public boolean isElevated() {
-        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"), -1);
-    }
-
-    @Override
-    public OSService[] getServices() {
-        return new OSService[0];
-    }
-
-    @Override
-    public List<OSSession> getSessions() {
-        return Who.queryWho();
-    }
-
-    @Override
-    public List<OSProcess> getProcesses() {
-        return getProcesses(null, null, 0);
-    }
-
-    @Override
-    public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return pids.stream().map(this::getProcess).filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        return getProcesses(null, convertSortToComparator(sort), limit);
-    }
-
-    @Override
     public List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit) {
         return queryAllProcesses().stream().filter(filter == null ? ALL_PROCESSES : filter)
                 .sorted(sort == null ? NO_SORTING : sort).limit(limit > 0 ? limit : Long.MAX_VALUE)
                 .collect(Collectors.toList());
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        return getChildProcesses(parentPid, null, convertSortToComparator(sort), limit);
-    }
+    protected abstract List<OSProcess> queryAllProcesses();
 
     @Override
     public List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
@@ -155,70 +112,12 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 .collect(Collectors.toList());
     }
 
-    protected abstract List<OSProcess> queryAllProcesses();
-
     protected abstract List<OSProcess> queryChildProcesses(int parentPid);
-
-    /**
-     * Temporary method to convert deprecated ProcessSort to its corresponding
-     * comparator. Remove when the deprecated enum is removed.
-     *
-     * @param sort
-     *            The process sort
-     * @return The corresponding comparator
-     */
-    @SuppressWarnings("deprecation")
-    private Comparator<OSProcess> convertSortToComparator(ProcessSort sort) {
-        if (sort != null) {
-            switch (sort) {
-            case CPU:
-                return ProcessSorting.CPU_DESC;
-            case MEMORY:
-                return ProcessSorting.RSS_DESC;
-            case OLDEST:
-                return ProcessSorting.UPTIME_DESC;
-            case NEWEST:
-                return ProcessSorting.UPTIME_ASC;
-            case PID:
-                return ProcessSorting.PID_ASC;
-            case PARENTPID:
-                return ProcessSorting.PARENTPID_ASC;
-            case NAME:
-                return ProcessSorting.NAME_ASC;
-            default:
-                // Should never get here! If you get this exception you've
-                // added something to the enum without adding it here. Tsk.
-                // But that enum is now deprecated so double-tsk if you add!
-                throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
-            }
-        }
-        return ProcessSorting.NO_SORTING;
-    }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());
         return sb.toString();
-    }
-
-    @Override
-    public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
-        // Default X11 implementation for Unix-like operating systems.
-        // Overridden on Windows and macOS
-        return Xwininfo.queryXWindows(visibleOnly);
-    }
-
-    /**
-     * Encapsulates OS Family and version information
-     */
-    protected static final class FamilyVersionInfo {
-        private final String family;
-        private final OSVersionInfo versionInfo;
-
-        public FamilyVersionInfo(String family, OSVersionInfo versionInfo) {
-            this.family = family;
-            this.versionInfo = versionInfo;
-        }
     }
 }

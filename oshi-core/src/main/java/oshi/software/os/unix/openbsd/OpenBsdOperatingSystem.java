@@ -51,6 +51,7 @@ import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  *
@@ -73,7 +74,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         int[] mib = new int[2];
         mib[0] = CTL_KERN;
         mib[1] = KERN_OSTYPE;
@@ -84,7 +85,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         String versionInfo = OpenBsdSysctlUtil.sysctl(mib, "");
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
-        return new FamilyVersionInfo(family, new OSVersionInfo(version, null, buildNumber));
+        return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
     }
 
     @Override

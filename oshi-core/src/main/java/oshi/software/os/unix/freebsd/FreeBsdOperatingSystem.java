@@ -50,6 +50,7 @@ import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * FreeBSD is a free and open-source Unix-like operating system descended from
@@ -71,14 +72,14 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         String family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
 
         String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
-        return new FamilyVersionInfo(family, new OSVersionInfo(version, null, buildNumber));
+        return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
     }
 
     @Override

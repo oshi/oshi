@@ -59,6 +59,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -113,7 +114,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         Triplet<String, String, String> familyVersionCodename = queryFamilyVersionCodenameFromReleaseFiles();
         String buildNumber = null;
         List<String> procVersion = FileUtil.readFile(ProcPath.VERSION);
@@ -128,7 +129,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         OSVersionInfo versionInfo = new OSVersionInfo(familyVersionCodename.getB(), familyVersionCodename.getC(),
                 buildNumber);
-        return new FamilyVersionInfo(familyVersionCodename.getA(), versionInfo);
+        return new Pair<>(familyVersionCodename.getA(), versionInfo);
     }
 
     @Override

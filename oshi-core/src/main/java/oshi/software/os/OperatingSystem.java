@@ -26,12 +26,18 @@ package oshi.software.os;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.Who;
+import oshi.driver.unix.Xwininfo;
 import oshi.software.os.OSProcess.State;
 import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -131,26 +137,61 @@ public interface OperatingSystem {
          */
         public static final Comparator<OSProcess> NAME_ASC = Comparator.comparing(OSProcess::getName,
                 String.CASE_INSENSITIVE_ORDER);
+
+        /**
+         * Temporary method to convert deprecated ProcessSort to its corresponding
+         * comparator. Remove when the deprecated enum is removed.
+         *
+         * @param sort
+         *            The process sort
+         * @return The corresponding comparator
+         */
+        private static Comparator<OSProcess> convertSortToComparator(ProcessSort sort) {
+            if (sort != null) {
+                switch (sort) {
+                case CPU:
+                    return CPU_DESC;
+                case MEMORY:
+                    return RSS_DESC;
+                case OLDEST:
+                    return UPTIME_DESC;
+                case NEWEST:
+                    return UPTIME_ASC;
+                case PID:
+                    return PID_ASC;
+                case PARENTPID:
+                    return PARENTPID_ASC;
+                case NAME:
+                    return NAME_ASC;
+                default:
+                    // Should never get here! If you get this exception you've
+                    // added something to the enum without adding it here. Tsk.
+                    // But that enum is now deprecated so double-tsk if you add!
+                    throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
+                }
+            }
+            return NO_SORTING;
+        }
     }
 
     /**
-     * Operating system family.
+     * Get the Operating System family.
      *
-     * @return String.
+     * @return the family
      */
     String getFamily();
 
     /**
-     * Manufacturer.
+     * Get the Operating System manufacturer.
      *
-     * @return String.
+     * @return the manufacturer
      */
     String getManufacturer();
 
     /**
-     * Operating system version information.
+     * Get Operating System version information.
      *
-     * @return Version information.
+     * @return version information
      */
     OSVersionInfo getVersionInfo();
 
@@ -169,26 +210,6 @@ public interface OperatingSystem {
     InternetProtocolStats getInternetProtocolStats();
 
     /**
-     * Gets currently logged in users.
-     * <p>
-     * On macOS, Linux, and Unix systems, the default implementation uses native
-     * code (see {@code man getutxent}) that is not thread safe. OSHI's use of this
-     * code is synchronized and may be used in a multi-threaded environment without
-     * introducing any additional conflicts. Users should note, however, that other
-     * operating system code may access the same native code.
-     * <p>
-     * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output
-     * parsing the output of the Posix-standard {@code who} command, and may
-     * internally employ reentrant code on some platforms. Users may opt to use this
-     * command-line variant by default using the {@code oshi.os.unix.whoCommand}
-     * configuration property.
-     *
-     * @return A list of {@link oshi.software.os.OSSession} objects representing
-     *         logged-in users
-     */
-    List<OSSession> getSessions();
-
-    /**
      * Gets currently running processes. No order is guaranteed.
      *
      * @return A list of {@link oshi.software.os.OSProcess} objects for the
@@ -197,7 +218,9 @@ public interface OperatingSystem {
      *         state of {@link OSProcess.State#INVALID} if a process terminates
      *         during iteration.
      */
-    List<OSProcess> getProcesses();
+    default List<OSProcess> getProcesses() {
+        return getProcesses(null, null, 0);
+    }
 
     /**
      * Gets currently running processes, optionally filtering, sorting, and limited
@@ -242,7 +265,9 @@ public interface OperatingSystem {
      *             sorting constants from {@link ProcessSorting}.
      */
     @Deprecated
-    List<OSProcess> getProcesses(int limit, ProcessSort sort);
+    default List<OSProcess> getProcesses(int limit, ProcessSort sort) {
+        return getProcesses(null, ProcessSorting.convertSortToComparator(sort), limit);
+    }
 
     /**
      * Gets information on a {@link Collection} of currently running processes. This
@@ -253,7 +278,10 @@ public interface OperatingSystem {
      * @return A list of {@link oshi.software.os.OSProcess} objects for the
      *         specified process ids if it is running
      */
-    List<OSProcess> getProcesses(Collection<Integer> pids);
+    default List<OSProcess> getProcesses(Collection<Integer> pids) {
+        return pids.stream().map(this::getProcess).filter(Objects::nonNull).filter(ProcessFiltering.VALID_PROCESS)
+                .collect(Collectors.toList());
+    }
 
     /**
      * Gets information on a currently running process
@@ -288,7 +316,9 @@ public interface OperatingSystem {
      *             with sorting constants from {@link ProcessSorting}.
      */
     @Deprecated
-    List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort);
+    default List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+        return getChildProcesses(parentPid, null, ProcessSorting.convertSortToComparator(sort), limit);
+    }
 
     /**
      * Gets currently running child processes of provided parent PID, optionally
@@ -366,7 +396,9 @@ public interface OperatingSystem {
      *
      * @return True if this process has elevated permissions
      */
-    boolean isElevated();
+    default boolean isElevated() {
+        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"), -1);
+    }
 
     /**
      * Instantiates a {@link oshi.software.os.NetworkParams} object.
@@ -381,7 +413,31 @@ public interface OperatingSystem {
      *
      * @return An array of {@link OSService} objects
      */
-    OSService[] getServices();
+    default OSService[] getServices() {
+        return new OSService[0];
+    }
+
+    /**
+     * Gets currently logged in users.
+     * <p>
+     * On macOS, Linux, and Unix systems, the default implementation uses native
+     * code (see {@code man getutxent}) that is not thread safe. OSHI's use of this
+     * code is synchronized and may be used in a multi-threaded environment without
+     * introducing any additional conflicts. Users should note, however, that other
+     * operating system code may access the same native code.
+     * <p>
+     * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output
+     * parsing the output of the Posix-standard {@code who} command, and may
+     * internally employ reentrant code on some platforms. Users may opt to use this
+     * command-line variant by default using the {@code oshi.os.unix.whoCommand}
+     * configuration property.
+     *
+     * @return A list of {@link oshi.software.os.OSSession} objects representing
+     *         logged-in users
+     */
+    default List<OSSession> getSessions() {
+        return Who.queryWho();
+    }
 
     /**
      * Gets windows on the operating system's GUI desktop.
@@ -402,7 +458,11 @@ public interface OperatingSystem {
      * @return A list of {@link oshi.software.os.OSDesktopWindow} objects
      *         representing the desktop windows.
      */
-    List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly);
+    default List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
+        // Default X11 implementation for Unix-like operating systems.
+        // Overridden on Windows and macOS
+        return Xwininfo.queryXWindows(visibleOnly);
+    }
 
     /**
      * A class representing the Operating System version details.
