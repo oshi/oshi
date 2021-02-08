@@ -38,6 +38,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Uptime;
@@ -45,8 +47,6 @@ import oshi.driver.unix.aix.Who;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatProcess;
 import oshi.jna.platform.unix.aix.AixLibc;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;

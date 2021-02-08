@@ -7,6 +7,7 @@
 * [#1509](https://github.com/oshi/oshi/pull/1509): Directly read M1 CPU IOPlatformDevice registry entries - [@dbwiddis](https://github.com/dbwiddis).
 * [#1523](https://github.com/oshi/oshi/pull/1523): Fix Windows partition GUID retrieval - [@dbwiddis](https://github.com/dbwiddis).
 * [#1524](https://github.com/oshi/oshi/pull/1524): Fix Windows USB serial number retrieval - [@ymortier](https://github.com/ymortier).
+* [#1529](https://github.com/oshi/oshi/pull/1529): JNA 5.7.0 - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.4.0 (2021-01-18), 5.4.1 (2021-01-24)
 

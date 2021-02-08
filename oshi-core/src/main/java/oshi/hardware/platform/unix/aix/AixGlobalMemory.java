@@ -30,12 +30,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t; // NOSONAR squid:S1191
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatMemory;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 
