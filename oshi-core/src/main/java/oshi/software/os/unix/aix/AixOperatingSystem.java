@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 
@@ -76,7 +77,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         perfstat_partition_config_t cfg = config.get();
 
         String systemName = System.getProperty("os.name");
@@ -95,7 +96,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
                 releaseNumber = releaseNumber.substring(idx + 1);
             }
         }
-        return new FamilyVersionInfo(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
+        return new Pair<>(systemName, new OSVersionInfo(versionNumber, archName, releaseNumber));
     }
 
     @Override
@@ -118,10 +119,15 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        List<OSProcess> procs = getProcessListFromPS(
+    public List<OSProcess> queryAllProcesses() {
+        return getProcessListFromPS(
                 "ps -A -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,comm,pagein,args", -1);
-        return processSort(procs, limit, sort);
+    }
+
+    @Override
+    public List<OSProcess> queryChildProcesses(int parentPid) {
+        return queryAllProcesses().stream().filter(p -> p.getParentProcessID() == parentPid)
+                .collect(Collectors.toList());
     }
 
     @Override

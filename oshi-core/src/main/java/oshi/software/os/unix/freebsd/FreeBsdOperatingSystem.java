@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * FreeBSD is a free and open-source Unix-like operating system descended from
@@ -70,14 +72,14 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         String family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
 
         String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
-        return new FamilyVersionInfo(family, new OSVersionInfo(version, null, buildNumber));
+        return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
     }
 
     @Override
@@ -104,9 +106,14 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        List<OSProcess> procs = getProcessListFromPS(-1);
-        return processSort(procs, limit, sort);
+    public List<OSProcess> queryAllProcesses() {
+        return getProcessListFromPS(-1);
+    }
+
+    @Override
+    public List<OSProcess> queryChildProcesses(int parentPid) {
+        return queryAllProcesses().stream().filter(p -> p.getParentProcessID() == parentPid)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -199,7 +206,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         // Get running services
         List<OSService> services = new ArrayList<>();
         Set<String> running = new HashSet<>();
-        for (OSProcess p : getChildProcesses(1, 0, ProcessSort.PID)) {
+        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
             OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
             services.add(s);
             running.add(p.getName());

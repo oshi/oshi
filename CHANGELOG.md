@@ -1,4 +1,7 @@
-# 5.4.2 (in progress)
+# 5.5.0 (in progress)
+
+##### New Features
+* [#1526](https://github.com/oshi/oshi/pull/1526): Make process filtering and sorting more flexible - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#1509](https://github.com/oshi/oshi/pull/1509): Directly read M1 CPU IOPlatformDevice registry entries - [@dbwiddis](https://github.com/dbwiddis).

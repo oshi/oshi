@@ -92,6 +92,7 @@ import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Microsoft Windows, commonly referred to as Windows, is a group of several
@@ -135,10 +136,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public FamilyVersionInfo queryFamilyVersionInfo() {
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
         if (versionInfo.getResultCount() < 1) {
-            return new FamilyVersionInfo("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
+            return new Pair<>("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
         }
         // Guaranteed that versionInfo is not null and lists non-empty
         // before calling the parse*() methods
@@ -146,7 +147,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         String buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
         String version = parseVersion(versionInfo, suiteMask, buildNumber);
         String codeName = parseCodeName(suiteMask);
-        return new FamilyVersionInfo("Windows", new OSVersionInfo(version, codeName, buildNumber));
+        return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
     }
 
     private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
@@ -281,18 +282,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        List<OSProcess> procList = processMapToList(null);
-        return processSort(procList, limit, sort);
-    }
-
-    @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
         return processMapToList(pids);
     }
 
     @Override
-    public List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
+    public List<OSProcess> queryAllProcesses() {
+        return processMapToList(null);
+    }
+
+    @Override
+    public List<OSProcess> queryChildProcesses(int parentPid) {
         Set<Integer> childPids = new HashSet<>();
         // Get processes from ToolHelp API for parent PID
         Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
@@ -307,8 +307,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             Kernel32.INSTANCE.CloseHandle(snapshot);
         }
         // Get modifiable version
-        List<OSProcess> procList = processMapToList(childPids);
-        return processSort(procList, limit, sort);
+        return processMapToList(childPids);
     }
 
     @Override
