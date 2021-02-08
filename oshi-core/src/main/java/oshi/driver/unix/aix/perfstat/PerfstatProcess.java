@@ -25,10 +25,11 @@ package oshi.driver.unix.aix.perfstat;
 
 import java.util.Arrays;
 
+import com.sun.jna.platform.unix.aix.Perfstat; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_id_t;
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
+
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.aix.Perfstat;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 
 /**
  * Utility to query performance stats for processes

@@ -29,6 +29,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t; // NOSONAR squid:S1191
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Lscfg;
 import oshi.driver.unix.aix.perfstat.PerfstatDisk;
@@ -45,7 +47,6 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.UnixDisplay;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 /**
  * AIXHardwareAbstractionLayer class.

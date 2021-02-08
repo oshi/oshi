@@ -25,9 +25,10 @@ package oshi.hardware.platform.unix.aix;
 
 import java.util.function.Supplier;
 
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t; // NOSONAR squid:S1191
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 
 /**
  * Memory obtained by perfstat_memory_total_t
