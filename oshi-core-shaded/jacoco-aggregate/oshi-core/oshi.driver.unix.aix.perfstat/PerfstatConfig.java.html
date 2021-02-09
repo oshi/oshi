@@ -23,9 +23,10 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
+import com.sun.jna.platform.unix.aix.Perfstat; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
+
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.aix.Perfstat;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 
 /**
  * Utility to query partition config
@@ -33,7 +34,7 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 @ThreadSafe
 public final class PerfstatConfig {
 
-<span class="nc" id="L36">    private static final Perfstat PERF = Perfstat.INSTANCE;</span>
+<span class="nc" id="L37">    private static final Perfstat PERF = Perfstat.INSTANCE;</span>
 
     private PerfstatConfig() {
     }
@@ -44,12 +45,12 @@ public final class PerfstatConfig {
      * @return usage statistics
      */
     public static perfstat_partition_config_t queryConfig() {
-<span class="nc" id="L47">        perfstat_partition_config_t config = new perfstat_partition_config_t();</span>
-<span class="nc" id="L48">        int ret = PERF.perfstat_partition_config(null, config, config.size(), 1);</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (ret &gt; 0) {</span>
-<span class="nc" id="L50">            return config;</span>
+<span class="nc" id="L48">        perfstat_partition_config_t config = new perfstat_partition_config_t();</span>
+<span class="nc" id="L49">        int ret = PERF.perfstat_partition_config(null, config, config.size(), 1);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (ret &gt; 0) {</span>
+<span class="nc" id="L51">            return config;</span>
         }
-<span class="nc" id="L52">        return new perfstat_partition_config_t();</span>
+<span class="nc" id="L53">        return new perfstat_partition_config_t();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

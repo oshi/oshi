@@ -33,15 +33,15 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Lssrad;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;

@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Native; // NOSONAR squid:s1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Ls;
@@ -40,7 +41,6 @@ import oshi.driver.unix.aix.Lspv;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 import oshi.util.Constants;
 import oshi.util.tuples.Pair;
 
