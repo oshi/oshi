@@ -108,7 +108,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L108">        settings.add(memButton);</span>
 <span class="nc" id="L109">        cpuButton.setSelected(true);</span>
 
-<span class="nc" id="L111">        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(0, null), si), COLUMNS);</span>
+<span class="nc" id="L111">        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);</span>
 <span class="nc" id="L112">        JTable procTable = new JTable(model);</span>
 <span class="nc" id="L113">        JScrollPane scrollV = new JScrollPane(procTable);</span>
 <span class="nc" id="L114">        scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span>
@@ -119,7 +119,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 
 <span class="nc" id="L120">        Timer timer = new Timer(Config.REFRESH_SLOW, e -&gt; {</span>
 <span class="nc" id="L121">            DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();</span>
-<span class="nc" id="L122">            Object[][] newData = parseProcesses(os.getProcesses(0, null), si);</span>
+<span class="nc" id="L122">            Object[][] newData = parseProcesses(os.getProcesses(null, null, 0), si);</span>
 <span class="nc" id="L123">            int rowCount = tableModel.getRowCount();</span>
 <span class="nc bnc" id="L124" title="All 2 branches missed.">            for (int row = 0; row &lt; newData.length; row++) {</span>
 <span class="nc bnc" id="L125" title="All 2 branches missed.">                if (row &lt; rowCount) {</span>

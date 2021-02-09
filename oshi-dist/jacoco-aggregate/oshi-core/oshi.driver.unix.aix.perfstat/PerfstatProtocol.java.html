@@ -23,10 +23,11 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
+import com.sun.jna.platform.unix.aix.Perfstat;
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_id_t;
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
+
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.aix.Perfstat;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_id_t;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 
 /**
  * Utility to query performance stats for network interfaces
@@ -34,7 +35,7 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 @ThreadSafe
 public final class PerfstatProtocol {
 
-<span class="nc" id="L37">    private static final Perfstat PERF = Perfstat.INSTANCE;</span>
+<span class="nc" id="L38">    private static final Perfstat PERF = Perfstat.INSTANCE;</span>
 
     private PerfstatProtocol() {
     }
@@ -45,18 +46,18 @@ public final class PerfstatProtocol {
      * @return an array of usage statistics
      */
     public static perfstat_protocol_t[] queryProtocols() {
-<span class="nc" id="L48">        perfstat_protocol_t protocol = new perfstat_protocol_t();</span>
+<span class="nc" id="L49">        perfstat_protocol_t protocol = new perfstat_protocol_t();</span>
         // With null, null, ..., 0, returns total # of elements
-<span class="nc" id="L50">        int total = PERF.perfstat_protocol(null, null, protocol.size(), 0);</span>
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (total &gt; 0) {</span>
-<span class="nc" id="L52">            perfstat_protocol_t[] statp = (perfstat_protocol_t[]) protocol.toArray(total);</span>
-<span class="nc" id="L53">            perfstat_id_t firstprotocol = new perfstat_id_t(); // name is &quot;&quot;</span>
-<span class="nc" id="L54">            int ret = PERF.perfstat_protocol(firstprotocol, statp, protocol.size(), total);</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (ret &gt; 0) {</span>
-<span class="nc" id="L56">                return statp;</span>
+<span class="nc" id="L51">        int total = PERF.perfstat_protocol(null, null, protocol.size(), 0);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (total &gt; 0) {</span>
+<span class="nc" id="L53">            perfstat_protocol_t[] statp = (perfstat_protocol_t[]) protocol.toArray(total);</span>
+<span class="nc" id="L54">            perfstat_id_t firstprotocol = new perfstat_id_t(); // name is &quot;&quot;</span>
+<span class="nc" id="L55">            int ret = PERF.perfstat_protocol(firstprotocol, statp, protocol.size(), total);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (ret &gt; 0) {</span>
+<span class="nc" id="L57">                return statp;</span>
             }
         }
-<span class="nc" id="L59">        return new perfstat_protocol_t[0];</span>
+<span class="nc" id="L60">        return new perfstat_protocol_t[0];</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

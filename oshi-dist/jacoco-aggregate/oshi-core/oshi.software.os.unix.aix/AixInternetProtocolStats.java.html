@@ -29,10 +29,10 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatProtocol;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 import oshi.software.common.AbstractInternetProtocolStats;
 
 /**
