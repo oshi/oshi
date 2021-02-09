@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2021 oshi</copyright>
     <item>
-      <title>File: 406,
-             Errors: 12988,
+      <title>File: 404,
+             Errors: 11294,
              Warnings: 0,
              Infos: 0
       </title>
@@ -181,7 +181,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  44
                 </td>
               </tr>
                           <tr>
@@ -573,7 +573,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
+                  40
                 </td>
               </tr>
                           <tr>
@@ -657,7 +657,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  59
+                  63
                 </td>
               </tr>
                           <tr>
@@ -1119,7 +1119,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  51
+                  46
                 </td>
               </tr>
                           <tr>
@@ -2295,7 +2295,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  68
+                  40
                 </td>
               </tr>
                           <tr>
@@ -2729,7 +2729,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  126
+                  121
                 </td>
               </tr>
                           <tr>
@@ -3037,7 +3037,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  51
+                  52
                 </td>
               </tr>
                           <tr>
@@ -3784,20 +3784,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.IPHlpAPI.java">oshi/jna/platform/windows/IPHlpAPI.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  113
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.unix.aix.Lssrad.java">oshi/driver/unix/aix/Lssrad.java</a>
                 </td>
                 <td>
@@ -4521,7 +4507,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  49
+                  86
                 </td>
               </tr>
                           <tr>
@@ -4773,7 +4759,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  83
+                  87
                 </td>
               </tr>
                           <tr>
@@ -4857,7 +4843,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  53
+                  54
                 </td>
               </tr>
                           <tr>
@@ -4885,7 +4871,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  42
                 </td>
               </tr>
                           <tr>
@@ -4969,7 +4955,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  106
+                  102
                 </td>
               </tr>
                           <tr>
@@ -5268,20 +5254,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.aix.Perfstat.java">oshi/jna/platform/unix/aix/Perfstat.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1590
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor.java">oshi/hardware/platform/unix/freebsd/FreeBsdCentralProcessor.java</a>
                 </td>
                 <td>
@@ -5389,7 +5361,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  79
+                  74
                 </td>
               </tr>
                           <tr>
@@ -5473,7 +5445,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  52
                 </td>
               </tr>
                           <tr>
