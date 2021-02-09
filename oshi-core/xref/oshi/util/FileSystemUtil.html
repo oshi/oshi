@@ -106,7 +106,7 @@
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     * @return List of PathMatchers to be used to match filestore volume and path.</em>
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;PathMatcher&gt; parseFileSystemConfig(String config) {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         FileSystem fs = FileSystems.getDefault();
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         FileSystem fs = FileSystems.getDefault(); <em class="jxr_comment">// can't be closed</em>
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         List&lt;PathMatcher&gt; patterns = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">for</strong> (String item : config.split(<span class="jxr_string">","</span>)) {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">if</strong> (item.length() &gt; 0) {

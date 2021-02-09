@@ -33,8 +33,8 @@
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.win32.IPHlpAPI.AF_INET; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.win32.IPHlpAPI.AF_INET6;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.windows.IPHlpAPI.TCP_TABLE_OWNER_PID_ALL;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.windows.IPHlpAPI.UDP_TABLE_OWNER_PID;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.win32.IPHlpAPI.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.win32.IPHlpAPI.UDP_TABLE_CLASS.UDP_TABLE_OWNER_PID;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
@@ -53,21 +53,21 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Memory; <em class="jxr_comment">// NOSONAR squid:S1191</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_TCP6ROW_OWNER_PID;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_TCP6TABLE_OWNER_PID;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_TCPROW_OWNER_PID;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_TCPTABLE_OWNER_PID;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_UDP6ROW_OWNER_PID;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_UDP6TABLE_OWNER_PID;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_UDPROW_OWNER_PID;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.IPHlpAPI.MIB_UDPTABLE_OWNER_PID;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_TCP6ROW_OWNER_PID;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_TCP6TABLE_OWNER_PID;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPROW_OWNER_PID;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPTABLE_OWNER_PID;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_UDP6ROW_OWNER_PID;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_UDP6TABLE_OWNER_PID;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPROW_OWNER_PID;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPTABLE_OWNER_PID;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractInternetProtocolStats;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  @ThreadSafe
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsInternetProtocolStats" href="../../../../oshi/software/os/windows/WindowsInternetProtocolStats.html#WindowsInternetProtocolStats">WindowsInternetProtocolStats</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractInternetProtocolStats" href="../../../../oshi/software/common/AbstractInternetProtocolStats.html#AbstractInternetProtocolStats">AbstractInternetProtocolStats</a> {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="IPHlpAPI" href="../../../../oshi/jna/platform/windows/IPHlpAPI.html#IPHlpAPI">IPHlpAPI</a> IPHLP = IPHlpAPI.INSTANCE;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  

@@ -23,9 +23,10 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
+import com.sun.jna.platform.unix.aix.Perfstat; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
+
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.aix.Perfstat;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 
 /**
  * Utility to query performance stats for memory
@@ -33,7 +34,7 @@ import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 @ThreadSafe
 public final class PerfstatMemory {
 
-<span class="nc" id="L36">    private static final Perfstat PERF = Perfstat.INSTANCE;</span>
+<span class="nc" id="L37">    private static final Perfstat PERF = Perfstat.INSTANCE;</span>
 
     private PerfstatMemory() {
     }
@@ -44,12 +45,12 @@ public final class PerfstatMemory {
      * @return usage statistics
      */
     public static perfstat_memory_total_t queryMemoryTotal() {
-<span class="nc" id="L47">        perfstat_memory_total_t memory = new perfstat_memory_total_t();</span>
-<span class="nc" id="L48">        int ret = PERF.perfstat_memory_total(null, memory, memory.size(), 1);</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (ret &gt; 0) {</span>
-<span class="nc" id="L50">            return memory;</span>
+<span class="nc" id="L48">        perfstat_memory_total_t memory = new perfstat_memory_total_t();</span>
+<span class="nc" id="L49">        int ret = PERF.perfstat_memory_total(null, memory, memory.size(), 1);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (ret &gt; 0) {</span>
+<span class="nc" id="L51">            return memory;</span>
         }
-<span class="nc" id="L52">        return new perfstat_memory_total_t();</span>
+<span class="nc" id="L53">        return new perfstat_memory_total_t();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

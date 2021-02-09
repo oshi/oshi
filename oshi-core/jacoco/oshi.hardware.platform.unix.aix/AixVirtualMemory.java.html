@@ -25,9 +25,10 @@ package oshi.hardware.platform.unix.aix;
 
 import java.util.function.Supplier;
 
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t; // NOSONAR squid:S1191
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 
 /**
  * Memory obtained by perfstat_memory_total_t
@@ -48,39 +49,39 @@ final class AixVirtualMemory extends AbstractVirtualMemory {
      * @param perfstatMem
      *            The memoized perfstat data from the global memory class
      */
-<span class="nc" id="L51">    AixVirtualMemory(Supplier&lt;perfstat_memory_total_t&gt; perfstatMem) {</span>
-<span class="nc" id="L52">        this.perfstatMem = perfstatMem;</span>
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L52">    AixVirtualMemory(Supplier&lt;perfstat_memory_total_t&gt; perfstatMem) {</span>
+<span class="nc" id="L53">        this.perfstatMem = perfstatMem;</span>
+<span class="nc" id="L54">    }</span>
 
     @Override
     public long getSwapUsed() {
-<span class="nc" id="L57">        perfstat_memory_total_t perfstat = perfstatMem.get();</span>
-<span class="nc" id="L58">        return (perfstat.pgsp_total - perfstat.pgsp_free) * PAGESIZE;</span>
+<span class="nc" id="L58">        perfstat_memory_total_t perfstat = perfstatMem.get();</span>
+<span class="nc" id="L59">        return (perfstat.pgsp_total - perfstat.pgsp_free) * PAGESIZE;</span>
     }
 
     @Override
     public long getSwapTotal() {
-<span class="nc" id="L63">        return perfstatMem.get().pgsp_total * PAGESIZE;</span>
+<span class="nc" id="L64">        return perfstatMem.get().pgsp_total * PAGESIZE;</span>
     }
 
     @Override
     public long getVirtualMax() {
-<span class="nc" id="L68">        return perfstatMem.get().virt_total * PAGESIZE;</span>
+<span class="nc" id="L69">        return perfstatMem.get().virt_total * PAGESIZE;</span>
     }
 
     @Override
     public long getVirtualInUse() {
-<span class="nc" id="L73">        return perfstatMem.get().virt_active * PAGESIZE;</span>
+<span class="nc" id="L74">        return perfstatMem.get().virt_active * PAGESIZE;</span>
     }
 
     @Override
     public long getSwapPagesIn() {
-<span class="nc" id="L78">        return perfstatMem.get().pgspins;</span>
+<span class="nc" id="L79">        return perfstatMem.get().pgspins;</span>
     }
 
     @Override
     public long getSwapPagesOut() {
-<span class="nc" id="L83">        return perfstatMem.get().pgspouts;</span>
+<span class="nc" id="L84">        return perfstatMem.get().pgspouts;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

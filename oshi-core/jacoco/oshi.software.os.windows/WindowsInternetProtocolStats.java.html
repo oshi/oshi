@@ -25,8 +25,8 @@ package oshi.software.os.windows;
 
 import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET; // NOSONAR squid:S1191
 import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET6;
-import static oshi.jna.platform.windows.IPHlpAPI.TCP_TABLE_OWNER_PID_ALL;
-import static oshi.jna.platform.windows.IPHlpAPI.UDP_TABLE_OWNER_PID;
+import static com.sun.jna.platform.win32.IPHlpAPI.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL;
+import static com.sun.jna.platform.win32.IPHlpAPI.UDP_TABLE_CLASS.UDP_TABLE_OWNER_PID;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
@@ -45,21 +45,21 @@ import java.util.Collections;
 import java.util.List;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.IPHlpAPI;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCP6ROW_OWNER_PID;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCP6TABLE_OWNER_PID;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPROW_OWNER_PID;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPTABLE_OWNER_PID;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDP6ROW_OWNER_PID;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDP6TABLE_OWNER_PID;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPROW_OWNER_PID;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
+import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPTABLE_OWNER_PID;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.windows.IPHlpAPI;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_TCP6ROW_OWNER_PID;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_TCP6TABLE_OWNER_PID;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPROW_OWNER_PID;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_TCPTABLE_OWNER_PID;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_UDP6ROW_OWNER_PID;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_UDP6TABLE_OWNER_PID;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPROW_OWNER_PID;
-import oshi.jna.platform.windows.IPHlpAPI.MIB_UDPTABLE_OWNER_PID;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ParseUtil;
 
