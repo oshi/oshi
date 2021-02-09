@@ -118,9 +118,8 @@ meanings.
 
 Does OSHI work on Apple M1 hardware?
 ========
-OSHI works under Rosetta if you are executing an x86-based JVM. However, true native support requires
-an external (upstream) dependency on JNA, depending further on `libffi`. If you need this
-support, consider assisting the JNA project in resolving this.
+OSHI works using virtual x86 hardware under Rosetta if you are executing an x86-based JVM. Native `AArch64`
+support requires JNA version 5.7.0 or later.
 
 Does OSHI work on Raspberry Pi hardware?
 ========

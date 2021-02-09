@@ -38,7 +38,7 @@ manually deployed using `mvn clean deploy`
 	* This will suggest the next version, increment appropriately
 * `mvn release:perform`
 	* Takes a few minutes. 
-	* This pushes the release to the [Nexus](https://oss.sonatype.org/) staging repository
+	* This pushes the release to the [OSSRH](https://oss.sonatype.org/) staging repository
 	* This also pushes to [gh_pages](https://oshi.github.io/oshi)
 * Log on to [Nexus](https://oss.sonatype.org/) and [release the deployment from OSSRH to the Central Repository](https://central.sonatype.org/pages/releasing-the-deployment.html).
 	

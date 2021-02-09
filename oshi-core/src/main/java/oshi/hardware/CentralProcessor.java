@@ -49,7 +49,10 @@ public interface CentralProcessor {
 
     /**
      * The CPU's identifier strings ,including name, vendor, stepping, model, and
-     * family information (also called the signature of a CPU)
+     * family information (also called the signature of a CPU).
+     * <p>
+     * The Processor Identifier is primarily associated with Intel-based chips.
+     * Attempts are made to provide comparable values for other chip manufacturers.
      *
      * @return a {@link ProcessorIdentifier} object encapsulating CPU identifier
      *         information.
