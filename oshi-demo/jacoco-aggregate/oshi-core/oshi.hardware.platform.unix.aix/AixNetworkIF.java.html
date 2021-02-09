@@ -35,12 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatNetInterface;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
-import oshi.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 
 /**
  * AIXNetworks class.
