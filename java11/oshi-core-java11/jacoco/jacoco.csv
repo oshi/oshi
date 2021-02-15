@@ -389,7 +389,7 @@ oshi-core-java11,oshi.jna.platform.mac,SystemB.InSockInfo,15,0,0,0,4,0,1,0,1,0
 oshi-core-java11,oshi.jna.platform.mac,SystemB.SocketFdInfo,3,0,0,0,1,0,1,0,1,0
 oshi-core-java11,oshi.jna.platform.mac,SystemB.ProcFdInfo,3,0,0,0,1,0,1,0,1,0
 oshi-core-java11,oshi.jna.platform.mac,CoreGraphics.CGRect,3,0,0,0,1,0,1,0,1,0
-oshi-core-java11,oshi.jna.platform.mac,SystemB.MacUtmpx,23,0,0,0,7,0,1,0,1,0
+oshi-core-java11,oshi.jna.platform.mac,SystemB.MacUtmpx,23,0,0,0,6,0,1,0,1,0
 oshi-core-java11,oshi.jna.platform.mac,SystemB.ProcFileInfo,3,0,0,0,1,0,1,0,1,0
 oshi-core-java11,oshi.jna.platform.mac,CoreGraphics.CGPoint,3,0,0,0,1,0,1,0,1,0
 oshi-core-java11,oshi.jna.platform.mac,SystemB.SocketInfo,15,0,0,0,4,0,1,0,1,0
