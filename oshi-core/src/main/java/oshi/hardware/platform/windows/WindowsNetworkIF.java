@@ -49,7 +49,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkIF.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
-    private static final byte CONNECTOR_PRESENT_BIT = 0b00100000;
+    private static final byte CONNECTOR_PRESENT_BIT = 0b00000100;
 
     private int ifType;
     private int ndisPhysicalMediumType;

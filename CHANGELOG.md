@@ -1,6 +1,8 @@
 # 5.5.1 (in progress)
 
 * Your contribution here
+##### Bug fixes / Improvements
+* [#1535](https://github.com/oshi/oshi/pull/1535): Fix NetworkIF.isConnectorPresent() on Windows - [@dornand](https://github.com/dornand).
 
 # 5.5.0 (2021-02-08)
 
