@@ -53,7 +53,6 @@
 		<jna.version>5.7.0</jna.version>
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<automatic.module.name>com.github.oshi</automatic.module.name>
-		<junit-platform-maven-plugin.version>1.1.0</junit-platform-maven-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -111,23 +110,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>de.sormuras.junit</groupId>
-				<artifactId>junit-platform-maven-plugin</artifactId>
-				<version>${junit-platform-maven-plugin.version}</version>
-				<extensions>true</extensions> <!-- Replace surefire in 'test' phase. -->
-				<configuration>
-					<isolation>NONE</isolation>
-					<parameters>
-						<junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
-						<junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
-					</parameters>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
 </project>
