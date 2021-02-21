@@ -1,12 +1,11 @@
-# 5.5.1 (in progress)
+# 5.5.2 (in progress)
 
-##### Bug fixes / Improvements
-* [#1535](https://github.com/oshi/oshi/pull/1535): Fix NetworkIF.isConnectorPresent() on Windows - [@dornand](https://github.com/dornand).
-* [#1536](https://github.com/oshi/oshi/pull/1536): Fix Windows version parsing regression - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
 
-# 5.5.0 (2021-02-08)
+# 5.5.0 (2021-02-08), 5.5.1 (2021-02-21)
 
 ##### New Features
+* New `oshi-core-java11` artifact (in beta) intended for modular projects.
 * [#1526](https://github.com/oshi/oshi/pull/1526): Make process filtering and sorting more flexible - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
@@ -14,6 +13,8 @@
 * [#1523](https://github.com/oshi/oshi/pull/1523): Fix Windows partition GUID retrieval - [@dbwiddis](https://github.com/dbwiddis).
 * [#1524](https://github.com/oshi/oshi/pull/1524): Fix Windows USB serial number retrieval - [@ymortier](https://github.com/ymortier).
 * [#1529](https://github.com/oshi/oshi/pull/1529): JNA 5.7.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#1535](https://github.com/oshi/oshi/pull/1535): Fix NetworkIF.isConnectorPresent() on Windows - [@dornand](https://github.com/dornand).
+* [#1536](https://github.com/oshi/oshi/pull/1536): Fix Windows version parsing regression - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.4.0 (2021-01-18), 5.4.1 (2021-01-24)
 
