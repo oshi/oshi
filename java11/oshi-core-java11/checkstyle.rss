@@ -19,9 +19,9 @@ under the License.
 -->
 <rss version="0.91">
   <channel>
-    <title>oshi-core-java11 - Checkstyle report</title>
+    <title>oshi-core - Checkstyle report</title>
     <link>https://github.com/oshi/oshi/oshi-core-java11</link>
-    <description>oshi-core-java11 - Checkstyle report</description>
+    <description>oshi-core - Checkstyle report</description>
     <language>en-us</language>
     <copyright>&#169;2010 - 2021 oshi</copyright>
     <item>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core-java11</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FileUtil.java</span></div><h1>FileUtil.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FileUtil.java</span></div><h1>FileUtil.java</h1><pre class="source lang-java linenums">/**
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -231,14 +231,14 @@ public final class FileUtil {
     public static Properties readPropertiesFromFilename(String propsFilename) {
 <span class="fc" id="L232">        Properties archProps = new Properties();</span>
         // Load the configuration file from the different classloaders
-<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader())</span>
-<span class="nc bnc" id="L235" title="All 2 branches missed.">                || readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader())</span>
-<span class="nc bnc" id="L236" title="All 2 branches missed.">                || readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())) {</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader())</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">                || readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader())</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">                || readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())) {</span>
 <span class="fc" id="L237">            return archProps;</span>
         }
 
-<span class="nc" id="L240">        LOG.warn(&quot;Failed to load default configuration&quot;);</span>
-<span class="nc" id="L241">        return archProps;</span>
+<span class="fc" id="L240">        LOG.warn(&quot;Failed to load default configuration&quot;);</span>
+<span class="fc" id="L241">        return archProps;</span>
     }
 
     private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps,
@@ -249,9 +249,9 @@ public final class FileUtil {
         // Load the configuration file from the classLoader
         try {
 <span class="fc" id="L251">            List&lt;URL&gt; resources = Collections.list(loader.getResources(propsFilename));</span>
-<span class="pc bpc" id="L252" title="1 of 2 branches missed.">            if (resources.isEmpty()) {</span>
-<span class="nc" id="L253">                LOG.info(&quot;No {} file found from ClassLoader {}&quot;, propsFilename, loader);</span>
-<span class="nc" id="L254">                return false;</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">            if (resources.isEmpty()) {</span>
+<span class="fc" id="L253">                LOG.info(&quot;No {} file found from ClassLoader {}&quot;, propsFilename, loader);</span>
+<span class="fc" id="L254">                return false;</span>
             }
 <span class="pc bpc" id="L256" title="1 of 2 branches missed.">            if (resources.size() &gt; 1) {</span>
 <span class="nc" id="L257">                LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath&quot;, propsFilename);</span>
