@@ -30,6 +30,8 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +48,28 @@ class FileUtilTest {
     /*
      * File sources
      */
-    private static String THISCLASS = "src/test/java/oshi/util/FileUtilTest.java";
-    private static String INT_FILE = "src/test/resources/test.integer.txt";
-    private static String STRING_FILE = "src/test/resources/test.string.txt";
-    private static String PROCIO_FILE = "src/test/resources/test.procio.txt";
-    private static String NO_FILE = "does/not/exist";
+    private static final String PROJECTROOT;
+    static {
+        String root;
+        try {
+            File core = new File("oshi-core");
+            if (core.exists()) {
+                // If we're in main project directory get path to oshi-core
+                root = core.getCanonicalPath();
+            } else {
+                // Assume we must be in oshi-core
+                root = new File(".").getCanonicalPath();
+            }
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError(e.getMessage());
+        }
+        PROJECTROOT = root;
+    }
+    private static final String THISCLASS = PROJECTROOT + "/src/test/java/oshi/util/FileUtilTest.java";
+    private static final String INT_FILE = PROJECTROOT + "/src/test/resources/test.integer.txt";
+    private static final String STRING_FILE = PROJECTROOT + "/src/test/resources/test.string.txt";
+    private static final String PROCIO_FILE = PROJECTROOT + "/src/test/resources/test.procio.txt";
+    private static final String NO_FILE = PROJECTROOT + "/does/not/exist";
 
     /**
      * Test read file.
