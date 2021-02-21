@@ -28,12 +28,9 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static oshi.PlatformEnum.OPENBSD;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 import oshi.SystemInfo;
 import oshi.util.platform.unix.openbsd.FstatUtil;
@@ -41,24 +38,17 @@ import oshi.util.platform.unix.openbsd.FstatUtil;
 /**
  * Test general utility methods for {@link FstatUtil}.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FstatUtilTest {
-    private static int pid;
-
-    @BeforeAll
-    void getPid() {
-        assumeTrue(SystemInfo.getCurrentPlatform().equals(OPENBSD));
-        pid = new SystemInfo().getOperatingSystem().getProcessId();
-    }
 
     @Test
-    void testGetOpenFiles() {
-        assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid),
-                is(greaterThanOrEqualTo(0L)));
-    }
+    void testFstat() {
+        if (SystemInfo.getCurrentPlatform().equals(OPENBSD)) {
+            int pid = new SystemInfo().getOperatingSystem().getProcessId();
 
-    @Test
-    void testGetCwd() {
-        assertThat("Cwd should not be empty", FstatUtil.getCwd(pid), is(not(emptyString())));
+            assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid),
+                    is(greaterThanOrEqualTo(0L)));
+
+            assertThat("Cwd should not be empty", FstatUtil.getCwd(pid), is(not(emptyString())));
+        }
     }
 }

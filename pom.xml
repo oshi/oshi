@@ -24,7 +24,9 @@
     SOFTWARE.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.oshi</groupId>
@@ -145,6 +147,7 @@
 		<maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
 		<bnd-maven-plugin.version>5.2.0</bnd-maven-plugin.version>
 		<maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+		<junit-platform-maven-plugin.version>1.1.0</junit-platform-maven-plugin.version>
 		<!-- reporting plugins -->
 		<maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
 		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
@@ -285,6 +288,25 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>${build-helper-maven-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>de.sormuras.junit</groupId>
+					<artifactId>junit-platform-maven-plugin</artifactId>
+					<version>${junit-platform-maven-plugin.version}</version>
+					<extensions>true</extensions> <!-- Replace surefire in 'test' phase. -->
+					<configuration>
+						<isolation>NONE</isolation>
+						<parameters>
+							<junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
+							<junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
+						</parameters>
+						<executor>JAVA</executor>
+						<javaOptions>
+							<additionalOptions>
+								<jacoco>${jacoco.java.option}</jacoco>
+							</additionalOptions>
+						</javaOptions>
+					</configuration>
 				</plugin>
 				<!-- Packaging types / tools -->
 				<plugin>
@@ -583,6 +605,10 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>de.sormuras.junit</groupId>
+				<artifactId>junit-platform-maven-plugin</artifactId>
+			</plugin>
 			<!-- Reporting Plugins -->
 			<!-- Tools -->
 			<plugin>
@@ -654,7 +680,7 @@
 							<goal>prepare-agent</goal>
 						</goals>
 						<configuration>
-							<propertyName>surefireArgLine</propertyName>
+							<propertyName>jacoco.java.option</propertyName>
 						</configuration>
 					</execution>
 					<!-- Generate report after tests are run -->
@@ -844,7 +870,7 @@
 							</execution>
 						</executions>
 					</plugin>
-					
+
 					<plugin>
 						<groupId>org.owasp</groupId>
 						<artifactId>dependency-check-maven</artifactId>
