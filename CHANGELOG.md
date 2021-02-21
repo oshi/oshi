@@ -1,8 +1,8 @@
 # 5.5.1 (in progress)
 
-* Your contribution here
 ##### Bug fixes / Improvements
 * [#1535](https://github.com/oshi/oshi/pull/1535): Fix NetworkIF.isConnectorPresent() on Windows - [@dornand](https://github.com/dornand).
+* [#1536](https://github.com/oshi/oshi/pull/1536): Fix Windows version parsing regression - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.5.0 (2021-02-08)
 

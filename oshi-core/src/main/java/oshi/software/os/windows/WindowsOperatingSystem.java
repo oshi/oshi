@@ -165,7 +165,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
                 0) == WinNT.VER_NT_WORKSTATION;
 
-        StringBuilder verLookup = new StringBuilder(major).append('.').append(minor);
+        StringBuilder verLookup = new StringBuilder().append(major).append('.').append(minor);
 
         if (IS_VISTA_OR_GREATER && ntWorkstation) {
             verLookup.append(".nt");
