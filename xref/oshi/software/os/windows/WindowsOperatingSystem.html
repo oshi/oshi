@@ -173,7 +173,7 @@
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">boolean</strong> ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>                 0) == WinNT.VER_NT_WORKSTATION;
 <a class="jxr_linenumber" name="L167" href="#L167">167</a> 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         StringBuilder verLookup = <strong class="jxr_keyword">new</strong> StringBuilder(major).append('.').append(minor);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         StringBuilder verLookup = <strong class="jxr_keyword">new</strong> StringBuilder().append(major).append('.').append(minor);
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">if</strong> (IS_VISTA_OR_GREATER &amp;&amp; ntWorkstation) {
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>             verLookup.append(<span class="jxr_string">".nt"</span>);
