@@ -165,7 +165,7 @@ import oshi.util.tuples.Pair;
 <span class="nc bnc" id="L165" title="All 2 branches missed.">        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,</span>
                 0) == WinNT.VER_NT_WORKSTATION;
 
-<span class="nc" id="L168">        StringBuilder verLookup = new StringBuilder(major).append('.').append(minor);</span>
+<span class="nc" id="L168">        StringBuilder verLookup = new StringBuilder().append(major).append('.').append(minor);</span>
 
 <span class="nc bnc" id="L170" title="All 4 branches missed.">        if (IS_VISTA_OR_GREATER &amp;&amp; ntWorkstation) {</span>
 <span class="nc" id="L171">            verLookup.append(&quot;.nt&quot;);</span>
