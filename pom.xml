@@ -30,7 +30,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.oshi</groupId>
-	<artifactId>oshi-parent</artifactId>
+	<artifactId>oshi-parent-java11</artifactId>
 	<version>5.5.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -69,9 +69,6 @@
 
 	<modules>
 		<module>oshi-core</module>
-		<module>oshi-core-shaded</module>
-		<module>oshi-demo</module>
-		<module>oshi-dist</module>
 	</modules>
 
 	<scm>
@@ -92,7 +89,7 @@
 		<site>
 			<id>gh-pages</id>
 			<name>OSHI GitHub Pages</name>
-			<url>github:ssh://oshi.github.io/oshi/</url>
+			<url>github:ssh://oshi.github.io/oshi/java11/</url>
 		</site>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -109,16 +106,14 @@
 	<properties>
 		<copyright>2010 - 2021</copyright>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.testSource>1.8</maven.compiler.testSource>
-		<maven.compiler.testTarget>1.8</maven.compiler.testTarget>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.testSource>11</maven.compiler.testSource>
+		<maven.compiler.testTarget>11</maven.compiler.testTarget>
 		<maven.min-version>3.3.9</maven.min-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<signature.artifact>java18</signature.artifact>
-		<signature.version>1.0</signature.version>
 		<!-- Base directory, overwrite in submodules -->
 		<main.basedir>${project.basedir}</main.basedir>
 		<!-- Dependency versions -->
@@ -150,7 +145,7 @@
 		<junit-platform-maven-plugin.version>1.1.0</junit-platform-maven-plugin.version>
 		<!-- reporting plugins -->
 		<maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
-		<maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+		<maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
 		<!-- tools -->
 		<maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
@@ -177,7 +172,6 @@
 		<!-- Misc. -->
 		<sonar-maven-plugin.version>3.8.0.2131</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
-		<animal-sniffer-maven-plugin.version>1.20</animal-sniffer-maven-plugin.version>
 		<dependency-check-maven.version>6.1.1</dependency-check-maven.version>
 		<puppycrawl.checkstyle.version>8.40</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
@@ -375,6 +369,7 @@
 							</manifestEntries>
 						</archive>
 						<source>8</source>
+						<sourcepath>src/main/java</sourcepath>
 						<detectLinks>true</detectLinks>
 						<detectJavaApiLink>false</detectJavaApiLink>
 					</configuration>
@@ -547,18 +542,6 @@
 					<version>${wagon-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>animal-sniffer-maven-plugin</artifactId>
-					<version>${animal-sniffer-maven-plugin.version}</version>
-					<configuration>
-						<signature>
-							<groupId>org.codehaus.mojo.signature</groupId>
-							<artifactId>${signature.artifact}</artifactId>
-							<version>${signature.version}</version>
-						</signature>
-					</configuration>
-				</plugin>
-				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
 					<version>${dependency-check-maven.version}</version>
@@ -640,19 +623,6 @@
 						<phase>pre-site</phase>
 						<goals>
 							<goal>enforce</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>animal-sniffer-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>test-sniffer</id>
-						<phase>test</phase>
-						<goals>
-							<goal>check</goal>
 						</goals>
 					</execution>
 				</executions>

@@ -31,11 +31,11 @@
 
 	<parent>
 		<groupId>com.github.oshi</groupId>
-		<artifactId>oshi-parent</artifactId>
+		<artifactId>oshi-parent-java11</artifactId>
 		<version>5.5.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>oshi-core</artifactId>
+	<artifactId>oshi-core-java11</artifactId>
 	<packaging>jar</packaging>
 
 	<name>oshi-core</name>
@@ -46,6 +46,14 @@
 		<url>https://github.com/oshi/oshi.git</url>
 		<tag>HEAD</tag>
 	</scm>
+
+	<distributionManagement>
+		<site>
+			<id>gh-pages</id>
+			<name>OSHI GitHub Pages</name>
+			<url>github:ssh://oshi.github.io/oshi/java11/oshi-core-java11/</url>
+		</site>
+	</distributionManagement>
 
 	<properties>
 		<!-- Users of the Spring Boot Starter Parent should include this property 
@@ -63,11 +71,19 @@
 				<groupId>net.java.dev.jna</groupId>
 				<artifactId>jna</artifactId>
 				<version>${jna.version}</version>
+				<classifier>jpms</classifier>
 			</dependency>
 			<dependency>
 				<groupId>net.java.dev.jna</groupId>
 				<artifactId>jna-platform</artifactId>
 				<version>${jna.version}</version>
+				<classifier>jpms</classifier>
+				<exclusions>
+					<exclusion>
+						<groupId>net.java.dev.jna</groupId>
+						<artifactId>jna</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -75,10 +91,12 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
+			<classifier>jpms</classifier>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna-platform</artifactId>
+			<classifier>jpms</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -101,12 +119,6 @@
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest</artifactId>
 			<version>${hamcrest.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>guru.nidi</groupId>
-			<artifactId>code-assert</artifactId>
-			<version>${code-assert.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
