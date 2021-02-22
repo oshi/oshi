@@ -287,6 +287,7 @@
 					<version>${junit-platform-maven-plugin.version}</version>
 					<extensions>true</extensions> <!-- Replace surefire in 'test' phase. -->
 					<configuration>
+                        <timeout>3600</timeout>
 						<isolation>NONE</isolation>
 						<parameters>
 							<junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
