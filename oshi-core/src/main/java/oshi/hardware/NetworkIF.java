@@ -62,6 +62,13 @@ public interface NetworkIF {
     String getDisplayName();
 
     /**
+     * Interface alias.
+     *
+     * @return The 'ifAlias' as described in RFC 2863.
+     */
+    String getIfAlias();
+
+    /**
      * The interface Maximum Transmission Unit (MTU).
      *
      * @return The MTU of the network interface.

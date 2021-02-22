@@ -56,6 +56,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     private long collisions;
     private long speed;
     private long timeStamp;
+    private String ifAlias;
 
     public LinuxNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
@@ -142,6 +143,11 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
+    public String getIfAlias() {
+        return ifAlias;
+    }
+
+    @Override
     public boolean updateAttributes() {
         try {
             File ifDir = new File(String.format("/sys/class/net/%s/statistics", getName()));
@@ -162,6 +168,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
         String collisionsPath = String.format("/sys/class/net/%s/statistics/collisions", getName());
         String rxDropsPath = String.format("/sys/class/net/%s/statistics/rx_dropped", getName());
         String ifSpeed = String.format("/sys/class/net/%s/speed", getName());
+        String ifAlias = String.format("/sys/class/net/%s/ifalias", getName());
 
         this.timeStamp = System.currentTimeMillis();
         this.ifType = FileUtil.getIntFromFile(ifTypePath);
@@ -177,6 +184,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
         long speedMiB = FileUtil.getUnsignedLongFromFile(ifSpeed);
         // speed may be -1 from file.
         this.speed = speedMiB < 0 ? 0 : speedMiB << 20;
+        this.ifAlias = FileUtil.getStringFromFile(ifAlias);
 
         return true;
     }

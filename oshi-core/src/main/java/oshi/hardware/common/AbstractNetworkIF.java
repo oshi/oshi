@@ -229,6 +229,12 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         return false;
     }
 
+    @Override
+    public String getIfAlias() {
+        // default
+        return "";
+    }
+
     private static Properties queryVmMacAddrProps() {
         return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
     }
