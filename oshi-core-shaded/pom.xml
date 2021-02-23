@@ -91,8 +91,8 @@
 				</executions>
 			</plugin>
 			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${maven-javadoc-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>javadoc-jar</id>
@@ -101,6 +101,7 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
+                            <sourcepath>../oshi-core/src/main/java</sourcepath>
 							<includeDependencySources>true</includeDependencySources>
 							<dependencySourceIncludes>
 								<!-- include ONLY dependencies I control -->

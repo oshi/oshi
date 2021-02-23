@@ -374,6 +374,7 @@
 							</manifestEntries>
 						</archive>
 						<source>8</source>
+                        <sourcepath>src/main/java</sourcepath>
 						<detectLinks>true</detectLinks>
 						<detectJavaApiLink>false</detectJavaApiLink>
 					</configuration>
