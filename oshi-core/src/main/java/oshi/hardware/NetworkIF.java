@@ -159,7 +159,9 @@ public interface NetworkIF {
      *
      * @return the ifType
      */
-    int getIfType();
+    default int getIfType() {
+        return 0;
+    }
 
     /**
      * (Windows Vista and higher only) The NDIS physical medium type. This member
@@ -168,7 +170,9 @@ public interface NetworkIF {
      *
      * @return the ndisPhysicalMediumType
      */
-    int getNdisPhysicalMediumType();
+    default int getNdisPhysicalMediumType() {
+        return 0;
+    }
 
     /**
      * (Windows Vista and higher) Set if a connector is present on the network
@@ -179,7 +183,9 @@ public interface NetworkIF {
      * @return {@code true} if there is a physical network adapter (Windows) or a
      *         connected cable (Linux), false otherwise
      */
-    boolean isConnectorPresent();
+    default boolean isConnectorPresent() {
+        return false;
+    }
 
     /**
      * <p>

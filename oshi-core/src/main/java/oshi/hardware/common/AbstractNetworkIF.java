@@ -232,24 +232,6 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         return this.vmMacAddrProps.get().containsKey(oui.toUpperCase());
     }
 
-    @Override
-    public int getIfType() {
-        // default
-        return 0;
-    }
-
-    @Override
-    public int getNdisPhysicalMediumType() {
-        // default
-        return 0;
-    }
-
-    @Override
-    public boolean isConnectorPresent() {
-        // default
-        return false;
-    }
-
     private static Properties queryVmMacAddrProps() {
         return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
     }
