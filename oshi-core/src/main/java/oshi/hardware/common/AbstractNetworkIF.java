@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -58,6 +59,8 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
 
     private NetworkInterface networkInterface;
+    private String name;
+    private String displayName;
     private int mtu;
     private String mac;
     private String[] ipv4;
@@ -77,8 +80,26 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      *             If a socket exception prevents access to the backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint) throws InstantiationException {
+        this(netint, netint.getDisplayName());
+    }
+
+    /**
+     * Construct a {@link NetworkIF} object backed by the specified
+     * {@link NetworkInterface}.
+     *
+     * @param netint
+     *            The core java {@link NetworkInterface} backing this object.
+     * @param displayName
+     *            A string to use for the display name in preference to the
+     *            {@link NetworkInterface} value.
+     * @throws InstantiationException
+     *             If a socket exception prevents access to the backing interface.
+     */
+    protected AbstractNetworkIF(NetworkInterface netint, String displayName) throws InstantiationException {
         this.networkInterface = netint;
         try {
+            this.name = networkInterface.getName();
+            this.displayName = displayName;
             // Set MTU
             this.mtu = networkInterface.getMTU();
             // Set MAC
@@ -90,7 +111,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
                 }
                 this.mac = String.join(":", octets);
             } else {
-                this.mac = "Unknown";
+                this.mac = Constants.UNKNOWN;
             }
             // Set IP arrays
             ArrayList<String> ipv4list = new ArrayList<>();
@@ -167,12 +188,12 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
     @Override
     public String getName() {
-        return this.networkInterface.getName();
+        return this.name;
     }
 
     @Override
     public String getDisplayName() {
-        return this.networkInterface.getDisplayName();
+        return this.displayName;
     }
 
     @Override
@@ -229,12 +250,6 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         return false;
     }
 
-    @Override
-    public String getIfAlias() {
-        // default
-        return "";
-    }
-
     private static Properties queryVmMacAddrProps() {
         return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
     }
@@ -242,7 +257,14 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Name: ").append(getName()).append(" ").append("(").append(getDisplayName()).append(")").append("\n");
+        sb.append("Name: ").append(getName());
+        if (!getName().equals(getDisplayName())) {
+            sb.append(" (").append(getDisplayName()).append(")");
+        }
+        if (!getIfAlias().isEmpty()) {
+            sb.append(" [IfAlias=").append(getIfAlias()).append("]");
+        }
+        sb.append("\n");
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
         sb.append("  MTU: ").append(ParseUtil.unsignedIntToLong(getMTU())).append(", ").append("Speed: ")
                 .append(getSpeed()).append("\n");

@@ -31,10 +31,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.linux.Udev;
+import com.sun.jna.platform.linux.Udev.UdevContext;
+import com.sun.jna.platform.linux.Udev.UdevDevice;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
 import oshi.util.FileUtil;
+import oshi.util.Util;
 
 /**
  * LinuxNetworks class.
@@ -59,8 +64,29 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     private String ifAlias;
 
     public LinuxNetworkIF(NetworkInterface netint) throws InstantiationException {
-        super(netint);
+        super(netint, queryIfModel(netint));
         updateAttributes();
+    }
+
+    private static String queryIfModel(NetworkInterface netint) {
+        String name = netint.getName();
+        UdevContext udev = Udev.INSTANCE.udev_new();
+        UdevDevice device = udev.deviceNewFromSyspath("/sys/class/net/" + name);
+        if (device != null) {
+            try {
+                String devVendor = device.getPropertyValue("ID_VENDOR_FROM_DATABASE");
+                String devModel = device.getPropertyValue("ID_MODEL_FROM_DATABASE");
+                if (!Util.isBlank(devModel)) {
+                    if (!Util.isBlank(devVendor)) {
+                        return devVendor + " " + devModel;
+                    }
+                    return devModel;
+                }
+            } finally {
+                device.unref();
+            }
+        }
+        return name;
     }
 
     /**

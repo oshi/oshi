@@ -62,11 +62,22 @@ public interface NetworkIF {
     String getDisplayName();
 
     /**
-     * Interface alias.
+     * The {@code ifAlias} as described in RFC 2863.
+     * <p>
+     * The ifAlias object allows a network manager to give one or more interfaces
+     * their own unique names, irrespective of any interface-stack relationship.
+     * Further, the ifAlias name is non-volatile, and thus an interface must retain
+     * its assigned ifAlias value across reboots, even if an agent chooses a new
+     * ifIndex value for the interface.
+     * <p>
+     * Only implemented for Windows and Linux.
      *
-     * @return The 'ifAlias' as described in RFC 2863.
+     * @return The {@code ifAlias} of the interface if available, otherwise the
+     *         empty string.
      */
-    String getIfAlias();
+    default String getIfAlias() {
+        return "";
+    }
 
     /**
      * The interface Maximum Transmission Unit (MTU).
