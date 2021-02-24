@@ -31,10 +31,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.linux.Udev;
+import com.sun.jna.platform.linux.Udev.UdevContext;
+import com.sun.jna.platform.linux.Udev.UdevDevice;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
 import oshi.util.FileUtil;
+import oshi.util.Util;
 
 /**
  * LinuxNetworks class.
@@ -56,10 +61,32 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     private long collisions;
     private long speed;
     private long timeStamp;
+    private String ifAlias;
 
     public LinuxNetworkIF(NetworkInterface netint) throws InstantiationException {
-        super(netint);
+        super(netint, queryIfModel(netint));
         updateAttributes();
+    }
+
+    private static String queryIfModel(NetworkInterface netint) {
+        String name = netint.getName();
+        UdevContext udev = Udev.INSTANCE.udev_new();
+        UdevDevice device = udev.deviceNewFromSyspath("/sys/class/net/" + name);
+        if (device != null) {
+            try {
+                String devVendor = device.getPropertyValue("ID_VENDOR_FROM_DATABASE");
+                String devModel = device.getPropertyValue("ID_MODEL_FROM_DATABASE");
+                if (!Util.isBlank(devModel)) {
+                    if (!Util.isBlank(devVendor)) {
+                        return devVendor + " " + devModel;
+                    }
+                    return devModel;
+                }
+            } finally {
+                device.unref();
+            }
+        }
+        return name;
     }
 
     /**
@@ -142,6 +169,11 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
+    public String getIfAlias() {
+        return ifAlias;
+    }
+
+    @Override
     public boolean updateAttributes() {
         try {
             File ifDir = new File(String.format("/sys/class/net/%s/statistics", getName()));
@@ -162,6 +194,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
         String collisionsPath = String.format("/sys/class/net/%s/statistics/collisions", getName());
         String rxDropsPath = String.format("/sys/class/net/%s/statistics/rx_dropped", getName());
         String ifSpeed = String.format("/sys/class/net/%s/speed", getName());
+        String ifAliasPath = String.format("/sys/class/net/%s/ifalias", getName());
 
         this.timeStamp = System.currentTimeMillis();
         this.ifType = FileUtil.getIntFromFile(ifTypePath);
@@ -177,6 +210,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
         long speedMiB = FileUtil.getUnsignedLongFromFile(ifSpeed);
         // speed may be -1 from file.
         this.speed = speedMiB < 0 ? 0 : speedMiB << 20;
+        this.ifAlias = FileUtil.getStringFromFile(ifAliasPath);
 
         return true;
     }

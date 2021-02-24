@@ -62,6 +62,24 @@ public interface NetworkIF {
     String getDisplayName();
 
     /**
+     * The {@code ifAlias} as described in RFC 2863.
+     * <p>
+     * The ifAlias object allows a network manager to give one or more interfaces
+     * their own unique names, irrespective of any interface-stack relationship.
+     * Further, the ifAlias name is non-volatile, and thus an interface must retain
+     * its assigned ifAlias value across reboots, even if an agent chooses a new
+     * ifIndex value for the interface.
+     * <p>
+     * Only implemented for Windows and Linux.
+     *
+     * @return The {@code ifAlias} of the interface if available, otherwise the
+     *         empty string.
+     */
+    default String getIfAlias() {
+        return "";
+    }
+
+    /**
      * The interface Maximum Transmission Unit (MTU).
      *
      * @return The MTU of the network interface.
@@ -141,7 +159,9 @@ public interface NetworkIF {
      *
      * @return the ifType
      */
-    int getIfType();
+    default int getIfType() {
+        return 0;
+    }
 
     /**
      * (Windows Vista and higher only) The NDIS physical medium type. This member
@@ -150,7 +170,9 @@ public interface NetworkIF {
      *
      * @return the ndisPhysicalMediumType
      */
-    int getNdisPhysicalMediumType();
+    default int getNdisPhysicalMediumType() {
+        return 0;
+    }
 
     /**
      * (Windows Vista and higher) Set if a connector is present on the network
@@ -161,7 +183,9 @@ public interface NetworkIF {
      * @return {@code true} if there is a physical network adapter (Windows) or a
      *         connected cable (Linux), false otherwise
      */
-    boolean isConnectorPresent();
+    default boolean isConnectorPresent() {
+        return false;
+    }
 
     /**
      * <p>
