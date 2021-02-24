@@ -31,11 +31,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.net.NetStat;
 import oshi.driver.mac.net.NetStat.IFdata;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
+import oshi.jna.platform.mac.SystemConfiguration;
+import oshi.jna.platform.mac.SystemConfiguration.SCNetworkInterfaceRef;
 
 /**
  * MacNetworks class.
@@ -58,8 +64,31 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     private long timeStamp;
 
     public MacNetworkIF(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
-        super(netint);
+        super(netint, queryIfDisplayName(netint));
         updateNetworkStats(data);
+    }
+
+    private static String queryIfDisplayName(NetworkInterface netint) {
+        String name = netint.getName();
+        CFArrayRef ifArray = SystemConfiguration.INSTANCE.SCNetworkInterfaceCopyAll();
+        if (ifArray != null) {
+            try {
+                int count = ifArray.getCount();
+                for (int i = 0; i < count; i++) {
+                    Pointer pNetIf = ifArray.getValueAtIndex(i);
+                    SCNetworkInterfaceRef scNetIf = new SCNetworkInterfaceRef(pNetIf);
+                    CFStringRef cfName = SystemConfiguration.INSTANCE.SCNetworkInterfaceGetBSDName(scNetIf);
+                    if (name.equals(cfName.stringValue())) {
+                        CFStringRef cfDisplayName = SystemConfiguration.INSTANCE
+                                .SCNetworkInterfaceGetLocalizedDisplayName(scNetIf);
+                        return cfDisplayName.stringValue();
+                    }
+                }
+            } finally {
+                ifArray.release();
+            }
+        }
+        return name;
     }
 
     /**
