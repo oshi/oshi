@@ -83,6 +83,8 @@ class NetworksTest {
                 assertThat("Invalid MAC adress corresponds to a known virtual machine", net.isKnownVmMacAddr(),
                         is(false));
             }
+
+            assertThat("NetworkIF.toString() should not be null", net.toString(), is(notNullValue()));
         }
     }
 
