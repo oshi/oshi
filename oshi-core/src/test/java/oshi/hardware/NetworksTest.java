@@ -54,6 +54,7 @@ class NetworksTest {
             assertThat("NetworkIF should not be null", net.queryNetworkInterface(), is(notNullValue()));
             assertThat("NetworkIF name should not be null", net.getName(), is(notNullValue()));
             assertThat("NetworkIF display name should not be null", net.getDisplayName(), is(notNullValue()));
+            assertThat("NetworkIF ifAlias should not be null", net.getIfAlias(), is(notNullValue()));
             assertThat("NetworkIF IPv4 address should not be null", net.getIPv4addr(), is(notNullValue()));
             assertThat("NetworkIF SubnetMasks should not be null", net.getSubnetMasks(), is(notNullValue()));
             assertThat("NetworkIF IPv6 should not be null", net.getIPv6addr(), is(notNullValue()));

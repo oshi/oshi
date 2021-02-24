@@ -27,6 +27,7 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.jna.Native;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +65,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
     private long collisions;
     private long speed;
     private long timeStamp;
+    private String ifAlias;
 
     public WindowsNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
@@ -155,6 +157,11 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
+    public String getIfAlias() {
+        return ifAlias;
+    }
+
+    @Override
     public boolean updateAttributes() {
         // MIB_IFROW2 requires Vista (6.0) or later.
         if (IS_VISTA_OR_GREATER) {
@@ -179,6 +186,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
             this.collisions = ifRow.OutDiscards; // closest proxy
             this.inDrops = ifRow.InDiscards; // closest proxy
             this.speed = ifRow.ReceiveLinkSpeed;
+            this.ifAlias = Native.toString(ifRow.Alias);
         } else {
             // Create new MIB_IFROW and set index to this interface index
             MIB_IFROW ifRow = new MIB_IFROW();
