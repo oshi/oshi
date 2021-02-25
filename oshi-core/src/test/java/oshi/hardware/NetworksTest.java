@@ -55,6 +55,7 @@ class NetworksTest {
             assertThat("NetworkIF name should not be null", net.getName(), is(notNullValue()));
             assertThat("NetworkIF display name should not be null", net.getDisplayName(), is(notNullValue()));
             assertThat("NetworkIF ifAlias should not be null", net.getIfAlias(), is(notNullValue()));
+            assertThat("NetworkIF ifOperStatus should not be null", net.getIfOperStatus(), is(notNullValue()));
             assertThat("NetworkIF IPv4 address should not be null", net.getIPv4addr(), is(notNullValue()));
             assertThat("NetworkIF SubnetMasks should not be null", net.getSubnetMasks(), is(notNullValue()));
             assertThat("NetworkIF IPv6 should not be null", net.getIPv6addr(), is(notNullValue()));
@@ -80,7 +81,7 @@ class NetworksTest {
             testUpdateAttributes(net);
 
             if (net.getMacaddr().startsWith("00:00:00") || net.getMacaddr().length() < 8) {
-                assertThat("Invalid MAC adress corresponds to a known virtual machine", net.isKnownVmMacAddr(),
+                assertThat("Invalid MAC address corresponds to a known virtual machine", net.isKnownVmMacAddr(),
                         is(false));
             }
 

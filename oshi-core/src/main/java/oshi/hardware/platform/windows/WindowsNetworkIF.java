@@ -66,6 +66,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
     private long speed;
     private long timeStamp;
     private String ifAlias;
+    private IfOperStatus ifOperStatus;
 
     public WindowsNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
@@ -162,6 +163,11 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
+    public IfOperStatus getIfOperStatus() {
+        return ifOperStatus;
+    }
+
+    @Override
     public boolean updateAttributes() {
         // MIB_IFROW2 requires Vista (6.0) or later.
         if (IS_VISTA_OR_GREATER) {
@@ -187,6 +193,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
             this.inDrops = ifRow.InDiscards; // closest proxy
             this.speed = ifRow.ReceiveLinkSpeed;
             this.ifAlias = Native.toString(ifRow.Alias);
+            this.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
         } else {
             // Create new MIB_IFROW and set index to this interface index
             MIB_IFROW ifRow = new MIB_IFROW();
@@ -209,6 +216,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
             this.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards); // closest proxy
             this.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
             this.ifAlias = ""; // not supported by MIB_IFROW
+            this.ifOperStatus = IfOperStatus.UNKNOWN; // not supported
         }
         this.timeStamp = System.currentTimeMillis();
         return true;
