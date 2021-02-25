@@ -24,6 +24,7 @@
 package oshi.hardware;
 
 import java.net.NetworkInterface;
+import java.util.Arrays;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -70,13 +71,24 @@ public interface NetworkIF {
      * its assigned ifAlias value across reboots, even if an agent chooses a new
      * ifIndex value for the interface.
      * <p>
-     * Only implemented for Windows and Linux.
+     * Only implemented for Windows (Vista and newer) and Linux.
      *
      * @return The {@code ifAlias} of the interface if available, otherwise the
      *         empty string.
      */
     default String getIfAlias() {
         return "";
+    }
+
+    /**
+     * The {@code ifOperStatus} as described in RFC 2863.
+     * <p>
+     * Only implemented for Windows (Vista and newer) and Linux.
+     *
+     * @return The current operational state of the interface.
+     */
+    default IfOperStatus getIfOperStatus() {
+        return IfOperStatus.UNKNOWN;
     }
 
     /**
@@ -330,4 +342,68 @@ public interface NetworkIF {
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     boolean updateAttributes();
+
+    /**
+     * The current operational state of a network interface.
+     * <p>
+     * As described in RFC 2863.
+     */
+    enum IfOperStatus {
+        /**
+         * Up and operational. Ready to pass packets.
+         */
+        UP(1),
+        /**
+         * Down and not operational. Not ready to pass packets.
+         */
+        DOWN(2),
+        /**
+         * In some test mode.
+         */
+        TESTING(3),
+        /**
+         * The interface status is unknown.
+         */
+        UNKNOWN(4),
+        /**
+         * The interface is not up, but is in a pending state, waiting for some external
+         * event.
+         */
+        DORMANT(5),
+        /**
+         * Some component is missing
+         */
+        NOT_PRESENT(6),
+        /**
+         * Down due to state of lower-layer interface(s).
+         */
+        LOWER_LAYER_DOWN(7);
+
+        private final int value;
+
+        IfOperStatus(int value) {
+            this.value = value;
+        }
+
+        /**
+         * @return the integer value specified in RFC 2863 for this operational status.
+         */
+        public int getValue() {
+            return this.value;
+        }
+
+        /**
+         * Find IfOperStatus by the integer value.
+         *
+         * @param value
+         *            Integer value specified in RFC 2863
+         * @return the matching IfOperStatu or UNKNOWN if no matching IfOperStatus can
+         *         be found
+         */
+        public static IfOperStatus byValue(int value) {
+            return Arrays.stream(IfOperStatus.values()).filter(st -> st.getValue() == value).findFirst()
+                    .orElse(UNKNOWN);
+        }
+
+    }
 }
