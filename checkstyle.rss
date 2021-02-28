@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2021 oshi</copyright>
     <item>
-      <title>File: 404,
-             Errors: 11294,
+      <title>File: 405,
+             Errors: 11401,
              Warnings: 0,
              Infos: 0
       </title>
@@ -44,6 +44,20 @@ under the License.
             </tr>
           </thead>
           <tbody>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.mac.SystemConfiguration.java">oshi/jna/platform/mac/SystemConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  12
+                </td>
+              </tr>
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.freebsd.FreeBsdVirtualMemory.java">oshi/hardware/platform/unix/freebsd/FreeBsdVirtualMemory.java</a>
@@ -573,7 +587,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  43
                 </td>
               </tr>
                           <tr>
@@ -1119,7 +1133,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  46
+                  55
                 </td>
               </tr>
                           <tr>
@@ -1665,7 +1679,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  43
                 </td>
               </tr>
                           <tr>
@@ -2295,7 +2309,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  67
                 </td>
               </tr>
                           <tr>
@@ -2729,7 +2743,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  121
+                  126
                 </td>
               </tr>
                           <tr>
@@ -3429,7 +3443,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  31
                 </td>
               </tr>
                           <tr>
@@ -3667,7 +3681,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  55
+                  58
                 </td>
               </tr>
                           <tr>
@@ -4171,7 +4185,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  35
                 </td>
               </tr>
                           <tr>
@@ -4507,7 +4521,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  86
+                  90
                 </td>
               </tr>
                           <tr>
@@ -4843,7 +4857,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  54
+                  57
                 </td>
               </tr>
                           <tr>
@@ -4871,7 +4885,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  42
+                  45
                 </td>
               </tr>
                           <tr>
@@ -4955,7 +4969,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  102
+                  111
                 </td>
               </tr>
                           <tr>
@@ -5137,7 +5151,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  35
                 </td>
               </tr>
                           <tr>
@@ -5361,7 +5375,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  74
+                  76
                 </td>
               </tr>
                           <tr>
