@@ -28,8 +28,10 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -171,18 +173,46 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
+        File[] pidFiles = ProcessStat.getPidFiles();
+        Set<Integer> descendantPids = new HashSet<>();
+        if (parentPid == -1) {
+            // Put everything in the "descendant" set
+            for (File procFile : pidFiles) {
+                descendantPids.add(ParseUtil.parseIntOrDefault(procFile.getName(), 0));
+            }
+        } else {
+            // Only put descendants in
+            addChildrenToDescendantSet(getParentPidsFromProcFiles(pidFiles), parentPid, descendantPids, false);
+        }
+        return queryProcessList(descendantPids);
+    }
+
+    @Override
+    public List<OSProcess> queryDescendantProcesses(int parentPid) {
+        File[] pidFiles = ProcessStat.getPidFiles();
+        Set<Integer> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(getParentPidsFromProcFiles(pidFiles), parentPid, descendantPids, false);
+        return queryProcessList(descendantPids);
+    }
+
+    private static List<OSProcess> queryProcessList(Set<Integer> descendantPids) {
         List<OSProcess> procs = new ArrayList<>();
-        // now for each file (with digit name) get process info
-        for (File procFile : ProcessStat.getPidFiles()) {
-            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);
-            if (parentPid == -1 || parentPid == getParentPidFromProcFile(pid)) {
-                OSProcess proc = new LinuxOSProcess(pid);
-                if (!proc.getState().equals(State.INVALID)) {
-                    procs.add(proc);
-                }
+        for (int pid : descendantPids) {
+            OSProcess proc = new LinuxOSProcess(pid);
+            if (!proc.getState().equals(State.INVALID)) {
+                procs.add(proc);
             }
         }
         return procs;
+    }
+
+    private static Map<Integer, Integer> getParentPidsFromProcFiles(File[] pidFiles) {
+        Map<Integer, Integer> parentPidMap = new HashMap<>();
+        for (File procFile : pidFiles) {
+            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), 0);
+            parentPidMap.put(pid, getParentPidFromProcFile(pid));
+        }
+        return parentPidMap;
     }
 
     private static int getParentPidFromProcFile(int pid) {
