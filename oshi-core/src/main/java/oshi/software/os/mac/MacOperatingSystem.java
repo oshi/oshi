@@ -33,12 +33,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
-import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.Timeval;
 
@@ -172,7 +172,21 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryAllProcesses() {
-        return queryChildProcesses(-1);
+        List<OSProcess> procs = new ArrayList<>();
+        int[] pids = new int[this.maxProc];
+        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
+                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
+        for (int i = 0; i < numberOfProcesses; i++) {
+            // Handle off-by-one bug in proc_listpids where the size returned
+            // is: SystemB.INT_SIZE * (pids + 1)
+            if (pids[i] != 0) {
+                OSProcess proc = getProcess(pids[i]);
+                if (proc != null) {
+                    procs.add(proc);
+                }
+            }
+        }
+        return procs;
     }
 
     @Override
@@ -183,32 +197,18 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
-        List<OSProcess> procs = new ArrayList<>();
-        int[] pids = new int[this.maxProc];
-        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
-                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
-        for (int i = 0; i < numberOfProcesses; i++) {
-            // Handle off-by-one bug in proc_listpids where the size returned
-            // is: SystemB.INT_SIZE * (pids + 1)
-            if (pids[i] == 0) {
-                continue;
-            }
-            if (parentPid == -1 || parentPid == getParentProcessPid(pids[i])) {
-                OSProcess proc = getProcess(pids[i]);
-                if (proc != null) {
-                    procs.add(proc);
-                }
-            }
-        }
-        return procs;
+        List<OSProcess> allProcs = queryAllProcesses();
+        Set<Integer> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, false);
+        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
-    private static int getParentProcessPid(int pid) {
-        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
-        if (0 > SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {
-            return 0;
-        }
-        return taskAllInfo.pbsd.pbi_ppid;
+    @Override
+    public List<OSProcess> queryDescendantProcesses(int parentPid) {
+        List<OSProcess> allProcs = queryAllProcesses();
+        Set<Integer> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, true);
+        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
     @Override

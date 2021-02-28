@@ -113,8 +113,18 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
-        return queryAllProcesses().stream().filter(p -> p.getParentProcessID() == parentPid)
-                .collect(Collectors.toList());
+        List<OSProcess> allProcs = queryAllProcesses();
+        Set<Integer> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, false);
+        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OSProcess> queryDescendantProcesses(int parentPid) {
+        List<OSProcess> allProcs = queryAllProcesses();
+        Set<Integer> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, true);
+        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
     @Override

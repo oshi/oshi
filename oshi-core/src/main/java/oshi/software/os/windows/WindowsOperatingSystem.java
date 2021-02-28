@@ -32,6 +32,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -293,21 +294,31 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
-        Set<Integer> childPids = new HashSet<>();
+        Set<Integer> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(getParentPidsFromSnapshot(), parentPid, descendantPids, false);
+        return processMapToList(descendantPids);
+    }
+
+    @Override
+    public List<OSProcess> queryDescendantProcesses(int parentPid) {
+        Set<Integer> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(getParentPidsFromSnapshot(), parentPid, descendantPids, true);
+        return processMapToList(descendantPids);
+    }
+
+    private static Map<Integer, Integer> getParentPidsFromSnapshot() {
+        Map<Integer, Integer> parentPidMap = new HashMap<>();
         // Get processes from ToolHelp API for parent PID
         Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
         WinNT.HANDLE snapshot = Kernel32.INSTANCE.CreateToolhelp32Snapshot(Tlhelp32.TH32CS_SNAPPROCESS, new DWORD(0));
         try {
             while (Kernel32.INSTANCE.Process32Next(snapshot, processEntry)) {
-                if (processEntry.th32ParentProcessID.intValue() == parentPid) {
-                    childPids.add(processEntry.th32ProcessID.intValue());
-                }
+                parentPidMap.put(processEntry.th32ProcessID.intValue(), processEntry.th32ParentProcessID.intValue());
             }
         } finally {
             Kernel32.INSTANCE.CloseHandle(snapshot);
         }
-        // Get modifiable version
-        return processMapToList(childPids);
+        return parentPidMap;
     }
 
     @Override

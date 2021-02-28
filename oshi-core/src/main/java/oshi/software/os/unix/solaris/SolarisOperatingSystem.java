@@ -29,7 +29,9 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
@@ -116,13 +118,37 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
-        // Get list of children
-        List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
-        if (childPids.isEmpty()) {
+        Set<String> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(Integer.toString(parentPid), descendantPids, false);
+        if (descendantPids.isEmpty()) {
             return Collections.emptyList();
         }
         return getProcessListFromPS("ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
-                + String.join(",", childPids), -1);
+                + String.join(",", descendantPids), -1);
+    }
+
+    @Override
+    public List<OSProcess> queryDescendantProcesses(int parentPid) {
+        Set<String> descendantPids = new HashSet<>();
+        addChildrenToDescendantSet(Integer.toString(parentPid), descendantPids, true);
+        if (descendantPids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return getProcessListFromPS("ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
+                + String.join(",", descendantPids), -1);
+    }
+
+    private static void addChildrenToDescendantSet(String parentPid, Set<String> descendantPids, boolean recurse) {
+        // Get list of children
+        List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
+        // Add to descendant set
+        descendantPids.addAll(childPids);
+        // Recurse
+        if (recurse) {
+            for (String pid : childPids) {
+                addChildrenToDescendantSet(pid, descendantPids, true);
+            }
+        }
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {

@@ -209,10 +209,10 @@ class OperatingSystemTest {
     }
 
     /**
-     * Tests child process getter
+     * Tests child and dependent process getter
      */
     @Test
-    void testGetChildProcesses() {
+    void testGetChildAndDependentProcesses() {
         // Testing child processes is tricky because we don't really know a priori what
         // processes might have children, and if we do test the full list vs. individual
         // processes, we run into a race condition where child processes can start or
@@ -249,11 +249,19 @@ class OperatingSystemTest {
             }
         }
         // Now test that majority of each set is in same category
-        int matched = 0;
+        // Zero
+        int matchedChild = 0;
+        int matchedDescendant = 0;
+        int descendantNotLessThanChild = 0;
         int total = 0;
         for (Integer i : zeroChildSet) {
-            if (os.getChildProcesses(i, null, null, 0).isEmpty()) {
-                matched++;
+            List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
+            List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
+            if (children.size() == 0) {
+                matchedChild++;
+            }
+            if (descendants.size() == 0) {
+                matchedDescendant++;
             }
             // Quit if enough to test
             if (++total > 9) {
@@ -261,14 +269,27 @@ class OperatingSystemTest {
             }
         }
         if (total > 4) {
-            assertThat("Most processes with no children should not suddenly have them.", matched,
+            assertThat("Most processes with no children should not suddenly have them.", matchedChild,
+                    is(greaterThan(total / 2)));
+            assertThat("Most processes with no children should not suddenly have descendants.", matchedDescendant,
                     is(greaterThan(total / 2)));
         }
-        matched = 0;
+        // One child
+        matchedChild = 0;
+        matchedDescendant = 0;
+        descendantNotLessThanChild = 0;
         total = 0;
         for (Integer i : oneChildSet) {
-            if (os.getChildProcesses(i, null, null, 0).size() == 1) {
-                matched++;
+            List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
+            List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
+            if (children.size() == 1) {
+                matchedChild++;
+            }
+            if (descendants.size() >= 1) {
+                matchedDescendant++;
+            }
+            if (descendants.size() >= children.size()) {
+                descendantNotLessThanChild++;
             }
             // Quit if enough to test
             if (++total > 9) {
@@ -276,16 +297,32 @@ class OperatingSystemTest {
             }
         }
         if (total > 4) {
-            assertThat("Most processes with one child should not suddenly have zero or more than one.", matched,
+            assertThat("Most processes with one child should not suddenly have zero or more than one.", matchedChild,
                     is(greaterThan(total / 2)));
+            assertThat("Most processes with one child should not suddenly have zero descendants.", matchedDescendant,
+                    is(greaterThan(total / 2)));
+            assertThat("Most processes with one child should have no more children than descendants",
+                    descendantNotLessThanChild, is(greaterThan(total / 2)));
         }
-        matched = 0;
+        // Many children
+        matchedChild = 0;
+        matchedDescendant = 0;
+        descendantNotLessThanChild = 0;
         total = 0;
         for (Integer i : manyChildSet) {
             // Use a non-null sorting for test purposes
-            if (os.getChildProcesses(i, ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC, Integer.MAX_VALUE)
-                    .size() > 1) {
-                matched++;
+            List<OSProcess> children = os.getChildProcesses(i, ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC,
+                    Integer.MAX_VALUE);
+            List<OSProcess> descendants = os.getDescendantProcesses(i, ProcessFiltering.ALL_PROCESSES,
+                    ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
+            if (children.size() > 1) {
+                matchedChild++;
+            }
+            if (descendants.size() > 1) {
+                matchedDescendant++;
+            }
+            if (descendants.size() >= children.size()) {
+                descendantNotLessThanChild++;
             }
             // Quit if enough to test
             if (++total > 9) {
@@ -293,8 +330,12 @@ class OperatingSystemTest {
             }
         }
         if (total > 4) {
-            assertThat("Most processes with more than one child should not suddenly have one or less.", matched,
+            assertThat("Most processes with more than one child should not suddenly have one or less.", matchedChild,
                     is(greaterThan(total / 2)));
+            assertThat("Most processes with more than one child should not suddenly have one or less descendants.",
+                    matchedDescendant, is(greaterThan(total / 2)));
+            assertThat("Most processes with more than one child should have no more children than descendants",
+                    descendantNotLessThanChild, is(greaterThan(total / 2)));
         }
     }
 
