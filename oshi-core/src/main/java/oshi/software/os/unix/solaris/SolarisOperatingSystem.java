@@ -143,7 +143,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         Set<String> childPids = new HashSet<>();
         for (String s : ExecutingCommand.runNative("pgrep -P " + parentPid)) {
             String pid = s.trim();
-            if (!pid.equals(parentPid)) {
+            if (!pid.equals(parentPid) && !descendantPids.contains(pid)) {
                 childPids.add(pid);
             }
         }
