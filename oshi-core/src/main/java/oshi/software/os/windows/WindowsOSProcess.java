@@ -359,22 +359,28 @@ public class WindowsOSProcess extends AbstractOSProcess {
         final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandle != null) {
             final HANDLEByReference phToken = new HANDLEByReference();
-            if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-                Account account = Advapi32Util.getTokenAccount(phToken.getValue());
-                pair = new Pair<>(account.name, account.sidString);
-            } else {
-                int error = Kernel32.INSTANCE.GetLastError();
-                // Access denied errors are common. Fail silently.
-                if (error != WinError.ERROR_ACCESS_DENIED) {
-                    LOG.error("Failed to get process token for process {}: {}", getProcessID(),
-                            Kernel32.INSTANCE.GetLastError());
+            try {
+                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
+                    Account account = Advapi32Util.getTokenAccount(phToken.getValue());
+                    pair = new Pair<>(account.name, account.sidString);
+                } else {
+                    int error = Kernel32.INSTANCE.GetLastError();
+                    // Access denied errors are common. Fail silently.
+                    if (error != WinError.ERROR_ACCESS_DENIED) {
+                        LOG.error("Failed to get process token for process {}: {}", getProcessID(),
+                                Kernel32.INSTANCE.GetLastError());
+                    }
                 }
+            } catch (Win32Exception e) {
+                LOG.warn("Failed to query user info for process {} ({}): {}", getProcessID(), getName(),
+                        Kernel32.INSTANCE.GetLastError());
+            } finally {
+                final HANDLE token = phToken.getValue();
+                if (token != null) {
+                    Kernel32.INSTANCE.CloseHandle(token);
+                }
+                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
-            final HANDLE token = phToken.getValue();
-            if (token != null) {
-                Kernel32.INSTANCE.CloseHandle(token);
-            }
-            Kernel32.INSTANCE.CloseHandle(pHandle);
         }
         if (pair == null) {
             return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
