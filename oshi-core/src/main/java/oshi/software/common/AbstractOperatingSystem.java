@@ -154,7 +154,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         // Recurse
         if (recurse) {
             for (int pid : childPids) {
-                if (pid != parentPid) {
+                if (pid != parentPid && !descendantPids.contains(pid)) {
                     addChildrenToDescendantSet(allProcs, pid, descendantPids, true);
                 }
             }
@@ -188,7 +188,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         // Recurse
         if (recurse) {
             for (int pid : childPids) {
-                if (pid != parentPid) {
+                if (pid != parentPid && !descendantPids.contains(pid)) {
                     addChildrenToDescendantSet(parentPidMap, pid, descendantPids, true);
                 }
             }
