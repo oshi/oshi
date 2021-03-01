@@ -148,13 +148,15 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
             Set<Integer> descendantPids, boolean recurse) {
         // Collect this process's children
         Set<Integer> childPids = allProcs.stream().filter(p -> p.getParentProcessID() == parentPid)
-                .filter(p -> p.getProcessID() != parentPid).map(OSProcess::getProcessID).collect(Collectors.toSet());
+                .map(OSProcess::getProcessID).collect(Collectors.toSet());
         // Add to descendant set
         descendantPids.addAll(childPids);
         // Recurse
         if (recurse) {
             for (int pid : childPids) {
-                addChildrenToDescendantSet(allProcs, pid, descendantPids, true);
+                if (pid != parentPid) {
+                    addChildrenToDescendantSet(allProcs, pid, descendantPids, true);
+                }
             }
         }
     }
@@ -180,13 +182,15 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
             Set<Integer> descendantPids, boolean recurse) {
         // Collect this process's children
         Set<Integer> childPids = parentPidMap.entrySet().stream().filter(e -> e.getValue().equals(parentPid))
-                .map(Entry::getKey).filter(k -> !k.equals(parentPid)).collect(Collectors.toSet());
+                .map(Entry::getKey).collect(Collectors.toSet());
         // Add to descendant set
         descendantPids.addAll(childPids);
         // Recurse
         if (recurse) {
             for (int pid : childPids) {
-                addChildrenToDescendantSet(parentPidMap, pid, descendantPids, true);
+                if (pid != parentPid) {
+                    addChildrenToDescendantSet(parentPidMap, pid, descendantPids, true);
+                }
             }
         }
     }

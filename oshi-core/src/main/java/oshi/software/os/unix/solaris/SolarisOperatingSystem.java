@@ -140,9 +140,13 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     private static void addChildrenToDescendantSet(String parentPid, Set<String> descendantPids, boolean recurse) {
         // Get list of children
-        List<String> childPids = ExecutingCommand.runNative("pgrep -P " + parentPid);
-        // Remove parent pid to prevent recursing to it
-        childPids.remove(parentPid);
+        Set<String> childPids = new HashSet<>();
+        for (String s : ExecutingCommand.runNative("pgrep -P " + parentPid)) {
+            String pid = s.trim();
+            if (!pid.equals(parentPid)) {
+                childPids.add(pid);
+            }
+        }
         // Add to descendant set
         descendantPids.addAll(childPids);
         // Recurse
