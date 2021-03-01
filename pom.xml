@@ -171,7 +171,7 @@
 		<sonar-maven-plugin.version>3.8.0.2131</sonar-maven-plugin.version>
 		<wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
 		<dependency-check-maven.version>6.1.1</dependency-check-maven.version>
-		<puppycrawl.checkstyle.version>8.40</puppycrawl.checkstyle.version>
+		<puppycrawl.checkstyle.version>8.41</puppycrawl.checkstyle.version>
 		<m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
 	</properties>
 
