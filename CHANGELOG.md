@@ -2,7 +2,7 @@
 
 * Your contribution here!
 
-# 5.5.2 (2021-03-01)
+# 5.6.0 (2021-03-01)
 
 ##### New Features
 * [#1541](https://github.com/oshi/oshi/pull/1541): Expose the alias of a network interface (Windows and Linux) - [@dornand](https://github.com/dornand).
