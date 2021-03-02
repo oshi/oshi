@@ -63,8 +63,9 @@ public interface OperatingSystem {
 
     /**
      * Constants which may be used to filter Process lists in
-     * {@link #getProcesses(Predicate, Comparator, int)} and
-     * {@link #getChildProcesses(int, Predicate, Comparator, int)}.
+     * {@link #getProcesses(Predicate, Comparator, int)},
+     * {@link #getChildProcesses(int, Predicate, Comparator, int)}, and
+     * {@link #getDescendantProcesses(int, Predicate, Comparator, int)}.
      */
     final class ProcessFiltering {
         private ProcessFiltering() {
@@ -73,29 +74,30 @@ public interface OperatingSystem {
         /**
          * No filtering.
          */
-<span class="fc" id="L76">        public static final Predicate&lt;OSProcess&gt; ALL_PROCESSES = p -&gt; true;</span>
+<span class="fc" id="L77">        public static final Predicate&lt;OSProcess&gt; ALL_PROCESSES = p -&gt; true;</span>
         /**
          * Exclude processes with {@link State#INVALID} process state.
          */
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; VALID_PROCESS = p -&gt; !p.getState().equals(State.INVALID);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; VALID_PROCESS = p -&gt; !p.getState().equals(State.INVALID);</span>
         /**
          * Exclude child processes. Only include processes which are their own parent.
          */
-<span class="pc bnc" id="L84" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; NO_PARENT = p -&gt; p.getParentProcessID() == p.getProcessID();</span>
+<span class="pc bnc" id="L85" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; NO_PARENT = p -&gt; p.getParentProcessID() == p.getProcessID();</span>
         /**
          * Only incude 64-bit processes.
          */
-<span class="pc bnc" id="L88" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_64 = p -&gt; p.getBitness() == 64;</span>
+<span class="pc bnc" id="L89" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_64 = p -&gt; p.getBitness() == 64;</span>
         /**
          * Only include 32-bit processes.
          */
-<span class="pc bnc" id="L92" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_32 = p -&gt; p.getBitness() == 32;</span>
+<span class="pc bnc" id="L93" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_32 = p -&gt; p.getBitness() == 32;</span>
     }
 
     /**
      * Constants which may be used to sort Process lists in
-     * {@link #getProcesses(Predicate, Comparator, int)} and
-     * {@link #getChildProcesses(int, Predicate, Comparator, int)}.
+     * {@link #getProcesses(Predicate, Comparator, int)},
+     * {@link #getChildProcesses(int, Predicate, Comparator, int)}, and
+     * {@link #getDescendantProcesses(int, Predicate, Comparator, int)}.
      */
     final class ProcessSorting {
         private ProcessSorting() {
@@ -104,38 +106,38 @@ public interface OperatingSystem {
         /**
          * No sorting
          */
-<span class="fc" id="L107">        public static final Comparator&lt;OSProcess&gt; NO_SORTING = (p1, p2) -&gt; 0;</span>
+<span class="fc" id="L109">        public static final Comparator&lt;OSProcess&gt; NO_SORTING = (p1, p2) -&gt; 0;</span>
         /**
          * Sort by decreasing cumulative CPU percentage
          */
-<span class="fc" id="L111">        public static final Comparator&lt;OSProcess&gt; CPU_DESC = Comparator</span>
-<span class="fc" id="L112">                .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();</span>
+<span class="fc" id="L113">        public static final Comparator&lt;OSProcess&gt; CPU_DESC = Comparator</span>
+<span class="fc" id="L114">                .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();</span>
         /**
          * Sort by decreasing Resident Set Size (RSS)
          */
-<span class="fc" id="L116">        public static final Comparator&lt;OSProcess&gt; RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
-<span class="fc" id="L117">                .reversed();</span>
+<span class="fc" id="L118">        public static final Comparator&lt;OSProcess&gt; RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
+<span class="fc" id="L119">                .reversed();</span>
         /**
          * Sort by up time, newest processes first
          */
-<span class="fc" id="L121">        public static final Comparator&lt;OSProcess&gt; UPTIME_ASC = Comparator.comparingLong(OSProcess::getUpTime);</span>
+<span class="fc" id="L123">        public static final Comparator&lt;OSProcess&gt; UPTIME_ASC = Comparator.comparingLong(OSProcess::getUpTime);</span>
         /**
          * Sort by up time, oldest processes first
          */
-<span class="fc" id="L125">        public static final Comparator&lt;OSProcess&gt; UPTIME_DESC = UPTIME_ASC.reversed();</span>
+<span class="fc" id="L127">        public static final Comparator&lt;OSProcess&gt; UPTIME_DESC = UPTIME_ASC.reversed();</span>
         /**
          * Sort by Process Id
          */
-<span class="fc" id="L129">        public static final Comparator&lt;OSProcess&gt; PID_ASC = Comparator.comparingInt(OSProcess::getProcessID);</span>
+<span class="fc" id="L131">        public static final Comparator&lt;OSProcess&gt; PID_ASC = Comparator.comparingInt(OSProcess::getProcessID);</span>
         /**
          * Sort by Parent Process Id
          */
-<span class="fc" id="L133">        public static final Comparator&lt;OSProcess&gt; PARENTPID_ASC = Comparator</span>
-<span class="fc" id="L134">                .comparingInt(OSProcess::getParentProcessID);</span>
+<span class="fc" id="L135">        public static final Comparator&lt;OSProcess&gt; PARENTPID_ASC = Comparator</span>
+<span class="fc" id="L136">                .comparingInt(OSProcess::getParentProcessID);</span>
         /**
          * Sort by Process Name (case insensitive)
          */
-<span class="fc" id="L138">        public static final Comparator&lt;OSProcess&gt; NAME_ASC = Comparator.comparing(OSProcess::getName,</span>
+<span class="fc" id="L140">        public static final Comparator&lt;OSProcess&gt; NAME_ASC = Comparator.comparing(OSProcess::getName,</span>
                 String.CASE_INSENSITIVE_ORDER);
 
         /**
@@ -147,30 +149,30 @@ public interface OperatingSystem {
          * @return The corresponding comparator
          */
         private static Comparator&lt;OSProcess&gt; convertSortToComparator(ProcessSort sort) {
-<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (sort != null) {</span>
-<span class="nc bnc" id="L151" title="All 8 branches missed.">                switch (sort) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (sort != null) {</span>
+<span class="nc bnc" id="L153" title="All 8 branches missed.">                switch (sort) {</span>
                 case CPU:
-<span class="nc" id="L153">                    return CPU_DESC;</span>
+<span class="nc" id="L155">                    return CPU_DESC;</span>
                 case MEMORY:
-<span class="nc" id="L155">                    return RSS_DESC;</span>
+<span class="nc" id="L157">                    return RSS_DESC;</span>
                 case OLDEST:
-<span class="nc" id="L157">                    return UPTIME_DESC;</span>
+<span class="nc" id="L159">                    return UPTIME_DESC;</span>
                 case NEWEST:
-<span class="nc" id="L159">                    return UPTIME_ASC;</span>
+<span class="nc" id="L161">                    return UPTIME_ASC;</span>
                 case PID:
-<span class="nc" id="L161">                    return PID_ASC;</span>
+<span class="nc" id="L163">                    return PID_ASC;</span>
                 case PARENTPID:
-<span class="nc" id="L163">                    return PARENTPID_ASC;</span>
+<span class="nc" id="L165">                    return PARENTPID_ASC;</span>
                 case NAME:
-<span class="nc" id="L165">                    return NAME_ASC;</span>
+<span class="nc" id="L167">                    return NAME_ASC;</span>
                 default:
                     // Should never get here! If you get this exception you've
                     // added something to the enum without adding it here. Tsk.
                     // But that enum is now deprecated so double-tsk if you add!
-<span class="nc" id="L170">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + sort.toString());</span>
+<span class="nc" id="L172">                    throw new IllegalArgumentException(&quot;Unimplemented enum type: &quot; + sort.toString());</span>
                 }
             }
-<span class="nc" id="L173">            return NO_SORTING;</span>
+<span class="nc" id="L175">            return NO_SORTING;</span>
         }
     }
 
@@ -219,7 +221,7 @@ public interface OperatingSystem {
      *         during iteration.
      */
     default List&lt;OSProcess&gt; getProcesses() {
-<span class="nc" id="L222">        return getProcesses(null, null, 0);</span>
+<span class="nc" id="L224">        return getProcesses(null, null, 0);</span>
     }
 
     /**
@@ -266,7 +268,7 @@ public interface OperatingSystem {
      */
     @Deprecated
     default List&lt;OSProcess&gt; getProcesses(int limit, ProcessSort sort) {
-<span class="nc" id="L269">        return getProcesses(null, ProcessSorting.convertSortToComparator(sort), limit);</span>
+<span class="nc" id="L271">        return getProcesses(null, ProcessSorting.convertSortToComparator(sort), limit);</span>
     }
 
     /**
@@ -279,8 +281,8 @@ public interface OperatingSystem {
      *         specified process ids if it is running
      */
     default List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids) {
-<span class="fc" id="L282">        return pids.stream().map(this::getProcess).filter(Objects::nonNull).filter(ProcessFiltering.VALID_PROCESS)</span>
-<span class="fc" id="L283">                .collect(Collectors.toList());</span>
+<span class="fc" id="L284">        return pids.stream().map(this::getProcess).filter(Objects::nonNull).filter(ProcessFiltering.VALID_PROCESS)</span>
+<span class="fc" id="L285">                .collect(Collectors.toList());</span>
     }
 
     /**
@@ -317,7 +319,7 @@ public interface OperatingSystem {
      */
     @Deprecated
     default List&lt;OSProcess&gt; getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-<span class="nc" id="L320">        return getChildProcesses(parentPid, null, ProcessSorting.convertSortToComparator(sort), limit);</span>
+<span class="nc" id="L322">        return getChildProcesses(parentPid, null, ProcessSorting.convertSortToComparator(sort), limit);</span>
     }
 
     /**
@@ -345,6 +347,34 @@ public interface OperatingSystem {
      *         iteration.
      */
     List&lt;OSProcess&gt; getChildProcesses(int parentPid, Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort,
+            int limit);
+
+    /**
+     * Gets currently running processes of provided parent PID's descendants,
+     * including their children, the children's children, etc., optionally
+     * filtering, sorting, and limited to the top &quot;N&quot;.
+     *
+     * @param parentPid
+     *            The Process ID whose children to list.
+     * @param filter
+     *            An optional {@link Predicate} limiting the results to the
+     *            specified filter. Some common predicates are available in
+     *            {@link ProcessSorting}. May be {@code null} for no filtering.
+     * @param sort
+     *            An optional {@link Comparator} specifying the sorting order. Some
+     *            common comparators are available in {@link ProcessSorting}. May be
+     *            {@code null} for no sorting.
+     * @param limit
+     *            Max number of results to return, or 0 to return all results
+     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
+     *         currently running descendant processes of the provided PID,
+     *         optionally filtered, sorted, and limited to the specified number.
+     *         &lt;p&gt;
+     *         The list may contain processes with a state of
+     *         {@link OSProcess.State#INVALID} if a process terminates during
+     *         iteration.
+     */
+    List&lt;OSProcess&gt; getDescendantProcesses(int parentPid, Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort,
             int limit);
 
     /**
@@ -397,7 +427,7 @@ public interface OperatingSystem {
      * @return True if this process has elevated permissions
      */
     default boolean isElevated() {
-<span class="pc bpc" id="L400" title="1 of 2 branches missed.">        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;), -1);</span>
+<span class="pc bpc" id="L430" title="1 of 2 branches missed.">        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;), -1);</span>
     }
 
     /**
@@ -414,7 +444,7 @@ public interface OperatingSystem {
      * @return An array of {@link OSService} objects
      */
     default OSService[] getServices() {
-<span class="nc" id="L417">        return new OSService[0];</span>
+<span class="nc" id="L447">        return new OSService[0];</span>
     }
 
     /**
@@ -436,7 +466,7 @@ public interface OperatingSystem {
      *         logged-in users
      */
     default List&lt;OSSession&gt; getSessions() {
-<span class="nc" id="L439">        return Who.queryWho();</span>
+<span class="nc" id="L469">        return Who.queryWho();</span>
     }
 
     /**
@@ -461,7 +491,7 @@ public interface OperatingSystem {
     default List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly) {
         // Default X11 implementation for Unix-like operating systems.
         // Overridden on Windows and macOS
-<span class="nc" id="L464">        return Xwininfo.queryXWindows(visibleOnly);</span>
+<span class="nc" id="L494">        return Xwininfo.queryXWindows(visibleOnly);</span>
     }
 
     /**
@@ -474,20 +504,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="fc" id="L477">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="fc" id="L478">            this.version = version;</span>
-<span class="fc" id="L479">            this.codeName = codeName;</span>
-<span class="fc" id="L480">            this.buildNumber = buildNumber;</span>
+<span class="fc" id="L507">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="fc" id="L508">            this.version = version;</span>
+<span class="fc" id="L509">            this.codeName = codeName;</span>
+<span class="fc" id="L510">            this.buildNumber = buildNumber;</span>
 
-<span class="pc bpc" id="L482" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="pc bpc" id="L483" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="fc" id="L484">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="pc bpc" id="L512" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="pc bpc" id="L513" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="fc" id="L514">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="pc bpc" id="L486" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="fc" id="L487">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="pc bpc" id="L516" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="fc" id="L517">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="fc" id="L489">            this.versionStr = sb.toString();</span>
-<span class="fc" id="L490">        }</span>
+<span class="fc" id="L519">            this.versionStr = sb.toString();</span>
+<span class="fc" id="L520">        }</span>
 
         /**
          * Gets the operating system version.
@@ -495,7 +525,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="fc" id="L498">            return version;</span>
+<span class="fc" id="L528">            return version;</span>
         }
 
         /**
@@ -504,7 +534,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="fc" id="L507">            return codeName;</span>
+<span class="fc" id="L537">            return codeName;</span>
         }
 
         /**
@@ -513,12 +543,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="fc" id="L516">            return buildNumber;</span>
+<span class="fc" id="L546">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="fc" id="L521">            return this.versionStr;</span>
+<span class="fc" id="L551">            return this.versionStr;</span>
         }
     }
 }
