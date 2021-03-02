@@ -359,55 +359,61 @@ public class WindowsOSProcess extends AbstractOSProcess {
 <span class="nc" id="L359">        final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());</span>
 <span class="nc bnc" id="L360" title="All 2 branches missed.">        if (pHandle != null) {</span>
 <span class="nc" id="L361">            final HANDLEByReference phToken = new HANDLEByReference();</span>
-<span class="nc bnc" id="L362" title="All 2 branches missed.">            if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {</span>
-<span class="nc" id="L363">                Account account = Advapi32Util.getTokenAccount(phToken.getValue());</span>
-<span class="nc" id="L364">                pair = new Pair&lt;&gt;(account.name, account.sidString);</span>
-<span class="nc" id="L365">            } else {</span>
-<span class="nc" id="L366">                int error = Kernel32.INSTANCE.GetLastError();</span>
-                // Access denied errors are common. Fail silently.
-<span class="nc bnc" id="L368" title="All 2 branches missed.">                if (error != WinError.ERROR_ACCESS_DENIED) {</span>
-<span class="nc" id="L369">                    LOG.error(&quot;Failed to get process token for process {}: {}&quot;, getProcessID(),</span>
-<span class="nc" id="L370">                            Kernel32.INSTANCE.GetLastError());</span>
+            try {
+<span class="nc bnc" id="L363" title="All 2 branches missed.">                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {</span>
+<span class="nc" id="L364">                    Account account = Advapi32Util.getTokenAccount(phToken.getValue());</span>
+<span class="nc" id="L365">                    pair = new Pair&lt;&gt;(account.name, account.sidString);</span>
+<span class="nc" id="L366">                } else {</span>
+<span class="nc" id="L367">                    int error = Kernel32.INSTANCE.GetLastError();</span>
+                    // Access denied errors are common. Fail silently.
+<span class="nc bnc" id="L369" title="All 2 branches missed.">                    if (error != WinError.ERROR_ACCESS_DENIED) {</span>
+<span class="nc" id="L370">                        LOG.error(&quot;Failed to get process token for process {}: {}&quot;, getProcessID(),</span>
+<span class="nc" id="L371">                                Kernel32.INSTANCE.GetLastError());</span>
+                    }
                 }
+<span class="nc" id="L374">            } catch (Win32Exception e) {</span>
+<span class="nc" id="L375">                LOG.warn(&quot;Failed to query user info for process {} ({}): {}&quot;, getProcessID(), getName(),</span>
+<span class="nc" id="L376">                        Kernel32.INSTANCE.GetLastError());</span>
+            } finally {
+<span class="nc" id="L378">                final HANDLE token = phToken.getValue();</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">                if (token != null) {</span>
+<span class="nc" id="L380">                    Kernel32.INSTANCE.CloseHandle(token);</span>
+                }
+<span class="nc" id="L382">                Kernel32.INSTANCE.CloseHandle(pHandle);</span>
             }
-<span class="nc" id="L373">            final HANDLE token = phToken.getValue();</span>
-<span class="nc bnc" id="L374" title="All 2 branches missed.">            if (token != null) {</span>
-<span class="nc" id="L375">                Kernel32.INSTANCE.CloseHandle(token);</span>
-            }
-<span class="nc" id="L377">            Kernel32.INSTANCE.CloseHandle(pHandle);</span>
         }
-<span class="nc bnc" id="L379" title="All 2 branches missed.">        if (pair == null) {</span>
-<span class="nc" id="L380">            return new Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">        if (pair == null) {</span>
+<span class="nc" id="L386">            return new Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);</span>
         }
-<span class="nc" id="L382">        return pair;</span>
+<span class="nc" id="L388">        return pair;</span>
     }
 
     private Pair&lt;String, String&gt; queryGroupInfo() {
-<span class="nc" id="L386">        Pair&lt;String, String&gt; pair = null;</span>
-<span class="nc" id="L387">        final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());</span>
-<span class="nc bnc" id="L388" title="All 2 branches missed.">        if (pHandle != null) {</span>
-<span class="nc" id="L389">            final HANDLEByReference phToken = new HANDLEByReference();</span>
-<span class="nc bnc" id="L390" title="All 2 branches missed.">            if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {</span>
-<span class="nc" id="L391">                Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());</span>
-<span class="nc" id="L392">                pair = new Pair&lt;&gt;(account.name, account.sidString);</span>
-<span class="nc" id="L393">            } else {</span>
-<span class="nc" id="L394">                int error = Kernel32.INSTANCE.GetLastError();</span>
+<span class="nc" id="L392">        Pair&lt;String, String&gt; pair = null;</span>
+<span class="nc" id="L393">        final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">        if (pHandle != null) {</span>
+<span class="nc" id="L395">            final HANDLEByReference phToken = new HANDLEByReference();</span>
+<span class="nc bnc" id="L396" title="All 2 branches missed.">            if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {</span>
+<span class="nc" id="L397">                Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());</span>
+<span class="nc" id="L398">                pair = new Pair&lt;&gt;(account.name, account.sidString);</span>
+<span class="nc" id="L399">            } else {</span>
+<span class="nc" id="L400">                int error = Kernel32.INSTANCE.GetLastError();</span>
                 // Access denied errors are common. Fail silently.
-<span class="nc bnc" id="L396" title="All 2 branches missed.">                if (error != WinError.ERROR_ACCESS_DENIED) {</span>
-<span class="nc" id="L397">                    LOG.error(&quot;Failed to get process token for process {}: {}&quot;, getProcessID(),</span>
-<span class="nc" id="L398">                            Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc bnc" id="L402" title="All 2 branches missed.">                if (error != WinError.ERROR_ACCESS_DENIED) {</span>
+<span class="nc" id="L403">                    LOG.error(&quot;Failed to get process token for process {}: {}&quot;, getProcessID(),</span>
+<span class="nc" id="L404">                            Kernel32.INSTANCE.GetLastError());</span>
                 }
             }
-<span class="nc" id="L401">            final HANDLE token = phToken.getValue();</span>
-<span class="nc bnc" id="L402" title="All 2 branches missed.">            if (token != null) {</span>
-<span class="nc" id="L403">                Kernel32.INSTANCE.CloseHandle(token);</span>
+<span class="nc" id="L407">            final HANDLE token = phToken.getValue();</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">            if (token != null) {</span>
+<span class="nc" id="L409">                Kernel32.INSTANCE.CloseHandle(token);</span>
             }
-<span class="nc" id="L405">            Kernel32.INSTANCE.CloseHandle(pHandle);</span>
+<span class="nc" id="L411">            Kernel32.INSTANCE.CloseHandle(pHandle);</span>
         }
-<span class="nc bnc" id="L407" title="All 2 branches missed.">        if (pair == null) {</span>
-<span class="nc" id="L408">            return new Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">        if (pair == null) {</span>
+<span class="nc" id="L414">            return new Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);</span>
         }
-<span class="nc" id="L410">        return pair;</span>
+<span class="nc" id="L416">        return pair;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
