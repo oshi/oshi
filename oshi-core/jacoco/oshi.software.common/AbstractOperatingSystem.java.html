@@ -148,16 +148,18 @@ import oshi.util.tuples.Pair;
             Set&lt;Integer&gt; descendantPids, boolean recurse) {
         // Collect this process's children
 <span class="nc bnc" id="L150" title="All 2 branches missed.">        Set&lt;Integer&gt; childPids = allProcs.stream().filter(p -&gt; p.getParentProcessID() == parentPid)</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid).map(OSProcess::getProcessID).collect(Collectors.toSet());</span>
+<span class="nc" id="L151">                .map(OSProcess::getProcessID).collect(Collectors.toSet());</span>
         // Add to descendant set
 <span class="nc" id="L153">        descendantPids.addAll(childPids);</span>
         // Recurse
 <span class="nc bnc" id="L155" title="All 2 branches missed.">        if (recurse) {</span>
 <span class="nc bnc" id="L156" title="All 2 branches missed.">            for (int pid : childPids) {</span>
-<span class="nc" id="L157">                addChildrenToDescendantSet(allProcs, pid, descendantPids, true);</span>
-<span class="nc" id="L158">            }</span>
+<span class="nc bnc" id="L157" title="All 4 branches missed.">                if (pid != parentPid &amp;&amp; !descendantPids.contains(pid)) {</span>
+<span class="nc" id="L158">                    addChildrenToDescendantSet(allProcs, pid, descendantPids, true);</span>
+                }
+<span class="nc" id="L160">            }</span>
         }
-<span class="nc" id="L160">    }</span>
+<span class="nc" id="L162">    }</span>
 
     /**
      * Utility method for subclasses to take a map of pid to parent as input and
@@ -179,23 +181,25 @@ import oshi.util.tuples.Pair;
     protected static void addChildrenToDescendantSet(Map&lt;Integer, Integer&gt; parentPidMap, int parentPid,
             Set&lt;Integer&gt; descendantPids, boolean recurse) {
         // Collect this process's children
-<span class="nc" id="L182">        Set&lt;Integer&gt; childPids = parentPidMap.entrySet().stream().filter(e -&gt; e.getValue().equals(parentPid))</span>
-<span class="nc bnc" id="L183" title="All 2 branches missed.">                .map(Entry::getKey).filter(k -&gt; !k.equals(parentPid)).collect(Collectors.toSet());</span>
+<span class="nc" id="L184">        Set&lt;Integer&gt; childPids = parentPidMap.entrySet().stream().filter(e -&gt; e.getValue().equals(parentPid))</span>
+<span class="nc" id="L185">                .map(Entry::getKey).collect(Collectors.toSet());</span>
         // Add to descendant set
-<span class="nc" id="L185">        descendantPids.addAll(childPids);</span>
+<span class="nc" id="L187">        descendantPids.addAll(childPids);</span>
         // Recurse
-<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (recurse) {</span>
-<span class="nc bnc" id="L188" title="All 2 branches missed.">            for (int pid : childPids) {</span>
-<span class="nc" id="L189">                addChildrenToDescendantSet(parentPidMap, pid, descendantPids, true);</span>
-<span class="nc" id="L190">            }</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (recurse) {</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">            for (int pid : childPids) {</span>
+<span class="nc bnc" id="L191" title="All 4 branches missed.">                if (pid != parentPid &amp;&amp; !descendantPids.contains(pid)) {</span>
+<span class="nc" id="L192">                    addChildrenToDescendantSet(parentPidMap, pid, descendantPids, true);</span>
+                }
+<span class="nc" id="L194">            }</span>
         }
-<span class="nc" id="L192">    }</span>
+<span class="nc" id="L196">    }</span>
 
     @Override
     public String toString() {
-<span class="nc" id="L196">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L197">        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());</span>
-<span class="nc" id="L198">        return sb.toString();</span>
+<span class="nc" id="L200">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L201">        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());</span>
+<span class="nc" id="L202">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
