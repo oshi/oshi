@@ -33,12 +33,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.mac.SystemB; // NOSONAR squid:S1191
-import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.Timeval;
 
@@ -172,43 +172,43 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List&lt;OSProcess&gt; queryAllProcesses() {
-<span class="nc" id="L175">        return queryChildProcesses(-1);</span>
+<span class="nc" id="L175">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L176">        int[] pids = new int[this.maxProc];</span>
+<span class="nc" id="L177">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
+                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+            // Handle off-by-one bug in proc_listpids where the size returned
+            // is: SystemB.INT_SIZE * (pids + 1)
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            if (pids[i] != 0) {</span>
+<span class="nc" id="L183">                OSProcess proc = getProcess(pids[i]);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">                if (proc != null) {</span>
+<span class="nc" id="L185">                    procs.add(proc);</span>
+                }
+            }
+        }
+<span class="nc" id="L189">        return procs;</span>
     }
 
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L180">        OSProcess proc = new MacOSProcess(pid, this.minor);</span>
-<span class="nc bnc" id="L181" title="All 2 branches missed.">        return proc.getState().equals(State.INVALID) ? null : proc;</span>
+<span class="nc" id="L194">        OSProcess proc = new MacOSProcess(pid, this.minor);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        return proc.getState().equals(State.INVALID) ? null : proc;</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryChildProcesses(int parentPid) {
-<span class="nc" id="L186">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L187">        int[] pids = new int[this.maxProc];</span>
-<span class="nc" id="L188">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
-                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
-<span class="nc bnc" id="L190" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
-            // Handle off-by-one bug in proc_listpids where the size returned
-            // is: SystemB.INT_SIZE * (pids + 1)
-<span class="nc bnc" id="L193" title="All 2 branches missed.">            if (pids[i] == 0) {</span>
-<span class="nc" id="L194">                continue;</span>
-            }
-<span class="nc bnc" id="L196" title="All 4 branches missed.">            if (parentPid == -1 || parentPid == getParentProcessPid(pids[i])) {</span>
-<span class="nc" id="L197">                OSProcess proc = getProcess(pids[i]);</span>
-<span class="nc bnc" id="L198" title="All 2 branches missed.">                if (proc != null) {</span>
-<span class="nc" id="L199">                    procs.add(proc);</span>
-                }
-            }
-        }
-<span class="nc" id="L203">        return procs;</span>
+<span class="nc" id="L200">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L201">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L202">        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, false);</span>
+<span class="nc" id="L203">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
-    private static int getParentProcessPid(int pid) {
-<span class="nc" id="L207">        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();</span>
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (0 &gt; SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo, taskAllInfo.size())) {</span>
-<span class="nc" id="L209">            return 0;</span>
-        }
-<span class="nc" id="L211">        return taskAllInfo.pbsd.pbi_ppid;</span>
+    @Override
+    public List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid) {
+<span class="nc" id="L208">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L209">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L210">        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, true);</span>
+<span class="nc" id="L211">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
