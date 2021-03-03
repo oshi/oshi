@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Native;
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
@@ -46,13 +47,16 @@ import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
+import com.sun.jna.platform.win32.W32Errors;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+import com.sun.jna.platform.win32.WinNT.PSID;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData;
@@ -361,7 +365,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
             final HANDLEByReference phToken = new HANDLEByReference();
             try {
                 if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-                    Account account = Advapi32Util.getTokenAccount(phToken.getValue());
+                    Account account = getTokenAccount(phToken.getValue());
                     pair = new Pair<>(account.name, account.sidString);
                 } else {
                     int error = Kernel32.INSTANCE.GetLastError();
@@ -386,6 +390,78 @@ public class WindowsOSProcess extends AbstractOSProcess {
             return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
         }
         return pair;
+    }
+
+    // Temporary for debugging
+    private static Account getTokenAccount(HANDLE hToken) {
+        // get token group information size
+        IntByReference tokenInformationLength = new IntByReference();
+        if (Advapi32.INSTANCE.GetTokenInformation(hToken, WinNT.TOKEN_INFORMATION_CLASS.TokenUser, null, 0,
+                tokenInformationLength)) {
+            throw new RuntimeException("Expected GetTokenInformation to fail with ERROR_INSUFFICIENT_BUFFER");
+        }
+        int rc = Kernel32.INSTANCE.GetLastError();
+        if (rc != W32Errors.ERROR_INSUFFICIENT_BUFFER) {
+            throw new Win32Exception(rc);
+        }
+        // get token user information
+        WinNT.TOKEN_USER user = new WinNT.TOKEN_USER(tokenInformationLength.getValue());
+        if (!Advapi32.INSTANCE.GetTokenInformation(hToken, WinNT.TOKEN_INFORMATION_CLASS.TokenUser, user,
+                tokenInformationLength.getValue(), tokenInformationLength)) {
+            throw new Win32Exception(Kernel32.INSTANCE.GetLastError());
+        }
+        return getAccountBySid(null, user.User.Sid);
+    }
+
+    // Temporary for debugging
+    public static Account getAccountBySid(String systemName, PSID sid) {
+        IntByReference cchName = new IntByReference();
+        IntByReference cchDomainName = new IntByReference();
+        PointerByReference peUse = new PointerByReference();
+
+        if (Advapi32.INSTANCE.LookupAccountSid(systemName, sid, null, cchName, null, cchDomainName, peUse)) {
+            throw new RuntimeException("LookupAccountSidW was expected to fail with ERROR_INSUFFICIENT_BUFFER");
+        }
+
+        int rc = Kernel32.INSTANCE.GetLastError();
+        if (cchName.getValue() == 0 || rc != W32Errors.ERROR_INSUFFICIENT_BUFFER) {
+            throw new Win32Exception(rc);
+        }
+
+        char[] domainName = new char[cchDomainName.getValue()];
+        char[] name = new char[cchName.getValue()];
+
+        if (!Advapi32.INSTANCE.LookupAccountSid(systemName, sid, name, cchName, domainName, cchDomainName, peUse)) {
+            LOG.warn("Failed LookupAccountSid: Sid={}, cchName={}, cchDomainName={}. Trying again.", sid,
+                    cchName.getValue(), cchDomainName.getValue());
+            if (Advapi32.INSTANCE.LookupAccountSid(systemName, sid, null, cchName, null, cchDomainName, peUse)) {
+                throw new RuntimeException("LookupAccountSidW was expected to fail with ERROR_INSUFFICIENT_BUFFER");
+            }
+            LOG.warn("Trying LookupAccountSid: Sid={}, cchName={}, cchDomainName={}.", sid, cchName.getValue(),
+                    cchDomainName.getValue());
+            domainName = new char[cchDomainName.getValue()];
+            name = new char[cchName.getValue()];
+            if (!Advapi32.INSTANCE.LookupAccountSid(systemName, sid, name, cchName, domainName, cchDomainName, peUse)) {
+                LOG.warn("Failed LookupAccountSid: Sid={}, cchName={}, cchDomainName={}. Bailing out.", sid,
+                        cchName.getValue(), cchDomainName.getValue());
+                throw new Win32Exception(Kernel32.INSTANCE.GetLastError());
+            }
+        }
+
+        Account account = new Account();
+        account.accountType = peUse.getPointer().getInt(0);
+        account.name = Native.toString(name);
+
+        if (cchDomainName.getValue() > 0) {
+            account.domain = Native.toString(domainName);
+            account.fqn = account.domain + "\\" + account.name;
+        } else {
+            account.fqn = account.name;
+        }
+
+        account.sid = sid.getBytes();
+        account.sidString = Advapi32Util.convertSidToStringSid(sid);
+        return account;
     }
 
     private Pair<String, String> queryGroupInfo() {
