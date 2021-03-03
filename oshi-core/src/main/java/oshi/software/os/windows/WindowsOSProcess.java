@@ -373,7 +373,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
                 }
             } catch (Win32Exception e) {
                 LOG.warn("Failed to query user info for process {} ({}): {}", getProcessID(), getName(),
-                        Kernel32.INSTANCE.GetLastError());
+                        e.getMessage());
             } finally {
                 final HANDLE token = phToken.getValue();
                 if (token != null) {
