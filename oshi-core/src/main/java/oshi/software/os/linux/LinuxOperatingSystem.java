@@ -174,15 +174,17 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
         File[] pidFiles = ProcessStat.getPidFiles();
+        if (parentPid >= 0) {
+            // Only return descendants
+            return queryProcessList(getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, false));
+        }
         Set<Integer> descendantPids = new HashSet<>();
-        if (parentPid == -1) {
-            // Put everything in the "descendant" set
-            for (File procFile : pidFiles) {
-                descendantPids.add(ParseUtil.parseIntOrDefault(procFile.getName(), 0));
+        // Put everything in the "descendant" set
+        for (File procFile : pidFiles) {
+            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), -2);
+            if (pid != -2) {
+                descendantPids.add(pid);
             }
-        } else {
-            // Only put descendants in
-            addChildrenToDescendantSet(getParentPidsFromProcFiles(pidFiles), parentPid, descendantPids, false);
         }
         return queryProcessList(descendantPids);
     }
@@ -190,8 +192,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> queryDescendantProcesses(int parentPid) {
         File[] pidFiles = ProcessStat.getPidFiles();
-        Set<Integer> descendantPids = new HashSet<>();
-        addChildrenToDescendantSet(getParentPidsFromProcFiles(pidFiles), parentPid, descendantPids, false);
+        Set<Integer> descendantPids = getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, false);
         return queryProcessList(descendantPids);
     }
 

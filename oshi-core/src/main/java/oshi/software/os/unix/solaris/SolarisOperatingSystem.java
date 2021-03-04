@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 
@@ -60,6 +61,7 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
+    private static final String PROCESS_LIST_FOR_PID_COMMAND = "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ";
     private static final long BOOTTIME = querySystemBootTime();
 
     @Override
@@ -103,8 +105,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ", pid);
+        List<OSProcess> procs = getProcessListFromPS(PROCESS_LIST_FOR_PID_COMMAND, pid);
         if (procs.isEmpty()) {
             return null;
         }
@@ -113,48 +114,42 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryAllProcesses() {
-        return getProcessListFromPS("ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
+        return queryAllProcessesFromPS();
     }
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
-        Set<String> descendantPids = new HashSet<>();
-        addChildrenToDescendantSet(Integer.toString(parentPid), descendantPids, false);
-        if (descendantPids.isEmpty()) {
+        Set<String> childPids = getChildren(String.valueOf(parentPid)).stream().map(String::valueOf)
+                .collect(Collectors.toSet());
+        if (childPids.isEmpty()) {
             return Collections.emptyList();
         }
-        return getProcessListFromPS("ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
-                + String.join(",", descendantPids), -1);
+        return getProcessListFromPS(PROCESS_LIST_FOR_PID_COMMAND + String.join(",", childPids), -1);
     }
 
     @Override
     public List<OSProcess> queryDescendantProcesses(int parentPid) {
-        Set<String> descendantPids = new HashSet<>();
-        addChildrenToDescendantSet(Integer.toString(parentPid), descendantPids, true);
+        Set<String> descendantPids = getChildrenOrDescendants(queryAllProcessesFromPS(), parentPid, true).stream()
+                .map(String::valueOf).collect(Collectors.toSet());
         if (descendantPids.isEmpty()) {
             return Collections.emptyList();
         }
-        return getProcessListFromPS("ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p "
-                + String.join(",", descendantPids), -1);
+        return getProcessListFromPS(PROCESS_LIST_FOR_PID_COMMAND + String.join(",", descendantPids), -1);
     }
 
-    private static void addChildrenToDescendantSet(String parentPid, Set<String> descendantPids, boolean recurse) {
-        // Get list of children
+    private static List<OSProcess> queryAllProcessesFromPS() {
+        return getProcessListFromPS("ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
+    }
+
+    private static Set<String> getChildren(String parentPid) {
         Set<String> childPids = new HashSet<>();
         for (String s : ExecutingCommand.runNative("pgrep -P " + parentPid)) {
             String pid = s.trim();
-            if (!pid.equals(parentPid) && !descendantPids.contains(pid)) {
+            if (!pid.equals(parentPid)) {
                 childPids.add(pid);
             }
         }
-        // Add to descendant set
-        descendantPids.addAll(childPids);
-        // Recurse
-        if (recurse) {
-            for (String pid : childPids) {
-                addChildrenToDescendantSet(pid, descendantPids, true);
-            }
-        }
+        return childPids;
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
