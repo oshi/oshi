@@ -209,15 +209,18 @@ public class LinuxFileSystem extends AbstractFileSystem {
                     usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();
                     freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();
                 } else {
-                    File tmpFile = new File(path);
-                    totalSpace = tmpFile.getTotalSpace();
-                    usableSpace = tmpFile.getUsableSpace();
-                    freeSpace = tmpFile.getFreeSpace();
                     LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path,
                             Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
                 LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
+            }
+            // If native methods failed use JVM methods
+            if (totalSpace == 0L) {
+                File tmpFile = new File(path);
+                totalSpace = tmpFile.getTotalSpace();
+                usableSpace = tmpFile.getUsableSpace();
+                freeSpace = tmpFile.getFreeSpace();
             }
 
             fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,
