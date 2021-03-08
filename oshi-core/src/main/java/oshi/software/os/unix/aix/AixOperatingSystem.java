@@ -32,7 +32,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -129,16 +128,14 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
         List<OSProcess> allProcs = queryAllProcesses();
-        Set<Integer> descendantPids = new HashSet<>();
-        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, false);
+        Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);
         return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
     @Override
     public List<OSProcess> queryDescendantProcesses(int parentPid) {
         List<OSProcess> allProcs = queryAllProcesses();
-        Set<Integer> descendantPids = new HashSet<>();
-        addChildrenToDescendantSet(allProcs, parentPid, descendantPids, true);
+        Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);
         return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
