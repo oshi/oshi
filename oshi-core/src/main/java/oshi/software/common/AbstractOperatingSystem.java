@@ -114,9 +114,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
             int limit) {
+        OSProcess parent = getProcess(parentPid);
+        long parentStartTime = parent == null ? 0 : parent.getStartTime();
         return queryChildProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)
-                .sorted(sort == null ? NO_SORTING : sort).limit(limit > 0 ? limit : Long.MAX_VALUE)
-                .collect(Collectors.toList());
+                .filter(p -> p.getStartTime() >= parentStartTime).sorted(sort == null ? NO_SORTING : sort)
+                .limit(limit > 0 ? limit : Long.MAX_VALUE).collect(Collectors.toList());
     }
 
     protected abstract List<OSProcess> queryChildProcesses(int parentPid);
@@ -124,16 +126,19 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     @Override
     public List<OSProcess> getDescendantProcesses(int parentPid, Predicate<OSProcess> filter,
             Comparator<OSProcess> sort, int limit) {
+        OSProcess parent = getProcess(parentPid);
+        long parentStartTime = parent == null ? 0 : parent.getStartTime();
         return queryDescendantProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)
-                .sorted(sort == null ? NO_SORTING : sort).limit(limit > 0 ? limit : Long.MAX_VALUE)
-                .collect(Collectors.toList());
+                .filter(p -> p.getStartTime() >= parentStartTime).sorted(sort == null ? NO_SORTING : sort)
+                .limit(limit > 0 ? limit : Long.MAX_VALUE).collect(Collectors.toList());
     }
 
     protected abstract List<OSProcess> queryDescendantProcesses(int parentPid);
 
     private static Set<Integer> getChildren(Map<Integer, Integer> parentPidMap, int parentPid) {
-        return parentPidMap.entrySet().stream().filter(e -> e.getValue().equals(parentPid) && !e.getKey().equals(parentPid))
-                .map(Entry::getKey).collect(Collectors.toSet());
+        return parentPidMap.entrySet().stream()
+                .filter(e -> e.getValue().equals(parentPid) && !e.getKey().equals(parentPid)).map(Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -149,8 +154,10 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      *            gets all descendants.
      * @return Set of children or descendants of parentPid
      */
-    protected static Set<Integer> getChildrenOrDescendants(Collection<OSProcess> allProcs, int parentPid, boolean allDescendants) {
-        Map<Integer, Integer> parentPidMap = allProcs.stream().collect(Collectors.toMap(OSProcess::getProcessID, OSProcess::getParentProcessID));
+    protected static Set<Integer> getChildrenOrDescendants(Collection<OSProcess> allProcs, int parentPid,
+            boolean allDescendants) {
+        Map<Integer, Integer> parentPidMap = allProcs.stream()
+                .collect(Collectors.toMap(OSProcess::getProcessID, OSProcess::getParentProcessID));
         return getChildrenOrDescendants(parentPidMap, parentPid, allDescendants);
     }
 
