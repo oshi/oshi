@@ -27,11 +27,14 @@ import static oshi.software.os.OperatingSystem.ProcessFiltering.ALL_PROCESSES;
 import static oshi.software.os.OperatingSystem.ProcessSorting.NO_SORTING;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -128,6 +131,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
 
     protected abstract List<OSProcess> queryDescendantProcesses(int parentPid);
 
+    private static Set<Integer> getChildren(Map<Integer, Integer> parentPidMap, int parentPid) {
+        return parentPidMap.entrySet().stream().filter(e -> e.getValue().equals(parentPid) && !e.getKey().equals(parentPid))
+                .map(Entry::getKey).collect(Collectors.toSet());
+    }
+
     /**
      * Utility method for subclasses to take a full process list as input and return
      * the children or descendants of a particular process.
@@ -136,29 +144,14 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      *            A collection of all processes
      * @param parentPid
      *            The process ID whose children or descendants to return
-     * @param descendantPids
-     *            On input, an empty set, or a set of other children already
-     *            retrieved when using recursion. On output, the children of the
-     *            parent added to the set.
-     * @param recurse
+     * @param allDescendants
      *            If false, only gets immediate children of this process. If true,
      *            gets all descendants.
+     * @return Set of children or descendants of parentPid
      */
-    protected static void addChildrenToDescendantSet(Collection<OSProcess> allProcs, int parentPid,
-            Set<Integer> descendantPids, boolean recurse) {
-        // Collect this process's children
-        Set<Integer> childPids = allProcs.stream().filter(p -> p.getParentProcessID() == parentPid)
-                .map(OSProcess::getProcessID).collect(Collectors.toSet());
-        // Add to descendant set
-        descendantPids.addAll(childPids);
-        // Recurse
-        if (recurse) {
-            for (int pid : childPids) {
-                if (pid != parentPid && !descendantPids.contains(pid)) {
-                    addChildrenToDescendantSet(allProcs, pid, descendantPids, true);
-                }
-            }
-        }
+    protected static Set<Integer> getChildrenOrDescendants(Collection<OSProcess> allProcs, int parentPid, boolean allDescendants) {
+        Map<Integer, Integer> parentPidMap = allProcs.stream().collect(Collectors.toMap(OSProcess::getProcessID, OSProcess::getParentProcessID));
+        return getChildrenOrDescendants(parentPidMap, parentPid, allDescendants);
     }
 
     /**
@@ -170,29 +163,36 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      *            as value
      * @param parentPid
      *            The process ID whose children or descendants to return
-     * @param descendantPids
-     *            On input, an empty set, or a set of other children already
-     *            retrieved when using recursion. On output, the children of the
-     *            parent added to the set.
-     * @param recurse
+     * @param allDescendants
      *            If false, only gets immediate children of this process. If true,
      *            gets all descendants.
+     * @return Set of children or descendants of parentPid
      */
-    protected static void addChildrenToDescendantSet(Map<Integer, Integer> parentPidMap, int parentPid,
-            Set<Integer> descendantPids, boolean recurse) {
+    protected static Set<Integer> getChildrenOrDescendants(Map<Integer, Integer> parentPidMap, int parentPid,
+            boolean allDescendants) {
+        Set<Integer> descendantPids = new HashSet<>();
+        Queue<Integer> queue = new ArrayDeque<>();
+        int currPid;
         // Collect this process's children
-        Set<Integer> childPids = parentPidMap.entrySet().stream().filter(e -> e.getValue().equals(parentPid))
-                .map(Entry::getKey).collect(Collectors.toSet());
+        Set<Integer> childPids = getChildren(parentPidMap, parentPid);
         // Add to descendant set
         descendantPids.addAll(childPids);
-        // Recurse
-        if (recurse) {
-            for (int pid : childPids) {
-                if (pid != parentPid && !descendantPids.contains(pid)) {
-                    addChildrenToDescendantSet(parentPidMap, pid, descendantPids, true);
+        // Add all descendents
+        if (allDescendants) {
+            queue.addAll(descendantPids);
+            while (!queue.isEmpty()) {
+                currPid = queue.remove();
+                // Collect current process's children
+                childPids = getChildren(parentPidMap, currPid);
+                for (int pid : childPids) {
+                    if (!descendantPids.contains(pid)) {
+                        descendantPids.add(pid);
+                        queue.add(pid);
+                    }
                 }
             }
         }
+        return descendantPids;
     }
 
     @Override

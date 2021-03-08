@@ -294,15 +294,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
-        Set<Integer> descendantPids = new HashSet<>();
-        addChildrenToDescendantSet(getParentPidsFromSnapshot(), parentPid, descendantPids, false);
+        Set<Integer> descendantPids = getChildrenOrDescendants(getParentPidsFromSnapshot(), parentPid, false);
         return processMapToList(descendantPids);
     }
 
     @Override
     public List<OSProcess> queryDescendantProcesses(int parentPid) {
-        Set<Integer> descendantPids = new HashSet<>();
-        addChildrenToDescendantSet(getParentPidsFromSnapshot(), parentPid, descendantPids, true);
+        Set<Integer> descendantPids = getChildrenOrDescendants(getParentPidsFromSnapshot(), parentPid, true);
         return processMapToList(descendantPids);
     }
 
