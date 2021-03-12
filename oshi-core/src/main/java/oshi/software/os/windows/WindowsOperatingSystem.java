@@ -329,7 +329,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Get data from the registry if possible
         Map<Integer, PerfCounterBlock> processMap = processMapFromRegistry.get();
         // otherwise performance counters with WMI backup
-        if (processMap == null) {
+        if (processMap == null || processMap.isEmpty()) {
             processMap = (pids == null) ? processMapFromPerfCounters.get()
                     : ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
         }
