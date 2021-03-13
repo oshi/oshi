@@ -72,19 +72,25 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     private static String queryIfModel(NetworkInterface netint) {
         String name = netint.getName();
         UdevContext udev = Udev.INSTANCE.udev_new();
-        UdevDevice device = udev.deviceNewFromSyspath("/sys/class/net/" + name);
-        if (device != null) {
+        if (udev != null) {
             try {
-                String devVendor = device.getPropertyValue("ID_VENDOR_FROM_DATABASE");
-                String devModel = device.getPropertyValue("ID_MODEL_FROM_DATABASE");
-                if (!Util.isBlank(devModel)) {
-                    if (!Util.isBlank(devVendor)) {
-                        return devVendor + " " + devModel;
+                UdevDevice device = udev.deviceNewFromSyspath("/sys/class/net/" + name);
+                if (device != null) {
+                    try {
+                        String devVendor = device.getPropertyValue("ID_VENDOR_FROM_DATABASE");
+                        String devModel = device.getPropertyValue("ID_MODEL_FROM_DATABASE");
+                        if (!Util.isBlank(devModel)) {
+                            if (!Util.isBlank(devVendor)) {
+                                return devVendor + " " + devModel;
+                            }
+                            return devModel;
+                        }
+                    } finally {
+                        device.unref();
                     }
-                    return devModel;
                 }
             } finally {
-                device.unref();
+                udev.unref();
             }
         }
         return name;
