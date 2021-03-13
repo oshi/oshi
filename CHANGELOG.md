@@ -4,6 +4,7 @@
 * [#1562](https://github.com/oshi/oshi/pull/1562): Fix missing space in WMI process query - [@dbwiddis](https://github.com/dbwiddis).
 * [#1566](https://github.com/oshi/oshi/pull/1566): Handle new WinAPI Logical Processor Information types - [@dbwiddis](https://github.com/dbwiddis).
 * [#1567](https://github.com/oshi/oshi/pull/1567): Handle empty process performance registry query - [@dbwiddis](https://github.com/dbwiddis).
+* [#1569](https://github.com/oshi/oshi/pull/1569): Fix udev reference leak in LinuxNetworkIF - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.6.0 (2021-03-01)
 
