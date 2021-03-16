@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
-        java: [8, 11, 15, 16-ea]
+        java: [8, 11, 16, 17-ea]
         # macos-11.0 unreliable for now
         os: [ubuntu-latest, macos-latest, windows-latest]
       fail-fast: false
