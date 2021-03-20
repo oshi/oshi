@@ -149,7 +149,7 @@ public final class LogicalProcessorInformation {
         // package.
         List<Long> packageMaskList = new ArrayList<>();
         List<Long> coreMaskList = new ArrayList<>();
-        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
+        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = com.sun.jna.platform.win32.Kernel32Util.getLogicalProcessorInformation();
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
             if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
                 packageMaskList.add(proc.processorMask.longValue());
