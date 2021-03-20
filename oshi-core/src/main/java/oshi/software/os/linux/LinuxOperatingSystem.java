@@ -192,8 +192,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSProcess> queryDescendantProcesses(int parentPid) {
         File[] pidFiles = ProcessStat.getPidFiles();
-        Set<Integer> descendantPids = getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, false);
-        return queryProcessList(descendantPids);
+        return queryProcessList(getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, true));
     }
 
     private static List<OSProcess> queryProcessList(Set<Integer> descendantPids) {
