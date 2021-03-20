@@ -268,11 +268,11 @@ class OperatingSystemTest {
                 break;
             }
         }
-        if (total > 4) {
+        if (total > 5) {
             assertThat("Most processes with no children should not suddenly have them.", matchedChild,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 4)));
             assertThat("Most processes with no children should not suddenly have descendants.", matchedDescendant,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 4)));
         }
         // One child
         matchedChild = 0;
@@ -296,13 +296,13 @@ class OperatingSystemTest {
                 break;
             }
         }
-        if (total > 4) {
+        if (total > 5) {
             assertThat("Most processes with one child should not suddenly have zero or more than one.", matchedChild,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 4)));
             assertThat("Most processes with one child should not suddenly have zero descendants.", matchedDescendant,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 4)));
             assertThat("Most processes with one child should have no more children than descendants",
-                    descendantNotLessThanChild, is(greaterThan(total / 2)));
+                    descendantNotLessThanChild, is(greaterThan(total / 4)));
         }
         // Many children
         matchedChild = 0;
@@ -329,13 +329,13 @@ class OperatingSystemTest {
                 break;
             }
         }
-        if (total > 4) {
+        if (total > 5) {
             assertThat("Most processes with more than one child should not suddenly have one or less.", matchedChild,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 4)));
             assertThat("Most processes with more than one child should not suddenly have one or less descendants.",
-                    matchedDescendant, is(greaterThan(total / 2)));
+                    matchedDescendant, is(greaterThan(total / 4)));
             assertThat("Most processes with more than one child should have no more children than descendants",
-                    descendantNotLessThanChild, is(greaterThan(total / 2)));
+                    descendantNotLessThanChild, is(greaterThan(total / 4)));
         }
     }
 
