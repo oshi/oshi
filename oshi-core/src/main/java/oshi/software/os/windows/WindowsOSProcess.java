@@ -46,7 +46,6 @@ import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
-import com.sun.jna.platform.win32.W32Errors;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
@@ -399,7 +398,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
             throw new RuntimeException("Expected GetTokenInformation to fail with ERROR_INSUFFICIENT_BUFFER");
         }
         int rc = Kernel32.INSTANCE.GetLastError();
-        if (rc != W32Errors.ERROR_INSUFFICIENT_BUFFER) {
+        if (rc != WinError.ERROR_INSUFFICIENT_BUFFER) {
             throw new Win32Exception(rc);
         }
         // get token user information
