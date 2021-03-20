@@ -50,6 +50,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import com.sun.jna.Platform;
+
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
@@ -120,8 +122,13 @@ class OperatingSystemTest {
                 is(greaterThanOrEqualTo(0)));
         assertThat("Current running process thread count should be greater than 0", proc.getThreadCount(),
                 is(greaterThan(0)));
-        assertThat("Current running process priority should be between -20 and 128", proc.getPriority(),
-                is(both(greaterThanOrEqualTo(-20)).and(lessThanOrEqualTo(128))));
+        if (Platform.isAIX()) {
+            assertThat("Current running process priority should be between -20 and 255", proc.getPriority(),
+                    is(both(greaterThanOrEqualTo(1)).and(lessThanOrEqualTo(255))));
+        } else {
+            assertThat("Current running process priority should be between -20 and 128", proc.getPriority(),
+                    is(both(greaterThanOrEqualTo(-20)).and(lessThanOrEqualTo(128))));
+        }
         assertThat("Current running process virtual memory size should be 0 or higher", proc.getVirtualSize(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current running process resident set size should be 0 or higher", proc.getResidentSetSize(),
