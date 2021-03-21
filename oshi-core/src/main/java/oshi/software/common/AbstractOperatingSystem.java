@@ -185,30 +185,21 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      */
     protected static Set<Integer> getChildrenOrDescendants(Map<Integer, Integer> parentPidMap, int parentPid,
             boolean allDescendants) {
+        // Set to hold results
         Set<Integer> descendantPids = new HashSet<>();
-        // Add the parent Pid to the set
         descendantPids.add(parentPid);
-        // Collect this process's children
-        Set<Integer> childPids = getChildren(parentPidMap, parentPid);
-        // Add to descendant set
-        descendantPids.addAll(childPids);
-        // Add all descendents
-        if (allDescendants) {
-            int currPid;
-            Queue<Integer> queue = new ArrayDeque<>();
-            queue.addAll(descendantPids);
-            while (!queue.isEmpty()) {
-                currPid = queue.remove();
-                // Collect current process's children
-                childPids = getChildren(parentPidMap, currPid);
-                for (int pid : childPids) {
-                    if (!descendantPids.contains(pid)) {
-                        descendantPids.add(pid);
-                        queue.add(pid);
-                    }
+        // Queue for BFS algorithm
+        Queue<Integer> queue = new ArrayDeque<>();
+        queue.add(parentPid);
+        // Add children, repeating if recursive
+        do {
+            for (int pid : getChildren(parentPidMap, queue.poll())) {
+                if (!descendantPids.contains(pid)) {
+                    descendantPids.add(pid);
+                    queue.add(pid);
                 }
             }
-        }
+        } while (allDescendants && !queue.isEmpty());
         return descendantPids;
     }
 
