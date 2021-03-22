@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.sun.jna.platform.win32.WinNT; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Kernel32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.NUMA_NODE_RELATIONSHIP;
@@ -37,7 +38,6 @@ import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
-import oshi.jna.platform.windows.Kernel32Util;
 
 /**
  * Utility to query Logical Processor Information
@@ -58,7 +58,7 @@ public final class LogicalProcessorInformation {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
-                .getLogicalProcessorInformationExFutureproof(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);
+                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);
         // Used to cross-reference a processor to package pr core
         List<GROUP_AFFINITY[]> packages = new ArrayList<>();
         List<GROUP_AFFINITY> cores = new ArrayList<>();
@@ -149,7 +149,7 @@ public final class LogicalProcessorInformation {
         // package.
         List<Long> packageMaskList = new ArrayList<>();
         List<Long> coreMaskList = new ArrayList<>();
-        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = com.sun.jna.platform.win32.Kernel32Util.getLogicalProcessorInformation();
+        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {
             if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {
                 packageMaskList.add(proc.processorMask.longValue());
