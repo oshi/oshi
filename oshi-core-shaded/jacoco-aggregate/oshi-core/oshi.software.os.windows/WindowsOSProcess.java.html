@@ -373,7 +373,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
                 }
 <span class="nc" id="L374">            } catch (Win32Exception e) {</span>
 <span class="nc" id="L375">                LOG.warn(&quot;Failed to query user info for process {} ({}): {}&quot;, getProcessID(), getName(),</span>
-<span class="nc" id="L376">                        Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L376">                        e.getMessage());</span>
             } finally {
 <span class="nc" id="L378">                final HANDLE token = phToken.getValue();</span>
 <span class="nc bnc" id="L379" title="All 2 branches missed.">                if (token != null) {</span>
