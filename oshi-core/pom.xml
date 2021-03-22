@@ -67,34 +67,24 @@
 				to help influence usage -->
 			<dependency>
 				<groupId>net.java.dev.jna</groupId>
-				<artifactId>jna</artifactId>
+				<artifactId>jna-jpms</artifactId>
 				<version>${jna.version}</version>
-				<classifier>jpms</classifier>
 			</dependency>
 			<dependency>
 				<groupId>net.java.dev.jna</groupId>
-				<artifactId>jna-platform</artifactId>
+				<artifactId>jna-platform-jpms</artifactId>
 				<version>${jna.version}</version>
-				<classifier>jpms</classifier>
-				<exclusions>
-					<exclusion>
-						<groupId>net.java.dev.jna</groupId>
-						<artifactId>jna</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
-			<artifactId>jna</artifactId>
-			<classifier>jpms</classifier>
+			<artifactId>jna-jpms</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
-			<artifactId>jna-platform</artifactId>
-			<classifier>jpms</classifier>
+			<artifactId>jna-platform-jpms</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
