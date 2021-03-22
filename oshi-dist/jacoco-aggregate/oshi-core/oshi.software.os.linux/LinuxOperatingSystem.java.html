@@ -174,25 +174,25 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List&lt;OSProcess&gt; queryChildProcesses(int parentPid) {
 <span class="nc" id="L176">        File[] pidFiles = ProcessStat.getPidFiles();</span>
-<span class="nc" id="L177">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
-<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (parentPid == -1) {</span>
-            // Put everything in the &quot;descendant&quot; set
-<span class="nc bnc" id="L180" title="All 2 branches missed.">            for (File procFile : pidFiles) {</span>
-<span class="nc" id="L181">                descendantPids.add(ParseUtil.parseIntOrDefault(procFile.getName(), 0));</span>
-            }
-        } else {
-            // Only put descendants in
-<span class="nc" id="L185">            addChildrenToDescendantSet(getParentPidsFromProcFiles(pidFiles), parentPid, descendantPids, false);</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (parentPid &gt;= 0) {</span>
+            // Only return descendants
+<span class="nc" id="L179">            return queryProcessList(getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, false));</span>
         }
-<span class="nc" id="L187">        return queryProcessList(descendantPids);</span>
+<span class="nc" id="L181">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
+        // Put everything in the &quot;descendant&quot; set
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (File procFile : pidFiles) {</span>
+<span class="nc" id="L184">            int pid = ParseUtil.parseIntOrDefault(procFile.getName(), -2);</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (pid != -2) {</span>
+<span class="nc" id="L186">                descendantPids.add(pid);</span>
+            }
+        }
+<span class="nc" id="L189">        return queryProcessList(descendantPids);</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid) {
-<span class="nc" id="L192">        File[] pidFiles = ProcessStat.getPidFiles();</span>
-<span class="nc" id="L193">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L194">        addChildrenToDescendantSet(getParentPidsFromProcFiles(pidFiles), parentPid, descendantPids, false);</span>
-<span class="nc" id="L195">        return queryProcessList(descendantPids);</span>
+<span class="nc" id="L194">        File[] pidFiles = ProcessStat.getPidFiles();</span>
+<span class="nc" id="L195">        return queryProcessList(getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, true));</span>
     }
 
     private static List&lt;OSProcess&gt; queryProcessList(Set&lt;Integer&gt; descendantPids) {
