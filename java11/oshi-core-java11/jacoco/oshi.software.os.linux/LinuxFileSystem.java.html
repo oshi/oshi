@@ -209,42 +209,45 @@ import oshi.util.platform.linux.ProcPath;
 <span class="nc" id="L209">                    usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();</span>
 <span class="nc" id="L210">                    freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();</span>
                 } else {
-<span class="nc" id="L212">                    File tmpFile = new File(path);</span>
-<span class="nc" id="L213">                    totalSpace = tmpFile.getTotalSpace();</span>
-<span class="nc" id="L214">                    usableSpace = tmpFile.getUsableSpace();</span>
-<span class="nc" id="L215">                    freeSpace = tmpFile.getFreeSpace();</span>
-<span class="nc" id="L216">                    LOG.warn(&quot;Failed to get information to use statvfs. path: {}, Error code: {}&quot;, path,</span>
-<span class="nc" id="L217">                            Native.getLastError());</span>
+<span class="nc" id="L212">                    LOG.warn(&quot;Failed to get information to use statvfs. path: {}, Error code: {}&quot;, path,</span>
+<span class="nc" id="L213">                            Native.getLastError());</span>
                 }
-<span class="nc" id="L219">            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
-<span class="nc" id="L220">                LOG.error(&quot;Failed to get file counts from statvfs. {}&quot;, e.getMessage());</span>
-<span class="nc" id="L221">            }</span>
+<span class="nc" id="L215">            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {</span>
+<span class="nc" id="L216">                LOG.error(&quot;Failed to get file counts from statvfs. {}&quot;, e.getMessage());</span>
+<span class="nc" id="L217">            }</span>
+            // If native methods failed use JVM methods
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            if (totalSpace == 0L) {</span>
+<span class="nc" id="L220">                File tmpFile = new File(path);</span>
+<span class="nc" id="L221">                totalSpace = tmpFile.getTotalSpace();</span>
+<span class="nc" id="L222">                usableSpace = tmpFile.getUsableSpace();</span>
+<span class="nc" id="L223">                freeSpace = tmpFile.getFreeSpace();</span>
+            }
 
-<span class="nc" id="L223">            fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,</span>
+<span class="nc" id="L226">            fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,</span>
                     logicalVolume, description, type, freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
-<span class="nc" id="L225">        }</span>
-<span class="nc" id="L226">        return fsList;</span>
+<span class="nc" id="L228">        }</span>
+<span class="nc" id="L229">        return fsList;</span>
     }
 
     private static Map&lt;String, String&gt; queryLabelMap() {
-<span class="nc" id="L230">        Map&lt;String, String&gt; labelMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;lsblk -o mountpoint,label&quot;)) {</span>
-<span class="nc" id="L232">            String[] split = ParseUtil.whitespaces.split(line, 2);</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">            if (split.length == 2) {</span>
-<span class="nc" id="L234">                labelMap.put(split[0], split[1]);</span>
+<span class="nc" id="L233">        Map&lt;String, String&gt; labelMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;lsblk -o mountpoint,label&quot;)) {</span>
+<span class="nc" id="L235">            String[] split = ParseUtil.whitespaces.split(line, 2);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">            if (split.length == 2) {</span>
+<span class="nc" id="L237">                labelMap.put(split[0], split[1]);</span>
             }
-<span class="nc" id="L236">        }</span>
-<span class="nc" id="L237">        return labelMap;</span>
+<span class="nc" id="L239">        }</span>
+<span class="nc" id="L240">        return labelMap;</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L242">        return getFileDescriptors(0);</span>
+<span class="nc" id="L245">        return getFileDescriptors(0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L247">        return getFileDescriptors(2);</span>
+<span class="nc" id="L250">        return getFileDescriptors(2);</span>
     }
 
     /**
@@ -259,16 +262,16 @@ import oshi.util.platform.linux.ProcPath;
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private static long getFileDescriptors(int index) {
-<span class="nc" id="L262">        String filename = ProcPath.SYS_FS_FILE_NR;</span>
-<span class="nc bnc" id="L263" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
-<span class="nc" id="L264">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
+<span class="nc" id="L265">        String filename = ProcPath.SYS_FS_FILE_NR;</span>
+<span class="nc bnc" id="L266" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
+<span class="nc" id="L267">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
         }
-<span class="nc" id="L266">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
-<span class="nc bnc" id="L267" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
-<span class="nc" id="L268">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
-<span class="nc" id="L269">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
+<span class="nc" id="L269">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
+<span class="nc" id="L271">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
+<span class="nc" id="L272">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
         }
-<span class="nc" id="L271">        return 0L;</span>
+<span class="nc" id="L274">        return 0L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

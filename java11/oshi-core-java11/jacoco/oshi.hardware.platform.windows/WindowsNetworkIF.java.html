@@ -27,10 +27,10 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.Native;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Native;
 import com.sun.jna.platform.win32.IPHlpAPI; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
