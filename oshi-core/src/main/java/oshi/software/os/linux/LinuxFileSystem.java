@@ -33,7 +33,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
+import com.sun.jna.platform.linux.Udev;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +67,10 @@ public class LinuxFileSystem extends AbstractFileSystem {
     public static final String OSHI_LINUX_FS_PATH_INCLUDES = "oshi.os.linux.filesystem.path.includes";
     public static final String OSHI_LINUX_FS_VOLUME_EXCLUDES = "oshi.os.linux.filesystem.volume.excludes";
     public static final String OSHI_LINUX_FS_VOLUME_INCLUDES = "oshi.os.linux.filesystem.volume.includes";
+    private static final String BLOCK = "block";
+    private static final String DM_UUID = "DM_UUID";
+    private static final String DM_VG_NAME = "DM_VG_NAME";
+    private static final String DM_LV_NAME = "DM_LV_NAME";
 
     private static final List<PathMatcher> FS_PATH_EXCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_LINUX_FS_PATH_EXCLUDES);
@@ -272,5 +279,74 @@ public class LinuxFileSystem extends AbstractFileSystem {
             return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;
+    }
+
+    /**
+     * Get logical volume groups on this machine
+     *
+     * Instantiates a list of {@link VolumeGroup} objects,
+     * representing a storage pool, device, partition, volume, concrete file system
+     * or other implementation specific means of file storage.
+     *
+     * @return A list of {@link VolumeGroup} objects or an empty
+     *      *         array if none are present.
+     */
+
+    public List<VolumeGroup> getLogicalVolumeGroups() {
+        Map<String, Map<String, List<String>>> logicalVolumesMap = new HashMap<>();
+        Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
+
+        Udev.UdevContext udev = Udev.INSTANCE.udev_new();
+        try {
+            Udev.UdevEnumerate enumerate = udev.enumerateNew();
+            try {
+                enumerate.addMatchSubsystem(BLOCK);
+                enumerate.scanDevices();
+                for (Udev.UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
+                    String syspath = entry.getName();
+                    Udev.UdevDevice device = udev.deviceNewFromSyspath(syspath);
+                    if (device != null) {
+                        try {
+                            // devnode is what we use as name, like /dev/sda
+                            String devnode = device.getDevnode();
+                            if (devnode != null && devnode.startsWith("/dev/dm")) {
+                                String uuid = device.getPropertyValue(DM_UUID);
+                                if (uuid != null && uuid.startsWith("LVM-")) {
+                                    String vgName = device.getPropertyValue(DM_VG_NAME);
+                                    Map<String, List<String>> lvMapForGroup = logicalVolumesMap.getOrDefault(vgName,
+                                        new HashMap<>());
+                                    logicalVolumesMap.put(vgName, lvMapForGroup);
+                                    Set<String> pvSetForGroup = physicalVolumesMap.getOrDefault(vgName,
+                                        new HashSet<>());
+                                    physicalVolumesMap.put(vgName, pvSetForGroup);
+
+                                    String lvName = device.getPropertyValue(DM_LV_NAME);
+                                    File slavesDir = new File(syspath + "/slaves");
+                                    File[] slaves = slavesDir.listFiles();
+                                    if (slaves != null) {
+                                        for (File f : slaves) {
+                                            String pvName = f.getName();
+                                            lvMapForGroup.computeIfAbsent(lvName, k -> new ArrayList<>()).add(pvName);
+                                            pvSetForGroup.add(pvName);
+                                        }
+                                    }
+                                }
+                            }
+                        } finally {
+                            device.unref();
+                        }
+                    }
+                }
+            } finally {
+                enumerate.unref();
+            }
+        } finally {
+            udev.unref();
+        }
+        List<VolumeGroup> vglist = new ArrayList<>();
+        for (Map.Entry<String, Map<String, List<String>>> entry : logicalVolumesMap.entrySet()) {
+            vglist.add(new VolumeGroup(entry.getKey(), entry.getValue(), physicalVolumesMap.get(entry.getKey())));
+        }
+        return vglist;
     }
 }
