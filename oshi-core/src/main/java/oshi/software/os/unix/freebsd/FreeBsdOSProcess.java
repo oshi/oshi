@@ -77,6 +77,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long minorFaults;
     private long majorFaults;
+    private long contextSwitches;
 
     public FreeBsdOSProcess(int pid, String[] split) {
         super(pid);
@@ -272,6 +273,11 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getContextSwitches() {
+        return this.contextSwitches;
+    }
+
+    @Override
     public boolean updateAttributes() {
         String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args -p "
                 + getProcessID();
@@ -332,7 +338,10 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
-        this.commandLine = split[17];
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[17], 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[18], 0L);
+        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.commandLine = split[19];
         return true;
     }
 }
