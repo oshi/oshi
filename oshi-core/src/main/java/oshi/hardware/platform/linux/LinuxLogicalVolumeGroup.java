@@ -31,49 +31,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.jna.platform.linux.Udev;
+import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
 
 import oshi.hardware.LogicalVolumeGroup;
+import oshi.hardware.common.AbstractLogicalVolumeGroup;
 
-public class LinuxLogicalVolumeGroup implements LogicalVolumeGroup {
+public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
     private static final String BLOCK = "block";
     private static final String DM_UUID = "DM_UUID";
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
 
-    private final String name;
-    private final Map<String, List<String>> lvMap;
-    private final Set<String> pvSet;
-
-    /**
-     * @param name
-     *            Name of the volume group
-     * @param lvMap
-     *            Logical volumes derived from this volume group and the physical
-     *            volumes its mapped to.
-     * @param pvSet
-     *            Set of physical volumes this volume group consists of.
-     */
-    public LinuxLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
-        this.name = name;
-        this.lvMap = lvMap;
-        this.pvSet = pvSet;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Map<String, List<String>> getLogicalVolumes() {
-        return lvMap;
-    }
-
-    @Override
-    public Set<String> getPhysicalVolumes() {
-        return pvSet;
+    private LinuxLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
+        super(name, lvMap, pvSet);
     }
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {

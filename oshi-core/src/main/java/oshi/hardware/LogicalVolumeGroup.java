@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import oshi.annotation.concurrent.Immutable;
+
 /**
  * An logical volume group implemented as part of logical volume management,
  * combining the space on one or more storage devices such as disks or
@@ -34,6 +36,7 @@ import java.util.Set;
  * allocating that space to virtual partitions (logical volumes) as block
  * devices accessible to the file system.
  */
+@Immutable
 public interface LogicalVolumeGroup {
     /**
      * Gets the logical volume group name.
