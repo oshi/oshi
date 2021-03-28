@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
 
@@ -46,7 +47,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
 
-    private LinuxLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
+    LinuxLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
     }
 
@@ -113,11 +114,8 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         } finally {
             udev.unref();
         }
-        List<LogicalVolumeGroup> vglist = new ArrayList<>();
-        for (Map.Entry<String, Map<String, List<String>>> entry : logicalVolumesMap.entrySet()) {
-            String vgName = entry.getKey();
-            vglist.add(new LinuxLogicalVolumeGroup(vgName, entry.getValue(), physicalVolumesMap.get(vgName)));
-        }
-        return vglist;
+        return logicalVolumesMap.entrySet().stream()
+                .map(e -> new LinuxLogicalVolumeGroup(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))
+                .collect(Collectors.toList());
     }
 }
