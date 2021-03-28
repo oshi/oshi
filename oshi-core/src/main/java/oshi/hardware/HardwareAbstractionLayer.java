@@ -23,6 +23,7 @@
  */
 package oshi.hardware;
 
+import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -73,6 +74,21 @@ public interface HardwareAbstractionLayer {
      * @return A list of HWDiskStore objects or an empty list if none are present.
      */
     List<HWDiskStore> getDiskStores();
+
+    /**
+     * Instantiates a list of {@link LogicalVolumeGroup} objects, representing a
+     * storage pool or group of devices, partitions, volumes, or other
+     * implementation specific means of file storage.
+     * <p>
+     * If not yet implemented or if logical volume groups do not exist, returns an
+     * empty list.
+     *
+     * @return A list of {@link LogicalVolumeGroup} objects or an empty array if
+     *         none are present.
+     */
+    default List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        return Collections.emptyList();
+    }
 
     /**
      * Gets a list of non-local {@link NetworkIF} objects, representing a network
