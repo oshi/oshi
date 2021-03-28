@@ -43,14 +43,14 @@ public interface LogicalVolumeGroup {
      *
      * @return The name of the logical volume group.
      */
-    public String getName();
+    String getName();
 
     /**
      * Gets a set of all physical volumes in this volume group.
      *
      * @return A set with the names of the physical volumes.
      */
-    public Set<String> getPhysicalVolumes();
+    Set<String> getPhysicalVolumes();
 
     /**
      * Gets a map containing information about the logical volumes in the logical
@@ -62,5 +62,5 @@ public interface LogicalVolumeGroup {
      * @return A map with the logical volume names as the key, and a list of
      *         associated physical volume names as the value.
      */
-    public Map<String, List<String>> getLogicalVolumes();
+    Map<String, List<String>> getLogicalVolumes();
 }

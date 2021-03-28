@@ -35,8 +35,9 @@ import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
 
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
+import oshi.util.Util;
 
-public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
+final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
     private static final String BLOCK = "block";
     private static final String DM_UUID = "DM_UUID";
@@ -67,21 +68,24 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                 String uuid = device.getPropertyValue(DM_UUID);
                                 if (uuid != null && uuid.startsWith("LVM-")) {
                                     String vgName = device.getPropertyValue(DM_VG_NAME);
-                                    Map<String, List<String>> lvMapForGroup = logicalVolumesMap.getOrDefault(vgName,
-                                            new HashMap<>());
-                                    logicalVolumesMap.put(vgName, lvMapForGroup);
-                                    Set<String> pvSetForGroup = physicalVolumesMap.getOrDefault(vgName,
-                                            new HashSet<>());
-                                    physicalVolumesMap.put(vgName, pvSetForGroup);
-
                                     String lvName = device.getPropertyValue(DM_LV_NAME);
-                                    File slavesDir = new File(syspath + "/slaves");
-                                    File[] slaves = slavesDir.listFiles();
-                                    if (slaves != null) {
-                                        for (File f : slaves) {
-                                            String pvName = f.getName();
-                                            lvMapForGroup.computeIfAbsent(lvName, k -> new ArrayList<>()).add(pvName);
-                                            pvSetForGroup.add(pvName);
+                                    if (!Util.isBlank(vgName) && !Util.isBlank(lvName)) {
+                                        Map<String, List<String>> lvMapForGroup = logicalVolumesMap.getOrDefault(vgName,
+                                                new HashMap<>());
+                                        logicalVolumesMap.put(vgName, lvMapForGroup);
+                                        Set<String> pvSetForGroup = physicalVolumesMap.getOrDefault(vgName,
+                                                new HashSet<>());
+                                        physicalVolumesMap.put(vgName, pvSetForGroup);
+
+                                        File slavesDir = new File(syspath + "/slaves");
+                                        File[] slaves = slavesDir.listFiles();
+                                        if (slaves != null) {
+                                            for (File f : slaves) {
+                                                String pvName = f.getName();
+                                                lvMapForGroup.computeIfAbsent(lvName, k -> new ArrayList<>())
+                                                        .add(pvName);
+                                                pvSetForGroup.add(pvName);
+                                            }
                                         }
                                     }
                                 }
@@ -99,8 +103,8 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         }
         List<LogicalVolumeGroup> vglist = new ArrayList<>();
         for (Map.Entry<String, Map<String, List<String>>> entry : logicalVolumesMap.entrySet()) {
-            vglist.add(new LinuxLogicalVolumeGroup(entry.getKey(), entry.getValue(),
-                    physicalVolumesMap.get(entry.getKey())));
+            String key = entry.getKey();
+            vglist.add(new LinuxLogicalVolumeGroup(key, entry.getValue(), physicalVolumesMap.get(key)));
         }
         return vglist;
     }
