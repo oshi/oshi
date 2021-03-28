@@ -82,13 +82,11 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                     String vgName = device.getPropertyValue(DM_VG_NAME);
                                     String lvName = device.getPropertyValue(DM_LV_NAME);
                                     if (!Util.isBlank(vgName) && !Util.isBlank(lvName)) {
-                                        Map<String, List<String>> lvMapForGroup = logicalVolumesMap.getOrDefault(vgName,
-                                                new HashMap<>());
-                                        logicalVolumesMap.put(vgName, lvMapForGroup);
+                                        logicalVolumesMap.computeIfAbsent(vgName, k -> new HashMap<>());
+                                        Map<String, List<String>> lvMapForGroup = logicalVolumesMap.get(vgName);
                                         // Backup to add to pv set if pvs command failed
-                                        Set<String> pvSetForGroup = physicalVolumesMap.getOrDefault(vgName,
-                                                new HashSet<>());
-                                        physicalVolumesMap.put(vgName, pvSetForGroup);
+                                        physicalVolumesMap.computeIfAbsent(vgName, k -> new HashSet<>());
+                                        Set<String> pvSetForGroup = physicalVolumesMap.get(vgName);
 
                                         File slavesDir = new File(syspath + "/slaves");
                                         File[] slaves = slavesDir.listFiles();
