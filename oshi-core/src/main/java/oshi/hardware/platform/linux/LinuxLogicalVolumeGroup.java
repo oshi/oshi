@@ -35,6 +35,8 @@ import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
 
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
@@ -52,6 +54,16 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         Map<String, Map<String, List<String>>> logicalVolumesMap = new HashMap<>();
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
 
+        // Populate pv map from pvs command
+        // This requires elevated permissions and may fail
+        for (String s : ExecutingCommand.runNative("pvs -o vg_name,pv_name")) {
+            String[] split = ParseUtil.whitespaces.split(s.trim());
+            if (split.length == 2 && split[1].startsWith("/dev/")) {
+                physicalVolumesMap.computeIfAbsent(split[0], k -> new HashSet<>()).add(split[1]);
+            }
+        }
+
+        // Populate lv map from udev
         Udev.UdevContext udev = Udev.INSTANCE.udev_new();
         try {
             Udev.UdevEnumerate enumerate = udev.enumerateNew();
@@ -73,6 +85,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                         Map<String, List<String>> lvMapForGroup = logicalVolumesMap.getOrDefault(vgName,
                                                 new HashMap<>());
                                         logicalVolumesMap.put(vgName, lvMapForGroup);
+                                        // Backup to add to pv set if pvs command failed
                                         Set<String> pvSetForGroup = physicalVolumesMap.getOrDefault(vgName,
                                                 new HashSet<>());
                                         physicalVolumesMap.put(vgName, pvSetForGroup);
@@ -84,6 +97,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                                 String pvName = f.getName();
                                                 lvMapForGroup.computeIfAbsent(lvName, k -> new ArrayList<>())
                                                         .add(pvName);
+                                                // Backup to add to pv set if pvs command failed
                                                 pvSetForGroup.add(pvName);
                                             }
                                         }
@@ -103,8 +117,8 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         }
         List<LogicalVolumeGroup> vglist = new ArrayList<>();
         for (Map.Entry<String, Map<String, List<String>>> entry : logicalVolumesMap.entrySet()) {
-            String key = entry.getKey();
-            vglist.add(new LinuxLogicalVolumeGroup(key, entry.getValue(), physicalVolumesMap.get(key)));
+            String vgName = entry.getKey();
+            vglist.add(new LinuxLogicalVolumeGroup(vgName, entry.getValue(), physicalVolumesMap.get(vgName)));
         }
         return vglist;
     }
