@@ -97,6 +97,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long minorFaults;
     private long majorFaults;
+    private long contextSwitches;
 
     public LinuxOSProcess(int pid) {
         super(pid);
@@ -230,6 +231,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getContextSwitches() {
+        return this.contextSwitches;
+    }
+
+    @Override
     public long getOpenFiles() {
         // subtract 1 from size for header
         return ExecutingCommand.runNative(String.format(LS_F_PROC_PID_FD, getProcessID())).size() - 1L;
@@ -328,6 +334,10 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
         this.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("nonvoluntary_ctxt_switches"), 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("voluntary_ctxt_switches"), 0L);
+        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+
         this.upTime = now - startTime;
 
         // See man proc for how to parse /proc/[pid]/io

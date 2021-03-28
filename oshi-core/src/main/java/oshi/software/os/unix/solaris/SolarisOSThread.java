@@ -104,7 +104,8 @@ public class SolarisOSThread extends AbstractOSThread {
         List<String> threadListInfo1 = ExecutingCommand
                 .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getOwningProcessId());
         List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getOwningProcessId() + " 1 1");
-        Map<Integer, String[]> threadMap = SolarisOSProcess.parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
+        Map<Integer, String[]> threadMap = SolarisOSProcess.parseAndMergePSandPrstatInfo(threadListInfo1, 0, 7,
+                threadListInfo2, true);
         if (threadMap.keySet().size() > 1) {
             Optional<String[]> split = threadMap.entrySet().stream()
                     .filter(entry -> entry.getKey() == this.getThreadId()).map(Map.Entry::getValue).findFirst();

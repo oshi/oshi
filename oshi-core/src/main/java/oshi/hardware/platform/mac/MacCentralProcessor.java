@@ -211,7 +211,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         // Not available on macOS since at least 10.3.9. Early versions may have
         // provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but
         // it now fails (ENOENT) and there is no other reference to it in source code
-        return -1L;
+        return 0L;
     }
 
     @Override
@@ -219,7 +219,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         // Not available on macOS since at least 10.3.9. Early versions may have
         // provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but
         // it now fails (ENOENT) and there is no other reference to it in source code
-        return -1L;
+        return 0L;
     }
 
     private static String platformExpert() {

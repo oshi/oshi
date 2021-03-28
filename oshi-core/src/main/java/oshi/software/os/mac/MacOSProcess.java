@@ -107,6 +107,7 @@ public class MacOSProcess extends AbstractOSProcess {
     private int bitness;
     private long minorFaults;
     private long majorFaults;
+    private long contextSwitches;
 
     public MacOSProcess(int pid, int minor) {
         super(pid);
@@ -315,6 +316,11 @@ public class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getContextSwitches() {
+        return this.contextSwitches;
+    }
+
+    @Override
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
@@ -384,6 +390,7 @@ public class MacOSProcess extends AbstractOSProcess {
         this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
         // testing using getrusage confirms pti_faults includes both major and minor
         this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins;
+        this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
         if (this.minorVersion >= 9) {
             RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
             if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {

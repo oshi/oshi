@@ -29,6 +29,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -134,22 +135,13 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
-        List<OSProcess> procs = new ArrayList<>();
-        List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
-        if (procList.isEmpty() || procList.size() < 2) {
-            return procs;
-        }
-        // remove header row
-        procList.remove(0);
-        // Fill list
-        for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 15);
-            // Elements should match ps command order
-            if (split.length == 15) {
-                procs.add(new SolarisOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
-            }
-        }
-        return procs;
+        String pidStr = pid < 0 ? "" : (" -p " + pid);
+        List<String> procList = ExecutingCommand.runNative(psCommand + pidStr);
+        List<String> procList2 = ExecutingCommand.runNative("prstat -v " + pidStr + " 1 1");
+        Map<Integer, String[]> processMap = SolarisOSProcess.parseAndMergePSandPrstatInfo(procList, 1, 15, procList2,
+                false);
+        return processMap.entrySet().stream().map(e -> new SolarisOSProcess(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
     }
 
     @Override
