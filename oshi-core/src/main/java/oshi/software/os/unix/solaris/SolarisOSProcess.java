@@ -318,10 +318,10 @@ public class SolarisOSProcess extends AbstractOSProcess {
     static Map<Integer, String[]> parseAndMergePSandPrstatInfo(List<String> psInfo, int psKeyIndex, int psLength,
             List<String> prstatInfo, boolean useTid) {
         Map<Integer, String[]> map = new HashMap<>();
-        final String[] mergedSplit = new String[psLength + 2];
         if (psInfo.size() > 1) { // first row is header
             psInfo.stream().skip(1).forEach(info -> {
                 String[] psSplit = ParseUtil.whitespaces.split(info.trim(), psLength);
+                String[] mergedSplit = new String[psLength + 2];
                 if (psSplit.length == psLength) {
                     for (int idx = 0; idx < psLength; idx++) {
                         if (idx == psKeyIndex) {
