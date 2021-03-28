@@ -69,4 +69,19 @@ public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
     public Set<String> getPhysicalVolumes() {
         return pvSet;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Logical Volume Group: ");
+        sb.append(name).append("\n |-- PVs: ");
+        sb.append(pvSet.toString());
+        for (Entry<String, List<String>> entry : lvMap.entrySet()) {
+            sb.append("\n |-- LV: ").append(entry.getKey());
+            List<String> mappedPVs = entry.getValue();
+            if (!mappedPVs.isEmpty()) {
+                sb.append(" --> ").append(mappedPVs);
+            }
+        }
+        return sb.toString();
+    }
 }
