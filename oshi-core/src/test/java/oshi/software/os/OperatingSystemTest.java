@@ -143,6 +143,8 @@ class OperatingSystemTest {
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current process major faults should be 0 or higher", proc.getMajorFaults(),
                 is(greaterThanOrEqualTo(0L)));
+        assertThat("Current process context switches should be 0 or higher", proc.getContextSwitches(),
+                is(greaterThanOrEqualTo(0L)));
         assertThat("Current process cumulative cpu usage should be 0.0 or higher", proc.getProcessCpuLoadCumulative(),
                 is(greaterThanOrEqualTo(0d)));
         assertThat("Current process cumulative cpu usage should be the same as the current process",

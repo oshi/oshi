@@ -44,8 +44,9 @@ public interface OSThread {
      *
      * @return Returns the name of the task/thread.
      */
-
-    String getName();
+    default String getName() {
+        return "";
+    }
 
     /**
      * Gets the execution state of the task/thread.
@@ -90,15 +91,21 @@ public interface OSThread {
      *
      * @return The start address.
      */
-    long getStartMemoryAddress();
+    default long getStartMemoryAddress() {
+        return 0L;
+    }
 
     /**
      * A snapshot of the context switches the thread has done. Since the context
      * switches could be voluntary and non-voluntary, this gives the sum of both.
+     * <p>
+     * Not available on AIX.
      *
      * @return sum of both voluntary and involuntary context switches.
      */
-    long getContextSwitches();
+    default long getContextSwitches() {
+        return 0L;
+    }
 
     /**
      * The number of minor (soft) faults the thread has made which have not required
@@ -106,7 +113,9 @@ public interface OSThread {
      *
      * @return minor faults.
      */
-    long getMinorFaults();
+    default long getMinorFaults() {
+        return 0L;
+    }
 
     /**
      * The number of major (hard) faults the thread has made which have required
@@ -114,7 +123,9 @@ public interface OSThread {
      *
      * @return major faults.
      */
-    long getMajorFaults();
+    default long getMajorFaults() {
+        return 0L;
+    }
 
     /**
      * Kernel (privileged) time used by the thread.
@@ -163,5 +174,7 @@ public interface OSThread {
      *         failed. In addition, on a failed update the thread state will be
      *         changed to {@link State#INVALID}.
      */
-    boolean updateAttributes();
+    default boolean updateAttributes() {
+        return false;
+    }
 }

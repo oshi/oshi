@@ -356,7 +356,9 @@ public interface OSProcess {
      *
      * @return minor page faults (reclaims).
      */
-    long getMinorFaults();
+    default long getMinorFaults() {
+        return 0L;
+    }
 
     /**
      * Gets the number of major (hard) faults the process has made which have
@@ -368,7 +370,25 @@ public interface OSProcess {
      *
      * @return major page faults.
      */
-    long getMajorFaults();
+    default long getMajorFaults() {
+        return 0L;
+    }
+
+    /**
+     * A snapshot of the context switches the process has done. Since the context
+     * switches could be voluntary and non-voluntary, this gives the sum of both.
+     * <p>
+     * Not available on Windows. An approximation may be made by summing associated
+     * values from {@link OSThread#getContextSwitches()}.
+     * <p>
+     * Not available on AIX.
+     *
+     * @return sum of both voluntary and involuntary context switches if available,
+     *         0 otherwise.
+     */
+    default long getContextSwitches() {
+        return 0L;
+    }
 
     /**
      * Process Execution States

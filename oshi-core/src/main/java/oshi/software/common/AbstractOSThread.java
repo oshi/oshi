@@ -69,41 +69,6 @@ public abstract class AbstractOSThread implements OSThread {
         return getThreadCpuLoadCumulative();
     }
 
-    /*
-     * Default returns so we don't have to override in subclasses that don't have
-     * them
-     */
-
-    @Override
-    public String getName() {
-        return "";
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-        return 0L;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return 0L;
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return 0L;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return 0L;
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        return false;
-    }
-
     @Override
     public String toString() {
         return "OSThread [threadId=" + getThreadId() + ", owningProcessId=" + getOwningProcessId() + ", name="
