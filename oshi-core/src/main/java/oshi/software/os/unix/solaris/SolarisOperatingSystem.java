@@ -60,7 +60,10 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
-    private static final String PROCESS_LIST_FOR_PID_COMMAND = "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ";
+    private static final String PS_FIELDS = "s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args";
+    private static final String PROCESS_LIST_FOR_PID_COMMAND = "ps -o " + PS_FIELDS + " -p ";
+    private static final String PROCESS_LIST_COMMAND = "ps -eo " + PS_FIELDS;
+
     private static final long BOOTTIME = querySystemBootTime();
 
     @Override
@@ -131,13 +134,14 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static List<OSProcess> queryAllProcessesFromPS() {
-        return getProcessListFromPS("ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
+        return getProcessListFromPS(PROCESS_LIST_COMMAND, -1);
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
-        String pidStr = pid < 0 ? "" : (" -p " + pid);
-        List<String> procList = ExecutingCommand.runNative(psCommand + pidStr);
-        List<String> procList2 = ExecutingCommand.runNative("prstat -v " + pidStr + " 1 1");
+        List<String> procList = pid < 0 ? ExecutingCommand.runNative(psCommand)
+                : ExecutingCommand.runNative(psCommand + pid);
+        List<String> procList2 = pid < 0 ? ExecutingCommand.runNative("prstat -v 1 1")
+                : ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
         Map<Integer, String[]> processMap = SolarisOSProcess.parseAndMergePSandPrstatInfo(procList, 1, 15, procList2,
                 false);
         return processMap.entrySet().stream().map(e -> new SolarisOSProcess(e.getKey(), e.getValue()))
