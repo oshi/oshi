@@ -1,4 +1,4 @@
-# 5.6.2 (in progress)
+# 5.7.0 (in progress)
 
 ##### New Features
 * [#1587](https://github.com/oshi/oshi/pull/1587): Add context switches to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
