@@ -191,8 +191,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                                     if (devnode.startsWith("/dev/dm")) {
                                         devModel = LOGICAL_VOLUME_GROUP;
                                         devSerial = device.getPropertyValue(DM_UUID);
-                                        store = new LinuxHWDiskStore(devnode,
-                                            devModel == null ? Constants.UNKNOWN : devModel,
+                                        store = new LinuxHWDiskStore(devnode, devModel,
                                             devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
                                         String vgName = device.getPropertyValue(DM_VG_NAME);
                                         String lvName = device.getPropertyValue(DM_LV_NAME);
