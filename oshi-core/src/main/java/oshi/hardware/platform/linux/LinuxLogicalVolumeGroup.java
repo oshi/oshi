@@ -97,7 +97,8 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                                 lvMapForGroup.computeIfAbsent(lvName, k -> new ArrayList<>())
                                                         .add(pvName);
                                                 // Backup to add to pv set if pvs command failed
-                                                pvSetForGroup.add(pvName);
+                                                //Added /dev to remove duplicates like /dev/sda1 and sda1
+                                                pvSetForGroup.add("/dev/" + pvName);
                                             }
                                         }
                                     }
