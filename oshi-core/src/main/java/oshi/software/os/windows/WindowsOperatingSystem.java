@@ -71,10 +71,10 @@ import oshi.driver.windows.EnumWindows;
 import oshi.driver.windows.registry.HkeyUserData;
 import oshi.driver.windows.registry.NetSessionData;
 import oshi.driver.windows.registry.ProcessPerformanceData;
-import oshi.driver.windows.registry.ProcessPerformanceData.PerfCounterBlock;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.registry.SessionWtsData;
+import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.windows.wmi.Win32Processor;
@@ -104,8 +104,11 @@ import oshi.util.tuples.Pair;
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
-    private static final String WIN_VERSION_PROPERTIES = "oshi.windows.versions.properties";
 
+    public static final String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = "oshi.os.windows.procstate.suspended";
+    private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig.get(OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
+
+    private static final String WIN_VERSION_PROPERTIES = "oshi.windows.versions.properties";
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     private static final int TOKENELEVATION = 0x14;
@@ -126,10 +129,18 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Cache full process stats queries. Second query will only populate if first
      * one returns null.
      */
-    private Supplier<Map<Integer, PerfCounterBlock>> processMapFromRegistry = memoize(
+    private Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromRegistry = memoize(
             WindowsOperatingSystem::queryProcessMapFromRegistry, defaultExpiration());
-    private Supplier<Map<Integer, PerfCounterBlock>> processMapFromPerfCounters = memoize(
+    private Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromPerfCounters = memoize(
             WindowsOperatingSystem::queryProcessMapFromPerfCounters, defaultExpiration());
+    /*
+     * Cache full thread stats queries. Second query will only populate if first one
+     * returns null. Only used if USE_PROCSTATE_SUSPENDED is set true.
+     */
+    private Supplier<Map<Integer, ThreadPerformanceData.PerfCounterBlock>> threadMapFromRegistry = memoize(
+            WindowsOperatingSystem::queryThreadMapFromRegistry, defaultExpiration());
+    private Supplier<Map<Integer, ThreadPerformanceData.PerfCounterBlock>> threadMapFromPerfCounters = memoize(
+            WindowsOperatingSystem::queryThreadMapFromPerfCounters, defaultExpiration());
 
     @Override
     public String queryManufacturer() {
@@ -327,11 +338,21 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private List<OSProcess> processMapToList(Collection<Integer> pids) {
         // Get data from the registry if possible
-        Map<Integer, PerfCounterBlock> processMap = processMapFromRegistry.get();
+        Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap = processMapFromRegistry.get();
         // otherwise performance counters with WMI backup
         if (processMap == null || processMap.isEmpty()) {
             processMap = (pids == null) ? processMapFromPerfCounters.get()
                     : ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
+        }
+        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap = null;
+        if (USE_PROCSTATE_SUSPENDED) {
+            // Get data from the registry if possible
+            threadMap = threadMapFromRegistry.get();
+            // otherwise performance counters with WMI backup
+            if (threadMap == null || threadMap.isEmpty()) {
+                threadMap = (pids == null) ? threadMapFromPerfCounters.get()
+                        : ThreadPerformanceData.buildThreadMapFromPerfCounters(pids);
+            }
         }
 
         Map<Integer, WtsInfo> processWtsMap = ProcessWtsData.queryProcessWtsMap(pids);
@@ -341,17 +362,25 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
         List<OSProcess> processList = new ArrayList<>();
         for (Integer pid : mapKeys) {
-            processList.add(new WindowsOSProcess(pid, this, processMap, processWtsMap));
+            processList.add(new WindowsOSProcess(pid, this, processMap, processWtsMap, threadMap));
         }
         return processList;
     }
 
-    private static Map<Integer, PerfCounterBlock> queryProcessMapFromRegistry() {
+    private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromRegistry() {
         return ProcessPerformanceData.buildProcessMapFromRegistry(null);
     }
 
-    private static Map<Integer, PerfCounterBlock> queryProcessMapFromPerfCounters() {
+    private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromPerfCounters() {
         return ProcessPerformanceData.buildProcessMapFromPerfCounters(null);
+    }
+
+    private static Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryThreadMapFromRegistry() {
+        return ThreadPerformanceData.buildThreadMapFromRegistry(null);
+    }
+
+    private static Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryThreadMapFromPerfCounters() {
+        return ThreadPerformanceData.buildThreadMapFromPerfCounters(null);
     }
 
     @Override

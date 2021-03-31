@@ -89,6 +89,8 @@ public final class ThreadPerformanceData {
                         .longValue() / 10_000L;
                 int priority = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PRIORITYCURRENT)).intValue();
                 int threadState = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADSTATE)).intValue();
+                int threadWaitReason = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADWAITREASON))
+                        .intValue();
                 // Start address is pointer sized when fetched from registry, so this could be
                 // either Integer (uint32) or Long depending on OS bitness
                 Object addr = threadInstanceMap.get(ThreadPerformanceProperty.STARTADDRESS);
@@ -97,7 +99,7 @@ public final class ThreadPerformanceData {
                 int contextSwitches = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC))
                         .intValue();
                 threadMap.put(tid, new PerfCounterBlock(name, tid, pid, now - upTime, user, kernel, priority,
-                        threadState, startAddr, contextSwitches));
+                        threadState, threadWaitReason, startAddr, contextSwitches));
             }
         }
         return threadMap;
@@ -126,6 +128,7 @@ public final class ThreadPerformanceData {
         List<Long> startTimeList = valueMap.get(ThreadPerformanceProperty.ELAPSEDTIME); // filetime
         List<Long> priorityList = valueMap.get(ThreadPerformanceProperty.PRIORITYCURRENT);
         List<Long> stateList = valueMap.get(ThreadPerformanceProperty.THREADSTATE);
+        List<Long> waitReasonList = valueMap.get(ThreadPerformanceProperty.THREADWAITREASON);
         List<Long> startAddrList = valueMap.get(ThreadPerformanceProperty.STARTADDRESS);
         List<Long> contextSwitchesList = valueMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC);
 
@@ -144,13 +147,14 @@ public final class ThreadPerformanceData {
                 long kernel = kernelList.get(inst) / 10_000L;
                 int priority = priorityList.get(inst).intValue();
                 int threadState = stateList.get(inst).intValue();
+                int threadWaitReason = waitReasonList.get(inst).intValue();
                 long startAddr = startAddrList.get(inst).longValue();
                 int contextSwitches = contextSwitchesList.get(inst).intValue();
 
                 // if creation time value is less than current millis, it's in 1970 epoch,
                 // otherwise it's 1601 epoch and we must convert
                 threadMap.put(tid, new PerfCounterBlock(name, tid, pid, startTime, user, kernel, priority, threadState,
-                        startAddr, contextSwitches));
+                        threadWaitReason, startAddr, contextSwitches));
             }
         }
         return threadMap;
@@ -169,11 +173,13 @@ public final class ThreadPerformanceData {
         private final long kernelTime;
         private final int priority;
         private final int threadState;
+        private final int threadWaitReason;
         private final long startAddress;
         private final int contextSwitches;
 
         public PerfCounterBlock(String name, int threadID, int owningProcessID, long startTime, long userTime,
-                long kernelTime, int priority, int threadState, long startAddress, int contextSwitches) {
+                long kernelTime, int priority, int threadState, int threadWaitReason, long startAddress,
+                int contextSwitches) {
             this.name = name;
             this.threadID = threadID;
             this.owningProcessID = owningProcessID;
@@ -182,6 +188,7 @@ public final class ThreadPerformanceData {
             this.kernelTime = kernelTime;
             this.priority = priority;
             this.threadState = threadState;
+            this.threadWaitReason = threadWaitReason;
             this.startAddress = startAddress;
             this.contextSwitches = contextSwitches;
         }
@@ -240,6 +247,13 @@ public final class ThreadPerformanceData {
          */
         public int getThreadState() {
             return threadState;
+        }
+
+        /**
+         * @return the threadWaitReason
+         */
+        public int getThreadWaitReason() {
+            return threadWaitReason;
         }
 
         /**
