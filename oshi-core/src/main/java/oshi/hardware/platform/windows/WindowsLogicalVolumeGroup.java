@@ -24,6 +24,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.windows.wmi.MSFTStorage;
@@ -58,6 +60,10 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     }
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        // Storage Spaces requires Windows 8 or Server 2012
+        if (!VersionHelpers.IsWindows8OrGreater()) {
+            return Collections.emptyList();
+        }
         // Get all the Virtual Disks
         Map<String, String> vdMap = new HashMap<>();
         WmiResult<VirtualDiskProperty> vds = MSFTStorage.queryVirtualDisks();

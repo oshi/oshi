@@ -30,7 +30,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
 /**
- * Utility to query WMI classes in Storage namespace
+ * Utility to query WMI classes in Storage namespace assocaited with Storage
+ * Pools
  */
 @ThreadSafe
 public final class MSFTStorage {
@@ -41,18 +42,32 @@ public final class MSFTStorage {
     private static final String MSFT_PHYSICAL_DISK = "MSFT_PhysicalDisk";
     private static final String MSFT_VIRTUAL_DISK = "MSFT_VirtualDisk";
 
+    /**
+     * Properties to identify the storage pool. The Object ID uniquely defines the
+     * pool.
+     */
     public enum StoragePoolProperty {
         FRIENDLYNAME, OBJECTID;
     }
 
+    /**
+     * Properties to link a storage pool with a physical disk. OSHI parses these
+     * references to strings that can match the object IDs.
+     */
     public enum StoragePoolToPhysicalDiskProperty {
         STORAGEPOOL, PHYSICALDISK;
     }
 
+    /**
+     * Properties for a physical disk. The Object ID uniquely defines the disk.
+     */
     public enum PhysicalDiskProperty {
         FRIENDLYNAME, PHYSICALLOCATION, OBJECTID;
     }
 
+    /**
+     * Properties for a virtual disk. The Object ID uniquely defines the disk.
+     */
     public enum VirtualDiskProperty {
         FRIENDLYNAME, OBJECTID;
     }
@@ -60,24 +75,47 @@ public final class MSFTStorage {
     private MSFTStorage() {
     }
 
+    /**
+     * Query the storage pools.
+     *
+     * @return Storage pools that are not primordial (raw disks not added to a
+     *         storage space).
+     */
     public static WmiResult<StoragePoolProperty> queryStoragePools() {
         WmiQuery<StoragePoolProperty> storagePoolQuery = new WmiQuery<>(STORAGE_NAMESPACE,
                 MSFT_STORAGE_POOL_WHERE_IS_PRIMORDIAL_FALSE, StoragePoolProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(storagePoolQuery);
     }
 
+    /**
+     * Query the storage pool to physical disk connection.
+     *
+     * @return Links between physical disks and storage pools. All raw disks will be
+     *         part of the primordial pool in addition to the storage space they are
+     *         a member of.
+     */
     public static WmiResult<StoragePoolToPhysicalDiskProperty> queryStoragePoolPhysicalDisks() {
         WmiQuery<StoragePoolToPhysicalDiskProperty> storagePoolToPhysicalDiskQuery = new WmiQuery<>(STORAGE_NAMESPACE,
                 MSFT_STORAGE_POOL_TO_PHYSICAL_DISK, StoragePoolToPhysicalDiskProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(storagePoolToPhysicalDiskQuery);
     }
 
+    /**
+     * Query the physical disks.
+     *
+     * @return The physical disks.
+     */
     public static WmiResult<PhysicalDiskProperty> queryPhysicalDisks() {
         WmiQuery<PhysicalDiskProperty> physicalDiskQuery = new WmiQuery<>(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,
                 PhysicalDiskProperty.class);
         return WmiQueryHandler.createInstance().queryWMI(physicalDiskQuery);
     }
 
+    /**
+     * Query the virtual disks.
+     *
+     * @return The virtual disks.
+     */
     public static WmiResult<VirtualDiskProperty> queryVirtualDisks() {
         WmiQuery<VirtualDiskProperty> virtualDiskQuery = new WmiQuery<>(STORAGE_NAMESPACE, MSFT_VIRTUAL_DISK,
                 VirtualDiskProperty.class);
