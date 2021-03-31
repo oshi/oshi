@@ -391,7 +391,7 @@ public interface OSProcess {
     }
 
     /**
-     * Process Execution States
+     * Process and Thread Execution States
      */
     enum State {
         /**
@@ -426,6 +426,11 @@ public interface OSProcess {
          * The state resulting if the process fails to update statistics, probably due
          * to termination.
          */
-        INVALID
+        INVALID,
+        /**
+         * Special case of waiting if the process has been intentionally suspended
+         * (Windows only)
+         */
+        SUSPENDED
     }
 }

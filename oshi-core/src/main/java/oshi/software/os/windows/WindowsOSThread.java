@@ -29,6 +29,7 @@ import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.software.os.OSProcess.State.RUNNING;
 import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.SUSPENDED;
 import static oshi.software.os.OSProcess.State.WAITING;
 
 import java.util.Collections;
@@ -136,27 +137,31 @@ public class WindowsOSThread extends AbstractOSThread {
         } else {
             this.name = procName + "/" + pcb.getName();
         }
-        switch (pcb.getThreadState()) {
-        case 0:
-            state = NEW;
-            break;
-        case 2:
-        case 3:
-            state = RUNNING;
-            break;
-        case 4:
-            state = STOPPED;
-            break;
-        case 5:
-            state = SLEEPING;
-            break;
-        case 1:
-        case 6:
-            state = WAITING;
-            break;
-        case 7:
-        default:
-            state = OTHER;
+        if (pcb.getThreadWaitReason() == 5) {
+            state = SUSPENDED;
+        } else {
+            switch (pcb.getThreadState()) {
+            case 0:
+                state = NEW;
+                break;
+            case 2:
+            case 3:
+                state = RUNNING;
+                break;
+            case 4:
+                state = STOPPED;
+                break;
+            case 5:
+                state = SLEEPING;
+                break;
+            case 1:
+            case 6:
+                state = WAITING;
+                break;
+            case 7:
+            default:
+                state = OTHER;
+            }
         }
         startMemoryAddress = pcb.getStartAddress();
         contextSwitches = pcb.getContextSwitches();
