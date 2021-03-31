@@ -192,24 +192,24 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                                         devModel = LOGICAL_VOLUME_GROUP;
                                         devSerial = device.getPropertyValue(DM_UUID);
                                         store = new LinuxHWDiskStore(devnode, devModel,
-                                            devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
                                         String vgName = device.getPropertyValue(DM_VG_NAME);
                                         String lvName = device.getPropertyValue(DM_LV_NAME);
-                                        store.partitionList.add(new HWPartition(getPartitionNameForDmDevice(vgName, lvName),
-                                            device.getSysname(),
-                                            device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
-                                                : device.getPropertyValue(ID_FS_TYPE),
-                                            device.getPropertyValue(ID_FS_UUID) == null ? ""
-                                                : device.getPropertyValue(ID_FS_UUID),
-                                            ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-                                                * SECTORSIZE,
-                                            ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-                                            ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-                                            getMountPointOfDmDevice(vgName, lvName)));
+                                        store.partitionList.add(new HWPartition(
+                                                getPartitionNameForDmDevice(vgName, lvName), device.getSysname(),
+                                                device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
+                                                        : device.getPropertyValue(ID_FS_TYPE),
+                                                device.getPropertyValue(ID_FS_UUID) == null ? ""
+                                                        : device.getPropertyValue(ID_FS_UUID),
+                                                ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+                                                        * SECTORSIZE,
+                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
+                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
+                                                getMountPointOfDmDevice(vgName, lvName)));
                                     } else {
                                         store = new LinuxHWDiskStore(devnode,
-                                            devModel == null ? Constants.UNKNOWN : devModel,
-                                            devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+                                                devModel == null ? Constants.UNKNOWN : devModel,
+                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
                                     }
                                     if (storeToUpdate == null) {
                                         // If getting all stores, add to the list with stats
@@ -244,7 +244,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                                                         * SECTORSIZE,
                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-                                            mountsMap.getOrDefault(name, getDependentNamesFromHoldersDirectory(device.getSysname()))));
+                                                mountsMap.getOrDefault(name,
+                                                        getDependentNamesFromHoldersDirectory(device.getSysname()))));
                                     }
                                 }
                             }
@@ -301,7 +302,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     private static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_LOCATION).append("/").append(vgName).append("/").append(lvName).toString();
+        return new StringBuilder().append(DEV_LOCATION).append("/").append(vgName).append("/").append(lvName)
+                .toString();
     }
 
     private static String getMountPointOfDmDevice(String vgName, String lvName) {
