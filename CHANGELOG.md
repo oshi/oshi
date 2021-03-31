@@ -1,6 +1,7 @@
 # 5.7.0 (in progress)
 
 ##### New Features
+* [#1584](https://github.com/oshi/oshi/pull/1584): Add logical volume information - [@tausiflife](https://github.com/tausiflife).
 * [#1587](https://github.com/oshi/oshi/pull/1587): Add context switches to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
