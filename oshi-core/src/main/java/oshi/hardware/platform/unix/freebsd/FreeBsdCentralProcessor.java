@@ -318,7 +318,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
-            return -1;
+            return 0L;
         }
         return ParseUtil.unsignedIntToLong(p.getInt(0));
     }
@@ -329,7 +329,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         IntByReference size = new IntByReference(FreeBsdLibc.INT_SIZE);
         Pointer p = new Memory(size.getValue());
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, 0)) {
-            return -1;
+            return 0L;
         }
         return ParseUtil.unsignedIntToLong(p.getInt(0));
     }

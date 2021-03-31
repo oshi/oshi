@@ -72,6 +72,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
+    private long contextSwitches;
 
     public SolarisOSProcess(int pid, String[] split) {
         super(pid);
@@ -179,6 +180,11 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getContextSwitches() {
+        return this.contextSwitches;
+    }
+
+    @Override
     public long getOpenFiles() {
         return LsofUtil.getOpenFiles(getProcessID());
     }
@@ -240,7 +246,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
         List<String> threadListInfo1 = ExecutingCommand
                 .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getProcessID());
         List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID() + " 1 1");
-        Map<Integer, String[]> threadMap = parseAndMergeThreadInfo(threadListInfo1, threadListInfo2);
+        Map<Integer, String[]> threadMap = parseAndMergePSandPrstatInfo(threadListInfo1, 0, 7, threadListInfo2, true);
         if (threadMap.keySet().size() > 1) {
             return threadMap.entrySet().stream().map(entry -> new SolarisOSThread(getProcessID(), entry.getValue()))
                     .collect(Collectors.toList());
@@ -250,14 +256,13 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        List<String> procList = ExecutingCommand.runNative(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + getProcessID());
-        if (procList.size() > 1) {
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 15);
-            // Elements should match ps command order
-            if (split.length == 15) {
-                return updateAttributes(split);
-            }
+        int pid = getProcessID();
+        List<String> procList = ExecutingCommand
+                .runNative("ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + pid);
+        List<String> procList2 = ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
+        Map<Integer, String[]> processMap = parseAndMergePSandPrstatInfo(procList, 1, 15, procList2, false);
+        if (processMap.containsKey(pid)) {
+            return updateAttributes(processMap.get(getProcessID()));
         }
         this.state = State.INVALID;
         return false;
@@ -285,33 +290,41 @@ public class SolarisOSProcess extends AbstractOSProcess {
         this.path = split[13];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.commandLine = split[14];
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[15], 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[16], 0L);
+        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
 
         return true;
     }
 
     /**
-     * Merges results of a ps and prstat query, since Solaris thread details are not
-     * available in a single command. Package private to permit access by
-     * SolarisOSThread.
+     * Merges results of a ps and prstat query, since Solaris process and thread
+     * details are not available in a single command. Package private to permit
+     * access by SolarisOperatingSystem and SolarisOSThread.
      *
-     * @param psThreadInfo
+     * @param psInfo
      *            output from ps command.
-     * @param prstatThreadInfo
+     * @param psKeyIndex
+     *            which field of the ps split should be the key (e.g., pid or tid)
+     * @param psLength
+     *            how many fields to split
+     * @param prstatInfo
      *            output from the prstat command.
+     * @param useTid
+     *            If true, parses thread id (slash-delimited last field), otherwise
+     *            uses process id (field 0)
      * @return a map with key as thread id and an array of command outputs as value
      */
-    static Map<Integer, String[]> parseAndMergeThreadInfo(List<String> psThreadInfo, List<String> prstatThreadInfo) {
+    static Map<Integer, String[]> parseAndMergePSandPrstatInfo(List<String> psInfo, int psKeyIndex, int psLength,
+            List<String> prstatInfo, boolean useTid) {
         Map<Integer, String[]> map = new HashMap<>();
-        final String[] mergedSplit = new String[9];
-        // 0-lwpid, 1-state,2-elapsedtime,3-kerneltime, 4-usertime, 5-address,
-        // 6-priority
-        if (psThreadInfo.size() > 1) { // first row is header
-            psThreadInfo.stream().skip(1).forEach(threadInfo -> {
-                String[] psSplit = ParseUtil.whitespaces.split(threadInfo.trim());
-                if (psSplit.length == 7) {
-                    // copying the 1st 7 results from ps command output
-                    for (int idx = 0; idx < psSplit.length; idx++) {
-                        if (idx == 0) { // index 0 has threadid
+        if (psInfo.size() > 1) { // first row is header
+            psInfo.stream().skip(1).forEach(info -> {
+                String[] psSplit = ParseUtil.whitespaces.split(info.trim(), psLength);
+                String[] mergedSplit = new String[psLength + 2];
+                if (psSplit.length == psLength) {
+                    for (int idx = 0; idx < psLength; idx++) {
+                        if (idx == psKeyIndex) {
                             map.put(ParseUtil.parseIntOrDefault(psSplit[idx], 0), mergedSplit);
                         }
                         mergedSplit[idx] = psSplit[idx];
@@ -320,18 +333,21 @@ public class SolarisOSProcess extends AbstractOSProcess {
             });
             // 0-pid, 1-username, 2-usertime, 3-sys, 4-trp, 5-tfl, 6-dfl, 7-lck, 8-slp,
             // 9-lat, 10-vcx, 11-icx, 12-scl, 13-sig, 14-process/lwpid
-            if (prstatThreadInfo.size() > 1) { // first row is header
-                prstatThreadInfo.stream().skip(1).forEach(threadInfo -> {
+            if (prstatInfo.size() > 1) { // first row is header
+                prstatInfo.stream().skip(1).forEach(threadInfo -> {
                     String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
                     if (splitPrstat.length == 15) {
-                        int idxAfterForwardSlash = splitPrstat[14].lastIndexOf('/') + 1; // format is process/lwpid
-                        if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
-                            String threadId = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
-                            String[] existingSplit = map.get(Integer.parseInt(threadId));
-                            if (existingSplit != null) { // if thread wasn't in ps command output
-                                existingSplit[7] = splitPrstat[10]; // voluntary context switch
-                                existingSplit[8] = splitPrstat[11]; // involuntary context switch
+                        String id = splitPrstat[0]; // pid
+                        if (useTid) {
+                            int idxAfterForwardSlash = splitPrstat[14].lastIndexOf('/') + 1; // format is process/lwpid
+                            if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
+                                id = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
                             }
+                        }
+                        String[] existingSplit = map.get(Integer.parseInt(id));
+                        if (existingSplit != null) { // if thread wasn't in ps command output
+                            existingSplit[psLength] = splitPrstat[10]; // voluntary context switch
+                            existingSplit[psLength + 1] = splitPrstat[11]; // involuntary context switch
                         }
                     }
                 });

@@ -29,6 +29,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,10 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
-    private static final String PROCESS_LIST_FOR_PID_COMMAND = "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p ";
+    private static final String PS_FIELDS = "s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args";
+    private static final String PROCESS_LIST_FOR_PID_COMMAND = "ps -o " + PS_FIELDS + " -p ";
+    private static final String PROCESS_LIST_COMMAND = "ps -eo " + PS_FIELDS;
+
     private static final long BOOTTIME = querySystemBootTime();
 
     @Override
@@ -130,26 +134,18 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static List<OSProcess> queryAllProcessesFromPS() {
-        return getProcessListFromPS("ps -eo s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args", -1);
+        return getProcessListFromPS(PROCESS_LIST_COMMAND, -1);
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
-        List<OSProcess> procs = new ArrayList<>();
-        List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
-        if (procList.isEmpty() || procList.size() < 2) {
-            return procs;
-        }
-        // remove header row
-        procList.remove(0);
-        // Fill list
-        for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 15);
-            // Elements should match ps command order
-            if (split.length == 15) {
-                procs.add(new SolarisOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
-            }
-        }
-        return procs;
+        List<String> procList = pid < 0 ? ExecutingCommand.runNative(psCommand)
+                : ExecutingCommand.runNative(psCommand + pid);
+        List<String> procList2 = pid < 0 ? ExecutingCommand.runNative("prstat -v 1 1")
+                : ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
+        Map<Integer, String[]> processMap = SolarisOSProcess.parseAndMergePSandPrstatInfo(procList, 1, 15, procList2,
+                false);
+        return processMap.entrySet().stream().map(e -> new SolarisOSProcess(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
     }
 
     @Override

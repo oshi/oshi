@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -222,16 +224,24 @@ public interface CentralProcessor {
     int getPhysicalPackageCount();
 
     /**
-     * Get the number of context switches which have occurred
+     * Get the number of system-wide context switches which have occurred.
+     * <p>
+     * Not available system-wide on macOS. Process- and Thread-level context
+     * switches are available from {@link OSProcess#getContextSwitches()} and
+     * {@link OSThread#getContextSwitches()}.
      *
-     * @return The number of context switches
+     * @return The number of context switches, if this information is available; 0
+     *         otherwise.
      */
     long getContextSwitches();
 
     /**
-     * Get the number of interrupts which have occurred
+     * Get the number of system-wide interrupts which have occurred.
+     * <p>
+     * Not available system-wide on macOS.
      *
-     * @return The number of interrupts
+     * @return The number of interrupts, if this information is available; 0
+     *         otherwise.
      */
     long getInterrupts();
 

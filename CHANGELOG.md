@@ -1,6 +1,10 @@
-# 5.6.2 (in progress)
+# 5.7.0 (in progress)
 
-* Your contribution here!
+##### New Features
+* [#1587](https://github.com/oshi/oshi/pull/1587): Add context switches to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Bug fixes / Improvements
+* [#1585](https://github.com/oshi/oshi/pull/1585): macOS doesn't provide system level context switches or interrupts - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.6.0 (2021-03-01), 5.6.1 (2021-03-22)
 

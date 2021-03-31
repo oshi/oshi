@@ -135,7 +135,6 @@ class CentralProcessorTest {
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Central Processor's interrupt count should be 0 or higher", p.getInterrupts(),
                 is(greaterThanOrEqualTo(0L)));
-
         for (int lp = 0; lp < p.getLogicalProcessorCount(); lp++) {
             assertThat("Logical processor number is negative", p.getLogicalProcessors().get(lp).getProcessorNumber(),
                     is(greaterThanOrEqualTo(0)));
