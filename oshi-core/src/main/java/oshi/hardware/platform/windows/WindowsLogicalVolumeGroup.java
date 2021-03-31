@@ -149,8 +149,4 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
         return lvgList;
     }
-
-    public static void main(String... strings) {
-        getLogicalVolumeGroups();
-    }
 }
