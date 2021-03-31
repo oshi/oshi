@@ -24,7 +24,6 @@
 package oshi.hardware.common;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -34,7 +33,7 @@ import oshi.hardware.LogicalVolumeGroup;
 public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
 
     private final String name;
-    private final Map<String, List<String>> lvMap;
+    private final Map<String, Set<String>> lvMap;
     private final Set<String> pvSet;
 
     /**
@@ -46,10 +45,10 @@ public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
      * @param pvSet
      *            Set of physical volumes this volume group consists of.
      */
-    protected AbstractLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
+    protected AbstractLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         this.name = name;
-        for (Entry<String, List<String>> entry : lvMap.entrySet()) {
-            lvMap.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
+        for (Entry<String, Set<String>> entry : lvMap.entrySet()) {
+            lvMap.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
         }
         this.lvMap = Collections.unmodifiableMap(lvMap);
         this.pvSet = Collections.unmodifiableSet(pvSet);
@@ -61,7 +60,7 @@ public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
     }
 
     @Override
-    public Map<String, List<String>> getLogicalVolumes() {
+    public Map<String, Set<String>> getLogicalVolumes() {
         return lvMap;
     }
 
@@ -75,9 +74,9 @@ public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
         StringBuilder sb = new StringBuilder("Logical Volume Group: ");
         sb.append(name).append("\n |-- PVs: ");
         sb.append(pvSet.toString());
-        for (Entry<String, List<String>> entry : lvMap.entrySet()) {
+        for (Entry<String, Set<String>> entry : lvMap.entrySet()) {
             sb.append("\n |-- LV: ").append(entry.getKey());
-            List<String> mappedPVs = entry.getValue();
+            Set<String> mappedPVs = entry.getValue();
             if (!mappedPVs.isEmpty()) {
                 sb.append(" --> ").append(mappedPVs);
             }

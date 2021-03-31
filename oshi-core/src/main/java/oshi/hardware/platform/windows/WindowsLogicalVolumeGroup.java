@@ -33,7 +33,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -55,7 +54,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final Pattern PD_OBJECT_ID = Pattern.compile(".*ObjectId=.*PD:(\\{.*\\}).*");
     private static final Pattern VD_OBJECT_ID = Pattern.compile(".*ObjectId=.*VD:(\\{.*\\})(\\{.*\\}).*");
 
-    WindowsLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
+    WindowsLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
     }
 
@@ -137,12 +136,11 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                 }
             }
             // find matching logical volume
-            Map<String, List<String>> logicalVolumeMap = new HashMap<>();
+            Map<String, Set<String>> logicalVolumeMap = new HashMap<>();
             for (Entry<String, String> entry : vdMap.entrySet()) {
                 if (entry.getKey().contains(spObjectId)) {
                     String vdObjectId = ParseUtil.whitespaces.split(entry.getKey())[0];
-                    logicalVolumeMap.put(entry.getValue() + " " + vdObjectId,
-                            physicalVolumeSet.stream().collect(Collectors.toList()));
+                    logicalVolumeMap.put(entry.getValue() + " " + vdObjectId, physicalVolumeSet);
                 }
             }
             // Add to list

@@ -71,8 +71,6 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
     private static final String LOGICAL_VOLUME_GROUP = "Logical Volume Group";
-    private static final String DEV_NAME = "DEV_NAME";
-    private static final String DEV_PATH = "DEV_PATH";
     private static final String DEV_LOCATION = "/dev";
     private static final String DEV_MAPPER = DEV_LOCATION + "/mapper";
 

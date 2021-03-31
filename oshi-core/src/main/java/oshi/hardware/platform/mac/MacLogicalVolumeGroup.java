@@ -42,12 +42,12 @@ final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final String PHYSICAL_VOLUME = "Physical Volume";
     private static final String LOGICAL_VOLUME = "Logical Volume";
 
-    MacLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
+    MacLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
     }
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
-        Map<String, Map<String, List<String>>> logicalVolumesMap = new HashMap<>();
+        Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
 
         String currentVolumeGroup = null;
@@ -77,7 +77,7 @@ final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                 .add(line.substring(indexOf + 5).trim());
                     } else {
                         logicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -> new HashMap<>())
-                                .put(line.substring(indexOf + 5).trim(), Collections.emptyList());
+                                .put(line.substring(indexOf + 5).trim(), Collections.emptySet());
                     }
                 }
             }

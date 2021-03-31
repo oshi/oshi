@@ -24,7 +24,6 @@
 package oshi.hardware.platform.linux;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,12 +46,12 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
 
-    LinuxLogicalVolumeGroup(String name, Map<String, List<String>> lvMap, Set<String> pvSet) {
+    LinuxLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
     }
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
-        Map<String, Map<String, List<String>>> logicalVolumesMap = new HashMap<>();
+        Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
 
         // Populate pv map from pvs command
@@ -84,7 +83,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                     String lvName = device.getPropertyValue(DM_LV_NAME);
                                     if (!Util.isBlank(vgName) && !Util.isBlank(lvName)) {
                                         logicalVolumesMap.computeIfAbsent(vgName, k -> new HashMap<>());
-                                        Map<String, List<String>> lvMapForGroup = logicalVolumesMap.get(vgName);
+                                        Map<String, Set<String>> lvMapForGroup = logicalVolumesMap.get(vgName);
                                         // Backup to add to pv set if pvs command failed
                                         physicalVolumesMap.computeIfAbsent(vgName, k -> new HashSet<>());
                                         Set<String> pvSetForGroup = physicalVolumesMap.get(vgName);
@@ -94,8 +93,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                         if (slaves != null) {
                                             for (File f : slaves) {
                                                 String pvName = f.getName();
-                                                lvMapForGroup.computeIfAbsent(lvName, k -> new ArrayList<>())
-                                                        .add(pvName);
+                                                lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>()).add(pvName);
                                                 // Backup to add to pv set if pvs command failed
                                                 // Added /dev to remove duplicates like /dev/sda1 and sda1
                                                 pvSetForGroup.add("/dev/" + pvName);
