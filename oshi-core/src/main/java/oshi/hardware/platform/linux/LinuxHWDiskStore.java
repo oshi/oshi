@@ -30,6 +30,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
+
 import java.util.stream.Collectors;
 
 import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
@@ -71,8 +73,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
     private static final String LOGICAL_VOLUME_GROUP = "Logical Volume Group";
-    private static final String DEV_LOCATION = "/dev";
-    private static final String DEV_MAPPER = DEV_LOCATION + "/mapper";
+    private static final String DEV_LOCATION = "/dev/";
+    private static final String DEV_MAPPER = DEV_LOCATION + "mapper/";
 
     private static final int SECTORSIZE = 512;
 
@@ -300,25 +302,21 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     private static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_LOCATION).append("/").append(vgName).append("/").append(lvName)
+        return new StringBuilder().append(DEV_LOCATION).append(vgName).append('/').append(lvName)
                 .toString();
     }
 
     private static String getMountPointOfDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_MAPPER).append("/").append(vgName).append("-").append(lvName).toString();
+        return new StringBuilder().append(DEV_MAPPER).append(vgName).append('-').append(lvName).toString();
     }
 
     private static String getDependentNamesFromHoldersDirectory(String sysPath) {
         File holdersDir = new File(sysPath + "/holders");
         File[] holders = holdersDir.listFiles();
-        StringBuilder dependentNames = new StringBuilder();
         if (holders != null) {
-            for (File f : holders) {
-                String devName = f.getName();
-                dependentNames.append(DEV_LOCATION).append("/").append(devName).append(" ");
-            }
+            return Arrays.stream(holders).map(f -> f.getName()).collect(Collectors.joining(" "));
         }
-        return dependentNames.toString().trim();
+        return "";
     }
 
     // Order the field is in udev stats

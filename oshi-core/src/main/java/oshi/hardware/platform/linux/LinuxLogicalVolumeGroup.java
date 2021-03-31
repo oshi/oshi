@@ -93,7 +93,8 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                         if (slaves != null) {
                                             for (File f : slaves) {
                                                 String pvName = f.getName();
-                                                lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>()).add(pvName);
+                                                lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>()).add(
+                                                    "/dev/" + pvName);
                                                 // Backup to add to pv set if pvs command failed
                                                 // Added /dev to remove duplicates like /dev/sda1 and sda1
                                                 pvSetForGroup.add("/dev/" + pvName);
