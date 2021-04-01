@@ -90,6 +90,8 @@ public final class FileUtil {
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                } else {
+                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
                 }
             }
         } else if (reportError) {
