@@ -54,19 +54,29 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final Pattern PD_OBJECT_ID = Pattern.compile(".*ObjectId=.*PD:(\\{.*\\}).*");
     private static final Pattern VD_OBJECT_ID = Pattern.compile(".*ObjectId=.*VD:(\\{.*\\})(\\{.*\\}).*");
 
+    private static final boolean IS_WINDOWS8_OR_GREATER = VersionHelpers.IsWindows8OrGreater();
+
     WindowsLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
     }
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
         // Storage Spaces requires Windows 8 or Server 2012
-        if (!VersionHelpers.IsWindows8OrGreater()) {
+        if (!IS_WINDOWS8_OR_GREATER) {
             return Collections.emptyList();
         }
+        // Query Storage Pools first, so we can skip other queries if we have no pools
+        WmiResult<StoragePoolProperty> sp = MSFTStorage.queryStoragePools();
+        int count = sp.getResultCount();
+        if (count == 0) {
+            return Collections.emptyList();
+        }
+        // We have storage pool(s) but now need to gather other info
+
         // Get all the Virtual Disks
         Map<String, String> vdMap = new HashMap<>();
         WmiResult<VirtualDiskProperty> vds = MSFTStorage.queryVirtualDisks();
-        int count = vds.getResultCount();
+        count = vds.getResultCount();
         for (int i = 0; i < count; i++) {
             String vdObjectId = WmiUtil.getString(vds, VirtualDiskProperty.OBJECTID, i);
             Matcher m = VD_OBJECT_ID.matcher(vdObjectId);
@@ -111,9 +121,8 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             sppdMap.put(spObjectId + " " + pdObjectId, pdObjectId);
         }
 
-        // Finally query storage pools
+        // Finally process the storage pools
         List<LogicalVolumeGroup> lvgList = new ArrayList<>();
-        WmiResult<StoragePoolProperty> sp = MSFTStorage.queryStoragePools();
         count = sp.getResultCount();
         for (int i = 0; i < count; i++) {
             // Name
