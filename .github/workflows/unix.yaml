@@ -50,27 +50,28 @@ jobs:
   # SSH into AIX server and run test on AIX 7.1
   # Configured to pull latest from oshi master branch
   # To test on a PR, log into the aix server and create a new branch
-  testaix:
-    runs-on: ubuntu-latest
-    name: Test JDK 8, aix
-    steps:
-    - name: Test in AIX
-      uses: appleboy/ssh-action@master    
-      with:
-        host: gate.polarhome.com
-        username: oshi
-        password: ${{ secrets.AIX_OSHI_PW }}
-        port: 775
-        script_stop: true
-        command_timeout: 75m
-        script: |
-          source .profile
-          source .bashrc
-          cd ~/git/oshi
-          git checkout master
-          git reset --hard HEAD~2
-          git pull
-          mvn clean test -B -Djacoco.skip=true
+ #temporarily disabled due to polarhome outage
+ #testaix:
+ #   runs-on: ubuntu-latest
+ #   name: Test JDK 8, aix
+ #   steps:
+ #   - name: Test in AIX
+ #     uses: appleboy/ssh-action@master    
+ #     with:
+ #       host: gate.polarhome.com
+ #       username: oshi
+ #       password: ${{ secrets.AIX_OSHI_PW }}
+ #       port: 775
+ #       script_stop: true
+ #       command_timeout: 75m
+ #       script: |
+ #         source .profile
+ #         source .bashrc
+ #         cd ~/git/oshi
+ #         git checkout master
+ #         git reset --hard HEAD~2
+ #         git pull
+ #         mvn clean test -B -Djacoco.skip=true
           
 
   # SSH into OpenBSD server and run test on OpenBSD 6.8 32-bit
