@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>KstatUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.unix.solaris</a> &gt; <span class="el_source">KstatUtil.java</span></div><h1>KstatUtil.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>KstatUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.unix.solaris</a> &gt; <span class="el_source">KstatUtil.java</span></div><h1>KstatUtil.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -95,8 +95,8 @@ public final class KstatUtil {
 <span class="nc" id="L95">            int retry = 0;</span>
 <span class="nc bnc" id="L96" title="All 2 branches missed.">            while (0 &gt; KS.kstat_read(KC, ksp, null)) {</span>
 <span class="nc bnc" id="L97" title="All 4 branches missed.">                if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">                    if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L99">                        LOG.error(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                    if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L99">                        LOG.debug(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
 <span class="nc" id="L100">                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
 <span class="nc" id="L101">                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));</span>
                     }
@@ -209,7 +209,7 @@ public final class KstatUtil {
         }
 <span class="nc" id="L210">        Pointer p = KS.kstat_data_lookup(ksp, name);</span>
 <span class="nc bnc" id="L211" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc" id="L212">            LOG.error(&quot;Failed lo lookup kstat value for key {}&quot;, name);</span>
+<span class="nc" id="L212">            LOG.debug(&quot;Failed to lookup kstat value for key {}&quot;, name);</span>
 <span class="nc" id="L213">            return &quot;&quot;;</span>
         }
 <span class="nc" id="L215">        KstatNamed data = new KstatNamed(p);</span>

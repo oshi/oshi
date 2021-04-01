@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ThreadInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">ThreadInformation.java</span></div><h1>ThreadInformation.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ThreadInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">ThreadInformation.java</span></div><h1>ThreadInformation.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -54,19 +54,20 @@ public final class ThreadInformation {
 <span class="nc" id="L54">        PRIORITYCURRENT(&quot;Priority Current&quot;), //</span>
 <span class="nc" id="L55">        STARTADDRESS(&quot;Start Address&quot;), //</span>
 <span class="nc" id="L56">        THREADSTATE(&quot;Thread State&quot;), //</span>
-<span class="nc" id="L57">        IDPROCESS(&quot;ID Process&quot;), //</span>
-<span class="nc" id="L58">        IDTHREAD(&quot;ID Thread&quot;), //</span>
-<span class="nc" id="L59">        CONTEXTSWITCHESPERSEC(&quot;Context Switches/sec&quot;);</span>
+<span class="nc" id="L57">        THREADWAITREASON(&quot;Thread Wait Reason&quot;), // 5 is SUSPENDED</span>
+<span class="nc" id="L58">        IDPROCESS(&quot;ID Process&quot;), //</span>
+<span class="nc" id="L59">        IDTHREAD(&quot;ID Thread&quot;), //</span>
+<span class="nc" id="L60">        CONTEXTSWITCHESPERSEC(&quot;Context Switches/sec&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L63">        ThreadPerformanceProperty(String counter) {</span>
-<span class="nc" id="L64">            this.counter = counter;</span>
-<span class="nc" id="L65">        }</span>
+<span class="nc" id="L64">        ThreadPerformanceProperty(String counter) {</span>
+<span class="nc" id="L65">            this.counter = counter;</span>
+<span class="nc" id="L66">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L69">            return counter;</span>
+<span class="nc" id="L70">            return counter;</span>
         }
     }
 
@@ -79,7 +80,7 @@ public final class ThreadInformation {
      * @return Thread counters for each thread.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt;&gt; queryThreadCounters() {
-<span class="nc" id="L82">        return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,</span>
+<span class="nc" id="L83">        return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,</span>
                 WIN32_PERF_RAW_DATA_PERF_PROC_THREAD);
     }
 }
