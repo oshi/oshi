@@ -452,6 +452,7 @@
 							<exclude>**/*.yml</exclude>
 							<exclude>**/*.yaml</exclude>
 							<exclude>**/cov-analysis*/**</exclude>
+							<exclude>**/module-info.*</exclude>
 						</excludes>
 					</configuration>
 				</plugin>
