@@ -32,6 +32,7 @@ import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Sensors;
@@ -74,6 +75,11 @@ public final class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstrac
     @Override
     public List<HWDiskStore> getDiskStores() {
         return LinuxHWDiskStore.getDisks();
+    }
+
+    @Override
+    public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        return LinuxLogicalVolumeGroup.getLogicalVolumeGroups();
     }
 
     @Override

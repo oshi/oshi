@@ -45,6 +45,7 @@ import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.PowerSource;
@@ -126,6 +127,9 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
         logger.info("Checking Disks...");
         printDisks(hal.getDiskStores());
+
+        logger.info("Checking Logical Volume Groups ...");
+        printLVgroups(hal.getLogicalVolumeGroups());
 
         logger.info("Checking File System...");
         printFileSystem(os.getFileSystem());
@@ -314,6 +318,15 @@ public class SystemInfoTest { // NOSONAR squid:S5786
             }
         }
 
+    }
+
+    private static void printLVgroups(List<LogicalVolumeGroup> list) {
+        if (!list.isEmpty()) {
+            oshi.add("Logical Volume Groups:");
+            for (LogicalVolumeGroup lvg : list) {
+                oshi.add(" " + lvg.toString());
+            }
+        }
     }
 
     private static void printFileSystem(FileSystem fileSystem) {
