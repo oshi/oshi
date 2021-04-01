@@ -52,7 +52,6 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.mac.disk.Diskutil;
 import oshi.driver.mac.disk.Fsstat;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -80,9 +79,9 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
     private List<HWPartition> partitionList;
 
     private MacHWDiskStore(String name, String model, String serial, long size, DASessionRef session,
-            Map<String, String> mountPointMap, Map<String, String> logicalVolumeMap, Map<CFKey, CFStringRef> cfKeyMap) {
+            Map<String, String> mountPointMap, Map<CFKey, CFStringRef> cfKeyMap) {
         super(name, model, serial, size);
-        updateDiskStats(session, mountPointMap, logicalVolumeMap, cfKeyMap);
+        updateDiskStats(session, mountPointMap, cfKeyMap);
     }
 
     @Override
@@ -135,8 +134,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
         }
         Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
         // Execute the update
-        boolean diskFound = updateDiskStats(session, Fsstat.queryPartitionToMountMap(),
-                Diskutil.queryLogicalVolumeMap(), cfKeyMap);
+        boolean diskFound = updateDiskStats(session, Fsstat.queryPartitionToMountMap(), cfKeyMap);
         // Release the session and CFStrings
         session.release();
         for (CFTypeRef value : cfKeyMap.values()) {
@@ -147,7 +145,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
     }
 
     private boolean updateDiskStats(DASessionRef session, Map<String, String> mountPointMap,
-            Map<String, String> logicalVolumeMap, Map<CFKey, CFStringRef> cfKeyMap) {
+            Map<CFKey, CFStringRef> cfKeyMap) {
         // Now look up the device using the BSD Name to get its
         // statistics
         String bsdName = getName();
@@ -269,12 +267,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                                     }
                                     disk.release();
                                 }
-                                String mountPoint;
-                                if (logicalVolumeMap.containsKey(partBsdName)) {
-                                    mountPoint = "Logical Volume: " + logicalVolumeMap.get(partBsdName);
-                                } else {
-                                    mountPoint = mountPointMap.getOrDefault(partBsdName, "");
-                                }
+                                String mountPoint = mountPointMap.getOrDefault(partBsdName, "");
                                 Long size = sdService.getLongProperty("Size");
                                 Integer bsdMajor = sdService.getIntegerProperty("BSD Major");
                                 Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
@@ -312,7 +305,6 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
      */
     public static List<HWDiskStore> getDisks() {
         Map<String, String> mountPointMap = Fsstat.queryPartitionToMountMap();
-        Map<String, String> logicalVolumeMap = Diskutil.queryLogicalVolumeMap();
         Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
 
         List<HWDiskStore> diskList = new ArrayList<>();
@@ -412,7 +404,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                     continue;
                 }
                 HWDiskStore diskStore = new MacHWDiskStore(bsdName, model.trim(), serial.trim(), size, session,
-                        mountPointMap, logicalVolumeMap, cfKeyMap);
+                        mountPointMap, cfKeyMap);
                 diskList.add(diskStore);
             }
         }
