@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisCentralProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisCentralProcessor.java</span></div><h1>SolarisCentralProcessor.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisCentralProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisCentralProcessor.java</span></div><h1>SolarisCentralProcessor.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -242,7 +242,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc bnc" id="L242" title="All 2 branches missed.">        for (String s : kstat) {</span>
 <span class="nc" id="L243">            swtch += ParseUtil.parseLastLong(s, 0L);</span>
 <span class="nc" id="L244">        }</span>
-<span class="nc bnc" id="L245" title="All 2 branches missed.">        return swtch &gt; 0 ? swtch : -1L;</span>
+<span class="nc" id="L245">        return swtch;</span>
     }
 
     @Override
@@ -252,7 +252,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 <span class="nc bnc" id="L252" title="All 2 branches missed.">        for (String s : kstat) {</span>
 <span class="nc" id="L253">            intr += ParseUtil.parseLastLong(s, 0L);</span>
 <span class="nc" id="L254">        }</span>
-<span class="nc bnc" id="L255" title="All 2 branches missed.">        return intr &gt; 0 ? intr : -1L;</span>
+<span class="nc" id="L255">        return intr;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractOSThread.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.common</a> &gt; <span class="el_source">AbstractOSThread.java</span></div><h1>AbstractOSThread.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractOSThread.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.common</a> &gt; <span class="el_source">AbstractOSThread.java</span></div><h1>AbstractOSThread.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -69,48 +69,13 @@ public abstract class AbstractOSThread implements OSThread {
 <span class="nc" id="L69">        return getThreadCpuLoadCumulative();</span>
     }
 
-    /*
-     * Default returns so we don't have to override in subclasses that don't have
-     * them
-     */
-
-    @Override
-    public String getName() {
-<span class="nc" id="L79">        return &quot;&quot;;</span>
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-<span class="nc" id="L84">        return 0L;</span>
-    }
-
-    @Override
-    public long getContextSwitches() {
-<span class="nc" id="L89">        return 0L;</span>
-    }
-
-    @Override
-    public long getMinorFaults() {
-<span class="nc" id="L94">        return 0L;</span>
-    }
-
-    @Override
-    public long getMajorFaults() {
-<span class="nc" id="L99">        return 0L;</span>
-    }
-
-    @Override
-    public boolean updateAttributes() {
-<span class="nc" id="L104">        return false;</span>
-    }
-
     @Override
     public String toString() {
-<span class="nc" id="L109">        return &quot;OSThread [threadId=&quot; + getThreadId() + &quot;, owningProcessId=&quot; + getOwningProcessId() + &quot;, name=&quot;</span>
-<span class="nc" id="L110">                + getName() + &quot;, state=&quot; + getState() + &quot;, kernelTime=&quot; + getKernelTime() + &quot;, userTime=&quot;</span>
-<span class="nc" id="L111">                + getUserTime() + &quot;, upTime=&quot; + getUpTime() + &quot;, startTime=&quot; + getStartTime()</span>
-<span class="nc" id="L112">                + &quot;, startMemoryAddress=0x&quot; + String.format(&quot;%x&quot;, getStartMemoryAddress()) + &quot;, contextSwitches=&quot;</span>
-<span class="nc" id="L113">                + getContextSwitches() + &quot;, minorFaults=&quot; + getMinorFaults() + &quot;, majorFaults=&quot; + getMajorFaults()</span>
+<span class="nc" id="L74">        return &quot;OSThread [threadId=&quot; + getThreadId() + &quot;, owningProcessId=&quot; + getOwningProcessId() + &quot;, name=&quot;</span>
+<span class="nc" id="L75">                + getName() + &quot;, state=&quot; + getState() + &quot;, kernelTime=&quot; + getKernelTime() + &quot;, userTime=&quot;</span>
+<span class="nc" id="L76">                + getUserTime() + &quot;, upTime=&quot; + getUpTime() + &quot;, startTime=&quot; + getStartTime()</span>
+<span class="nc" id="L77">                + &quot;, startMemoryAddress=0x&quot; + String.format(&quot;%x&quot;, getStartMemoryAddress()) + &quot;, contextSwitches=&quot;</span>
+<span class="nc" id="L78">                + getContextSwitches() + &quot;, minorFaults=&quot; + getMinorFaults() + &quot;, majorFaults=&quot; + getMajorFaults()</span>
                 + &quot;]&quot;;
     }
 }
