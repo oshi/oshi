@@ -41,6 +41,6 @@ module com.github.oshi {
     // dependencies
     requires com.sun.jna;
     requires com.sun.jna.platform;
-    requires java.desktop;
+    requires transitive java.desktop;
     requires org.slf4j;
 }
