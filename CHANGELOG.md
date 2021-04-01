@@ -1,7 +1,11 @@
-# 5.7.0 (in progress)
+# 5.7.1 (in progress)
+
+* Your contribution here
+
+# 5.7.0 (2021-04-01)
 
 ##### New Features
-* [#1584](https://github.com/oshi/oshi/pull/1584): Add logical volume information - [@tausiflife](https://github.com/tausiflife).
+* [#1584](https://github.com/oshi/oshi/pull/1584): Add logical volume group information - [@tausiflife](https://github.com/tausiflife).
 * [#1587](https://github.com/oshi/oshi/pull/1587): Add context switches to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
 * [#1592](https://github.com/oshi/oshi/pull/1592): Add suspended process and thread state for Windows - [@dbwiddis](https://github.com/dbwiddis).
 
