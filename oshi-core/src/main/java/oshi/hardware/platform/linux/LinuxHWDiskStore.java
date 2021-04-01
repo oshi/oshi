@@ -25,13 +25,12 @@ package oshi.hardware.platform.linux;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
-
 import java.util.stream.Collectors;
 
 import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
@@ -280,7 +279,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount);
-            if (split.length < 2 || !split[0].startsWith("/dev/")) {
+            if (split.length < 2 || !split[0].startsWith(DEV_LOCATION)) {
                 continue;
             }
             mountsMap.put(split[0], split[1]);
@@ -302,8 +301,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     private static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_LOCATION).append(vgName).append('/').append(lvName)
-                .toString();
+        return new StringBuilder().append(DEV_LOCATION).append(vgName).append('/').append(lvName).toString();
     }
 
     private static String getMountPointOfDmDevice(String vgName, String lvName) {
@@ -314,7 +312,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         File holdersDir = new File(sysPath + "/holders");
         File[] holders = holdersDir.listFiles();
         if (holders != null) {
-            return Arrays.stream(holders).map(f -> f.getName()).collect(Collectors.joining(" "));
+            return Arrays.stream(holders).map(File::getName).collect(Collectors.joining(" "));
         }
         return "";
     }

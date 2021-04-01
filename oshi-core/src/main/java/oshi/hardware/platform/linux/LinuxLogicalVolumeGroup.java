@@ -45,6 +45,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final String DM_UUID = "DM_UUID";
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
+    private static final String DEV_LOCATION = "/dev/";
 
     LinuxLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
@@ -58,7 +59,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         // This requires elevated permissions and may fail
         for (String s : ExecutingCommand.runNative("pvs -o vg_name,pv_name")) {
             String[] split = ParseUtil.whitespaces.split(s.trim());
-            if (split.length == 2 && split[1].startsWith("/dev/")) {
+            if (split.length == 2 && split[1].startsWith(DEV_LOCATION)) {
                 physicalVolumesMap.computeIfAbsent(split[0], k -> new HashSet<>()).add(split[1]);
             }
         }
@@ -93,11 +94,11 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                         if (slaves != null) {
                                             for (File f : slaves) {
                                                 String pvName = f.getName();
-                                                lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>()).add(
-                                                    "/dev/" + pvName);
+                                                lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>())
+                                                        .add(DEV_LOCATION + pvName);
                                                 // Backup to add to pv set if pvs command failed
-                                                // Added /dev to remove duplicates like /dev/sda1 and sda1
-                                                pvSetForGroup.add("/dev/" + pvName);
+                                                // Added /dev/ to remove duplicates like /dev/sda1 and sda1
+                                                pvSetForGroup.add(DEV_LOCATION + pvName);
                                             }
                                         }
                                     }
