@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdOperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.freebsd</a> &gt; <span class="el_source">FreeBsdOperatingSystem.java</span></div><h1>FreeBsdOperatingSystem.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdOperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.freebsd</a> &gt; <span class="el_source">FreeBsdOperatingSystem.java</span></div><h1>FreeBsdOperatingSystem.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -135,7 +135,7 @@ import oshi.util.tuples.Pair;
 
     private static List&lt;OSProcess&gt; getProcessListFromPS(int pid) {
 <span class="nc" id="L137">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L138">        String psCommand = &quot;ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args&quot;;</span>
+<span class="nc" id="L138">        String psCommand = &quot;ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,nvscw,nivscw,args&quot;;</span>
 <span class="nc bnc" id="L139" title="All 2 branches missed.">        if (pid &gt;= 0) {</span>
 <span class="nc" id="L140">            psCommand += &quot; -p &quot; + pid;</span>
         }
@@ -147,9 +147,9 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L147">        procList.remove(0);</span>
         // Fill list
 <span class="nc bnc" id="L149" title="All 2 branches missed.">        for (String proc : procList) {</span>
-<span class="nc" id="L150">            String[] split = ParseUtil.whitespaces.split(proc.trim(), 18);</span>
+<span class="nc" id="L150">            String[] split = ParseUtil.whitespaces.split(proc.trim(), 20);</span>
             // Elements should match ps command order
-<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (split.length == 18) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (split.length == 20) {</span>
 <span class="nc bnc" id="L153" title="All 2 branches missed.">                procs.add(new FreeBsdOSProcess(pid &lt; 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));</span>
             }
 <span class="nc" id="L155">        }</span>

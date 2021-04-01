@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSProcess.java</span></div><h1>OSProcess.java</h1><pre class="source lang-java linenums">/**
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSProcess.java</span></div><h1>OSProcess.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -356,7 +356,9 @@ public interface OSProcess {
      *
      * @return minor page faults (reclaims).
      */
-    long getMinorFaults();
+    default long getMinorFaults() {
+<span class="nc" id="L360">        return 0L;</span>
+    }
 
     /**
      * Gets the number of major (hard) faults the process has made which have
@@ -368,45 +370,68 @@ public interface OSProcess {
      *
      * @return major page faults.
      */
-    long getMajorFaults();
+    default long getMajorFaults() {
+<span class="nc" id="L374">        return 0L;</span>
+    }
 
     /**
-     * Process Execution States
+     * A snapshot of the context switches the process has done. Since the context
+     * switches could be voluntary and non-voluntary, this gives the sum of both.
+     * &lt;p&gt;
+     * Not available on Windows. An approximation may be made by summing associated
+     * values from {@link OSThread#getContextSwitches()}.
+     * &lt;p&gt;
+     * Not available on AIX.
+     *
+     * @return sum of both voluntary and involuntary context switches if available,
+     *         0 otherwise.
      */
-<span class="fc" id="L376">    enum State {</span>
+    default long getContextSwitches() {
+<span class="nc" id="L390">        return 0L;</span>
+    }
+
+    /**
+     * Process and Thread Execution States
+     */
+<span class="fc" id="L396">    enum State {</span>
         /**
          * Intermediate state in process creation
          */
-<span class="fc" id="L380">        NEW,</span>
+<span class="fc" id="L400">        NEW,</span>
         /**
          * Actively executing process
          */
-<span class="fc" id="L384">        RUNNING,</span>
+<span class="fc" id="L404">        RUNNING,</span>
         /**
          * Interruptible sleep state
          */
-<span class="fc" id="L388">        SLEEPING,</span>
+<span class="fc" id="L408">        SLEEPING,</span>
         /**
          * Blocked, uninterruptible sleep state
          */
-<span class="fc" id="L392">        WAITING,</span>
+<span class="fc" id="L412">        WAITING,</span>
         /**
          * Intermediate state in process termination
          */
-<span class="fc" id="L396">        ZOMBIE,</span>
+<span class="fc" id="L416">        ZOMBIE,</span>
         /**
          * Stopped by the user, such as for debugging
          */
-<span class="fc" id="L400">        STOPPED,</span>
+<span class="fc" id="L420">        STOPPED,</span>
         /**
          * Other or unknown states not defined
          */
-<span class="fc" id="L404">        OTHER,</span>
+<span class="fc" id="L424">        OTHER,</span>
         /**
          * The state resulting if the process fails to update statistics, probably due
          * to termination.
          */
-<span class="fc" id="L409">        INVALID</span>
+<span class="fc" id="L429">        INVALID,</span>
+        /**
+         * Special case of waiting if the process has been intentionally suspended
+         * (Windows only)
+         */
+<span class="fc" id="L434">        SUSPENDED</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
