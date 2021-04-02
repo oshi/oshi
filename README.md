@@ -34,7 +34,7 @@ Windows • Linux • macOS • Unix (AIX, FreeBSD, OpenBSD, Solaris)
 
 Essentials
 ----------
-* [API](https://oshi.github.io/oshi/apidocs/) (javadocs) - [Operating System](https://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html) / [Hardware](https://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html)
+* [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs) - [Operating System](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/software/os/package-summary.html) / [Hardware](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/hardware/package-summary.html)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
 * [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
 * [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
