@@ -26,7 +26,8 @@ package oshi.hardware.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.COMException; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature;
@@ -40,6 +41,7 @@ import oshi.driver.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -49,6 +51,8 @@ import oshi.util.platform.windows.WmiUtil;
 final class WindowsSensors extends AbstractSensors {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
+
+    private static final String COM_EXCEPTION_MSG = "COM exception: {}";
 
     @Override
     public double queryCpuTemperature() {
@@ -70,19 +74,30 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getTempFromOHM() {
-        WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier("Hardware", "CPU");
-        if (ohmHardware.getResultCount() > 0) {
-            LOG.debug("Found Temperature data in Open Hardware Monitor");
-            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
-            if (cpuIdentifier.length() > 0) {
-                WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(cpuIdentifier, "Temperature");
-                if (ohmSensors.getResultCount() > 0) {
-                    double sum = 0;
-                    for (int i = 0; i < ohmSensors.getResultCount(); i++) {
-                        sum += WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
+        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        boolean comInit = false;
+        try {
+            comInit = h.initCOM();
+            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, "Hardware", "CPU");
+            if (ohmHardware.getResultCount() > 0) {
+                LOG.debug("Found Temperature data in Open Hardware Monitor");
+                String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+                if (cpuIdentifier.length() > 0) {
+                    WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(h, cpuIdentifier, "Temperature");
+                    if (ohmSensors.getResultCount() > 0) {
+                        double sum = 0;
+                        for (int i = 0; i < ohmSensors.getResultCount(); i++) {
+                            sum += WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
+                        }
+                        return sum / ohmSensors.getResultCount();
                     }
-                    return sum / ohmSensors.getResultCount();
                 }
+            }
+        } catch (COMException e) {
+            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
+        } finally {
+            if (comInit) {
+                h.unInitCOM();
             }
         }
         return 0;
@@ -124,19 +139,30 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromOHM() {
-        WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier("Hardware", "CPU");
-        if (ohmHardware.getResultCount() > 0) {
-            LOG.debug("Found Fan data in Open Hardware Monitor");
-            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
-            if (cpuIdentifier.length() > 0) {
-                WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(cpuIdentifier, "Fan");
-                if (ohmSensors.getResultCount() > 0) {
-                    int[] fanSpeeds = new int[ohmSensors.getResultCount()];
-                    for (int i = 0; i < ohmSensors.getResultCount(); i++) {
-                        fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
+        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        boolean comInit = false;
+        try {
+            comInit = h.initCOM();
+            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, "Hardware", "CPU");
+            if (ohmHardware.getResultCount() > 0) {
+                LOG.debug("Found Fan data in Open Hardware Monitor");
+                String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+                if (cpuIdentifier.length() > 0) {
+                    WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(h, cpuIdentifier, "Fan");
+                    if (ohmSensors.getResultCount() > 0) {
+                        int[] fanSpeeds = new int[ohmSensors.getResultCount()];
+                        for (int i = 0; i < ohmSensors.getResultCount(); i++) {
+                            fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
+                        }
+                        return fanSpeeds;
                     }
-                    return fanSpeeds;
                 }
+            }
+        } catch (COMException e) {
+            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
+        } finally {
+            if (comInit) {
+                h.unInitCOM();
             }
         }
         return new int[0];
@@ -171,26 +197,37 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromOHM() {
-        WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier("Sensor", "Voltage");
-        if (ohmHardware.getResultCount() > 0) {
-            LOG.debug("Found Voltage data in Open Hardware Monitor");
-            // Look for identifier containing "cpu"
-            String cpuIdentifier = null;
-            for (int i = 0; i < ohmHardware.getResultCount(); i++) {
-                String id = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
-                if (id.toLowerCase().contains("cpu")) {
-                    cpuIdentifier = id;
-                    break;
+        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        boolean comInit = false;
+        try {
+            comInit = h.initCOM();
+            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, "Sensor", "Voltage");
+            if (ohmHardware.getResultCount() > 0) {
+                LOG.debug("Found Voltage data in Open Hardware Monitor");
+                // Look for identifier containing "cpu"
+                String cpuIdentifier = null;
+                for (int i = 0; i < ohmHardware.getResultCount(); i++) {
+                    String id = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
+                    if (id.toLowerCase().contains("cpu")) {
+                        cpuIdentifier = id;
+                        break;
+                    }
+                }
+                // If none found, just get the first one
+                if (cpuIdentifier == null) {
+                    cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+                }
+                // Now fetch sensor
+                WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(h, cpuIdentifier, "Voltage");
+                if (ohmSensors.getResultCount() > 0) {
+                    return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
                 }
             }
-            // If none found, just get the first one
-            if (cpuIdentifier == null) {
-                cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
-            }
-            // Now fetch sensor
-            WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(cpuIdentifier, "Voltage");
-            if (ohmSensors.getResultCount() > 0) {
-                return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
+        } catch (COMException e) {
+            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
+        } finally {
+            if (comInit) {
+                h.unInitCOM();
             }
         }
         return 0d;

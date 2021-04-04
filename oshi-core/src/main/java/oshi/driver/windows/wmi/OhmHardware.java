@@ -51,17 +51,21 @@ public final class OhmHardware {
     /**
      * Queries the hardware identifiers for a monitored type.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @param typeToQuery
      *            which type to filter based on
      * @param typeName
      *            the name of the type
      * @return The sensor value.
      */
-    public static WmiResult<IdentifierProperty> queryHwIdentifier(String typeToQuery, String typeName) {
+    public static WmiResult<IdentifierProperty> queryHwIdentifier(WmiQueryHandler h, String typeToQuery,
+            String typeName) {
         StringBuilder sb = new StringBuilder(HARDWARE);
         sb.append(" WHERE ").append(typeToQuery).append("Type=\"").append(typeName).append('\"');
         WmiQuery<IdentifierProperty> cpuIdentifierQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, sb.toString(),
                 IdentifierProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(cpuIdentifierQuery);
+        return h.queryWMI(cpuIdentifierQuery, false);
     }
 }
