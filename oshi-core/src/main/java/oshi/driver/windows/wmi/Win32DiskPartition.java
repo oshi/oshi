@@ -50,11 +50,14 @@ public final class Win32DiskPartition {
     /**
      * Queries the partition.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Information regarding each disk partition.
      */
-    public static WmiResult<DiskPartitionProperty> queryPartition() {
+    public static WmiResult<DiskPartitionProperty> queryPartition(WmiQueryHandler h) {
         WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<>(WIN32_DISK_PARTITION,
                 DiskPartitionProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(partitionQuery);
+        return h.queryWMI(partitionQuery, false);
     }
 }

@@ -79,7 +79,7 @@ public class WmiQueryHandler {
 
     /**
      * Factory method to create an instance of this class. To override this class,
-     * use {@link #setInstanceClass(Class)} to define a sublcass which extends
+     * use {@link #setInstanceClass(Class)} to define a subclass which extends
      * {@link oshi.util.platform.windows.WmiQueryHandler}.
      *
      * @return An instance of this class or a class defined by
@@ -112,7 +112,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Query WMI for values, with no timeout.
+     * Query WMI for values. Makes no assumptions on whether the user has previously
+     * initialized COM.
      *
      * @param <T>
      *            WMI queries use an Enum to identify the fields to query, and use
@@ -123,14 +124,35 @@ public class WmiQueryHandler {
      * @return a WmiResult object containing the query results, wrapping an EnumMap
      */
     public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query) {
+        return queryWMI(query, true);
+    }
 
+    /**
+     * Query WMI for values.
+     *
+     * @param <T>
+     *            WMI queries use an Enum to identify the fields to query, and use
+     *            the enum values as keys to retrieve the results.
+     * @param query
+     *            A WmiQuery object encapsulating the namespace, class, and
+     *            properties
+     * @param initCom
+     *            Whether to initialize COM. If {@code true}, initializes COM before
+     *            the query and uninitializes after. If {@code false}, assumes the
+     *            user has initialized COM separately. This can improve WMI query
+     *            performance.
+     * @return a WmiResult object containing the query results, wrapping an EnumMap
+     */
+    public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query, boolean initCom) {
         WbemcliUtil.WmiResult<T> result = WbemcliUtil.INSTANCE.new WmiResult<>(query.getPropertyEnum());
         if (failedWmiClassNames.contains(query.getWmiClassName())) {
             return result;
         }
         boolean comInit = false;
         try {
-            comInit = initCOM();
+            if (initCom) {
+                comInit = initCOM();
+            }
             result = query.execute(wmiTimeout);
         } catch (COMException e) {
             // Ignore any exceptions with OpenHardwareMonitor
@@ -153,7 +175,7 @@ public class WmiQueryHandler {
                 failedWmiClassNames.add(query.getWmiClassName());
             }
         } catch (TimeoutException e) {
-            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, WmiUtil.queryToString(query));
+            LOG.warn("WMI query timed out after {} ms: {}", wmiTimeout, WmiUtil.queryToString(query));
         }
         if (comInit) {
             unInitCOM();
@@ -162,9 +184,7 @@ public class WmiQueryHandler {
     }
 
     /**
-     * <p>
-     * handleComException.
-     * </p>
+     * COM Exception handler. Logs a warning message.
      *
      * @param query
      *            a {@link com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery}
