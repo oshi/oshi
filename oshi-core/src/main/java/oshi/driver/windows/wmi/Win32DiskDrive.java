@@ -57,23 +57,29 @@ public final class Win32DiskDrive {
     /**
      * Queries the disk drive name info
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Information regarding each disk drive.
      */
-    public static WmiResult<DiskDriveProperty> queryDiskDrive() {
+    public static WmiResult<DiskDriveProperty> queryDiskDrive(WmiQueryHandler h) {
         WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(WIN32_DISK_DRIVE, DiskDriveProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);
+        return h.queryWMI(diskDriveQuery, false);
     }
 
     /**
      * Queries the disk drive id info
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @param whereClause
      *            WQL "WHERE" clause limiting the search
      * @return Information regarding each disk drive's device id and serial number
      */
-    public static WmiResult<DeviceIdProperty> queryDiskDriveId(String whereClause) {
+    public static WmiResult<DeviceIdProperty> queryDiskDriveId(WmiQueryHandler h, String whereClause) {
         WmiQuery<DeviceIdProperty> deviceIdQuery = new WmiQuery<>(WIN32_DISK_DRIVE + whereClause,
                 DeviceIdProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);
+        return h.queryWMI(deviceIdQuery, false);
     }
 }

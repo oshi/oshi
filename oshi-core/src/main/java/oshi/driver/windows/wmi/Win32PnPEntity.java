@@ -50,13 +50,16 @@ public final class Win32PnPEntity {
     /**
      * Queries the PnP Device id info
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @param whereClause
      *            WQL "WHERE" clause limiting the search
      * @return Information regarding each device
      */
-    public static WmiResult<PnPEntityProperty> queryDeviceId(String whereClause) {
+    public static WmiResult<PnPEntityProperty> queryDeviceId(WmiQueryHandler h, String whereClause) {
         WmiQuery<PnPEntityProperty> pnpEntityQuery = new WmiQuery<>(WIN32_PNP_ENTITY + whereClause,
                 PnPEntityProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(pnpEntityQuery);
+        return h.queryWMI(pnpEntityQuery, false);
     }
 }

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Cfgmgr32; // NOSONAR squid:S1191
 import com.sun.jna.platform.win32.Cfgmgr32Util;
+import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
@@ -49,6 +50,7 @@ import oshi.driver.windows.wmi.Win32USBController.USBControllerProperty;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -96,28 +98,41 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     }
 
     private static List<UsbDevice> getUsbDevices() {
-        // Map to build the recursive tree structure
-        Map<String, List<String>> deviceTreeMap = new HashMap<>();
-        // Track devices seen in the process
-        Set<String> devicesSeen = new HashSet<>();
+        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        boolean comInit = false;
+        try {
+            comInit = h.initCOM();
 
-        // Navigate the device tree to track what devices are present
-        List<UsbDevice> controllerDevices = new ArrayList<>();
-        List<String> controllerDeviceIdList = getControllerDeviceIdList();
-        for (String controllerDeviceId : controllerDeviceIdList) {
-            putChildrenInDeviceTree(controllerDeviceId, 0, deviceTreeMap, devicesSeen);
-        }
-        // Map to store information using PNPDeviceID as the key.
-        Map<String, Triplet<String, String, String>> deviceStringMap = queryDeviceStringsMap(devicesSeen);
-        // recursively build results
-        for (String controllerDeviceId : controllerDeviceIdList) {
-            WindowsUsbDevice deviceAndChildren = getDeviceAndChildren(controllerDeviceId, "0000", "0000", deviceTreeMap,
-                    deviceStringMap);
-            if (deviceAndChildren != null) {
-                controllerDevices.add(deviceAndChildren);
+            // Map to build the recursive tree structure
+            Map<String, List<String>> deviceTreeMap = new HashMap<>();
+            // Track devices seen in the process
+            Set<String> devicesSeen = new HashSet<>();
+
+            // Navigate the device tree to track what devices are present
+            List<UsbDevice> controllerDevices = new ArrayList<>();
+            List<String> controllerDeviceIdList = getControllerDeviceIdList(h);
+            for (String controllerDeviceId : controllerDeviceIdList) {
+                putChildrenInDeviceTree(controllerDeviceId, 0, deviceTreeMap, devicesSeen);
+            }
+            // Map to store information using PNPDeviceID as the key.
+            Map<String, Triplet<String, String, String>> deviceStringMap = queryDeviceStringsMap(h, devicesSeen);
+            // recursively build results
+            for (String controllerDeviceId : controllerDeviceIdList) {
+                WindowsUsbDevice deviceAndChildren = getDeviceAndChildren(controllerDeviceId, "0000", "0000",
+                        deviceTreeMap, deviceStringMap);
+                if (deviceAndChildren != null) {
+                    controllerDevices.add(deviceAndChildren);
+                }
+            }
+            return controllerDevices;
+        } catch (COMException e) {
+            LOG.warn("COM exception: {}", e.getMessage());
+            return Collections.emptyList();
+        } finally {
+            if (comInit) {
+                h.unInitCOM();
             }
         }
-        return controllerDevices;
     }
 
     private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
@@ -129,41 +144,44 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
         }
     }
 
-    private static Map<String, Triplet<String, String, String>> queryDeviceStringsMap(Set<String> devicesToAdd) {
+    private static Map<String, Triplet<String, String, String>> queryDeviceStringsMap(WmiQueryHandler h,
+            Set<String> devicesToAdd) {
+        if (devicesToAdd.isEmpty()) {
+            return Collections.emptyMap();
+        }
         Map<String, Triplet<String, String, String>> deviceStringCache = new HashMap<>();
         // Add devices not in the tree
-        if (!devicesToAdd.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            boolean first = true;
-            for (String deviceID : devicesToAdd) {
-                if (first) {
-                    sb.append(" WHERE (PnPDeviceID=\"");
-                    first = false;
-                } else {
-                    sb.append(" OR (PnPDeviceID=\"");
-                }
-                sb.append(deviceID).append("\")");
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String deviceID : devicesToAdd) {
+            if (first) {
+                sb.append(" WHERE (PnPDeviceID=\"");
+                first = false;
+            } else {
+                sb.append(" OR (PnPDeviceID=\"");
             }
-            String whereClause = sb.toString();
-            // Get serial # for disk drives or other physical media
-            Map<String, String> pnpToSerialMap = new HashMap<>();
-            WmiResult<DeviceIdProperty> serialNumbers = Win32DiskDrive.queryDiskDriveId(whereClause);
-            for (int i = 0; i < serialNumbers.getResultCount(); i++) {
-                String pnpDeviceID = WmiUtil.getString(serialNumbers, DeviceIdProperty.PNPDEVICEID, i);
-                pnpToSerialMap.put(pnpDeviceID, ParseUtil
-                        .hexStringToString(WmiUtil.getString(serialNumbers, DeviceIdProperty.SERIALNUMBER, i)));
-            }
-            // Query Win32_PnPEntity to populate the maps
-            WmiResult<PnPEntityProperty> pnpEntity = Win32PnPEntity.queryDeviceId(whereClause);
-            for (int i = 0; i < pnpEntity.getResultCount(); i++) {
-                String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
-                String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
-                String vendor = WmiUtil.getString(pnpEntity, PnPEntityProperty.MANUFACTURER, i);
-                deviceStringCache.put(pnpDeviceID,
-                        new Triplet<>(name, vendor, pnpToSerialMap.getOrDefault(pnpDeviceID, "")));
-                LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
-            }
+            sb.append(deviceID).append("\")");
         }
+        String whereClause = sb.toString();
+        // Get serial # for disk drives or other physical media
+        Map<String, String> pnpToSerialMap = new HashMap<>();
+        WmiResult<DeviceIdProperty> serialNumbers = Win32DiskDrive.queryDiskDriveId(h, whereClause);
+        for (int i = 0; i < serialNumbers.getResultCount(); i++) {
+            String pnpDeviceID = WmiUtil.getString(serialNumbers, DeviceIdProperty.PNPDEVICEID, i);
+            pnpToSerialMap.put(pnpDeviceID,
+                    ParseUtil.hexStringToString(WmiUtil.getString(serialNumbers, DeviceIdProperty.SERIALNUMBER, i)));
+        }
+        // Query Win32_PnPEntity to populate the maps
+        WmiResult<PnPEntityProperty> pnpEntity = Win32PnPEntity.queryDeviceId(h, whereClause);
+        for (int i = 0; i < pnpEntity.getResultCount(); i++) {
+            String pnpDeviceID = WmiUtil.getString(pnpEntity, PnPEntityProperty.PNPDEVICEID, i);
+            String name = WmiUtil.getString(pnpEntity, PnPEntityProperty.NAME, i);
+            String vendor = WmiUtil.getString(pnpEntity, PnPEntityProperty.MANUFACTURER, i);
+            deviceStringCache.put(pnpDeviceID,
+                    new Triplet<>(name, vendor, pnpToSerialMap.getOrDefault(pnpDeviceID, "")));
+            LOG.debug("Adding {} to USB device cache.", pnpDeviceID);
+        }
+
         return deviceStringCache;
     }
 
@@ -248,13 +266,16 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
     /**
      * Queries the USB Controller list
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return A list of Strings of USB Controller PNPDeviceIDs
      */
-    private static List<String> getControllerDeviceIdList() {
+    private static List<String> getControllerDeviceIdList(WmiQueryHandler h) {
         List<String> controllerDeviceIdsList = new ArrayList<>();
         // One time lookup of USB Controller PnP Device IDs which don't
         // change
-        WmiResult<USBControllerProperty> usbController = Win32USBController.queryUSBControllers();
+        WmiResult<USBControllerProperty> usbController = Win32USBController.queryUSBControllers(h);
         for (int i = 0; i < usbController.getResultCount(); i++) {
             controllerDeviceIdsList.add(WmiUtil.getString(usbController, USBControllerProperty.PNPDEVICEID, i));
         }
