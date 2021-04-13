@@ -29,7 +29,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.driver.windows.DeviceTree;
 import oshi.driver.windows.wmi.Win32DiskDrive;
 import oshi.driver.windows.wmi.Win32DiskDrive.DeviceIdProperty;
 import oshi.driver.windows.wmi.Win32PnPEntity;
@@ -53,6 +56,7 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quintet;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -84,20 +88,97 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
-        List<UsbDevice> devices = getUsbDevices();
         if (tree) {
+            return getUsbDevices();
+        }
+        return getUsbDevicesOld();
+        /*-
+        List<UsbDevice> devices = getUsbDevices();
+        if (tree) {            
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
         // Top level is controllers; they won't be added to the list, but all
         // their connected devices will be
         for (UsbDevice device : devices) {
+            // Recursively add all child devices
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
+        */
+    }
+
+    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
+        for (UsbDevice device : list) {
+            deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
+                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
+                    Collections.emptyList()));
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
     }
 
     private static List<UsbDevice> getUsbDevices() {
+        Quintet<Set<Integer>, Map<Integer, Integer>, Map<Integer, String>, Map<Integer, String>, Map<Integer, String>> devices = DeviceTree
+                .queryUSBDevices();
+        Map<Integer, Integer> parentMap = devices.getB();
+        Map<Integer, String> nameMap = devices.getC();
+        Map<Integer, String> deviceIdMap = devices.getD();
+        Map<Integer, String> mfgMap = devices.getE();
+
+        List<UsbDevice> controllerDevices = new ArrayList<>();
+        // recursively build results
+        for (Integer controllerDevice : devices.getA()) {
+            WindowsUsbDevice deviceAndChildren = queryDeviceAndChildren(controllerDevice, parentMap, nameMap,
+                    deviceIdMap, mfgMap, "0000", "0000", "");
+            if (deviceAndChildren != null) {
+                controllerDevices.add(deviceAndChildren);
+            }
+        }
+        return controllerDevices;
+    }
+
+    private static WindowsUsbDevice queryDeviceAndChildren(Integer device, Map<Integer, Integer> parentMap,
+            Map<Integer, String> nameMap, Map<Integer, String> deviceIdMap, Map<Integer, String> mfgMap, String vid,
+            String pid, String parentSerial) {
+        // Parse vendor and product IDs from the device ID
+        // If this doesn't work, use the IDs from the parent
+        String vendorId = vid;
+        String productId = pid;
+        String serial = parentSerial;
+        Triplet<String, String, String> idsAndSerial = ParseUtil
+                .parseDeviceIdToVendorProductSerial(deviceIdMap.get(device));
+        if (idsAndSerial != null) {
+            vendorId = idsAndSerial.getA();
+            productId = idsAndSerial.getB();
+            serial = idsAndSerial.getC();
+        }
+        // Iterate the parent map looking for children
+        Set<Integer> childDeviceSet = parentMap.entrySet().stream().filter(e -> e.getValue().equals(device))
+                .map(Entry::getKey).collect(Collectors.toSet());
+        // Recursively find those children and put in a list
+        List<UsbDevice> childDevices = new ArrayList<>();
+        for (Integer child : childDeviceSet) {
+            WindowsUsbDevice deviceAndChildren = queryDeviceAndChildren(child, parentMap, nameMap, deviceIdMap, mfgMap,
+                    vendorId, productId, serial);
+            if (deviceAndChildren != null) {
+                childDevices.add(deviceAndChildren);
+            }
+        }
+        Collections.sort(childDevices);
+        // Finally construct the object and return
+        if (nameMap.containsKey(device)) {
+            String name = nameMap.get(device);
+            if (name.isEmpty()) {
+                name = vendorId + ":" + productId;
+            }
+            String deviceId = deviceIdMap.get(device);
+            String mfg = mfgMap.get(device);
+            return new WindowsUsbDevice(name, mfg, vendorId, productId, serial, deviceId, childDevices);
+        }
+        return null;
+    }
+
+    private static List<UsbDevice> getUsbDevicesOld() {
         WmiQueryHandler h = WmiQueryHandler.createInstance();
         boolean comInit = false;
         try {
@@ -132,15 +213,6 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             if (comInit) {
                 h.unInitCOM();
             }
-        }
-    }
-
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
-            addDevicesToList(deviceList, device.getConnectedDevices());
         }
     }
 

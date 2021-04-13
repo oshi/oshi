@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * String parsing utility.
@@ -87,6 +88,12 @@ public final class ParseUtil {
      */
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
+
+    /*
+     * Pattern for Windows DeviceID vendor and product ID and serial
+     */
+    private static final Pattern VENDOR_PRODUCT_ID_SERIAL = Pattern
+            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4})\\\\(.*)");
 
     /*
      * Pattern for Linux lspci machine readable
@@ -1070,6 +1077,27 @@ public final class ParseUtil {
             String vendorId = "0x" + m.group(1).toLowerCase();
             String productId = "0x" + m.group(2).toLowerCase();
             return new Pair<>(vendorId, productId);
+        }
+        return null;
+    }
+
+    /**
+     * Parse a Windows DeviceID to get the vendor ID, product ID, and Serial Number
+     *
+     * @param deviceId
+     *            The DeviceID
+     * @return A {@link Triplet} where the first element is the vendor ID, the
+     *         second element is the product ID, and the third element is either a
+     *         serial number or empty string if parsing was successful, or
+     *         {@code null} otherwise
+     */
+    public static Triplet<String, String, String> parseDeviceIdToVendorProductSerial(String deviceId) {
+        Matcher m = VENDOR_PRODUCT_ID_SERIAL.matcher(deviceId);
+        if (m.matches()) {
+            String vendorId = "0x" + m.group(1).toLowerCase();
+            String productId = "0x" + m.group(2).toLowerCase();
+            String serial = m.group(3);
+            return new Triplet<>(vendorId, productId, serial.contains("&") ? "" : serial);
         }
         return null;
     }

@@ -23,7 +23,7 @@
  */
 package oshi.jna.platform.windows;
 
-import com.sun.jna.Native;
+import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.win32.W32APIOptions;
@@ -32,18 +32,11 @@ public interface Cfgmgr32 extends com.sun.jna.platform.win32.Cfgmgr32 {
 
     Cfgmgr32 INSTANCE = Native.load("cfgmgr32", Cfgmgr32.class, W32APIOptions.DEFAULT_OPTIONS);
 
-    // For use with CM_Get_DevNode_Registry_Property()
-    int CM_DRP_DEVICEDESC = 0x00000001; // DeviceDesc REG_SZ property (RW)
-    int CM_DRP_HARDWAREID = 0x00000002; // HardwareID REG_MULTI_SZ property (RW)
-    int CM_DRP_COMPATIBLEIDS = 0x00000003; // CompatibleIDs REG_MULTI_SZ property (RW)
-    int CM_DRP_SERVICE = 0x00000005; // Service REG_SZ property (RW)
-    int CM_DRP_CLASS = 0x00000008; // Class REG_SZ property (RW)
-    int CM_DRP_CLASSGUID = 0x00000009; // ClassGUID REG_SZ property (RW)
-    int CM_DRP_DRIVER = 0x0000000A; // Driver REG_SZ property (RW)
-    int CM_DRP_MFG = 0x0000000C; // Mfg REG_SZ property (RW)
-    int CM_DRP_FRIENDLYNAME = 0x0000000D; // FriendlyName REG_SZ property (RW)
-    int CM_DRP_LOCATION_INFORMATION = 0x0000000E; // LocationInformation REG_SZ property (RW)
-    int CM_DRP_PHYSICAL_DEVICE_OBJECT_NAME = 0x0000000F; // PhysicalDeviceObjectName REG_SZ property (R)
+    int CM_DRP_DEVICEDESC = 0x00000001;
+    int CM_DRP_SERVICE = 0x00000005;
+    int CM_DRP_CLASS = 0x00000008;
+    int CM_DRP_MFG = 0x0000000C;
+    int CM_DRP_FRIENDLYNAME = 0x0000000D;
 
     boolean CM_Get_DevNode_Registry_Property(int dnDevInst, int ulProperty, IntByReference pulRegDataType,
             Pointer buffer, IntByReference pulLength, int ulFlags);
