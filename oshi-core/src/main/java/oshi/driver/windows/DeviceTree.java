@@ -53,7 +53,7 @@ import oshi.jna.platform.windows.Cfgmgr32;
 import oshi.util.tuples.Quintet;
 
 /**
- * Utility to query USB devices via Config Manager Device Tree functions
+ * Utility to query device interfaces via Config Manager Device Tree functions
  */
 @ThreadSafe
 public final class DeviceTree {
@@ -62,43 +62,48 @@ public final class DeviceTree {
     private static final SetupApi SA = SetupApi.INSTANCE;
     private static final Cfgmgr32 C32 = Cfgmgr32.INSTANCE;
 
-    private static final GUID GUID_DEVINTERFACE_USB_HOST_CONTROLLER = new GUID(
-            "{3ABF6F2D-71C4-462A-8A92-1E6861E6AF27}");
-
     private DeviceTree() {
     }
 
     /**
-     * Queries USB devices and returns maps representing device tree relationships,
-     * name, device ID, and manufacturer
+     * Queries devices matching the specified device interface and returns maps
+     * representing device tree relationships, name, device ID, and manufacturer
+     *
+     * @param guidDevInterface
+     *            The GUID of a device interface class for which the tree should be
+     *            collected.
      *
      * @return A {@link Quintet} of maps indexed by node ID, where the key set
-     *         represents node IDs for all USB devices, including the controllers.
-     *         The first element is a set containing devices with no parents, which
-     *         should be the USB Controller Devices. The second element maps each
-     *         node ID to its parents, if any. Controllers will not be in the key
-     *         set for this map. The third element maps a node ID to a name or
-     *         description. The fourth element maps a node id to a device ID. The
-     *         fifth element maps a node ID to a manufacturer.
+     *         represents node IDs for all devices matching the specified device
+     *         interface GUID. The first element is a set containing devices with no
+     *         parents, match the device interface requested.. The second element
+     *         maps each node ID to its parents, if any. This map's key set excludes
+     *         the no-parent devices returned in the first element. The third
+     *         element maps a node ID to a name or description. The fourth element
+     *         maps a node id to a device ID. The fifth element maps a node ID to a
+     *         manufacturer.
      */
-    public static Quintet<Set<Integer>, Map<Integer, Integer>, Map<Integer, String>, Map<Integer, String>, Map<Integer, String>> queryUSBDevices() {
+    public static Quintet<Set<Integer>, Map<Integer, Integer>, Map<Integer, String>, Map<Integer, String>, Map<Integer, String>> queryDeviceTree(
+            GUID guidDevInterface) {
         Map<Integer, Integer> parentMap = new HashMap<>();
         Map<Integer, String> nameMap = new HashMap<>();
         Map<Integer, String> deviceIdMap = new HashMap<>();
         Map<Integer, String> mfgMap = new HashMap<>();
-        // Get device IDs for the USB Host Controllers
-        HANDLE hDevInfo = SA.SetupDiGetClassDevs(GUID_DEVINTERFACE_USB_HOST_CONTROLLER, null, null,
-                DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
+        // Get device IDs for the top level devices
+        HANDLE hDevInfo = SA.SetupDiGetClassDevs(guidDevInterface, null, null, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
         if (hDevInfo != INVALID_HANDLE_VALUE) {
             try {
-                // Enumerate Device Info using BFS queue
-                Queue<Integer> deviceTree = new ArrayDeque<>();
-                SP_DEVINFO_DATA devInfoData = new SP_DEVINFO_DATA();
-                devInfoData.cbSize = devInfoData.size();
+                // Create re-usable native allocations
                 Memory buf = new Memory(MAX_PATH);
                 IntByReference size = new IntByReference(MAX_PATH);
+                // Enumerate Device Info using BFS queue
+                Queue<Integer> deviceTree = new ArrayDeque<>();
+                // Get the enumeration object
+                SP_DEVINFO_DATA devInfoData = new SP_DEVINFO_DATA();
+                devInfoData.cbSize = devInfoData.size();
                 for (int i = 0; SA.SetupDiEnumDeviceInfo(hDevInfo, i, devInfoData); i++) {
                     deviceTree.add(devInfoData.DevInst);
+                    // Initialize parent and child objects
                     int node = 0;
                     IntByReference child = new IntByReference();
                     IntByReference sibling = new IntByReference();
@@ -109,7 +114,8 @@ public final class DeviceTree {
                         // Save the strings in their maps
                         String deviceId = Cfgmgr32Util.CM_Get_Device_ID(node);
                         deviceIdMap.put(node, deviceId);
-                        // Prefer friendly name over desc. If neither, use class (service)
+                        // Prefer friendly name over desc if it is present.
+                        // If neither, use class (service)
                         String name = getDevNodeProperty(node, CM_DRP_FRIENDLYNAME, buf, size);
                         if (name.isEmpty()) {
                             name = getDevNodeProperty(node, CM_DRP_DEVICEDESC, buf, size);
@@ -124,6 +130,7 @@ public final class DeviceTree {
                         nameMap.put(node, name);
                         mfgMap.put(node, getDevNodeProperty(node, CM_DRP_MFG, buf, size));
 
+                        // Add any children to the queue, tracking the parent node
                         if (ERROR_SUCCESS == C32.CM_Get_Child(child, node, 0)) {
                             parentMap.put(child.getValue(), node);
                             deviceTree.add(child.getValue());

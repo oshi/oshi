@@ -38,7 +38,7 @@ import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Graphics Card obtained from WMI
@@ -80,7 +80,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             WmiResult<VideoControllerProperty> cards = Win32VideoController.queryVideoController();
             for (int index = 0; index < cards.getResultCount(); index++) {
                 String name = WmiUtil.getString(cards, VideoControllerProperty.NAME, index);
-                Pair<String, String> idPair = ParseUtil.parsePnPDeviceIdToVendorProductId(
+                Triplet<String, String, String> idPair = ParseUtil
+                        .parseDeviceIdToVendorProductSerial(
                         WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
                 String deviceId = idPair == null ? Constants.UNKNOWN : idPair.getB();
                 String vendor = WmiUtil.getString(cards, VideoControllerProperty.ADAPTERCOMPATIBILITY, index);

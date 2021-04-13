@@ -100,7 +100,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         OperatingSystem os = si.getOperatingSystem();
 
         printOperatingSystem(os);
-/*-
+
         logger.info("Checking computer system...");
         printComputerSystem(hal.getComputerSystem());
 
@@ -145,19 +145,16 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
         logger.info("Checking Displays...");
         printDisplays(hal.getDisplays());
-*/
+
         logger.info("Checking USB Devices...");
         printUsbDevices(hal.getUsbDevices(true));
-        logger.info("Checking USB Devices the old way...");
-        printUsbDevices(hal.getUsbDevices(false));
-        logger.info("Done...");
-/*
+
         logger.info("Checking Sound Cards...");
         printSoundCards(hal.getSoundCards());
 
         logger.info("Checking Graphics Cards...");
         printGraphicsCards(hal.getGraphicsCards());
-*/
+
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < oshi.size(); i++) {
             output.append(oshi.get(i));

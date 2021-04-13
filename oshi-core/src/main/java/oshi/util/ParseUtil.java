@@ -84,16 +84,10 @@ public final class ParseUtil {
             .compile(".*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*");
 
     /*
-     * Pattern for Windows PnPDeviceID vendor and product ID
-     */
-    private static final Pattern VENDOR_PRODUCT_ID = Pattern
-            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
-
-    /*
      * Pattern for Windows DeviceID vendor and product ID and serial
      */
     private static final Pattern VENDOR_PRODUCT_ID_SERIAL = Pattern
-            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4})\\\\(.*)");
+            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4})(.*)\\\\(.*)");
 
     /*
      * Pattern for Linux lspci machine readable
@@ -1063,25 +1057,6 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a Windows PnPDeviceID to get the vendor ID and product ID.
-     *
-     * @param pnpDeviceId
-     *            The PnPDeviceID
-     * @return A {@link Pair} where the first element is the vendor ID and second
-     *         element is the product ID, if parsing was successful, or {@code null}
-     *         otherwise
-     */
-    public static Pair<String, String> parsePnPDeviceIdToVendorProductId(String pnpDeviceId) {
-        Matcher m = VENDOR_PRODUCT_ID.matcher(pnpDeviceId);
-        if (m.matches()) {
-            String vendorId = "0x" + m.group(1).toLowerCase();
-            String productId = "0x" + m.group(2).toLowerCase();
-            return new Pair<>(vendorId, productId);
-        }
-        return null;
-    }
-
-    /**
      * Parse a Windows DeviceID to get the vendor ID, product ID, and Serial Number
      *
      * @param deviceId
@@ -1096,8 +1071,8 @@ public final class ParseUtil {
         if (m.matches()) {
             String vendorId = "0x" + m.group(1).toLowerCase();
             String productId = "0x" + m.group(2).toLowerCase();
-            String serial = m.group(3);
-            return new Triplet<>(vendorId, productId, serial.contains("&") ? "" : serial);
+            String serial = m.group(4);
+            return new Triplet<>(vendorId, productId, !m.group(3).isEmpty() || serial.contains("&") ? "" : serial);
         }
         return null;
     }
