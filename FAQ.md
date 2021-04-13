@@ -20,7 +20,9 @@ OSHI publishes a shaded JAR in the `oshi-core-shaded` artifact built using `mave
 
 Does OSHI support Java Platform Management System (JPMS) modules (a.k.a., Jigsaw)?
 ========
-OSHI publishes an `Automatic-Module-Name` of `com.github.oshi` in its manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to make `oshi-core` fully modular.  Modularization is being considered for the next major API rewrite and could be considered for an `oshi-jpms` artifact with well-defined requirements.  If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
+OSHI publishes an `Automatic-Module-Name` of `com.github.oshi` in the `oshi-core` manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to make `oshi-core` fully modular.  An `oshi-core-java11` artifact is also published with a full module descriptor (and only modular dependencies), which will allow the existing API to be placed on the module path.
+
+More fine grained modularization is being considered in a possible future major API rewrite targeting JDK 17 compatibility and leveraging features from Project Panama. If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
 
 Is OSHI Thread Safe?
 ========
@@ -39,8 +41,6 @@ Earlier versions do not guarantee thread safety, but as of version 4.6.0, intend
 Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.
 In the case of the `HWDiskStore`, this synchronization must extend to the `HWPartition` objects
 associated with that disk store.
-
-Prior to version 4.1.0, there is no guarantee of thread safety and it should not be assumed.
 
 What minimum Java version is required?
 ========

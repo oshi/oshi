@@ -1,13 +1,19 @@
-# 5.6.1 (in progress)
+# 5.7.1 (in progress)
 
 ##### Bug fixes / Improvements
-* [#1562](https://github.com/oshi/oshi/pull/1562): Fix missing space in WMI process query - [@dbwiddis](https://github.com/dbwiddis).
-* [#1566](https://github.com/oshi/oshi/pull/1566): Handle new WinAPI Logical Processor Information types - [@dbwiddis](https://github.com/dbwiddis).
-* [#1567](https://github.com/oshi/oshi/pull/1567): Handle empty process performance registry query - [@dbwiddis](https://github.com/dbwiddis).
-* [#1569](https://github.com/oshi/oshi/pull/1569): Fix udev reference leak in LinuxNetworkIF - [@dbwiddis](https://github.com/dbwiddis).
-* [#1576](https://github.com/oshi/oshi/pull/1576): JNA 5.8.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#1596](https://github.com/oshi/oshi/pull/1596): Single COM initialization for groups of queries - [@dbwiddis](https://github.com/dbwiddis).
 
-# 5.6.0 (2021-03-01)
+# 5.7.0 (2021-04-01)
+
+##### New Features
+* [#1584](https://github.com/oshi/oshi/pull/1584): Add logical volume group information - [@tausiflife](https://github.com/tausiflife).
+* [#1587](https://github.com/oshi/oshi/pull/1587): Add context switches to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
+* [#1592](https://github.com/oshi/oshi/pull/1592): Add suspended process and thread state for Windows - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Bug fixes / Improvements
+* [#1585](https://github.com/oshi/oshi/pull/1585): macOS doesn't provide system level context switches or interrupts - [@dbwiddis](https://github.com/dbwiddis).
+
+# 5.6.0 (2021-03-01), 5.6.1 (2021-03-22)
 
 ##### New Features
 * [#1541](https://github.com/oshi/oshi/pull/1541): Expose the alias of a network interface (Windows and Linux) - [@dornand](https://github.com/dornand).
@@ -16,6 +22,11 @@
 
 ##### Bug fixes / Improvements
 * [#1552](https://github.com/oshi/oshi/pull/1552): Handle exceptions querying Windows user info - [@dbwiddis](https://github.com/dbwiddis).
+* [#1562](https://github.com/oshi/oshi/pull/1562): Fix missing space in WMI process query - [@dbwiddis](https://github.com/dbwiddis).
+* [#1566](https://github.com/oshi/oshi/pull/1566): Handle new WinAPI Logical Processor Information types - [@dbwiddis](https://github.com/dbwiddis).
+* [#1567](https://github.com/oshi/oshi/pull/1567): Handle empty process performance registry query - [@dbwiddis](https://github.com/dbwiddis).
+* [#1569](https://github.com/oshi/oshi/pull/1569): Fix udev reference leak in LinuxNetworkIF - [@dbwiddis](https://github.com/dbwiddis).
+* [#1576](https://github.com/oshi/oshi/pull/1576): JNA 5.8.0 - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.5.0 (2021-02-08), 5.5.1 (2021-02-21)
 

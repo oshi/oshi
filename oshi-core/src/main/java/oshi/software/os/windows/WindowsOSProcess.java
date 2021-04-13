@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -25,6 +25,7 @@ package oshi.software.os.windows;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SUSPENDED;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -56,7 +57,6 @@ import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData;
-import oshi.driver.windows.registry.ProcessPerformanceData.PerfCounterBlock;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.registry.ThreadPerformanceData;
@@ -81,6 +81,9 @@ public class WindowsOSProcess extends AbstractOSProcess {
     // Config param to enable cache
     public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
     private static final boolean USE_BATCH_COMMANDLINE = GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false);
+
+    private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
+            .get(WindowsOperatingSystem.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
@@ -108,8 +111,9 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private int bitness;
     private long pageFaults;
 
-    public WindowsOSProcess(int pid, WindowsOperatingSystem os, Map<Integer, PerfCounterBlock> processMap,
-            Map<Integer, WtsInfo> processWtsMap) {
+    public WindowsOSProcess(int pid, WindowsOperatingSystem os,
+            Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap, Map<Integer, WtsInfo> processWtsMap,
+            Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
         super(pid);
         // For executing process, set CWD
         if (pid == os.getProcessId()) {
@@ -117,13 +121,9 @@ public class WindowsOSProcess extends AbstractOSProcess {
             // trim off trailing "."
             this.currentWorkingDirectory = cwd.isEmpty() ? "" : cwd.substring(0, cwd.length() - 1);
         }
-        // There is no easy way to get ExecutuionState for a process.
-        // The WMI value is null. It's possible to get thread Execution
-        // State and possibly roll up.
-        this.state = RUNNING;
         // Initially set to match OS bitness. If 64 will check later for 32-bit process
         this.bitness = os.getBitness();
-        updateAttributes(processMap.get(pid), processWtsMap.get(pid));
+        updateAttributes(processMap.get(pid), processWtsMap.get(pid), threadMap);
     }
 
     @Override
@@ -280,16 +280,26 @@ public class WindowsOSProcess extends AbstractOSProcess {
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(this.getProcessID());
         // Get data from the registry if possible
-        Map<Integer, PerfCounterBlock> pcb = ProcessPerformanceData.buildProcessMapFromRegistry(null);
+        Map<Integer, ProcessPerformanceData.PerfCounterBlock> pcb = ProcessPerformanceData
+                .buildProcessMapFromRegistry(null);
         // otherwise performance counters with WMI backup
         if (pcb == null) {
             pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
         }
+        Map<Integer, ThreadPerformanceData.PerfCounterBlock> tcb = null;
+        if (USE_PROCSTATE_SUSPENDED) {
+            tcb = ThreadPerformanceData.buildThreadMapFromRegistry(null);
+            // otherwise performance counters with WMI backup
+            if (tcb == null) {
+                tcb = ThreadPerformanceData.buildThreadMapFromPerfCounters(null);
+            }
+        }
         Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
-        return updateAttributes(pcb.get(this.getProcessID()), wts.get(this.getProcessID()));
+        return updateAttributes(pcb.get(this.getProcessID()), wts.get(this.getProcessID()), tcb);
     }
 
-    private boolean updateAttributes(PerfCounterBlock pcb, WtsInfo wts) {
+    private boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts,
+            Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
         this.name = pcb.getName();
         this.path = wts.getPath(); // Empty string for Win7+
         this.parentProcessID = pcb.getParentProcessID();
@@ -305,6 +315,26 @@ public class WindowsOSProcess extends AbstractOSProcess {
         this.bytesWritten = pcb.getBytesWritten();
         this.openFiles = wts.getOpenFiles();
         this.pageFaults = pcb.getPageFaults();
+
+        // There are only 3 possible Process states on Windows: RUNNING, SUSPENDED, or
+        // UNKNOWN. Processes are considered running unless all of their threads are
+        // SUSPENDED.
+        this.state = RUNNING;
+        if (threadMap != null) {
+            // If user hasn't enabled this in properties, we ignore
+            int pid = this.getProcessID();
+            // If any thread is NOT suspended, set running
+            for (ThreadPerformanceData.PerfCounterBlock tcb : threadMap.values()) {
+                if (tcb.getOwningProcessID() == pid) {
+                    if (tcb.getThreadWaitReason() == 5) {
+                        this.state = SUSPENDED;
+                    } else {
+                        this.state = RUNNING;
+                        break;
+                    }
+                }
+            }
+        }
 
         // Get a handle to the process for various extended info. Only gets
         // current user unless running as administrator

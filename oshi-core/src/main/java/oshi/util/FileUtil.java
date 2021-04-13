@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -90,6 +90,8 @@ public final class FileUtil {
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                } else {
+                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
                 }
             }
         } else if (reportError) {

@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -242,7 +242,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         for (String s : kstat) {
             swtch += ParseUtil.parseLastLong(s, 0L);
         }
-        return swtch > 0 ? swtch : -1L;
+        return swtch;
     }
 
     @Override
@@ -252,6 +252,6 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         for (String s : kstat) {
             intr += ParseUtil.parseLastLong(s, 0L);
         }
-        return intr > 0 ? intr : -1L;
+        return intr;
     }
 }

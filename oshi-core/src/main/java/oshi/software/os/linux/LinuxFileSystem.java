@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -145,7 +145,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             String name = volume;
             String path = split[1].replace(UNICODE_SPACE, " ");
             if (path.equals("/")) {
-                volume = "/";
+                name = "/";
             }
             String type = split[2];
 

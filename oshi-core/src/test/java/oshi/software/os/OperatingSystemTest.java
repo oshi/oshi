@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -142,6 +142,8 @@ class OperatingSystemTest {
         assertThat("Current process minor faults should be 0 or higher", proc.getMinorFaults(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current process major faults should be 0 or higher", proc.getMajorFaults(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Current process context switches should be 0 or higher", proc.getContextSwitches(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current process cumulative cpu usage should be 0.0 or higher", proc.getProcessCpuLoadCumulative(),
                 is(greaterThanOrEqualTo(0d)));

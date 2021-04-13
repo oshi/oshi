@@ -34,7 +34,7 @@ Windows • Linux • macOS • Unix (AIX, FreeBSD, OpenBSD, Solaris)
 
 Essentials
 ----------
-* [API](https://oshi.github.io/oshi/apidocs/) (javadocs) - [Operating System](https://oshi.github.io/oshi/apidocs/oshi/software/os/package-summary.html) / [Hardware](https://oshi.github.io/oshi/apidocs/oshi/hardware/package-summary.html)
+* [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs) - [Operating System](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/software/os/package-summary.html) / [Hardware](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/hardware/package-summary.html)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
 * [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
 * [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
@@ -59,15 +59,15 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.6.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.6.0&e=jar)  | [oshi-core-5.6.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.6.1-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.7.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.7.0&e=jar)  | [oshi-core-5.7.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.7.1-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
-| Experimental Java 11 Version | Current Development Version | 
+| Java 11 (JPMS) Version | Current Development Version | 
 | ------------- | ------------- | 
-| [oshi-core-java11-5.6.0-beta-1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=5.6.0-beta-1&e=jar)  | [oshi-core-java11-5.6.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=5.6.1-SNAPSHOT&e=jar) |
+| [oshi-core-java11-5.7.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=5.7.0&e=jar)  | [oshi-core-java11-5.7.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=5.7.1-SNAPSHOT&e=jar) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.6.0/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.7.0/jar). 
 
 2. Create a new instance of `SystemInfo` 
 

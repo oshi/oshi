@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -42,7 +42,6 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
-import com.sun.jna.platform.mac.SystemB.VMMeter;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -209,26 +208,18 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        int machPort = SystemB.INSTANCE.mach_host_self();
-        VMMeter vmstats = new VMMeter();
-        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
-                new IntByReference(vmstats.size()))) {
-            LOG.error("Failed to update vmstats. Error code: {}", Native.getLastError());
-            return -1;
-        }
-        return ParseUtil.unsignedIntToLong(vmstats.v_swtch);
+        // Not available on macOS since at least 10.3.9. Early versions may have
+        // provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but
+        // it now fails (ENOENT) and there is no other reference to it in source code
+        return 0L;
     }
 
     @Override
     public long queryInterrupts() {
-        int machPort = SystemB.INSTANCE.mach_host_self();
-        VMMeter vmstats = new VMMeter();
-        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_VM_INFO, vmstats,
-                new IntByReference(vmstats.size()))) {
-            LOG.error("Failed to update vmstats. Error code: {}", Native.getLastError());
-            return -1;
-        }
-        return ParseUtil.unsignedIntToLong(vmstats.v_intr);
+        // Not available on macOS since at least 10.3.9. Early versions may have
+        // provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but
+        // it now fails (ENOENT) and there is no other reference to it in source code
+        return 0L;
     }
 
     private static String platformExpert() {

@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -50,11 +50,14 @@ public final class Win32USBController {
     /**
      * Queries the USB Controller device IDs
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Information regarding each disk drive.
      */
-    public static WmiResult<USBControllerProperty> queryUSBControllers() {
+    public static WmiResult<USBControllerProperty> queryUSBControllers(WmiQueryHandler h) {
         WmiQuery<USBControllerProperty> usbControllerQuery = new WmiQuery<>(WIN32_USB_CONTROLLER,
                 USBControllerProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(usbControllerQuery);
+        return h.queryWMI(usbControllerQuery, false);
     }
 }

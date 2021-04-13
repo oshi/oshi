@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -54,6 +54,7 @@ public final class ThreadInformation {
         PRIORITYCURRENT("Priority Current"), //
         STARTADDRESS("Start Address"), //
         THREADSTATE("Thread State"), //
+        THREADWAITREASON("Thread Wait Reason"), // 5 is SUSPENDED
         IDPROCESS("ID Process"), //
         IDTHREAD("ID Thread"), //
         CONTEXTSWITCHESPERSEC("Context Switches/sec");

@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -67,41 +67,6 @@ public abstract class AbstractOSThread implements OSThread {
                     / (double) (getUpTime() - priorSnapshot.getUpTime());
         }
         return getThreadCpuLoadCumulative();
-    }
-
-    /*
-     * Default returns so we don't have to override in subclasses that don't have
-     * them
-     */
-
-    @Override
-    public String getName() {
-        return "";
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-        return 0L;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return 0L;
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return 0L;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return 0L;
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        return false;
     }
 
     @Override

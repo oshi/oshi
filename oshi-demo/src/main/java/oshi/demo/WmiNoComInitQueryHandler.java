@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -23,58 +23,20 @@
  */
 package oshi.demo;
 
-import java.util.concurrent.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.win32.COM.COMException; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.Wbemcli;
-import com.sun.jna.platform.win32.COM.WbemcliUtil;
-
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
- * Query handler class that overrides WMI query method assuming COM is already
- * initialized by the user.
+ * Query handler class that avoids COM initialization overhead assuming COM is
+ * already initialized by the user.
  */
 public class WmiNoComInitQueryHandler extends WmiQueryHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WmiNoComInitQueryHandler.class);
-
+    /**
+     * Don't initialize COM, despite the method name. Overrides the superclass
+     * {@link WmiQueryHandler#initCOM()} method to bypass COM initialization.
+     */
     @Override
-    public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query) {
-
-        WbemcliUtil.WmiResult<T> result = WbemcliUtil.INSTANCE.new WmiResult<>(query.getPropertyEnum());
-        if (failedWmiClassNames.contains(query.getWmiClassName())) {
-            return result;
-        }
-        try {
-            result = query.execute(wmiTimeout);
-        } catch (COMException e) {
-            // Ignore any exceptions with OpenHardwareMonitor
-            if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())) {
-                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();
-                switch (hresult) {
-                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_CLASS:
-                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_QUERY:
-                    LOG.warn("COM exception: Invalid Query: {}", WmiUtil.queryToString(query));
-                    break;
-                default:
-                    handleComException(query, e);
-                    break;
-                }
-                failedWmiClassNames.add(query.getWmiClassName());
-            }
-        } catch (TimeoutException e) {
-            LOG.error("WMI query timed out after {} ms: {}", wmiTimeout, WmiUtil.queryToString(query));
-        }
-        return result;
+    public boolean initCOM() {
+        return false;
     }
 }

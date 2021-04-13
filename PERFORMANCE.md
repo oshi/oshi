@@ -19,6 +19,14 @@ By default, command lines are not pre-fetched in `OSProcess` objects, and are po
 
 If your application requires updating more than a few command lines, CPU performance can be significantly improved by fetching and caching the entire list of command line results. This must be enabled in the configuration file, or by calling `GlobalConfig.set(WindowsOSProcess.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, true);` shortly after startup (at least before the first command line query).
 
+Windows suspended processes
+========
+
+On Windows, determining if a process is suspended requires querying the state of its threads.
+
+By default, all Windows processes are presented as "Running". If your application requires knowing which processes are suspended, collecting the thread details works best for ad hoc requests. To query all processes, it is more efficient (but still slow) to query thread performance counters. This must be enabled in the configuration file, or by calling `GlobalConfig.set(WindowsOperatingSystem.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, true);` shortly after startup (at least before the first instantiation of the Operating System class).
+
+
 Windows WMI query COM initialization
 ========
 

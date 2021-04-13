@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -126,7 +126,7 @@ public final class CpuStat {
                 }
             }
         }
-        return -1;
+        return 0L;
     }
 
     /**
@@ -144,7 +144,7 @@ public final class CpuStat {
                 }
             }
         }
-        return -1;
+        return 0L;
     }
 
     /**

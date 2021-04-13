@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -356,7 +356,9 @@ public interface OSProcess {
      *
      * @return minor page faults (reclaims).
      */
-    long getMinorFaults();
+    default long getMinorFaults() {
+        return 0L;
+    }
 
     /**
      * Gets the number of major (hard) faults the process has made which have
@@ -368,10 +370,28 @@ public interface OSProcess {
      *
      * @return major page faults.
      */
-    long getMajorFaults();
+    default long getMajorFaults() {
+        return 0L;
+    }
 
     /**
-     * Process Execution States
+     * A snapshot of the context switches the process has done. Since the context
+     * switches could be voluntary and non-voluntary, this gives the sum of both.
+     * <p>
+     * Not available on Windows. An approximation may be made by summing associated
+     * values from {@link OSThread#getContextSwitches()}.
+     * <p>
+     * Not available on AIX.
+     *
+     * @return sum of both voluntary and involuntary context switches if available,
+     *         0 otherwise.
+     */
+    default long getContextSwitches() {
+        return 0L;
+    }
+
+    /**
+     * Process and Thread Execution States
      */
     enum State {
         /**
@@ -406,6 +426,11 @@ public interface OSProcess {
          * The state resulting if the process fails to update statistics, probably due
          * to termination.
          */
-        INVALID
+        INVALID,
+        /**
+         * Special case of waiting if the process has been intentionally suspended
+         * (Windows only)
+         */
+        SUSPENDED
     }
 }

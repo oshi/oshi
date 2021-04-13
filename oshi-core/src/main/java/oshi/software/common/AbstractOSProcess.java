@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -70,16 +70,6 @@ public abstract class AbstractOSProcess implements OSProcess {
                     / (double) (getUpTime() - priorSnapshot.getUpTime());
         }
         return getProcessCpuLoadCumulative();
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return 0L;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return 0L;
     }
 
     @Override

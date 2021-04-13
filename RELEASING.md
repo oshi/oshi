@@ -44,6 +44,8 @@ manually deployed using `mvn clean deploy`
 	
 * Add a title and release notes [to the tag](https://github.com/oshi/oshi/tags) on GitHub and publish the release to make it current.
 
+* Repeat all of the above steps on the `java11` branch.
+
 * As development progresses, update version in [pom.xml](pom.xml) using -SNAPSHOT appended to the new version using [Semantic Versioning](https://semver.org/) standards:
 	* Increment major version (x.0) for API-breaking changes or additions
 	* Increment minor version (x.1) for substantive additions, bugfixes and changes that are backwards compatible

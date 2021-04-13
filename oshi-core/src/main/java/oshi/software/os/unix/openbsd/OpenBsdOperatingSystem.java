@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -138,7 +138,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         // https://man.openbsd.org/ps#KEYWORDS
         // missing are threadCount and kernelTime which is included in cputime
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,args";
+        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,nvscw,nivscw,args";
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
@@ -150,9 +150,9 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
+            String[] split = ParseUtil.whitespaces.split(proc.trim(), 18);
             // Elements should match ps command order
-            if (split.length == 16) {
+            if (split.length == 18) {
                 procs.add(new OpenBsdOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
             }
         }

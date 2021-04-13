@@ -9,8 +9,6 @@ with three categories of changes supporting full thread safety:
 For users of JPMS, OSHI 5.2.0 and 4.9.0 were released with an Automatic Module Name of `com.github.oshi`,
 which may differ from the `oshi.core` module name previously resolved automatically.
 
-Beginning with 4.9.0, the 4.X branch is now in maintenance mode (bug fixes but no new features).
-
 ## API Changes
 
 ### Setter removal

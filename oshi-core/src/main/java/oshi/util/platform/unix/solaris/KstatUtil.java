@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -95,8 +95,8 @@ public final class KstatUtil {
             int retry = 0;
             while (0 > KS.kstat_read(KC, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to read kstat {}:{}:{}",
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Failed to read kstat {}:{}:{}",
                                 Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
                                 Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));
                     }
@@ -209,7 +209,7 @@ public final class KstatUtil {
         }
         Pointer p = KS.kstat_data_lookup(ksp, name);
         if (p == null) {
-            LOG.error("Failed lo lookup kstat value for key {}", name);
+            LOG.debug("Failed to lookup kstat value for key {}", name);
             return "";
         }
         KstatNamed data = new KstatNamed(p);

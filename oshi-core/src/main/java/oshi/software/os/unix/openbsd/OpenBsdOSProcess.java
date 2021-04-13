@@ -1,4 +1,4 @@
-/**
+/*
  * MIT License
  *
  * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
@@ -77,6 +77,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private long bytesWritten;
     private long minorFaults;
     private long majorFaults;
+    private long contextSwitches;
 
     public OpenBsdOSProcess(int pid, String[] split) {
         super(pid);
@@ -276,6 +277,11 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getContextSwitches() {
+        return this.contextSwitches;
+    }
+
+    @Override
     public boolean updateAttributes() {
         // 'ps' does not provide threadCount or kernelTime on OpenBSD
         String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,args -p "
@@ -332,14 +338,16 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
         this.userTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+        // kernel time is included in user time
+        this.kernelTime = 0L;
         this.path = split[12];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(split[13], 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
-        this.commandLine = split[15];
-        // kernel time is included in user time
-        // this.kernelTime = ParseUtil.parseDHMSOrDefault(split[16], 0L);
-        this.kernelTime = 0L;
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[15], 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[16], 0L);
+        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.commandLine = split[17];
         return true;
     }
 
