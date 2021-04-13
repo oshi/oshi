@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#1596](https://github.com/oshi/oshi/pull/1596): Single COM initialization for groups of queries - [@dbwiddis](https://github.com/dbwiddis).
+* [#1603](https://github.com/oshi/oshi/pull/1603): Improve performance of Windows USB device tree parsing - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.7.0 (2021-04-01)
 

@@ -110,13 +110,13 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * @return The device toString, indented
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
-        String indentFmt = indent > 2 ? String.format("%%%ds|-- ", indent - 4) : String.format("%%%ds", indent);
+        String indentFmt = indent > 4 ? String.format("%%%ds|-- ", indent - 4) : String.format("%%%ds", indent);
         StringBuilder sb = new StringBuilder(String.format(indentFmt, ""));
         sb.append(usbDevice.getName());
-        if (usbDevice.getVendor().length() > 0) {
+        if (!usbDevice.getVendor().isEmpty()) {
             sb.append(" (").append(usbDevice.getVendor()).append(')');
         }
-        if (usbDevice.getSerialNumber().length() > 0) {
+        if (!usbDevice.getSerialNumber().isEmpty()) {
             sb.append(" [s/n: ").append(usbDevice.getSerialNumber()).append(']');
         }
         for (UsbDevice connected : usbDevice.getConnectedDevices()) {

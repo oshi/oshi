@@ -42,6 +42,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * The Class ParseUtilTest.
@@ -463,16 +464,29 @@ class ParseUtilTest {
     }
 
     @Test
-    void testParsePnPDeviceIdToVendorProductId() {
-        Pair<String, String> idPair = ParseUtil
-                .parsePnPDeviceIdToVendorProductId("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
-        assertThat(idPair, is(notNullValue()));
-        assertThat("First element of pair mismatch.", idPair.getA(), is("0x10de"));
-        assertThat("Second element of pair mismatch.", idPair.getB(), is("0x134b"));
+    void testParseDeviceIdToVendorProductSerial() {
+        Triplet<String, String, String> idsAndSerial = ParseUtil
+                .parseDeviceIdToVendorProductSerial("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
+        assertThat("VEN_ DEV_ deviceID failed to parse", idsAndSerial, is(notNullValue()));
+        assertThat("Vendor ID failed to parse", idsAndSerial.getA(), is("0x10de"));
+        assertThat("Product ID failed to parse", idsAndSerial.getB(), is("0x134b"));
+        assertThat("SerialNumber should not have parsed", idsAndSerial.getC(), is(emptyString()));
 
-        idPair = ParseUtil
-                .parsePnPDeviceIdToVendorProductId("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
-        assertThat(idPair, is(nullValue()));
+        idsAndSerial = ParseUtil.parseDeviceIdToVendorProductSerial("USB\\VID_045E&PID_07C6\\000001000000");
+        assertThat("VID_ PID_ serial deviceID failed to parse", idsAndSerial, is(notNullValue()));
+        assertThat("Vendor ID failed to parse", idsAndSerial.getA(), is("0x045e"));
+        assertThat("Product ID failed to parse", idsAndSerial.getB(), is("0x07c6"));
+        assertThat("SerialNumber failed to parse", idsAndSerial.getC(), is("000001000000"));
+
+        idsAndSerial = ParseUtil.parseDeviceIdToVendorProductSerial("USB\\VID_045E&PID_07C6\\5&000001000000");
+        assertThat("VID_ PID_ nonserial deviceID failed to parse", idsAndSerial, is(notNullValue()));
+        assertThat("Vendor ID failed to parse", idsAndSerial.getA(), is("0x045e"));
+        assertThat("Product ID failed to parse", idsAndSerial.getB(), is("0x07c6"));
+        assertThat("SerialNumber should not have parsed", idsAndSerial.getC(), is(emptyString()));
+
+        idsAndSerial = ParseUtil
+                .parseDeviceIdToVendorProductSerial("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
+        assertThat("Vender and Product IDs should not have parsed", idsAndSerial, is(nullValue()));
     }
 
     @Test

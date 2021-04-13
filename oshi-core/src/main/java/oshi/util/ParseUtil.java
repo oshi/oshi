@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * String parsing utility.
@@ -83,10 +84,10 @@ public final class ParseUtil {
             .compile(".*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*");
 
     /*
-     * Pattern for Windows PnPDeviceID vendor and product ID
+     * Pattern for Windows DeviceID vendor and product ID and serial
      */
-    private static final Pattern VENDOR_PRODUCT_ID = Pattern
-            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
+    private static final Pattern VENDOR_PRODUCT_ID_SERIAL = Pattern
+            .compile(".*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4})(.*)\\\\(.*)");
 
     /*
      * Pattern for Linux lspci machine readable
@@ -1056,20 +1057,22 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a Windows PnPDeviceID to get the vendor ID and product ID.
+     * Parse a Windows DeviceID to get the vendor ID, product ID, and Serial Number
      *
-     * @param pnpDeviceId
-     *            The PnPDeviceID
-     * @return A {@link Pair} where the first element is the vendor ID and second
-     *         element is the product ID, if parsing was successful, or {@code null}
-     *         otherwise
+     * @param deviceId
+     *            The DeviceID
+     * @return A {@link Triplet} where the first element is the vendor ID, the
+     *         second element is the product ID, and the third element is either a
+     *         serial number or empty string if parsing was successful, or
+     *         {@code null} otherwise
      */
-    public static Pair<String, String> parsePnPDeviceIdToVendorProductId(String pnpDeviceId) {
-        Matcher m = VENDOR_PRODUCT_ID.matcher(pnpDeviceId);
+    public static Triplet<String, String, String> parseDeviceIdToVendorProductSerial(String deviceId) {
+        Matcher m = VENDOR_PRODUCT_ID_SERIAL.matcher(deviceId);
         if (m.matches()) {
             String vendorId = "0x" + m.group(1).toLowerCase();
             String productId = "0x" + m.group(2).toLowerCase();
-            return new Pair<>(vendorId, productId);
+            String serial = m.group(4);
+            return new Triplet<>(vendorId, productId, !m.group(3).isEmpty() || serial.contains("&") ? "" : serial);
         }
         return null;
     }
