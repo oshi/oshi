@@ -20,10 +20,9 @@ jobs:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [8, 11, 16, 17-ea]
         distribution: ['adopt', 'zulu']
-        # macos-11.0 unreliable for now
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-11.0, windows-latest]
       fail-fast: false
-    name: Test JDK ${{ matrix.distribution }}, ${{ matrix.java }}, ${{ matrix.os }}
+    name: ${{ matrix.distribution }} JDK ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
@@ -41,7 +40,7 @@ jobs:
       - name: Test with Maven
         run: ./mvnw test -B
       - name: Report Coverage to Coveralls
-        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8') && contains(matrix.distribution, 'adopt')
         run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
