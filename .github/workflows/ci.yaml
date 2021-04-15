@@ -23,7 +23,7 @@ jobs:
         # macos-11.0 unreliable for now
         os: [ubuntu-latest, macos-latest, windows-latest]
       fail-fast: false
-    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
+    name: Test JDK ${{ matrix.distribution }}, ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
