@@ -100,11 +100,13 @@ public final class MacNetworkIF extends AbstractNetworkIF {
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         // One time fetch of stats
-        final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
+        final Map<Integer, IFdata> data = NetStat.queryIFdata(-1, includeLocalInterfaces);
         List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
+        for (NetworkInterface ni : getNetworkInterfaces(true)) {
             try {
-                ifList.add(new MacNetworkIF(ni, data));
+                if (includeLocalInterfaces || data.containsKey(ni.getIndex())) {
+                    ifList.add(new MacNetworkIF(ni, data));
+                }
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }
@@ -170,7 +172,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     @Override
     public boolean updateAttributes() {
         int index = queryNetworkInterface().getIndex();
-        return updateNetworkStats(NetStat.queryIFdata(index));
+        return updateNetworkStats(NetStat.queryIFdata(index, true));
     }
 
     /**

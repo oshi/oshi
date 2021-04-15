@@ -52,6 +52,8 @@ public final class NetStat {
     private static final int NET_RT_IFLIST2 = 6;
     private static final int RTM_IFINFO2 = 0x12;
 
+    private static final int IFF_LOOPBACK = 0x8;
+
     private NetStat() {
     }
 
@@ -61,13 +63,13 @@ public final class NetStat {
      * @param index
      *            If positive, limit the map to only return data for this interface
      *            index. If negative, returns data for all indices.
+     * @param includeLocalInterfaces
+     *            Whether to include local interfaces
      *
      * @return a map of {@link IFdata} object indexed by the interface index,
      *         encapsulating the stats
      */
-    public static Map<Integer, IFdata> queryIFdata(int index) {
-        // Ported from source code of "netstat -ir". See
-        // https://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c
+    public static Map<Integer, IFdata> queryIFdata(int index, boolean includeLocalInterfaces) {
         Map<Integer, IFdata> data = new HashMap<>();
         // Get buffer of all interface information
         int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
@@ -100,13 +102,16 @@ public final class NetStat {
                 IFmsgHdr2 if2m = new IFmsgHdr2(p);
                 if2m.read();
                 if (index < 0 || index == if2m.ifm_index) {
-                    data.put((int) if2m.ifm_index,
-                            new IFdata(0xff & if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets,
-                                    if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes,
-                                    if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors, if2m.ifm_data.ifi_collisions,
-                                    if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate, now));
-                    if (index >= 0) {
-                        return data;
+                    if (includeLocalInterfaces || (if2m.ifm_flags & IFF_LOOPBACK) == 0) {
+                        data.put((int) if2m.ifm_index,
+                                new IFdata(0xff & if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets,
+                                        if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes,
+                                        if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
+                                        if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops,
+                                        if2m.ifm_data.ifi_baudrate, now));
+                        if (index >= 0) {
+                            return data;
+                        }
                     }
                 }
             }

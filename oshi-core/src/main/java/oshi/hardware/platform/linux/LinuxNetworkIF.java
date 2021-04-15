@@ -49,6 +49,8 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkIF.class);
 
+    private static final int IFF_LOOPBACK = 1 << 3;
+
     private int ifType;
     private boolean connectorPresent;
     private long bytesRecv;
@@ -105,9 +107,17 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
+        for (NetworkInterface ni : getNetworkInterfaces(true)) {
             try {
-                ifList.add(new LinuxNetworkIF(ni));
+                // Include if either boolean is true or it doesn't have loopback flag
+                boolean includeThisInterface = includeLocalInterfaces;
+                if (!includeThisInterface) {
+                    String flagsPath = String.format("/sys/class/net/%s/flags", ni.getName());
+                    includeThisInterface = (FileUtil.getIntFromFile(flagsPath) & IFF_LOOPBACK) == 0;
+                }
+                if (includeThisInterface) {
+                    ifList.add(new LinuxNetworkIF(ni));
+                }
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }
