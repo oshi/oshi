@@ -3,6 +3,8 @@
 ##### Bug fixes / Improvements
 * [#1596](https://github.com/oshi/oshi/pull/1596): Single COM initialization for groups of queries - [@dbwiddis](https://github.com/dbwiddis).
 * [#1603](https://github.com/oshi/oshi/pull/1603): Improve performance of Windows USB device tree parsing - [@dbwiddis](https://github.com/dbwiddis).
+* [#1605](https://github.com/oshi/oshi/pull/1605): Cache localized perf counter object strings - [@dbwiddis](https://github.com/dbwiddis).
+* [#1608](https://github.com/oshi/oshi/pull/1608): LinuxOSProcess#getOpenFiles returns one more than expected - [@slaha](https://github.com/slaha).
 
 # 5.7.0 (2021-04-01)
 
@@ -54,7 +56,7 @@
 
 ##### Bug fixes / Improvements
 * [#1464](https://github.com/oshi/oshi/pull/1464): Also get disk statistics from AppleAPFSContainerScheme - [@mpfz0r](https://github.com/mpfz0r).
-* [#1485](https://github.com/oshi/oshi/pull/1485), 
+* [#1485](https://github.com/oshi/oshi/pull/1485),
   [#1493](https://github.com/oshi/oshi/pull/1493): Parse Apple M1 Processor ID info - [@dbwiddis](https://github.com/dbwiddis).
 * [#1488](https://github.com/oshi/oshi/pull/1488),
   [#1489](https://github.com/oshi/oshi/pull/1489): Use IOUSB plane to iterate/recurse Mac USB tree - [@dbwiddis](https://github.com/dbwiddis).
@@ -66,7 +68,7 @@
 * [#1501](https://github.com/oshi/oshi/pull/1501): Get bare metal Apple M1 CPU info from IODeviceTree - [@dbwiddis](https://github.com/dbwiddis).
 * [#1502](https://github.com/oshi/oshi/pull/1502): Fix bitness mismatch on 32-bit OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
 * [#1505](https://github.com/oshi/oshi/pull/1505): Fix windows disk transfer time (yet again) - [@dbwiddis](https://github.com/dbwiddis).
-  
+
 
 # 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11), 5.3.6 (2020-11-15), 5.3.7 (2020-12-20)
 
