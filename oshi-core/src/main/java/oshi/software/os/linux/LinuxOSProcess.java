@@ -27,6 +27,9 @@ import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.util.Memoizer.memoize;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,9 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
@@ -62,7 +62,6 @@ import oshi.util.platform.linux.ProcPath;
 public class LinuxOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcess.class);
-    private static final String LS_F_PROC_PID_FD = "ls -f " + ProcPath.PID_FD;
 
     // Get a list of orders to pass to ParseUtil
     private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
@@ -237,8 +236,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public long getOpenFiles() {
-        // subtract 1 from size for header
-        return ExecutingCommand.runNative(String.format(LS_F_PROC_PID_FD, getProcessID())).size() - 1L;
+        return ProcessStat.getFileDescriptorFiles(getProcessID()).length;
     }
 
     @Override

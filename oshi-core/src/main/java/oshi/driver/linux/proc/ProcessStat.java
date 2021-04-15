@@ -32,7 +32,6 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -458,15 +457,23 @@ public final class ProcessStat {
     }
 
     /**
+     * Gets an array of files in the /proc/{pid}/fd directory.
+     *
+     * @param pid id of process to read file descriptors for
+     * @return An array of File objects representing opened file descriptors of the process
+     */
+    public static File[] getFileDescriptorFiles(int pid) {
+        return listNumericFiles(String.format(ProcPath.PID_FD, pid));
+    }
+
+    /**
      * Gets an array of files in the /proc directory with only numeric digit
      * filenames, corresponding to processes
      *
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
-        File procdir = new File(ProcPath.PROC);
-        File[] pids = procdir.listFiles(f -> DIGITS.matcher(f.getName()).matches());
-        return pids != null ? pids : new File[0];
+        return listNumericFiles(ProcPath.PROC);
     }
 
     /**
@@ -478,16 +485,13 @@ public final class ProcessStat {
         Map<Integer, Integer> pidMap = new HashMap<>();
         for (File f : getPidFiles()) {
             int pid = ParseUtil.parseIntOrDefault(f.getName(), -1);
-            File fdDir = new File(f.getPath() + "/fd");
-            File[] fds = fdDir.listFiles();
-            if (fds != null) {
-                for (File fd : fds) {
-                    String symLink = FileUtil.readSymlinkTarget(fd);
-                    if (symLink != null) {
-                        Matcher m = SOCKET.matcher(symLink);
-                        if (m.matches()) {
-                            pidMap.put(ParseUtil.parseIntOrDefault(m.group(1), -1), pid);
-                        }
+            File[] fds = getFileDescriptorFiles(pid);
+            for (File fd : fds) {
+                String symLink = FileUtil.readSymlinkTarget(fd);
+                if (symLink != null) {
+                    Matcher m = SOCKET.matcher(symLink);
+                    if (m.matches()) {
+                        pidMap.put(ParseUtil.parseIntOrDefault(m.group(1), -1), pid);
                     }
                 }
             }
@@ -504,12 +508,17 @@ public final class ProcessStat {
      * @return A list of thread id.
      */
     public static List<Integer> getThreadIds(int pid) {
-        File threadDir = new File(String.format(ProcPath.TASK_PATH, pid));
-        File[] threads = threadDir
-                .listFiles(file -> DIGITS.matcher(file.getName()).matches() && Integer.valueOf(file.getName()) != pid);
-        return (threads != null) ? Arrays.stream(threads)
-                .map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0)).collect(Collectors.toList())
-                : Collections.emptyList();
+        File[] threads = listNumericFiles(String.format(ProcPath.TASK_PATH, pid));
+        return Arrays.stream(threads)
+            .map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0))
+            .filter(threadId -> threadId != pid)
+            .collect(Collectors.toList());
+    }
+
+    private static File[] listNumericFiles(String path) {
+        File directory = new File(path);
+        File[] numericFiles = directory.listFiles(file -> DIGITS.matcher(file.getName()).matches());
+        return numericFiles == null ? new File[0] : numericFiles;
     }
 
     /***
