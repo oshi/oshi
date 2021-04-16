@@ -5,6 +5,7 @@
 * [#1603](https://github.com/oshi/oshi/pull/1603): Improve performance of Windows USB device tree parsing - [@dbwiddis](https://github.com/dbwiddis).
 * [#1605](https://github.com/oshi/oshi/pull/1605): Cache localized perf counter object strings - [@dbwiddis](https://github.com/dbwiddis).
 * [#1608](https://github.com/oshi/oshi/pull/1608): LinuxOSProcess#getOpenFiles returns one more than expected - [@slaha](https://github.com/slaha).
+* [#1610](https://github.com/oshi/oshi/pull/1610): Remove redundant check for isLocalInterface - [@barddoo](https://github.com/barddoo).
 
 # 5.7.0 (2021-04-01)
 
