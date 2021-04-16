@@ -68,22 +68,22 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> loopWmiQueriesWithUserCom() {
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// Create instance using existing WmiQueryHandler class for convenience, only to</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// be used for COM init/uninit. This can be handled by any user class that</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// initializes COM.</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          WmiQueryHandler handler = WmiQueryHandler.createInstance();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// be used for COM init/uninit. This is unnecessary in a user application if</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// they control COM initialization elsewhere.</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          WmiQueryHandler handlerForSingleCOMinit = WmiQueryHandler.createInstance();
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// Change query handler class to not initialize COM</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          WmiQueryHandler.setInstanceClass(WmiNoComInitQueryHandler.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">boolean</strong> comInit = false;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              comInit = handler.initCOM();
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              comInit = handlerForSingleCOMinit.initCOM();
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>              loopWmiQueries();
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          } <strong class="jxr_keyword">catch</strong> (COMException e) {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              <em class="jxr_comment">// Ignore for demo. Production code should handle this!</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">if</strong> (comInit) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              handler.unInitCOM();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              handlerForSingleCOMinit.unInitCOM();
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  }

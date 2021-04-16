@@ -50,12 +50,15 @@ public final class Win32DiskDriveToDiskPartition {
     /**
      * Queries the association between disk drive and partition.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Antecedent-dependent pairs of disk and partition.
      */
-    public static WmiResult&lt;DriveToPartitionProperty&gt; queryDriveToPartition() {
-<span class="nc" id="L56">        WmiQuery&lt;DriveToPartitionProperty&gt; driveToPartitionQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE_TO_DISK_PARTITION,</span>
+    public static WmiResult&lt;DriveToPartitionProperty&gt; queryDriveToPartition(WmiQueryHandler h) {
+<span class="nc" id="L59">        WmiQuery&lt;DriveToPartitionProperty&gt; driveToPartitionQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE_TO_DISK_PARTITION,</span>
                 DriveToPartitionProperty.class);
-<span class="nc" id="L58">        return WmiQueryHandler.createInstance().queryWMI(driveToPartitionQuery);</span>
+<span class="nc" id="L61">        return h.queryWMI(driveToPartitionQuery, false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

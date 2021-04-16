@@ -38,7 +38,7 @@ import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Graphics Card obtained from WMI
@@ -80,7 +80,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
 <span class="nc" id="L80">            WmiResult&lt;VideoControllerProperty&gt; cards = Win32VideoController.queryVideoController();</span>
 <span class="nc bnc" id="L81" title="All 2 branches missed.">            for (int index = 0; index &lt; cards.getResultCount(); index++) {</span>
 <span class="nc" id="L82">                String name = WmiUtil.getString(cards, VideoControllerProperty.NAME, index);</span>
-<span class="nc" id="L83">                Pair&lt;String, String&gt; idPair = ParseUtil.parsePnPDeviceIdToVendorProductId(</span>
+<span class="nc" id="L83">                Triplet&lt;String, String, String&gt; idPair = ParseUtil.parseDeviceIdToVendorProductSerial(</span>
 <span class="nc" id="L84">                        WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));</span>
 <span class="nc bnc" id="L85" title="All 2 branches missed.">                String deviceId = idPair == null ? Constants.UNKNOWN : idPair.getB();</span>
 <span class="nc" id="L86">                String vendor = WmiUtil.getString(cards, VideoControllerProperty.ADAPTERCOMPATIBILITY, index);</span>

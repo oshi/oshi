@@ -110,13 +110,13 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * @return The device toString, indented
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        String indentFmt = indent &gt; 2 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        String indentFmt = indent &gt; 4 ? String.format(&quot;%%%ds|-- &quot;, indent - 4) : String.format(&quot;%%%ds&quot;, indent);</span>
 <span class="nc" id="L114">        StringBuilder sb = new StringBuilder(String.format(indentFmt, &quot;&quot;));</span>
 <span class="nc" id="L115">        sb.append(usbDevice.getName());</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (usbDevice.getVendor().length() &gt; 0) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (!usbDevice.getVendor().isEmpty()) {</span>
 <span class="nc" id="L117">            sb.append(&quot; (&quot;).append(usbDevice.getVendor()).append(')');</span>
         }
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (usbDevice.getSerialNumber().length() &gt; 0) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (!usbDevice.getSerialNumber().isEmpty()) {</span>
 <span class="nc" id="L120">            sb.append(&quot; [s/n: &quot;).append(usbDevice.getSerialNumber()).append(']');</span>
         }
 <span class="nc bnc" id="L122" title="All 2 branches missed.">        for (UsbDevice connected : usbDevice.getConnectedDevices()) {</span>
