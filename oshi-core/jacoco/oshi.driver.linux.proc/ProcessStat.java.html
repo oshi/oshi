@@ -32,7 +32,6 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -54,21 +53,21 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class ProcessStat {
 
-<span class="nc" id="L57">    private static final Pattern DIGITS = Pattern.compile(&quot;\\d+&quot;);</span>
-<span class="nc" id="L58">    private static final Pattern SOCKET = Pattern.compile(&quot;socket:\\[(\\d+)\\]&quot;);</span>
+<span class="nc" id="L56">    private static final Pattern DIGITS = Pattern.compile(&quot;\\d+&quot;);</span>
+<span class="nc" id="L57">    private static final Pattern SOCKET = Pattern.compile(&quot;socket:\\[(\\d+)\\]&quot;);</span>
 
     /**
      * Enum corresponding to the fields in the output of {@code /proc/[pid]/stat}
      */
-<span class="nc" id="L63">    public enum PidStat {</span>
+<span class="nc" id="L62">    public enum PidStat {</span>
         /**
          * The process ID.
          */
-<span class="nc" id="L67">        PID,</span>
+<span class="nc" id="L66">        PID,</span>
         /**
          * The filename of the executable.
          */
-<span class="nc" id="L71">        COMM,</span>
+<span class="nc" id="L70">        COMM,</span>
         /**
          * One of the following characters, indicating process state:
          * &lt;p&gt;
@@ -96,77 +95,77 @@ public final class ProcessStat {
          * &lt;p&gt;
          * P Parked (Linux 3.9 to 3.13 only)
          */
-<span class="nc" id="L99">        STATE,</span>
+<span class="nc" id="L98">        STATE,</span>
         /**
          * The PID of the parent of this process.
          */
-<span class="nc" id="L103">        PPID,</span>
+<span class="nc" id="L102">        PPID,</span>
         /**
          * The process group ID of the process.
          */
-<span class="nc" id="L107">        PGRP,</span>
+<span class="nc" id="L106">        PGRP,</span>
         /**
          * The session ID of the process.
          */
-<span class="nc" id="L111">        SESSION,</span>
+<span class="nc" id="L110">        SESSION,</span>
         /**
          * The controlling terminal of the process. (The minor device number is
          * contained in the combination of bits 31 to 20 and 7 to 0; the major device
          * number is in bits 15 to 8.)
          */
-<span class="nc" id="L117">        TTY_NR,</span>
+<span class="nc" id="L116">        TTY_NR,</span>
         /**
          * The ID of the foreground process group of the controlling terminal of the
          * process.
          */
-<span class="nc" id="L122">        PTGID,</span>
+<span class="nc" id="L121">        PTGID,</span>
         /**
          * The kernel flags word of the process. For bit meanings, see the PF_* defines
          * in the Linux kernel source file include/linux/sched.h. Details depend on the
          * kernel version.
          */
-<span class="nc" id="L128">        FLAGS,</span>
+<span class="nc" id="L127">        FLAGS,</span>
         /**
          * The number of minor faults the process has made which have not required
          * loading a memory page from disk.
          */
-<span class="nc" id="L133">        MINFLT,</span>
+<span class="nc" id="L132">        MINFLT,</span>
         /**
          * The number of minor faults that the process's waited-for children have made.
          */
-<span class="nc" id="L137">        CMINFLT,</span>
+<span class="nc" id="L136">        CMINFLT,</span>
         /**
          * The number of major faults the process has made which have required loading a
          * memory page from disk.
          */
-<span class="nc" id="L142">        MAJFLT,</span>
+<span class="nc" id="L141">        MAJFLT,</span>
         /**
          * The number of major faults that the process's waited-for children have made.
          */
-<span class="nc" id="L146">        CMAJFLT,</span>
+<span class="nc" id="L145">        CMAJFLT,</span>
         /**
          * Amount of time that this process has been scheduled in user mode, measured in
          * clock ticks. This includes guest time, cguest_time (time spent running a
          * virtual CPU), so that applications that are not aware of the guest time field
          * do not lose that time from their calculations.
          */
-<span class="nc" id="L153">        UTIME,</span>
+<span class="nc" id="L152">        UTIME,</span>
         /**
          * Amount of time that this process has been scheduled in kernel mode, measured
          * in clock ticks.
          */
-<span class="nc" id="L158">        STIME,</span>
+<span class="nc" id="L157">        STIME,</span>
         /**
          * Amount of time that this process's waited-for children have been scheduled in
          * user mode, measured in clock ticks. This includes guest time, cguest_time
          * (time spent running a virtual CPU).
          */
-<span class="nc" id="L164">        CUTIME,</span>
+<span class="nc" id="L163">        CUTIME,</span>
         /**
          * Amount of time that this process's waited-for children have been scheduled in
          * kernel mode, measured in clock ticks.
          */
-<span class="nc" id="L169">        CSTIME,</span>
+<span class="nc" id="L168">        CSTIME,</span>
         /**
          * For processes running a real-time scheduling policy (policy below; see
          * sched_setscheduler(2)), this is the negated scheduling priority, minus one;
@@ -176,205 +175,205 @@ public final class ProcessStat {
          * kernel. The kernel stores nice values as numbers in the range 0 (high) to 39
          * (low), corresponding to the user-visible nice range of -20 to 19.
          */
-<span class="nc" id="L179">        PRIORITY,</span>
+<span class="nc" id="L178">        PRIORITY,</span>
         /**
          * The nice value (see setpriority(2)), a value in the range 19 (low priority)
          * to -20 (high priority).
          */
-<span class="nc" id="L184">        NICE,</span>
+<span class="nc" id="L183">        NICE,</span>
         /**
          * Number of threads in this process.
          */
-<span class="nc" id="L188">        NUM_THREADS,</span>
+<span class="nc" id="L187">        NUM_THREADS,</span>
         /**
          * The time in jiffies before the next SIGALRM is sent to the process due to an
          * interval timer. Since ker‐nel 2.6.17, this field is no longer maintained, and
          * is hard coded as 0.
          */
-<span class="nc" id="L194">        ITREALVALUE,</span>
+<span class="nc" id="L193">        ITREALVALUE,</span>
         /**
          * The time the process started after system boot, in clock ticks.
          */
-<span class="nc" id="L198">        STARTTIME,</span>
+<span class="nc" id="L197">        STARTTIME,</span>
         /**
          * Virtual memory size in bytes.
          */
-<span class="nc" id="L202">        VSIZE,</span>
+<span class="nc" id="L201">        VSIZE,</span>
         /**
          * Resident Set Size: number of pages the process has in real memory. This is
          * just the pages which count toward text, data, or stack space. This does not
          * include pages which have not been demand-loaded in, or which are swapped out.
          */
-<span class="nc" id="L208">        RSS,</span>
+<span class="nc" id="L207">        RSS,</span>
         /**
          * Current soft limit in bytes on the rss of the process; see the description of
          * RLIMIT_RSS in getrlimit(2).
          */
-<span class="nc" id="L213">        RSSLIM,</span>
+<span class="nc" id="L212">        RSSLIM,</span>
         /**
          * The address above which program text can run.
          */
-<span class="nc" id="L217">        STARTCODE,</span>
+<span class="nc" id="L216">        STARTCODE,</span>
 
         /**
          * The address below which program text can run.
          */
-<span class="nc" id="L222">        ENDCODE,</span>
+<span class="nc" id="L221">        ENDCODE,</span>
         /**
          * The address of the start (i.e., bottom) of the stack.
          */
-<span class="nc" id="L226">        STARTSTACK,</span>
+<span class="nc" id="L225">        STARTSTACK,</span>
         /**
          * The current value of ESP (stack pointer), as found in the kernel stack page
          * for the process.
          */
-<span class="nc" id="L231">        KSTKESP,</span>
+<span class="nc" id="L230">        KSTKESP,</span>
         /**
          * The current EIP (instruction pointer).
          */
-<span class="nc" id="L235">        KSTKEIP,</span>
+<span class="nc" id="L234">        KSTKEIP,</span>
         /**
          * The bitmap of pending signals, displayed as a decimal number. Obsolete,
          * because it does not provide information on real-time signals; use
          * /proc/[pid]/status instead.
          */
-<span class="nc" id="L241">        SIGNAL,</span>
+<span class="nc" id="L240">        SIGNAL,</span>
         /**
          * The bitmap of blocked signals, displayed as a decimal number. Obsolete,
          * because it does not provide information on real-time signals; use
          * /proc/[pid]/status instead.
          */
-<span class="nc" id="L247">        BLOCKED,</span>
+<span class="nc" id="L246">        BLOCKED,</span>
         /**
          * The bitmap of ignored signals, displayed as a decimal number. Obsolete,
          * because it does not provide information on real-time signals; use
          * /proc/[pid]/status instead.
          */
-<span class="nc" id="L253">        SIGIGNORE,</span>
+<span class="nc" id="L252">        SIGIGNORE,</span>
         /**
          * The bitmap of caught signals, displayed as a decimal number. Obsolete,
          * because it does not provide information on real-time signals; use
          * /proc/[pid]/status instead.
          */
-<span class="nc" id="L259">        SIGCATCH,</span>
+<span class="nc" id="L258">        SIGCATCH,</span>
         /**
          * This is the &quot;channel&quot; in which the process is waiting. It is the address of a
          * location in the kernel where the process is sleeping. The corresponding
          * symbolic name can be found in /proc/[pid]/wchan.
          */
-<span class="nc" id="L265">        WCHAN,</span>
+<span class="nc" id="L264">        WCHAN,</span>
         /**
          * Number of pages swapped (not maintained).
          */
-<span class="nc" id="L269">        NSWAP,</span>
+<span class="nc" id="L268">        NSWAP,</span>
         /**
          * Cumulative nswap for child processes (not maintained).
          */
-<span class="nc" id="L273">        CNSWAP,</span>
+<span class="nc" id="L272">        CNSWAP,</span>
         /**
          * Signal to be sent to parent when we die.
          */
-<span class="nc" id="L277">        EXIT_SIGNAL,</span>
+<span class="nc" id="L276">        EXIT_SIGNAL,</span>
         /**
          * CPU number last executed on.
          */
-<span class="nc" id="L281">        PROCESSOR,</span>
+<span class="nc" id="L280">        PROCESSOR,</span>
         /**
          * Real-time scheduling priority, a number in the range 1 to 99 for processes
          * scheduled under a real-time policy, or 0, for non-real-time processes (see
          * sched_setscheduler(2)).
          */
-<span class="nc" id="L287">        RT_PRIORITY,</span>
+<span class="nc" id="L286">        RT_PRIORITY,</span>
         /**
          * Scheduling policy (see sched_setscheduler(2)). Decode using the SCHED_*
          * constants in linux/sched.h.
          */
-<span class="nc" id="L292">        POLICY,</span>
+<span class="nc" id="L291">        POLICY,</span>
         /**
          * Aggregated block I/O delays, measured in clock ticks (centiseconds).
          */
-<span class="nc" id="L296">        DELAYACCT_BLKIO_TICKS,</span>
+<span class="nc" id="L295">        DELAYACCT_BLKIO_TICKS,</span>
         /**
          * Guest time of the process (time spent running a vir‐ tual CPU for a guest
          * operating system), measured in clock ticks.
          */
-<span class="nc" id="L301">        GUEST_TIME,</span>
+<span class="nc" id="L300">        GUEST_TIME,</span>
         /**
          * Guest time of the process's children, measured in clock ticks.
          */
-<span class="nc" id="L305">        CGUEST_TIME,</span>
+<span class="nc" id="L304">        CGUEST_TIME,</span>
         /**
          * Address above which program initialized and uninitialized (BSS) data are
          * placed.
          */
-<span class="nc" id="L310">        START_DATA,</span>
+<span class="nc" id="L309">        START_DATA,</span>
         /**
          * Address below which program initialized and uninitialized (BSS) data are
          * placed.
          */
-<span class="nc" id="L315">        END_DATA,</span>
+<span class="nc" id="L314">        END_DATA,</span>
         /**
          * Address above which program heap can be expanded with brk(2).
          */
-<span class="nc" id="L319">        START_BRK,</span>
+<span class="nc" id="L318">        START_BRK,</span>
         /**
          * Address above which program command-line arguments (argv) are placed.
          */
-<span class="nc" id="L323">        ARG_START,</span>
+<span class="nc" id="L322">        ARG_START,</span>
 
         /**
          * Address below program command-line arguments (argv) are placed.
          */
-<span class="nc" id="L328">        ARG_END,</span>
+<span class="nc" id="L327">        ARG_END,</span>
 
         /**
          * Address above which program environment is placed.
          */
-<span class="nc" id="L333">        ENV_START,</span>
+<span class="nc" id="L332">        ENV_START,</span>
 
         /**
          * Address below which program environment is placed.
          */
-<span class="nc" id="L338">        ENV_END,</span>
+<span class="nc" id="L337">        ENV_END,</span>
 
         /**
          * The thread's exit status in the form reported by waitpid(2).
          */
-<span class="nc" id="L343">        EXIT_CODE;</span>
+<span class="nc" id="L342">        EXIT_CODE;</span>
     }
 
     /**
      * Enum corresponding to the fields in the output of {@code /proc/[pid]/statm}
      */
-<span class="nc" id="L349">    public enum PidStatM {</span>
+<span class="nc" id="L348">    public enum PidStatM {</span>
         /**
          * Total program size
          */
-<span class="nc" id="L353">        SIZE,</span>
+<span class="nc" id="L352">        SIZE,</span>
         /**
          * Resident set size
          */
-<span class="nc" id="L357">        RESIDENT,</span>
+<span class="nc" id="L356">        RESIDENT,</span>
         /**
          * Number of resident shared pages (i.e., backed by a file)
          */
-<span class="nc" id="L361">        SHARED,</span>
+<span class="nc" id="L360">        SHARED,</span>
         /**
          * Text (code)
          */
-<span class="nc" id="L365">        TEXT,</span>
+<span class="nc" id="L364">        TEXT,</span>
         /**
          * Library (unused since Linux 2.6; always 0)
          */
-<span class="nc" id="L369">        LIB,</span>
+<span class="nc" id="L368">        LIB,</span>
         /**
          * Data + stack
          */
-<span class="nc" id="L373">        DATA,</span>
+<span class="nc" id="L372">        DATA,</span>
         /**
          * Dirty pages (unused since Linux 2.6; always 0)
          */
-<span class="nc" id="L377">        DT;</span>
+<span class="nc" id="L376">        DT;</span>
     }
 
     /**
@@ -383,15 +382,15 @@ public final class ProcessStat {
      */
     public static final int PROC_PID_STAT_LENGTH;
     static {
-<span class="nc" id="L386">        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);</span>
-<span class="nc bnc" id="L387" title="All 4 branches missed.">        if (!stat.isEmpty() &amp;&amp; stat.contains(&quot;)&quot;)) {</span>
+<span class="nc" id="L385">        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);</span>
+<span class="nc bnc" id="L386" title="All 4 branches missed.">        if (!stat.isEmpty() &amp;&amp; stat.contains(&quot;)&quot;)) {</span>
             // add 3 to account for pid, process name in prarenthesis, and state
-<span class="nc" id="L389">            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;</span>
+<span class="nc" id="L388">            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;</span>
         } else {
             // Default assuming recent kernel
-<span class="nc" id="L392">            PROC_PID_STAT_LENGTH = 52;</span>
+<span class="nc" id="L391">            PROC_PID_STAT_LENGTH = 52;</span>
         }
-<span class="nc" id="L394">    }</span>
+<span class="nc" id="L393">    }</span>
 
     private ProcessStat() {
     }
@@ -409,25 +408,25 @@ public final class ProcessStat {
      *         If the process doesn't exist, returns null.
      */
     public static Triplet&lt;String, Character, Map&lt;PidStat, Long&gt;&gt; getPidStats(int pid) {
-<span class="nc" id="L412">        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));</span>
-<span class="nc bnc" id="L413" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
+<span class="nc" id="L411">        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
             // If pid doesn't exist
-<span class="nc" id="L415">            return null;</span>
+<span class="nc" id="L414">            return null;</span>
         }
         // Get process name from between parentheses and state immediately after
-<span class="nc" id="L418">        int nameStart = stat.indexOf('(') + 1;</span>
-<span class="nc" id="L419">        int nameEnd = stat.indexOf(')');</span>
-<span class="nc" id="L420">        String name = stat.substring(nameStart, nameEnd);</span>
-<span class="nc" id="L421">        Character state = stat.charAt(nameEnd + 2);</span>
+<span class="nc" id="L417">        int nameStart = stat.indexOf('(') + 1;</span>
+<span class="nc" id="L418">        int nameEnd = stat.indexOf(')');</span>
+<span class="nc" id="L419">        String name = stat.substring(nameStart, nameEnd);</span>
+<span class="nc" id="L420">        Character state = stat.charAt(nameEnd + 2);</span>
         // Split everything after the state
-<span class="nc" id="L423">        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 4).trim());</span>
+<span class="nc" id="L422">        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 4).trim());</span>
 
-<span class="nc" id="L425">        Map&lt;PidStat, Long&gt; statMap = new EnumMap&lt;&gt;(PidStat.class);</span>
-<span class="nc" id="L426">        PidStat[] enumArray = PidStat.class.getEnumConstants();</span>
-<span class="nc bnc" id="L427" title="All 4 branches missed.">        for (int i = 3; i &lt; enumArray.length &amp;&amp; i - 3 &lt; split.length; i++) {</span>
-<span class="nc" id="L428">            statMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i - 3], 0L));</span>
+<span class="nc" id="L424">        Map&lt;PidStat, Long&gt; statMap = new EnumMap&lt;&gt;(PidStat.class);</span>
+<span class="nc" id="L425">        PidStat[] enumArray = PidStat.class.getEnumConstants();</span>
+<span class="nc bnc" id="L426" title="All 4 branches missed.">        for (int i = 3; i &lt; enumArray.length &amp;&amp; i - 3 &lt; split.length; i++) {</span>
+<span class="nc" id="L427">            statMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i - 3], 0L));</span>
         }
-<span class="nc" id="L430">        return new Triplet&lt;&gt;(name, state, statMap);</span>
+<span class="nc" id="L429">        return new Triplet&lt;&gt;(name, state, statMap);</span>
     }
 
     /**
@@ -441,20 +440,32 @@ public final class ProcessStat {
      *         If the process doesn't exist, returns null.
      */
     public static Map&lt;PidStatM, Long&gt; getPidStatM(int pid) {
-<span class="nc" id="L444">        String statm = FileUtil.getStringFromFile(String.format(ProcPath.PID_STATM, pid));</span>
-<span class="nc bnc" id="L445" title="All 2 branches missed.">        if (statm.isEmpty()) {</span>
+<span class="nc" id="L443">        String statm = FileUtil.getStringFromFile(String.format(ProcPath.PID_STATM, pid));</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">        if (statm.isEmpty()) {</span>
             // If pid doesn't exist
-<span class="nc" id="L447">            return null;</span>
+<span class="nc" id="L446">            return null;</span>
         }
         // Split the fields
-<span class="nc" id="L450">        String[] split = ParseUtil.whitespaces.split(statm);</span>
+<span class="nc" id="L449">        String[] split = ParseUtil.whitespaces.split(statm);</span>
 
-<span class="nc" id="L452">        Map&lt;PidStatM, Long&gt; statmMap = new EnumMap&lt;&gt;(PidStatM.class);</span>
-<span class="nc" id="L453">        PidStatM[] enumArray = PidStatM.class.getEnumConstants();</span>
-<span class="nc bnc" id="L454" title="All 4 branches missed.">        for (int i = 0; i &lt; enumArray.length &amp;&amp; i &lt; split.length; i++) {</span>
-<span class="nc" id="L455">            statmMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i], 0L));</span>
+<span class="nc" id="L451">        Map&lt;PidStatM, Long&gt; statmMap = new EnumMap&lt;&gt;(PidStatM.class);</span>
+<span class="nc" id="L452">        PidStatM[] enumArray = PidStatM.class.getEnumConstants();</span>
+<span class="nc bnc" id="L453" title="All 4 branches missed.">        for (int i = 0; i &lt; enumArray.length &amp;&amp; i &lt; split.length; i++) {</span>
+<span class="nc" id="L454">            statmMap.put(enumArray[i], ParseUtil.parseLongOrDefault(split[i], 0L));</span>
         }
-<span class="nc" id="L457">        return statmMap;</span>
+<span class="nc" id="L456">        return statmMap;</span>
+    }
+
+    /**
+     * Gets an array of files in the /proc/{pid}/fd directory.
+     *
+     * @param pid
+     *            id of process to read file descriptors for
+     * @return An array of File objects representing opened file descriptors of the
+     *         process
+     */
+    public static File[] getFileDescriptorFiles(int pid) {
+<span class="nc" id="L468">        return listNumericFiles(String.format(ProcPath.PID_FD, pid));</span>
     }
 
     /**
@@ -464,9 +475,7 @@ public final class ProcessStat {
      * @return An array of File objects for the process files
      */
     public static File[] getPidFiles() {
-<span class="nc" id="L467">        File procdir = new File(ProcPath.PROC);</span>
-<span class="nc" id="L468">        File[] pids = procdir.listFiles(f -&gt; DIGITS.matcher(f.getName()).matches());</span>
-<span class="nc bnc" id="L469" title="All 2 branches missed.">        return pids != null ? pids : new File[0];</span>
+<span class="nc" id="L478">        return listNumericFiles(ProcPath.PROC);</span>
     }
 
     /**
@@ -475,24 +484,21 @@ public final class ProcessStat {
      * @return a map with socket as the key and pid as the value
      */
     public static Map&lt;Integer, Integer&gt; querySocketToPidMap() {
-<span class="nc" id="L478">        Map&lt;Integer, Integer&gt; pidMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L479" title="All 2 branches missed.">        for (File f : getPidFiles()) {</span>
-<span class="nc" id="L480">            int pid = ParseUtil.parseIntOrDefault(f.getName(), -1);</span>
-<span class="nc" id="L481">            File fdDir = new File(f.getPath() + &quot;/fd&quot;);</span>
-<span class="nc" id="L482">            File[] fds = fdDir.listFiles();</span>
-<span class="nc bnc" id="L483" title="All 2 branches missed.">            if (fds != null) {</span>
-<span class="nc bnc" id="L484" title="All 2 branches missed.">                for (File fd : fds) {</span>
-<span class="nc" id="L485">                    String symLink = FileUtil.readSymlinkTarget(fd);</span>
-<span class="nc bnc" id="L486" title="All 2 branches missed.">                    if (symLink != null) {</span>
-<span class="nc" id="L487">                        Matcher m = SOCKET.matcher(symLink);</span>
-<span class="nc bnc" id="L488" title="All 2 branches missed.">                        if (m.matches()) {</span>
-<span class="nc" id="L489">                            pidMap.put(ParseUtil.parseIntOrDefault(m.group(1), -1), pid);</span>
-                        }
+<span class="nc" id="L487">        Map&lt;Integer, Integer&gt; pidMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">        for (File f : getPidFiles()) {</span>
+<span class="nc" id="L489">            int pid = ParseUtil.parseIntOrDefault(f.getName(), -1);</span>
+<span class="nc" id="L490">            File[] fds = getFileDescriptorFiles(pid);</span>
+<span class="nc bnc" id="L491" title="All 2 branches missed.">            for (File fd : fds) {</span>
+<span class="nc" id="L492">                String symLink = FileUtil.readSymlinkTarget(fd);</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">                if (symLink != null) {</span>
+<span class="nc" id="L494">                    Matcher m = SOCKET.matcher(symLink);</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">                    if (m.matches()) {</span>
+<span class="nc" id="L496">                        pidMap.put(ParseUtil.parseIntOrDefault(m.group(1), -1), pid);</span>
                     }
                 }
             }
         }
-<span class="nc" id="L495">        return pidMap;</span>
+<span class="nc" id="L501">        return pidMap;</span>
     }
 
     /**
@@ -504,12 +510,15 @@ public final class ProcessStat {
      * @return A list of thread id.
      */
     public static List&lt;Integer&gt; getThreadIds(int pid) {
-<span class="nc" id="L507">        File threadDir = new File(String.format(ProcPath.TASK_PATH, pid));</span>
-<span class="nc" id="L508">        File[] threads = threadDir</span>
-<span class="nc bnc" id="L509" title="All 4 branches missed.">                .listFiles(file -&gt; DIGITS.matcher(file.getName()).matches() &amp;&amp; Integer.valueOf(file.getName()) != pid);</span>
-<span class="nc bnc" id="L510" title="All 2 branches missed.">        return (threads != null) ? Arrays.stream(threads)</span>
-<span class="nc" id="L511">                .map(thread -&gt; ParseUtil.parseIntOrDefault(thread.getName(), 0)).collect(Collectors.toList())</span>
-<span class="nc" id="L512">                : Collections.emptyList();</span>
+<span class="nc" id="L513">        File[] threads = listNumericFiles(String.format(ProcPath.TASK_PATH, pid));</span>
+<span class="nc" id="L514">        return Arrays.stream(threads).map(thread -&gt; ParseUtil.parseIntOrDefault(thread.getName(), 0))</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">                .filter(threadId -&gt; threadId != pid).collect(Collectors.toList());</span>
+    }
+
+    private static File[] listNumericFiles(String path) {
+<span class="nc" id="L519">        File directory = new File(path);</span>
+<span class="nc" id="L520">        File[] numericFiles = directory.listFiles(file -&gt; DIGITS.matcher(file.getName()).matches());</span>
+<span class="nc bnc" id="L521" title="All 2 branches missed.">        return numericFiles == null ? new File[0] : numericFiles;</span>
     }
 
     /***
@@ -522,27 +531,27 @@ public final class ProcessStat {
      */
     public static OSProcess.State getState(char stateValue) {
         OSProcess.State state;
-<span class="nc bnc" id="L525" title="All 6 branches missed.">        switch (stateValue) {</span>
+<span class="nc bnc" id="L534" title="All 6 branches missed.">        switch (stateValue) {</span>
         case 'R':
-<span class="nc" id="L527">            state = RUNNING;</span>
-<span class="nc" id="L528">            break;</span>
-        case 'S':
-<span class="nc" id="L530">            state = SLEEPING;</span>
-<span class="nc" id="L531">            break;</span>
-        case 'D':
-<span class="nc" id="L533">            state = WAITING;</span>
-<span class="nc" id="L534">            break;</span>
-        case 'Z':
-<span class="nc" id="L536">            state = ZOMBIE;</span>
+<span class="nc" id="L536">            state = RUNNING;</span>
 <span class="nc" id="L537">            break;</span>
-        case 'T':
-<span class="nc" id="L539">            state = STOPPED;</span>
+        case 'S':
+<span class="nc" id="L539">            state = SLEEPING;</span>
 <span class="nc" id="L540">            break;</span>
+        case 'D':
+<span class="nc" id="L542">            state = WAITING;</span>
+<span class="nc" id="L543">            break;</span>
+        case 'Z':
+<span class="nc" id="L545">            state = ZOMBIE;</span>
+<span class="nc" id="L546">            break;</span>
+        case 'T':
+<span class="nc" id="L548">            state = STOPPED;</span>
+<span class="nc" id="L549">            break;</span>
         default:
-<span class="nc" id="L542">            state = OTHER;</span>
+<span class="nc" id="L551">            state = OTHER;</span>
             break;
         }
-<span class="nc" id="L545">        return state;</span>
+<span class="nc" id="L554">        return state;</span>
     }
 
 }

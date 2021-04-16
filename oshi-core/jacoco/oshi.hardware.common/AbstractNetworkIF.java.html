@@ -173,104 +173,105 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
     private static boolean isLocalInterface(NetworkInterface networkInterface) {
         try {
-<span class="nc bnc" id="L176" title="All 4 branches missed.">            return networkInterface.isLoopback() || networkInterface.getHardwareAddress() == null;</span>
-<span class="nc" id="L177">        } catch (SocketException e) {</span>
-<span class="nc" id="L178">            LOG.error(&quot;Socket exception when retrieving interface information for {}: {}&quot;, networkInterface,</span>
-<span class="nc" id="L179">                    e.getMessage());</span>
+            // getHardwareAddress also checks for loopback
+<span class="nc bnc" id="L177" title="All 2 branches missed.">            return networkInterface.getHardwareAddress() == null;</span>
+<span class="nc" id="L178">        } catch (SocketException e) {</span>
+<span class="nc" id="L179">            LOG.error(&quot;Socket exception when retrieving interface information for {}: {}&quot;, networkInterface,</span>
+<span class="nc" id="L180">                    e.getMessage());</span>
         }
-<span class="nc" id="L181">        return false;</span>
+<span class="nc" id="L182">        return false;</span>
     }
 
     @Override
     public NetworkInterface queryNetworkInterface() {
-<span class="nc" id="L186">        return this.networkInterface;</span>
+<span class="nc" id="L187">        return this.networkInterface;</span>
     }
 
     @Override
     public String getName() {
-<span class="nc" id="L191">        return this.name;</span>
+<span class="nc" id="L192">        return this.name;</span>
     }
 
     @Override
     public String getDisplayName() {
-<span class="nc" id="L196">        return this.displayName;</span>
+<span class="nc" id="L197">        return this.displayName;</span>
     }
 
     @Override
     public int getMTU() {
-<span class="nc" id="L201">        return this.mtu;</span>
+<span class="nc" id="L202">        return this.mtu;</span>
     }
 
     @Override
     public String getMacaddr() {
-<span class="nc" id="L206">        return this.mac;</span>
+<span class="nc" id="L207">        return this.mac;</span>
     }
 
     @Override
     public String[] getIPv4addr() {
-<span class="nc" id="L211">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
+<span class="nc" id="L212">        return Arrays.copyOf(this.ipv4, this.ipv4.length);</span>
     }
 
     @Override
     public Short[] getSubnetMasks() {
-<span class="nc" id="L216">        return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);</span>
+<span class="nc" id="L217">        return Arrays.copyOf(this.subnetMasks, this.subnetMasks.length);</span>
     }
 
     @Override
     public String[] getIPv6addr() {
-<span class="nc" id="L221">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
+<span class="nc" id="L222">        return Arrays.copyOf(this.ipv6, this.ipv6.length);</span>
     }
 
     @Override
     public Short[] getPrefixLengths() {
-<span class="nc" id="L226">        return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);</span>
+<span class="nc" id="L227">        return Arrays.copyOf(this.prefixLengths, this.prefixLengths.length);</span>
     }
 
     @Override
     public boolean isKnownVmMacAddr() {
-<span class="nc bnc" id="L231" title="All 2 branches missed.">        String oui = getMacaddr().length() &gt; 7 ? getMacaddr().substring(0, 8) : getMacaddr();</span>
-<span class="nc" id="L232">        return this.vmMacAddrProps.get().containsKey(oui.toUpperCase());</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">        String oui = getMacaddr().length() &gt; 7 ? getMacaddr().substring(0, 8) : getMacaddr();</span>
+<span class="nc" id="L233">        return this.vmMacAddrProps.get().containsKey(oui.toUpperCase());</span>
     }
 
     private static Properties queryVmMacAddrProps() {
-<span class="nc" id="L236">        return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);</span>
+<span class="nc" id="L237">        return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L241">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L242">        sb.append(&quot;Name: &quot;).append(getName());</span>
-<span class="nc bnc" id="L243" title="All 2 branches missed.">        if (!getName().equals(getDisplayName())) {</span>
-<span class="nc" id="L244">            sb.append(&quot; (&quot;).append(getDisplayName()).append(&quot;)&quot;);</span>
+<span class="nc" id="L242">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L243">        sb.append(&quot;Name: &quot;).append(getName());</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        if (!getName().equals(getDisplayName())) {</span>
+<span class="nc" id="L245">            sb.append(&quot; (&quot;).append(getDisplayName()).append(&quot;)&quot;);</span>
         }
-<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (!getIfAlias().isEmpty()) {</span>
-<span class="nc" id="L247">            sb.append(&quot; [IfAlias=&quot;).append(getIfAlias()).append(&quot;]&quot;);</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        if (!getIfAlias().isEmpty()) {</span>
+<span class="nc" id="L248">            sb.append(&quot; [IfAlias=&quot;).append(getIfAlias()).append(&quot;]&quot;);</span>
         }
-<span class="nc" id="L249">        sb.append(&quot;\n&quot;);</span>
-<span class="nc" id="L250">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
-<span class="nc" id="L251">        sb.append(&quot;  MTU: &quot;).append(ParseUtil.unsignedIntToLong(getMTU())).append(&quot;, &quot;).append(&quot;Speed: &quot;)</span>
-<span class="nc" id="L252">                .append(getSpeed()).append(&quot;\n&quot;);</span>
-<span class="nc" id="L253">        String[] ipv4withmask = getIPv4addr();</span>
-<span class="nc bnc" id="L254" title="All 2 branches missed.">        if (this.ipv4.length == this.subnetMasks.length) {</span>
-<span class="nc bnc" id="L255" title="All 2 branches missed.">            for (int i = 0; i &lt; this.subnetMasks.length; i++) {</span>
-<span class="nc" id="L256">                ipv4withmask[i] += &quot;/&quot; + this.subnetMasks[i];</span>
+<span class="nc" id="L250">        sb.append(&quot;\n&quot;);</span>
+<span class="nc" id="L251">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L252">        sb.append(&quot;  MTU: &quot;).append(ParseUtil.unsignedIntToLong(getMTU())).append(&quot;, &quot;).append(&quot;Speed: &quot;)</span>
+<span class="nc" id="L253">                .append(getSpeed()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L254">        String[] ipv4withmask = getIPv4addr();</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (this.ipv4.length == this.subnetMasks.length) {</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">            for (int i = 0; i &lt; this.subnetMasks.length; i++) {</span>
+<span class="nc" id="L257">                ipv4withmask[i] += &quot;/&quot; + this.subnetMasks[i];</span>
             }
         }
-<span class="nc" id="L259">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(ipv4withmask)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L260">        String[] ipv6withprefixlength = getIPv6addr();</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (this.ipv6.length == this.prefixLengths.length) {</span>
-<span class="nc bnc" id="L262" title="All 2 branches missed.">            for (int j = 0; j &lt; this.prefixLengths.length; j++) {</span>
-<span class="nc" id="L263">                ipv6withprefixlength[j] += &quot;/&quot; + this.prefixLengths[j];</span>
+<span class="nc" id="L260">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(ipv4withmask)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L261">        String[] ipv6withprefixlength = getIPv6addr();</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (this.ipv6.length == this.prefixLengths.length) {</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            for (int j = 0; j &lt; this.prefixLengths.length; j++) {</span>
+<span class="nc" id="L264">                ipv6withprefixlength[j] += &quot;/&quot; + this.prefixLengths[j];</span>
             }
         }
-<span class="nc" id="L266">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(ipv6withprefixlength)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L267">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
-<span class="nc" id="L268">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
-<span class="nc" id="L269">                .append(getInDrops() + &quot; drop);&quot;);</span>
-<span class="nc" id="L270">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
-<span class="nc" id="L271">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
-<span class="nc" id="L272">                .append(getCollisions() + &quot; coll);&quot;);</span>
-<span class="nc" id="L273">        return sb.toString();</span>
+<span class="nc" id="L267">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(ipv6withprefixlength)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L268">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
+<span class="nc" id="L269">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
+<span class="nc" id="L270">                .append(getInDrops() + &quot; drop);&quot;);</span>
+<span class="nc" id="L271">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
+<span class="nc" id="L272">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
+<span class="nc" id="L273">                .append(getCollisions() + &quot; coll);&quot;);</span>
+<span class="nc" id="L274">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
