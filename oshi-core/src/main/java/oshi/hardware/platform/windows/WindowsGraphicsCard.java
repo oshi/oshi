@@ -80,8 +80,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             WmiResult<VideoControllerProperty> cards = Win32VideoController.queryVideoController();
             for (int index = 0; index < cards.getResultCount(); index++) {
                 String name = WmiUtil.getString(cards, VideoControllerProperty.NAME, index);
-                Triplet<String, String, String> idPair = ParseUtil
-                        .parseDeviceIdToVendorProductSerial(
+                Triplet<String, String, String> idPair = ParseUtil.parseDeviceIdToVendorProductSerial(
                         WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
                 String deviceId = idPair == null ? Constants.UNKNOWN : idPair.getB();
                 String vendor = WmiUtil.getString(cards, VideoControllerProperty.ADAPTERCOMPATIBILITY, index);

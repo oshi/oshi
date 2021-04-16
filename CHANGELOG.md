@@ -1,13 +1,8 @@
-# 5.7.1 (in progress)
+# 5.7.2 (in progress)
 
-##### Bug fixes / Improvements
-* [#1596](https://github.com/oshi/oshi/pull/1596): Single COM initialization for groups of queries - [@dbwiddis](https://github.com/dbwiddis).
-* [#1603](https://github.com/oshi/oshi/pull/1603): Improve performance of Windows USB device tree parsing - [@dbwiddis](https://github.com/dbwiddis).
-* [#1605](https://github.com/oshi/oshi/pull/1605): Cache localized perf counter object strings - [@dbwiddis](https://github.com/dbwiddis).
-* [#1608](https://github.com/oshi/oshi/pull/1608): LinuxOSProcess#getOpenFiles returns one more than expected - [@slaha](https://github.com/slaha).
-* [#1610](https://github.com/oshi/oshi/pull/1610): Remove redundant check for isLocalInterface - [@barddoo](https://github.com/barddoo).
+* Your contribution here
 
-# 5.7.0 (2021-04-01)
+# 5.7.0 (2021-04-01), 5.7.1 (2021-04-15)
 
 ##### New Features
 * [#1584](https://github.com/oshi/oshi/pull/1584): Add logical volume group information - [@tausiflife](https://github.com/tausiflife).
@@ -16,6 +11,11 @@
 
 ##### Bug fixes / Improvements
 * [#1585](https://github.com/oshi/oshi/pull/1585): macOS doesn't provide system level context switches or interrupts - [@dbwiddis](https://github.com/dbwiddis).
+* [#1596](https://github.com/oshi/oshi/pull/1596): Single COM initialization for groups of queries - [@dbwiddis](https://github.com/dbwiddis).
+* [#1603](https://github.com/oshi/oshi/pull/1603): Improve performance of Windows USB device tree parsing - [@dbwiddis](https://github.com/dbwiddis).
+* [#1605](https://github.com/oshi/oshi/pull/1605): Cache localized perf counter object strings - [@dbwiddis](https://github.com/dbwiddis).
+* [#1608](https://github.com/oshi/oshi/pull/1608): LinuxOSProcess#getOpenFiles returns one more than expected - [@slaha](https://github.com/slaha).
+* [#1610](https://github.com/oshi/oshi/pull/1610): Remove redundant check for isLocalInterface - [@barddoo](https://github.com/barddoo).
 
 # 5.6.0 (2021-03-01), 5.6.1 (2021-03-22)
 
