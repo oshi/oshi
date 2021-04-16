@@ -51,19 +51,22 @@ public final class OhmSensor {
     /**
      * Queries the sensor value of an hardware identifier and sensor type.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @param identifier
      *            The identifier whose value to query.
      * @param sensorType
      *            The type of sensor to query.
      * @return The sensor value.
      */
-    public static WmiResult&lt;ValueProperty&gt; querySensorValue(String identifier, String sensorType) {
-<span class="nc" id="L61">        StringBuilder sb = new StringBuilder(SENSOR);</span>
-<span class="nc" id="L62">        sb.append(&quot; WHERE Parent = \&quot;&quot;).append(identifier);</span>
-<span class="nc" id="L63">        sb.append(&quot;\&quot; AND SensorType=\&quot;&quot;).append(sensorType).append('\&quot;');</span>
-<span class="nc" id="L64">        WmiQuery&lt;ValueProperty&gt; ohmSensorQuery = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, sb.toString(),</span>
+    public static WmiResult&lt;ValueProperty&gt; querySensorValue(WmiQueryHandler h, String identifier, String sensorType) {
+<span class="nc" id="L64">        StringBuilder sb = new StringBuilder(SENSOR);</span>
+<span class="nc" id="L65">        sb.append(&quot; WHERE Parent = \&quot;&quot;).append(identifier);</span>
+<span class="nc" id="L66">        sb.append(&quot;\&quot; AND SensorType=\&quot;&quot;).append(sensorType).append('\&quot;');</span>
+<span class="nc" id="L67">        WmiQuery&lt;ValueProperty&gt; ohmSensorQuery = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, sb.toString(),</span>
                 ValueProperty.class);
-<span class="nc" id="L66">        return WmiQueryHandler.createInstance().queryWMI(ohmSensorQuery);</span>
+<span class="nc" id="L69">        return h.queryWMI(ohmSensorQuery, false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

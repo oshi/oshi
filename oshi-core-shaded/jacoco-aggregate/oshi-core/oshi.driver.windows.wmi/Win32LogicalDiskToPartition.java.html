@@ -50,12 +50,15 @@ public final class Win32LogicalDiskToPartition {
     /**
      * Queries the association between logical disk and partition.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Antecedent-dependent pairs of disk and partition.
      */
-    public static WmiResult&lt;DiskToPartitionProperty&gt; queryDiskToPartition() {
-<span class="nc" id="L56">        WmiQuery&lt;DiskToPartitionProperty&gt; diskToPartitionQuery = new WmiQuery&lt;&gt;(WIN32_LOGICAL_DISK_TO_PARTITION,</span>
+    public static WmiResult&lt;DiskToPartitionProperty&gt; queryDiskToPartition(WmiQueryHandler h) {
+<span class="nc" id="L59">        WmiQuery&lt;DiskToPartitionProperty&gt; diskToPartitionQuery = new WmiQuery&lt;&gt;(WIN32_LOGICAL_DISK_TO_PARTITION,</span>
                 DiskToPartitionProperty.class);
-<span class="nc" id="L58">        return WmiQueryHandler.createInstance().queryWMI(diskToPartitionQuery);</span>
+<span class="nc" id="L61">        return h.queryWMI(diskToPartitionQuery, false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
