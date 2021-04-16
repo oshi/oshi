@@ -51,18 +51,22 @@ public final class OhmHardware {
     /**
      * Queries the hardware identifiers for a monitored type.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @param typeToQuery
      *            which type to filter based on
      * @param typeName
      *            the name of the type
      * @return The sensor value.
      */
-    public static WmiResult&lt;IdentifierProperty&gt; queryHwIdentifier(String typeToQuery, String typeName) {
-<span class="nc" id="L61">        StringBuilder sb = new StringBuilder(HARDWARE);</span>
-<span class="nc" id="L62">        sb.append(&quot; WHERE &quot;).append(typeToQuery).append(&quot;Type=\&quot;&quot;).append(typeName).append('\&quot;');</span>
-<span class="nc" id="L63">        WmiQuery&lt;IdentifierProperty&gt; cpuIdentifierQuery = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, sb.toString(),</span>
+    public static WmiResult&lt;IdentifierProperty&gt; queryHwIdentifier(WmiQueryHandler h, String typeToQuery,
+            String typeName) {
+<span class="nc" id="L65">        StringBuilder sb = new StringBuilder(HARDWARE);</span>
+<span class="nc" id="L66">        sb.append(&quot; WHERE &quot;).append(typeToQuery).append(&quot;Type=\&quot;&quot;).append(typeName).append('\&quot;');</span>
+<span class="nc" id="L67">        WmiQuery&lt;IdentifierProperty&gt; cpuIdentifierQuery = new WmiQuery&lt;&gt;(WmiUtil.OHM_NAMESPACE, sb.toString(),</span>
                 IdentifierProperty.class);
-<span class="nc" id="L65">        return WmiQueryHandler.createInstance().queryWMI(cpuIdentifierQuery);</span>
+<span class="nc" id="L69">        return h.queryWMI(cpuIdentifierQuery, false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

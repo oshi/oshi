@@ -78,48 +78,60 @@ public final class MSFTStorage {
     /**
      * Query the storage pools.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Storage pools that are not primordial (raw disks not added to a
      *         storage space).
      */
-    public static WmiResult&lt;StoragePoolProperty&gt; queryStoragePools() {
-<span class="nc" id="L85">        WmiQuery&lt;StoragePoolProperty&gt; storagePoolQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE,</span>
+    public static WmiResult&lt;StoragePoolProperty&gt; queryStoragePools(WmiQueryHandler h) {
+<span class="nc" id="L88">        WmiQuery&lt;StoragePoolProperty&gt; storagePoolQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE,</span>
                 MSFT_STORAGE_POOL_WHERE_IS_PRIMORDIAL_FALSE, StoragePoolProperty.class);
-<span class="nc" id="L87">        return WmiQueryHandler.createInstance().queryWMI(storagePoolQuery);</span>
+<span class="nc" id="L90">        return h.queryWMI(storagePoolQuery, false);</span>
     }
 
     /**
      * Query the storage pool to physical disk connection.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Links between physical disks and storage pools. All raw disks will be
      *         part of the primordial pool in addition to the storage space they are
      *         a member of.
      */
-    public static WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; queryStoragePoolPhysicalDisks() {
-<span class="nc" id="L98">        WmiQuery&lt;StoragePoolToPhysicalDiskProperty&gt; storagePoolToPhysicalDiskQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE,</span>
+    public static WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; queryStoragePoolPhysicalDisks(WmiQueryHandler h) {
+<span class="nc" id="L104">        WmiQuery&lt;StoragePoolToPhysicalDiskProperty&gt; storagePoolToPhysicalDiskQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE,</span>
                 MSFT_STORAGE_POOL_TO_PHYSICAL_DISK, StoragePoolToPhysicalDiskProperty.class);
-<span class="nc" id="L100">        return WmiQueryHandler.createInstance().queryWMI(storagePoolToPhysicalDiskQuery);</span>
+<span class="nc" id="L106">        return h.queryWMI(storagePoolToPhysicalDiskQuery, false);</span>
     }
 
     /**
      * Query the physical disks.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return The physical disks.
      */
-    public static WmiResult&lt;PhysicalDiskProperty&gt; queryPhysicalDisks() {
-<span class="nc" id="L109">        WmiQuery&lt;PhysicalDiskProperty&gt; physicalDiskQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,</span>
+    public static WmiResult&lt;PhysicalDiskProperty&gt; queryPhysicalDisks(WmiQueryHandler h) {
+<span class="nc" id="L118">        WmiQuery&lt;PhysicalDiskProperty&gt; physicalDiskQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,</span>
                 PhysicalDiskProperty.class);
-<span class="nc" id="L111">        return WmiQueryHandler.createInstance().queryWMI(physicalDiskQuery);</span>
+<span class="nc" id="L120">        return h.queryWMI(physicalDiskQuery, false);</span>
     }
 
     /**
      * Query the virtual disks.
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return The virtual disks.
      */
-    public static WmiResult&lt;VirtualDiskProperty&gt; queryVirtualDisks() {
-<span class="nc" id="L120">        WmiQuery&lt;VirtualDiskProperty&gt; virtualDiskQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_VIRTUAL_DISK,</span>
+    public static WmiResult&lt;VirtualDiskProperty&gt; queryVirtualDisks(WmiQueryHandler h) {
+<span class="nc" id="L132">        WmiQuery&lt;VirtualDiskProperty&gt; virtualDiskQuery = new WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_VIRTUAL_DISK,</span>
                 VirtualDiskProperty.class);
-<span class="nc" id="L122">        return WmiQueryHandler.createInstance().queryWMI(virtualDiskQuery);</span>
+<span class="nc" id="L134">        return h.queryWMI(virtualDiskQuery, false);</span>
     }
 
 }

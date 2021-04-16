@@ -23,59 +23,21 @@
  */
 package oshi.demo;
 
-import java.util.concurrent.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.win32.COM.COMException; // NOSONAR squid:S1191
-import com.sun.jna.platform.win32.COM.Wbemcli;
-import com.sun.jna.platform.win32.COM.WbemcliUtil;
-
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
- * Query handler class that overrides WMI query method assuming COM is already
- * initialized by the user.
+ * Query handler class that avoids COM initialization overhead assuming COM is
+ * already initialized by the user.
  */
-<span class="nc" id="L42">public class WmiNoComInitQueryHandler extends WmiQueryHandler {</span>
+<span class="nc" id="L32">public class WmiNoComInitQueryHandler extends WmiQueryHandler {</span>
 
-<span class="nc" id="L44">    private static final Logger LOG = LoggerFactory.getLogger(WmiNoComInitQueryHandler.class);</span>
-
+    /**
+     * Don't initialize COM, despite the method name. Overrides the superclass
+     * {@link WmiQueryHandler#initCOM()} method to bypass COM initialization.
+     */
     @Override
-    public &lt;T extends Enum&lt;T&gt;&gt; WbemcliUtil.WmiResult&lt;T&gt; queryWMI(WbemcliUtil.WmiQuery&lt;T&gt; query) {
-
-<span class="nc" id="L49">        WbemcliUtil.WmiResult&lt;T&gt; result = WbemcliUtil.INSTANCE.new WmiResult&lt;&gt;(query.getPropertyEnum());</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (failedWmiClassNames.contains(query.getWmiClassName())) {</span>
-<span class="nc" id="L51">            return result;</span>
-        }
-        try {
-<span class="nc" id="L54">            result = query.execute(wmiTimeout);</span>
-<span class="nc" id="L55">        } catch (COMException e) {</span>
-            // Ignore any exceptions with OpenHardwareMonitor
-<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())) {</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">                final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();</span>
-<span class="nc bnc" id="L59" title="All 4 branches missed.">                switch (hresult) {</span>
-                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-<span class="nc" id="L61">                    LOG.warn(&quot;COM exception: Invalid Namespace {}&quot;, query.getNameSpace());</span>
-<span class="nc" id="L62">                    break;</span>
-                case Wbemcli.WBEM_E_INVALID_CLASS:
-<span class="nc" id="L64">                    LOG.warn(&quot;COM exception: Invalid Class {}&quot;, query.getWmiClassName());</span>
-<span class="nc" id="L65">                    break;</span>
-                case Wbemcli.WBEM_E_INVALID_QUERY:
-<span class="nc" id="L67">                    LOG.warn(&quot;COM exception: Invalid Query: {}&quot;, WmiUtil.queryToString(query));</span>
-<span class="nc" id="L68">                    break;</span>
-                default:
-<span class="nc" id="L70">                    handleComException(query, e);</span>
-                    break;
-                }
-<span class="nc" id="L73">                failedWmiClassNames.add(query.getWmiClassName());</span>
-            }
-<span class="nc" id="L75">        } catch (TimeoutException e) {</span>
-<span class="nc" id="L76">            LOG.error(&quot;WMI query timed out after {} ms: {}&quot;, wmiTimeout, WmiUtil.queryToString(query));</span>
-<span class="nc" id="L77">        }</span>
-<span class="nc" id="L78">        return result;</span>
+    public boolean initCOM() {
+<span class="nc" id="L40">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

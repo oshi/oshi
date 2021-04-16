@@ -44,37 +44,20 @@ public final class Win32DiskDrive {
 <span class="nc" id="L44">        INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;</span>
     }
 
-    /**
-     * DeviceID and serial properties
-     */
-<span class="nc" id="L50">    public enum DeviceIdProperty {</span>
-<span class="nc" id="L51">        PNPDEVICEID, SERIALNUMBER;</span>
-    }
-
     private Win32DiskDrive() {
     }
 
     /**
      * Queries the disk drive name info
      *
+     * @param h
+     *            An instantiated {@link WmiQueryHandler}. User should have already
+     *            initialized COM.
      * @return Information regarding each disk drive.
      */
-    public static WmiResult&lt;DiskDriveProperty&gt; queryDiskDrive() {
-<span class="nc" id="L63">        WmiQuery&lt;DiskDriveProperty&gt; diskDriveQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE, DiskDriveProperty.class);</span>
-<span class="nc" id="L64">        return WmiQueryHandler.createInstance().queryWMI(diskDriveQuery);</span>
-    }
-
-    /**
-     * Queries the disk drive id info
-     *
-     * @param whereClause
-     *            WQL &quot;WHERE&quot; clause limiting the search
-     * @return Information regarding each disk drive's device id and serial number
-     */
-    public static WmiResult&lt;DeviceIdProperty&gt; queryDiskDriveId(String whereClause) {
-<span class="nc" id="L75">        WmiQuery&lt;DeviceIdProperty&gt; deviceIdQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE + whereClause,</span>
-                DeviceIdProperty.class);
-<span class="nc" id="L77">        return WmiQueryHandler.createInstance().queryWMI(deviceIdQuery);</span>
+    public static WmiResult&lt;DiskDriveProperty&gt; queryDiskDrive(WmiQueryHandler h) {
+<span class="nc" id="L59">        WmiQuery&lt;DiskDriveProperty&gt; diskDriveQuery = new WmiQuery&lt;&gt;(WIN32_DISK_DRIVE, DiskDriveProperty.class);</span>
+<span class="nc" id="L60">        return h.queryWMI(diskDriveQuery, false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
