@@ -459,8 +459,10 @@ public final class ProcessStat {
     /**
      * Gets an array of files in the /proc/{pid}/fd directory.
      *
-     * @param pid id of process to read file descriptors for
-     * @return An array of File objects representing opened file descriptors of the process
+     * @param pid
+     *            id of process to read file descriptors for
+     * @return An array of File objects representing opened file descriptors of the
+     *         process
      */
     public static File[] getFileDescriptorFiles(int pid) {
         return listNumericFiles(String.format(ProcPath.PID_FD, pid));
@@ -509,10 +511,8 @@ public final class ProcessStat {
      */
     public static List<Integer> getThreadIds(int pid) {
         File[] threads = listNumericFiles(String.format(ProcPath.TASK_PATH, pid));
-        return Arrays.stream(threads)
-            .map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0))
-            .filter(threadId -> threadId != pid)
-            .collect(Collectors.toList());
+        return Arrays.stream(threads).map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0))
+                .filter(threadId -> threadId != pid).collect(Collectors.toList());
     }
 
     private static File[] listNumericFiles(String path) {
