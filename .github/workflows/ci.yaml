@@ -19,10 +19,9 @@ jobs:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [8, 11, 16, 17-ea]
-        distribution: ['adopt', 'zulu']
         os: [ubuntu-latest, macos-latest, macos-11.0, windows-latest]
       fail-fast: false
-    name: ${{ matrix.distribution }} JDK ${{ matrix.java }}, ${{ matrix.os }}
+    name: JDK ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
@@ -30,7 +29,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
-          distribution: ${{ matrix.distribution }}
+          distribution: 'adopt'
       - name: Cache Maven packages
         uses: actions/cache@v2.1.5
         with:
@@ -40,7 +39,7 @@ jobs:
       - name: Test with Maven
         run: ./mvnw test -B
       - name: Report Coverage to Coveralls
-        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8') && contains(matrix.distribution, 'adopt')
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
         run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
