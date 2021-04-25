@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -52,7 +51,6 @@ import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
-import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.W32ServiceManager;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -61,7 +59,6 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
@@ -89,9 +86,8 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
-import oshi.util.FileUtil;
+import oshi.util.Constants;
 import oshi.util.GlobalConfig;
-import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
@@ -108,7 +104,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     public static final String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = "oshi.os.windows.procstate.suspended";
     private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig.get(OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
-    private static final String WIN_VERSION_PROPERTIES = "oshi.windows.versions.properties";
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     private static final int TOKENELEVATION = 0x14;
@@ -149,60 +144,25 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
-        if (versionInfo.getResultCount() < 1) {
-            return new Pair<>("Windows", new OSVersionInfo(System.getProperty("os.version"), null, null));
+        String version = System.getProperty("os.name");
+        if (version.startsWith("Windows ")) {
+            version = version.substring(8);
         }
-        // Guaranteed that versionInfo is not null and lists non-empty
-        // before calling the parse*() methods
-        int suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
-        String buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
-        String version = parseVersion(versionInfo, suiteMask, buildNumber);
+
+        String sp = null;
+        int suiteMask = 0;
+        String buildNumber = null;
+        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
+        if (versionInfo.getResultCount() > 0) {
+            sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
+            if (!sp.isEmpty() && !Constants.UNKNOWN.equals(sp)) {
+                version = version + " " + sp.replace("Service Pack ", "SP");
+            }
+            suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
+            buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
+        }
         String codeName = parseCodeName(suiteMask);
         return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
-    }
-
-    private String parseVersion(WmiResult<OSVersionProperty> versionInfo, int suiteMask, String buildNumber) {
-        // Initialize a default, sane value
-        String version = System.getProperty("os.version");
-
-        // Version is major.minor.build. Parse the version string for
-        // major/minor and get the build number separately
-        String[] verSplit = WmiUtil.getString(versionInfo, OSVersionProperty.VERSION, 0).split("\\D");
-        int major = verSplit.length > 0 ? ParseUtil.parseIntOrDefault(verSplit[0], 0) : 0;
-        int minor = verSplit.length > 1 ? ParseUtil.parseIntOrDefault(verSplit[1], 0) : 0;
-
-        // see
-        // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724833%28v=vs.85%29.aspx
-        boolean ntWorkstation = WmiUtil.getUint32(versionInfo, OSVersionProperty.PRODUCTTYPE,
-                0) == WinNT.VER_NT_WORKSTATION;
-
-        StringBuilder verLookup = new StringBuilder().append(major).append('.').append(minor);
-
-        if (IS_VISTA_OR_GREATER && ntWorkstation) {
-            verLookup.append(".nt");
-        } else if (major == 10 && ParseUtil.parseLongOrDefault(buildNumber, 0L) > 17_762) {
-            verLookup.append(".17763+");
-        } else if (major == 5 && minor == 2) {
-            if (ntWorkstation && getBitness() == 64) {
-                verLookup.append(".nt.x64");
-            } else if ((suiteMask & 0x00008000) != 0) { // VER_SUITE_WH_SERVER
-                verLookup.append(".HS");
-            } else if (User32.INSTANCE.GetSystemMetrics(WinUser.SM_SERVERR2) != 0) {
-                verLookup.append(".R2");
-            }
-        }
-
-        Properties verProps = FileUtil.readPropertiesFromFilename(WIN_VERSION_PROPERTIES);
-        version = verProps.getProperty(verLookup.toString()) != null ? verProps.getProperty(verLookup.toString())
-                : version;
-
-        String sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
-        if (!sp.isEmpty() && !"unknown".equals(sp)) {
-            version = version + " " + sp.replace("Service Pack ", "SP");
-        }
-
-        return version;
     }
 
     /**
@@ -222,7 +182,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             suites.add("BackOffice");
         }
         if ((suiteMask & 0x00000008) != 0) {
-            suites.add("Communication Server");
+            suites.add("Communications Server");
         }
         if ((suiteMask & 0x00000080) != 0) {
             suites.add("Datacenter");
@@ -239,7 +199,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         if ((suiteMask & 0x00004000) != 0) {
             suites.add("Compute Cluster");
         }
-        // 0x8000, Home Server, is included in main version name
+        if ((suiteMask & 0x00008000) != 0) {
+            suites.add("Home Server");
+        }
         return String.join(",", suites);
     }
 
