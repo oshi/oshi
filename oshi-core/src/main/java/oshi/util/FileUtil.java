@@ -33,9 +33,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,13 +235,15 @@ public final class FileUtil {
      */
     public static Properties readPropertiesFromFilename(String propsFilename) {
         Properties archProps = new Properties();
-        // Load the configuration file from the different classloaders
-        if (readPropertiesFromClassLoader(propsFilename, archProps, Thread.currentThread().getContextClassLoader())
-                || readPropertiesFromClassLoader(propsFilename, archProps, ClassLoader.getSystemClassLoader())
-                || readPropertiesFromClassLoader(propsFilename, archProps, FileUtil.class.getClassLoader())) {
-            return archProps;
+        // Load the configuration file from at least one of multiple possible
+        // ClassLoaders, evaluated in order, eliminating duplicates
+        for (ClassLoader loader : Stream.of(Thread.currentThread().getContextClassLoader(),
+                ClassLoader.getSystemClassLoader(), FileUtil.class.getClassLoader())
+                .collect(Collectors.toCollection(LinkedHashSet::new))) {
+            if (readPropertiesFromClassLoader(propsFilename, archProps, loader)) {
+                return archProps;
+            }
         }
-
         LOG.warn("Failed to load default configuration");
         return archProps;
     }
@@ -265,10 +270,10 @@ public final class FileUtil {
                     archProps.load(in);
                 }
             }
+            return true;
         } catch (IOException e) {
             return false;
         }
-        return true;
     }
 
     /**
