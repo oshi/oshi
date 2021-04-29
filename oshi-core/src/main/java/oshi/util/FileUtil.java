@@ -252,7 +252,7 @@ public final class FileUtil {
         try {
             List<URL> resources = Collections.list(loader.getResources(propsFilename));
             if (resources.isEmpty()) {
-                LOG.info("No {} file found from ClassLoader {}", propsFilename, loader);
+                LOG.debug("No {} file found from ClassLoader {}", propsFilename, loader);
                 return false;
             }
             if (resources.size() > 1) {
