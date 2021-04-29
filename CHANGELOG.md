@@ -2,7 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#1614](https://github.com/oshi/oshi/pull/1614): Simplify Windows version parsing using JDK properties - [@dbwiddis](https://github.com/dbwiddis).
-
+* [#1620](https://github.com/oshi/oshi/pull/1620): Changed Log.info to Log.debug - [@UnusualFrog](https://github.com/UnusualFrog).
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15)
 
 ##### New Features
