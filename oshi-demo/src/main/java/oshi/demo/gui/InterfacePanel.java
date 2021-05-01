@@ -36,9 +36,8 @@ import java.util.List;
 import java.util.Map.Entry;
 
 /**
- * Displays a process list, such as ps or task manager. This performs more like
- * Windows Task Manger with current CPU as measured between polling intervals,
- * while PS uses a cumulative CPU value.
+ * Displays a interface list, such as ifconfig.
+ *
  * @author Constantine
  */
 @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
