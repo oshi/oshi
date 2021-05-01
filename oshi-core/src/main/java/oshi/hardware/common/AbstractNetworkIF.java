@@ -23,29 +23,23 @@
  */
 package oshi.hardware.common;
 
-import static oshi.util.Memoizer.memoize;
-
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.util.FileUtil;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
+
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static oshi.util.Memoizer.memoize;
 
 /**
  * Network interfaces implementation.
@@ -168,6 +162,11 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     @Override
     public String getName() {
         return this.networkInterface.getName();
+    }
+
+    @Override
+    public int getIndex() {
+        return this.networkInterface.getIndex();
     }
 
     @Override

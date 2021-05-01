@@ -23,9 +23,9 @@
  */
 package oshi.hardware;
 
-import java.net.NetworkInterface;
-
 import oshi.annotation.concurrent.ThreadSafe;
+
+import java.net.NetworkInterface;
 
 /**
  * A network interface in the machine, including statistics.
@@ -52,6 +52,13 @@ public interface NetworkIF {
      * @return The interface name.
      */
     String getName();
+
+    /**
+     * Interface index.
+     *
+     * @return The index of the network interface.
+     */
+    int getIndex();
 
     /**
      * Interface description.
