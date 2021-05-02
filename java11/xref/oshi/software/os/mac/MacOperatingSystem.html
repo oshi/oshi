@@ -266,7 +266,7 @@
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         List&lt;OSService&gt; services = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>             <a name="OSService" href="../../../../oshi/software/os/<a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>(p.getName(), p.getProcessID(), RUNNING);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>(p.getName(), p.getProcessID(), RUNNING);
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>             services.add(s);
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>             running.add(p.getName());
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>         }
@@ -290,7 +290,7 @@
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>             <strong class="jxr_keyword">int</strong> index = name.lastIndexOf('.');
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>             String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>             <strong class="jxr_keyword">if</strong> (!running.contains(name) &amp;&amp; !running.contains(shortName)) {
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 <a name="OSService" href="../../../../oshi/software/os/<a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>(name, 0, STOPPED);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>(name, 0, STOPPED);
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>                 services.add(s);
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>             }
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>         }
