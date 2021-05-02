@@ -60,22 +60,26 @@ public class UserComInit {
 
     private static void loopWmiQueriesWithUserCom() {
         // Create instance using existing WmiQueryHandler class for convenience, only to
-        // be used for COM init/uninit. This is unnecessary in a user application if
-        // they control COM initialization elsewhere.
+        // be used for COM init/uninit. Not needed if user initializes COM.
         WmiQueryHandler handlerForSingleCOMinit = WmiQueryHandler.createInstance();
 
-        // Change query handler class to not initialize COM
-        WmiQueryHandler.setInstanceClass(WmiNoComInitQueryHandler.class);
-        boolean comInit = false;
+        boolean singleComInit = false;
         try {
-            comInit = handlerForSingleCOMinit.initCOM();
+            // Initialize using the default query handler. This is unnecessary in a user
+            // application if the application controls COM initialization elsewhere.
+            singleComInit = handlerForSingleCOMinit.initCOM();
+
+            // Change query handler class to not initialize COM
+            WmiQueryHandler.setInstanceClass(WmiNoComInitQueryHandler.class);
 
             loopWmiQueries();
         } catch (COMException e) {
             // Ignore for demo. Production code should handle this!
-        }
-        if (comInit) {
-            handlerForSingleCOMinit.unInitCOM();
+        } finally {
+            // User should ununitialize COM in their own application
+            if (singleComInit) {
+                handlerForSingleCOMinit.unInitCOM();
+            }
         }
     }
 }
