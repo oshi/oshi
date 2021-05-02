@@ -32,7 +32,7 @@ oshi-demo/oshi-core,oshi.hardware.common,AbstractLogicalVolumeGroup,100,0,6,0,21
 oshi-demo/oshi-core,oshi.hardware.common,AbstractGraphicsCard,99,0,0,0,27,0,7,0,7,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractHWDiskStore,152,0,16,0,22,0,14,0,6,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractSoundCard,69,0,0,0,19,0,5,0,5,0
-oshi-demo/oshi-core,oshi.hardware.common,AbstractNetworkIF,543,0,32,0,91,0,35,0,19,0
+oshi-demo/oshi-core,oshi.hardware.common,AbstractNetworkIF,551,0,32,0,93,0,36,0,20,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractPowerSource,537,0,21,0,117,0,39,0,26,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractFirmware,64,0,2,0,11,0,6,0,5,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractComputerSystem,64,0,0,0,11,0,4,0,4,0
@@ -42,7 +42,7 @@ oshi-demo/oshi-core,oshi.hardware.common,AbstractBaseboard,44,0,0,0,7,0,2,0,2,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractCentralProcessor,720,0,57,0,143,0,60,0,17,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractSensors,71,0,0,0,12,0,5,0,5,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractHardwareAbstractionLayer,47,0,0,0,10,0,6,0,6,0
-oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,920,0,119,0,209,0,94,0,34,0
+oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,799,0,95,0,194,0,81,0,33,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsFileSystem,607,0,48,0,111,0,35,0,9,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSSystemInfo,65,0,4,0,21,0,7,0,5,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSThread,170,0,16,0,48,0,23,0,13,0
@@ -58,7 +58,7 @@ oshi-demo/oshi-core,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacOSProcess,609,0,51,0,136,0,59,0,31,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacOSThread,46,0,0,0,16,0,8,0,8,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacInternetProtocolStats,762,0,58,0,145,0,47,0,13,0
-oshi-demo/oshi-core,oshi.software.os.mac,MacFileSystem,484,0,60,0,107,0,38,0,8,0
+oshi-demo/oshi-core,oshi.software.os.mac,MacFileSystem,487,0,62,0,108,0,39,0,8,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,MemoryInformation.PageSwapProperty,36,0,0,0,9,0,4,0,4,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessInformation,10,0,0,0,2,0,2,0,2,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessorInformation.InterruptsProperty,28,0,0,0,8,0,4,0,4,0
@@ -170,7 +170,7 @@ oshi-demo/oshi-core,oshi.util,GlobalConfig,0,70,0,8,0,18,0,13,0,9
 oshi-demo/oshi-core,oshi.util,Constants,6,5,0,0,2,1,1,1,1,1
 oshi-demo/oshi-core,oshi.util,ParseUtil,32,1769,26,198,7,359,25,141,0,51
 oshi-demo/oshi-core,oshi.util,Memoizer,0,29,0,0,0,6,0,5,0,5
-oshi-demo/oshi-core,oshi.util,FileUtil,87,232,18,34,23,62,18,19,1,10
+oshi-demo/oshi-core,oshi.util,FileUtil,87,250,16,34,23,63,16,20,1,10
 oshi-demo/oshi-core,oshi.util,EdidUtil,32,522,7,16,2,63,6,25,0,17
 oshi-demo/oshi-core,oshi.util,FormatUtil,0,370,0,36,0,56,0,30,0,12
 oshi-demo/oshi-core,oshi.util,GlobalConfig.PropertyException,15,17,0,0,2,2,1,1,1,1
