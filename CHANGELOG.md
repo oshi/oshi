@@ -1,19 +1,14 @@
-# 5.7.2 (in progress)
+# 5.7.3 (in progress)
 
-##### New Features
-* [#1626](https://github.com/oshi/oshi/pull/1626): Add getIndex() in NetworkIF and demo of Interfaces - [@angelyouyou](https://github.com/angelyouyou).
+* Your contribution here
 
-##### Bug fixes / Improvements
-* [#1614](https://github.com/oshi/oshi/pull/1614): Simplify Windows version parsing using JDK properties - [@dbwiddis](https://github.com/dbwiddis).
-* [#1620](https://github.com/oshi/oshi/pull/1620): Reduced log level to debug for fallback class loading - [@UnusualFrog](https://github.com/UnusualFrog).
-* [#1628](https://github.com/oshi/oshi/pull/1628): Null check volume name when iterating Mac File Stores - [@dbwiddis](https://github.com/dbwiddis).
-
-# 5.7.0 (2021-04-01), 5.7.1 (2021-04-15)
+# 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01)
 
 ##### New Features
 * [#1584](https://github.com/oshi/oshi/pull/1584): Add logical volume group information - [@tausiflife](https://github.com/tausiflife).
 * [#1587](https://github.com/oshi/oshi/pull/1587): Add context switches to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
 * [#1592](https://github.com/oshi/oshi/pull/1592): Add suspended process and thread state for Windows - [@dbwiddis](https://github.com/dbwiddis).
+* [#1626](https://github.com/oshi/oshi/pull/1626): Add getIndex() in NetworkIF and demo of Interfaces - [@angelyouyou](https://github.com/angelyouyou).
 
 ##### Bug fixes / Improvements
 * [#1585](https://github.com/oshi/oshi/pull/1585): macOS doesn't provide system level context switches or interrupts - [@dbwiddis](https://github.com/dbwiddis).
@@ -22,6 +17,9 @@
 * [#1605](https://github.com/oshi/oshi/pull/1605): Cache localized perf counter object strings - [@dbwiddis](https://github.com/dbwiddis).
 * [#1608](https://github.com/oshi/oshi/pull/1608): LinuxOSProcess#getOpenFiles returns one more than expected - [@slaha](https://github.com/slaha).
 * [#1610](https://github.com/oshi/oshi/pull/1610): Remove redundant check for isLocalInterface - [@barddoo](https://github.com/barddoo).
+* [#1614](https://github.com/oshi/oshi/pull/1614): Simplify Windows version parsing using JDK properties - [@dbwiddis](https://github.com/dbwiddis).
+* [#1620](https://github.com/oshi/oshi/pull/1620): Reduced log level to debug for fallback class loading - [@UnusualFrog](https://github.com/UnusualFrog).
+* [#1628](https://github.com/oshi/oshi/pull/1628): Null check volume name when iterating Mac File Stores - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.6.0 (2021-03-01), 5.6.1 (2021-03-22)
 
