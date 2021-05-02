@@ -67,7 +67,7 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>                          .getPath();
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          System.out.println(<span class="jxr_string">"Searching stores for path: "</span> + filePath);
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <a name="SystemInfo" href="../../oshi/SystemInfo.html#Sys<a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>ystemInfo</a> si = <strong class="jxr_keyword">new</strong> <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>();
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a> si = <strong class="jxr_keyword">new</strong> <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>();
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <a name="HardwareAbstractionLayer" href="../../oshi/hardware/HardwareAbstractionLayer.html#HardwareAbstractionLayer">HardwareAbstractionLayer</a> hal = si.getHardware();
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          List&lt;HWDiskStore&gt; diskStores = hal.getDiskStores();
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          Pair&lt;Integer, Integer&gt; dsPartIdx = getDiskStoreAndPartitionForPath(filePath, diskStores);

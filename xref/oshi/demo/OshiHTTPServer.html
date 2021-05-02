@@ -79,7 +79,7 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>              <em class="jxr_comment">// we listen until user halts server execution</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) { <em class="jxr_comment">// NOSONAR squid:S2189</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <a name="OshiHTTPServer" href="../../oshi/demo/OshiHTTPServer.html#<a name="OshiHTTPServer" href="../../oshi/demo/OshiHTTPServer.html#OshiHTTPServer">OshiHTTPServer</a>">OshiHTTPServer</a> myServer = <strong class="jxr_keyword">new</strong> <a name="OshiHTTPServer" href="../../oshi/demo/OshiHTTPServer.html#OshiHTTPServer">OshiHTTPServer</a>(serverConnect.accept());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <a name="OshiHTTPServer" href="../../oshi/demo/OshiHTTPServer.html#OshiHTTPServer">OshiHTTPServer</a> myServer = <strong class="jxr_keyword">new</strong> <a name="OshiHTTPServer" href="../../oshi/demo/OshiHTTPServer.html#OshiHTTPServer">OshiHTTPServer</a>(serverConnect.accept());
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>                  <em class="jxr_comment">// create dedicated thread to manage the client connection</em>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>                  Thread thread = <strong class="jxr_keyword">new</strong> Thread(myServer);
@@ -131,7 +131,7 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                 <em class="jxr_comment">// Possibly could use the fileRequested value from user input to work down</em>
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>                 <em class="jxr_comment">// OSHI's JSON tree and only return the relevant info instead of the entire</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                 <em class="jxr_comment">// SystemInfo object.</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <a name="SystemInfo" href="../../oshi/SystemInfo.html#Sys<a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>ystemInfo</a> si = <strong class="jxr_keyword">new</strong> <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>();
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a> si = <strong class="jxr_keyword">new</strong> <a name="SystemInfo" href="../../oshi/SystemInfo.html#SystemInfo">SystemInfo</a>();
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                 ObjectMapper mapper = <strong class="jxr_keyword">new</strong> ObjectMapper();
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                 byte[] content = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(si)
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                         .getBytes(StandardCharsets.UTF_8);

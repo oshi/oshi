@@ -26,7 +26,7 @@ under the License.
     <copyright>&#169;2010 - 2021 oshi</copyright>
     <item>
       <title>File: 410,
-             Errors: 11606,
+             Errors: 11625,
              Warnings: 0,
              Infos: 0
       </title>
@@ -1077,7 +1077,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  75
+                  76
                 </td>
               </tr>
                           <tr>
@@ -1161,7 +1161,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  34
                 </td>
               </tr>
                           <tr>
@@ -2785,7 +2785,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  140
+                  120
                 </td>
               </tr>
                           <tr>
@@ -3737,7 +3737,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  57
+                  59
                 </td>
               </tr>
                           <tr>
@@ -3990,6 +3990,20 @@ under the License.
                 </td>
                 <td>
                   3
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.demo.gui.InterfacePanel.java">oshi/demo/gui/InterfacePanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  35
                 </td>
               </tr>
                           <tr>
@@ -5726,20 +5740,6 @@ under the License.
                 </td>
                 <td>
                   3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.windows.versions.properties">oshi.windows.versions.properties</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
                 </td>
               </tr>
                           <tr>
