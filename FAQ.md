@@ -14,13 +14,15 @@ rarely, change between minor versions, usually associated with organizing packag
 
 Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
 
-Does OSHI support Open Service Gateway Initiative (OSGi) modules?
+Does OSHI support Open Service Gateway initiative (OSGi) modules?
 ========
 OSHI publishes a shaded JAR in the `oshi-core-shaded` artifact built using `maven-shade-plugin` and `maven-bundle-plugin` with manifest updates using `mvn-bnd-plugin`. Submit an issue if the configuration of these plugins needs to be adjusted to support your project.
 
-Does OSHI support Java Platform Management System (JPMS) modules (a.k.a., Jigsaw)?
+Does OSHI support Java Module System (JPMS) modules?
 ========
-OSHI publishes an `Automatic-Module-Name` of `com.github.oshi` in the `oshi-core` manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to make `oshi-core` fully modular.  An `oshi-core-java11` artifact is also published with a full module descriptor (and only modular dependencies), which will allow the existing API to be placed on the module path.
+OSHI publishes an `oshi-core-java11` artifact with a full module descriptor (and only modular dependencies), which will allow the existing API to be placed on the module path. This artifact shares the same API as `oshi-core`.
+
+The `oshi-core` artifact includes `Automatic-Module-Name` of `com.github.oshi` in its manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to otherwise make `oshi-core` modular.
 
 More fine grained modularization is being considered in a possible future major API rewrite targeting JDK 17 compatibility and leveraging features from Project Panama. If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
 
@@ -37,10 +39,7 @@ which may use reentrant code on some platforms.
  - The `PerfCounterQueryHandler` class is not thread-safe but is only internally used in single-thread contexts,
 and is not intended for user use.
 
-Earlier versions do not guarantee thread safety, but as of version 4.6.0, intended use is thread safe.
-Classes with setters on them are obviously not thread-safe unless the use of the setters is synchronized across threads.
-In the case of the `HWDiskStore`, this synchronization must extend to the `HWPartition` objects
-associated with that disk store.
+Earlier versions do not guarantee thread safety, and it should not be assumed.
 
 What minimum Java version is required?
 ========
@@ -118,8 +117,9 @@ meanings.
 
 Does OSHI work on Apple M1 hardware?
 ========
-OSHI works using virtual x86 hardware under Rosetta if you are executing an x86-based JVM. Native `AArch64`
-support requires JNA version 5.7.0 or later.
+OSHI works with native `AArch64` support when JNA is version 5.7.0 or later.
+
+OSHI works using virtual x86 hardware under Rosetta if you are executing an x86-based JVM. 
 
 Does OSHI work on Raspberry Pi hardware?
 ========
