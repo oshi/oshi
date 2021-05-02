@@ -55,6 +55,13 @@ public interface NetworkIF {
     String getName();
 
     /**
+     * Interface index.
+     *
+     * @return The index of the network interface.
+     */
+    int getIndex();
+
+    /**
      * Interface description.
      *
      * @return The description of the network interface. On some platforms, this is
