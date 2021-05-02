@@ -1,5 +1,8 @@
 # 5.7.2 (in progress)
 
+##### New Features
+* [#1626](https://github.com/oshi/oshi/pull/1626): Add getIndex() in NetworkIF and demo of Interfaces - [@angelyouyou](https://github.com/angelyouyou).
+
 ##### Bug fixes / Improvements
 * [#1614](https://github.com/oshi/oshi/pull/1614): Simplify Windows version parsing using JDK properties - [@dbwiddis](https://github.com/dbwiddis).
 * [#1620](https://github.com/oshi/oshi/pull/1620): Reduced log level to debug for fallback class loading - [@UnusualFrog](https://github.com/UnusualFrog).
