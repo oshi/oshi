@@ -55,6 +55,13 @@ public interface NetworkIF {
     String getName();
 
     /**
+     * Interface index.
+     *
+     * @return The index of the network interface.
+     */
+    int getIndex();
+
+    /**
      * Interface description.
      *
      * @return The description of the network interface. On some platforms, this is
@@ -77,7 +84,7 @@ public interface NetworkIF {
      *         empty string.
      */
     default String getIfAlias() {
-<span class="fc" id="L80">        return &quot;&quot;;</span>
+<span class="fc" id="L87">        return &quot;&quot;;</span>
     }
 
     /**
@@ -88,7 +95,7 @@ public interface NetworkIF {
      * @return The current operational state of the interface.
      */
     default IfOperStatus getIfOperStatus() {
-<span class="fc" id="L91">        return IfOperStatus.UNKNOWN;</span>
+<span class="fc" id="L98">        return IfOperStatus.UNKNOWN;</span>
     }
 
     /**
@@ -172,7 +179,7 @@ public interface NetworkIF {
      * @return the ifType
      */
     default int getIfType() {
-<span class="nc" id="L175">        return 0;</span>
+<span class="nc" id="L182">        return 0;</span>
     }
 
     /**
@@ -183,7 +190,7 @@ public interface NetworkIF {
      * @return the ndisPhysicalMediumType
      */
     default int getNdisPhysicalMediumType() {
-<span class="fc" id="L186">        return 0;</span>
+<span class="fc" id="L193">        return 0;</span>
     }
 
     /**
@@ -196,7 +203,7 @@ public interface NetworkIF {
      *         connected cable (Linux), false otherwise
      */
     default boolean isConnectorPresent() {
-<span class="nc" id="L199">        return false;</span>
+<span class="nc" id="L206">        return false;</span>
     }
 
     /**
@@ -348,48 +355,48 @@ public interface NetworkIF {
      * &lt;p&gt;
      * As described in RFC 2863.
      */
-<span class="fc" id="L351">    enum IfOperStatus {</span>
+<span class="fc" id="L358">    enum IfOperStatus {</span>
         /**
          * Up and operational. Ready to pass packets.
          */
-<span class="fc" id="L355">        UP(1),</span>
+<span class="fc" id="L362">        UP(1),</span>
         /**
          * Down and not operational. Not ready to pass packets.
          */
-<span class="fc" id="L359">        DOWN(2),</span>
+<span class="fc" id="L366">        DOWN(2),</span>
         /**
          * In some test mode.
          */
-<span class="fc" id="L363">        TESTING(3),</span>
+<span class="fc" id="L370">        TESTING(3),</span>
         /**
          * The interface status is unknown.
          */
-<span class="fc" id="L367">        UNKNOWN(4),</span>
+<span class="fc" id="L374">        UNKNOWN(4),</span>
         /**
          * The interface is not up, but is in a pending state, waiting for some external
          * event.
          */
-<span class="fc" id="L372">        DORMANT(5),</span>
+<span class="fc" id="L379">        DORMANT(5),</span>
         /**
          * Some component is missing
          */
-<span class="fc" id="L376">        NOT_PRESENT(6),</span>
+<span class="fc" id="L383">        NOT_PRESENT(6),</span>
         /**
          * Down due to state of lower-layer interface(s).
          */
-<span class="fc" id="L380">        LOWER_LAYER_DOWN(7);</span>
+<span class="fc" id="L387">        LOWER_LAYER_DOWN(7);</span>
 
         private final int value;
 
-<span class="fc" id="L384">        IfOperStatus(int value) {</span>
-<span class="fc" id="L385">            this.value = value;</span>
-<span class="fc" id="L386">        }</span>
+<span class="fc" id="L391">        IfOperStatus(int value) {</span>
+<span class="fc" id="L392">            this.value = value;</span>
+<span class="fc" id="L393">        }</span>
 
         /**
          * @return the integer value specified in RFC 2863 for this operational status.
          */
         public int getValue() {
-<span class="nc" id="L392">            return this.value;</span>
+<span class="nc" id="L399">            return this.value;</span>
         }
 
         /**
@@ -401,8 +408,8 @@ public interface NetworkIF {
          *         be found
          */
         public static IfOperStatus byValue(int value) {
-<span class="nc bnc" id="L404" title="All 2 branches missed.">            return Arrays.stream(IfOperStatus.values()).filter(st -&gt; st.getValue() == value).findFirst()</span>
-<span class="nc" id="L405">                    .orElse(UNKNOWN);</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">            return Arrays.stream(IfOperStatus.values()).filter(st -&gt; st.getValue() == value).findFirst()</span>
+<span class="nc" id="L412">                    .orElse(UNKNOWN);</span>
         }
 
     }
