@@ -226,9 +226,11 @@ public class MacFileSystem extends AbstractFileSystem {
                             if (diskInfo != null) {
                                 // get volume name from its key
                                 Pointer result = diskInfo.getValue(daVolumeNameKey);
-                                CFStringRef volumePtr = new CFStringRef(result);
-                                name = volumePtr.stringValue();
-                                if (name == null) {
+                                if (result != null) {
+                                    CFStringRef volumePtr = new CFStringRef(result);
+                                    name = volumePtr.stringValue();
+                                }
+                                if (name.isEmpty()) {
                                     name = Constants.UNKNOWN;
                                 }
                                 diskInfo.release();

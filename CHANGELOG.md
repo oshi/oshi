@@ -3,6 +3,8 @@
 ##### Bug fixes / Improvements
 * [#1614](https://github.com/oshi/oshi/pull/1614): Simplify Windows version parsing using JDK properties - [@dbwiddis](https://github.com/dbwiddis).
 * [#1620](https://github.com/oshi/oshi/pull/1620): Reduced log level to debug for fallback class loading - [@UnusualFrog](https://github.com/UnusualFrog).
+* [#1628](https://github.com/oshi/oshi/pull/1628): Null check volume name when iterating Mac File Stores - [@dbwiddis](https://github.com/dbwiddis).
+
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15)
 
 ##### New Features
