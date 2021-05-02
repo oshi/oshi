@@ -226,57 +226,59 @@ import oshi.util.platform.mac.SysctlUtil;
 <span class="nc bnc" id="L226" title="All 2 branches missed.">                            if (diskInfo != null) {</span>
                                 // get volume name from its key
 <span class="nc" id="L228">                                Pointer result = diskInfo.getValue(daVolumeNameKey);</span>
-<span class="nc" id="L229">                                CFStringRef volumePtr = new CFStringRef(result);</span>
-<span class="nc" id="L230">                                name = volumePtr.stringValue();</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">                                if (name == null) {</span>
-<span class="nc" id="L232">                                    name = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">                                if (result != null) {</span>
+<span class="nc" id="L230">                                    CFStringRef volumePtr = new CFStringRef(result);</span>
+<span class="nc" id="L231">                                    name = volumePtr.stringValue();</span>
                                 }
-<span class="nc" id="L234">                                diskInfo.release();</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                                if (name.isEmpty()) {</span>
+<span class="nc" id="L234">                                    name = Constants.UNKNOWN;</span>
+                                }
+<span class="nc" id="L236">                                diskInfo.release();</span>
                             }
-<span class="nc" id="L236">                            disk.release();</span>
+<span class="nc" id="L238">                            disk.release();</span>
                         }
                         // Search for bsd name in IOKit registry for UUID
-<span class="nc" id="L239">                        CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">                        if (matchingDict != null) {</span>
+<span class="nc" id="L241">                        CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                        if (matchingDict != null) {</span>
                             // search for all IOservices that match the bsd name
-<span class="nc" id="L242">                            IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);</span>
-<span class="nc bnc" id="L243" title="All 2 branches missed.">                            if (fsIter != null) {</span>
+<span class="nc" id="L244">                            IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                            if (fsIter != null) {</span>
                                 // getMatchingServices releases matchingDict
                                 // Should only match one logical drive
-<span class="nc" id="L246">                                IORegistryEntry fsEntry = fsIter.next();</span>
-<span class="nc bnc" id="L247" title="All 4 branches missed.">                                if (fsEntry != null &amp;&amp; fsEntry.conformsTo(&quot;IOMedia&quot;)) {</span>
+<span class="nc" id="L248">                                IORegistryEntry fsEntry = fsIter.next();</span>
+<span class="nc bnc" id="L249" title="All 4 branches missed.">                                if (fsEntry != null &amp;&amp; fsEntry.conformsTo(&quot;IOMedia&quot;)) {</span>
                                     // Now get the UUID
-<span class="nc" id="L249">                                    uuid = fsEntry.getStringProperty(&quot;UUID&quot;);</span>
-<span class="nc bnc" id="L250" title="All 2 branches missed.">                                    if (uuid != null) {</span>
-<span class="nc" id="L251">                                        uuid = uuid.toLowerCase();</span>
+<span class="nc" id="L251">                                    uuid = fsEntry.getStringProperty(&quot;UUID&quot;);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">                                    if (uuid != null) {</span>
+<span class="nc" id="L253">                                        uuid = uuid.toLowerCase();</span>
                                     }
-<span class="nc" id="L253">                                    fsEntry.release();</span>
+<span class="nc" id="L255">                                    fsEntry.release();</span>
                                 }
-<span class="nc" id="L255">                                fsIter.release();</span>
+<span class="nc" id="L257">                                fsIter.release();</span>
                             }
                         }
                     }
 
-<span class="nc" id="L260">                    fsList.add(new MacOSFileStore(name, volume, name, path, options.toString(),</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">                            uuid == null ? &quot;&quot; : uuid, &quot;&quot;, description, type, file.getFreeSpace(), file.getUsableSpace(),</span>
-<span class="nc" id="L262">                            file.getTotalSpace(), fs[f].f_ffree, fs[f].f_files));</span>
+<span class="nc" id="L262">                    fsList.add(new MacOSFileStore(name, volume, name, path, options.toString(),</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">                            uuid == null ? &quot;&quot; : uuid, &quot;&quot;, description, type, file.getFreeSpace(), file.getUsableSpace(),</span>
+<span class="nc" id="L264">                            file.getTotalSpace(), fs[f].f_ffree, fs[f].f_files));</span>
                 }
-<span class="nc" id="L264">                daVolumeNameKey.release();</span>
+<span class="nc" id="L266">                daVolumeNameKey.release();</span>
                 // Close DA session
-<span class="nc" id="L266">                session.release();</span>
+<span class="nc" id="L268">                session.release();</span>
             }
         }
-<span class="nc" id="L269">        return fsList;</span>
+<span class="nc" id="L271">        return fsList;</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L274">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
+<span class="nc" id="L276">        return SysctlUtil.sysctl(&quot;kern.num_files&quot;, 0);</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L279">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
+<span class="nc" id="L281">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

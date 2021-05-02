@@ -35,6 +35,7 @@ import javax.swing.WindowConstants;
 import oshi.SystemInfo;
 import oshi.demo.gui.Config;
 import oshi.demo.gui.FileStorePanel;
+import oshi.demo.gui.InterfacePanel;
 import oshi.demo.gui.MemoryPanel;
 import oshi.demo.gui.OsHwTextPanel;
 import oshi.demo.gui.OshiJPanel;
@@ -46,71 +47,72 @@ import oshi.demo.gui.UsbPanel;
  * Basic Swing class to demonstrate potential uses for OSHI in a monitoring GUI.
  * Not ready for production use and intended as inspiration/examples.
  */
-<span class="nc" id="L49">public class OshiGui {</span>
+<span class="nc" id="L50">public class OshiGui {</span>
 
     private JFrame mainFrame;
     private JButton jMenu;
     private JMenuBar menuBar;
 
-<span class="nc" id="L55">    private SystemInfo si = new SystemInfo();</span>
+<span class="nc" id="L56">    private SystemInfo si = new SystemInfo();</span>
 
     public static void main(String[] args) {
-<span class="nc" id="L58">        OshiGui gui = new OshiGui();</span>
-<span class="nc" id="L59">        gui.init();</span>
-<span class="nc" id="L60">        SwingUtilities.invokeLater(gui::setVisible);</span>
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L59">        OshiGui gui = new OshiGui();</span>
+<span class="nc" id="L60">        gui.init();</span>
+<span class="nc" id="L61">        SwingUtilities.invokeLater(gui::setVisible);</span>
+<span class="nc" id="L62">    }</span>
 
     private void setVisible() {
-<span class="nc" id="L64">        mainFrame.setVisible(true);</span>
-<span class="nc" id="L65">        jMenu.doClick();</span>
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L65">        mainFrame.setVisible(true);</span>
+<span class="nc" id="L66">        jMenu.doClick();</span>
+<span class="nc" id="L67">    }</span>
 
     private void init() {
         // Create the external frame
-<span class="nc" id="L70">        mainFrame = new JFrame(Config.GUI_TITLE);</span>
-<span class="nc" id="L71">        mainFrame.setSize(Config.GUI_WIDTH, Config.GUI_HEIGHT);</span>
-<span class="nc" id="L72">        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);</span>
-<span class="nc" id="L73">        mainFrame.setResizable(true);</span>
-<span class="nc" id="L74">        mainFrame.setLocationByPlatform(true);</span>
-<span class="nc" id="L75">        mainFrame.setLayout(new BorderLayout());</span>
+<span class="nc" id="L71">        mainFrame = new JFrame(Config.GUI_TITLE);</span>
+<span class="nc" id="L72">        mainFrame.setSize(Config.GUI_WIDTH, Config.GUI_HEIGHT);</span>
+<span class="nc" id="L73">        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);</span>
+<span class="nc" id="L74">        mainFrame.setResizable(true);</span>
+<span class="nc" id="L75">        mainFrame.setLocationByPlatform(true);</span>
+<span class="nc" id="L76">        mainFrame.setLayout(new BorderLayout());</span>
         // Add a menu bar
-<span class="nc" id="L77">        menuBar = new JMenuBar();</span>
-<span class="nc" id="L78">        mainFrame.setJMenuBar(menuBar);</span>
+<span class="nc" id="L78">        menuBar = new JMenuBar();</span>
+<span class="nc" id="L79">        mainFrame.setJMenuBar(menuBar);</span>
         // Create the first menu option in this thread
-<span class="nc" id="L80">        jMenu = getJMenu(&quot;OS &amp; HW Info&quot;, 'O', &quot;Hardware &amp; OS Summary&quot;, new OsHwTextPanel(si));</span>
-<span class="nc" id="L81">        menuBar.add(jMenu);</span>
+<span class="nc" id="L81">        jMenu = getJMenu(&quot;OS &amp; HW Info&quot;, 'O', &quot;Hardware &amp; OS Summary&quot;, new OsHwTextPanel(si));</span>
+<span class="nc" id="L82">        menuBar.add(jMenu);</span>
         // Add later menu items in their own threads
-<span class="nc" id="L83">        new Thread(new AddMenuBarTask(&quot;Memory&quot;, 'M', &quot;Memory Summary&quot;, new MemoryPanel(si))).start();</span>
-<span class="nc" id="L84">        new Thread(new AddMenuBarTask(&quot;CPU&quot;, 'C', &quot;CPU Usage&quot;, new ProcessorPanel(si))).start();</span>
-<span class="nc" id="L85">        new Thread(new AddMenuBarTask(&quot;FileStores&quot;, 'F', &quot;FileStore Usage&quot;, new FileStorePanel(si))).start();</span>
-<span class="nc" id="L86">        new Thread(new AddMenuBarTask(&quot;Processes&quot;, 'P', &quot;Processes&quot;, new ProcessPanel(si))).start();</span>
-<span class="nc" id="L87">        new Thread(new AddMenuBarTask(&quot;USB Devices&quot;, 'U', &quot;USB Device list&quot;, new UsbPanel(si))).start();</span>
-<span class="nc" id="L88">    }</span>
+<span class="nc" id="L84">        new Thread(new AddMenuBarTask(&quot;Memory&quot;, 'M', &quot;Memory Summary&quot;, new MemoryPanel(si))).start();</span>
+<span class="nc" id="L85">        new Thread(new AddMenuBarTask(&quot;CPU&quot;, 'C', &quot;CPU Usage&quot;, new ProcessorPanel(si))).start();</span>
+<span class="nc" id="L86">        new Thread(new AddMenuBarTask(&quot;FileStores&quot;, 'F', &quot;FileStore Usage&quot;, new FileStorePanel(si))).start();</span>
+<span class="nc" id="L87">        new Thread(new AddMenuBarTask(&quot;Processes&quot;, 'P', &quot;Processes&quot;, new ProcessPanel(si))).start();</span>
+<span class="nc" id="L88">        new Thread(new AddMenuBarTask(&quot;USB Devices&quot;, 'U', &quot;USB Device list&quot;, new UsbPanel(si))).start();</span>
+<span class="nc" id="L89">        new Thread(new AddMenuBarTask(&quot;Network&quot;, 'N', &quot;Network Params and Interfaces&quot;, new InterfacePanel(si))).start();</span>
+<span class="nc" id="L90">    }</span>
 
     private JButton getJMenu(String title, char mnemonic, String toolTip, OshiJPanel panel) {
-<span class="nc" id="L91">        JButton button = new JButton(title);</span>
-<span class="nc" id="L92">        button.setMnemonic(mnemonic);</span>
-<span class="nc" id="L93">        button.setToolTipText(toolTip);</span>
-<span class="nc" id="L94">        button.addActionListener(e -&gt; {</span>
-<span class="nc" id="L95">            Container contentPane = this.mainFrame.getContentPane();</span>
-<span class="nc bnc" id="L96" title="All 4 branches missed.">            if (contentPane.getComponents().length &lt;= 0 || contentPane.getComponent(0) != panel) {</span>
-<span class="nc" id="L97">                resetMainGui();</span>
-<span class="nc" id="L98">                this.mainFrame.getContentPane().add(panel);</span>
-<span class="nc" id="L99">                refreshMainGui();</span>
+<span class="nc" id="L93">        JButton button = new JButton(title);</span>
+<span class="nc" id="L94">        button.setMnemonic(mnemonic);</span>
+<span class="nc" id="L95">        button.setToolTipText(toolTip);</span>
+<span class="nc" id="L96">        button.addActionListener(e -&gt; {</span>
+<span class="nc" id="L97">            Container contentPane = this.mainFrame.getContentPane();</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">            if (contentPane.getComponents().length &lt;= 0 || contentPane.getComponent(0) != panel) {</span>
+<span class="nc" id="L99">                resetMainGui();</span>
+<span class="nc" id="L100">                this.mainFrame.getContentPane().add(panel);</span>
+<span class="nc" id="L101">                refreshMainGui();</span>
             }
-<span class="nc" id="L101">        });</span>
+<span class="nc" id="L103">        });</span>
 
-<span class="nc" id="L103">        return button;</span>
+<span class="nc" id="L105">        return button;</span>
     }
 
     private void resetMainGui() {
-<span class="nc" id="L107">        this.mainFrame.getContentPane().removeAll();</span>
-<span class="nc" id="L108">    }</span>
+<span class="nc" id="L109">        this.mainFrame.getContentPane().removeAll();</span>
+<span class="nc" id="L110">    }</span>
 
     private void refreshMainGui() {
-<span class="nc" id="L111">        this.mainFrame.revalidate();</span>
-<span class="nc" id="L112">        this.mainFrame.repaint();</span>
-<span class="nc" id="L113">    }</span>
+<span class="nc" id="L113">        this.mainFrame.revalidate();</span>
+<span class="nc" id="L114">        this.mainFrame.repaint();</span>
+<span class="nc" id="L115">    }</span>
 
     /**
      * Runnable class to add a JMenu to the menubar.
@@ -121,17 +123,17 @@ import oshi.demo.gui.UsbPanel;
         private String toolTip;
         private OshiJPanel panel;
 
-<span class="nc" id="L124">        private AddMenuBarTask(String title, char mnemonic, String toolTip, OshiJPanel panel) {</span>
-<span class="nc" id="L125">            this.title = title;</span>
-<span class="nc" id="L126">            this.mnemonic = mnemonic;</span>
-<span class="nc" id="L127">            this.toolTip = toolTip;</span>
-<span class="nc" id="L128">            this.panel = panel;</span>
-<span class="nc" id="L129">        }</span>
+<span class="nc" id="L126">        private AddMenuBarTask(String title, char mnemonic, String toolTip, OshiJPanel panel) {</span>
+<span class="nc" id="L127">            this.title = title;</span>
+<span class="nc" id="L128">            this.mnemonic = mnemonic;</span>
+<span class="nc" id="L129">            this.toolTip = toolTip;</span>
+<span class="nc" id="L130">            this.panel = panel;</span>
+<span class="nc" id="L131">        }</span>
 
         @Override
         public void run() {
-<span class="nc" id="L133">            menuBar.add(getJMenu(title, mnemonic, toolTip, panel));</span>
-<span class="nc" id="L134">        }</span>
+<span class="nc" id="L135">            menuBar.add(getJMenu(title, mnemonic, toolTip, panel));</span>
+<span class="nc" id="L136">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
