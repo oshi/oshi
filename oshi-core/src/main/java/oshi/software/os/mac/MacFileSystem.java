@@ -54,8 +54,8 @@ import com.sun.jna.platform.mac.SystemB.Statfs;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.Constants;
 import oshi.util.FileSystemUtil;
+import oshi.util.platform.mac.CFUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -226,13 +226,7 @@ public class MacFileSystem extends AbstractFileSystem {
                             if (diskInfo != null) {
                                 // get volume name from its key
                                 Pointer result = diskInfo.getValue(daVolumeNameKey);
-                                if (result != null) {
-                                    CFStringRef volumePtr = new CFStringRef(result);
-                                    name = volumePtr.stringValue();
-                                }
-                                if (name.isEmpty()) {
-                                    name = Constants.UNKNOWN;
-                                }
+                                name = CFUtil.cfPointerToString(result);
                                 diskInfo.release();
                             }
                             disk.release();

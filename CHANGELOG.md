@@ -1,6 +1,7 @@
 # 5.7.3 (in progress)
 
-* Your contribution here
+##### Bug fixes / Improvements
+* [#1631](https://github.com/oshi/oshi/pull/1631): Null check all CFStrings to prevent exceptions - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01)
 

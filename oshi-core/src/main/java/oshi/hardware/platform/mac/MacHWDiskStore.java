@@ -57,6 +57,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.Constants;
+import oshi.util.platform.mac.CFUtil;
 
 /**
  * Mac hard disk implementation.
@@ -251,17 +252,12 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                                     if (diskInfo != null) {
                                         // get volume name from its key
                                         result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_NAME));
-                                        CFStringRef volumePtr = new CFStringRef(result);
-                                        type = volumePtr.stringValue();
-                                        if (type == null) {
-                                            type = Constants.UNKNOWN;
-                                        }
+                                        type = CFUtil.cfPointerToString(result);
                                         result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_VOLUME_NAME));
                                         if (result == null) {
                                             name = type;
                                         } else {
-                                            volumePtr.setPointer(result);
-                                            name = volumePtr.stringValue();
+                                            name = CFUtil.cfPointerToString(result);
                                         }
                                         diskInfo.release();
                                     }
@@ -351,11 +347,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                 if (diskInfo != null) {
                     // Parse out model and size from their respective keys
                     Pointer result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
-                    CFStringRef modelPtr = new CFStringRef(result);
-                    model = modelPtr.stringValue();
-                    if (model == null) {
-                        model = Constants.UNKNOWN;
-                    }
+                    model = CFUtil.cfPointerToString(result);
                     result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
                     CFNumberRef sizePtr = new CFNumberRef(result);
                     size = sizePtr.longValue();
