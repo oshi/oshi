@@ -31,7 +31,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 
@@ -78,7 +78,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
                     Pointer pNetIf = ifArray.getValueAtIndex(i);
                     SCNetworkInterfaceRef scNetIf = new SCNetworkInterfaceRef(pNetIf);
                     CFStringRef cfName = SystemConfiguration.INSTANCE.SCNetworkInterfaceGetBSDName(scNetIf);
-                    if (name.equals(cfName.stringValue())) {
+                    if (cfName != null && name.equals(cfName.stringValue())) {
                         CFStringRef cfDisplayName = SystemConfiguration.INSTANCE
                                 .SCNetworkInterfaceGetLocalizedDisplayName(scNetIf);
                         return cfDisplayName.stringValue();

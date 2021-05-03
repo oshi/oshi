@@ -43,6 +43,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;
+import oshi.util.platform.mac.CFUtil;
 
 /**
  * A Power Source
@@ -203,11 +204,7 @@ public final class MacPowerSource extends AbstractPowerSource {
                 if (0 != CF.CFBooleanGetValue(isPresentRef)) {
                     // Get name
                     result = dictionary.getValue(nameKey);
-                    CFStringRef cfName = new CFStringRef(result);
-                    String psName = cfName.stringValue();
-                    if (psName == null) {
-                        psName = Constants.UNKNOWN;
-                    }
+                    String psName = CFUtil.cfPointerToString(result);
                     // Remaining Capacity = current / max
                     double currentCapacity = 0d;
                     if (dictionary.getValueIfPresent(currentCapacityKey, null)) {

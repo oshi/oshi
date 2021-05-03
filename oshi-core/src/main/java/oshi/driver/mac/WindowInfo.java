@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
-import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFBooleanRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
@@ -45,6 +44,7 @@ import oshi.jna.platform.mac.CoreGraphics;
 import oshi.jna.platform.mac.CoreGraphics.CGRect;
 import oshi.software.os.OSDesktopWindow;
 import oshi.util.FormatUtil;
+import oshi.util.platform.mac.CFUtil;
 
 /**
  * Utility to query desktop windows
@@ -107,11 +107,11 @@ public final class WindowInfo {
 
                     // Note: the Quartz name returned by this field is rarely used
                     result = windowRef.getValue(kCGWindowName); // Optional key, check for null
-                    String windowName = cfPointerToString(result);
+                    String windowName = CFUtil.cfPointerToString(result, false);
                     // This is the program running the window, use as name if name blank or add in
                     // parenthesis
                     result = windowRef.getValue(kCGWindowOwnerName); // Optional key, check for null
-                    String windowOwnerName = cfPointerToString(result);
+                    String windowOwnerName = CFUtil.cfPointerToString(result, false);
                     if (windowName.isEmpty()) {
                         windowName = windowOwnerName;
                     } else {
@@ -135,23 +135,5 @@ public final class WindowInfo {
         }
 
         return windowList;
-    }
-
-    /**
-     * Temporary workaround for zero length CFStrings. Should be fixed in JNA 5.7.
-     * See https://github.com/java-native-access/jna/pull/1275
-     *
-     * @param result
-     *            Pointer to the CFString
-     * @return a CFString including a possible empty one, without exception.
-     */
-    private static String cfPointerToString(Pointer result) {
-        if (result != null) {
-            CFStringRef cfs = new CFStringRef(result);
-            if (CoreFoundation.INSTANCE.CFStringGetLength(cfs).intValue() > 0) {
-                return cfs.stringValue();
-            }
-        }
-        return "";
     }
 }
