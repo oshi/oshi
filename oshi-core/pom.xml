@@ -82,5 +82,11 @@
 			<version>${code-assert.version}</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.github.seancfoley</groupId>
+            <artifactId>ipaddress</artifactId>
+            <version>${ipaddress.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

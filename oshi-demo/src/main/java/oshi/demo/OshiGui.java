@@ -23,25 +23,11 @@
  */
 package oshi.demo;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-
 import oshi.SystemInfo;
-import oshi.demo.gui.Config;
-import oshi.demo.gui.FileStorePanel;
-import oshi.demo.gui.InterfacePanel;
-import oshi.demo.gui.MemoryPanel;
-import oshi.demo.gui.OsHwTextPanel;
-import oshi.demo.gui.OshiJPanel;
-import oshi.demo.gui.ProcessPanel;
-import oshi.demo.gui.ProcessorPanel;
-import oshi.demo.gui.UsbPanel;
+import oshi.demo.gui.*;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Basic Swing class to demonstrate potential uses for OSHI in a monitoring GUI.
@@ -86,7 +72,8 @@ public class OshiGui {
         new Thread(new AddMenuBarTask("FileStores", 'F', "FileStore Usage", new FileStorePanel(si))).start();
         new Thread(new AddMenuBarTask("Processes", 'P', "Processes", new ProcessPanel(si))).start();
         new Thread(new AddMenuBarTask("USB Devices", 'U', "USB Device list", new UsbPanel(si))).start();
-        new Thread(new AddMenuBarTask("Network", 'N', "Network Params and Interfaces", new InterfacePanel(si))).start();
+        new Thread(new AddMenuBarTask("Interfaces", 'I', "Interface list", new InterfacePanel(si))).start();
+        new Thread(new AddMenuBarTask("Network", 'N', "Network information", new NetworkPanel(si))).start();
     }
 
     private JButton getJMenu(String title, char mnemonic, String toolTip, OshiJPanel panel) {

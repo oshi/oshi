@@ -23,10 +23,10 @@
  */
 package oshi.util;
 
+import oshi.annotation.concurrent.ThreadSafe;
+
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
-
-import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * Formatting utility for appending units or converting between number types.
@@ -258,5 +258,33 @@ public final class FormatUtil {
      */
     public static int roundToInt(double x) {
         return (int) Math.round(x);
+    }
+
+    /** Get string with seperator by array
+     *
+     * @param stringArray
+     *            string array
+     * @param seperator
+     *             seperator string(can not be null)
+     * @return Single string with seperator
+     */
+    public static String getStringWithSepByArray(String[] stringArray, String seperator) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+
+        if ((stringArray == null) || (stringArray.length == 0)) {
+            return null;
+        }
+
+        for (String oneString : stringArray) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(seperator);
+            }
+            sb.append(oneString);
+        }
+
+        return sb.toString();
     }
 }
