@@ -30,17 +30,24 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/**
- * Parent class combining code common to the other panels.
- */
-public class OshiJPanel extends JPanel {
+import oshi.SystemInfo;
 
-    private static final long serialVersionUID = 1L;
+/**
+ * Parent class combining code common to the other panels. Launches the panel in
+ * its own thread
+ */
+public abstract class OshiJPanel extends JPanel implements Runnable {
+
+    private static final long serialVersionUID = 2L;
 
     protected JLabel msgLabel = new JLabel();
     protected JPanel msgPanel = new JPanel();
 
-    public OshiJPanel() {
+    protected final SystemInfo si;
+
+    protected OshiJPanel(SystemInfo si) {
+        this.si = si;
+
         Dimension maxSize = getMaximumSize();
         if (maxSize != null) {
             setSize(maxSize);
@@ -52,5 +59,8 @@ public class OshiJPanel extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(msgPanel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
+
+        // Launch the panel in its own thread
+        new Thread(this).start();
     }
 }

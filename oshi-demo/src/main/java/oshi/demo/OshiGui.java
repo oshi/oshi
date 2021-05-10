@@ -63,6 +63,7 @@ public class OshiGui {
 
     private void setVisible() {
         mainFrame.setVisible(true);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jMenu.doClick();
     }
 
@@ -77,16 +78,16 @@ public class OshiGui {
         // Add a menu bar
         menuBar = new JMenuBar();
         mainFrame.setJMenuBar(menuBar);
-        // Create the first menu option in this thread
+        // Assign the first menu option to be clicked on visibility
         jMenu = getJMenu("OS & HW Info", 'O', "Hardware & OS Summary", new OsHwTextPanel(si));
         menuBar.add(jMenu);
-        // Add later menu items in their own threads
-        new Thread(new AddMenuBarTask("Memory", 'M', "Memory Summary", new MemoryPanel(si))).start();
-        new Thread(new AddMenuBarTask("CPU", 'C', "CPU Usage", new ProcessorPanel(si))).start();
-        new Thread(new AddMenuBarTask("FileStores", 'F', "FileStore Usage", new FileStorePanel(si))).start();
-        new Thread(new AddMenuBarTask("Processes", 'P', "Processes", new ProcessPanel(si))).start();
-        new Thread(new AddMenuBarTask("USB Devices", 'U', "USB Device list", new UsbPanel(si))).start();
-        new Thread(new AddMenuBarTask("Network", 'N', "Network Params and Interfaces", new InterfacePanel(si))).start();
+        // Add later menu items
+        menuBar.add(getJMenu("Memory", 'M', "Memory Summary", new MemoryPanel(si)));
+        menuBar.add(getJMenu("CPU", 'C', "CPU Usage", new ProcessorPanel(si)));
+        menuBar.add(getJMenu("FileStores", 'F', "FileStore Usage", new FileStorePanel(si)));
+        menuBar.add(getJMenu("Processes", 'P', "Processes", new ProcessPanel(si)));
+        menuBar.add(getJMenu("USB Devices", 'U', "USB Device list", new UsbPanel(si)));
+        menuBar.add(getJMenu("Network", 'N', "Network Params and Interfaces", new InterfacePanel(si)));
     }
 
     private JButton getJMenu(String title, char mnemonic, String toolTip, OshiJPanel panel) {
@@ -112,27 +113,5 @@ public class OshiGui {
     private void refreshMainGui() {
         this.mainFrame.revalidate();
         this.mainFrame.repaint();
-    }
-
-    /**
-     * Runnable class to add a JMenu to the menubar.
-     */
-    private final class AddMenuBarTask implements Runnable {
-        private String title;
-        private char mnemonic;
-        private String toolTip;
-        private OshiJPanel panel;
-
-        private AddMenuBarTask(String title, char mnemonic, String toolTip, OshiJPanel panel) {
-            this.title = title;
-            this.mnemonic = mnemonic;
-            this.toolTip = toolTip;
-            this.panel = panel;
-        }
-
-        @Override
-        public void run() {
-            menuBar.add(getJMenu(title, mnemonic, toolTip, panel));
-        }
     }
 }

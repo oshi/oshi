@@ -64,11 +64,11 @@ public class InterfacePanel extends OshiJPanel { // NOSONAR squid:S110
     private static final double[] COLUMN_WIDTH_PERCENT = { 0.02, 0.02, 0.1, 0.25, 0.45, 0.15 };
 
     public InterfacePanel(SystemInfo si) {
-        super();
-        init(si);
+        super(si);
     }
 
-    private void init(SystemInfo si) {
+    @Override
+    public void run() {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 

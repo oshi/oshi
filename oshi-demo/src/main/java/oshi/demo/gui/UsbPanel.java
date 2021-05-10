@@ -46,15 +46,16 @@ public class UsbPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String USB_DEVICES = "USB Devices";
 
     public UsbPanel(SystemInfo si) {
-        super();
-        init(si.getHardware());
+        super(si);
     }
 
-    private void init(HardwareAbstractionLayer hal) {
+    @Override
+    public void run() {
+        HardwareAbstractionLayer hal = si.getHardware();
 
         JLabel usb = new JLabel(USB_DEVICES);
         add(usb, BorderLayout.NORTH);
-        JTextArea usbArea = new JTextArea(60, 20);
+        JTextArea usbArea = new JTextArea();
         JScrollPane scrollV = new JScrollPane(usbArea);
         scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         DefaultCaret caret = (DefaultCaret) usbArea.getCaret();
