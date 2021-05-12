@@ -19,7 +19,7 @@ jobs:
     runs-on: macos-latest
     name: Test JDK 8, freebsd
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - name: Test in FreeBSD
         id: test-freebsd
         uses: vmactions/freebsd-vm@v0.1.4
@@ -36,7 +36,7 @@ jobs:
     runs-on: macos-latest
     name: Test JDK 8, solaris
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - name: Test in Solaris
         id: test-solaris
         uses: vmactions/solaris-vm@v0.0.3
