@@ -60,12 +60,11 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String AVAILABLE = "Available";
 
     public FileStorePanel(SystemInfo si) {
-        super(si);
+        super();
+        init(si.getOperatingSystem().getFileSystem());
     }
 
-    @Override
-    public void run() {
-        FileSystem fs = si.getOperatingSystem().getFileSystem();
+    private void init(FileSystem fs) {
         List<OSFileStore> fileStores = fs.getFileStores();
         @SuppressWarnings("unchecked")
         DefaultPieDataset<String>[] fsData = new DefaultPieDataset[fileStores.size()];
@@ -96,7 +95,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
             if (!updateDatasets(fs, fsData, fsCharts)) {
                 ((Timer) e.getSource()).stop();
                 fsPanel.removeAll();
-                run();
+                init(fs);
                 fsPanel.revalidate();
                 fsPanel.repaint();
             }

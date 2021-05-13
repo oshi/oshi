@@ -58,15 +58,14 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String HARDWARE_INFORMATION = "Hardware Information";
     private static final String PROCESSOR = "Processor";
     private static final String DISPLAYS = "Displays";
-
     private String osPrefix;
 
     public OsHwTextPanel(SystemInfo si) {
-        super(si);
+        super();
+        init(si);
     }
 
-    @Override
-    public void run() {
+    private void init(SystemInfo si) {
         osPrefix = getOsPrefix(si);
 
         GridBagConstraints osLabel = new GridBagConstraints();

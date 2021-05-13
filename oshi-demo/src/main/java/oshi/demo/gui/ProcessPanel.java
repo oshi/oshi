@@ -75,11 +75,11 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private transient JRadioButton memButton = new JRadioButton("Memory %");
 
     public ProcessPanel(SystemInfo si) {
-        super(si);
+        super();
+        init(si);
     }
 
-    @Override
-    public void run() {
+    private void init(SystemInfo si) {
         OperatingSystem os = si.getOperatingSystem();
         JLabel procLabel = new JLabel(PROCESSES);
         add(procLabel, BorderLayout.NORTH);

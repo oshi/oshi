@@ -54,14 +54,14 @@ public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
     private long[][] oldProcTicks;
 
     public ProcessorPanel(SystemInfo si) {
-        super(si);
+        super();
+        CentralProcessor cpu = si.getHardware().getProcessor();
+        oldTicks = new long[TickType.values().length];
+        oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];
+        init(cpu);
     }
 
-    @Override
-    public void run() {
-        CentralProcessor processor = si.getHardware().getProcessor();
-        oldTicks = new long[TickType.values().length];
-        oldProcTicks = new long[processor.getLogicalProcessorCount()][TickType.values().length];
+    private void init(CentralProcessor processor) {
 
         GridBagConstraints sysConstraints = new GridBagConstraints();
         sysConstraints.weightx = 1d;

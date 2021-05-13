@@ -63,12 +63,11 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String AVAILABLE = "Available";
 
     public MemoryPanel(SystemInfo si) {
-        super(si);
+        super();
+        init(si.getHardware().getMemory());
     }
 
-    @Override
-    public void run() {
-        GlobalMemory memory = si.getHardware().getMemory();
+    private void init(GlobalMemory memory) {
         DefaultPieDataset<String> physMemData = new DefaultPieDataset<>();
         DefaultPieDataset<String> virtMemData = new DefaultPieDataset<>();
         updateDatasets(memory, physMemData, virtMemData);
