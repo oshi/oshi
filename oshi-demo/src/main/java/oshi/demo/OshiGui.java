@@ -23,6 +23,8 @@
  */
 package oshi.demo;
 
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 
@@ -51,7 +53,6 @@ public class OshiGui {
 
     private JFrame mainFrame;
     private JButton jMenu;
-    private JMenuBar menuBar;
 
     private SystemInfo si = new SystemInfo();
 
@@ -63,7 +64,7 @@ public class OshiGui {
 
     private void setVisible() {
         mainFrame.setVisible(true);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         jMenu.doClick();
     }
 
@@ -76,7 +77,7 @@ public class OshiGui {
         mainFrame.setLocationByPlatform(true);
         mainFrame.setLayout(new BorderLayout());
         // Add a menu bar
-        menuBar = new JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
         mainFrame.setJMenuBar(menuBar);
         // Assign the first menu option to be clicked on visibility
         jMenu = getJMenu("OS & HW Info", 'O', "Hardware & OS Summary", new OsHwTextPanel(si));
