@@ -62,8 +62,8 @@
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractFileSystem;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileSystemUtil;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileSystemUtil;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.mac.CFUtil;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.mac.SysctlUtil;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">/**</em>
@@ -234,61 +234,55 @@
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>                             <strong class="jxr_keyword">if</strong> (diskInfo != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>                                 <em class="jxr_comment">// get volume name from its key</em>
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>                                 Pointer result = diskInfo.getValue(daVolumeNameKey);
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>                                 <strong class="jxr_keyword">if</strong> (result != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>                                     CFStringRef volumePtr = <strong class="jxr_keyword">new</strong> CFStringRef(result);
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>                                     name = volumePtr.stringValue();
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                                 }
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>                                 <strong class="jxr_keyword">if</strong> (name.isEmpty()) {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>                                     name = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>                                 }
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>                                 diskInfo.release();
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>                             }
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>                             disk.release();
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                         }
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>                         <em class="jxr_comment">// Search for bsd name in IOKit registry for UUID</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>                         CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>                         <strong class="jxr_keyword">if</strong> (matchingDict != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                             <em class="jxr_comment">// search for all IOservices that match the bsd name</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>                             IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                             <strong class="jxr_keyword">if</strong> (fsIter != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                                 <em class="jxr_comment">// getMatchingServices releases matchingDict</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>                                 <em class="jxr_comment">// Should only match one logical drive</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                                 IORegistryEntry fsEntry = fsIter.next();
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>                                 <strong class="jxr_keyword">if</strong> (fsEntry != <strong class="jxr_keyword">null</strong> &amp;&amp; fsEntry.conformsTo(<span class="jxr_string">"IOMedia"</span>)) {
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>                                     <em class="jxr_comment">// Now get the UUID</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>                                     uuid = fsEntry.getStringProperty(<span class="jxr_string">"UUID"</span>);
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>                                     <strong class="jxr_keyword">if</strong> (uuid != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>                                         uuid = uuid.toLowerCase();
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>                                     }
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                                     fsEntry.release();
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                                 }
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                                 fsIter.release();
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                             }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                         }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                     }
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                     fsList.add(<strong class="jxr_keyword">new</strong> <a name="MacOSFileStore" href="../../../../oshi/software/os/mac/MacOSFileStore.html#MacOSFileStore">MacOSFileStore</a>(name, volume, name, path, options.toString(),
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                             uuid == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span> : uuid, <span class="jxr_string">""</span>, description, type, file.getFreeSpace(), file.getUsableSpace(),
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                             file.getTotalSpace(), fs[f].f_ffree, fs[f].f_files));
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 }
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 daVolumeNameKey.release();
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 <em class="jxr_comment">// Close DA session</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 session.release();
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>             }
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         }
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">return</strong> fsList;
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>     }
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     @Override
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">return</strong> SysctlUtil.sysctl(<span class="jxr_string">"kern.num_files"</span>, 0);
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>     }
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> 
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>     @Override
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">return</strong> SysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                                 name = CFUtil.cfPointerToString(result);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>                                 diskInfo.release();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>                             }
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                             disk.release();
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                         }
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                         <em class="jxr_comment">// Search for bsd name in IOKit registry for UUID</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                         CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                         <strong class="jxr_keyword">if</strong> (matchingDict != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                             <em class="jxr_comment">// search for all IOservices that match the bsd name</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>                             IOIterator fsIter = IOKitUtil.getMatchingServices(matchingDict);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                             <strong class="jxr_keyword">if</strong> (fsIter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>                                 <em class="jxr_comment">// getMatchingServices releases matchingDict</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>                                 <em class="jxr_comment">// Should only match one logical drive</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>                                 IORegistryEntry fsEntry = fsIter.next();
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>                                 <strong class="jxr_keyword">if</strong> (fsEntry != <strong class="jxr_keyword">null</strong> &amp;&amp; fsEntry.conformsTo(<span class="jxr_string">"IOMedia"</span>)) {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                                     <em class="jxr_comment">// Now get the UUID</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                                     uuid = fsEntry.getStringProperty(<span class="jxr_string">"UUID"</span>);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                                     <strong class="jxr_keyword">if</strong> (uuid != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                                         uuid = uuid.toLowerCase();
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                                     }
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                                     fsEntry.release();
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                                 }
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>                                 fsIter.release();
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                             }
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>                         }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>                     }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>                     fsList.add(<strong class="jxr_keyword">new</strong> <a name="MacOSFileStore" href="../../../../oshi/software/os/mac/MacOSFileStore.html#MacOSFileStore">MacOSFileStore</a>(name, volume, name, path, options.toString(),
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                             uuid == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span> : uuid, <span class="jxr_string">""</span>, description, type, file.getFreeSpace(), file.getUsableSpace(),
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                             file.getTotalSpace(), fs[f].f_ffree, fs[f].f_files));
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                 }
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 daVolumeNameKey.release();
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 <em class="jxr_comment">// Close DA session</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>                 session.release();
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">return</strong> fsList;
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>     }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> 
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     @Override
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         <strong class="jxr_keyword">return</strong> SysctlUtil.sysctl(<span class="jxr_string">"kern.num_files"</span>, 0);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     }
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> 
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     @Override
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">return</strong> SysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
