@@ -1,8 +1,8 @@
-# 5.7.3 (in progress)
+# 5.7.4 (in progress)
 
 * Your contribution here
 
-# 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01)
+# 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16)
 
 ##### New Features
 * [#1584](https://github.com/oshi/oshi/pull/1584): Add logical volume group information - [@tausiflife](https://github.com/tausiflife).
@@ -20,6 +20,7 @@
 * [#1614](https://github.com/oshi/oshi/pull/1614): Simplify Windows version parsing using JDK properties - [@dbwiddis](https://github.com/dbwiddis).
 * [#1620](https://github.com/oshi/oshi/pull/1620): Reduced log level to debug for fallback class loading - [@UnusualFrog](https://github.com/UnusualFrog).
 * [#1628](https://github.com/oshi/oshi/pull/1628): Null check volume name when iterating Mac File Stores - [@dbwiddis](https://github.com/dbwiddis).
+* [#1631](https://github.com/oshi/oshi/pull/1631): Null check all CFStrings to prevent exceptions - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.6.0 (2021-03-01), 5.6.1 (2021-03-22)
 
