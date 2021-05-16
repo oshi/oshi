@@ -27,9 +27,6 @@ import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.util.Memoizer.memoize;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,6 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
