@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2021 oshi</copyright>
     <item>
-      <title>File: 391,
-             Errors: 11263,
+      <title>File: 392,
+             Errors: 11268,
              Warnings: 0,
              Infos: 0
       </title>
@@ -433,7 +433,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  109
+                  108
                 </td>
               </tr>
                           <tr>
@@ -1049,7 +1049,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  76
+                  75
                 </td>
               </tr>
                           <tr>
@@ -4899,7 +4899,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  28
                 </td>
               </tr>
                           <tr>
@@ -5166,6 +5166,20 @@ under the License.
                 </td>
                 <td>
                   3
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core/checkstyle.html#oshi.util.platform.mac.CFUtil.java">oshi/util/platform/mac/CFUtil.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
                 </td>
               </tr>
                           <tr>

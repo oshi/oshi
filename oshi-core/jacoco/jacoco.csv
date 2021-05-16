@@ -58,7 +58,7 @@ oshi-core,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-core,oshi.software.os.mac,MacOSProcess,609,0,51,0,136,0,59,0,31,0
 oshi-core,oshi.software.os.mac,MacOSThread,46,0,0,0,16,0,8,0,8,0
 oshi-core,oshi.software.os.mac,MacInternetProtocolStats,762,0,58,0,145,0,47,0,13,0
-oshi-core,oshi.software.os.mac,MacFileSystem,487,0,62,0,108,0,39,0,8,0
+oshi-core,oshi.software.os.mac,MacFileSystem,475,0,58,0,104,0,37,0,8,0
 oshi-core,oshi.driver.windows.perfmon,MemoryInformation.PageSwapProperty,36,0,0,0,9,0,4,0,4,0
 oshi-core,oshi.driver.windows.perfmon,ProcessInformation,10,0,0,0,2,0,2,0,2,0
 oshi-core,oshi.driver.windows.perfmon,ProcessorInformation.InterruptsProperty,28,0,0,0,8,0,4,0,4,0
@@ -115,9 +115,9 @@ oshi-core,oshi.driver.linux.proc,ProcessStat.PidStat,315,0,0,0,53,0,1,0,1,0
 oshi-core,oshi.hardware.platform.mac,MacGlobalMemory,240,0,21,0,54,0,23,0,11,0
 oshi-core,oshi.hardware.platform.mac,MacVirtualMemory,141,0,4,0,28,0,12,0,10,0
 oshi-core,oshi.hardware.platform.mac,MacUsbDevice,572,0,44,0,116,0,31,0,9,0
-oshi-core,oshi.hardware.platform.mac,MacHWDiskStore,808,0,78,0,203,0,53,0,14,0
+oshi-core,oshi.hardware.platform.mac,MacHWDiskStore,787,0,74,0,196,0,51,0,14,0
 oshi-core,oshi.hardware.platform.mac,MacSoundCard,66,0,6,0,20,0,5,0,2,0
-oshi-core,oshi.hardware.platform.mac,MacPowerSource,413,0,44,0,115,0,25,0,3,0
+oshi-core,oshi.hardware.platform.mac,MacPowerSource,404,0,42,0,112,0,24,0,3,0
 oshi-core,oshi.hardware.platform.mac,MacFirmware,223,0,44,0,57,0,30,0,7,0
 oshi-core,oshi.hardware.platform.mac,MacDisplay,81,0,8,0,26,0,7,0,3,0
 oshi-core,oshi.hardware.platform.mac,MacLogicalVolumeGroup,140,0,16,0,30,0,13,0,5,0
@@ -126,7 +126,7 @@ oshi-core,oshi.hardware.platform.mac,MacComputerSystem,115,0,14,0,27,0,15,0,8,0
 oshi-core,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,37,0,0,0,13,0,13,0,13,0
 oshi-core,oshi.hardware.platform.mac,MacSensors,79,0,6,0,20,0,7,0,4,0
 oshi-core,oshi.hardware.platform.mac,MacHWDiskStore.CFKey,126,0,0,0,12,0,3,0,3,0
-oshi-core,oshi.hardware.platform.mac,MacNetworkIF,204,0,10,0,56,0,22,0,17,0
+oshi-core,oshi.hardware.platform.mac,MacNetworkIF,206,0,12,0,56,0,23,0,17,0
 oshi-core,oshi.hardware.platform.mac,MacBaseboard,139,0,24,0,34,0,18,0,6,0
 oshi-core,oshi.hardware.platform.mac,MacGraphicsCard,152,0,22,0,32,0,13,0,2,0
 oshi-core,oshi.hardware.platform.unix.openbsd,OpenBsdComputerSystem,78,0,0,0,16,0,11,0,11,0
@@ -303,6 +303,7 @@ oshi-core,oshi.software.os.linux,LinuxNetworkParams,222,0,34,0,53,0,23,0,6,0
 oshi-core,oshi.software.os.linux,LinuxOSFileStore,119,0,6,0,31,0,13,0,10,0
 oshi-core,oshi.util.platform.linux,ProcPath,249,0,2,0,30,0,3,0,2,0
 oshi-core,oshi.util.platform.mac,SmcUtil.SMCKeyDataPLimitData,3,0,0,0,1,0,1,0,1,0
+oshi-core,oshi.util.platform.mac,CFUtil,25,0,6,0,8,0,5,0,2,0
 oshi-core,oshi.util.platform.mac,SmcUtil.SMCKeyDataVers,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.util.platform.mac,SmcUtil.SMCKeyDataKeyInfo,3,0,0,0,1,0,1,0,1,0
 oshi-core,oshi.util.platform.mac,SmcUtil.SMCVal,15,0,0,0,4,0,1,0,1,0
@@ -335,7 +336,7 @@ oshi-core,oshi.hardware.platform.unix.aix,AixHardwareAbstractionLayer,59,0,0,0,1
 oshi-core,oshi.driver.mac,ThreadInfo.ThreadStats,71,0,6,0,25,0,12,0,7,0
 oshi-core,oshi.driver.mac,Who,84,0,14,0,15,0,9,0,2,0
 oshi-core,oshi.driver.mac,ThreadInfo,105,0,6,0,17,0,6,0,3,0
-oshi-core,oshi.driver.mac,WindowInfo,220,0,18,0,52,0,11,0,2,0
+oshi-core,oshi.driver.mac,WindowInfo,205,0,14,0,47,0,8,0,1,0
 oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdUsbDevice,400,0,40,0,76,0,26,0,6,0
 oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdSoundCard,137,0,18,0,26,0,11,0,2,0
 oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdHWDiskStore,314,0,14,0,60,0,18,0,11,0
