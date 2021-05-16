@@ -60,23 +60,27 @@ import oshi.util.platform.windows.WmiQueryHandler;
 
     private static void loopWmiQueriesWithUserCom() {
         // Create instance using existing WmiQueryHandler class for convenience, only to
-        // be used for COM init/uninit. This is unnecessary in a user application if
-        // they control COM initialization elsewhere.
-<span class="nc" id="L65">        WmiQueryHandler handlerForSingleCOMinit = WmiQueryHandler.createInstance();</span>
+        // be used for COM init/uninit. Not needed if user initializes COM.
+<span class="nc" id="L64">        WmiQueryHandler handlerForSingleCOMinit = WmiQueryHandler.createInstance();</span>
 
-        // Change query handler class to not initialize COM
-<span class="nc" id="L68">        WmiQueryHandler.setInstanceClass(WmiNoComInitQueryHandler.class);</span>
-<span class="nc" id="L69">        boolean comInit = false;</span>
+<span class="nc" id="L66">        boolean singleComInit = false;</span>
         try {
-<span class="nc" id="L71">            comInit = handlerForSingleCOMinit.initCOM();</span>
+            // Initialize using the default query handler. This is unnecessary in a user
+            // application if the application controls COM initialization elsewhere.
+<span class="nc" id="L70">            singleComInit = handlerForSingleCOMinit.initCOM();</span>
 
-<span class="nc" id="L73">            loopWmiQueries();</span>
-<span class="nc" id="L74">        } catch (COMException e) {</span>
+            // Change query handler class to not initialize COM
+<span class="nc" id="L73">            WmiQueryHandler.setInstanceClass(WmiNoComInitQueryHandler.class);</span>
+
+<span class="nc" id="L75">            loopWmiQueries();</span>
+<span class="nc" id="L76">        } catch (COMException e) {</span>
             // Ignore for demo. Production code should handle this!
-<span class="nc" id="L76">        }</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (comInit) {</span>
-<span class="nc" id="L78">            handlerForSingleCOMinit.unInitCOM();</span>
+        } finally {
+            // User should ununitialize COM in their own application
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (singleComInit) {</span>
+<span class="nc" id="L81">                handlerForSingleCOMinit.unInitCOM();</span>
+            }
         }
-<span class="nc" id="L80">    }</span>
+<span class="nc" id="L84">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
