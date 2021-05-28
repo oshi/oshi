@@ -50,14 +50,14 @@ import com.sun.jna.platform.mac.SystemB.Passwd;
 import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.RUsageInfoV2;
 import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
 import oshi.driver.mac.ThreadInfo.ThreadStats;
+import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
-import oshi.util.ExecutingCommand;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -139,14 +139,9 @@ public class MacOSProcess extends AbstractOSProcess {
         // Allocate memory for arguments
         int argmax = SysctlUtil.sysctl("kern.argmax", 0);
         Pointer procargs = new Memory(argmax);
-        IntByReference size = new IntByReference(argmax);
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(argmax));
         // Fetch arguments
-        if (0 != SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, 0)) {
-            // Beginning in macOS 11, this call has become unreliable. Use ps as a backup.
-            String cmdLine = ExecutingCommand.getFirstAnswer("ps -o command= -p " + getProcessID());
-            if (!cmdLine.isEmpty()) {
-                return cmdLine;
-            }
+        if (0 != oshi.jna.platform.mac.SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO)) {
             LOG.warn(
                     "Failed syctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
                     getProcessID(), Native.getLastError());
@@ -169,10 +164,10 @@ public class MacOSProcess extends AbstractOSProcess {
         offset += procargs.getString(offset).length();
         // Iterate character by character using offset
         // Build each arg and add to list
-        while (nargs-- > 0 && offset < size.getValue()) {
+        while (nargs-- > 0 && offset < size.getValue().longValue()) {
             // Advance through additional nulls
             while (procargs.getByte(offset) == 0) {
-                if (++offset >= size.getValue()) {
+                if (++offset >= size.getValue().longValue()) {
                     break;
                 }
             }
@@ -389,7 +384,7 @@ public class MacOSProcess extends AbstractOSProcess {
         this.bitness = (taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64;
         this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
         // testing using getrusage confirms pti_faults includes both major and minor
-        this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins;
+        this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
         this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
         if (this.minorVersion >= 9) {
             RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();

@@ -38,9 +38,10 @@ import java.util.function.Supplier;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -225,9 +226,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         mib[3] = getProcessID();
         // Allocate memory for arguments
         Pointer abi = new Memory(32);
-        IntByReference size = new IntByReference(32);
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(32));
         // Fetch abi vector
-        if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, 0)) {
+        if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
             String elf = abi.getString(0);
             if (elf.contains("ELF32")) {
                 return 32;
