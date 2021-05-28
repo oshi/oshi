@@ -27,9 +27,9 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.unix.CLibrary;
+import oshi.jna.platform.unix.NativeSizeTByReference;
 
 /**
  * C library. This class should be considered non-API as it may be removed
@@ -121,5 +121,5 @@ public interface OpenBsdLibc extends CLibrary {
         public long tv_usec; // microseconds
     }
 
-    int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
+    int sysctl(int[] name, int namelen, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
 }
