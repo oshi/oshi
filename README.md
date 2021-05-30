@@ -59,15 +59,15 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.7.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.7.3&e=jar)  | [oshi-core-5.7.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.7.4-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.7.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.7.4&e=jar)  | [oshi-core-5.7.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=5.7.5-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 | Java 11 (JPMS) Version | Current Development Version | 
 | ------------- | ------------- | 
-| [oshi-core-java11-5.7.3](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=5.7.3&e=jar)  | [oshi-core-java11-5.7.4-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=5.7.4-SNAPSHOT&e=jar) |
+| [oshi-core-java11-5.7.4](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=5.7.4&e=jar)  | [oshi-core-java11-5.7.5-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=5.7.5-SNAPSHOT&e=jar) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.7.3/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.7.4/jar). 
 
 2. Create a new instance of `SystemInfo` 
 
@@ -252,38 +252,38 @@ Many thanks to the following companies for providing free support of Open Source
 Applications and Projects using OSHI
 -------------------
 <table style="padding:6px"><tr>
-    <td align=center width=134px><a href="https://flink.apache.org/"><img src="./src/site/markdown/flink.jpg" alt="Apache Flink" width=122px><sub><br/>Apache Flink</sub></a></td>
-    <td align=center width=134px><a href="https://www.appdynamics.com/"><img src="./src/site/markdown/appdynamics.png" alt="AppDynamics" width=122px><sub><br/>AppDynamics</sub></a></td>
     <td align=center width=134px><a href="https://www.atlassian.com/software/confluence"><img src="./src/site/markdown/confluence.png" alt="Atlassian Confluence" width=122px><sub><br/>Atlassian Confluence</sub></a></td>
     <td align=center width=134px><a href="https://apereo.github.io/cas"><img src="./src/site/markdown/cas.png" alt="CAS Server" width=122px><sub><br/><br/>CAS Server</sub></a></td>
-    <td align=center width=134px><a href="https://kamon.io/"><img src="./src/site/markdown/kamon.png" alt="Kamon System Metrics" width=122px><sub><br/>Kamon System Metrics</sub></a></td>
-    <td align=center width=134px><a href="https://deeplearning4j.org/"><img src="./src/site/markdown/dl4j.png" alt="DeepLearning4J" width=122px><sub><br/>DeepLearning4J</sub></a></td>
-  </tr><tr></tr><tr>
-    <td align=center width=134px><a href="https://octopus.com/"><img src="./src/site/markdown/octopus.svg" alt="Octopus Deploy" width=122px><sub><br/>Octopus Deploy</sub></a></td>
-    <td align=center width=134px><a href="https://dolphinscheduler.apache.org/"><img src="./src/site/markdown/dolphinscheduler.png" alt="Apache Dolphin Scheduler" width=122px><sub><br/>Apache Dolphin Scheduler</sub></a></td> 
-    <td align=center width=134px><a href="https://github.com/UniversalMediaServer/UniversalMediaServer"><img src="./src/site/markdown/ums.png" alt="Universal Media Server" width=122px><sub><br/>Universal Media Server</sub></a></td>
     <td align=center width=134px><a href="https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html"><img src="./src/site/markdown/geoserver.png" alt="GeoServer" width=122px><sub><br/>GeoServer</sub></a></td>
+    <td align=center width=134px><a href="https://flink.apache.org/"><img src="./src/site/markdown/flink.jpg" alt="Apache Flink" width=122px><sub><br/>Apache Flink</sub></a></td>
+    <td align=center width=134px><a href="https://deeplearning4j.org/"><img src="./src/site/markdown/dl4j.png" alt="DeepLearning4J" width=122px><sub><br/>DeepLearning4J</sub></a></td>
+    <td align=center width=134px><a href="https://kamon.io/"><img src="./src/site/markdown/kamon.png" alt="Kamon System Metrics" width=122px><sub><br/>Kamon System Metrics</sub></a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://github.com/nosqlbench/nosqlbench"><img src="./src/site/markdown/nosqlbench.png" alt="NoSQLbench" width=122px><sub><br/>NoSQLbench</sub></a></td>
+    <td align=center width=134px><a href="https://octopus.com/"><img src="./src/site/markdown/octopus.svg" alt="Octopus Deploy" width=122px><sub><br/>Octopus Deploy</sub></a></td>
+    <td align=center width=134px><a href="https://karaf.apache.org/"><img src="./src/site/markdown/karaf.png" alt="Apache Karaf" width=122px><sub><br/>Apache Karaf</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/UniversalMediaServer/UniversalMediaServer"><img src="./src/site/markdown/ums.png" alt="Universal Media Server" width=122px><sub><br/>Universal Media Server</sub></a></td>
     <td align=center width=134px><a href="https://github.com/psi-probe/psi-probe"><img src="./src/site/markdown/psi.jpg" alt="PSI Probe" width=122px><sub><br/>PSI Probe</sub></a></td>
     <td align=center width=134px><a href="https://jppf.org/"><br/><img src="./src/site/markdown/jppf.gif" alt="JPPF" width=122px><sub><br/><br/><br/>JPPF</sub></a></td>
   </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://www.appdynamics.com/"><img src="./src/site/markdown/appdynamics.png" alt="AppDynamics" width=122px><sub><br/>AppDynamics</sub></a></td>
     <td align=center width=134px><a href="https://www.alluxio.io/"><img src="./src/site/markdown/alluxio.png" alt="Alluxio" width=122px><sub><br/>Alluxio</sub></a></td>
     <td align=center width=134px><a href="https://lightstep.com/"><img src="./src/site/markdown/lightstep.png" alt="Lightstep" width=122px><sub><br/>Lightstep</sub></a></td>
     <td align=center width=134px><a href="https://www.hivemq.com/"><img src="./src/site/markdown/hivemq.png" alt="HiveMQ" width=122px><sub><br/>HiveMQ</sub></a></td>
     <td align=center width=134px><a href="https://mosip.io/"><img src="./src/site/markdown/mosip.png" alt="MOSIP" width=122px><sub><br/>MOSIP</sub></a></td>
     <td align=center width=134px><a href="https://www.handle.net/"><br/><img src="./src/site/markdown/hdl.gif" alt="Handle.net" width=122px><sub><br/><br/><br/>Handle.net</sub></a></td>
-    <td align=center width=134px><a href="https://karaf.apache.org/"><img src="./src/site/markdown/karaf.png" alt="Apache Karaf" width=122px><sub><br/>Apache Karaf</sub></a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://xap.github.io/"><img src="./src/site/markdown/xap.png" alt="GigaSpaces XAP" width=122px><sub><br/><br/>GigaSpaces XAP</sub></a></td>
     <td align=center width=134px><a href="https://github.com/openhab/openhab-addons/tree/main/bundles/org.openhab.binding.systeminfo"><img src="./src/site/markdown/openhab.png" alt="OpenHAB Systeminfo Binding" width=122px><sub><br/>OpenHAB Systeminfo Binding</sub></a></td>
     <td align=center width=134px><a href="https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin"><img src="./src/site/markdown/jenkins.png" alt="Jenkins Swarm Plugin" width=122px><sub><br/>Jenkins Swarm Plugin</sub></a></td>
     <td align=center width=134px><a href="https://ibm-watson-iot.github.io/iot-java/"><img src="./src/site/markdown/watson.png" alt="IBM Watson IoT Platform" width=122px><sub><br/>IBM Watson IoT Platform</sub></a></td>
-    <td align=center width=134px><a href="https://github.com/hawkular/hawkular-agent"><img src="./src/site/markdown/hawkular.png" alt="Hawkular Agent" width=122px><sub><br/>Hawkular Agent</sub></a></td>
     <td align=center width=134px><a href="https://github.com/fulcrumgenomics/dagr"><img src="./src/site/markdown/dagr.png" alt="DAGR" width=122px><sub><br/>DAGR</sub></a></td>
+    <td align=center width=134px><a href="https://dolphinscheduler.apache.org/"><img src="./src/site/markdown/dolphinscheduler.png" alt="Apache Dolphin Scheduler" width=122px><sub><br/>Apache Dolphin Scheduler</sub></a></td> 
   </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://github.com/hawkular/hawkular-agent"><img src="./src/site/markdown/hawkular.png" alt="Hawkular Agent" width=122px><sub><br/>Hawkular Agent</sub></a></td>
     <td align=center width=134px><a href="https://dynamiasoluciones.com/"><img src="./src/site/markdown/dynamia.png" alt="DynamiaModules SaaS Remote" width=122px><sub><br/>DynamiaModules SaaS Remote</sub></a></td>
     <td align=center width=134px><a href="https://doris.incubator.apache.org/"><img src="./src/site/markdown/doris.png" alt="Apache Doris" width=122px><sub><br/>Apache Doris</sub></a></td>
     <td align=center width=134px><a href="https://www.semux.org/"><img src="./src/site/markdown/semux.svg" alt="Semux" width=122px><sub><br/>Semux</sub></a></td>
-    <td align=center width=134px><a href="https://github.com/nosqlbench/nosqlbench"><img src="./src/site/markdown/nosqlbench.png" alt="NoSQLbench" width=122px><sub><br/>NoSQLbench</sub></a></td>
     <td align=center width=134px><a href="https://github.com/stylefeng/Guns"><img src="./src/site/markdown/guns.png" alt="Guns" width=122px><sub><br/>Guns</sub></a></td>
     <td align=center width=134px><a href="https://github.com/Tencent/bk-ci"><img src="./src/site/markdown/bkci.png" alt="BlueKing CI" width=122px><sub><br/>BlueKing CI</sub></a></td>
   </tr><tr></tr><tr>
