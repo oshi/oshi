@@ -27,9 +27,9 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.jna.platform.unix.CLibrary;
+import oshi.jna.platform.unix.NativeSizeTByReference;
 
 /**
  * C library. This class should be considered non-API as it may be removed
@@ -141,7 +141,7 @@ public interface FreeBsdLibc extends CLibrary {
      *            Size of information to be written
      * @return 0 on success; sets errno on failure
      */
-    int sysctl(int[] name, int namelen, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
+    int sysctl(int[] name, int namelen, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
 
     /**
      * The sysctlbyname() function accepts an ASCII representation of the name and
@@ -160,7 +160,7 @@ public interface FreeBsdLibc extends CLibrary {
      *            Size of information to be written
      * @return 0 on success; sets errno on failure
      */
-    int sysctlbyname(String name, Pointer oldp, IntByReference oldlenp, Pointer newp, int newlen);
+    int sysctlbyname(String name, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
 
     /**
      * The sysctlnametomib() function accepts an ASCII representation of the name,
@@ -185,12 +185,12 @@ public interface FreeBsdLibc extends CLibrary {
      *            ASCII representation of the name
      * @param mibp
      *            Integer array containing the corresponding name vector.
-     * @param size
+     * @param sizep
      *            On input, number of elements in the returned array; on output, the
      *            number of entries copied.
      * @return 0 on success; sets errno on failure
      */
-    int sysctlnametomib(String name, Pointer mibp, IntByReference size);
+    int sysctlnametomib(String name, Pointer mibp, NativeSizeTByReference sizep);
 
     /**
      * Reads a line from the current file position in the utmp file. It returns a
