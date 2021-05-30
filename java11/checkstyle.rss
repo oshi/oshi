@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2021 oshi</copyright>
     <item>
-      <title>File: 391,
-             Errors: 11258,
+      <title>File: 392,
+             Errors: 11306,
              Warnings: 0,
              Infos: 0
       </title>
@@ -279,7 +279,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  83
+                  84
                 </td>
               </tr>
                           <tr>
@@ -882,6 +882,20 @@ under the License.
                 </td>
                 <td>
                   23
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.NativeSizeTByReference.java">oshi/jna/platform/unix/NativeSizeTByReference.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
                 </td>
               </tr>
                           <tr>
@@ -1553,7 +1567,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  218
+                  224
                 </td>
               </tr>
                           <tr>
@@ -3779,7 +3793,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  45
                 </td>
               </tr>
                           <tr>
@@ -4101,7 +4115,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  29
                 </td>
               </tr>
                           <tr>
@@ -4185,7 +4199,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  101
+                  102
                 </td>
               </tr>
                           <tr>
@@ -4297,7 +4311,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  32
                 </td>
               </tr>
                           <tr>
@@ -4619,7 +4633,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  99
+                  100
                 </td>
               </tr>
                           <tr>
@@ -4871,7 +4885,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  100
+                  99
                 </td>
               </tr>
                           <tr>
@@ -5067,7 +5081,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  7
                 </td>
               </tr>
                           <tr>
@@ -5109,7 +5123,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  51
+                  55
                 </td>
               </tr>
                           <tr>
