@@ -24,6 +24,7 @@
 package oshi.software.os;
 
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32ProcessCached;
@@ -75,6 +76,22 @@ public interface OSProcess {
      * @return the process command line.
      */
     String getCommandLine();
+
+    /**
+     * Gets the command-line arguments of the process.
+     *
+     * <p>On Windows, where the OS models command-line arguments as a single string, this method
+     * computes the approximated tokenization.
+     */
+    List<String> getArguments();
+
+    /**
+     * Obtains the environment variables of the process.
+     *
+     * @return an empty map if there was a failure (for example, because the process is already dead
+     *     or permission was denied).
+     */
+    Map<String, String> getEnvironmentVariables();
 
     /**
      * Gets the current working directory for the process.

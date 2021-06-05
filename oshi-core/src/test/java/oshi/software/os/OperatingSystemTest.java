@@ -364,6 +364,42 @@ class OperatingSystemTest {
                 is(greaterThan(0)));
     }
 
+    @Test
+    void testGetArguments() {
+        int processesWithNonEmptyArguments = 0;
+
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        for (OSProcess process : os.getProcesses(null, null, 0)) {
+            if (!process.getArguments().isEmpty()) {
+                processesWithNonEmptyArguments++;
+            }
+        }
+
+        assertThat(
+                "Processes with non-empty arguments should be 1 or higher",
+                processesWithNonEmptyArguments,
+                is(greaterThan(0)));
+    }
+
+    @Test
+    void testGetEnvironment() {
+        int processesWithNonEmptyEnvironment = 0;
+
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        for (OSProcess process : os.getProcesses(null, null, 0)) {
+            if (!process.getEnvironmentVariables().isEmpty()) {
+                processesWithNonEmptyEnvironment++;
+            }
+        }
+
+        assertThat(
+                "Processes with non-empty environment should be 1 or higher",
+                processesWithNonEmptyEnvironment,
+                is(greaterThan(0)));
+    }
+
     /**
      * Tests services getter
      */

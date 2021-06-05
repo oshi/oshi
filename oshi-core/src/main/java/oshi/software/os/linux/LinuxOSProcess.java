@@ -36,6 +36,9 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -78,6 +81,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private String name;
     private String path = "";
     private String commandLine;
+    private List<String> arguments;
+    private Map<String, String> environmentVariables;
     private String user;
     private String userID;
     private String group;
@@ -101,7 +106,41 @@ public class LinuxOSProcess extends AbstractOSProcess {
     public LinuxOSProcess(int pid) {
         super(pid);
         this.commandLine = FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, pid));
+        this.arguments =
+                parseArguments(FileUtil.readAllBytes(String.format(ProcPath.PID_CMDLINE, pid)));
+        this.environmentVariables =
+                parseEnvironmentVariables(FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, pid)));
         updateAttributes();
+    }
+
+    private static List<String> parseArguments(byte[] cmdline) {
+        List<String> arguments = new ArrayList<>();
+        int pos = 0;
+        for (int i = 0; i < cmdline.length; i++) {
+            byte b = cmdline[i];
+            if (b == 0) {
+                arguments.add(new String(cmdline, pos, i - pos));
+                pos = i + 1;
+            }
+        }
+        return Collections.unmodifiableList(arguments);
+    }
+
+    private static Map<String, String> parseEnvironmentVariables(byte[] environ) {
+        Map<String, String> environmentVariables = new LinkedHashMap<>();
+        int pos = 0;
+        for (int i = 0; i < environ.length; i++) {
+            byte b = environ[i];
+            if (b == 0) {
+                String line = new String(environ, pos, i - pos);
+                int sep = line.indexOf('=');
+                if (sep > 0) {
+                    environmentVariables.put(line.substring(0, sep), line.substring(sep + 1));
+                }
+                pos = i + 1;
+            }
+        }
+        return Collections.unmodifiableMap(environmentVariables);
     }
 
     @Override
@@ -117,6 +156,16 @@ public class LinuxOSProcess extends AbstractOSProcess {
     @Override
     public String getCommandLine() {
         return this.commandLine;
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return this.arguments;
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return this.environmentVariables;
     }
 
     @Override

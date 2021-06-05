@@ -36,6 +36,7 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -128,6 +129,16 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public String getCommandLine() {
         return this.commandLine.get();
+    }
+
+    @Override
+    public List<String> getArguments() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        throw new UnsupportedOperationException();
     }
 
     private String queryCommandLine() {
