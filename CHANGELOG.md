@@ -1,6 +1,8 @@
 # 5.7.5 (in progress)
 
+##### Bug fixes / Improvements
 * [#1657](https://github.com/oshi/oshi/pull/1657): macOS 12 Monterey - [@dbwiddis](https://github.com/dbwiddis).
+* [#1662](https://github.com/oshi/oshi/pull/1662): PDH queries shouldn't be localized on Vista+ - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16), 5.7.4 (2021-05-30)
 

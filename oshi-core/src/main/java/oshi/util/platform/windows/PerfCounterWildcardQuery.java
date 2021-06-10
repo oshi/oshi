@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.PdhUtil; //NOSONAR
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -55,6 +56,8 @@ import oshi.util.tuples.Pair;
 public final class PerfCounterWildcardQuery {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);
+
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     // Use a map to cache failed pdh queries
     @GuardedBy("failedQueryCacheLock")
@@ -135,12 +138,15 @@ public final class PerfCounterWildcardQuery {
         }
         String instanceFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
                 .toLowerCase();
-        String perfObjectLocalized = PerfCounterQuery.localize(perfObject);
+        // If pre-Vista, localize the perfObject
+        if (!IS_VISTA_OR_GREATER) {
+            perfObject = PerfCounterQuery.localize(perfObject);
+        }
 
         // Get list of instances
         final PdhEnumObjectItems objectItems;
         try {
-            objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
+            objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObject, 100);
         } catch (PdhException e) {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
