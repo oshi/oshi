@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.PdhUtil; //NOSONAR
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
@@ -51,6 +52,8 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 public final class PerfCounterQuery {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQuery.class);
+
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     // Use a map to cache failed pdh queries
     @GuardedBy("failedQueryCacheLock")
@@ -131,14 +134,17 @@ public final class PerfCounterQuery {
      */
     public static <T extends Enum<T>> Map<T, Long> queryValuesFromPDH(Class<T> propertyEnum, String perfObject) {
         T[] props = propertyEnum.getEnumConstants();
-        String perfObjectLocalized = localize(perfObject);
+        // If pre-Vista, localize the perfObject
+        if (!IS_VISTA_OR_GREATER) {
+            perfObject = PerfCounterQuery.localize(perfObject);
+        }
         EnumMap<T, PerfCounter> counterMap = new EnumMap<>(propertyEnum);
         EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
         try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {
             // Set up the query and counter handles
             for (T prop : props) {
-                PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized,
-                        ((PdhCounterProperty) prop).getInstance(), ((PdhCounterProperty) prop).getCounter());
+                PerfCounter counter = PerfDataUtil.createCounter(perfObject, ((PdhCounterProperty) prop).getInstance(),
+                        ((PdhCounterProperty) prop).getCounter());
                 counterMap.put(prop, counter);
                 if (!pdhQueryHandler.addCounterToQuery(counter)) {
                     return valueMap;
