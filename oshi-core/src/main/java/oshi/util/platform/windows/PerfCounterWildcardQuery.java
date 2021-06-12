@@ -26,11 +26,10 @@ package oshi.util.platform.windows;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,6 @@ import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Util;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
@@ -56,10 +54,8 @@ public final class PerfCounterWildcardQuery {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);
 
-    // Use a map to cache failed pdh queries
-    @GuardedBy("failedQueryCacheLock")
-    private static final Set<String> failedQueryCache = new HashSet<>();
-    private static final ReentrantLock failedQueryCacheLock = new ReentrantLock();
+    // Use a thread safe set to cache failed pdh queries
+    private static final Set<String> failedQueryCache = ConcurrentHashMap.newKeySet();
 
     private PerfCounterWildcardQuery() {
     }
@@ -86,24 +82,15 @@ public final class PerfCounterWildcardQuery {
      */
     public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValues(
             Class<T> propertyEnum, String perfObject, String perfWmiClass) {
-        // Check without locking for performance
         if (!failedQueryCache.contains(perfObject)) {
-            failedQueryCacheLock.lock();
-            try {
-                // Double check lock
-                if (!failedQueryCache.contains(perfObject)) {
-                    Pair<List<String>, Map<T, List<Long>>> instancesAndValuesMap = queryInstancesAndValuesFromPDH(
-                            propertyEnum, perfObject);
-                    if (!instancesAndValuesMap.getA().isEmpty()) {
-                        return instancesAndValuesMap;
-                    }
-                    // If we are here, query failed
-                    LOG.warn("Disabling further attempts to query {}.", perfObject);
-                    failedQueryCache.add(perfObject);
-                }
-            } finally {
-                failedQueryCacheLock.unlock();
+            Pair<List<String>, Map<T, List<Long>>> instancesAndValuesMap = queryInstancesAndValuesFromPDH(propertyEnum,
+                    perfObject);
+            if (!instancesAndValuesMap.getA().isEmpty()) {
+                return instancesAndValuesMap;
             }
+            // If we are here, query failed
+            LOG.warn("Disabling further attempts to query {}.", perfObject);
+            failedQueryCache.add(perfObject);
         }
         return queryInstancesAndValuesFromWMI(propertyEnum, perfWmiClass);
     }
@@ -135,7 +122,8 @@ public final class PerfCounterWildcardQuery {
         }
         String instanceFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
                 .toLowerCase();
-        String perfObjectLocalized = PerfCounterQuery.localize(perfObject);
+        // If pre-Vista, localize the perfObject
+        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);
 
         // Get list of instances
         final PdhEnumObjectItems objectItems;
