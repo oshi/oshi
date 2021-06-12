@@ -8,6 +8,7 @@ module com.github.oshi {
     // JNA needs reflective access to Structure subclasses
     opens oshi.jna.platform.linux to com.sun.jna;
     opens oshi.jna.platform.mac to com.sun.jna;
+    opens oshi.jna.platform.windows to com.sun.jna;
     opens oshi.jna.platform.unix to com.sun.jna;
     opens oshi.jna.platform.unix.aix to com.sun.jna;
     opens oshi.jna.platform.unix.freebsd to com.sun.jna;
