@@ -214,22 +214,23 @@ public final class PerfDataUtil {
      * @param query
      *            Pointer to the query to add the counter
      * @param path
-     *            String name of the PerfMon counter
+     *            String name of the PerfMon counter. For Vista+, must be in
+     *            English. Must localize this path for pre-Vista.
      * @param p
      *            Pointer to the counter
      * @return true if successful
      */
     public static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
-<span class="nc bnc" id="L223" title="All 2 branches missed.">        int ret = IS_VISTA_OR_GREATER ? PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p)</span>
-<span class="nc" id="L224">                : PDH.PdhAddCounter(query.getValue(), path, PZERO, p);</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
-<span class="nc bnc" id="L226" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L227">                LOG.warn(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
-<span class="nc" id="L228">                        String.format(FormatUtil.formatError(ret)));</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        int ret = IS_VISTA_OR_GREATER ? PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p)</span>
+<span class="nc" id="L225">                : PDH.PdhAddCounter(query.getValue(), path, PZERO, p);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L228">                LOG.warn(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
+<span class="nc" id="L229">                        String.format(FormatUtil.formatError(ret)));</span>
             }
-<span class="nc" id="L230">            return false;</span>
+<span class="nc" id="L231">            return false;</span>
         }
-<span class="nc" id="L232">        return true;</span>
+<span class="nc" id="L233">        return true;</span>
     }
 
     /**
@@ -240,7 +241,7 @@ public final class PerfDataUtil {
      * @return true if successful
      */
     public static boolean removeCounter(HANDLEByReference p) {
-<span class="nc bnc" id="L243" title="All 2 branches missed.">        return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
