@@ -63,7 +63,7 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 <span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this.queryHandle == null) {</span>
 <span class="nc" id="L64">            this.queryHandle = new HANDLEByReference();</span>
 <span class="nc bnc" id="L65" title="All 2 branches missed.">            if (!PerfDataUtil.openQuery(this.queryHandle)) {</span>
-<span class="nc" id="L66">                LOG.warn(&quot;Failed to open a query for PDH object: {}&quot;, counter.getObject());</span>
+<span class="nc" id="L66">                LOG.warn(&quot;Failed to open a query for PDH counter: {}&quot;, counter.getCounterPath());</span>
 <span class="nc" id="L67">                this.queryHandle = null;</span>
 <span class="nc" id="L68">                return false;</span>
             }
@@ -71,7 +71,7 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
         // Get a new handle for the counter
 <span class="nc" id="L72">        HANDLEByReference p = new HANDLEByReference();</span>
 <span class="nc bnc" id="L73" title="All 2 branches missed.">        if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {</span>
-<span class="nc" id="L74">            LOG.warn(&quot;Failed to add counter for PDH object: {}&quot;, counter.getObject());</span>
+<span class="nc" id="L74">            LOG.warn(&quot;Failed to add counter for PDH counter: {}&quot;, counter.getCounterPath());</span>
 <span class="nc" id="L75">            return false;</span>
         }
 <span class="nc" id="L77">        counterHandleMap.put(counter, p);</span>

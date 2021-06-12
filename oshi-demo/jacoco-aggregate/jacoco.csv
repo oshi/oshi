@@ -2,13 +2,13 @@ GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_
 oshi-demo/oshi-core,oshi.driver.windows,EnumWindows,122,0,14,0,25,0,11,0,4,0
 oshi-demo/oshi-core,oshi.driver.windows,DeviceTree,258,0,18,0,48,0,13,0,4,0
 oshi-demo/oshi-core,oshi.driver.windows,LogicalProcessorInformation,382,0,42,0,64,0,30,0,8,0
-oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterQuery,297,0,25,0,60,0,21,0,7,0
+oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterQuery,288,0,27,0,59,0,21,0,6,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfDataUtil.PerfCounter,54,0,2,0,14,0,6,0,5,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterQueryHandler,178,0,24,0,49,0,20,0,8,0
 oshi-demo/oshi-core,oshi.util.platform.windows,PerfDataUtil,207,0,32,0,43,0,24,0,8,0
 oshi-demo/oshi-core,oshi.util.platform.windows,WmiQueryHandler,291,0,35,0,79,0,34,0,15,0
 oshi-demo/oshi-core,oshi.util.platform.windows,WmiUtil,556,0,38,0,67,0,32,0,13,0
-oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterWildcardQuery,371,0,37,0,72,0,25,0,5,0
+oshi-demo/oshi-core,oshi.util.platform.windows,PerfCounterWildcardQuery,355,0,35,0,68,0,24,0,5,0
 oshi-demo/oshi-core,oshi.driver.unix.solaris,Who,88,0,16,0,17,0,10,0,2,0
 oshi-demo/oshi-core,oshi.software.os,OSService,0,21,0,0,0,8,0,4,0,4
 oshi-demo/oshi-core,oshi.software.os,OperatingSystem.ProcessSort,45,0,0,0,2,0,1,0,1,0
