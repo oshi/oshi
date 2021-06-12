@@ -63,7 +63,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
         if (this.queryHandle == null) {
             this.queryHandle = new HANDLEByReference();
             if (!PerfDataUtil.openQuery(this.queryHandle)) {
-                LOG.warn("Failed to open a query for PDH object: {}", counter.getObject());
+                LOG.warn("Failed to open a query for PDH counter: {}", counter.getCounterPath());
                 this.queryHandle = null;
                 return false;
             }
@@ -71,7 +71,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
         // Get a new handle for the counter
         HANDLEByReference p = new HANDLEByReference();
         if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {
-            LOG.warn("Failed to add counter for PDH object: {}", counter.getObject());
+            LOG.warn("Failed to add counter for PDH counter: {}", counter.getCounterPath());
             return false;
         }
         counterHandleMap.put(counter, p);
