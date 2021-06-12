@@ -22,6 +22,7 @@
 * [#1628](https://github.com/oshi/oshi/pull/1628): Null check volume name when iterating Mac File Stores - [@dbwiddis](https://github.com/dbwiddis).
 * [#1631](https://github.com/oshi/oshi/pull/1631): Null check all CFStrings to prevent exceptions - [@dbwiddis](https://github.com/dbwiddis).
 * [#1649](https://github.com/oshi/oshi/pull/1649): Fix macOS and unix sysctl mappings for size_t - [@dbwiddis](https://github.com/dbwiddis).
+* [#1665](https://github.com/oshi/oshi/pull/1665): Added windows to the list of opened modules - [@vatbub](https://github.com/vatbub)
 
 # 5.6.0 (2021-03-01), 5.6.1 (2021-03-22)
 
