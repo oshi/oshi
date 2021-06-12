@@ -4,6 +4,7 @@
 * [#1657](https://github.com/oshi/oshi/pull/1657): macOS 12 Monterey - [@dbwiddis](https://github.com/dbwiddis).
 * [#1662](https://github.com/oshi/oshi/pull/1662): PDH queries shouldn't be localized on Vista+ - [@dbwiddis](https://github.com/dbwiddis).
 * [#1664](https://github.com/oshi/oshi/pull/1664): Fix PDH failed query thread safety - [@dbwiddis](https://github.com/dbwiddis).
+* [#1665](https://github.com/oshi/oshi/pull/1665): (Java11 branch) JNA needs reflective access to Windows structure mappings - [@vatbub](https://github.com/vatbub)
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16), 5.7.4 (2021-05-30)
 
@@ -25,7 +26,6 @@
 * [#1628](https://github.com/oshi/oshi/pull/1628): Null check volume name when iterating Mac File Stores - [@dbwiddis](https://github.com/dbwiddis).
 * [#1631](https://github.com/oshi/oshi/pull/1631): Null check all CFStrings to prevent exceptions - [@dbwiddis](https://github.com/dbwiddis).
 * [#1649](https://github.com/oshi/oshi/pull/1649): Fix macOS and unix sysctl mappings for size_t - [@dbwiddis](https://github.com/dbwiddis).
-* [#1665](https://github.com/oshi/oshi/pull/1665): Added windows to the list of opened modules - [@vatbub](https://github.com/vatbub)
 
 # 5.6.0 (2021-03-01), 5.6.1 (2021-03-22)
 
