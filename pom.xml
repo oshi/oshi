@@ -95,7 +95,7 @@
         <!-- Base directory, overwrite in submodules -->
         <main.basedir>${project.basedir}</main.basedir>
         <!-- Dependency versions -->
-        <slf4j.version>1.7.30</slf4j.version>
+        <slf4j.version>1.7.31</slf4j.version>
         <junit.version>5.7.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <!-- Compile versions -->
