@@ -66,9 +66,13 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static final PlatformEnum currentPlatform;
+    private static PlatformEnum currentPlatform;
 
     static {
+        initCurrentPlatform();
+    }
+
+    private static void initCurrentPlatform() {
         if (Platform.isWindows()) {
             currentPlatform = WINDOWS;
         } else if (Platform.isLinux()) {
@@ -105,6 +109,9 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
+        if (currentPlatform == null) {
+            initCurrentPlatform();
+        }
         if (getCurrentPlatform().equals(PlatformEnum.UNKNOWN)) {
             throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
         }
