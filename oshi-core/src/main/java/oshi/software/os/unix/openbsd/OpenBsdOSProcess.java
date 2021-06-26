@@ -34,7 +34,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
@@ -100,16 +99,6 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public String getCommandLine() {
         return this.commandLine;
-    }
-
-    @Override
-    public List<String> getArguments() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, String> getEnvironmentVariables() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -142,16 +142,6 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public List<String> getArguments() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, String> getEnvironmentVariables() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getCurrentWorkingDirectory() {
         return this.currentWorkingDirectory;
     }

@@ -106,10 +106,9 @@ public class LinuxOSProcess extends AbstractOSProcess {
     public LinuxOSProcess(int pid) {
         super(pid);
         this.commandLine = FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, pid));
-        this.arguments =
-                parseArguments(FileUtil.readAllBytes(String.format(ProcPath.PID_CMDLINE, pid)));
-        this.environmentVariables =
-                parseEnvironmentVariables(FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, pid)));
+        this.arguments = parseArguments(FileUtil.readAllBytes(String.format(ProcPath.PID_CMDLINE, pid)));
+        this.environmentVariables = parseEnvironmentVariables(
+                FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, pid)));
         updateAttributes();
     }
 

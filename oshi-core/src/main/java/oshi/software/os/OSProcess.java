@@ -23,6 +23,7 @@
  */
 package oshi.software.os;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -78,20 +79,27 @@ public interface OSProcess {
     String getCommandLine();
 
     /**
-     * Gets the command-line arguments of the process.
+     * Makes a best effort attempt to get a list of the the command-line arguments
+     * of the process.
      *
-     * <p>On Windows, where the OS models command-line arguments as a single string, this method
-     * computes the approximated tokenization.
+     * @return A list of Strings representing the arguments. May return an empty
+     *         list if there was a failure (for example, because the process is
+     *         already dead or permission was denied).
      */
-    List<String> getArguments();
+    default List<String> getArguments() {
+        return Collections.emptyList();
+    }
 
     /**
      * Obtains the environment variables of the process.
      *
-     * @return an empty map if there was a failure (for example, because the process is already dead
-     *     or permission was denied).
+     * @return A map representing the environment variables and their values. May
+     *         return an empty map if there was a failure (for example, because the
+     *         process is already dead or permission was denied).
      */
-    Map<String, String> getEnvironmentVariables();
+    default Map<String, String> getEnvironmentVariables() {
+        return Collections.emptyMap();
+    }
 
     /**
      * Gets the current working directory for the process.
