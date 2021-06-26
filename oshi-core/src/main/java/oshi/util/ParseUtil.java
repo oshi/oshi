@@ -1318,4 +1318,74 @@ public final class ParseUtil {
         }
         return pos < dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : "";
     }
+
+    /**
+     * Parse a null-delmited byte array to a list of strings.
+     *
+     * @param bytes
+     *            A byte array containing Strings delimted by null characters. Two
+     *            consecutive null characters mark the end of the list.
+     * @return A list of Strings between the nulls.
+     */
+    public static List<String> parseByteArrayToStrings(byte[] bytes) {
+        List<String> strList = new ArrayList<>();
+        int start = 0;
+        int end = 0;
+        // Iterate characters
+        do {
+            // If we've reached a delimeter or the end of the array, add to list
+            if (end == bytes.length || bytes[end] == 0) {
+                // Zero length string means two nulls, we're done
+                if (start == end) {
+                    break;
+                }
+                // Otherwise add string and reset start
+                // Intentionally using platform default charset
+                strList.add(new String(bytes, start, end - start));
+                start = end + 1;
+            }
+        } while (end++ < bytes.length);
+        return strList;
+    }
+
+    /**
+     * Parse a null-delmited byte array to a map of string keys and values.
+     *
+     * @param bytes
+     *            A byte array containing String key-value pairs with keys and
+     *            values delimited by {@code =} and pairs delimted by null
+     *            characters. Two consecutive null characters mark the end of the
+     *            map.
+     * @return A map of String key-value pairs between the nulls.
+     */
+    public static Map<String, String> parseByteArrayToStringMap(byte[] bytes) {
+        Map<String, String> strMap = new HashMap<>();
+        int start = 0;
+        int end = 0;
+        String key = null;
+        // Iterate characters
+        do {
+            // If we've reached a delimeter or the end of the array, add to list
+            if (end == bytes.length || bytes[end] == 0) {
+                // Zero length string means two nulls, we're done
+                // Also exit if no key found
+                if (start == end || key == null) {
+                    break;
+                }
+                // Otherwise add string and reset start
+                // Intentionally using platform default charset
+                strMap.put(key, new String(bytes, start, end - start));
+                key = null;
+                start = end + 1;
+            } else if (bytes[end] == '=' && key == null) {
+                // Zero length key, we're done
+                if (start == end) {
+                    break;
+                }
+                key = new String(bytes, start, end - start);
+                start = end + 1;
+            }
+        } while (end++ < bytes.length);
+        return strMap;
+    }
 }

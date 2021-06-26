@@ -376,9 +376,7 @@ class OperatingSystemTest {
             }
         }
 
-        assertThat(
-                "Processes with non-empty arguments should be 1 or higher",
-                processesWithNonEmptyArguments,
+        assertThat("Processes with non-empty arguments should be 1 or higher", processesWithNonEmptyArguments,
                 is(greaterThan(0)));
     }
 
@@ -394,9 +392,7 @@ class OperatingSystemTest {
             }
         }
 
-        assertThat(
-                "Processes with non-empty environment should be 1 or higher",
-                processesWithNonEmptyEnvironment,
+        assertThat("Processes with non-empty environment should be 1 or higher", processesWithNonEmptyEnvironment,
                 is(greaterThan(0)));
     }
 

@@ -104,10 +104,11 @@ public final class FileUtil {
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid
-     * recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
      *
-     * @param filename The file to read
+     * @param filename
+     *            The file to read
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename) {
@@ -115,11 +116,13 @@ public final class FileUtil {
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid
-     * recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
      *
-     * @param filename The file to read
-     * @param reportError Whether to log errors reading the file
+     * @param filename
+     *            The file to read
+     * @param reportError
+     *            Whether to log errors reading the file
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename, boolean reportError) {
