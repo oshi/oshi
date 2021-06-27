@@ -138,7 +138,6 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         mib[3] = getProcessID();
         // Allocate memory for arguments
         Memory procargs = new Memory(ARGMAX);
-        procargs.clear();
         NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
         // Fetch arguments
         if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO) == 0) {
@@ -169,7 +168,6 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         mib[3] = getProcessID();
         // Allocate memory for environment variables
         Memory procenv = new Memory(ARGMAX);
-        procenv.clear();
         NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
         // Fetch environment variables
         if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, procenv, size, null, size_t.ZERO) == 0) {
