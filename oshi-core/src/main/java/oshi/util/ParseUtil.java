@@ -1367,21 +1367,16 @@ public final class ParseUtil {
         do {
             // If we've reached a delimeter or the end of the array, add to list
             if (end == bytes.length || bytes[end] == 0) {
-                // Zero length string means two nulls, we're done
-                // Also exit if no key found
-                if (start == end || key == null) {
+                // Zero length string with no key, we're done
+                if (start == end && key == null) {
                     break;
                 }
-                // Otherwise add string and reset start
+                // Otherwise add string (possibly empty) and reset start
                 // Intentionally using platform default charset
                 strMap.put(key, new String(bytes, start, end - start));
                 key = null;
                 start = end + 1;
             } else if (bytes[end] == '=' && key == null) {
-                // Zero length key, we're done
-                if (start == end) {
-                    break;
-                }
                 key = new String(bytes, start, end - start);
                 start = end + 1;
             }

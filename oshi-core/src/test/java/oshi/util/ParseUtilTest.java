@@ -669,13 +669,15 @@ class ParseUtilTest {
 
         bytes[10] = 0;
         map = ParseUtil.parseByteArrayToStringMap(bytes);
-        assertThat(map.keySet(), contains("foo"));
-        assertThat(map.values(), contains("1"));
+        assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
+        assertThat(map.values(), containsInAnyOrder("1", ""));
         assertThat(map.get("foo"), is("1"));
+        assertThat(map.get("bar"), is(""));
 
         bytes = "foo=1 bar=2".getBytes();
         bytes[5] = 0;
         bytes[6] = 0;
+        map = ParseUtil.parseByteArrayToStringMap(bytes);
         assertThat(map.keySet(), contains("foo"));
         assertThat(map.values(), contains("1"));
         assertThat(map.get("foo"), is("1"));
