@@ -366,18 +366,12 @@ class OperatingSystemTest {
 
     @Test
     void testGetArguments() {
-        int processesWithNonEmptyArguments = 0;
-
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        for (OSProcess process : os.getProcesses(null, null, 0)) {
-            if (!process.getArguments().isEmpty()) {
-                processesWithNonEmptyArguments++;
-            }
-        }
+        List<OSProcess> processesWithNonEmptyArguments = os.getProcesses(p -> !p.getArguments().isEmpty(), null, 0);
 
-        assertThat("Processes with non-empty arguments should be 1 or higher", processesWithNonEmptyArguments,
-                is(greaterThan(0)));
+        assertThat("Processes with non-empty arguments should be non-empty", processesWithNonEmptyArguments,
+                not(empty()));
     }
 
     @Test
