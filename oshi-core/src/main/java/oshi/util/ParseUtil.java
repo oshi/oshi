@@ -1383,4 +1383,40 @@ public final class ParseUtil {
         } while (end++ < bytes.length);
         return strMap;
     }
+
+    /**
+     * Parse a null-delmited char array to a map of string keys and values.
+     *
+     * @param chars
+     *            A char array containing String key-value pairs with keys and
+     *            values delimited by {@code =} and pairs delimted by null
+     *            characters. Two consecutive null characters mark the end of the
+     *            map.
+     * @return A map of String key-value pairs between the nulls.
+     */
+    public static Map<String, String> parseCharArrayToStringMap(char[] chars) {
+        Map<String, String> strMap = new HashMap<>();
+        int start = 0;
+        int end = 0;
+        String key = null;
+        // Iterate characters
+        do {
+            // If we've reached a delimeter or the end of the array, add to list
+            if (end == chars.length || chars[end] == 0) {
+                // Zero length string with no key, we're done
+                if (start == end && key == null) {
+                    break;
+                }
+                // Otherwise add string (possibly empty) and reset start
+                // Intentionally using platform default charset
+                strMap.put(key, new String(chars, start, end - start));
+                key = null;
+                start = end + 1;
+            } else if (chars[end] == '=' && key == null) {
+                key = new String(chars, start, end - start);
+                start = end + 1;
+            }
+        } while (end++ < chars.length);
+        return strMap;
+    }
 }

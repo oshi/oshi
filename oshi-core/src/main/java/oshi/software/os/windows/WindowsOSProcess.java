@@ -29,6 +29,7 @@ import static oshi.software.os.OSProcess.State.SUSPENDED;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
@@ -55,6 +57,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.ptr.IntByReference;
 
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData;
 import oshi.driver.windows.registry.ProcessWtsData;
@@ -63,15 +66,22 @@ import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
+import oshi.jna.platform.windows.NtDll;
+import oshi.jna.platform.windows.NtDll.UNICODE_STRING;
+import oshi.jna.platform.windows.Shell32;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
+import oshi.software.os.OperatingSystem;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
+import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class WindowsOSProcess extends AbstractOSProcess {
@@ -88,13 +98,19 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
+    // track the OperatingSystem object that created this
+    private final OperatingSystem os;
+
     private Supplier<Pair<String, String>> userInfo = memoize(this::queryUserInfo);
     private Supplier<Pair<String, String>> groupInfo = memoize(this::queryGroupInfo);
+    private Supplier<String> currentWorkingDirectory = memoize(this::queryCwd);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private Supplier<List<String>> args = memoize(this::queryArguments);
+    private Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
+            this::queryCwdCommandlineEnvironment);
 
     private String name;
     private String path;
-    private String currentWorkingDirectory;
     private State state = INVALID;
     private int parentProcessID;
     private int threadCount;
@@ -115,12 +131,8 @@ public class WindowsOSProcess extends AbstractOSProcess {
             Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap, Map<Integer, WtsInfo> processWtsMap,
             Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
         super(pid);
-        // For executing process, set CWD
-        if (pid == os.getProcessId()) {
-            String cwd = new File(".").getAbsolutePath();
-            // trim off trailing "."
-            this.currentWorkingDirectory = cwd.isEmpty() ? "" : cwd.substring(0, cwd.length() - 1);
-        }
+        // Save a copy of OS creating this object for later use
+        this.os = os;
         // Initially set to match OS bitness. If 64 will check later for 32-bit process
         this.bitness = os.getBitness();
         updateAttributes(processMap.get(pid), processWtsMap.get(pid), threadMap);
@@ -142,8 +154,18 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public List<String> getArguments() {
+        return args.get();
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return cwdCmdEnv.get().getC();
+    }
+
+    @Override
     public String getCurrentWorkingDirectory() {
-        return this.currentWorkingDirectory;
+        return currentWorkingDirectory.get();
     }
 
     @Override
@@ -371,6 +393,10 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
+        // Try to fetch from process memory
+        if (!cwdCmdEnv.get().getB().isEmpty()) {
+            return cwdCmdEnv.get().getB();
+        }
         // If using batch mode fetch from WMI Cache
         if (USE_BATCH_COMMANDLINE) {
             return Win32ProcessCached.getInstance().getCommandLine(getProcessID(), getStartTime());
@@ -381,7 +407,40 @@ public class WindowsOSProcess extends AbstractOSProcess {
         if (commandLineProcs.getResultCount() > 0) {
             return WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
         }
-        return Constants.UNKNOWN;
+        return "";
+    }
+
+    private List<String> queryArguments() {
+        String cl = getCommandLine();
+        if (!cl.isEmpty()) {
+            IntByReference nargs = new IntByReference();
+            Pointer strArr = Shell32.INSTANCE.CommandLineToArgvW(cl, nargs);
+            if (strArr != null) {
+                try {
+                    String[] argv = strArr.getWideStringArray(0);
+                    return Collections.unmodifiableList(Arrays.asList(argv));
+                } finally {
+                    Kernel32.INSTANCE.LocalFree(strArr);
+                }
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private String queryCwd() {
+        // Try to fetch from process memory
+        if (!cwdCmdEnv.get().getA().isEmpty()) {
+            return cwdCmdEnv.get().getA();
+        }
+        // For executing process, set CWD
+        if (getProcessID() == this.os.getProcessId()) {
+            String cwd = new File(".").getAbsolutePath();
+            // trim off trailing "."
+            if (!cwd.isEmpty()) {
+                return cwd.substring(0, cwd.length() - 1);
+            }
+        }
+        return "";
     }
 
     private Pair<String, String> queryUserInfo() {
@@ -444,5 +503,95 @@ public class WindowsOSProcess extends AbstractOSProcess {
             return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
         }
         return pair;
+    }
+
+    private Triplet<String, String, Map<String, String>> queryCwdCommandlineEnvironment() {
+        // Get the process handle
+        HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_ALL_ACCESS, false, getProcessID());
+        if (h != null) {
+            try {
+                IntByReference nRead = new IntByReference();
+
+                // Can't check 32-bit procs from a 64-bit one
+                // This requires a knowing bitness of current process
+                // TODO track current PID bitness or maybe just fail safe here
+
+                // Start by getting the address of the PEB
+                NtDll.PROCESS_BASIC_INFORMATION pbi = new NtDll.PROCESS_BASIC_INFORMATION();
+                int ret = NtDll.INSTANCE.NtQueryInformationProcess(h, NtDll.PROCESS_BASIC_INFORMATION, pbi.getPointer(),
+                        pbi.size(), nRead);
+                if (ret != 0) {
+                    return null;
+                }
+                pbi.read();
+
+                // Now fetch the PEB
+                NtDll.PEB peb = new NtDll.PEB();
+                Kernel32.INSTANCE.ReadProcessMemory(h, pbi.PebBaseAddress, peb.getPointer(), peb.size(), nRead);
+                if (nRead.getValue() == 0) {
+                    return null;
+                }
+                peb.read();
+
+                // Now fetch the Process Parameters structure containing our data
+                NtDll.RTL_USER_PROCESS_PARAMETERS upp = new NtDll.RTL_USER_PROCESS_PARAMETERS();
+                Kernel32.INSTANCE.ReadProcessMemory(h, peb.ProcessParameters, upp.getPointer(), upp.size(), nRead);
+                if (nRead.getValue() == 0) {
+                    return null;
+                }
+                upp.read();
+
+                // Get CWD and Command Line strings here
+                String cwd = readUnicodeString(h, upp.CurrentDirectory.DosPath);
+                String cl = readUnicodeString(h, upp.CommandLine);
+
+                // Fetch the Environment Strings
+                int envSize = upp.EnvironmentSize.intValue();
+                if (envSize > 0) {
+                    Memory buffer = new Memory(envSize);
+                    buffer.clear();
+                    Kernel32.INSTANCE.ReadProcessMemory(h, upp.Environment, buffer, envSize, nRead);
+                    if (nRead.getValue() > 0) {
+                        char[] env = buffer.getCharArray(0, envSize / 2);
+                        Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
+                        // First entry in Environment is "=::=::\"
+                        envMap.remove("");
+                        return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
+                    }
+                }
+                return new Triplet<>(cwd, cl, Collections.emptyMap());
+            } finally {
+                Kernel32.INSTANCE.CloseHandle(h);
+            }
+        }
+        return new Triplet<>("", "", Collections.emptyMap());
+    }
+
+    private String readUnicodeString(HANDLE h, UNICODE_STRING s) {
+        IntByReference nRead = new IntByReference();
+        if (s.Length > 0) {
+            // Add space for null terminator
+            Memory m = new Memory(s.Length + 2);
+            m.clear();
+            Kernel32.INSTANCE.ReadProcessMemory(h, s.Buffer, m, s.Length, nRead);
+            if (nRead.getValue() > 0) {
+                return m.getWideString(0);
+            }
+        }
+        return "";
+    }
+
+    // TEMPORARY FOR TESTING. TODO: Remove after handling x64/isWow
+    public static void main(String[] args) {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+//        OSProcess p = os.getProcess(os.getProcessId());
+        for (OSProcess p : os.getProcesses()) {
+            System.out.println(p.getProcessID());
+            System.out.println("CWD: " + p.getCurrentWorkingDirectory());
+            System.out.println("CMD: " + p.getCommandLine());
+            System.out.println("ARG: " + p.getArguments());
+            System.out.println("ENV: " + p.getEnvironmentVariables());
+        }
     }
 }

@@ -690,4 +690,38 @@ class ParseUtilTest {
         map = ParseUtil.parseByteArrayToStringMap(bytes);
         assertThat(map, anEmptyMap());
     }
+
+    @Test
+    void parseCharArrayToStringMap() {
+        char[] chars = "foo=1 bar=2".toCharArray();
+        chars[5] = 0;
+        Map<String, String> map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
+        assertThat(map.values(), containsInAnyOrder("1", "2"));
+        assertThat(map.get("foo"), is("1"));
+        assertThat(map.get("bar"), is("2"));
+
+        chars[10] = 0;
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
+        assertThat(map.values(), containsInAnyOrder("1", ""));
+        assertThat(map.get("foo"), is("1"));
+        assertThat(map.get("bar"), is(""));
+
+        chars = "foo=1 bar=2".toCharArray();
+        chars[5] = 0;
+        chars[6] = 0;
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map.keySet(), contains("foo"));
+        assertThat(map.values(), contains("1"));
+        assertThat(map.get("foo"), is("1"));
+
+        chars[0] = 0;
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map, anEmptyMap());
+
+        chars = new char[0];
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map, anEmptyMap());
+    }
 }
