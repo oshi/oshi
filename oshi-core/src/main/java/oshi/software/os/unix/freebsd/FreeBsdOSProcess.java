@@ -32,11 +32,20 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
@@ -47,6 +56,7 @@ import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.platform.unix.freebsd.ProcstatUtil;
 
 /**
@@ -55,11 +65,18 @@ import oshi.util.platform.unix.freebsd.ProcstatUtil;
 @ThreadSafe
 public class FreeBsdOSProcess extends AbstractOSProcess {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOSProcess.class);
+
+    private static final int ARGMAX = BsdSysctlUtil.sysctl("kern.argmax", 0);
+
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private Supplier<List<String>> arguments = memoize(this::queryArguments);
+    private Supplier<Map<String, String>> environmentVariables =
+            memoize(this::queryEnvironmentVariables);
 
     private String name;
     private String path = "";
-    private String commandLine;
     private String user;
     private String userID;
     private String group;
@@ -97,7 +114,96 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return this.commandLine;
+        return this.commandLine.get();
+    }
+
+    private String queryCommandLine() {
+        return String.join(" ", getArguments());
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return arguments.get();
+    }
+
+    private List<String> queryArguments() {
+        // Set up return object
+        List<String> args = new ArrayList<>();
+
+        // Get arguments via sysctl(3)
+        int[] mib = new int[4];
+        mib[0] = 1; // CTL_KERN
+        mib[1] = 14; // KERN_PROC
+        mib[2] = 7; // KERN_PROC_ARGS
+        mib[3] = getProcessID();
+        // Allocate memory for arguments
+        Memory procargs = new Memory(ARGMAX);
+        procargs.clear();
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+        // Fetch arguments
+        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO) == 0) {
+            parseArgsOrEnvironment(procargs, size, args::add);
+        } else {
+            LOG.warn(
+                    "Failed syctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
+                    getProcessID(),
+                    Native.getLastError());
+        }
+        return Collections.unmodifiableList(args);
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables.get();
+    }
+
+    private Map<String, String> queryEnvironmentVariables() {
+        // Set up return object
+        Map<String, String> env = new HashMap<>();
+
+        // Get environment variables via sysctl(3)
+        int[] mib = new int[4];
+        mib[0] = 1; // CTL_KERN
+        mib[1] = 14; // KERN_PROC
+        mib[2] = 35; // KERN_PROC_ENV
+        mib[3] = getProcessID();
+        // Allocate memory for environment variables
+        Memory procenv = new Memory(ARGMAX);
+        procenv.clear();
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+        // Fetch environment variables
+        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, procenv, size, null, size_t.ZERO) == 0) {
+            parseArgsOrEnvironment(procenv, size, getEnvironmentVariableConsumer(env));
+        } else {
+            LOG.warn(
+                    "Failed syctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
+                    getProcessID(),
+                    Native.getLastError());
+        }
+        return Collections.unmodifiableMap(env);
+    }
+
+    private static void parseArgsOrEnvironment(
+            Memory memory, NativeSizeTByReference size, Consumer<String> consumer) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte ch;
+        long offset = 0;
+        while (offset < size.getValue().longValue()) {
+            while ((ch = memory.getByte(offset++)) != '\0') {
+                baos.write(ch);
+            }
+            consumer.accept(baos.toString());
+            baos.reset();
+        }
+    }
+
+    private static Consumer<String> getEnvironmentVariableConsumer(Map<String, String> env) {
+        return entry -> {
+            int idx = entry.indexOf('=');
+            if (idx > 0) {
+                env.put(entry.substring(0, idx), entry.substring(idx + 1));
+            }
+        };
     }
 
     @Override
@@ -342,7 +448,6 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[17], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[18], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.commandLine = split[19];
         return true;
     }
 }
