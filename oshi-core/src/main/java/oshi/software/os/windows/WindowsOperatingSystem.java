@@ -54,6 +54,7 @@ import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.W32ServiceManager;
 import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
@@ -124,6 +125,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * OSProcess code will need to know bitness of current process
      */
     private final Supplier<Boolean> x86 = memoize(this::isCurrentX86);
+    private final Supplier<Boolean> wow = memoize(this::isCurrentWow);
 
     /*
      * Cache full process stats queries. Second query will only populate if first
@@ -530,13 +532,26 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     /*
-     * Package-private for use by WindowsOSProcess
+     * Package-private methods for use by WindowsOSProcess
      */
     boolean isX86() {
         return x86.get();
     }
 
     private boolean isCurrentX86() {
+        SYSTEM_INFO sysinfo = new SYSTEM_INFO();
+        Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
+        return (0 == sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue());
+    }
+
+    boolean isWow() {
+        return wow.get();
+    }
+
+    private boolean isCurrentWow() {
+        if (isCurrentX86()) {
+            return true;
+        }
         HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_ALL_ACCESS, false, getProcessId());
         if (h != null) {
             try {
@@ -548,10 +563,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return false;
     }
 
-    /*
-     * Package-private for use by WindowsOSProcess
-     */
     boolean isWow(HANDLE h) {
+        if (isCurrentX86()) {
+            return true;
+        }
         IntByReference isWow = new IntByReference();
         Kernel32.INSTANCE.IsWow64Process(h, isWow);
         return isWow.getValue() != 0;
