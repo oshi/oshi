@@ -1323,7 +1323,7 @@ public final class ParseUtil {
      * Parse a null-delimited byte array to a list of strings.
      *
      * @param bytes
-     *            A byte array containing Strings delimted by null characters. Two
+     *            A byte array containing Strings delimited by null characters. Two
      *            consecutive null characters mark the end of the list.
      * @return A list of Strings between the nulls.
      */
@@ -1353,7 +1353,7 @@ public final class ParseUtil {
      *
      * @param bytes
      *            A byte array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimted by null
+     *            values delimited by {@code =} and pairs delimited by null
      *            characters. Two consecutive null characters mark the end of the
      *            map.
      * @return A map of String key-value pairs between the nulls.
@@ -1389,7 +1389,7 @@ public final class ParseUtil {
      *
      * @param chars
      *            A char array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimted by null
+     *            values delimited by {@code =} and pairs delimited by null
      *            characters. Two consecutive null characters mark the end of the
      *            map.
      * @return A map of String key-value pairs between the nulls.
