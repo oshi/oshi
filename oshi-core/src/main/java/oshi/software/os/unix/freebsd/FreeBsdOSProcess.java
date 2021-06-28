@@ -281,10 +281,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     @Override
     public boolean updateAttributes() {
         String psCommand =
-                "ps -awwxo "
-                        + String.join(",", FreeBsdOperatingSystem.PS_KEYWORDS)
-                        + " -p "
-                        + getProcessID();
+                "ps -awwxo " + FreeBsdOperatingSystem.PS_KEYWORD_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
@@ -344,7 +341,10 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
-        this.commandLine = split[17];
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[17], 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[18], 0L);
+        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.commandLine = split[19];
         return true;
     }
 }

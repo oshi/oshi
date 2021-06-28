@@ -76,7 +76,9 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                     Arrays.asList(
                             "state", "pid", "ppid", "user", "uid", "group", "gid", "nlwp", "pri",
                             "vsz", "rss", "etimes", "systime", "time", "comm", "majflt", "minflt",
-                            "args"));
+                            "nvcsw", "nivcsw", "args"));
+
+    static final String PS_KEYWORD_ARGS = String.join(",", PS_KEYWORDS);
 
     @Override
     public String queryManufacturer() {
@@ -147,7 +149,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     private static List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
-        String psCommand = "ps -awwxo " + String.join(",", PS_KEYWORDS);
+        String psCommand = "ps -awwxo " + PS_KEYWORD_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
