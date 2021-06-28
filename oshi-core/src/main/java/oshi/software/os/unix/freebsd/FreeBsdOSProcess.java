@@ -32,13 +32,11 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -72,8 +70,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<List<String>> arguments = memoize(this::queryArguments);
-    private Supplier<Map<String, String>> environmentVariables =
-            memoize(this::queryEnvironmentVariables);
+    private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
 
     private String name;
     private String path = "";
@@ -137,11 +134,13 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         mib[2] = 7; // KERN_PROC_ARGS
         mib[3] = getProcessID();
         // Allocate memory for arguments
-        Memory procargs = new Memory(ARGMAX);
+        Memory m = new Memory(ARGMAX);
         NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
         // Fetch arguments
-        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO) == 0) {
-            parseArgsOrEnvironment(procargs, size, args::add);
+        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+            return Collections.unmodifiableList(
+                    ParseUtil.parseByteArrayToStrings(
+                            m.getByteArray(0, size.getValue().intValue())));
         } else {
             LOG.warn(
                     "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
@@ -169,11 +168,13 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         mib[2] = 35; // KERN_PROC_ENV
         mib[3] = getProcessID();
         // Allocate memory for environment variables
-        Memory procenv = new Memory(ARGMAX);
+        Memory m = new Memory(ARGMAX);
         NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
         // Fetch environment variables
-        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, procenv, size, null, size_t.ZERO) == 0) {
-            parseArgsOrEnvironment(procenv, size, getEnvironmentVariableConsumer(env));
+        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+            return Collections.unmodifiableMap(
+                    ParseUtil.parseByteArrayToStringMap(
+                            m.getByteArray(0, size.getValue().intValue())));
         } else {
             LOG.warn(
                     "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
@@ -181,29 +182,6 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
                     Native.getLastError());
         }
         return Collections.unmodifiableMap(env);
-    }
-
-    private static void parseArgsOrEnvironment(
-            Memory memory, NativeSizeTByReference size, Consumer<String> consumer) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte ch;
-        long offset = 0;
-        while (offset < size.getValue().longValue()) {
-            while ((ch = memory.getByte(offset++)) != '\0') {
-                baos.write(ch);
-            }
-            consumer.accept(baos.toString());
-            baos.reset();
-        }
-    }
-
-    private static Consumer<String> getEnvironmentVariableConsumer(Map<String, String> env) {
-        return entry -> {
-            int idx = entry.indexOf('=');
-            if (idx > 0) {
-                env.put(entry.substring(0, idx), entry.substring(idx + 1));
-            }
-        };
     }
 
     @Override
