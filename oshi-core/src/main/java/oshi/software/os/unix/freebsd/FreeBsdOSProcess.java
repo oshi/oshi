@@ -34,7 +34,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -124,9 +123,6 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private List<String> queryArguments() {
-        // Set up return object
-        List<String> args = new ArrayList<>();
-
         // Get arguments via sysctl(3)
         int[] mib = new int[4];
         mib[0] = 1; // CTL_KERN
@@ -147,7 +143,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
                     getProcessID(),
                     Native.getLastError());
         }
-        return Collections.unmodifiableList(args);
+        return Collections.emptyList();
     }
 
     @Override
@@ -156,11 +152,6 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        // Set up return object
-        // API does not specify any particular order of entries, but it is reasonable to
-        // maintain whatever order the OS provided to the end user
-        Map<String, String> env = new LinkedHashMap<>();
-
         // Get environment variables via sysctl(3)
         int[] mib = new int[4];
         mib[0] = 1; // CTL_KERN
@@ -181,7 +172,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
                     getProcessID(),
                     Native.getLastError());
         }
-        return Collections.unmodifiableMap(env);
+        return Collections.emptyMap();
     }
 
     @Override
