@@ -1334,7 +1334,7 @@ public final class ParseUtil {
         int end = 0;
         // Iterate characters
         do {
-            // If we've reached a delimeter or the end of the array, add to list
+            // If we've reached a delimiter or the end of the array, add to list
             if (end == bytes.length || bytes[end] == 0) {
                 // Zero length string means two nulls, we're done
                 if (start == end) {
@@ -1368,7 +1368,7 @@ public final class ParseUtil {
         String key = null;
         // Iterate characters
         do {
-            // If we've reached a delimeter or the end of the array, add to list
+            // If we've reached a delimiter or the end of the array, add to list
             if (end == bytes.length || bytes[end] == 0) {
                 // Zero length string with no key, we're done
                 if (start == end && key == null) {
