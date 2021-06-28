@@ -1,6 +1,7 @@
 # 5.7.6 (in progress)
 
-* Your contribution here.
+##### Bug fixes / Improvements
+* [#1673](https://github.com/oshi/oshi/pull/1673): Fix FreeBSD ps command arguments for context switches. [@basil](https://github.com/basil)
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16), 5.7.4 (2021-05-30), 5.7.5 (2021-06-12)
 
