@@ -504,7 +504,8 @@ public class WindowsOSProcess extends AbstractOSProcess {
 
     private Triplet<String, String, Map<String, String>> queryCwdCommandlineEnvironment() {
         // Get the process handle
-        HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_ALL_ACCESS, false, getProcessID());
+        HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false,
+                getProcessID());
         if (h != null) {
             try {
                 // Can't check 32-bit procs from a 64-bit one

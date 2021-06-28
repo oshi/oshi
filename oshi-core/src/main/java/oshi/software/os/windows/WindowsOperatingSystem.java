@@ -561,7 +561,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         if (isCurrentX86()) {
             return true;
         }
-        HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_ALL_ACCESS, false, getProcessId());
+        HANDLE h = Kernel32.INSTANCE.GetCurrentProcess();
         if (h != null) {
             try {
                 return isWow(h);
