@@ -58,18 +58,21 @@ public interface OSProcess {
      * if available to be determined.
      * <p>
      * The format of this string is platform-dependent and may require the end user
-     * to parse the result.
+     * to parse the result or use {@link #getArguments()}.
      * <p>
      * On Linux and macOS systems, the string is null-character-delimited, to permit
-     * the end user to parse the executable and arguments if desired. Further, the
-     * macOS variant may include environment variables which the end user may wish
-     * to exclude from display.
+     * the end user to parse the executable and arguments if desired.
      * <p>
      * On Solaris, the string is truncated to 80 characters.
      * <p>
-     * On Windows, by default, performs a single WMI query for this process, with
-     * some latency. If this method will be frequently called for multiple
-     * processes, see the configuration file to enable a batch query mode leveraging
+     * On Windows, attempts to retrieve the value from process memory, which
+     * requires that the process be owned by the same user as the executing process,
+     * or elevated permissions, and additionally requires the target process to have
+     * the same bitness (e.g., this will fail on a 32-bit process if queried by
+     * 64-bit and vice versa). If reading process memory fails, by default, performs
+     * a single WMI query for this process, with some latency. If this method will
+     * be frequently called for multiple processes, see the configuration file to
+     * enable a batch query mode leveraging
      * {@link Win32ProcessCached#getCommandLine} to improve performance, or setting
      * that parameter via {@link GlobalConfig#set(String, Object)} before
      * instantiating any {@link OSProcess} object.
@@ -80,7 +83,8 @@ public interface OSProcess {
 
     /**
      * Makes a best effort attempt to get a list of the the command-line arguments
-     * of the process.
+     * of the process. Returns the same information as {@link #getCommandLine()} but
+     * parsed to a list.
      *
      * @return A list of Strings representing the arguments. May return an empty
      *         list if there was a failure (for example, because the process is
@@ -91,7 +95,8 @@ public interface OSProcess {
     }
 
     /**
-     * Obtains the environment variables of the process.
+     * Makes a best effort attempt to obtain the environment variables of the
+     * process. May require elevated permissions or same-user ownership.
      *
      * @return A map representing the environment variables and their values. May
      *         return an empty map if there was a failure (for example, because the

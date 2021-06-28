@@ -36,6 +36,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1353,13 +1354,15 @@ public final class ParseUtil {
      *
      * @param bytes
      *            A byte array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimted by null
+     *            values delimited by {@code =} and pairs delimited by null
      *            characters. Two consecutive null characters mark the end of the
      *            map.
      * @return A map of String key-value pairs between the nulls.
      */
     public static Map<String, String> parseByteArrayToStringMap(byte[] bytes) {
-        Map<String, String> strMap = new HashMap<>();
+        // API does not specify any particular order of entries, but it is reasonable to
+        // maintain whatever order the OS provided to the end user
+        Map<String, String> strMap = new LinkedHashMap<>();
         int start = 0;
         int end = 0;
         String key = null;
@@ -1385,11 +1388,11 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a null-delmited char array to a map of string keys and values.
+     * Parse a null-delimited char array to a map of string keys and values.
      *
      * @param chars
      *            A char array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimted by null
+     *            values delimited by {@code =} and pairs delimited by null
      *            characters. Two consecutive null characters mark the end of the
      *            map.
      * @return A map of String key-value pairs between the nulls.
@@ -1401,7 +1404,7 @@ public final class ParseUtil {
         String key = null;
         // Iterate characters
         do {
-            // If we've reached a delimeter or the end of the array, add to list
+            // If we've reached a delimiter or the end of the array, add to list
             if (end == chars.length || chars[end] == 0) {
                 // Zero length string with no key, we're done
                 if (start == end && key == null) {

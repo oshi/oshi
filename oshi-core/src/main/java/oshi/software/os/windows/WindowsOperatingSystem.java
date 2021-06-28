@@ -108,7 +108,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private static final int TOKENELEVATION = 0x14;
 
-    /**
+    /*
      * Windows event log name
      */
     private static Supplier<String> systemLog = memoize(WindowsOperatingSystem::querySystemLog,
@@ -119,6 +119,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     static {
         enableDebugPrivilege();
     }
+
+    /*
+     * OSProcess code will need to know bitness of current process
+     */
+    private final Supplier<Boolean> x86 = memoize(this::isCurrentX86);
 
     /*
      * Cache full process stats queries. Second query will only populate if first
@@ -522,5 +527,33 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
         return EnumWindows.queryDesktopWindows(visibleOnly);
+    }
+
+    /*
+     * Package-private for use by WindowsOSProcess
+     */
+    boolean isX86() {
+        return x86.get();
+    }
+
+    private boolean isCurrentX86() {
+        HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_ALL_ACCESS, false, getProcessId());
+        if (h != null) {
+            try {
+                return isWow(h);
+            } finally {
+                Kernel32.INSTANCE.CloseHandle(h);
+            }
+        }
+        return false;
+    }
+
+    /*
+     * Package-private for use by WindowsOSProcess
+     */
+    boolean isWow(HANDLE h) {
+        IntByReference isWow = new IntByReference();
+        Kernel32.INSTANCE.IsWow64Process(h, isWow);
+        return isWow.getValue() != 0;
     }
 }
