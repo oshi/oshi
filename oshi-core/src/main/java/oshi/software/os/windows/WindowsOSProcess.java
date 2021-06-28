@@ -564,7 +564,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
         return new Triplet<>("", "", Collections.emptyMap());
     }
 
-    private String readUnicodeString(HANDLE h, UNICODE_STRING s) {
+    private static String readUnicodeString(HANDLE h, UNICODE_STRING s) {
         IntByReference nRead = new IntByReference();
         if (s.Length > 0) {
             // Add space for null terminator
