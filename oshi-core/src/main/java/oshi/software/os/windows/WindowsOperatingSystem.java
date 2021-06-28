@@ -548,6 +548,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return wow.get();
     }
 
+    boolean isWow(HANDLE h) {
+        if (isCurrentX86()) {
+            return true;
+        }
+        IntByReference isWow = new IntByReference();
+        Kernel32.INSTANCE.IsWow64Process(h, isWow);
+        return isWow.getValue() != 0;
+    }
+
     private boolean isCurrentWow() {
         if (isCurrentX86()) {
             return true;
@@ -561,14 +570,5 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return false;
-    }
-
-    boolean isWow(HANDLE h) {
-        if (isCurrentX86()) {
-            return true;
-        }
-        IntByReference isWow = new IntByReference();
-        Kernel32.INSTANCE.IsWow64Process(h, isWow);
-        return isWow.getValue() != 0;
     }
 }
