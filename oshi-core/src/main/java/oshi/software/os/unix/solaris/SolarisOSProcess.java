@@ -46,7 +46,7 @@ import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class SolarisOSProcess extends AbstractOSProcess {

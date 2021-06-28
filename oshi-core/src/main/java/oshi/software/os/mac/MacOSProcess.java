@@ -65,7 +65,7 @@ import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class MacOSProcess extends AbstractOSProcess {

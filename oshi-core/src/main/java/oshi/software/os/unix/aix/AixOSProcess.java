@@ -52,7 +52,7 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class AixOSProcess extends AbstractOSProcess {

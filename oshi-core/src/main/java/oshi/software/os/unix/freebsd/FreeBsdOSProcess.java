@@ -60,7 +60,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.platform.unix.freebsd.ProcstatUtil;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class FreeBsdOSProcess extends AbstractOSProcess {

@@ -50,7 +50,7 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.FstatUtil;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class OpenBsdOSProcess extends AbstractOSProcess {

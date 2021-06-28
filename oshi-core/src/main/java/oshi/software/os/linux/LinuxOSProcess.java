@@ -57,7 +57,7 @@ import oshi.util.Util;
 import oshi.util.platform.linux.ProcPath;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class LinuxOSProcess extends AbstractOSProcess {
