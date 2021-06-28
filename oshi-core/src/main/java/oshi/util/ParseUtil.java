@@ -1398,7 +1398,9 @@ public final class ParseUtil {
      * @return A map of String key-value pairs between the nulls.
      */
     public static Map<String, String> parseCharArrayToStringMap(char[] chars) {
-        Map<String, String> strMap = new HashMap<>();
+        // API does not specify any particular order of entries, but it is reasonable to
+        // maintain whatever order the OS provided to the end user
+        Map<String, String> strMap = new LinkedHashMap<>();
         int start = 0;
         int end = 0;
         String key = null;

@@ -36,7 +36,7 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -154,7 +154,9 @@ public class MacOSProcess extends AbstractOSProcess {
     private Pair<List<String>, Map<String, String>> queryArgsAndEnvironment() {
         // Set up return objects
         List<String> args = new ArrayList<>();
-        Map<String, String> env = new HashMap<>();
+        // API does not specify any particular order of entries, but it is reasonable to
+        // maintain whatever order the OS provided to the end user
+        Map<String, String> env = new LinkedHashMap<>();
 
         // Get command line via sysctl
         int[] mib = new int[3];

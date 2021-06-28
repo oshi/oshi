@@ -35,7 +35,7 @@ import static oshi.util.Memoizer.memoize;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -158,7 +158,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     private Map<String, String> queryEnvironmentVariables() {
         // Set up return object
-        Map<String, String> env = new HashMap<>();
+        // API does not specify any particular order of entries, but it is reasonable to
+        // maintain whatever order the OS provided to the end user
+        Map<String, String> env = new LinkedHashMap<>();
 
         // Get environment variables via sysctl(3)
         int[] mib = new int[4];
