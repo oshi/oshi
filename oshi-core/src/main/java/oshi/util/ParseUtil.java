@@ -1320,7 +1320,7 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a null-delmited byte array to a list of strings.
+     * Parse a null-delimited byte array to a list of strings.
      *
      * @param bytes
      *            A byte array containing Strings delimted by null characters. Two
@@ -1349,7 +1349,7 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a null-delmited byte array to a map of string keys and values.
+     * Parse a null-delimited byte array to a map of string keys and values.
      *
      * @param bytes
      *            A byte array containing String key-value pairs with keys and
@@ -1385,7 +1385,7 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a null-delmited char array to a map of string keys and values.
+     * Parse a null-delimited char array to a map of string keys and values.
      *
      * @param chars
      *            A char array containing String key-value pairs with keys and
