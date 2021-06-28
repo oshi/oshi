@@ -207,7 +207,7 @@ public class MacOSProcess extends AbstractOSProcess {
             }
         } else {
             LOG.warn(
-                    "Failed syctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
+                    "Failed sysctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
                     getProcessID(), Native.getLastError());
         }
         return new Pair<>(Collections.unmodifiableList(args), Collections.unmodifiableMap(env));

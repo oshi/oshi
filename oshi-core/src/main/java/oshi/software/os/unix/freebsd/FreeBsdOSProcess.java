@@ -144,7 +144,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             parseArgsOrEnvironment(procargs, size, args::add);
         } else {
             LOG.warn(
-                    "Failed syctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
+                    "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
                     getProcessID(),
                     Native.getLastError());
         }
@@ -174,7 +174,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             parseArgsOrEnvironment(procenv, size, getEnvironmentVariableConsumer(env));
         } else {
             LOG.warn(
-                    "Failed syctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
+                    "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
                     getProcessID(),
                     Native.getLastError());
         }
