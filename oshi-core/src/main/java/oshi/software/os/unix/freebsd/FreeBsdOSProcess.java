@@ -280,13 +280,18 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args -p "
-                + getProcessID();
+        String psCommand =
+                "ps -awwxo "
+                        + String.join(",", FreeBsdOperatingSystem.PS_KEYWORDS)
+                        + " -p "
+                        + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 18);
-            if (split.length == 18) {
+            String[] split =
+                    ParseUtil.whitespaces.split(
+                            procList.get(1).trim(), FreeBsdOperatingSystem.PS_KEYWORDS.size());
+            if (split.length == FreeBsdOperatingSystem.PS_KEYWORDS.size()) {
                 return updateAttributes(split);
             }
         }
@@ -339,10 +344,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[17], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[18], 0L);
-        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.commandLine = split[19];
+        this.commandLine = split[17];
         return true;
     }
 }
