@@ -124,8 +124,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     /*
      * OSProcess code will need to know bitness of current process
      */
-    private final Supplier<Boolean> x86 = memoize(this::isCurrentX86);
-    private final Supplier<Boolean> wow = memoize(this::isCurrentWow);
+    private static final boolean X86 = isCurrentX86();
+    private static final boolean WOW = isCurrentWow();
 
     /*
      * Cache full process stats queries. Second query will only populate if first
@@ -490,15 +490,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             for (int i = 0; i < services.length; i++) {
                 State state;
                 switch (services[i].ServiceStatusProcess.dwCurrentState) {
-                case 1:
-                    state = STOPPED;
-                    break;
-                case 4:
-                    state = RUNNING;
-                    break;
-                default:
-                    state = OTHER;
-                    break;
+                    case 1:
+                        state = STOPPED;
+                        break;
+                    case 4:
+                        state = RUNNING;
+                        break;
+                    default:
+                        state = OTHER;
+                        break;
                 }
                 svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
                         state);
@@ -532,24 +532,42 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     /*
-     * Package-private methods for use by WindowsOSProcess
+     * Package-private methods for use by WindowsOSProcess to limit process memory
+     * queries to processes with same bitness as the current one
      */
-    boolean isX86() {
-        return x86.get();
+    /**
+     * Is the processor architecture x86?
+     *
+     * @return true if the processor architecture is Intel x86
+     */
+    static boolean isX86() {
+        return X86;
     }
 
-    private boolean isCurrentX86() {
+    private static boolean isCurrentX86() {
         SYSTEM_INFO sysinfo = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
         return (0 == sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue());
     }
 
-    boolean isWow() {
-        return wow.get();
+    /**
+     * Is the current operating process x86 or x86-compatibility mode?
+     *
+     * @return true if the current process is 32-bit
+     */
+    static boolean isWow() {
+        return WOW;
     }
 
-    boolean isWow(HANDLE h) {
-        if (isCurrentX86()) {
+    /**
+     * Is the specified process x86 or x86-compatibility mode?
+     *
+     * @param h
+     *            The handle to the processs to check
+     * @return true if the process is 32-bit
+     */
+    static boolean isWow(HANDLE h) {
+        if (X86) {
             return true;
         }
         IntByReference isWow = new IntByReference();
@@ -557,8 +575,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return isWow.getValue() != 0;
     }
 
-    private boolean isCurrentWow() {
-        if (isCurrentX86()) {
+    private static boolean isCurrentWow() {
+        if (X86) {
             return true;
         }
         HANDLE h = Kernel32.INSTANCE.GetCurrentProcess();

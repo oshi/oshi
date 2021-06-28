@@ -509,7 +509,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
         if (h != null) {
             try {
                 // Can't check 32-bit procs from a 64-bit one
-                if (os.isX86() == os.isWow(h)) {
+                if (WindowsOperatingSystem.isX86() == WindowsOperatingSystem.isWow(h)) {
 
                     IntByReference nRead = new IntByReference();
 
