@@ -33,15 +33,21 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory; // NOSONAR squid:S1191
-import com.sun.jna.Pointer;
+import com.sun.jna.Native;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.NativeSizeTByReference;
+import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -55,11 +61,31 @@ import oshi.util.platform.unix.openbsd.FstatUtil;
 @ThreadSafe
 public class OpenBsdOSProcess extends AbstractOSProcess {
 
+    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.class);
+
+    private static final int ARGMAX;
+    static {
+        int[] mib = new int[2];
+        mib[0] = 1; // CTL_KERN
+        mib[1] = 8; // KERN_ARGMAX
+        Memory m = new Memory(Integer.BYTES);
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(Integer.BYTES));
+        if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+            ARGMAX = m.getInt(0);
+        } else {
+            LOG.warn("Failed sysctl call for process arguments max size (kern.argmax). Error code: {}",
+                    Native.getLastError());
+            ARGMAX = 0;
+        }
+    }
+
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private Supplier<List<String>> arguments = memoize(this::queryArguments);
+    private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
 
     private String name;
     private String path = "";
-    private String commandLine;
     private String user;
     private String userID;
     private String group;
@@ -98,7 +124,67 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return this.commandLine;
+        return this.commandLine.get();
+    }
+
+    private String queryCommandLine() {
+        return String.join(" ", getArguments());
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return arguments.get();
+    }
+
+    private List<String> queryArguments() {
+        if (ARGMAX > 0) {
+            // Get arguments via sysctl(3)
+            int[] mib = new int[4];
+            mib[0] = 1; // CTL_KERN
+            mib[1] = 55; // KERN_PROC_ARGS
+            mib[2] = getProcessID();
+            mib[3] = 1; // KERN_PROC_ARGV
+            // Allocate memory for arguments
+            Memory m = new Memory(ARGMAX);
+            NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+            // Fetch arguments
+            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                return Collections.unmodifiableList(
+                        ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
+            } else {
+                LOG.warn(
+                        "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
+                        getProcessID(), Native.getLastError());
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables.get();
+    }
+
+    private Map<String, String> queryEnvironmentVariables() {
+        // Get environment variables via sysctl(3)
+        int[] mib = new int[4];
+        mib[0] = 1; // CTL_KERN
+        mib[1] = 55; // KERN_PROC_ARGS
+        mib[2] = getProcessID();
+        mib[3] = 3; // KERN_PROC_ENV
+        // Allocate memory for environment variables
+        Memory m = new Memory(ARGMAX);
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+        // Fetch environment variables
+        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+            return Collections.unmodifiableMap(
+                    ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
+        } else {
+            LOG.warn(
+                    "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
+                    getProcessID(), Native.getLastError());
+        }
+        return Collections.emptyMap();
     }
 
     @Override
@@ -219,25 +305,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     }
 
     private int queryBitness() {
-        // Get process abi vector
-        int[] mib = new int[4];
-        mib[0] = 1; // CTL_KERN
-        mib[1] = 14; // KERN_PROC
-        mib[2] = 9; // KERN_PROC_SV_NAME
-        mib[3] = getProcessID();
-        // Allocate memory for arguments
-        Pointer abi = new Memory(32);
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(32));
-        // Fetch abi vector
-        if (0 == OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
-            String elf = abi.getString(0);
-            if (elf.contains("ELF32")) {
-                return 32;
-            } else if (elf.contains("ELF64")) {
-                return 64;
-            }
-        }
-        return 0;
+        // OpenBSD does not maintain 32-bit compatibility layer on 64-bit so processes
+        // have same bitness as OS
+        return Native.LONG_SIZE * 8;
     }
 
     @Override
@@ -303,27 +373,27 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private boolean updateAttributes(String[] split) {
         long now = System.currentTimeMillis();
         switch (split[0].charAt(0)) {
-        case 'R':
-            this.state = RUNNING;
-            break;
-        case 'I':
-        case 'S':
-            this.state = SLEEPING;
-            break;
-        case 'D':
-        case 'L':
-        case 'U':
-            this.state = WAITING;
-            break;
-        case 'Z':
-            this.state = ZOMBIE;
-            break;
-        case 'T':
-            this.state = STOPPED;
-            break;
-        default:
-            this.state = OTHER;
-            break;
+            case 'R':
+                this.state = RUNNING;
+                break;
+            case 'I':
+            case 'S':
+                this.state = SLEEPING;
+                break;
+            case 'D':
+            case 'L':
+            case 'U':
+                this.state = WAITING;
+                break;
+            case 'Z':
+                this.state = ZOMBIE;
+                break;
+            case 'T':
+                this.state = STOPPED;
+                break;
+            default:
+                this.state = OTHER;
+                break;
         }
         this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
         this.user = split[3];
@@ -348,7 +418,6 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[15], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[16], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.commandLine = split[17];
         return true;
     }
 
