@@ -47,7 +47,6 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.NativeSizeTByReference;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -105,6 +104,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private long minorFaults;
     private long majorFaults;
     private long contextSwitches;
+    private String commandLineBackup;
 
     public OpenBsdOSProcess(int pid, String[] split) {
         super(pid);
@@ -124,6 +124,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
+        if (this.commandLine.get().isEmpty()) {
+            return this.commandLineBackup + " (using backup)";
+        }
         return this.commandLine.get();
     }
 
@@ -148,13 +151,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             Memory m = new Memory(ARGMAX);
             NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
             // Fetch arguments
-            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
                 return Collections.unmodifiableList(
                         ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
-            } else {
-                LOG.warn(
-                        "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
-                        getProcessID(), Native.getLastError());
             }
         }
         return Collections.emptyList();
@@ -176,13 +175,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         Memory m = new Memory(ARGMAX);
         NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
         // Fetch environment variables
-        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+        if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
             return Collections.unmodifiableMap(
                     ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
-        } else {
-            LOG.warn(
-                    "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
-                    getProcessID(), Native.getLastError());
         }
         return Collections.emptyMap();
     }
@@ -418,6 +413,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[15], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[16], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.commandLineBackup = split[17];
         return true;
     }
 
