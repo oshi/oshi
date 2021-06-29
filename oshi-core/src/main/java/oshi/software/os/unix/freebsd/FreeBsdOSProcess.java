@@ -114,7 +114,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
-        return String.join(" ", getArguments());
+        return String.join("\0", getArguments());
     }
 
     @Override
@@ -123,25 +123,25 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private List<String> queryArguments() {
-        // Get arguments via sysctl(3)
-        int[] mib = new int[4];
-        mib[0] = 1; // CTL_KERN
-        mib[1] = 14; // KERN_PROC
-        mib[2] = 7; // KERN_PROC_ARGS
-        mib[3] = getProcessID();
-        // Allocate memory for arguments
-        Memory m = new Memory(ARGMAX);
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
-        // Fetch arguments
-        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-            return Collections.unmodifiableList(
-                    ParseUtil.parseByteArrayToStrings(
-                            m.getByteArray(0, size.getValue().intValue())));
-        } else {
-            LOG.warn(
-                    "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
-                    getProcessID(),
-                    Native.getLastError());
+        if (ARGMAX > 0) {
+            // Get arguments via sysctl(3)
+            int[] mib = new int[4];
+            mib[0] = 1; // CTL_KERN
+            mib[1] = 14; // KERN_PROC
+            mib[2] = 7; // KERN_PROC_ARGS
+            mib[3] = getProcessID();
+            // Allocate memory for arguments
+            Memory m = new Memory(ARGMAX);
+            NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+            // Fetch arguments
+            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                return Collections.unmodifiableList(
+                        ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
+            } else {
+                LOG.warn(
+                        "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
+                        getProcessID(), Native.getLastError());
+            }
         }
         return Collections.emptyList();
     }
@@ -152,25 +152,25 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        // Get environment variables via sysctl(3)
-        int[] mib = new int[4];
-        mib[0] = 1; // CTL_KERN
-        mib[1] = 14; // KERN_PROC
-        mib[2] = 35; // KERN_PROC_ENV
-        mib[3] = getProcessID();
-        // Allocate memory for environment variables
-        Memory m = new Memory(ARGMAX);
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
-        // Fetch environment variables
-        if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-            return Collections.unmodifiableMap(
-                    ParseUtil.parseByteArrayToStringMap(
-                            m.getByteArray(0, size.getValue().intValue())));
-        } else {
-            LOG.warn(
-                    "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
-                    getProcessID(),
-                    Native.getLastError());
+        if (ARGMAX > 0) {
+            // Get environment variables via sysctl(3)
+            int[] mib = new int[4];
+            mib[0] = 1; // CTL_KERN
+            mib[1] = 14; // KERN_PROC
+            mib[2] = 35; // KERN_PROC_ENV
+            mib[3] = getProcessID();
+            // Allocate memory for environment variables
+            Memory m = new Memory(ARGMAX);
+            NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+            // Fetch environment variables
+            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                return Collections.unmodifiableMap(
+                        ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
+            } else {
+                LOG.warn(
+                        "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
+                        getProcessID(), Native.getLastError());
+            }
         }
         return Collections.emptyMap();
     }
@@ -372,27 +372,27 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private boolean updateAttributes(String[] split) {
         long now = System.currentTimeMillis();
         switch (split[0].charAt(0)) {
-        case 'R':
-            this.state = RUNNING;
-            break;
-        case 'I':
-        case 'S':
-            this.state = SLEEPING;
-            break;
-        case 'D':
-        case 'L':
-        case 'U':
-            this.state = WAITING;
-            break;
-        case 'Z':
-            this.state = ZOMBIE;
-            break;
-        case 'T':
-            this.state = STOPPED;
-            break;
-        default:
-            this.state = OTHER;
-            break;
+            case 'R':
+                this.state = RUNNING;
+                break;
+            case 'I':
+            case 'S':
+                this.state = SLEEPING;
+                break;
+            case 'D':
+            case 'L':
+            case 'U':
+                this.state = WAITING;
+                break;
+            case 'Z':
+                this.state = ZOMBIE;
+                break;
+            case 'T':
+                this.state = STOPPED;
+                break;
+            default:
+                this.state = OTHER;
+                break;
         }
         this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
         this.user = split[3];
