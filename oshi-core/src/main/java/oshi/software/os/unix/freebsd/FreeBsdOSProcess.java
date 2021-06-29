@@ -358,13 +358,15 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,nivcsw,nvcsw,args -p "
-                + getProcessID();
+        String psCommand =
+                "ps -awwxo " + FreeBsdOperatingSystem.PS_KEYWORD_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 18);
-            if (split.length == 18) {
+            String[] split =
+                    ParseUtil.whitespaces.split(
+                            procList.get(1).trim(), FreeBsdOperatingSystem.PS_KEYWORDS.size());
+            if (split.length == FreeBsdOperatingSystem.PS_KEYWORDS.size()) {
                 return updateAttributes(split);
             }
         }

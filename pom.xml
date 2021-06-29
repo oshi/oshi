@@ -4,7 +4,7 @@
 
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-parent</artifactId>
-    <version>5.7.5-SNAPSHOT</version>
+    <version>5.7.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
@@ -95,7 +95,7 @@
         <!-- Base directory, overwrite in submodules -->
         <main.basedir>${project.basedir}</main.basedir>
         <!-- Dependency versions -->
-        <slf4j.version>1.7.30</slf4j.version>
+        <slf4j.version>1.7.31</slf4j.version>
         <junit.version>5.7.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <!-- Compile versions -->
@@ -110,12 +110,12 @@
         <maven-site-plugin.version>3.9.1</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <!-- maven-site-plugin dependencies -->
-        <doxia-module-markdown.version>1.9.1</doxia-module-markdown.version>
+        <doxia-module-markdown.version>1.10</doxia-module-markdown.version>
         <wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
         <wagon-ssh.version>3.4.3</wagon-ssh.version>
         <maven-fluido-skin.version>1.9</maven-fluido-skin.version>
         <!-- build plugins -->
-        <git-commit-id-plugin.version>4.0.4</git-commit-id-plugin.version>
+        <git-commit-id-plugin.version>4.0.5</git-commit-id-plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <bnd-maven-plugin.version>5.3.0</bnd-maven-plugin.version>
@@ -127,7 +127,7 @@
         <!-- tools -->
         <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
@@ -146,13 +146,13 @@
         <!-- SCM -->
         <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
         <maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
-        <jgit.version>5.11.1.202105131744-r</jgit.version>
+        <jgit.version>5.12.0.202106070339-r</jgit.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
         <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.20</animal-sniffer-maven-plugin.version>
-        <dependency-check-maven.version>6.2.0</dependency-check-maven.version>
-        <puppycrawl.checkstyle.version>8.43</puppycrawl.checkstyle.version>
+        <dependency-check-maven.version>6.2.2</dependency-check-maven.version>
+        <puppycrawl.checkstyle.version>8.44</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 

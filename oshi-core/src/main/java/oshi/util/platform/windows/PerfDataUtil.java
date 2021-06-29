@@ -214,7 +214,8 @@ public final class PerfDataUtil {
      * @param query
      *            Pointer to the query to add the counter
      * @param path
-     *            String name of the PerfMon counter
+     *            String name of the PerfMon counter. For Vista+, must be in
+     *            English. Must localize this path for pre-Vista.
      * @param p
      *            Pointer to the counter
      * @return true if successful
