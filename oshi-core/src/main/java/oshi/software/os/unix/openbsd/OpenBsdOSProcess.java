@@ -158,14 +158,15 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
                 long maxSize = size.getValue().longValue();
                 List<String> args = new ArrayList<>();
                 // This returns a null-terminated list of pointers to the actual data
+                long base = Pointer.nativeValue(m); // native pointer to data
                 long offset = 0; // to iterate the pointers
-                long argOffset = Pointer.nativeValue(m.getPointer(offset));
+                long argOffset = Pointer.nativeValue(m.getPointer(offset)) - base;
                 LOG.warn("Offset {}, value {}", offset, argOffset);
                 while (argOffset > 0 && argOffset < maxSize) {
                     args.add(m.getString(argOffset));
                     offset += Native.POINTER_SIZE;
                     argOffset = Pointer.nativeValue(m.getPointer(offset));
-                    LOG.warn("Offset {}, value {}", offset, argOffset);
+                    LOG.warn("Offset {}, value {}", offset, argOffset - base);
                 }
             }
         }
