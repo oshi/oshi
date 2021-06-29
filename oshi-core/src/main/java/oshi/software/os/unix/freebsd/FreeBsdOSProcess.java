@@ -92,6 +92,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private long minorFaults;
     private long majorFaults;
     private long contextSwitches;
+    private String commandLineBackup;
 
     public FreeBsdOSProcess(int pid, String[] split) {
         super(pid);
@@ -114,7 +115,8 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
-        return String.join("\0", getArguments());
+        String cl = String.join(" ", getArguments());
+        return cl.isEmpty() ? this.commandLineBackup : cl;
     }
 
     @Override
@@ -138,6 +140,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
                 return Collections.unmodifiableList(
                         ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
             } else {
+
                 LOG.warn(
                         "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
                         getProcessID(), Native.getLastError());
@@ -355,7 +358,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,args -p "
+        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etimes,systime,time,comm,majflt,minflt,nivcsw,nvcsw,args -p "
                 + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
@@ -417,6 +420,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[17], 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[18], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.commandLineBackup = split[19];
         return true;
     }
 }

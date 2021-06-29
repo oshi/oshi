@@ -126,15 +126,12 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        if (this.commandLine.get().isEmpty()) {
-            LOG.warn("Empty commandline from sysctl but from PS it is {}", commandLineBackup);
-            return this.commandLineBackup;
-        }
         return this.commandLine.get();
     }
 
     private String queryCommandLine() {
-        return String.join(" ", getArguments());
+        String cl = String.join(" ", getArguments());
+        return cl.isEmpty() ? this.commandLineBackup : cl;
     }
 
     @Override
