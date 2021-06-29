@@ -160,10 +160,12 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
                 // This returns a null-terminated list of pointers to the actual data
                 long offset = 0; // to iterate the pointers
                 long argOffset = Pointer.nativeValue(m.getPointer(offset));
+                LOG.warn("Offset {}, value {}", offset, argOffset);
                 while (argOffset > 0 && argOffset < maxSize) {
                     args.add(m.getString(argOffset));
                     offset += Native.POINTER_SIZE;
                     argOffset = Pointer.nativeValue(m.getPointer(offset));
+                    LOG.warn("Offset {}, value {}", offset, argOffset);
                 }
             }
         }
@@ -192,10 +194,12 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             // This returns a null-terminated list of pointers to the actual data
             long offset = 0; // to iterate the pointers
             long argOffset = Pointer.nativeValue(m.getPointer(offset));
+            LOG.warn("Offset {}, value {}", offset, argOffset);
             while (argOffset > 0 && argOffset < maxSize) {
                 env.put("test " + offset + "/" + argOffset, m.getString(argOffset));
                 offset += Native.POINTER_SIZE;
                 argOffset = Pointer.nativeValue(m.getPointer(offset));
+                LOG.warn("Offset {}, value {}", offset, argOffset);
             }
         }
         return Collections.emptyMap();
