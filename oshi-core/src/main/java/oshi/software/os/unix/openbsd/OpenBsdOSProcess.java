@@ -160,18 +160,16 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
                 // To iterate the pointer-list
                 long offset = 0;
                 // Get the data base address to calculate offsets
-                long base = Pointer.nativeValue(m);
-                long maxAddr = base + size.getValue().longValue();
+                long baseAddr = Pointer.nativeValue(m);
+                long maxAddr = baseAddr + size.getValue().longValue();
                 // Get the address of the data. If null (0) we're done iterating
                 long argAddr = Pointer.nativeValue(m.getPointer(offset));
-                LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
-                while (argAddr > base && argAddr < maxAddr) {
-                    LOG.warn("String at offset {} is {}", argAddr - base, m.getString(argAddr - base));
-                    args.add(m.getString(argAddr - base));
+                while (argAddr > baseAddr && argAddr < maxAddr) {
+                    args.add(m.getString(argAddr - baseAddr));
                     offset += Native.POINTER_SIZE;
                     argAddr = Pointer.nativeValue(m.getPointer(offset));
-                    LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
                 }
+                return Collections.unmodifiableList(args);
             }
         }
         return Collections.emptyList();
@@ -199,18 +197,20 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             // To iterate the pointer-list
             long offset = 0;
             // Get the data base address to calculate offsets
-            long base = Pointer.nativeValue(m);
-            long maxAddr = base + size.getValue().longValue();
+            long baseAddr = Pointer.nativeValue(m);
+            long maxAddr = baseAddr + size.getValue().longValue();
             // Get the address of the data. If null (0) we're done iterating
             long argAddr = Pointer.nativeValue(m.getPointer(offset));
-            LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
-            while (argAddr > base && argAddr < maxAddr) {
-                LOG.warn("String at offset {} is {}", argAddr - base, m.getString(argAddr - base));
-                env.put("test " + offset + "/" + (argAddr - base), m.getString(argAddr - base));
+            while (argAddr > baseAddr && argAddr < maxAddr) {
+                String envStr = m.getString(argAddr - baseAddr);
+                int idx = envStr.indexOf('=');
+                if (idx > 0) {
+                    env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                }
                 offset += Native.POINTER_SIZE;
                 argAddr = Pointer.nativeValue(m.getPointer(offset));
-                LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
             }
+            return Collections.unmodifiableMap(env);
         }
         return Collections.emptyMap();
     }
