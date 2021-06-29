@@ -34,6 +34,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -125,7 +127,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public String getCommandLine() {
         if (this.commandLine.get().isEmpty()) {
-            return this.commandLineBackup + " (using backup)";
+            LOG.warn("Empty commandline from sysctl but from PS it is {}", commandLineBackup);
+            return this.commandLineBackup;
         }
         return this.commandLine.get();
     }
@@ -152,8 +155,16 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
             // Fetch arguments
             if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                return Collections.unmodifiableList(
-                        ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
+                long maxSize = size.getValue().longValue();
+                List<String> args = new ArrayList<>();
+                // This returns a null-terminated list of pointers to the actual data
+                long offset = 0; // to iterate the pointers
+                long argOffset = Pointer.nativeValue(m.getPointer(offset));
+                while (argOffset > 0 && argOffset < maxSize) {
+                    args.add(m.getString(argOffset));
+                    offset += Native.POINTER_SIZE;
+                    argOffset = Pointer.nativeValue(m.getPointer(offset));
+                }
             }
         }
         return Collections.emptyList();
@@ -176,8 +187,16 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
         // Fetch environment variables
         if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-            return Collections.unmodifiableMap(
-                    ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
+            long maxSize = size.getValue().longValue();
+            Map<String, String> env = new LinkedHashMap<>();
+            // This returns a null-terminated list of pointers to the actual data
+            long offset = 0; // to iterate the pointers
+            long argOffset = Pointer.nativeValue(m.getPointer(offset));
+            while (argOffset > 0 && argOffset < maxSize) {
+                env.put("test " + offset + "/" + argOffset, m.getString(argOffset));
+                offset += Native.POINTER_SIZE;
+                argOffset = Pointer.nativeValue(m.getPointer(offset));
+            }
         }
         return Collections.emptyMap();
     }
