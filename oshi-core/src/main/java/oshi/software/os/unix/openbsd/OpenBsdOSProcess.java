@@ -155,18 +155,22 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
             // Fetch arguments
             if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                long maxSize = size.getValue().longValue();
+                // Returns a null-terminated list of pointers to the actual data
                 List<String> args = new ArrayList<>();
-                // This returns a null-terminated list of pointers to the actual data
-                long base = Pointer.nativeValue(m); // native pointer to data
-                long offset = 0; // to iterate the pointers
-                long argOffset = Pointer.nativeValue(m.getPointer(offset)) - base;
-                LOG.warn("Offset {}, value {}", offset, argOffset);
-                while (argOffset > 0 && argOffset < maxSize) {
-                    args.add(m.getString(argOffset));
+                // To iterate the pointer-list
+                long offset = 0;
+                // Get the data base address to calculate offsets
+                long base = Pointer.nativeValue(m);
+                long maxAddr = base + size.getValue().longValue();
+                // Get the address of the data. If null (0) we're done iterating
+                long argAddr = Pointer.nativeValue(m.getPointer(offset));
+                LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
+                while (argAddr > base && argAddr < maxAddr) {
+                    LOG.warn("String at offset {} is {}", argAddr - base, m.getString(argAddr - base));
+                    args.add(m.getString(argAddr - base));
                     offset += Native.POINTER_SIZE;
-                    argOffset = Pointer.nativeValue(m.getPointer(offset));
-                    LOG.warn("Offset {}, value {}", offset, argOffset - base);
+                    argAddr = Pointer.nativeValue(m.getPointer(offset));
+                    LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
                 }
             }
         }
@@ -190,17 +194,22 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
         // Fetch environment variables
         if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-            long maxSize = size.getValue().longValue();
+            // Returns a null-terminated list of pointers to the actual data
             Map<String, String> env = new LinkedHashMap<>();
-            // This returns a null-terminated list of pointers to the actual data
-            long offset = 0; // to iterate the pointers
-            long argOffset = Pointer.nativeValue(m.getPointer(offset));
-            LOG.warn("Offset {}, value {}", offset, argOffset);
-            while (argOffset > 0 && argOffset < maxSize) {
-                env.put("test " + offset + "/" + argOffset, m.getString(argOffset));
+            // To iterate the pointer-list
+            long offset = 0;
+            // Get the data base address to calculate offsets
+            long base = Pointer.nativeValue(m);
+            long maxAddr = base + size.getValue().longValue();
+            // Get the address of the data. If null (0) we're done iterating
+            long argAddr = Pointer.nativeValue(m.getPointer(offset));
+            LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
+            while (argAddr > base && argAddr < maxAddr) {
+                LOG.warn("String at offset {} is {}", argAddr - base, m.getString(argAddr - base));
+                env.put("test " + offset + "/" + (argAddr - base), m.getString(argAddr - base));
                 offset += Native.POINTER_SIZE;
-                argOffset = Pointer.nativeValue(m.getPointer(offset));
-                LOG.warn("Offset {}, value {}", offset, argOffset);
+                argAddr = Pointer.nativeValue(m.getPointer(offset));
+                LOG.warn("Offset {}, value {}", offset, argAddr > 0 ? argAddr - base : "null");
             }
         }
         return Collections.emptyMap();
