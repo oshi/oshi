@@ -80,7 +80,6 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         }
     }
 
-    private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<List<String>> arguments = memoize(this::queryArguments);
     private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
@@ -106,10 +105,14 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private long minorFaults;
     private long majorFaults;
     private long contextSwitches;
+    private int bitness;
     private String commandLineBackup;
 
     public OpenBsdOSProcess(int pid, String[] split) {
         super(pid);
+        // OpenBSD does not maintain a compatibility layer.
+        // Process bitness is OS bitness
+        this.bitness = Native.LONG_SIZE * 8;
         updateThreadCount();
         updateAttributes(split);
     }
@@ -304,7 +307,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public int getBitness() {
-        return this.bitness.get();
+        return this.bitness;
     }
 
     @Override
@@ -327,12 +330,6 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             }
         }
         return bitMask;
-    }
-
-    private int queryBitness() {
-        // OpenBSD does not maintain 32-bit compatibility layer on 64-bit so processes
-        // have same bitness as OS
-        return Native.LONG_SIZE * 8;
     }
 
     @Override
@@ -398,27 +395,27 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private boolean updateAttributes(String[] split) {
         long now = System.currentTimeMillis();
         switch (split[0].charAt(0)) {
-            case 'R':
-                this.state = RUNNING;
-                break;
-            case 'I':
-            case 'S':
-                this.state = SLEEPING;
-                break;
-            case 'D':
-            case 'L':
-            case 'U':
-                this.state = WAITING;
-                break;
-            case 'Z':
-                this.state = ZOMBIE;
-                break;
-            case 'T':
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
+        case 'R':
+            this.state = RUNNING;
+            break;
+        case 'I':
+        case 'S':
+            this.state = SLEEPING;
+            break;
+        case 'D':
+        case 'L':
+        case 'U':
+            this.state = WAITING;
+            break;
+        case 'Z':
+            this.state = ZOMBIE;
+            break;
+        case 'T':
+            this.state = STOPPED;
+            break;
+        default:
+            this.state = OTHER;
+            break;
         }
         this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
         this.user = split[3];
