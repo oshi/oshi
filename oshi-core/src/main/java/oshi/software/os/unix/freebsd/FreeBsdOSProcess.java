@@ -45,6 +45,7 @@ import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.ProcstatUtil;
@@ -280,15 +281,13 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand =
-                "ps -awwxo " + FreeBsdOperatingSystem.PS_KEYWORD_ARGS + " -p " + getProcessID();
+        String psCommand = "ps -awwxo " + FreeBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
-            String[] split =
-                    ParseUtil.whitespaces.split(
-                            procList.get(1).trim(), FreeBsdOperatingSystem.PS_KEYWORDS.size());
-            if (split.length == FreeBsdOperatingSystem.PS_KEYWORDS.size()) {
+            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(),
+                    FreeBsdOperatingSystem.PsKeywords.values().length);
+            if (split.length == FreeBsdOperatingSystem.PsKeywords.values().length) {
                 return updateAttributes(split);
             }
         }
@@ -298,7 +297,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     private boolean updateAttributes(String[] split) {
         long now = System.currentTimeMillis();
-        switch (split[0].charAt(0)) {
+        switch (split[PsKeywords.STATE.ordinal()].charAt(0)) {
         case 'R':
             this.state = RUNNING;
             break;
@@ -321,30 +320,30 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             this.state = OTHER;
             break;
         }
-        this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
-        this.user = split[3];
-        this.userID = split[4];
-        this.group = split[5];
-        this.groupID = split[6];
-        this.threadCount = ParseUtil.parseIntOrDefault(split[7], 0);
-        this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
+        this.parentProcessID = ParseUtil.parseIntOrDefault(split[PsKeywords.PPID.ordinal()], 0);
+        this.user = split[PsKeywords.USER.ordinal()];
+        this.userID = split[PsKeywords.UID.ordinal()];
+        this.group = split[PsKeywords.GROUP.ordinal()];
+        this.groupID = split[PsKeywords.GID.ordinal()];
+        this.threadCount = ParseUtil.parseIntOrDefault(split[PsKeywords.NLWP.ordinal()], 0);
+        this.priority = ParseUtil.parseIntOrDefault(split[PsKeywords.PRI.ordinal()], 0);
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) * 1024;
+        this.virtualSize = ParseUtil.parseLongOrDefault(split[PsKeywords.VSZ.ordinal()], 0) * 1024;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(split[PsKeywords.RSS.ordinal()], 0) * 1024;
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[PsKeywords.ETIMES.ordinal()], 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[13], 0L) - this.kernelTime;
-        this.path = split[14];
+        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[PsKeywords.SYSTIME.ordinal()], 0L);
+        this.userTime = ParseUtil.parseDHMSOrDefault(split[PsKeywords.TIME.ordinal()], 0L) - this.kernelTime;
+        this.path = split[PsKeywords.COMM.ordinal()];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[15], 0L);
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[16], 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[17], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[18], 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(split[PsKeywords.MAJFLT.ordinal()], 0L);
+        this.majorFaults = ParseUtil.parseLongOrDefault(split[PsKeywords.MINFLT.ordinal()], 0L);
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[PsKeywords.NVCSW.ordinal()], 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[PsKeywords.NIVCSW.ordinal()], 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.commandLine = split[19];
+        this.commandLine = split[PsKeywords.ARGS.ordinal()];
         return true;
     }
 }

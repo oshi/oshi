@@ -29,7 +29,6 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -71,14 +70,13 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     /*
      * Package-private for use by FreeBsdOSProcess
      */
-    static final List<String> PS_KEYWORDS =
-            Collections.unmodifiableList(
-                    Arrays.asList(
-                            "state", "pid", "ppid", "user", "uid", "group", "gid", "nlwp", "pri",
-                            "vsz", "rss", "etimes", "systime", "time", "comm", "majflt", "minflt",
-                            "nvcsw", "nivcsw", "args"));
+    enum PsKeywords {
+        STATE, PID, PPID, USER, UID, GROUP, GID, NLWP, PRI, VSZ, RSS, ETIMES, SYSTIME, TIME, COMM, MAJFLT, MINFLT,
+        NVCSW, NIVCSW, ARGS; // ARGS must always be last
+    }
 
-    static final String PS_KEYWORD_ARGS = String.join(",", PS_KEYWORDS);
+    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)
+            .collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
@@ -149,7 +147,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     private static List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
-        String psCommand = "ps -awwxo " + PS_KEYWORD_ARGS;
+        String psCommand = "ps -awwxo " + PS_COMMAND_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
@@ -161,10 +159,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), PS_KEYWORDS.size());
+            String[] split = ParseUtil.whitespaces.split(proc.trim(), PsKeywords.values().length);
             // Elements should match ps command order
-            if (split.length == PS_KEYWORDS.size()) {
-                procs.add(new FreeBsdOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
+            if (split.length == PsKeywords.values().length) {
+                procs.add(new FreeBsdOSProcess(
+                        pid < 0 ? ParseUtil.parseIntOrDefault(split[PsKeywords.PID.ordinal()], 0) : pid, split));
             }
         }
         return procs;
