@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -159,11 +160,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), PsKeywords.values().length);
+            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
             // Elements should match ps command order
-            if (split.length == PsKeywords.values().length) {
+            if (psMap.keySet().size() == PsKeywords.values().length) {
                 procs.add(new FreeBsdOSProcess(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(split[PsKeywords.PID.ordinal()], 0) : pid, split));
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap));
             }
         }
         return procs;

@@ -34,6 +34,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
@@ -81,9 +82,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public FreeBsdOSProcess(int pid, String[] split) {
+    public FreeBsdOSProcess(int pid, Map<PsKeywords, String> psMap) {
         super(pid);
-        updateAttributes(split);
+        updateAttributes(psMap);
     }
 
     @Override
@@ -285,19 +286,18 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(),
-                    FreeBsdOperatingSystem.PsKeywords.values().length);
-            if (split.length == FreeBsdOperatingSystem.PsKeywords.values().length) {
-                return updateAttributes(split);
+            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
+            if (psMap.keySet().size() == PsKeywords.values().length) {
+                return updateAttributes(psMap);
             }
         }
         this.state = INVALID;
         return false;
     }
 
-    private boolean updateAttributes(String[] split) {
+    private boolean updateAttributes(Map<PsKeywords, String> psMap) {
         long now = System.currentTimeMillis();
-        switch (split[PsKeywords.STATE.ordinal()].charAt(0)) {
+        switch (psMap.get(PsKeywords.STATE).charAt(0)) {
         case 'R':
             this.state = RUNNING;
             break;
@@ -320,30 +320,30 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             this.state = OTHER;
             break;
         }
-        this.parentProcessID = ParseUtil.parseIntOrDefault(split[PsKeywords.PPID.ordinal()], 0);
-        this.user = split[PsKeywords.USER.ordinal()];
-        this.userID = split[PsKeywords.UID.ordinal()];
-        this.group = split[PsKeywords.GROUP.ordinal()];
-        this.groupID = split[PsKeywords.GID.ordinal()];
-        this.threadCount = ParseUtil.parseIntOrDefault(split[PsKeywords.NLWP.ordinal()], 0);
-        this.priority = ParseUtil.parseIntOrDefault(split[PsKeywords.PRI.ordinal()], 0);
+        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
+        this.user = psMap.get(PsKeywords.USER);
+        this.userID = psMap.get(PsKeywords.UID);
+        this.group = psMap.get(PsKeywords.GROUP);
+        this.groupID = psMap.get(PsKeywords.GID);
+        this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.NLWP), 0);
+        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(split[PsKeywords.VSZ.ordinal()], 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(split[PsKeywords.RSS.ordinal()], 0) * 1024;
+        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[PsKeywords.ETIMES.ordinal()], 0L);
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIMES), 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[PsKeywords.SYSTIME.ordinal()], 0L);
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[PsKeywords.TIME.ordinal()], 0L) - this.kernelTime;
-        this.path = split[PsKeywords.COMM.ordinal()];
+        this.kernelTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.SYSTIME), 0L);
+        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L) - this.kernelTime;
+        this.path = psMap.get(PsKeywords.COMM);
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[PsKeywords.MAJFLT.ordinal()], 0L);
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[PsKeywords.MINFLT.ordinal()], 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[PsKeywords.NVCSW.ordinal()], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[PsKeywords.NIVCSW.ordinal()], 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);
+        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MINFLT), 0L);
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.commandLine = split[PsKeywords.ARGS.ordinal()];
+        this.commandLine = psMap.get(PsKeywords.ARGS);
         return true;
     }
 }

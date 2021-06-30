@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,6 +51,10 @@ import oshi.util.tuples.Triplet;
 class ParseUtilTest {
 
     private static final double EPSILON = Double.MIN_VALUE;
+
+    private enum TestEnum {
+        FOO, BAR, BAZ;
+    }
 
     /**
      * Test parse hertz.
@@ -631,5 +636,30 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseMultipliedToLongs("1073M"), is(1073000000L));
         assertThat(ParseUtil.parseMultipliedToLongs("1073 G"), is(1073000000000L));
         assertThat(ParseUtil.parseMultipliedToLongs("12K"), is(12000L));
+    }
+
+    @Test
+    void teststringToEnumMap() {
+        String two = "one,two";
+        Map<TestEnum, String> map = ParseUtil.stringToEnumMap(TestEnum.class, two, ',');
+        assertThat(map.get(TestEnum.FOO), is("one"));
+        assertThat(map.get(TestEnum.BAR), is("two"));
+        assertThat(map.containsKey(TestEnum.BAZ), is(false));
+
+        String three = "one,two,three";
+        map = ParseUtil.stringToEnumMap(TestEnum.class, three, ',');
+        assertThat(map.get(TestEnum.FOO), is("one"));
+        assertThat(map.get(TestEnum.BAR), is("two"));
+        assertThat(map.get(TestEnum.BAZ), is("three"));
+
+        String four = "one,two,three,four";
+        map = ParseUtil.stringToEnumMap(TestEnum.class, four, ',');
+        assertThat(map.get(TestEnum.FOO), is("one"));
+        assertThat(map.get(TestEnum.BAR), is("two"));
+        assertThat(map.get(TestEnum.BAZ), is("three,four"));
+
+        String empty = "";
+        map = ParseUtil.stringToEnumMap(TestEnum.class, empty, ',');
+        assertThat(map.get(TestEnum.FOO), is(""));
     }
 }
