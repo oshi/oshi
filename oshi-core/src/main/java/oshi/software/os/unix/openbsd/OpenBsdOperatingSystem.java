@@ -32,8 +32,10 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,12 +56,8 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
- *
  * OpenBsd is a free and open-source Unix-like operating system descended from
  * the Berkeley Software Distribution (BSD), which was based on Research Unix.
- * The first version of OpenBsd was released in 1993. In 2005, OpenBsd was the
- * most popular open-source BSD operating system, accounting for more than
- * three-quarters of all installed simply, permissively licensed BSD systems.
  */
 @ThreadSafe
 public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
@@ -67,6 +65,17 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystem.class);
 
     private static final long BOOTTIME = querySystemBootTime();
+
+    /*
+     * Package-private for use by FreeBsdOSProcess
+     */
+    enum PsKeywords {
+        STATE, PID, PPID, USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW,
+        ARGS; // ARGS must always be last
+    }
+
+    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)
+            .collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
@@ -138,7 +147,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         // https://man.openbsd.org/ps#KEYWORDS
         // missing are threadCount and kernelTime which is included in cputime
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,nvscw,nivscw,args";
+        String psCommand = "ps -awwxo " + PS_COMMAND_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
@@ -150,10 +159,11 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 18);
-            // Elements should match ps command order
-            if (split.length == 18) {
-                procs.add(new OpenBsdOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split));
+            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
+            // Check if last (thus all) value populated
+            if (psMap.containsKey(PsKeywords.ARGS)) {
+                procs.add(new OpenBsdOSProcess(
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap));
             }
         }
         return procs;
