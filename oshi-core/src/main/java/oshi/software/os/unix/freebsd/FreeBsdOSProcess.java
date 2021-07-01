@@ -287,7 +287,8 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         if (procList.size() > 1) {
             // skip header row
             Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
-            if (psMap.keySet().size() == PsKeywords.values().length) {
+            // Check if last (thus all) value populated
+            if (psMap.containsKey(PsKeywords.ARGS)) {
                 return updateAttributes(psMap);
             }
         }

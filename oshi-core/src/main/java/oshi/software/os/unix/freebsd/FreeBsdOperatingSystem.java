@@ -161,8 +161,8 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         // Fill list
         for (String proc : procList) {
             Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
-            // Elements should match ps command order
-            if (psMap.keySet().size() == PsKeywords.values().length) {
+            // Check if last (thus all) value populated
+            if (psMap.containsKey(PsKeywords.ARGS)) {
                 procs.add(new FreeBsdOSProcess(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap));
             }
