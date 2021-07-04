@@ -46,6 +46,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.software.os.unix.aix.AixOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -84,11 +85,11 @@ public class AixOSProcess extends AbstractOSProcess {
     // Memoized copy from OperatingSystem
     private Supplier<perfstat_process_t[]> procCpu;
 
-    public AixOSProcess(int pid, String[] split, Map<Integer, Pair<Long, Long>> cpuMap,
+    public AixOSProcess(int pid, Map<PsKeywords, String> psMap, Map<Integer, Pair<Long, Long>> cpuMap,
             Supplier<perfstat_process_t[]> procCpu) {
         super(pid);
         this.procCpu = procCpu;
-        updateAttributes(split, cpuMap);
+        updateAttributes(psMap, cpuMap);
     }
 
     @Override
@@ -273,44 +274,44 @@ public class AixOSProcess extends AbstractOSProcess {
     @Override
     public boolean updateAttributes() {
         perfstat_process_t[] perfstat = procCpu.get();
-        List<String> procList = ExecutingCommand.runNative(
-                "ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + getProcessID());
+        List<String> procList = ExecutingCommand
+                .runNative("ps -o " + AixOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID());
         // Parse array to map of user/system times
         Map<Integer, Pair<Long, Long>> cpuMap = new HashMap<>();
         for (perfstat_process_t stat : perfstat) {
             cpuMap.put((int) stat.pid, new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
         }
         if (procList.size() > 1) {
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 15);
-            // Elements should match ps command order
-            if (split.length == 15) {
-                return updateAttributes(split, cpuMap);
+            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
+            // Check if last (thus all) value populated
+            if (psMap.containsKey(PsKeywords.ARGS)) {
+                return updateAttributes(psMap, cpuMap);
             }
         }
         this.state = State.INVALID;
         return false;
     }
 
-    private boolean updateAttributes(String[] split, Map<Integer, Pair<Long, Long>> cpuMap) {
+    private boolean updateAttributes(Map<PsKeywords, String> psMap, Map<Integer, Pair<Long, Long>> cpuMap) {
         long now = System.currentTimeMillis();
-        this.state = getStateFromOutput(split[0].charAt(0));
-        this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
-        this.user = split[3];
-        this.userID = split[4];
-        this.group = split[5];
-        this.groupID = split[6];
-        this.threadCount = ParseUtil.parseIntOrDefault(split[7], 0);
-        this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
+        this.state = getStateFromOutput(psMap.get(PsKeywords.ST).charAt(0));
+        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
+        this.user = psMap.get(PsKeywords.USER);
+        this.userID = psMap.get(PsKeywords.UID);
+        this.group = psMap.get(PsKeywords.GROUP);
+        this.groupID = psMap.get(PsKeywords.GID);
+        this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.THCOUNT), 0);
+        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) << 10;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) << 10;
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSIZE), 0) << 10;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSSIZE), 0) << 10;
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);
         if (cpuMap.containsKey(getProcessID())) {
             Pair<Long, Long> userSystem = cpuMap.get(getProcessID());
             this.userTime = userSystem.getA();
             this.kernelTime = userSystem.getB();
         } else {
-            this.userTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);
+            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
             this.kernelTime = 0L;
         }
         // Avoid divide by zero for processes up less than a second
@@ -319,10 +320,10 @@ public class AixOSProcess extends AbstractOSProcess {
             this.upTime += 500L;
         }
         this.startTime = now - this.upTime;
-        this.name = split[13];
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
-        this.path = ParseUtil.whitespaces.split(split[15])[0];
-        this.commandLine = split[15];
+        this.name = psMap.get(PsKeywords.COMM);
+        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.PAGEIN), 0L);
+        this.commandLine = psMap.get(PsKeywords.ARGS);
+        this.path = ParseUtil.whitespaces.split(this.commandLine)[0];
         return true;
     }
 

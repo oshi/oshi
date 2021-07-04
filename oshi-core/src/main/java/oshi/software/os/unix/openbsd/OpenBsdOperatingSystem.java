@@ -67,7 +67,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
     private static final long BOOTTIME = querySystemBootTime();
 
     /*
-     * Package-private for use by FreeBsdOSProcess
+     * Package-private for use by OpenBsdOSProcess
      */
     enum PsKeywords {
         STATE, PID, PPID, USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW,
