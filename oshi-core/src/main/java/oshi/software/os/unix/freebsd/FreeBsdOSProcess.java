@@ -33,9 +33,11 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
@@ -56,6 +58,16 @@ import oshi.util.platform.unix.freebsd.ProcstatUtil;
  */
 @ThreadSafe
 public class FreeBsdOSProcess extends AbstractOSProcess {
+
+    /*
+     * Package-private for use by FreeBsdOSProcess
+     */
+    enum PsThreadColumns {
+        TDNAME, LWP, STATE, ETIMES, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI;
+    }
+
+    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
+            .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
 
@@ -244,22 +256,21 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H";
+        String psCommand = "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
         List<String> threadList = ExecutingCommand.runNative(psCommand);
-        if (threadList.isEmpty() || threadList.size() < 2) {
-            return threads;
-        }
-        // remove header row
-        threadList.remove(0);
-        // Fill list
-        for (String thread : threadList) {
-            String[] split = ParseUtil.whitespaces.split(thread.trim(), 12);
-            // Elements should match ps command order
-            if (split.length == 10) {
-                threads.add(new FreeBsdOSThread(getProcessID(), split));
+        if (threadList.size() > 1) {
+            // remove header row
+            threadList.remove(0);
+            // Fill list
+            for (String thread : threadList) {
+                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
+                        ' ');
+                if (threadMap.containsKey(PsThreadColumns.PRI)) {
+                    threads.add(new FreeBsdOSThread(getProcessID(), threadMap));
+                }
             }
         }
         return threads;
