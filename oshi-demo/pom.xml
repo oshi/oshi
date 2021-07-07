@@ -25,7 +25,7 @@
 
     <properties>
         <main.basedir>${project.parent.basedir}</main.basedir>
-        <jackson.version>2.12.3</jackson.version>
+        <jackson.version>2.12.4</jackson.version>
         <jfreechart.version>1.5.3</jfreechart.version>
         <automatic.module.name>com.github.oshi.demo</automatic.module.name>
     </properties>
