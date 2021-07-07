@@ -44,6 +44,14 @@ import oshi.hardware.common.AbstractUsbDevice;
 @Immutable
 public class LinuxUsbDevice extends AbstractUsbDevice {
 
+    private static final String SUBSYSTEM_USB = "usb";
+    private static final String DEVTYPE_USB_DEVICE = "usb_device";
+    private static final String ATTR_PRODUCT = "product";
+    private static final String ATTR_MANUFACTURER = "manufacturer";
+    private static final String ATTR_VENDOR_ID = "idVendor";
+    private static final String ATTR_PRODUCT_ID = "idProduct";
+    private static final String ATTR_SERIAL = "serial";
+
     public LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
@@ -82,18 +90,10 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     }
 
     private static List<UsbDevice> getUsbDevices() {
-        // Enumerate all usb devices and build information maps
-        Udev.UdevContext udev = Udev.INSTANCE.udev_new();
-        // Create a list of the devices in the 'usb' subsystem.
-        UdevEnumerate enumerate = Udev.INSTANCE.udev_enumerate_new(udev);
-        Udev.INSTANCE.udev_enumerate_add_match_subsystem(enumerate, "usb");
-        Udev.INSTANCE.udev_enumerate_scan_devices(enumerate);
-        UdevListEntry devices = Udev.INSTANCE.udev_enumerate_get_list_entry(enumerate);
-
         // Build a list of devices with no parent; these will be the roots
         List<String> usbControllers = new ArrayList<>();
 
-        // Maps to store information using device node path as the key
+        // Maps to store information using device syspath as the key
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> vendorIdMap = new HashMap<>();
@@ -101,54 +101,65 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
         Map<String, String> serialMap = new HashMap<>();
         Map<String, List<String>> hubMap = new HashMap<>();
 
-        // For each item enumerated, store information in the maps
-        for (UdevListEntry dev_list_entry = devices; dev_list_entry != null; dev_list_entry = Udev.INSTANCE
-                .udev_list_entry_get_next(dev_list_entry)) {
+        // Enumerate all usb devices and build information maps
+        Udev.UdevContext udev = Udev.INSTANCE.udev_new();
+        try {
+            UdevEnumerate enumerate = udev.enumerateNew();
+            try {
+                enumerate.addMatchSubsystem(SUBSYSTEM_USB);
+                enumerate.scanDevices();
 
-            // Get the filename of the /sys entry for the device and create a
-            // udev_device object (dev) representing it
-            String path = Udev.INSTANCE.udev_list_entry_get_name(dev_list_entry);
-            UdevDevice dev = Udev.INSTANCE.udev_device_new_from_syspath(udev, path);
-            // Ignore interfaces
-            if (!"usb_device".equals(Udev.INSTANCE.udev_device_get_devtype(dev))) {
-                continue;
-            }
+                // For each item enumerated, store information in the maps
+                for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
+                    String syspath = entry.getName();
+                    UdevDevice device = udev.deviceNewFromSyspath(syspath);
+                    if (device != null) {
+                        try {
+                            // Only include usb_device devtype, skipping usb_interface
+                            if (DEVTYPE_USB_DEVICE.equals(device.getDevtype())) {
+                                String value = device.getSysattrValue(ATTR_PRODUCT);
+                                if (value != null) {
+                                    nameMap.put(syspath, value);
+                                }
+                                value = device.getSysattrValue(ATTR_MANUFACTURER);
+                                if (value != null) {
+                                    vendorMap.put(syspath, value);
+                                }
+                                value = device.getSysattrValue(ATTR_VENDOR_ID);
+                                if (value != null) {
+                                    vendorIdMap.put(syspath, value);
+                                }
+                                value = device.getSysattrValue(ATTR_PRODUCT_ID);
+                                if (value != null) {
+                                    productIdMap.put(syspath, value);
+                                }
+                                value = device.getSysattrValue(ATTR_SERIAL);
+                                if (value != null) {
+                                    serialMap.put(syspath, value);
+                                }
 
-            // Use the path as the key for the maps
-            String value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "product");
-            if (value != null) {
-                nameMap.put(path, value);
+                                UdevDevice parent = device.getParentWithSubsystemDevtype(SUBSYSTEM_USB,
+                                    DEVTYPE_USB_DEVICE);
+                                if (parent == null) {
+                                    // This is a controller with no parent, add to list
+                                    usbControllers.add(syspath);
+                                } else {
+                                    // Add child syspath to parent's path
+                                    String parentPath = parent.getSyspath();
+                                    hubMap.computeIfAbsent(parentPath, x -> new ArrayList<>()).add(syspath);
+                                }
+                            }
+                        } finally {
+                            device.unref();
+                        }
+                    }
+                }
+            } finally {
+                enumerate.unref();
             }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "manufacturer");
-            if (value != null) {
-                vendorMap.put(path, value);
-            }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "idVendor");
-            if (value != null) {
-                vendorIdMap.put(path, value);
-            }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "idProduct");
-            if (value != null) {
-                productIdMap.put(path, value);
-            }
-            value = Udev.INSTANCE.udev_device_get_sysattr_value(dev, "serial");
-            if (value != null) {
-                serialMap.put(path, value);
-            }
-            UdevDevice parent = Udev.INSTANCE.udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
-            if (parent == null) {
-                // This is a controller with no parent, add to list
-                usbControllers.add(path);
-            } else {
-                // Add child path (path variable) to parent's path
-                String parentPath = Udev.INSTANCE.udev_device_get_syspath(parent);
-                hubMap.computeIfAbsent(parentPath, x -> new ArrayList<>()).add(path);
-            }
-            Udev.INSTANCE.udev_device_unref(dev);
+        } finally {
+            udev.unref();
         }
-        // Free the enumerator object
-        Udev.INSTANCE.udev_enumerate_unref(enumerate);
-        Udev.INSTANCE.udev_unref(udev);
 
         // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();
