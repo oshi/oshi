@@ -66,29 +66,25 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static PlatformEnum currentPlatform;
+    private static final PlatformEnum currentPlatform = queryCurrentPlatform();
 
-    static {
-        initCurrentPlatform();
-    }
-
-    private static void initCurrentPlatform() {
+    private static PlatformEnum queryCurrentPlatform() {
         if (Platform.isWindows()) {
-            currentPlatform = WINDOWS;
+            return WINDOWS;
         } else if (Platform.isLinux()) {
-            currentPlatform = LINUX;
+            return LINUX;
         } else if (Platform.isMac()) {
-            currentPlatform = MACOS;
+            return MACOS;
         } else if (Platform.isSolaris()) {
-            currentPlatform = SOLARIS;
+            return SOLARIS;
         } else if (Platform.isFreeBSD()) {
-            currentPlatform = FREEBSD;
+            return FREEBSD;
         } else if (Platform.isAIX()) {
-            currentPlatform = AIX;
+            return AIX;
         } else if (Platform.isOpenBSD()) {
-            currentPlatform = OPENBSD;
+            return OPENBSD;
         } else {
-            currentPlatform = UNKNOWN;
+            return UNKNOWN;
         }
     }
 
@@ -109,9 +105,6 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
-        if (currentPlatform == null) {
-            initCurrentPlatform();
-        }
         if (getCurrentPlatform().equals(PlatformEnum.UNKNOWN)) {
             throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
         }
