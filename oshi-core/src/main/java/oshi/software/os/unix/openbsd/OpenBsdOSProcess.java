@@ -33,9 +33,11 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
@@ -56,6 +58,16 @@ import oshi.util.platform.unix.openbsd.FstatUtil;
  */
 @ThreadSafe
 public class OpenBsdOSProcess extends AbstractOSProcess {
+
+    /*
+     * Package-private for use by OpenBsdOSProcess
+     */
+    enum PsThreadColumns {
+        TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;
+    }
+
+    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
+            .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
 
@@ -245,10 +257,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        // tdname, systime and tdaddr are unknown to OpenBSD ps
-        // command may give the thread name, but should be put last with fixed length
-        // split to avoid parsing any spaces
-        String psCommand = "ps -aHwwxo tid,state,etime,time,nivcsw,nvcsw,majflt,minflt,pri,args";
+        String psCommand = "ps -aHwwxo " + PS_THREAD_COLUMNS;
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
@@ -260,10 +269,10 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         threadList.remove(0);
         // Fill list
         for (String thread : threadList) {
-            String[] split = ParseUtil.whitespaces.split(thread.trim(), 10);
-            // Elements should match ps command order
-            if (split.length == 10) {
-                threads.add(new OpenBsdOSThread(getProcessID(), split));
+            Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
+                    ' ');
+            if (threadMap.containsKey(PsThreadColumns.ARGS)) {
+                threads.add(new OpenBsdOSThread(getProcessID(), threadMap));
             }
         }
         return threads;
@@ -287,8 +296,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public boolean updateAttributes() {
         // 'ps' does not provide threadCount or kernelTime on OpenBSD
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,args -p "
-                + getProcessID();
+        String psCommand = "ps -awwxo " + OpenBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
