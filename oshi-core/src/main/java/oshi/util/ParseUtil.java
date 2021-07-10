@@ -1322,7 +1322,8 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a delimited String into an enum map
+     * Parses a delimited String into an enum map. Multiple consecutive delimiters
+     * are treated as one
      *
      * @param <K>
      *            a type extending Enum
@@ -1340,15 +1341,19 @@ public final class ParseUtil {
     public static <K extends Enum<K>> Map<K, String> stringToEnumMap(Class<K> clazz, String values, char delim) {
         EnumMap<K, String> map = new EnumMap<>(clazz);
         int start = 0;
+        int len = values.length();
         EnumSet<K> keys = EnumSet.allOf(clazz);
         int keySize = keys.size();
         for (K key : keys) {
             // If this is the last enum, put the index at the end of the string, otherwise
             // put at delimiter
-            int idx = --keySize == 0 ? values.length() : values.indexOf(delim, start);
+            int idx = --keySize == 0 ? len : values.indexOf(delim, start);
             if (idx >= 0) {
                 map.put(key, values.substring(start, idx));
-                start = idx + 1;
+                start = idx;
+                do {
+                    start++;
+                } while (start < len && values.charAt(start) == delim);
             } else {
                 map.put(key, values.substring(start));
                 break;

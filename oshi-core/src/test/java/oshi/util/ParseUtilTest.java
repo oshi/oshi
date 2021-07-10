@@ -646,7 +646,7 @@ class ParseUtilTest {
         assertThat(map.get(TestEnum.BAR), is("two"));
         assertThat(map.containsKey(TestEnum.BAZ), is(false));
 
-        String three = "one,two,three";
+        String three = "one,,two,three";
         map = ParseUtil.stringToEnumMap(TestEnum.class, three, ',');
         assertThat(map.get(TestEnum.FOO), is("one"));
         assertThat(map.get(TestEnum.BAR), is("two"));
