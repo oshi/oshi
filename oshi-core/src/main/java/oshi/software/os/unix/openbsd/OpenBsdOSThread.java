@@ -32,10 +32,12 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
+import oshi.software.os.unix.openbsd.OpenBsdOSProcess.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -58,9 +60,9 @@ public class OpenBsdOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public OpenBsdOSThread(int processId, String[] split) {
+    public OpenBsdOSThread(int processId, Map<PsThreadColumns, String> threadMap) {
         super(processId);
-        updateAttributes(split);
+        updateAttributes(threadMap);
     }
 
     @Override
@@ -125,28 +127,24 @@ public class OpenBsdOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -aHwwxo tid,state,etime,cputime,nivcsw,nvcsw,majflt,minflt,pri,args -p "
-                + getOwningProcessId();
+        String psCommand = "ps -aHwwxo " + OpenBsdOSProcess.PS_THREAD_COLUMNS + " -p " + getOwningProcessId();
         // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
+        String tidStr = Integer.toString(this.threadId);
         for (String psOutput : threadList) {
-            String[] split = ParseUtil.whitespaces.split(psOutput.trim());
-            if (split.length > 1 && this.getThreadId() == ParseUtil.parseIntOrDefault(split[1], 0)) {
-                return updateAttributes(split);
+            Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),
+                    ' ');
+            if (threadMap.containsKey(PsThreadColumns.ARGS) && tidStr.equals(threadMap.get(PsThreadColumns.TID))) {
+                return updateAttributes(threadMap);
             }
         }
         this.state = INVALID;
         return false;
     }
 
-    private boolean updateAttributes(String[] split) {
-        if (split.length != 10) {
-            this.state = INVALID;
-            return false;
-        }
-
-        this.threadId = ParseUtil.parseIntOrDefault(split[0], 0);
-        switch (split[1].charAt(0)) {
+    private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
+        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);
+        switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
         case 'R':
             this.state = RUNNING;
             break;
@@ -170,23 +168,21 @@ public class OpenBsdOSThread extends AbstractOSThread {
             break;
         }
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[2], 0L); // etime
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIME), 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         long now = System.currentTimeMillis();
         this.startTime = now - this.upTime;
         // ps does not provide kerneltime on OpenBSD
-        // this.kernelTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // systime
         this.kernelTime = 0L;
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // cputime
-        // this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
+        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.CPUTIME), 0L);
         this.startMemoryAddress = 0L;
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[3], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[5], 0L);
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[6], 0L);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[7], 0L);
-        this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
-        this.name = split[9];
+        this.majorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MAJFLT), 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MINFLT), 0L);
+        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);
+        this.name = threadMap.get(PsThreadColumns.ARGS);
         return true;
     }
 }

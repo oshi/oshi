@@ -24,10 +24,12 @@
 package oshi.software.os.unix.aix;
 
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
+import oshi.software.os.unix.aix.AixOSProcess.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -46,9 +48,9 @@ public class AixOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public AixOSThread(int pid, String[] split) {
+    public AixOSThread(int pid, Map<PsThreadColumns, String> threadMap) {
         super(pid);
-        updateAttributes(split);
+        updateAttributes(threadMap);
     }
 
     @Override
@@ -98,15 +100,13 @@ public class AixOSThread extends AbstractOSThread {
         if (threadListInfoPs.size() > 2) {
             threadListInfoPs.remove(0); // header removed
             threadListInfoPs.remove(0); // process data removed
+            String tidStr = Integer.toString(this.getThreadId());
             for (String threadInfo : threadListInfoPs) {
-                // USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
-                String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());
-                if (threadInfoSplit.length == 13 && threadInfoSplit[3].equals(String.valueOf(this.getThreadId()))) {
-                    String[] split = new String[3];
-                    split[0] = threadInfoSplit[3]; // tid
-                    split[1] = threadInfoSplit[4]; // state
-                    split[2] = threadInfoSplit[6]; // priority
-                    updateAttributes(split);
+                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,
+                        threadInfo.trim(), ' ');
+                if (threadMap.containsKey(PsThreadColumns.COMMAND)
+                        && tidStr.equals(threadMap.get(PsThreadColumns.TID))) {
+                    return updateAttributes(threadMap);
                 }
             }
         }
@@ -114,10 +114,10 @@ public class AixOSThread extends AbstractOSThread {
         return false;
     }
 
-    private boolean updateAttributes(String[] split) {
-        this.threadId = ParseUtil.parseIntOrDefault(split[0], 0);
-        this.state = AixOSProcess.getStateFromOutput(split[1].charAt(0));
-        this.priority = ParseUtil.parseIntOrDefault(split[2], 0);
+    private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
+        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);
+        this.state = AixOSProcess.getStateFromOutput(threadMap.get(PsThreadColumns.ST).charAt(0));
+        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);
         return true;
     }
 }

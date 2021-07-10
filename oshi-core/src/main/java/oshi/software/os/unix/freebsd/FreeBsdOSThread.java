@@ -32,10 +32,12 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
+import oshi.software.os.unix.freebsd.FreeBsdOSProcess.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -58,9 +60,9 @@ public class FreeBsdOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public FreeBsdOSThread(int processId, String[] split) {
+    public FreeBsdOSThread(int processId, Map<PsThreadColumns, String> threadMap) {
         super(processId);
-        updateAttributes(split);
+        updateAttributes(threadMap);
     }
 
     @Override
@@ -125,28 +127,25 @@ public class FreeBsdOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo tdname,lwp,state,etimes,systime,time,tdaddr,nivcsw,nvcsw,majflt,minflt,pri -H -p "
-                + getOwningProcessId();
+        List<String> threadList = ExecutingCommand
+                .runNative("ps -awwxo " + FreeBsdOSProcess.PS_THREAD_COLUMNS + " -H -p " + getOwningProcessId());
         // there is no switch for thread in ps command, hence filtering.
-        List<String> threadList = ExecutingCommand.runNative(psCommand);
+        String lwpStr = Integer.toString(this.threadId);
         for (String psOutput : threadList) {
-            String[] split = ParseUtil.whitespaces.split(psOutput.trim());
-            if (split.length > 1 && this.getThreadId() == ParseUtil.parseIntOrDefault(split[1], 0)) {
-                return updateAttributes(split);
+            Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),
+                    ' ');
+            if (threadMap.containsKey(PsThreadColumns.PRI) && lwpStr.equals(threadMap.get(PsThreadColumns.LWP))) {
+                return updateAttributes(threadMap);
             }
         }
         this.state = INVALID;
         return false;
     }
 
-    private boolean updateAttributes(String[] split) {
-        if (split.length != 12) {
-            this.state = INVALID;
-            return false;
-        }
-        this.name = split[0];
-        this.threadId = ParseUtil.parseIntOrDefault(split[1], 0);
-        switch (split[2].charAt(0)) {
+    private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
+        this.name = threadMap.get(PsThreadColumns.TDNAME);
+        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.LWP), 0);
+        switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
         case 'R':
             this.state = RUNNING;
             break;
@@ -169,20 +168,20 @@ public class FreeBsdOSThread extends AbstractOSThread {
             this.state = OTHER;
             break;
         }
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIMES), 0L);
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // etimes
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         long now = System.currentTimeMillis();
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[4], 0L); // systime
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[5], 0L) - this.kernelTime; // time
-        this.startMemoryAddress = ParseUtil.hexStringToLong(split[6], 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[7], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[8], 0L);
+        this.kernelTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.SYSTIME), 0L);
+        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.TIME), 0L) - this.kernelTime;
+        this.startMemoryAddress = ParseUtil.hexStringToLong(threadMap.get(PsThreadColumns.TDADDR), 0L);
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[9], 0L);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[10], 0L);
-        this.priority = ParseUtil.parseIntOrDefault(split[11], 0);
+        this.majorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MAJFLT), 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MINFLT), 0L);
+        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);
         return true;
     }
 }

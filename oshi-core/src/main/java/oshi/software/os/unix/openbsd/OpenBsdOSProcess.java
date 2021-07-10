@@ -33,8 +33,11 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Pointer;
@@ -45,6 +48,7 @@ import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.FstatUtil;
@@ -54,6 +58,16 @@ import oshi.util.platform.unix.openbsd.FstatUtil;
  */
 @ThreadSafe
 public class OpenBsdOSProcess extends AbstractOSProcess {
+
+    /*
+     * Package-private for use by OpenBsdOSThread
+     */
+    enum PsThreadColumns {
+        TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;
+    }
+
+    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
+            .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
 
@@ -80,10 +94,10 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public OpenBsdOSProcess(int pid, String[] split) {
+    public OpenBsdOSProcess(int pid, Map<PsKeywords, String> psMap) {
         super(pid);
         updateThreadCount();
-        updateAttributes(split);
+        updateAttributes(psMap);
     }
 
     @Override
@@ -243,10 +257,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        // tdname, systime and tdaddr are unknown to OpenBSD ps
-        // command may give the thread name, but should be put last with fixed length
-        // split to avoid parsing any spaces
-        String psCommand = "ps -aHwwxo tid,state,etime,time,nivcsw,nvcsw,majflt,minflt,pri,args";
+        String psCommand = "ps -aHwwxo " + PS_THREAD_COLUMNS;
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
@@ -258,10 +269,10 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         threadList.remove(0);
         // Fill list
         for (String thread : threadList) {
-            String[] split = ParseUtil.whitespaces.split(thread.trim(), 10);
-            // Elements should match ps command order
-            if (split.length == 10) {
-                threads.add(new OpenBsdOSThread(getProcessID(), split));
+            Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
+                    ' ');
+            if (threadMap.containsKey(PsThreadColumns.ARGS)) {
+                threads.add(new OpenBsdOSThread(getProcessID(), threadMap));
             }
         }
         return threads;
@@ -285,24 +296,24 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public boolean updateAttributes() {
         // 'ps' does not provide threadCount or kernelTime on OpenBSD
-        String psCommand = "ps -awwxo state,pid,ppid,user,uid,group,gid,pri,vsz,rss,etime,cputime,comm,majflt,minflt,args -p "
-                + getProcessID();
+        String psCommand = "ps -awwxo " + OpenBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
-            String[] split = ParseUtil.whitespaces.split(procList.get(1).trim(), 16);
-            if (split.length == 16) {
+            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
+            // Check if last (thus all) value populated
+            if (psMap.containsKey(PsKeywords.ARGS)) {
                 updateThreadCount();
-                return updateAttributes(split);
+                return updateAttributes(psMap);
             }
         }
         this.state = INVALID;
         return false;
     }
 
-    private boolean updateAttributes(String[] split) {
+    private boolean updateAttributes(Map<PsKeywords, String> psMap) {
         long now = System.currentTimeMillis();
-        switch (split[0].charAt(0)) {
+        switch (psMap.get(PsKeywords.STATE).charAt(0)) {
         case 'R':
             this.state = RUNNING;
             break;
@@ -325,30 +336,30 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             this.state = OTHER;
             break;
         }
-        this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
-        this.user = split[3];
-        this.userID = split[4];
-        this.group = split[5];
-        this.groupID = split[6];
-        this.priority = ParseUtil.parseIntOrDefault(split[7], 0);
+        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
+        this.user = psMap.get(PsKeywords.USER);
+        this.userID = psMap.get(PsKeywords.UID);
+        this.group = psMap.get(PsKeywords.GROUP);
+        this.groupID = psMap.get(PsKeywords.GID);
+        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(split[8], 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
+        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[10], 0L);
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.CPUTIME), 0L);
         // kernel time is included in user time
         this.kernelTime = 0L;
-        this.path = split[12];
+        this.path = psMap.get(PsKeywords.COMM);
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.minorFaults = ParseUtil.parseLongOrDefault(split[13], 0L);
-        this.majorFaults = ParseUtil.parseLongOrDefault(split[14], 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[15], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[16], 0L);
+        this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MINFLT), 0L);
+        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);
+        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
+        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.commandLine = split[17];
+        this.commandLine = psMap.get(PsKeywords.ARGS);
         return true;
     }
 
