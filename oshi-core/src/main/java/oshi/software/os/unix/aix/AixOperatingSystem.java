@@ -30,6 +30,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +72,17 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses, defaultExpiration());
 
     private static final long BOOTTIME = querySystemBootTimeMillis() / 1000L;
+
+    /*
+     * Package-private for use by AixOSProcess
+     */
+    enum PsKeywords {
+        ST, PID, PPID, USER, UID, GROUP, GID, THCOUNT, PRI, VSIZE, RSSIZE, ETIME, TIME, COMM, PAGEIN, ARGS;
+        // ARGS must always be last
+    }
+
+    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)
+            .collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
@@ -121,8 +133,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryAllProcesses() {
-        return getProcessListFromPS(
-                "ps -A -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,comm,pagein,args", -1);
+        return getProcessListFromPS("ps -A -o " + PS_COMMAND_ARGS, -1);
     }
 
     @Override
@@ -141,8 +152,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        List<OSProcess> procs = getProcessListFromPS(
-                "ps -o st,pid,ppid,user,uid,group,gid,thcount,pri,vsize,rssize,etime,time,comm,pagein,args -p ", pid);
+        List<OSProcess> procs = getProcessListFromPS("ps -o " + PS_COMMAND_ARGS + " -p ", pid);
         if (procs.isEmpty()) {
             return null;
         }
@@ -165,11 +175,11 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         // Fill list
         List<OSProcess> procs = new ArrayList<>();
         for (String proc : procList) {
-            String[] split = ParseUtil.whitespaces.split(proc.trim(), 16);
-            // Elements should match ps command order
-            if (split.length == 16) {
-                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(split[1], 0) : pid, split, cpuMap,
-                        procCpu));
+            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
+            // Check if last (thus all) value populated
+            if (psMap.containsKey(PsKeywords.ARGS)) {
+                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid,
+                        psMap, cpuMap, procCpu));
             }
         }
         return procs;

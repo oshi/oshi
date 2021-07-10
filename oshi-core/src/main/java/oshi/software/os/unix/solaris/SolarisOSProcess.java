@@ -31,7 +31,8 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,8 @@ import java.util.stream.Collectors;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem.PrstatKeywords;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -50,6 +53,15 @@ import oshi.util.ParseUtil;
  */
 @ThreadSafe
 public class SolarisOSProcess extends AbstractOSProcess {
+    /*
+     * Package-private for use by SolarisOSThread
+     */
+    enum PsThreadColumns {
+        LWP, S, ETIME, TIME, ADDR, PRI;
+    }
+
+    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
+            .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
 
@@ -72,11 +84,11 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
-    private long contextSwitches;
+    private long contextSwitches = 0; // default
 
-    public SolarisOSProcess(int pid, String[] split) {
+    public SolarisOSProcess(int pid, Map<PsKeywords, String> psMap, Map<PrstatKeywords, String> prstatMap) {
         super(pid);
-        updateAttributes(split);
+        updateAttributes(psMap, prstatMap);
     }
 
     @Override
@@ -243,117 +255,92 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<String> threadListInfo1 = ExecutingCommand
-                .runNative("ps -o lwp,s,etime,stime,time,addr,pri -p " + getProcessID());
-        List<String> threadListInfo2 = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID() + " 1 1");
-        Map<Integer, String[]> threadMap = parseAndMergePSandPrstatInfo(threadListInfo1, 0, 7, threadListInfo2, true);
-        if (threadMap.keySet().size() > 1) {
-            return threadMap.entrySet().stream().map(entry -> new SolarisOSThread(getProcessID(), entry.getValue()))
-                    .collect(Collectors.toList());
+        List<OSThread> threads = new ArrayList<>();
+        List<String> threadList = ExecutingCommand.runNative("ps -o " + PS_THREAD_COLUMNS + " -p " + getProcessID());
+        if (threadList.size() > 1) {
+            // Get a map by lwpid of prstat output
+            List<String> prstatList = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID() + " 1 1");
+            Map<String, String> prstatRowMap = new HashMap<>();
+            for (String s : prstatList) {
+                String row = s.trim();
+                // Last element is PROCESS/LWPID
+                int idx = row.lastIndexOf('/');
+                if (idx > 0) {
+                    prstatRowMap.put(row.substring(idx + 1), row);
+                }
+            }
+            // remove header row and iterate thread list
+            threadList.remove(0);
+            for (String thread : threadList) {
+                Map<PsThreadColumns, String> psMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
+                        ' ');
+                // Check if last (thus all) value populated
+                if (psMap.containsKey(PsThreadColumns.PRI)) {
+                    String lwpStr = psMap.get(PsThreadColumns.LWP);
+                    Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,
+                            prstatRowMap.getOrDefault(lwpStr, ""), ' ');
+                    threads.add(new SolarisOSThread(getProcessID(), psMap, prstatMap));
+                }
+            }
         }
-        return Collections.emptyList();
+        return threads;
     }
 
     @Override
     public boolean updateAttributes() {
         int pid = getProcessID();
         List<String> procList = ExecutingCommand
-                .runNative("ps -o s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args -p " + pid);
-        List<String> procList2 = ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
-        Map<Integer, String[]> processMap = parseAndMergePSandPrstatInfo(procList, 1, 15, procList2, false);
-        if (processMap.containsKey(pid)) {
-            return updateAttributes(processMap.get(getProcessID()));
+                .runNative("ps -o " + SolarisOperatingSystem.PS_COMMAND_ARGS + " -p " + pid);
+        if (procList.size() > 1) {
+            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
+            // Check if last (thus all) value populated
+            if (psMap.containsKey(PsKeywords.ARGS)) {
+                String pidStr = psMap.get(PsKeywords.PID);
+                List<String> prstatList = ExecutingCommand.runNative("prstat -v -p " + pidStr + " 1 1");
+                String prstatRow = "";
+                for (String s : prstatList) {
+                    String row = s.trim();
+                    if (row.startsWith(pidStr + " ")) {
+                        prstatRow = row;
+                        break;
+                    }
+                }
+                Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class, prstatRow, ' ');
+                return updateAttributes(psMap, prstatMap);
+            }
         }
         this.state = State.INVALID;
         return false;
     }
 
-    private boolean updateAttributes(String[] split) {
+    private boolean updateAttributes(Map<PsKeywords, String> psMap, Map<PrstatKeywords, String> prstatMap) {
         long now = System.currentTimeMillis();
-        this.state = getStateFromOutput(split[0].charAt(0));
-        this.parentProcessID = ParseUtil.parseIntOrDefault(split[2], 0);
-        this.user = split[3];
-        this.userID = split[4];
-        this.group = split[5];
-        this.groupID = split[6];
-        this.threadCount = ParseUtil.parseIntOrDefault(split[7], 0);
-        this.priority = ParseUtil.parseIntOrDefault(split[8], 0);
+        this.state = getStateFromOutput(psMap.get(PsKeywords.S).charAt(0));
+        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
+        this.user = psMap.get(PsKeywords.USER);
+        this.userID = psMap.get(PsKeywords.UID);
+        this.group = psMap.get(PsKeywords.GROUP);
+        this.groupID = psMap.get(PsKeywords.GID);
+        this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.NLWP), 0);
+        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(split[9], 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(split[10], 0) * 1024;
+        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;
         // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[11], 0L);
+        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.startTime = now - this.upTime;
         this.kernelTime = 0L;
-        this.userTime = ParseUtil.parseDHMSOrDefault(split[12], 0L);
-        this.path = split[13];
+        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
+        this.path = psMap.get(PsKeywords.COMM);
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.commandLine = split[14];
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[15], 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[16], 0L);
-        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-
-        return true;
-    }
-
-    /**
-     * Merges results of a ps and prstat query, since Solaris process and thread
-     * details are not available in a single command. Package private to permit
-     * access by SolarisOperatingSystem and SolarisOSThread.
-     *
-     * @param psInfo
-     *            output from ps command.
-     * @param psKeyIndex
-     *            which field of the ps split should be the key (e.g., pid or tid)
-     * @param psLength
-     *            how many fields to split
-     * @param prstatInfo
-     *            output from the prstat command.
-     * @param useTid
-     *            If true, parses thread id (slash-delimited last field), otherwise
-     *            uses process id (field 0)
-     * @return a map with key as thread id and an array of command outputs as value
-     */
-    static Map<Integer, String[]> parseAndMergePSandPrstatInfo(List<String> psInfo, int psKeyIndex, int psLength,
-            List<String> prstatInfo, boolean useTid) {
-        Map<Integer, String[]> map = new HashMap<>();
-        if (psInfo.size() > 1) { // first row is header
-            psInfo.stream().skip(1).forEach(info -> {
-                String[] psSplit = ParseUtil.whitespaces.split(info.trim(), psLength);
-                String[] mergedSplit = new String[psLength + 2];
-                if (psSplit.length == psLength) {
-                    for (int idx = 0; idx < psLength; idx++) {
-                        if (idx == psKeyIndex) {
-                            map.put(ParseUtil.parseIntOrDefault(psSplit[idx], 0), mergedSplit);
-                        }
-                        mergedSplit[idx] = psSplit[idx];
-                    }
-                }
-            });
-            // 0-pid, 1-username, 2-usertime, 3-sys, 4-trp, 5-tfl, 6-dfl, 7-lck, 8-slp,
-            // 9-lat, 10-vcx, 11-icx, 12-scl, 13-sig, 14-process/lwpid
-            if (prstatInfo.size() > 1) { // first row is header
-                prstatInfo.stream().skip(1).forEach(threadInfo -> {
-                    String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
-                    if (splitPrstat.length == 15) {
-                        String id = splitPrstat[0]; // pid
-                        if (useTid) {
-                            int idxAfterForwardSlash = splitPrstat[14].lastIndexOf('/') + 1; // format is process/lwpid
-                            if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
-                                id = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
-                            }
-                        }
-                        String[] existingSplit = map.get(Integer.parseInt(id));
-                        if (existingSplit != null) { // if thread wasn't in ps command output
-                            existingSplit[psLength] = splitPrstat[10]; // voluntary context switch
-                            existingSplit[psLength + 1] = splitPrstat[11]; // involuntary context switch
-                        }
-                    }
-                });
-            }
+        this.commandLine = psMap.get(PsKeywords.ARGS);
+        if (prstatMap.containsKey(PrstatKeywords.ICX)) {
+            long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.ICX), 0L);
+            long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.VCX), 0L);
+            this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         }
-        return map;
+        return true;
     }
 
     /***

@@ -68,26 +68,6 @@ public class SystemInfo {
     // access from outside this class
     private static final PlatformEnum currentPlatform = queryCurrentPlatform();
 
-    private static PlatformEnum queryCurrentPlatform() {
-        if (Platform.isWindows()) {
-            return WINDOWS;
-        } else if (Platform.isLinux()) {
-            return LINUX;
-        } else if (Platform.isMac()) {
-            return MACOS;
-        } else if (Platform.isSolaris()) {
-            return SOLARIS;
-        } else if (Platform.isFreeBSD()) {
-            return FREEBSD;
-        } else if (Platform.isAIX()) {
-            return AIX;
-        } else if (Platform.isOpenBSD()) {
-            return OPENBSD;
-        } else {
-            return UNKNOWN;
-        }
-    }
-
     private static final String NOT_SUPPORTED = "Operating system not supported: JNA Platform type ";
 
     private final Supplier<OperatingSystem> os = memoize(SystemInfo::createOperatingSystem);
@@ -117,6 +97,26 @@ public class SystemInfo {
      */
     public static PlatformEnum getCurrentPlatform() {
         return currentPlatform;
+    }
+
+    private static PlatformEnum queryCurrentPlatform() {
+        if (Platform.isWindows()) {
+            return WINDOWS;
+        } else if (Platform.isLinux()) {
+            return LINUX;
+        } else if (Platform.isMac()) {
+            return MACOS;
+        } else if (Platform.isSolaris()) {
+            return SOLARIS;
+        } else if (Platform.isFreeBSD()) {
+            return FREEBSD;
+        } else if (Platform.isAIX()) {
+            return AIX;
+        } else if (Platform.isOpenBSD()) {
+            return OPENBSD;
+        } else {
+            return UNKNOWN;
+        }
     }
 
     /**
