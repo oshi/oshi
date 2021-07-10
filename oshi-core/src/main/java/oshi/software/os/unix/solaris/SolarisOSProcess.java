@@ -343,65 +343,6 @@ public class SolarisOSProcess extends AbstractOSProcess {
         return true;
     }
 
-    /**
-     * Merges results of a ps and prstat query, since Solaris process and thread
-     * details are not available in a single command. Package private to permit
-     * access by SolarisOperatingSystem and SolarisOSThread.
-     *
-     * @param psInfo
-     *            output from ps command.
-     * @param psKeyIndex
-     *            which field of the ps split should be the key (e.g., pid or tid)
-     * @param psLength
-     *            how many fields to split
-     * @param prstatInfo
-     *            output from the prstat command.
-     * @param useTid
-     *            If true, parses thread id (slash-delimited last field), otherwise
-     *            uses process id (field 0)
-     * @return a map with key as thread id and an array of command outputs as value
-     */
-    static Map<Integer, String[]> parseAndMergePSandPrstatInfo(List<String> psInfo, int psKeyIndex, int psLength,
-            List<String> prstatInfo, boolean useTid) {
-        Map<Integer, String[]> map = new HashMap<>();
-        if (psInfo.size() > 1) { // first row is header
-            psInfo.stream().skip(1).forEach(info -> {
-                String[] psSplit = ParseUtil.whitespaces.split(info.trim(), psLength);
-                String[] mergedSplit = new String[psLength + 2];
-                if (psSplit.length == psLength) {
-                    for (int idx = 0; idx < psLength; idx++) {
-                        if (idx == psKeyIndex) {
-                            map.put(ParseUtil.parseIntOrDefault(psSplit[idx], 0), mergedSplit);
-                        }
-                        mergedSplit[idx] = psSplit[idx];
-                    }
-                }
-            });
-            // 0-pid, 1-username, 2-usertime, 3-sys, 4-trp, 5-tfl, 6-dfl, 7-lck, 8-slp,
-            // 9-lat, 10-vcx, 11-icx, 12-scl, 13-sig, 14-process/lwpid
-            if (prstatInfo.size() > 1) { // first row is header
-                prstatInfo.stream().skip(1).forEach(threadInfo -> {
-                    String[] splitPrstat = ParseUtil.whitespaces.split(threadInfo.trim());
-                    if (splitPrstat.length == 15) {
-                        String id = splitPrstat[0]; // pid
-                        if (useTid) {
-                            int idxAfterForwardSlash = splitPrstat[14].lastIndexOf('/') + 1; // format is process/lwpid
-                            if (idxAfterForwardSlash > 0 && idxAfterForwardSlash < splitPrstat[14].length()) {
-                                id = splitPrstat[14].substring(idxAfterForwardSlash); // getting the thread id
-                            }
-                        }
-                        String[] existingSplit = map.get(Integer.parseInt(id));
-                        if (existingSplit != null) { // if thread wasn't in ps command output
-                            existingSplit[psLength] = splitPrstat[10]; // voluntary context switch
-                            existingSplit[psLength + 1] = splitPrstat[11]; // involuntary context switch
-                        }
-                    }
-                });
-            }
-        }
-        return map;
-    }
-
     /***
      * Returns Enum STATE for the state value obtained from status string of
      * thread/process.

@@ -60,6 +60,7 @@ import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessFiltering;
 import oshi.software.os.OperatingSystem.ProcessSorting;
@@ -100,6 +101,24 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         OperatingSystem os = si.getOperatingSystem();
 
         printOperatingSystem(os);
+
+        /*
+         * TEMPORARY FOR DEBUG
+         */
+        for (OSProcess p : os.getProcesses()) {
+            System.out.println(p.getProcessID() + " " + p.getCommandLine());
+            for (OSThread t : p.getThreadDetails()) {
+                System.out.println(t.toString());
+            }
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+            }
+        }
+        System.exit(0);
+        /*
+         * END TEMP
+         */
 
         logger.info("Checking computer system...");
         printComputerSystem(hal.getComputerSystem());

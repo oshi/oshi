@@ -57,6 +57,12 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class AixOSProcess extends AbstractOSProcess {
+    /*
+     * Package-private for use by AIXOSThread
+     */
+    enum PsThreadColumns {
+        USER, PID, PPID, TID, ST, CP, PRI, SC, WCHAN, F, TT, BND, COMMAND;
+    }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private final Supplier<Long> affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
@@ -228,12 +234,15 @@ public class AixOSProcess extends AbstractOSProcess {
             processAffinityInfoList.remove(0); // remove header row
             processAffinityInfoList.remove(0); // remove process row
             for (String processAffinityInfo : processAffinityInfoList) { // affinity information is in thread row
-                String[] threadInfoSplit = ParseUtil.whitespaces.split(processAffinityInfo.trim());
-                if (threadInfoSplit.length > 13 && threadInfoSplit[4].charAt(0) != 'Z') { // only non-zombie threads
-                    if (threadInfoSplit[11].charAt(0) == '-') { // affinity to all processors
+                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,
+                        processAffinityInfo.trim(), ' ');
+                if (threadMap.containsKey(PsThreadColumns.COMMAND)
+                        && threadMap.get(PsThreadColumns.ST).charAt(0) != 'Z') { // only non-zombie threads
+                    String bnd = threadMap.get(PsThreadColumns.BND);
+                    if (bnd.charAt(0) == '-') { // affinity to all processors
                         return this.affinityMask.get();
                     } else {
-                        int affinity = ParseUtil.parseIntOrDefault(threadInfoSplit[11], 0);
+                        int affinity = ParseUtil.parseIntOrDefault(bnd, 0);
                         mask |= 1L << affinity;
                     }
                 }
@@ -251,14 +260,10 @@ public class AixOSProcess extends AbstractOSProcess {
             threadListInfoPs.remove(0); // header removed
             threadListInfoPs.remove(0); // process data removed
             for (String threadInfo : threadListInfoPs) {
-                // USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
-                String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());
-                if (threadInfoSplit.length == 13) {
-                    String[] split = new String[3];
-                    split[0] = threadInfoSplit[3]; // tid
-                    split[1] = threadInfoSplit[4]; // state
-                    split[2] = threadInfoSplit[6]; // priority
-                    threads.add(new AixOSThread(getProcessID(), split));
+                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,
+                        threadInfo.trim(), ' ');
+                if (threadMap.containsKey(PsThreadColumns.COMMAND)) {
+                    threads.add(new AixOSThread(getProcessID(), threadMap));
                 }
             }
             return threads;
