@@ -57,7 +57,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
      * Package-private for use by SolarisOSThread
      */
     enum PsThreadColumns {
-        LWP, S, ETIME, STIME, TIME, ADDR, PRI;
+        LWP, S, ETIME, TIME, ADDR, PRI;
     }
 
     static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)

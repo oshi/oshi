@@ -140,7 +140,7 @@ public class SolarisOSThread extends AbstractOSThread {
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         long now = System.currentTimeMillis();
         this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsThreadColumns.STIME), 0L);
+        this.kernelTime = 0L;
         this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsThreadColumns.TIME), 0L) - this.kernelTime;
         this.startMemoryAddress = ParseUtil.hexStringToLong(psMap.get(PsThreadColumns.ADDR), 0L);
         this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsThreadColumns.PRI), 0);
