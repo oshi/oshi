@@ -60,7 +60,7 @@ import oshi.util.platform.unix.openbsd.FstatUtil;
 public class OpenBsdOSProcess extends AbstractOSProcess {
 
     /*
-     * Package-private for use by OpenBsdOSProcess
+     * Package-private for use by OpenBsdOSThread
      */
     enum PsThreadColumns {
         TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;

@@ -60,7 +60,7 @@ import oshi.util.platform.unix.freebsd.ProcstatUtil;
 public class FreeBsdOSProcess extends AbstractOSProcess {
 
     /*
-     * Package-private for use by FreeBsdOSProcess
+     * Package-private for use by FreeBsdOSThread
      */
     enum PsThreadColumns {
         TDNAME, LWP, STATE, ETIMES, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI;
