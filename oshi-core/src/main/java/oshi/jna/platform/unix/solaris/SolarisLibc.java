@@ -25,6 +25,7 @@ package oshi.jna.platform.unix.solaris;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
@@ -87,4 +88,9 @@ public interface SolarisLibc extends CLibrary {
      *         includes the "record not found" case)
      */
     SolarisUtmpx getutxent();
+
+    int open(String absolutePath, int i);
+
+    // Last argument is really off_t
+    ssize_t pread(int fildes, Pointer buf, size_t nbyte, NativeLong offset);
 }

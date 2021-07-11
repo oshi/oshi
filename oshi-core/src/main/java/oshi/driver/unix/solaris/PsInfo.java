@@ -30,17 +30,22 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.NativeLong;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -52,7 +57,7 @@ public final class PsInfo {
 
     private static final boolean IS_LITTLE_ENDIAN = "little".equals(System.getProperty("sun.cpu.endian"));
 
-    // private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
+    private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
 
     enum LwpsInfoT {
         PR_FLAG(4), // lwp flags (DEPRECATED: see below)
@@ -176,7 +181,7 @@ public final class PsInfo {
      * @return A triplet containing the argc, argv, and envp values, or null if
      *         unable to read
      */
-    public static Triplet<Integer, Long, Long> queryArgsEnvBB(int pid) {
+    public static Triplet<Integer, Long, Long> queryArgsEnv(int pid) {
         File procpsinfo = new File("/proc/" + pid + "/psinfo");
         try (RandomAccessFile psinfo = new RandomAccessFile(procpsinfo, "r");
                 FileChannel chan = psinfo.getChannel();
@@ -192,6 +197,7 @@ public final class PsInfo {
                 if (IS_LITTLE_ENDIAN) {
                     buf.order(ByteOrder.LITTLE_ENDIAN);
                 }
+                // Now grab the elements we want
                 int argc = buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGC));
                 long argv = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ARGV))
                         : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGV));
@@ -205,54 +211,46 @@ public final class PsInfo {
         return null;
     }
 
-    /**
-     * Reads the pr_argc, pr_argv, and pr_envp fields from /proc/pid/psinfo
-     *
-     * @param pid
-     *            The process ID
-     * @return A triplet containing the argc, argv, and envp values, or null if
-     *         unable to read
-     */
-    public static Triplet<Integer, Long, Long> queryArgsEnv(int pid) {
-        File procpsinfo = new File("/proc/" + pid + "/psinfo");
-        try (RandomAccessFile psinfo = new RandomAccessFile(procpsinfo, "r")) {
-            psinfo.seek(psInfoOffsets.get(PsInfoT.PR_ARGC));
-            int argc = readInt(psinfo);
-            long argv = Native.POINTER_SIZE == 8 ? readLong(psinfo) : readInt(psinfo);
-            long envp = Native.POINTER_SIZE == 8 ? readLong(psinfo) : readInt(psinfo);
-            return new Triplet<>(argc, argv, envp);
-        } catch (IOException e) {
-            LOG.debug("Failed to read file: {} ", procpsinfo);
+    public static List<String> queryArgs(int pid, int argc, long argv) {
+        // Open a file descriptor to the address space
+        int fd = LIBC.open("/proc/" + pid + "/as", 0);
+        // Read the pointers to the arg strings
+        long[] argp = new long[argc];
+        long offset = argv;
+        size_t nbyte = new size_t(Native.POINTER_SIZE);
+        Memory buf = new Memory(Native.POINTER_SIZE);
+        for (int i = 0; i < argc; i++) {
+            LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+            argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+            offset += Native.POINTER_SIZE;
         }
-        return null;
-    }
-
-    private static int readInt(RandomAccessFile psinfo) throws IOException {
-        int val = psinfo.readInt();
-        if (IS_LITTLE_ENDIAN) {
-            return Integer.reverseBytes(val);
+        // Now read the strings at the pointers, character by character
+        List<String> args = new ArrayList<>(argc);
+        buf = new Memory(1);
+        nbyte = new size_t(1);
+        for (int i = 0; i < argp.length; i++) {
+            StringBuilder sb = new StringBuilder();
+            LIBC.pread(fd, buf, nbyte, new NativeLong(argp[i]));
+            byte b = buf.getByte(0);
+            if (b == 0) {
+                args.add(sb.toString());
+            } else {
+                sb.append((char) b);
+            }
         }
-        return val;
-    }
-
-    private static long readLong(RandomAccessFile psinfo) throws IOException {
-        long val = psinfo.readLong();
-        if (IS_LITTLE_ENDIAN) {
-            return Long.reverseBytes(val);
-        }
-        return val;
+        LIBC.close(fd);
+        return args;
     }
 
     public static void main(String[] args) {
         int mypid = new SystemInfo().getOperatingSystem().getProcessId();
-        System.out.println("Offsets using ProcessTree's file reading:");
         Triplet<Integer, Long, Long> vals = queryArgsEnv(mypid);
         System.out.println("ARGC: " + vals.getA());
-        System.out.println("ARGV: " + vals.getB());
-        System.out.println("ENVP: " + vals.getC());
-        System.out.println("Offsets using ByteBuffer:");
-        System.out.println("ARGC: " + vals.getA());
-        System.out.println("ARGV: " + vals.getB());
-        System.out.println("ENVP: " + vals.getC());
+        System.out.format("ARGV: 0x%16x%n", vals.getB());
+        System.out.format("ENVP: 0x%16x%n", vals.getC());
+        System.out.println("ARGS: ");
+        for (String s : queryArgs(mypid, vals.getA(), vals.getB())) {
+            System.out.println(s);
+        }
     }
 }
