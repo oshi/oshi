@@ -24,6 +24,7 @@
 package oshi.jna.platform.unix;
 
 import com.sun.jna.Library;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -276,4 +277,9 @@ public interface CLibrary extends LibCAPI, Library {
      * @return 0 on success; sets errno on failure
      */
     int sysctlnametomib(String name, Pointer mibp, NativeSizeTByReference sizep);
+
+    int open(String absolutePath, int i);
+
+    // Last argument is really off_t
+    ssize_t pread(int fildes, Pointer buf, size_t nbyte, NativeLong offset);
 }

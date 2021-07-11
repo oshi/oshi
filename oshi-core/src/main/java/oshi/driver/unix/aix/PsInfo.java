@@ -21,14 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.unix.solaris;
+package oshi.driver.unix.aix;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -45,7 +44,7 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.solaris.SolarisLibc;
+import oshi.jna.platform.unix.aix.AixLibc;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -56,34 +55,22 @@ import oshi.util.tuples.Triplet;
 public final class PsInfo {
     private static final Logger LOG = LoggerFactory.getLogger(PsInfo.class);
 
-    private static final boolean IS_LITTLE_ENDIAN = "little".equals(System.getProperty("sun.cpu.endian"));
-
-    private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
+    private static final AixLibc LIBC = AixLibc.INSTANCE;
 
     enum LwpsInfoT {
-        PR_FLAG(4), // lwp flags (DEPRECATED: see below)
-        PR_LWPID(4), // lwp id
-        PR_ADDR(Native.POINTER_SIZE), // DEPRECATED was internal address of lwp
-        PR_WCHAN(Native.POINTER_SIZE), // DEPRECATED was wait addr for sleeping lwp
-        PR_STYPE(1), // synchronization event type
-        PR_STATE(1), // numeric lwp state
-        PR_SNAME(1), // printable character for pr_state
+        PR_LWPID(8), // thread id
+        PR_ADDR(8), // internal address of thread
+        PR_WCHAN(8), // wait addr for sleeping thread
+        PR_FLAG(4), // thread flags
+        PR_WTYPE(1), // type of thread wait
+        PR_STATE(1), // numeric scheduling state
+        PR_SNAME(1), // printable character representing pr_state
         PR_NICE(1), // nice for cpu usage
-        PR_SYSCALL(2), // system call number (if in syscall)
-        PR_OLDPRI(1), // pre-SVR4, low value is high priority
-        PR_CPU(1), // pre-SVR4, cpu usage for scheduling
         PR_PRI(4), // priority, high value = high priority
-        PR_PCTCPU(2), // % of recent cpu time used by this lwp
-        PAD(2), // align to 8 byte boundary
-        PR_START(2 * NativeLong.SIZE), // lwp start time, from the epoch
-        PR_TIME(2 * NativeLong.SIZE), // cpu time for this lwp
-        PR_CLNAME(8), // scheduling class name
-        PR_NAME(16), // name of system lwp
-        PR_ONPRO(4), // processor which last ran this lwp
-        PR_BINDPRO(4), // processor to which lwp is bound
-        PR_BINDPSET(4), // processor set to which lwp is bound
-        PR_LGRP(4), // home lgroup
-        PR_LAST_ONPROC(8), // Timestamp of when thread last ran on a processor
+        PR_POLICY(4), // scheduling policy
+        PR_CLNAME(8), // printable character representing pr_policy
+        PR_ONPRO(Native.POINTER_SIZE), // processor on which thread last ran
+        PR_BINDPRO(Native.POINTER_SIZE), // processor to which thread is bound
         SIZE(0);
 
         private int size;
@@ -100,42 +87,33 @@ public final class PsInfo {
     private static Map<LwpsInfoT, Integer> lwpsInfoOffsets = initLwpsOffsets();
 
     enum PsInfoT {
-        PR_FLAG(4), // process flags (DEPRECATED: see below)
-        PR_NLWP(4), // number of active lwps in the process
-        PR_NZOMB(4), // number of zombie lwps in the process
-        PR_PID(4), // process id
-        PR_PPID(4), // process id of parent
-        PR_PGID(4), // process id of process group leader
-        PR_SID(4), // session id
-        PR_UID(4), // real user id
-        PR_EUID(4), // effective user id
-        PR_GID(4), // real group id
-        PR_EGID(4), // effective group id
-        PAD1(Native.POINTER_SIZE - 4), // align to 8 byte on 64 bit only
-        PR_ADDR(Native.POINTER_SIZE), // DEPRECATED was address of process
-        PR_SIZE(Native.SIZE_T_SIZE), // size of process image in Kbytes
-        PR_RSSIZE(Native.SIZE_T_SIZE), // resident set size in Kbytes
-        PR_TTYDEV(NativeLong.SIZE), // controlling tty device (or PRNODEV)
-        PR_PCTCPU(2), // % of recent cpu time used by all lwps
-        PR_PCTMEM(2), // % of system memory used by process
-        PAD2(Native.POINTER_SIZE - 4), // align to 8 byte on 64 bit only
-        PR_START(2 * NativeLong.SIZE), // process start time, from the epoch
-        PR_TIME(2 * NativeLong.SIZE), // cpu time for this process
-        PR_CTIME(2 * NativeLong.SIZE), // cpu time for reaped children
-        PR_FNAME(16), // name of exec'ed file
-        PR_PSARGS(80), // initial characters of arg list
-        PR_WSTAT(4), // if zombie, the wait() status
+        PR_FLAG(4), // process flags from proc struct p_flag
+        PR_FLAG2(4), // process flags from proc struct p_flag2 *
+        PR_NLWP(4), // number of threads in process
+        PR_PAD1(4), // reserved for future use
+        PR_UID(8), // real user id
+        PR_EUID(8), // effective user id
+        PR_GID(8), // real group id
+        PR_EGID(8), // effective group id
+        PR_PID(8), // unique process id
+        PR_PPID(8), // process id of parent
+        PR_PGID(8), // pid of process group leader
+        PR_SID(8), // session id
+        PR_TTYDEV(8), // controlling tty device
+        PR_ADDR(8), // internal address of proc struct
+        PR_SIZE(8), // process image size in kb (1024) units
+        PR_RSSIZE(8), // resident set size in kb (1024) units
+        PR_START(16), // process start time, time since epoch
+        PR_TIME(16), // usr+sys cpu time for this process
+        PR_CID(2), // corral id
+        PR_PAD2(2), // reserved for future use
         PR_ARGC(4), // initial argument count
-        PR_ARGV(Native.POINTER_SIZE), // address of initial argument vector
-        PR_ENVP(Native.POINTER_SIZE), // address of initial environment vector
-        PR_DMODEL(1), // data model of the process
-        PAD3(7), // align to 8 byte
-        PR_LWP(lwpsInfoOffsets.get(LwpsInfoT.SIZE)), // information for representative lwp
-        PR_TASKID(4), // task id
-        PR_PROJID(4), // project id
-        PR_POOLID(4), // pool id
-        PR_ZONEID(4), // zone id
-        PR_CONTRACT(4), // process contract id
+        PR_ARGV(8), // address of initial argument vector in user process
+        PR_ENVP(8), // address of initial environment vector in user process
+        PR_FNAME(16), // last component of exec()ed pathname
+        PR_PSARGS(80), // initial characters of arg list
+        PR_PAD(64), // reserved for future use
+        PR_LWP(lwpsInfoOffsets.get(LwpsInfoT.SIZE)), // "representative" thread info
         SIZE(0);
 
         private int size;
@@ -193,17 +171,12 @@ public final class PsInfo {
             }
 
             ByteBuffer buf = ByteBuffer.allocate(bufferSize);
-            if (chan.read(buf) >= psInfoOffsets.get(PsInfoT.PR_DMODEL)) {
+            if (chan.read(buf) >= psInfoOffsets.get(PsInfoT.PR_FNAME)) {
                 // We've read bytes up to at least the argc,argv,envp
-                if (IS_LITTLE_ENDIAN) {
-                    buf.order(ByteOrder.LITTLE_ENDIAN);
-                }
                 // Now grab the elements we want
                 int argc = buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGC));
-                long argv = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ARGV))
-                        : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGV));
-                long envp = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ENVP))
-                        : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ENVP));
+                long argv = buf.getLong(psInfoOffsets.get(PsInfoT.PR_ARGV));
+                long envp = buf.getLong(psInfoOffsets.get(PsInfoT.PR_ENVP));
                 return new Triplet<>(argc, argv, envp);
             }
         } catch (IOException e) {

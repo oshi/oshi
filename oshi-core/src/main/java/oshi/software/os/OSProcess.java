@@ -23,7 +23,6 @@
  */
 package oshi.software.os;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +68,7 @@ public interface OSProcess {
      * null-delimited behavior may change in future versions and should not be
      * relied upon; use {@link #getArguments()} instead.
      * <p>
-     * On Solaris, the string may be truncated to 80 characters if there was
+     * On AIX and Solaris, the string may be truncated to 80 characters if there was
      * insufficient permission to read the process memory.
      * <p>
      * On Windows, attempts to retrieve the value from process memory, which
@@ -97,9 +96,7 @@ public interface OSProcess {
      *         list if there was a failure (for example, because the process is
      *         already dead or permission was denied).
      */
-    default List<String> getArguments() {
-        return Collections.emptyList();
-    }
+    List<String> getArguments();
 
     /**
      * Makes a best effort attempt to obtain the environment variables of the
@@ -109,9 +106,7 @@ public interface OSProcess {
      *         return an empty map if there was a failure (for example, because the
      *         process is already dead or permission was denied).
      */
-    default Map<String, String> getEnvironmentVariables() {
-        return Collections.emptyMap();
-    }
+    Map<String, String> getEnvironmentVariables();
 
     /**
      * Makes a best effort attempt to obtain the current working directory for the
