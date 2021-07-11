@@ -1,4 +1,7 @@
-# 5.7.6 (in progress)
+# 5.8.0 (in progress)
+
+##### New Features
+* [#1654](https://github.com/oshi/oshi/pull/1654): API for process arguments and environment - [@basil](https://github.com/basil) and [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#1673](https://github.com/oshi/oshi/pull/1673): Fix FreeBSD ps command arguments for context switches - [@basil](https://github.com/basil).
