@@ -231,14 +231,16 @@ public final class PsInfo {
         nbyte = new size_t(1);
         for (int i = 0; i < argp.length; i++) {
             StringBuilder sb = new StringBuilder();
-            LIBC.pread(fd, buf, nbyte, new NativeLong(argp[i]));
-            byte b = buf.getByte(0);
-            if (b == 0) {
-                args.add(sb.toString());
-                System.out.format("Reading at offset 0x%16x: %s%n", argp[i], sb.toString());
-            } else {
-                sb.append((char) b);
-            }
+            offset = 0;
+            byte b = 0;
+            do {
+                LIBC.pread(fd, buf, nbyte, new NativeLong(argp[i] + offset++));
+                b = buf.getByte(0);
+                if (b != 0) {
+                    sb.append((char) b);
+                }
+            } while (b != 0);
+            args.add(sb.toString());
         }
         LIBC.close(fd);
         return args;
