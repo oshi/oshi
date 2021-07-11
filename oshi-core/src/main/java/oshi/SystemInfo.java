@@ -66,27 +66,7 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static final PlatformEnum currentPlatform;
-
-    static {
-        if (Platform.isWindows()) {
-            currentPlatform = WINDOWS;
-        } else if (Platform.isLinux()) {
-            currentPlatform = LINUX;
-        } else if (Platform.isMac()) {
-            currentPlatform = MACOS;
-        } else if (Platform.isSolaris()) {
-            currentPlatform = SOLARIS;
-        } else if (Platform.isFreeBSD()) {
-            currentPlatform = FREEBSD;
-        } else if (Platform.isAIX()) {
-            currentPlatform = AIX;
-        } else if (Platform.isOpenBSD()) {
-            currentPlatform = OPENBSD;
-        } else {
-            currentPlatform = UNKNOWN;
-        }
-    }
+    private static final PlatformEnum currentPlatform = queryCurrentPlatform();
 
     private static final String NOT_SUPPORTED = "Operating system not supported: JNA Platform type ";
 
@@ -117,6 +97,26 @@ public class SystemInfo {
      */
     public static PlatformEnum getCurrentPlatform() {
         return currentPlatform;
+    }
+
+    private static PlatformEnum queryCurrentPlatform() {
+        if (Platform.isWindows()) {
+            return WINDOWS;
+        } else if (Platform.isLinux()) {
+            return LINUX;
+        } else if (Platform.isMac()) {
+            return MACOS;
+        } else if (Platform.isSolaris()) {
+            return SOLARIS;
+        } else if (Platform.isFreeBSD()) {
+            return FREEBSD;
+        } else if (Platform.isAIX()) {
+            return AIX;
+        } else if (Platform.isOpenBSD()) {
+            return OPENBSD;
+        } else {
+            return UNKNOWN;
+        }
     }
 
     /**

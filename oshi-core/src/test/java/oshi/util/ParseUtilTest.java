@@ -55,6 +55,10 @@ class ParseUtilTest {
 
     private static final double EPSILON = Double.MIN_VALUE;
 
+    private enum TestEnum {
+        FOO, BAR, BAZ;
+    }
+
     /**
      * Test parse hertz.
      */
@@ -723,5 +727,30 @@ class ParseUtilTest {
         chars = new char[0];
         map = ParseUtil.parseCharArrayToStringMap(chars);
         assertThat(map, anEmptyMap());
+    }
+
+    @Test
+    void teststringToEnumMap() {
+        String two = "one,two";
+        Map<TestEnum, String> map = ParseUtil.stringToEnumMap(TestEnum.class, two, ',');
+        assertThat(map.get(TestEnum.FOO), is("one"));
+        assertThat(map.get(TestEnum.BAR), is("two"));
+        assertThat(map.containsKey(TestEnum.BAZ), is(false));
+
+        String three = "one,,two,three";
+        map = ParseUtil.stringToEnumMap(TestEnum.class, three, ',');
+        assertThat(map.get(TestEnum.FOO), is("one"));
+        assertThat(map.get(TestEnum.BAR), is("two"));
+        assertThat(map.get(TestEnum.BAZ), is("three"));
+
+        String four = "one,two,three,four";
+        map = ParseUtil.stringToEnumMap(TestEnum.class, four, ',');
+        assertThat(map.get(TestEnum.FOO), is("one"));
+        assertThat(map.get(TestEnum.BAR), is("two"));
+        assertThat(map.get(TestEnum.BAZ), is("three,four"));
+
+        String empty = "";
+        map = ParseUtil.stringToEnumMap(TestEnum.class, empty, ',');
+        assertThat(map.get(TestEnum.FOO), is(""));
     }
 }

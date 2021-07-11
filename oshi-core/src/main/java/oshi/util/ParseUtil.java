@@ -35,6 +35,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1423,5 +1425,46 @@ public final class ParseUtil {
             }
         } while (end++ < chars.length);
         return strMap;
+    }
+
+    /**
+     * Parses a delimited String into an enum map. Multiple consecutive delimiters
+     * are treated as one.
+     *
+     * @param <K>
+     *            a type extending Enum
+     * @param clazz
+     *            The enum class
+     * @param values
+     *            A delimited String to be parsed into the map
+     * @param delim
+     *            the delimiter to use
+     * @return An EnumMap populated in order using the delimited String values. If
+     *         there are fewer String values than enum values, the later enum values
+     *         are not mapped. The final enum value will contain the remainder of
+     *         the String, including excess delimiters.
+     */
+    public static <K extends Enum<K>> Map<K, String> stringToEnumMap(Class<K> clazz, String values, char delim) {
+        EnumMap<K, String> map = new EnumMap<>(clazz);
+        int start = 0;
+        int len = values.length();
+        EnumSet<K> keys = EnumSet.allOf(clazz);
+        int keySize = keys.size();
+        for (K key : keys) {
+            // If this is the last enum, put the index at the end of the string, otherwise
+            // put at delimiter
+            int idx = --keySize == 0 ? len : values.indexOf(delim, start);
+            if (idx >= 0) {
+                map.put(key, values.substring(start, idx));
+                start = idx;
+                do {
+                    start++;
+                } while (start < len && values.charAt(start) == delim);
+            } else {
+                map.put(key, values.substring(start));
+                break;
+            }
+        }
+        return map;
     }
 }

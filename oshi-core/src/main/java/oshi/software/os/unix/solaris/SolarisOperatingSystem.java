@@ -28,6 +28,8 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,9 +62,19 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
-    private static final String PS_FIELDS = "s,pid,ppid,user,uid,group,gid,nlwp,pri,vsz,rss,etime,time,comm,args";
-    private static final String PROCESS_LIST_FOR_PID_COMMAND = "ps -o " + PS_FIELDS + " -p ";
-    private static final String PROCESS_LIST_COMMAND = "ps -eo " + PS_FIELDS;
+    /*
+     * Package-private for use by SolarisOSProcess
+     */
+    enum PsKeywords {
+        S, PID, PPID, USER, UID, GROUP, GID, NLWP, PRI, VSZ, RSS, ETIME, TIME, COMM, ARGS; // ARGS must always be last
+    }
+
+    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)
+            .collect(Collectors.joining(","));
+
+    enum PrstatKeywords {
+        PID, USERNAME, USR, SYS, TRP, TFL, DFL, LCK, SLP, LAT, VCX, ICX, SCL, SIG, PROCESS_NLWP; // prstat -v
+    }
 
     private static final long BOOTTIME = querySystemBootTime();
 
@@ -107,7 +119,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        List<OSProcess> procs = getProcessListFromPS(PROCESS_LIST_FOR_PID_COMMAND, pid);
+        List<OSProcess> procs = getProcessListFromPS("ps -o " + PS_COMMAND_ARGS + " -p " + pid, pid);
         if (procs.isEmpty()) {
             return null;
         }
@@ -134,18 +146,39 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static List<OSProcess> queryAllProcessesFromPS() {
-        return getProcessListFromPS(PROCESS_LIST_COMMAND, -1);
+        return getProcessListFromPS("ps -eo " + PS_COMMAND_ARGS, -1);
     }
 
     private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
-        List<String> procList = pid < 0 ? ExecutingCommand.runNative(psCommand)
-                : ExecutingCommand.runNative(psCommand + pid);
-        List<String> procList2 = pid < 0 ? ExecutingCommand.runNative("prstat -v 1 1")
-                : ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
-        Map<Integer, String[]> processMap = SolarisOSProcess.parseAndMergePSandPrstatInfo(procList, 1, 15, procList2,
-                false);
-        return processMap.entrySet().stream().map(e -> new SolarisOSProcess(e.getKey(), e.getValue()))
-                .collect(Collectors.toList());
+        List<OSProcess> procs = new ArrayList<>();
+        List<String> procList = ExecutingCommand.runNative(psCommand);
+        if (procList.size() > 1) {
+            // Get a map by pid of prstat output
+            List<String> prstatList = pid < 0 ? ExecutingCommand.runNative("prstat -v 1 1")
+                    : ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
+            Map<String, String> prstatRowMap = new HashMap<>();
+            for (String s : prstatList) {
+                String row = s.trim();
+                int idx = row.indexOf(' ');
+                if (idx > 0) {
+                    prstatRowMap.put(row.substring(0, idx), row);
+                }
+            }
+            // remove header row and iterate proc list
+            procList.remove(0);
+            for (String proc : procList) {
+                Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
+                // Check if last (thus all) value populated
+                if (psMap.containsKey(PsKeywords.ARGS)) {
+                    String pidStr = psMap.get(PsKeywords.PID);
+                    Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,
+                            prstatRowMap.getOrDefault(pidStr, ""), ' ');
+                    procs.add(new SolarisOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(pidStr, 0) : pid, psMap,
+                            prstatMap));
+                }
+            }
+        }
+        return procs;
     }
 
     @Override
