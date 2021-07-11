@@ -55,15 +55,22 @@ public interface OSProcess {
 
     /**
      * Gets the process command line used to start the process, including arguments
-     * if available to be determined.
+     * if available to be determined. This method generally returns the same
+     * information as {@link #getArguments()} in a more user-readable format, and is
+     * more robust to non-elevated access.
      * <p>
-     * The format of this string is platform-dependent and may require the end user
-     * to parse the result or use {@link #getArguments()}.
+     * The format of this string is platform-dependent, may be truncated, and may
+     * require the end user to parse the result. Users should generally prefer
+     * {@link #getArguments()} which already parses the results, and use this method
+     * as a backup.
      * <p>
      * On Linux and macOS systems, the string is null-character-delimited, to permit
-     * the end user to parse the executable and arguments if desired.
+     * the end user to parse the executable and arguments if desired. This
+     * null-delimited behavior may change in future versions and should not be
+     * relied upon; use {@link #getArguments()} instead.
      * <p>
-     * On Solaris, the string is truncated to 80 characters.
+     * On Solaris, the string may be truncated to 80 characters if there was
+     * insufficient permission to read the process memory.
      * <p>
      * On Windows, attempts to retrieve the value from process memory, which
      * requires that the process be owned by the same user as the executing process,
@@ -84,7 +91,7 @@ public interface OSProcess {
     /**
      * Makes a best effort attempt to get a list of the the command-line arguments
      * of the process. Returns the same information as {@link #getCommandLine()} but
-     * parsed to a list.
+     * parsed to a list. May require elevated permissions or same-user ownership.
      *
      * @return A list of Strings representing the arguments. May return an empty
      *         list if there was a failure (for example, because the process is
@@ -107,11 +114,10 @@ public interface OSProcess {
     }
 
     /**
-     * Gets the current working directory for the process.
+     * Makes a best effort attempt to obtain the current working directory for the
+     * process.
      *
      * @return the process current working directory.
-     *
-     *         On Windows, this value is only populated for the current process.
      */
     String getCurrentWorkingDirectory();
 

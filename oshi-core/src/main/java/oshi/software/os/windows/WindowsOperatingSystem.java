@@ -490,15 +490,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             for (int i = 0; i < services.length; i++) {
                 State state;
                 switch (services[i].ServiceStatusProcess.dwCurrentState) {
-                    case 1:
-                        state = STOPPED;
-                        break;
-                    case 4:
-                        state = RUNNING;
-                        break;
-                    default:
-                        state = OTHER;
-                        break;
+                case 1:
+                    state = STOPPED;
+                    break;
+                case 4:
+                    state = RUNNING;
+                    break;
+                default:
+                    state = OTHER;
+                    break;
                 }
                 svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
                         state);

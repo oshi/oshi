@@ -35,17 +35,15 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
-import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.util.tuples.Pair;
@@ -215,92 +213,84 @@ public final class PsInfo {
     }
 
     public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid) {
+        List<String> args = new ArrayList<>();
+        Map<String, String> env = new LinkedHashMap<>();
+
         // Get the arg count and list of env vars
         Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
-        int argc = addrs.getA();
-        long argv = addrs.getB();
-        long envp = addrs.getC();
+        if (addrs != null) {
+            int argc = addrs.getA();
+            long argv = addrs.getB();
+            long envp = addrs.getC();
 
-        // Open a file descriptor to the address space
-        int fd = LIBC.open("/proc/" + pid + "/as", 0);
+            // Open a file descriptor to the address space
+            int fd = LIBC.open("/proc/" + pid + "/as", 0);
+            try {
 
-        // Read the pointers to the arg strings
-        // We know argc so we can count them
-        long[] argp = new long[argc];
-        long offset = argv;
-        size_t nbyte = new size_t(Native.POINTER_SIZE);
-        Memory buf = new Memory(Native.POINTER_SIZE);
-        for (int i = 0; i < argc; i++) {
-            LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-            argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
-            offset += Native.POINTER_SIZE;
-        }
-
-        // Now read the strings at the pointers, character by character
-        List<String> args = new ArrayList<>(argc);
-        size_t cbyte = new size_t(1);
-        Memory cbuf = new Memory(1);
-        for (int i = 0; i < argp.length; i++) {
-            StringBuilder sb = new StringBuilder();
-            long c = 0; // character offset
-            byte b = 0;
-            do {
-                LIBC.pread(fd, cbuf, cbyte, new NativeLong(argp[i] + c++));
-                b = buf.getByte(0);
-                if (b != 0) {
-                    sb.append((char) b);
+                // Read the pointers to the arg strings
+                // We know argc so we can count them
+                long[] argp = new long[argc];
+                long offset = argv;
+                size_t nbyte = new size_t(Native.POINTER_SIZE);
+                Memory buf = new Memory(Native.POINTER_SIZE);
+                for (int i = 0; i < argc; i++) {
+                    LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+                    argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+                    offset += Native.POINTER_SIZE;
                 }
-            } while (b != 0);
-            args.add(sb.toString());
-        }
 
-        // Now read the pointers to the env strings
-        // We don't know how many, so stop when we get to null pointer
-        Map<String, String> env = new LinkedHashMap<>();
-        offset = envp;
-        long addr = 0;
-        do {
-            LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-            addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
-            // Non-null addr points to the env string. Read char by char into key and value
-            if (addr != 0) {
-                StringBuilder key = new StringBuilder();
-                StringBuilder value = new StringBuilder();
-                boolean rhs = false; // left and right of = delimiter
-                long c = 0; // character index
-                byte b = 0;
-                do {
-                    LIBC.pread(fd, cbuf, cbyte, new NativeLong(addr + c++));
-                    b = buf.getByte(0);
-                    if (b != 0) {
-                        if (rhs) {
-                            value.append((char) b);
-                        } else if (b == '=') {
-                            rhs = true;
-                        } else {
-                            key.append((char) b);
+                // Now read the strings at the pointers, character by character
+                size_t cbyte = new size_t(1);
+                Memory cbuf = new Memory(1);
+                for (int i = 0; i < argp.length; i++) {
+                    StringBuilder sb = new StringBuilder();
+                    long c = 0; // character offset
+                    byte b = 0;
+                    do {
+                        LIBC.pread(fd, cbuf, cbyte, new NativeLong(argp[i] + c++));
+                        b = cbuf.getByte(0);
+                        if (b != 0) {
+                            sb.append((char) b);
                         }
+                    } while (b != 0);
+                    args.add(sb.toString());
+                }
+
+                // Now read the pointers to the env strings
+                // We don't know how many, so stop when we get to null pointer
+                offset = envp;
+                long addr = 0;
+                do {
+                    LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+                    addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+                    // Non-null addr points to the env string. Read char by char into key and value
+                    if (addr != 0) {
+                        StringBuilder key = new StringBuilder();
+                        StringBuilder value = new StringBuilder();
+                        boolean rhs = false; // left and right of = delimiter
+                        long c = 0; // character index
+                        byte b = 0;
+                        do {
+                            LIBC.pread(fd, cbuf, cbyte, new NativeLong(addr + c++));
+                            b = cbuf.getByte(0);
+                            if (b != 0) {
+                                if (rhs) {
+                                    value.append((char) b);
+                                } else if (b == '=') {
+                                    rhs = true;
+                                } else {
+                                    key.append((char) b);
+                                }
+                            }
+                        } while (b != 0);
+                        env.put(key.toString(), value.toString());
                     }
-                } while (b != 0);
-                env.put(key.toString(), value.toString());
+                    offset += Native.POINTER_SIZE;
+                } while (addr != 0);
+            } finally {
+                LIBC.close(fd);
             }
-            offset += Native.POINTER_SIZE;
-        } while (addr != 0);
-
-        LIBC.close(fd);
+        }
         return new Pair<>(args, env);
-    }
-
-    public static void main(String[] args) {
-        int mypid = new SystemInfo().getOperatingSystem().getProcessId();
-        Pair<List<String>, Map<String, String>> argsEnv = queryArgsEnv(mypid);
-        System.out.println("ARGS: ");
-        for (String s : argsEnv.getA()) {
-            System.out.println(s);
-        }
-        System.out.println("ENV: ");
-        for (Entry<String, String> entry : argsEnv.getB().entrySet()) {
-            System.out.println(entry.getKey() + "=" + entry.getValue());
-        }
     }
 }
