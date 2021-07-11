@@ -223,6 +223,7 @@ public final class PsInfo {
             LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
             argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
             offset += Native.POINTER_SIZE;
+            System.out.format("Reading at offset 0x%16x: 0x%16x%n", offset, argp[i]);
         }
         // Now read the strings at the pointers, character by character
         List<String> args = new ArrayList<>(argc);
@@ -234,6 +235,7 @@ public final class PsInfo {
             byte b = buf.getByte(0);
             if (b == 0) {
                 args.add(sb.toString());
+                System.out.format("Reading at offset 0x%16x: %s%n", argp[i], sb.toString());
             } else {
                 sb.append((char) b);
             }
