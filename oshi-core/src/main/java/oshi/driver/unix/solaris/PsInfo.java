@@ -32,8 +32,10 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -181,7 +184,7 @@ public final class PsInfo {
      * @return A triplet containing the argc, argv, and envp values, or null if
      *         unable to read
      */
-    public static Triplet<Integer, Long, Long> queryArgsEnv(int pid) {
+    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid) {
         File procpsinfo = new File("/proc/" + pid + "/psinfo");
         try (RandomAccessFile psinfo = new RandomAccessFile(procpsinfo, "r");
                 FileChannel chan = psinfo.getChannel();
@@ -211,10 +214,18 @@ public final class PsInfo {
         return null;
     }
 
-    public static List<String> queryArgs(int pid, int argc, long argv) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid) {
+        // Get the arg count and list of env vars
+        Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
+        int argc = addrs.getA();
+        long argv = addrs.getB();
+        long envp = addrs.getC();
+
         // Open a file descriptor to the address space
         int fd = LIBC.open("/proc/" + pid + "/as", 0);
+
         // Read the pointers to the arg strings
+        // We know argc so we can count them
         long[] argp = new long[argc];
         long offset = argv;
         size_t nbyte = new size_t(Native.POINTER_SIZE);
@@ -223,18 +234,18 @@ public final class PsInfo {
             LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
             argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
             offset += Native.POINTER_SIZE;
-            System.out.format("Reading at offset 0x%16x: 0x%16x%n", offset, argp[i]);
         }
+
         // Now read the strings at the pointers, character by character
         List<String> args = new ArrayList<>(argc);
-        buf = new Memory(1);
-        nbyte = new size_t(1);
+        size_t cbyte = new size_t(1);
+        Memory cbuf = new Memory(1);
         for (int i = 0; i < argp.length; i++) {
             StringBuilder sb = new StringBuilder();
-            offset = 0;
+            long c = 0; // character offset
             byte b = 0;
             do {
-                LIBC.pread(fd, buf, nbyte, new NativeLong(argp[i] + offset++));
+                LIBC.pread(fd, cbuf, cbyte, new NativeLong(argp[i] + c++));
                 b = buf.getByte(0);
                 if (b != 0) {
                     sb.append((char) b);
@@ -242,19 +253,54 @@ public final class PsInfo {
             } while (b != 0);
             args.add(sb.toString());
         }
+
+        // Now read the pointers to the env strings
+        // We don't know how many, so stop when we get to null pointer
+        Map<String, String> env = new LinkedHashMap<>();
+        offset = envp;
+        long addr = 0;
+        do {
+            LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+            addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+            // Non-null addr points to the env string. Read char by char into key and value
+            if (addr != 0) {
+                StringBuilder key = new StringBuilder();
+                StringBuilder value = new StringBuilder();
+                boolean rhs = false; // left and right of = delimiter
+                long c = 0; // character index
+                byte b = 0;
+                do {
+                    LIBC.pread(fd, cbuf, cbyte, new NativeLong(addr + c++));
+                    b = buf.getByte(0);
+                    if (b != 0) {
+                        if (rhs) {
+                            value.append((char) b);
+                        } else if (b == '=') {
+                            rhs = true;
+                        } else {
+                            key.append((char) b);
+                        }
+                    }
+                } while (b != 0);
+                env.put(key.toString(), value.toString());
+            }
+            offset += Native.POINTER_SIZE;
+        } while (addr != 0);
+
         LIBC.close(fd);
-        return args;
+        return new Pair<>(args, env);
     }
 
     public static void main(String[] args) {
         int mypid = new SystemInfo().getOperatingSystem().getProcessId();
-        Triplet<Integer, Long, Long> vals = queryArgsEnv(mypid);
-        System.out.println("ARGC: " + vals.getA());
-        System.out.format("ARGV: 0x%16x%n", vals.getB());
-        System.out.format("ENVP: 0x%16x%n", vals.getC());
+        Pair<List<String>, Map<String, String>> argsEnv = queryArgsEnv(mypid);
         System.out.println("ARGS: ");
-        for (String s : queryArgs(mypid, vals.getA(), vals.getB())) {
+        for (String s : argsEnv.getA()) {
             System.out.println(s);
+        }
+        System.out.println("ENV: ");
+        for (Entry<String, String> entry : argsEnv.getB().entrySet()) {
+            System.out.println(entry.getKey() + "=" + entry.getValue());
         }
     }
 }
