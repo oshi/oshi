@@ -54,7 +54,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * Utility to query /proc/psinfo
@@ -185,14 +185,15 @@ public final class PsInfo {
     }
 
     /**
-     * Reads the pr_argc, pr_argv, and pr_envp fields from /proc/pid/psinfo
+     * Reads the pr_argc, pr_argv, pr_envp, and pr_dmodel fields from
+     * /proc/pid/psinfo
      *
      * @param pid
      *            The process ID
-     * @return A triplet containing the argc, argv, and envp values, or null if
-     *         unable to read
+     * @return A quartet containing the argc, argv, envp and dmodel values, or null
+     *         if unable to read
      */
-    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid) {
+    public static Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid) {
         File procpsinfo = new File("/proc/" + pid + "/psinfo");
         try (RandomAccessFile psinfo = new RandomAccessFile(procpsinfo, "r");
                 FileChannel chan = psinfo.getChannel();
@@ -203,8 +204,8 @@ public final class PsInfo {
             }
 
             ByteBuffer buf = ByteBuffer.allocate(bufferSize);
-            if (chan.read(buf) >= psInfoOffsets.get(PsInfoT.PR_DMODEL)) {
-                // We've read bytes up to at least the argc,argv,envp
+            if (chan.read(buf) > psInfoOffsets.get(PsInfoT.PR_DMODEL)) {
+                // We've read bytes up to at least the dmodel
                 if (IS_LITTLE_ENDIAN) {
                     buf.order(ByteOrder.LITTLE_ENDIAN);
                 }
@@ -216,7 +217,15 @@ public final class PsInfo {
                             : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGV));
                     long envp = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ENVP))
                             : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ENVP));
-                    return new Triplet<>(argc, argv, envp);
+                    // Process data model 1 = 32 bit, 2 = 64 bit
+                    byte dmodel = buf.get(psInfoOffsets.get(PsInfoT.PR_DMODEL));
+                    // Sanity check
+                    if (dmodel * 4 != (envp - argv) / (argc + 1)) {
+                        LOG.trace("Failed data model and offset increment sanity check: dm={} diff={}", dmodel,
+                                envp - argv);
+                        return null;
+                    }
+                    return new Quartet<>(argc, argv, envp, dmodel);
                 }
                 LOG.trace("No permission to read file: {} ", procpsinfo);
             }
@@ -231,7 +240,7 @@ public final class PsInfo {
         Map<String, String> env = new LinkedHashMap<>();
 
         // Get the arg count and list of env vars
-        Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
+        Quartet<Integer, Long, Long, Byte> addrs = queryArgsEnvAddrs(pid);
         if (addrs != null) {
             // Open a file descriptor to the address space
             String procas = "/proc/" + pid + "/as";
@@ -245,6 +254,7 @@ public final class PsInfo {
                 int argc = addrs.getA();
                 long argv = addrs.getB();
                 long envp = addrs.getC();
+                long increment = addrs.getD() * 4L;
 
                 // Reusable buffer
                 long bufStart = 0;
@@ -257,8 +267,8 @@ public final class PsInfo {
                 long offset = argv;
                 for (int i = 0; i < argc; i++) {
                     bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                    argp[i] = bufStart == 0 ? 0 : getPointerFromBuffer(buffer, offset - bufStart);
-                    offset += Native.POINTER_SIZE;
+                    argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
+                    offset += increment;
                 }
 
                 // Also read the pointers to the env strings
@@ -269,11 +279,11 @@ public final class PsInfo {
                 int limit = 500; // sane max env strings to stop at
                 do {
                     bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                    addr = bufStart == 0 ? 0 : getPointerFromBuffer(buffer, offset - bufStart);
+                    addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
                     if (addr != 0) {
                         envPtrList.add(addr);
                     }
-                    offset += Native.POINTER_SIZE;
+                    offset += increment;
                 } while (addr != 0 && --limit > 0);
 
                 // Now read the arg strings from the buffer
@@ -338,8 +348,8 @@ public final class PsInfo {
         return bufStart;
     }
 
-    private static long getPointerFromBuffer(Memory buffer, long offset) {
-        return Native.POINTER_SIZE == 8 ? buffer.getLong(offset) : buffer.getInt(offset);
+    private static long getOffsetFromBuffer(Memory buffer, long offset, long increment) {
+        return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);
     }
 
     /**
