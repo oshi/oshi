@@ -273,7 +273,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         // Fetch
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, new NativeSizeTByReference(new size_t(arraySize)), null,
                 size_t.ZERO)) {
-            LOG.error("Failed syctl call: {}, Error code: {}", name, Native.getLastError());
+            LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
             return ticks;
         }
         // p now points to the data; need to copy each element

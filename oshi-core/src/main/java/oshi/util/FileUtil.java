@@ -104,6 +104,48 @@ public final class FileUtil {
     }
 
     /**
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
+     *
+     * @param filename
+     *            The file to read
+     * @return A byte array representing the file
+     */
+    public static byte[] readAllBytes(String filename) {
+        return readAllBytes(filename, true);
+    }
+
+    /**
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
+     *
+     * @param filename
+     *            The file to read
+     * @param reportError
+     *            Whether to log errors reading the file
+     * @return A byte array representing the file
+     */
+    public static byte[] readAllBytes(String filename, boolean reportError) {
+        if (new File(filename).canRead()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(READING_LOG, filename);
+            }
+            try {
+                return Files.readAllBytes(Paths.get(filename));
+            } catch (IOException e) {
+                if (reportError) {
+                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                } else {
+                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
+                }
+            }
+        } else if (reportError) {
+            LOG.warn("File not found or not readable: {}", filename);
+        }
+        return new byte[0];
+    }
+
+    /**
      * Read a file and return the long value contained therein. Intended primarily
      * for Linux /sys filesystem
      *

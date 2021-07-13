@@ -44,7 +44,7 @@ public final class BsdSysctlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(BsdSysctlUtil.class);
 
-    private static final String SYSCTL_FAIL = "Failed syctl call: {}, Error code: {}";
+    private static final String SYSCTL_FAIL = "Failed sysctl call: {}, Error code: {}";
 
     private BsdSysctlUtil() {
     }

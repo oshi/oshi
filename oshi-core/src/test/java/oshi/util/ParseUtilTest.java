@@ -24,8 +24,11 @@
 package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -636,6 +639,94 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseMultipliedToLongs("1073M"), is(1073000000L));
         assertThat(ParseUtil.parseMultipliedToLongs("1073 G"), is(1073000000000L));
         assertThat(ParseUtil.parseMultipliedToLongs("12K"), is(12000L));
+    }
+
+    @Test
+    void parseByteArrayToStrings() {
+        byte[] bytes = "foo bar".getBytes();
+        bytes[3] = 0;
+        List<String> list = ParseUtil.parseByteArrayToStrings(bytes);
+        assertThat(list, contains("foo", "bar"));
+
+        bytes[4] = 0;
+        list = ParseUtil.parseByteArrayToStrings(bytes);
+        assertThat(list, contains("foo"));
+
+        bytes[0] = 0;
+        list = ParseUtil.parseByteArrayToStrings(bytes);
+        assertThat(list, empty());
+
+        bytes = new byte[0];
+        list = ParseUtil.parseByteArrayToStrings(bytes);
+        assertThat(list, empty());
+    }
+
+    @Test
+    void parseByteArrayToStringMap() {
+        byte[] bytes = "foo=1 bar=2".getBytes();
+        bytes[5] = 0;
+        Map<String, String> map = ParseUtil.parseByteArrayToStringMap(bytes);
+        assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
+        assertThat(map.values(), containsInAnyOrder("1", "2"));
+        assertThat(map.get("foo"), is("1"));
+        assertThat(map.get("bar"), is("2"));
+
+        bytes[10] = 0;
+        map = ParseUtil.parseByteArrayToStringMap(bytes);
+        assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
+        assertThat(map.values(), containsInAnyOrder("1", ""));
+        assertThat(map.get("foo"), is("1"));
+        assertThat(map.get("bar"), is(""));
+
+        bytes = "foo=1 bar=2".getBytes();
+        bytes[5] = 0;
+        bytes[6] = 0;
+        map = ParseUtil.parseByteArrayToStringMap(bytes);
+        assertThat(map.keySet(), contains("foo"));
+        assertThat(map.values(), contains("1"));
+        assertThat(map.get("foo"), is("1"));
+
+        bytes[0] = 0;
+        map = ParseUtil.parseByteArrayToStringMap(bytes);
+        assertThat(map, anEmptyMap());
+
+        bytes = new byte[0];
+        map = ParseUtil.parseByteArrayToStringMap(bytes);
+        assertThat(map, anEmptyMap());
+    }
+
+    @Test
+    void parseCharArrayToStringMap() {
+        char[] chars = "foo=1 bar=2".toCharArray();
+        chars[5] = 0;
+        Map<String, String> map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
+        assertThat(map.values(), containsInAnyOrder("1", "2"));
+        assertThat(map.get("foo"), is("1"));
+        assertThat(map.get("bar"), is("2"));
+
+        chars[10] = 0;
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
+        assertThat(map.values(), containsInAnyOrder("1", ""));
+        assertThat(map.get("foo"), is("1"));
+        assertThat(map.get("bar"), is(""));
+
+        chars = "foo=1 bar=2".toCharArray();
+        chars[5] = 0;
+        chars[6] = 0;
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map.keySet(), contains("foo"));
+        assertThat(map.values(), contains("1"));
+        assertThat(map.get("foo"), is("1"));
+
+        chars[0] = 0;
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map, anEmptyMap());
+
+        chars = new char[0];
+        map = ParseUtil.parseCharArrayToStringMap(chars);
+        assertThat(map, anEmptyMap());
     }
 
     @Test

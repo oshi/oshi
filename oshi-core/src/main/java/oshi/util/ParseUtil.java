@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1322,8 +1323,113 @@ public final class ParseUtil {
     }
 
     /**
+     * Parse a null-delimited byte array to a list of strings.
+     *
+     * @param bytes
+     *            A byte array containing Strings delimited by null characters. Two
+     *            consecutive null characters mark the end of the list.
+     * @return A list of Strings between the nulls.
+     */
+    public static List<String> parseByteArrayToStrings(byte[] bytes) {
+        List<String> strList = new ArrayList<>();
+        int start = 0;
+        int end = 0;
+        // Iterate characters
+        do {
+            // If we've reached a delimiter or the end of the array, add to list
+            if (end == bytes.length || bytes[end] == 0) {
+                // Zero length string means two nulls, we're done
+                if (start == end) {
+                    break;
+                }
+                // Otherwise add string and reset start
+                // Intentionally using platform default charset
+                strList.add(new String(bytes, start, end - start));
+                start = end + 1;
+            }
+        } while (end++ < bytes.length);
+        return strList;
+    }
+
+    /**
+     * Parse a null-delimited byte array to a map of string keys and values.
+     *
+     * @param bytes
+     *            A byte array containing String key-value pairs with keys and
+     *            values delimited by {@code =} and pairs delimited by null
+     *            characters. Two consecutive null characters mark the end of the
+     *            map.
+     * @return A map of String key-value pairs between the nulls.
+     */
+    public static Map<String, String> parseByteArrayToStringMap(byte[] bytes) {
+        // API does not specify any particular order of entries, but it is reasonable to
+        // maintain whatever order the OS provided to the end user
+        Map<String, String> strMap = new LinkedHashMap<>();
+        int start = 0;
+        int end = 0;
+        String key = null;
+        // Iterate characters
+        do {
+            // If we've reached a delimiter or the end of the array, add to list
+            if (end == bytes.length || bytes[end] == 0) {
+                // Zero length string with no key, we're done
+                if (start == end && key == null) {
+                    break;
+                }
+                // Otherwise add string (possibly empty) and reset start
+                // Intentionally using platform default charset
+                strMap.put(key, new String(bytes, start, end - start));
+                key = null;
+                start = end + 1;
+            } else if (bytes[end] == '=' && key == null) {
+                key = new String(bytes, start, end - start);
+                start = end + 1;
+            }
+        } while (end++ < bytes.length);
+        return strMap;
+    }
+
+    /**
+     * Parse a null-delimited char array to a map of string keys and values.
+     *
+     * @param chars
+     *            A char array containing String key-value pairs with keys and
+     *            values delimited by {@code =} and pairs delimited by null
+     *            characters. Two consecutive null characters mark the end of the
+     *            map.
+     * @return A map of String key-value pairs between the nulls.
+     */
+    public static Map<String, String> parseCharArrayToStringMap(char[] chars) {
+        // API does not specify any particular order of entries, but it is reasonable to
+        // maintain whatever order the OS provided to the end user
+        Map<String, String> strMap = new LinkedHashMap<>();
+        int start = 0;
+        int end = 0;
+        String key = null;
+        // Iterate characters
+        do {
+            // If we've reached a delimiter or the end of the array, add to list
+            if (end == chars.length || chars[end] == 0) {
+                // Zero length string with no key, we're done
+                if (start == end && key == null) {
+                    break;
+                }
+                // Otherwise add string (possibly empty) and reset start
+                // Intentionally using platform default charset
+                strMap.put(key, new String(chars, start, end - start));
+                key = null;
+                start = end + 1;
+            } else if (chars[end] == '=' && key == null) {
+                key = new String(chars, start, end - start);
+                start = end + 1;
+            }
+        } while (end++ < chars.length);
+        return strMap;
+    }
+
+    /**
      * Parses a delimited String into an enum map. Multiple consecutive delimiters
-     * are treated as one
+     * are treated as one.
      *
      * @param <K>
      *            a type extending Enum
