@@ -42,10 +42,17 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Memory; // NOSONAR squid:S1191
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
+import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OperatingSystem;
+import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -200,79 +207,94 @@ public final class PsInfo {
                 }
                 // Now grab the elements we want
                 int argc = buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGC));
-                long argv = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ARGV))
-                        : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGV));
-                long envp = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ENVP))
-                        : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ENVP));
-                return new Triplet<>(argc, argv, envp);
+                // Must have at least one argc (the command itself) so failure here means exit
+                if (argc > 0) {
+                    long argv = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ARGV))
+                            : ParseUtil.unsignedIntToLong(buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGV)));
+                    long envp = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ENVP))
+                            : ParseUtil.unsignedIntToLong(buf.getInt(psInfoOffsets.get(PsInfoT.PR_ENVP)));
+                    return new Triplet<>(argc, argv, envp);
+                }
+                LOG.trace("No permission to read file: {} ", procpsinfo);
+                System.out.println("Not allowed to read " + procpsinfo);
             }
         } catch (IOException e) {
             LOG.debug("Failed to read file: {} ", procpsinfo);
+            System.out.println("Failed to read " + procpsinfo);
         }
         return null;
     }
 
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnvImproved(int pid) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
         // Get the arg count and list of env vars
         Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
         if (addrs != null) {
+            // Non-null addrs means argc > 0
             int argc = addrs.getA();
             long argv = addrs.getB();
             long envp = addrs.getC();
-
-            // Open a file descriptor to the address space
-            int fd = LIBC.open("/proc/" + pid + "/as", 0);
-            try {
-
+            // Sanity check: envp should follow argc pointers starting at argv plus a null
+            if (envp - argv != Native.POINTER_SIZE * (argc + 1)) {
+                System.out.println("Improved Sanity check OK!");
+            } else {
+                System.out.println("Improved Sanity check FAILED!");
+                return new Pair<>(args, env);
+            }
+            File procas = new File("/proc/" + pid + "/as");
+            try (RandomAccessFile as = new RandomAccessFile(procas, "r")) {
                 // Read the pointers to the arg strings
                 // We know argc so we can count them
                 long[] argp = new long[argc];
-                long offset = argv;
-                size_t nbyte = new size_t(Native.POINTER_SIZE);
-                Memory buf = new Memory(Native.POINTER_SIZE);
+                as.seek(argv);
                 for (int i = 0; i < argc; i++) {
-                    LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-                    argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
-                    offset += Native.POINTER_SIZE;
+                    if (Native.POINTER_SIZE == 8) {
+                        argp[i] = as.readLong();
+                    } else {
+                        argp[i] = ParseUtil.unsignedIntToLong(as.readInt());
+                    }
                 }
-
-                // Now read the strings at the pointers, character by character
-                size_t cbyte = new size_t(1);
-                Memory cbuf = new Memory(1);
-                for (int i = 0; i < argp.length; i++) {
+                // Now read the strings at the pointers
+                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
                     StringBuilder sb = new StringBuilder();
+                    as.seek(argp[i]);
                     long c = 0; // character offset
                     byte b = 0;
                     do {
-                        LIBC.pread(fd, cbuf, cbyte, new NativeLong(argp[i] + c++));
-                        b = cbuf.getByte(0);
+                        b = as.readByte();
                         if (b != 0) {
                             sb.append((char) b);
                         }
                     } while (b != 0 && c < 9999); // null terminated with sanity check
-                    args.add(sb.toString());
+                    if (sb.length() > 0) {
+                        args.add(sb.toString());
+                        System.out.println("arg[" + i + "] " + sb.toString());
+                    }
                 }
 
                 // Now read the pointers to the env strings
                 // We don't know how many, so stop when we get to null pointer
-                offset = envp;
+                long offset = 0;
                 long addr = 0;
                 do {
-                    LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-                    addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+                    as.seek(envp + offset);
+                    if (Native.POINTER_SIZE == 8) {
+                        addr = as.readLong();
+                    } else {
+                        addr = ParseUtil.unsignedIntToLong(as.readInt());
+                    }
                     // Non-null addr points to the env string. Read char by char into key and value
                     if (addr != 0) {
                         StringBuilder key = new StringBuilder();
                         StringBuilder value = new StringBuilder();
+                        as.seek(addr);
                         boolean rhs = false; // left and right of = delimiter
                         long c = 0; // character index
                         byte b = 0;
                         do {
-                            LIBC.pread(fd, cbuf, cbyte, new NativeLong(addr + c++));
-                            b = cbuf.getByte(0);
+                            b = as.readByte();
                             if (b != 0) {
                                 if (rhs) {
                                     value.append((char) b);
@@ -283,14 +305,167 @@ public final class PsInfo {
                                 }
                             }
                         } while (b != 0 && c < 9999); // null terminated with sanity check
-                        env.put(key.toString(), value.toString());
+                        if (key.length() > 0 && value.length() > 0) {
+                            env.put(key.toString(), value.toString());
+                            System.out.println("env[" + offset / Native.POINTER_SIZE + "] " + key.toString() + "="
+                                    + value.toString());
+                        }
                     }
                     offset += Native.POINTER_SIZE;
-                } while (addr != 0);
+                } while (addr != 0 && offset < Native.POINTER_SIZE * 400);
+            } catch (IOException e) {
+                LOG.debug("Failed to read file: {} ", procas);
+                System.out.println("    Failed to read " + procas);
+            }
+        }
+        return new Pair<>(args, env);
+    }
+
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid) {
+        List<String> args = new ArrayList<>();
+        Map<String, String> env = new LinkedHashMap<>();
+
+        // Get the arg count and list of env vars
+        Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
+        if (addrs != null) {
+            // Non-null addrs means argc > 0
+            int argc = addrs.getA();
+            long argv = addrs.getB();
+            long envp = addrs.getC();
+            // Sanity check: envp should follow argc pointers starting at argv plus a null
+            if (envp - argv != Native.POINTER_SIZE * (argc + 1)) {
+                System.out.println("  Sanity check OK!");
+            } else {
+                System.out.println("  Sanity check FAILED!");
+                return new Pair<>(args, env);
+            }
+            // Open a file descriptor to the address space
+            int fd = LIBC.open("/proc/" + pid + "/as", 0);
+            if (fd < 0) {
+                System.out.println("    Failed to open address space!");
+                return new Pair<>(args, env);
+            }
+            try {
+                // Read the pointers to the arg strings
+                // We know argc so we can count them
+                long[] argp = new long[argc];
+                long offset = argv;
+                ssize_t result;
+                size_t nbyte = new size_t(Native.POINTER_SIZE);
+                Memory buf = new Memory(Native.POINTER_SIZE);
+                for (int i = 0; i < argc; i++) {
+                    if (Native.POINTER_SIZE == 8) {
+                        result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+                    } else {
+                        result = LIBC.pread(fd, buf, nbyte, new NativeLong((int) (offset & 0xFFFFFFFFL)));
+                    }
+                    if (result.intValue() == Native.POINTER_SIZE) {
+                        argp[i] = Pointer.nativeValue(buf.getPointer(0));
+                    }
+                    offset += Native.POINTER_SIZE;
+                }
+
+                // Now read the strings at the pointers, character by character
+                size_t cbyte = new size_t(1);
+                Memory cbuf = new Memory(1);
+                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
+                    StringBuilder sb = new StringBuilder();
+                    long c = 0; // character offset
+                    byte b = 0;
+                    do {
+                        offset = argp[i] + c++;
+                        if (Native.POINTER_SIZE == 8) {
+                            result = LIBC.pread(fd, cbuf, cbyte, new NativeLong(offset));
+                        } else {
+                            result = LIBC.pread(fd, cbuf, cbyte, new NativeLong((int) (offset & 0xFFFFFFFFL)));
+                        }
+                        if (result.intValue() == 1) {
+                            b = cbuf.getByte(0);
+                        } else {
+                            b = 0;
+                        }
+                        if (b != 0) {
+                            sb.append((char) b);
+                        }
+                    } while (b != 0 && c < 9999); // null terminated with sanity check
+                    if (sb.length() > 0) {
+                        args.add(sb.toString());
+                        System.out.println("arg[" + i + "] " + sb.toString());
+                    }
+                }
+
+                // Now read the pointers to the env strings
+                // We don't know how many, so stop when we get to null pointer
+                offset = envp;
+                long addr = 0;
+                do {
+                    if (Native.POINTER_SIZE == 8) {
+                        result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+                    } else {
+                        result = LIBC.pread(fd, cbuf, cbyte, new NativeLong((int) (offset & 0xFFFFFFFFL)));
+                    }
+                    if (result.intValue() == Native.POINTER_SIZE) {
+                        addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+                    } else {
+                        addr = 0;
+                    }
+                    // Non-null addr points to the env string. Read char by char into key and value
+                    if (addr != 0) {
+                        StringBuilder key = new StringBuilder();
+                        StringBuilder value = new StringBuilder();
+                        boolean rhs = false; // left and right of = delimiter
+                        long c = 0; // character index
+                        byte b = 0;
+                        do {
+                            if (Native.POINTER_SIZE == 8) {
+                                result = LIBC.pread(fd, cbuf, cbyte, new NativeLong(addr + c++));
+                            } else {
+                                result = LIBC.pread(fd, cbuf, cbyte,
+                                        new NativeLong((int) ((addr + c++) & 0xFFFFFFFFL)));
+                            }
+                            if (result.intValue() == 1) {
+                                b = cbuf.getByte(0);
+                            } else {
+                                b = 0;
+                            }
+                            if (b != 0) {
+                                if (rhs) {
+                                    value.append((char) b);
+                                } else if (b == '=') {
+                                    rhs = true;
+                                } else {
+                                    key.append((char) b);
+                                }
+                            }
+                        } while (b != 0 && c < 9999); // null terminated with sanity check
+                        if (key.length() > 0 && value.length() > 0) {
+                            env.put(key.toString(), value.toString());
+                            System.out.println("env[" + offset / Native.POINTER_SIZE + "] " + key.toString() + "="
+                                    + value.toString());
+                        }
+                    }
+                    offset += Native.POINTER_SIZE;
+                } while (addr != 0 && offset - envp < 80000);
             } finally {
                 LIBC.close(fd);
             }
         }
         return new Pair<>(args, env);
+    }
+
+    /**
+     * Temporary code to produce debug output
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        SystemInfo si = new SystemInfo();
+        OperatingSystem os = si.getOperatingSystem();
+        for (OSProcess p : os.getProcesses()) {
+            System.out.println("Pid=" + p.getProcessID() + " " + p.getName() + " ( " + p.getUser() + " )");
+            queryArgsEnv(p.getProcessID());
+            queryArgsEnvImproved(p.getProcessID());
+            Util.sleep(5000);
+        }
     }
 }
