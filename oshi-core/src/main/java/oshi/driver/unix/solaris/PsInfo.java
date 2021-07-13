@@ -219,11 +219,9 @@ public final class PsInfo {
                     return new Triplet<>(argc, argv, envp);
                 }
                 LOG.trace("No permission to read file: {} ", procpsinfo);
-                System.out.println("Not allowed to read " + procpsinfo);
             }
         } catch (IOException e) {
             LOG.debug("Failed to read file: {} ", procpsinfo);
-            System.out.println("Failed to read " + procpsinfo);
         }
         return null;
     }
@@ -236,8 +234,10 @@ public final class PsInfo {
         Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
         if (addrs != null) {
             // Open a file descriptor to the address space
-            int fd = LIBC.open("/proc/" + pid + "/as", 0);
+            String procas = "/proc/" + pid + "/as";
+            int fd = LIBC.open(procas, 0);
             if (fd < 0) {
+                LOG.trace("No permission to read file: {} ", procas);
                 return new Pair<>(args, env);
             }
             try {
@@ -263,19 +263,27 @@ public final class PsInfo {
                 }
 
                 // Read the page of memory the data lives in plus the next one
-                size_t twoPageSize = new size_t(PAGE_SIZE * 2);
-                Memory currentAndNextPage = new Memory(PAGE_SIZE * 2);
+                size_t pageSize = new size_t(PAGE_SIZE);
+                // Add an extra null byte for a protective null
+                Memory currentPage = new Memory(PAGE_SIZE + 1);
+                currentPage.setByte(PAGE_SIZE, (byte) 0);
                 long pageStart = 0;
                 // Now read the strings at the pointers from the page
                 for (int i = 0; i < argp.length && argp[i] != 0; i++) {
                     // Read the page if it's not the right one
                     if (argp[i] < pageStart || argp[i] - pageStart > PAGE_SIZE) {
                         pageStart = Math.floorDiv(argp[i], PAGE_SIZE) * PAGE_SIZE;
-                        result = LIBC.pread(fd, currentAndNextPage, twoPageSize, new NativeLong(pageStart));
-                        if (result.longValue() != PAGE_SIZE * 2) {
+                        result = LIBC.pread(fd, currentPage, pageSize, new NativeLong(pageStart));
+                        if (result.longValue() != PAGE_SIZE) {
+                            LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
                             return new Pair<>(args, env);
                         }
-                        args.add(currentAndNextPage.getString(argp[i] - pageStart));
+                        String argStr = currentPage.getString(argp[i] - pageStart);
+                        // Check if we hit the end of the page
+                        if (argp[i] + argStr.length() == PAGE_SIZE) {
+                            argStr = readCharByChar(fd, argp[i]);
+                        }
+                        args.add(argStr);
                     }
                 }
                 // Now read the pointers to the env strings
@@ -294,12 +302,17 @@ public final class PsInfo {
                     if (addr != 0) {
                         if (addr < pageStart || addr - pageStart > PAGE_SIZE) {
                             pageStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;
-                            result = LIBC.pread(fd, currentAndNextPage, twoPageSize, new NativeLong(pageStart));
-                            if (result.longValue() != PAGE_SIZE * 2) {
+                            result = LIBC.pread(fd, currentPage, pageSize, new NativeLong(pageStart));
+                            if (result.longValue() != PAGE_SIZE) {
+                                LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
                                 return new Pair<>(args, env);
                             }
                         }
-                        String envStr = currentAndNextPage.getString(addr - pageStart);
+                        String envStr = currentPage.getString(addr - pageStart);
+                        // Check if we hit the end of the page
+                        if (addr + envStr.length() == PAGE_SIZE) {
+                            envStr = readCharByChar(fd, addr);
+                        }
                         int idx = envStr.indexOf('=');
                         if (idx > 0) {
                             env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
@@ -314,110 +327,36 @@ public final class PsInfo {
         return new Pair<>(args, env);
     }
 
-    public static Pair<List<String>, Map<String, String>> queryArgsEnvOriginal(int pid) {
-        List<String> args = new ArrayList<>();
-        Map<String, String> env = new LinkedHashMap<>();
-
-        // Get the arg count and list of env vars
-        Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
-        if (addrs != null) {
-            // Open a file descriptor to the address space
-            int fd = LIBC.open("/proc/" + pid + "/as", 0);
-            if (fd < 0) {
-                return new Pair<>(args, env);
+    /**
+     * In the rare edge case that a string crosses the end of a page boundary we
+     * just read it byte by byte
+     *
+     * @param fd
+     *            The file descriptor
+     * @param addr
+     *            The offset to begin reading at
+     * @return The null delimited string
+     */
+    private static String readCharByChar(int fd, long addr) {
+        size_t oneByte = new size_t(1);
+        Memory buf = new Memory(1);
+        StringBuilder sb = new StringBuilder();
+        long c = 0; // character offset
+        byte b = 0;
+        ssize_t result;
+        do {
+            addr = addr + c++;
+            result = LIBC.pread(fd, buf, oneByte, new NativeLong(addr));
+            if (result.intValue() == 1) {
+                b = buf.getByte(0);
+            } else {
+                b = 0;
             }
-            try {
-                // Non-null addrs means argc > 0
-                int argc = addrs.getA();
-                long argv = addrs.getB();
-                long envp = addrs.getC();
-
-                // Read the pointers to the arg strings
-                // We know argc so we can count them
-                long[] argp = new long[argc];
-                long offset = argv;
-
-                ssize_t result;
-                size_t nbyte = new size_t(Native.POINTER_SIZE);
-                Memory buf = new Memory(Native.POINTER_SIZE);
-                for (int i = 0; i < argc; i++) {
-                    result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-                    if (result.intValue() == Native.POINTER_SIZE) {
-                        argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
-                    }
-                    offset += Native.POINTER_SIZE;
-                }
-
-                // Now read the strings at the pointers, character by character
-                size_t cbyte = new size_t(1);
-                Memory cbuf = new Memory(1);
-                long addr = 0;
-                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
-                    StringBuilder sb = new StringBuilder();
-                    long c = 0; // character offset
-                    byte b = 0;
-                    do {
-                        addr = argp[i] + c++;
-                        result = LIBC.pread(fd, cbuf, cbyte, new NativeLong(addr));
-                        if (result.intValue() == 1) {
-                            b = cbuf.getByte(0);
-                        } else {
-                            b = 0;
-                        }
-                        if (b != 0) {
-                            sb.append((char) b);
-                        }
-                    } while (b != 0 && c < 9999); // null terminated with sanity check
-                    if (sb.length() > 0) {
-                        args.add(sb.toString());
-                    }
-                }
-
-                // Now read the pointers to the env strings
-                // We don't know how many, so stop when we get to null pointer
-                offset = envp;
-                do {
-                    result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-                    if (result.intValue() == Native.POINTER_SIZE) {
-                        addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
-                    } else {
-                        addr = 0;
-                    }
-                    // Non-null addr points to the env string. Read char by char into key and value
-                    if (addr != 0) {
-                        StringBuilder key = new StringBuilder();
-                        StringBuilder value = new StringBuilder();
-                        boolean rhs = false; // left and right of = delimiter
-                        long c = 0; // character index
-                        byte b = 0;
-                        do {
-                            result = LIBC.pread(fd, cbuf, cbyte, new NativeLong(addr + c++));
-                            if (result.intValue() == 1) {
-                                b = cbuf.getByte(0);
-                            } else {
-                                b = 0;
-                            }
-                            if (b != 0) {
-                                if (rhs) {
-                                    value.append((char) b);
-                                } else if (b == '=') {
-                                    rhs = true;
-                                } else {
-                                    key.append((char) b);
-                                }
-                            }
-                        } while (b != 0 && c < 9999); // null terminated with sanity check
-                        if (key.length() > 0 && value.length() >= 0) {
-                            env.put(key.toString(), value.toString());
-                        }
-                    }
-                    offset += Native.POINTER_SIZE;
-                } while (addr != 0 && offset - envp < 80_000);
-            } finally {
-                LIBC.close(fd);
+            if (b != 0) {
+                sb.append((char) b);
             }
-        }
-        return new Pair<>(args, env);
+        } while (b != 0 && c < 9999); // null terminated with sanity check
+        return sb.toString();
     }
 
     /**
