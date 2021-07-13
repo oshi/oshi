@@ -50,6 +50,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -64,6 +66,9 @@ public final class PsInfo {
     private static final boolean IS_LITTLE_ENDIAN = "little".equals(System.getProperty("sun.cpu.endian"));
 
     private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
+
+    private static final long PAGE_SIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"),
+            4096L);
 
     enum LwpsInfoT {
         PR_FLAG(4), // lwp flags (DEPRECATED: see below)
@@ -233,7 +238,6 @@ public final class PsInfo {
             // Open a file descriptor to the address space
             int fd = LIBC.open("/proc/" + pid + "/as", 0);
             if (fd < 0) {
-                System.out.println("    Failed to open address space!");
                 return new Pair<>(args, env);
             }
             try {
@@ -246,6 +250,93 @@ public final class PsInfo {
                 // We know argc so we can count them
                 long[] argp = new long[argc];
                 long offset = argv;
+
+                ssize_t result;
+                size_t nbyte = new size_t(Native.POINTER_SIZE);
+                Memory buf = new Memory(Native.POINTER_SIZE);
+                for (int i = 0; i < argc; i++) {
+                    result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+                    if (result.intValue() == Native.POINTER_SIZE) {
+                        argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+                    }
+                    offset += Native.POINTER_SIZE;
+                }
+
+                // Read the page of memory the data lives in plus the next one
+                size_t twoPageSize = new size_t(PAGE_SIZE * 2);
+                Memory currentAndNextPage = new Memory(PAGE_SIZE * 2);
+                long pageStart = 0;
+                // Now read the strings at the pointers from the page
+                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
+                    // Read the page if it's not the right one
+                    if (argp[i] < pageStart || argp[i] - pageStart > PAGE_SIZE) {
+                        pageStart = Math.floorDiv(argp[i], PAGE_SIZE) * PAGE_SIZE;
+                        result = LIBC.pread(fd, currentAndNextPage, twoPageSize, new NativeLong(pageStart));
+                        if (result.longValue() != PAGE_SIZE * 2) {
+                            return new Pair<>(args, env);
+                        }
+                        args.add(currentAndNextPage.getString(argp[i] - pageStart));
+                    }
+                }
+                // Now read the pointers to the env strings
+                // We don't know how many, so stop when we get to null pointer
+                offset = envp;
+                long addr = 0;
+                do {
+                    result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
+                    if (result.intValue() == Native.POINTER_SIZE) {
+                        addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
+                    } else {
+                        addr = 0;
+                    }
+                    // Non-null addr points to the env string.
+                    // Now read from the same page we used for args
+                    if (addr != 0) {
+                        if (addr < pageStart || addr - pageStart > PAGE_SIZE) {
+                            pageStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;
+                            result = LIBC.pread(fd, currentAndNextPage, twoPageSize, new NativeLong(pageStart));
+                            if (result.longValue() != PAGE_SIZE * 2) {
+                                return new Pair<>(args, env);
+                            }
+                        }
+                        String envStr = currentAndNextPage.getString(addr - pageStart);
+                        int idx = envStr.indexOf('=');
+                        if (idx > 0) {
+                            env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                        }
+                    }
+                    offset += Native.POINTER_SIZE;
+                } while (addr != 0 && offset - envp < 80_000);
+            } finally {
+                LIBC.close(fd);
+            }
+        }
+        return new Pair<>(args, env);
+    }
+
+    public static Pair<List<String>, Map<String, String>> queryArgsEnvOriginal(int pid) {
+        List<String> args = new ArrayList<>();
+        Map<String, String> env = new LinkedHashMap<>();
+
+        // Get the arg count and list of env vars
+        Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid);
+        if (addrs != null) {
+            // Open a file descriptor to the address space
+            int fd = LIBC.open("/proc/" + pid + "/as", 0);
+            if (fd < 0) {
+                return new Pair<>(args, env);
+            }
+            try {
+                // Non-null addrs means argc > 0
+                int argc = addrs.getA();
+                long argv = addrs.getB();
+                long envp = addrs.getC();
+
+                // Read the pointers to the arg strings
+                // We know argc so we can count them
+                long[] argp = new long[argc];
+                long offset = argv;
+
                 ssize_t result;
                 size_t nbyte = new size_t(Native.POINTER_SIZE);
                 Memory buf = new Memory(Native.POINTER_SIZE);
@@ -279,7 +370,6 @@ public final class PsInfo {
                     } while (b != 0 && c < 9999); // null terminated with sanity check
                     if (sb.length() > 0) {
                         args.add(sb.toString());
-                        System.out.println("    arg[" + i + "] " + sb.toString());
                     }
                 }
 
@@ -319,14 +409,6 @@ public final class PsInfo {
                         } while (b != 0 && c < 9999); // null terminated with sanity check
                         if (key.length() > 0 && value.length() >= 0) {
                             env.put(key.toString(), value.toString());
-                            System.out.println("      env[" + (offset - envp) / Native.POINTER_SIZE + "] "
-                                    + key.toString() + "=" + value.toString());
-                            ////////
-                            Memory bigbuf = new Memory(4092);
-                            size_t big = new size_t(4092);
-                            result = LIBC.pread(fd, bigbuf, big, new NativeLong(addr));
-                            System.out.println("      --> " + bigbuf.getString(0));
-                            ////////
                         }
                     }
                     offset += Native.POINTER_SIZE;
@@ -348,9 +430,12 @@ public final class PsInfo {
         OperatingSystem os = si.getOperatingSystem();
         for (OSProcess p : os.getProcesses()) {
             System.out.println(p.getProcessID() + " ( " + p.getUser() + " ): " + p.getName());
-            queryArgsEnv(p.getProcessID());
-            Util.sleep(5000);
-            System.out.println();
+            Pair<List<String>, Map<String, String>> results = queryArgsEnv(p.getProcessID());
+            if (!results.getA().isEmpty() || !results.getB().isEmpty()) {
+                System.out.println("   " + results.getA().toString());
+                System.out.println("   " + results.getB().toString());
+                Util.sleep(5000);
+            }
         }
     }
 }
