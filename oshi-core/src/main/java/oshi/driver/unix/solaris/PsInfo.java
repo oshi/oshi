@@ -45,14 +45,10 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
-import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.solaris.SolarisLibc;
-import oshi.software.os.OSProcess;
-import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
@@ -235,6 +231,14 @@ public final class PsInfo {
         return null;
     }
 
+    /**
+     * Read the argument and environment strings from process address space
+     *
+     * @param pid
+     *            the process id
+     * @return A pair containing a list of the arguments and a map of environment
+     *         variables
+     */
     public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
@@ -350,24 +354,5 @@ public final class PsInfo {
 
     private static long getOffsetFromBuffer(Memory buffer, long offset, long increment) {
         return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);
-    }
-
-    /**
-     * Temporary code to produce debug output
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
-        for (OSProcess p : os.getProcesses()) {
-            System.out.println(p.getProcessID() + " ( " + p.getUser() + " ): " + p.getName());
-            Pair<List<String>, Map<String, String>> results = queryArgsEnv(p.getProcessID());
-            if (!results.getA().isEmpty() || !results.getB().isEmpty()) {
-                System.out.println("   " + results.getA().toString());
-                System.out.println("   " + results.getB().toString());
-                Util.sleep(5000);
-            }
-        }
     }
 }
