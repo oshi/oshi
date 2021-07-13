@@ -246,80 +246,58 @@ public final class PsInfo {
                 long argv = addrs.getB();
                 long envp = addrs.getC();
 
+                // Reusable buffer
+                long bufStart = 0;
+                Memory buffer = new Memory(PAGE_SIZE * 2);
+                size_t bufSize = new size_t(buffer.size());
+
                 // Read the pointers to the arg strings
                 // We know argc so we can count them
                 long[] argp = new long[argc];
                 long offset = argv;
-
-                ssize_t result;
-                size_t nbyte = new size_t(Native.POINTER_SIZE);
-                Memory buf = new Memory(Native.POINTER_SIZE);
                 for (int i = 0; i < argc; i++) {
-                    result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-                    if (result.intValue() == Native.POINTER_SIZE) {
-                        argp[i] = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
-                    }
+                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
+                    argp[i] = bufStart == 0 ? 0 : getPointerFromBuffer(buffer, offset - bufStart);
                     offset += Native.POINTER_SIZE;
                 }
 
-                // Read the page of memory the data lives in plus the next one
-                size_t pageSize = new size_t(PAGE_SIZE);
-                // Add an extra null byte for a protective null
-                Memory currentPage = new Memory(PAGE_SIZE + 1);
-                currentPage.setByte(PAGE_SIZE, (byte) 0);
-                long pageStart = 0;
-                // Now read the strings at the pointers from the page
-                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
-                    // Read the page if it's not the right one
-                    if (argp[i] < pageStart || argp[i] - pageStart > PAGE_SIZE) {
-                        pageStart = Math.floorDiv(argp[i], PAGE_SIZE) * PAGE_SIZE;
-                        result = LIBC.pread(fd, currentPage, pageSize, new NativeLong(pageStart));
-                        if (result.longValue() != PAGE_SIZE) {
-                            LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
-                            return new Pair<>(args, env);
-                        }
-                        String argStr = currentPage.getString(argp[i] - pageStart);
-                        // Check if we hit the end of the page
-                        if (argp[i] + argStr.length() == PAGE_SIZE) {
-                            argStr = readCharByChar(fd, argp[i]);
-                        }
-                        args.add(argStr);
-                    }
-                }
-                // Now read the pointers to the env strings
+                // Also read the pointers to the env strings
                 // We don't know how many, so stop when we get to null pointer
+                List<Long> envPtrList = new ArrayList<>();
                 offset = envp;
                 long addr = 0;
+                int limit = 500; // sane max env strings to stop at
                 do {
-                    result = LIBC.pread(fd, buf, nbyte, new NativeLong(offset));
-                    if (result.intValue() == Native.POINTER_SIZE) {
-                        addr = Native.POINTER_SIZE == 8 ? buf.getLong(0) : buf.getInt(0);
-                    } else {
-                        addr = 0;
-                    }
-                    // Non-null addr points to the env string.
-                    // Now read from the same page we used for args
+                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
+                    addr = bufStart == 0 ? 0 : getPointerFromBuffer(buffer, offset - bufStart);
                     if (addr != 0) {
-                        if (addr < pageStart || addr - pageStart > PAGE_SIZE) {
-                            pageStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;
-                            result = LIBC.pread(fd, currentPage, pageSize, new NativeLong(pageStart));
-                            if (result.longValue() != PAGE_SIZE) {
-                                LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
-                                return new Pair<>(args, env);
-                            }
+                        envPtrList.add(addr);
+                    }
+                    offset += Native.POINTER_SIZE;
+                } while (addr != 0 && --limit > 0);
+
+                // Now read the arg strings from the buffer
+                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
+                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);
+                    if (bufStart != 0) {
+                        String argStr = buffer.getString(argp[i] - bufStart);
+                        if (!argStr.isEmpty()) {
+                            args.add(argStr);
                         }
-                        String envStr = currentPage.getString(addr - pageStart);
-                        // Check if we hit the end of the page
-                        if (addr + envStr.length() == PAGE_SIZE) {
-                            envStr = readCharByChar(fd, addr);
-                        }
+                    }
+                }
+
+                // And now read the env strings from the buffer
+                for (Long envPtr : envPtrList) {
+                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);
+                    if (bufStart != 0) {
+                        String envStr = buffer.getString(envPtr - bufStart);
                         int idx = envStr.indexOf('=');
                         if (idx > 0) {
                             env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
                         }
                     }
-                    offset += Native.POINTER_SIZE;
-                } while (addr != 0 && offset - envp < 80_000);
+                }
             } finally {
                 LIBC.close(fd);
             }
@@ -328,35 +306,40 @@ public final class PsInfo {
     }
 
     /**
-     * In the rare edge case that a string crosses the end of a page boundary we
-     * just read it byte by byte
+     * Reads the page containing addr into buffer, unless the buffer already
+     * contains that page (as indicated by the bufStart address), in which case
+     * nothing is changed.
      *
      * @param fd
-     *            The file descriptor
+     *            The file descriptor for the address space
+     * @param buffer
+     *            An allocated buffer, possibly with data reread from bufStart
+     * @param bufSize
+     *            The size of the buffer
+     * @param bufStart
+     *            The start of data currently in bufStart, or 0 if uninitialized
      * @param addr
-     *            The offset to begin reading at
-     * @return The null delimited string
+     *            THe address whose page to read into the buffer
+     * @return The new starting pointer for the buffer
      */
-    private static String readCharByChar(int fd, long addr) {
-        size_t oneByte = new size_t(1);
-        Memory buf = new Memory(1);
-        StringBuilder sb = new StringBuilder();
-        long c = 0; // character offset
-        byte b = 0;
-        ssize_t result;
-        do {
-            addr = addr + c++;
-            result = LIBC.pread(fd, buf, oneByte, new NativeLong(addr));
-            if (result.intValue() == 1) {
-                b = buf.getByte(0);
-            } else {
-                b = 0;
+    private static long conditionallyReadBufferFromStartOfPage(int fd, Memory buffer, size_t bufSize, long bufStart,
+            long addr) {
+        // If we don't have the right buffer, update it
+        if (addr < bufStart || addr - bufStart > PAGE_SIZE) {
+            long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;
+            ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));
+            // May return less than asked but should be at least a full page
+            if (result.longValue() < PAGE_SIZE) {
+                LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
+                return 0;
             }
-            if (b != 0) {
-                sb.append((char) b);
-            }
-        } while (b != 0 && c < 9999); // null terminated with sanity check
-        return sb.toString();
+            return newStart;
+        }
+        return bufStart;
+    }
+
+    private static long getPointerFromBuffer(Memory buffer, long offset) {
+        return Native.POINTER_SIZE == 8 ? buffer.getLong(offset) : buffer.getInt(offset);
     }
 
     /**
