@@ -85,8 +85,26 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
-        if (getCurrentPlatform().equals(PlatformEnum.UNKNOWN)) {
+        if (!isKnownPlatform()) {
             throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+        }
+    }
+
+    private boolean isKnownPlatform() {
+        if (Platform.isWindows()) {
+            return true;
+        } else if (Platform.isLinux()) {
+            return true;
+        } else if (Platform.isMac()) {
+            return true;
+        } else if (Platform.isSolaris()) {
+            return true;
+        } else if (Platform.isFreeBSD()) {
+            return true;
+        } else if (Platform.isAIX()) {
+            return true;
+        } else {
+            return Platform.isOpenBSD();
         }
     }
 
