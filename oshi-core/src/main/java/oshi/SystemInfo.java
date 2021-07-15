@@ -66,25 +66,25 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static final PlatformEnum currentPlatform = queryCurrentPlatform();
+    private static final PlatformEnum currentPlatform;
 
-    private static PlatformEnum queryCurrentPlatform() {
+    static {
         if (Platform.isWindows()) {
-            return WINDOWS;
+            currentPlatform = WINDOWS;
         } else if (Platform.isLinux()) {
-            return LINUX;
+            currentPlatform = LINUX;
         } else if (Platform.isMac()) {
-            return MACOS;
+            currentPlatform = MACOS;
         } else if (Platform.isSolaris()) {
-            return SOLARIS;
+            currentPlatform = SOLARIS;
         } else if (Platform.isFreeBSD()) {
-            return FREEBSD;
+            currentPlatform = FREEBSD;
         } else if (Platform.isAIX()) {
-            return AIX;
+            currentPlatform = AIX;
         } else if (Platform.isOpenBSD()) {
-            return OPENBSD;
+            currentPlatform = OPENBSD;
         } else {
-            return UNKNOWN;
+            currentPlatform = UNKNOWN;
         }
     }
 
@@ -105,8 +105,26 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
-        if (getCurrentPlatform().equals(PlatformEnum.UNKNOWN)) {
+        if (!isKnownPlatform()) {
             throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+        }
+    }
+
+    private boolean isKnownPlatform() {
+        if (Platform.isWindows()) {
+            return true;
+        } else if (Platform.isLinux()) {
+            return true;
+        } else if (Platform.isMac()) {
+            return true;
+        } else if (Platform.isSolaris()) {
+            return true;
+        } else if (Platform.isFreeBSD()) {
+            return true;
+        } else if (Platform.isAIX()) {
+            return true;
+        } else {
+            return Platform.isOpenBSD();
         }
     }
 
