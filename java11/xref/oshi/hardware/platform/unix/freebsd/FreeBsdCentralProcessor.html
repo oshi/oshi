@@ -281,7 +281,7 @@
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>         <em class="jxr_comment">// Fetch</em>
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">if</strong> (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, <strong class="jxr_keyword">new</strong> <a name="NativeSizeTByReference" href="../../../../../oshi/jna/platform/unix/NativeSizeTByReference.html#NativeSizeTByReference">NativeSizeTByReference</a>(<strong class="jxr_keyword">new</strong> size_t(arraySize)), <strong class="jxr_keyword">null</strong>,
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>                 size_t.ZERO)) {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>             LOG.error(<span class="jxr_string">"Failed syctl call: {}, Error code: {}"</span>, name, Native.getLastError());
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             LOG.error(<span class="jxr_string">"Failed sysctl call: {}, Error code: {}"</span>, name, Native.getLastError());
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>             <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>         <em class="jxr_comment">// p now points to the data; need to copy each element</em>
