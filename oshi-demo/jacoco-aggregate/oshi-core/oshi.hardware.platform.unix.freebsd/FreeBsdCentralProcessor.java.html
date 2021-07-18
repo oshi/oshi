@@ -273,7 +273,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
         // Fetch
 <span class="nc bnc" id="L274" title="All 2 branches missed.">        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, new NativeSizeTByReference(new size_t(arraySize)), null,</span>
                 size_t.ZERO)) {
-<span class="nc" id="L276">            LOG.error(&quot;Failed syctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
+<span class="nc" id="L276">            LOG.error(&quot;Failed sysctl call: {}, Error code: {}&quot;, name, Native.getLastError());</span>
 <span class="nc" id="L277">            return ticks;</span>
         }
         // p now points to the data; need to copy each element
