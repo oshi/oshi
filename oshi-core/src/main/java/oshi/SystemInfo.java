@@ -105,6 +105,9 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
+        // Intentionally empty, here to enable the constructor javadoc.
+        // Trying to access the static currentPlatform variable for OS check caused
+        // unexplained problems with initialization.
     }
 
     /**
