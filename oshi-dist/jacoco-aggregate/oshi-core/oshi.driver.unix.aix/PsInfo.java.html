@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PsInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.unix.aix</a> &gt; <span class="el_source">PsInfo.java</span></div><h1>PsInfo.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.unix.aix;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
+import com.sun.jna.platform.unix.LibCAPI.ssize_t;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.aix.AixLibc;
+import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
+
+/**
+ * Utility to query /proc/psinfo
+ */
+@ThreadSafe
+public final class PsInfo {
+<span class="nc" id="L57">    private static final Logger LOG = LoggerFactory.getLogger(PsInfo.class);</span>
+
+<span class="nc" id="L59">    private static final AixLibc LIBC = AixLibc.INSTANCE;</span>
+
+    // AIX has multiple page size units, but for purposes of &quot;pages&quot; in perfstat,
+    // the docs specify 4KB pages so we hardcode this
+    private static final long PAGE_SIZE = 4096L;
+
+<span class="nc" id="L65">    enum LwpsInfoT {</span>
+<span class="nc" id="L66">        PR_LWPID(8), // thread id</span>
+<span class="nc" id="L67">        PR_ADDR(8), // internal address of thread</span>
+<span class="nc" id="L68">        PR_WCHAN(8), // wait addr for sleeping thread</span>
+<span class="nc" id="L69">        PR_FLAG(4), // thread flags</span>
+<span class="nc" id="L70">        PR_WTYPE(1), // type of thread wait</span>
+<span class="nc" id="L71">        PR_STATE(1), // numeric scheduling state</span>
+<span class="nc" id="L72">        PR_SNAME(1), // printable character representing pr_state</span>
+<span class="nc" id="L73">        PR_NICE(1), // nice for cpu usage</span>
+<span class="nc" id="L74">        PR_PRI(4), // priority, high value = high priority</span>
+<span class="nc" id="L75">        PR_POLICY(4), // scheduling policy</span>
+<span class="nc" id="L76">        PR_CLNAME(8), // printable character representing pr_policy</span>
+<span class="nc" id="L77">        PR_ONPRO(Native.POINTER_SIZE), // processor on which thread last ran</span>
+<span class="nc" id="L78">        PR_BINDPRO(Native.POINTER_SIZE), // processor to which thread is bound</span>
+<span class="nc" id="L79">        SIZE(0);</span>
+
+        private int size;
+
+<span class="nc" id="L83">        LwpsInfoT(int bytes) {</span>
+<span class="nc" id="L84">            size = bytes;</span>
+<span class="nc" id="L85">        }</span>
+
+        public int size() {
+<span class="nc" id="L88">            return size;</span>
+        }
+    }
+
+<span class="nc" id="L92">    private static Map&lt;LwpsInfoT, Integer&gt; lwpsInfoOffsets = initLwpsOffsets();</span>
+
+<span class="nc" id="L94">    enum PsInfoT {</span>
+<span class="nc" id="L95">        PR_FLAG(4), // process flags from proc struct p_flag</span>
+<span class="nc" id="L96">        PR_FLAG2(4), // process flags from proc struct p_flag2 *</span>
+<span class="nc" id="L97">        PR_NLWP(4), // number of threads in process</span>
+<span class="nc" id="L98">        PR_PAD1(4), // reserved for future use</span>
+<span class="nc" id="L99">        PR_UID(8), // real user id</span>
+<span class="nc" id="L100">        PR_EUID(8), // effective user id</span>
+<span class="nc" id="L101">        PR_GID(8), // real group id</span>
+<span class="nc" id="L102">        PR_EGID(8), // effective group id</span>
+<span class="nc" id="L103">        PR_PID(8), // unique process id</span>
+<span class="nc" id="L104">        PR_PPID(8), // process id of parent</span>
+<span class="nc" id="L105">        PR_PGID(8), // pid of process group leader</span>
+<span class="nc" id="L106">        PR_SID(8), // session id</span>
+<span class="nc" id="L107">        PR_TTYDEV(8), // controlling tty device</span>
+<span class="nc" id="L108">        PR_ADDR(8), // internal address of proc struct</span>
+<span class="nc" id="L109">        PR_SIZE(8), // process image size in kb (1024) units</span>
+<span class="nc" id="L110">        PR_RSSIZE(8), // resident set size in kb (1024) units</span>
+<span class="nc" id="L111">        PR_START(16), // process start time, time since epoch</span>
+<span class="nc" id="L112">        PR_TIME(16), // usr+sys cpu time for this process</span>
+<span class="nc" id="L113">        PR_CID(2), // corral id</span>
+<span class="nc" id="L114">        PR_PAD2(2), // reserved for future use</span>
+<span class="nc" id="L115">        PR_ARGC(4), // initial argument count</span>
+<span class="nc" id="L116">        PR_ARGV(8), // address of initial argument vector in user process</span>
+<span class="nc" id="L117">        PR_ENVP(8), // address of initial environment vector in user process</span>
+<span class="nc" id="L118">        PR_FNAME(16), // last component of exec()ed pathname</span>
+<span class="nc" id="L119">        PR_PSARGS(80), // initial characters of arg list</span>
+<span class="nc" id="L120">        PR_PAD(64), // reserved for future use</span>
+<span class="nc" id="L121">        PR_LWP(lwpsInfoOffsets.get(LwpsInfoT.SIZE)), // &quot;representative&quot; thread info</span>
+<span class="nc" id="L122">        SIZE(0);</span>
+
+        private int size;
+
+<span class="nc" id="L126">        PsInfoT(int bytes) {</span>
+<span class="nc" id="L127">            size = bytes;</span>
+<span class="nc" id="L128">        }</span>
+
+        public int size() {
+<span class="nc" id="L131">            return size;</span>
+        }
+    }
+
+<span class="nc" id="L135">    private static Map&lt;PsInfoT, Integer&gt; psInfoOffsets = initPsOffsets();</span>
+
+    private PsInfo() {
+    }
+
+    private static Map&lt;LwpsInfoT, Integer&gt; initLwpsOffsets() {
+<span class="nc" id="L141">        Map&lt;LwpsInfoT, Integer&gt; infoMap = new EnumMap&lt;&gt;(LwpsInfoT.class);</span>
+<span class="nc" id="L142">        int offset = 0;</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        for (LwpsInfoT field : LwpsInfoT.values()) {</span>
+<span class="nc" id="L144">            infoMap.put(field, offset);</span>
+<span class="nc" id="L145">            offset += field.size;</span>
+        }
+<span class="nc" id="L147">        return infoMap;</span>
+    }
+
+    private static Map&lt;PsInfoT, Integer&gt; initPsOffsets() {
+<span class="nc" id="L151">        Map&lt;PsInfoT, Integer&gt; infoMap = new EnumMap&lt;&gt;(PsInfoT.class);</span>
+<span class="nc" id="L152">        int offset = 0;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (PsInfoT field : PsInfoT.values()) {</span>
+<span class="nc" id="L154">            infoMap.put(field, offset);</span>
+<span class="nc" id="L155">            offset += field.size;</span>
+        }
+<span class="nc" id="L157">        return infoMap;</span>
+    }
+
+    /**
+     * Reads the pr_argc, pr_argv, and pr_envp fields from /proc/pid/psinfo
+     *
+     * @param pid
+     *            The process ID
+     * @return A triplet containing the argc, argv, and envp values, or null if
+     *         unable to read
+     */
+    public static Triplet&lt;Integer, Long, Long&gt; queryArgsEnvAddrs(int pid) {
+<span class="nc" id="L169">        File procpsinfo = new File(&quot;/proc/&quot; + pid + &quot;/psinfo&quot;);</span>
+<span class="nc" id="L170">        try (RandomAccessFile psinfo = new RandomAccessFile(procpsinfo, &quot;r&quot;);</span>
+<span class="nc" id="L171">                FileChannel chan = psinfo.getChannel();</span>
+<span class="nc" id="L172">                ByteArrayOutputStream out = new ByteArrayOutputStream()) {</span>
+<span class="nc" id="L173">            int bufferSize = psInfoOffsets.get(PsInfoT.SIZE);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">            if (bufferSize &gt; chan.size()) {</span>
+<span class="nc" id="L175">                bufferSize = (int) chan.size();</span>
+            }
+
+<span class="nc" id="L178">            ByteBuffer buf = ByteBuffer.allocate(bufferSize);</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            if (chan.read(buf) &gt;= psInfoOffsets.get(PsInfoT.PR_FNAME)) {</span>
+                // We've read bytes up to at least the argc,argv,envp
+                // Now grab the elements we want
+<span class="nc" id="L182">                int argc = buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGC));</span>
+<span class="nc" id="L183">                long argv = buf.getLong(psInfoOffsets.get(PsInfoT.PR_ARGV));</span>
+<span class="nc" id="L184">                long envp = buf.getLong(psInfoOffsets.get(PsInfoT.PR_ENVP));</span>
+<span class="nc" id="L185">                return new Triplet&lt;&gt;(argc, argv, envp);</span>
+            }
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        } catch (IOException e) {</span>
+<span class="nc" id="L188">            LOG.debug(&quot;Failed to read file: {} &quot;, procpsinfo);</span>
+<span class="nc" id="L189">        }</span>
+<span class="nc" id="L190">        return null;</span>
+    }
+
+    /**
+     * Read the argument and environment strings from process address space
+     *
+     * @param pid
+     *            the process id
+     * @return A pair containing a list of the arguments and a map of environment
+     *         variables
+     */
+    public static Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt; queryArgsEnv(int pid) {
+<span class="nc" id="L202">        List&lt;String&gt; args = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L203">        Map&lt;String, String&gt; env = new LinkedHashMap&lt;&gt;();</span>
+
+        // Get the arg count and list of env vars
+<span class="nc" id="L206">        Triplet&lt;Integer, Long, Long&gt; addrs = queryArgsEnvAddrs(pid);</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (addrs != null) {</span>
+            // Open a file descriptor to the address space
+<span class="nc" id="L209">            String procas = &quot;/proc/&quot; + pid + &quot;/as&quot;;</span>
+<span class="nc" id="L210">            int fd = LIBC.open(procas, 0);</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (fd &lt; 0) {</span>
+<span class="nc" id="L212">                LOG.trace(&quot;No permission to read file: {} &quot;, procas);</span>
+<span class="nc" id="L213">                return new Pair&lt;&gt;(args, env);</span>
+            }
+            try {
+
+                // Non-null addrs means argc &gt; 0
+<span class="nc" id="L218">                int argc = addrs.getA();</span>
+<span class="nc" id="L219">                long argv = addrs.getB();</span>
+<span class="nc" id="L220">                long envp = addrs.getC();</span>
+                // Most of this method is a direct copy of the Solaris equivalent, except the
+                // Data model is in another structure /proc/pid/status but we can back into the
+                // increment using the known offsets
+<span class="nc" id="L224">                long increment = (envp - argv) / (argc + 1);</span>
+
+                // Reusable buffer
+<span class="nc" id="L227">                long bufStart = 0;</span>
+<span class="nc" id="L228">                Memory buffer = new Memory(PAGE_SIZE * 2);</span>
+<span class="nc" id="L229">                size_t bufSize = new size_t(buffer.size());</span>
+
+                // Read the pointers to the arg strings
+                // We know argc so we can count them
+<span class="nc" id="L233">                long[] argp = new long[argc];</span>
+<span class="nc" id="L234">                long offset = argv;</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">                for (int i = 0; i &lt; argc; i++) {</span>
+<span class="nc" id="L236">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">                    argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
+<span class="nc" id="L238">                    offset += increment;</span>
+                }
+
+                // Also read the pointers to the env strings
+                // We don't know how many, so stop when we get to null pointer
+<span class="nc" id="L243">                List&lt;Long&gt; envPtrList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L244">                offset = envp;</span>
+<span class="nc" id="L245">                long addr = 0;</span>
+<span class="nc" id="L246">                int limit = 500; // sane max env strings to stop at</span>
+                do {
+<span class="nc" id="L248">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">                    addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">                    if (addr != 0) {</span>
+<span class="nc" id="L251">                        envPtrList.add(addr);</span>
+                    }
+<span class="nc" id="L253">                    offset += increment;</span>
+<span class="nc bnc" id="L254" title="All 4 branches missed.">                } while (addr != 0 &amp;&amp; --limit &gt; 0);</span>
+
+                // Now read the arg strings from the buffer
+<span class="nc bnc" id="L257" title="All 4 branches missed.">                for (int i = 0; i &lt; argp.length &amp;&amp; argp[i] != 0; i++) {</span>
+<span class="nc" id="L258">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                    if (bufStart != 0) {</span>
+<span class="nc" id="L260">                        String argStr = buffer.getString(argp[i] - bufStart);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                        if (!argStr.isEmpty()) {</span>
+<span class="nc" id="L262">                            args.add(argStr);</span>
+                        }
+                    }
+                }
+
+                // And now read the env strings from the buffer
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                for (Long envPtr : envPtrList) {</span>
+<span class="nc" id="L269">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">                    if (bufStart != 0) {</span>
+<span class="nc" id="L271">                        String envStr = buffer.getString(envPtr - bufStart);</span>
+<span class="nc" id="L272">                        int idx = envStr.indexOf('=');</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                        if (idx &gt; 0) {</span>
+<span class="nc" id="L274">                            env.put(envStr.substring(0, idx), envStr.substring(idx + 1));</span>
+                        }
+                    }
+<span class="nc" id="L277">                }</span>
+            } finally {
+<span class="nc" id="L279">                LIBC.close(fd);</span>
+            }
+        }
+<span class="nc" id="L282">        return new Pair&lt;&gt;(args, env);</span>
+    }
+
+    /**
+     * Reads the page containing addr into buffer, unless the buffer already
+     * contains that page (as indicated by the bufStart address), in which case
+     * nothing is changed.
+     *
+     * @param fd
+     *            The file descriptor for the address space
+     * @param buffer
+     *            An allocated buffer, possibly with data reread from bufStart
+     * @param bufSize
+     *            The size of the buffer
+     * @param bufStart
+     *            The start of data currently in bufStart, or 0 if uninitialized
+     * @param addr
+     *            THe address whose page to read into the buffer
+     * @return The new starting pointer for the buffer
+     */
+    private static long conditionallyReadBufferFromStartOfPage(int fd, Memory buffer, size_t bufSize, long bufStart,
+            long addr) {
+        // If we don't have the right buffer, update it
+<span class="nc bnc" id="L305" title="All 4 branches missed.">        if (addr &lt; bufStart || addr - bufStart &gt; PAGE_SIZE) {</span>
+<span class="nc" id="L306">            long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;</span>
+<span class="nc" id="L307">            ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));</span>
+            // May return less than asked but should be at least a full page
+<span class="nc bnc" id="L309" title="All 2 branches missed.">            if (result.longValue() &lt; PAGE_SIZE) {</span>
+<span class="nc" id="L310">                LOG.debug(&quot;Failed to read page from address space: {} bytes read&quot;, result.longValue());</span>
+<span class="nc" id="L311">                return 0;</span>
+            }
+<span class="nc" id="L313">            return newStart;</span>
+        }
+<span class="nc" id="L315">        return bufStart;</span>
+    }
+
+    private static long getOffsetFromBuffer(Memory buffer, long offset, long increment) {
+<span class="nc bnc" id="L319" title="All 2 branches missed.">        return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

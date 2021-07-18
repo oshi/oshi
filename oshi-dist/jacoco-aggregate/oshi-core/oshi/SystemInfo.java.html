@@ -66,33 +66,13 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static final PlatformEnum currentPlatform;
-
-    static {
-<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
-<span class="nc" id="L73">            currentPlatform = WINDOWS;</span>
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        } else if (Platform.isLinux()) {</span>
-<span class="nc" id="L75">            currentPlatform = LINUX;</span>
-<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        } else if (Platform.isMac()) {</span>
-<span class="fc" id="L77">            currentPlatform = MACOS;</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        } else if (Platform.isSolaris()) {</span>
-<span class="nc" id="L79">            currentPlatform = SOLARIS;</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        } else if (Platform.isFreeBSD()) {</span>
-<span class="nc" id="L81">            currentPlatform = FREEBSD;</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        } else if (Platform.isAIX()) {</span>
-<span class="nc" id="L83">            currentPlatform = AIX;</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        } else if (Platform.isOpenBSD()) {</span>
-<span class="nc" id="L85">            currentPlatform = OPENBSD;</span>
-        } else {
-<span class="nc" id="L87">            currentPlatform = UNKNOWN;</span>
-        }
-<span class="fc" id="L89">    }</span>
+<span class="fc" id="L69">    private static final PlatformEnum currentPlatform = queryCurrentPlatform();</span>
 
     private static final String NOT_SUPPORTED = &quot;Operating system not supported: JNA Platform type &quot;;
 
-<span class="fc" id="L93">    private final Supplier&lt;OperatingSystem&gt; os = memoize(SystemInfo::createOperatingSystem);</span>
+<span class="fc" id="L73">    private final Supplier&lt;OperatingSystem&gt; os = memoize(SystemInfo::createOperatingSystem);</span>
 
-<span class="fc" id="L95">    private final Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(SystemInfo::createHardware);</span>
+<span class="fc" id="L75">    private final Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(SystemInfo::createHardware);</span>
 
     /**
      * Create a new instance of {@link SystemInfo}. This is the main entry point to
@@ -104,11 +84,11 @@ public class SystemInfo {
      * processing time at the cost of additional memory usage, re-use the same
      * {@link SystemInfo} object for future queries.
      */
-<span class="fc" id="L107">    public SystemInfo() {</span>
-<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (getCurrentPlatform().equals(PlatformEnum.UNKNOWN)) {</span>
-<span class="nc" id="L109">            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());</span>
-        }
-<span class="fc" id="L111">    }</span>
+<span class="fc" id="L87">    public SystemInfo() {</span>
+        // Intentionally empty, here to enable the constructor javadoc.
+        // Trying to access the static currentPlatform variable for OS check caused
+        // unexplained problems with initialization.
+<span class="fc" id="L91">    }</span>
 
     /**
      * Gets the {@link PlatformEnum} value representing this system.
@@ -116,7 +96,27 @@ public class SystemInfo {
      * @return Returns the current platform
      */
     public static PlatformEnum getCurrentPlatform() {
-<span class="fc" id="L119">        return currentPlatform;</span>
+<span class="fc" id="L99">        return currentPlatform;</span>
+    }
+
+    private static PlatformEnum queryCurrentPlatform() {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
+<span class="nc" id="L104">            return WINDOWS;</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        } else if (Platform.isLinux()) {</span>
+<span class="nc" id="L106">            return LINUX;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        } else if (Platform.isMac()) {</span>
+<span class="fc" id="L108">            return MACOS;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        } else if (Platform.isSolaris()) {</span>
+<span class="nc" id="L110">            return SOLARIS;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        } else if (Platform.isFreeBSD()) {</span>
+<span class="nc" id="L112">            return FREEBSD;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        } else if (Platform.isAIX()) {</span>
+<span class="nc" id="L114">            return AIX;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        } else if (Platform.isOpenBSD()) {</span>
+<span class="nc" id="L116">            return OPENBSD;</span>
+        } else {
+<span class="nc" id="L118">            return UNKNOWN;</span>
+        }
     }
 
     /**
@@ -158,7 +158,7 @@ public class SystemInfo {
         case OPENBSD:
 <span class="nc" id="L159">            return new OpenBsdOperatingSystem();</span>
         default:
-<span class="nc" id="L161">            return null;</span>
+<span class="nc" id="L161">            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());</span>
         }
     }
 
@@ -189,7 +189,7 @@ public class SystemInfo {
         case OPENBSD:
 <span class="nc" id="L190">            return new OpenBsdHardwareAbstractionLayer();</span>
         default:
-<span class="nc" id="L192">            return null;</span>
+<span class="nc" id="L192">            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());</span>
         }
     }
 }
