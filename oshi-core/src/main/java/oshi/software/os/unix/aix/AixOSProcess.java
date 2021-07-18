@@ -43,6 +43,7 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -53,7 +54,7 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class AixOSProcess extends AbstractOSProcess {
@@ -65,11 +66,13 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
     private final Supplier<Long> affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
 
     private String name;
     private String path = "";
-    private String commandLine;
+    private String commandLineBackup;
     private String user;
     private String userID;
     private String group;
@@ -110,7 +113,26 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return this.commandLine;
+        return this.commandLine.get();
+    }
+
+    private String queryCommandLine() {
+        String cl = String.join(" ", getArguments());
+        return cl.isEmpty() ? this.commandLineBackup : cl;
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return cmdEnv.get().getA();
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return cmdEnv.get().getB();
+    }
+
+    private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
+        return PsInfo.queryArgsEnv(getProcessID());
     }
 
     @Override
@@ -327,8 +349,8 @@ public class AixOSProcess extends AbstractOSProcess {
         this.startTime = now - this.upTime;
         this.name = psMap.get(PsKeywords.COMM);
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.PAGEIN), 0L);
-        this.commandLine = psMap.get(PsKeywords.ARGS);
-        this.path = ParseUtil.whitespaces.split(this.commandLine)[0];
+        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
+        this.path = ParseUtil.whitespaces.split(this.commandLineBackup)[0];
         return true;
     }
 

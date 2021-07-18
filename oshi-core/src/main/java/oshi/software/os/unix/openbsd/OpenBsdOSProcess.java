@@ -34,12 +34,18 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
@@ -54,10 +60,12 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.FstatUtil;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class OpenBsdOSProcess extends AbstractOSProcess {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.class);
 
     /*
      * Package-private for use by OpenBsdOSThread
@@ -69,11 +77,28 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
             .map(String::toLowerCase).collect(Collectors.joining(","));
 
-    private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private static final int ARGMAX;
+    static {
+        int[] mib = new int[2];
+        mib[0] = 1; // CTL_KERN
+        mib[1] = 8; // KERN_ARGMAX
+        Memory m = new Memory(Integer.BYTES);
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(Integer.BYTES));
+        if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+            ARGMAX = m.getInt(0);
+        } else {
+            LOG.warn("Failed sysctl call for process arguments max size (kern.argmax). Error code: {}",
+                    Native.getLastError());
+            ARGMAX = 0;
+        }
+    }
+
+    private Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private Supplier<List<String>> arguments = memoize(this::queryArguments);
+    private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
 
     private String name;
     private String path = "";
-    private String commandLine;
     private String user;
     private String userID;
     private String group;
@@ -93,9 +118,14 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private long minorFaults;
     private long majorFaults;
     private long contextSwitches;
+    private int bitness;
+    private String commandLineBackup;
 
     public OpenBsdOSProcess(int pid, Map<PsKeywords, String> psMap) {
         super(pid);
+        // OpenBSD does not maintain a compatibility layer.
+        // Process bitness is OS bitness
+        this.bitness = Native.LONG_SIZE * 8;
         updateThreadCount();
         updateAttributes(psMap);
     }
@@ -112,7 +142,90 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return this.commandLine;
+        return this.commandLine.get();
+    }
+
+    private String queryCommandLine() {
+        String cl = String.join(" ", getArguments());
+        return cl.isEmpty() ? this.commandLineBackup : cl;
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return arguments.get();
+    }
+
+    private List<String> queryArguments() {
+        if (ARGMAX > 0) {
+            // Get arguments via sysctl(3)
+            int[] mib = new int[4];
+            mib[0] = 1; // CTL_KERN
+            mib[1] = 55; // KERN_PROC_ARGS
+            mib[2] = getProcessID();
+            mib[3] = 1; // KERN_PROC_ARGV
+            // Allocate memory for arguments
+            Memory m = new Memory(ARGMAX);
+            NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+            // Fetch arguments
+            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                // Returns a null-terminated list of pointers to the actual data
+                List<String> args = new ArrayList<>();
+                // To iterate the pointer-list
+                long offset = 0;
+                // Get the data base address to calculate offsets
+                long baseAddr = Pointer.nativeValue(m);
+                long maxAddr = baseAddr + size.getValue().longValue();
+                // Get the address of the data. If null (0) we're done iterating
+                long argAddr = Pointer.nativeValue(m.getPointer(offset));
+                while (argAddr > baseAddr && argAddr < maxAddr) {
+                    args.add(m.getString(argAddr - baseAddr));
+                    offset += Native.POINTER_SIZE;
+                    argAddr = Pointer.nativeValue(m.getPointer(offset));
+                }
+                return Collections.unmodifiableList(args);
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables.get();
+    }
+
+    private Map<String, String> queryEnvironmentVariables() {
+        // Get environment variables via sysctl(3)
+        int[] mib = new int[4];
+        mib[0] = 1; // CTL_KERN
+        mib[1] = 55; // KERN_PROC_ARGS
+        mib[2] = getProcessID();
+        mib[3] = 3; // KERN_PROC_ENV
+        // Allocate memory for environment variables
+        Memory m = new Memory(ARGMAX);
+        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+        // Fetch environment variables
+        if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+            // Returns a null-terminated list of pointers to the actual data
+            Map<String, String> env = new LinkedHashMap<>();
+            // To iterate the pointer-list
+            long offset = 0;
+            // Get the data base address to calculate offsets
+            long baseAddr = Pointer.nativeValue(m);
+            long maxAddr = baseAddr + size.getValue().longValue();
+            // Get the address of the data. If null (0) we're done iterating
+            long argAddr = Pointer.nativeValue(m.getPointer(offset));
+            while (argAddr > baseAddr && argAddr < maxAddr) {
+                String envStr = m.getString(argAddr - baseAddr);
+                int idx = envStr.indexOf('=');
+                if (idx > 0) {
+                    env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                }
+                offset += Native.POINTER_SIZE;
+                argAddr = Pointer.nativeValue(m.getPointer(offset));
+            }
+            return Collections.unmodifiableMap(env);
+        }
+        return Collections.emptyMap();
     }
 
     @Override
@@ -207,7 +320,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public int getBitness() {
-        return this.bitness.get();
+        return this.bitness;
     }
 
     @Override
@@ -230,28 +343,6 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             }
         }
         return bitMask;
-    }
-
-    private int queryBitness() {
-        // Get process abi vector
-        int[] mib = new int[4];
-        mib[0] = 1; // CTL_KERN
-        mib[1] = 14; // KERN_PROC
-        mib[2] = 9; // KERN_PROC_SV_NAME
-        mib[3] = getProcessID();
-        // Allocate memory for arguments
-        Pointer abi = new Memory(32);
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(32));
-        // Fetch abi vector
-        if (0 == OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
-            String elf = abi.getString(0);
-            if (elf.contains("ELF32")) {
-                return 32;
-            } else if (elf.contains("ELF64")) {
-                return 64;
-            }
-        }
-        return 0;
     }
 
     @Override
@@ -359,7 +450,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
         long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.commandLine = psMap.get(PsKeywords.ARGS);
+        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
         return true;
     }
 

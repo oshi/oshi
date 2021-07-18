@@ -139,7 +139,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
                                 }
 
                                 UdevDevice parent = device.getParentWithSubsystemDevtype(SUBSYSTEM_USB,
-                                    DEVTYPE_USB_DEVICE);
+                                        DEVTYPE_USB_DEVICE);
                                 if (parent == null) {
                                     // This is a controller with no parent, add to list
                                     usbControllers.add(syspath);

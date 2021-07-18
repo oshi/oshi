@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -56,7 +57,7 @@ import oshi.util.Util;
 import oshi.util.platform.linux.ProcPath;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class LinuxOSProcess extends AbstractOSProcess {
@@ -74,10 +75,12 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private Supplier<List<String>> arguments = memoize(this::queryArguments);
+    private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
 
     private String name;
     private String path = "";
-    private String commandLine;
     private String user;
     private String userID;
     private String group;
@@ -100,7 +103,6 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     public LinuxOSProcess(int pid) {
         super(pid);
-        this.commandLine = FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, pid));
         updateAttributes();
     }
 
@@ -116,7 +118,31 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return this.commandLine;
+        return commandLine.get();
+    }
+
+    private String queryCommandLine() {
+        return FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID()));
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return arguments.get();
+    }
+
+    private List<String> queryArguments() {
+        return Collections.unmodifiableList(ParseUtil
+                .parseByteArrayToStrings(FileUtil.readAllBytes(String.format(ProcPath.PID_CMDLINE, getProcessID()))));
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables.get();
+    }
+
+    private Map<String, String> queryEnvironmentVariables() {
+        return Collections.unmodifiableMap(ParseUtil
+                .parseByteArrayToStringMap(FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, getProcessID()))));
     }
 
     @Override
