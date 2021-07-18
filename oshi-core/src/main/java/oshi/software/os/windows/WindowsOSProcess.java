@@ -518,7 +518,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
                     int ret = NtDll.INSTANCE.NtQueryInformationProcess(h, NtDll.PROCESS_BASIC_INFORMATION,
                             pbi.getPointer(), pbi.size(), nRead);
                     if (ret != 0) {
-                        return null;
+                        return defaultCwdCommandlineEnvironment();
                     }
                     pbi.read();
 
@@ -526,7 +526,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
                     NtDll.PEB peb = new NtDll.PEB();
                     Kernel32.INSTANCE.ReadProcessMemory(h, pbi.PebBaseAddress, peb.getPointer(), peb.size(), nRead);
                     if (nRead.getValue() == 0) {
-                        return null;
+                        return defaultCwdCommandlineEnvironment();
                     }
                     peb.read();
 
@@ -534,7 +534,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
                     NtDll.RTL_USER_PROCESS_PARAMETERS upp = new NtDll.RTL_USER_PROCESS_PARAMETERS();
                     Kernel32.INSTANCE.ReadProcessMemory(h, peb.ProcessParameters, upp.getPointer(), upp.size(), nRead);
                     if (nRead.getValue() == 0) {
-                        return null;
+                        return defaultCwdCommandlineEnvironment();
                     }
                     upp.read();
 
@@ -561,6 +561,10 @@ public class WindowsOSProcess extends AbstractOSProcess {
                 Kernel32.INSTANCE.CloseHandle(h);
             }
         }
+        return defaultCwdCommandlineEnvironment();
+    }
+
+    private Triplet<String, String, Map<String, String>> defaultCwdCommandlineEnvironment() {
         return new Triplet<>("", "", Collections.emptyMap());
     }
 
