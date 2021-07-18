@@ -105,27 +105,6 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
-        if (!isKnownPlatform()) {
-            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
-        }
-    }
-
-    private boolean isKnownPlatform() {
-        if (Platform.isWindows()) {
-            return true;
-        } else if (Platform.isLinux()) {
-            return true;
-        } else if (Platform.isMac()) {
-            return true;
-        } else if (Platform.isSolaris()) {
-            return true;
-        } else if (Platform.isFreeBSD()) {
-            return true;
-        } else if (Platform.isAIX()) {
-            return true;
-        } else {
-            return Platform.isOpenBSD();
-        }
     }
 
     /**
@@ -176,7 +155,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdOperatingSystem();
         default:
-            return null;
+            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
         }
     }
 
@@ -207,7 +186,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdHardwareAbstractionLayer();
         default:
-            return null;
+            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
         }
     }
 }
