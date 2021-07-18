@@ -24,10 +24,12 @@
 package oshi.software.os.unix.aix;
 
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
+import oshi.software.os.unix.aix.AixOSProcess.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -38,7 +40,7 @@ import oshi.util.ParseUtil;
 public class AixOSThread extends AbstractOSThread {
 
     private int threadId;
-<span class="nc" id="L41">    private OSProcess.State state = OSProcess.State.INVALID;</span>
+<span class="nc" id="L43">    private OSProcess.State state = OSProcess.State.INVALID;</span>
     private long contextSwitches;
     private long kernelTime;
     private long userTime;
@@ -46,67 +48,65 @@ public class AixOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public AixOSThread(int pid, String[] split) {
-<span class="nc" id="L50">        super(pid);</span>
-<span class="nc" id="L51">        updateAttributes(split);</span>
-<span class="nc" id="L52">    }</span>
+    public AixOSThread(int pid, Map&lt;PsThreadColumns, String&gt; threadMap) {
+<span class="nc" id="L52">        super(pid);</span>
+<span class="nc" id="L53">        updateAttributes(threadMap);</span>
+<span class="nc" id="L54">    }</span>
 
     @Override
     public int getThreadId() {
-<span class="nc" id="L56">        return this.threadId;</span>
+<span class="nc" id="L58">        return this.threadId;</span>
     }
 
     @Override
     public OSProcess.State getState() {
-<span class="nc" id="L61">        return this.state;</span>
+<span class="nc" id="L63">        return this.state;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L66">        return this.contextSwitches;</span>
+<span class="nc" id="L68">        return this.contextSwitches;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L71">        return this.kernelTime;</span>
+<span class="nc" id="L73">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L76">        return this.userTime;</span>
+<span class="nc" id="L78">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L81">        return this.upTime;</span>
+<span class="nc" id="L83">        return this.upTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L86">        return this.startTime;</span>
+<span class="nc" id="L88">        return this.startTime;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L91">        return this.priority;</span>
+<span class="nc" id="L93">        return this.priority;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L96">        List&lt;String&gt; threadListInfoPs = ExecutingCommand.runNative(&quot;ps -m -o THREAD -p &quot; + getOwningProcessId());</span>
+<span class="nc" id="L98">        List&lt;String&gt; threadListInfoPs = ExecutingCommand.runNative(&quot;ps -m -o THREAD -p &quot; + getOwningProcessId());</span>
         // 1st row is header, 2nd row is process data.
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (threadListInfoPs.size() &gt; 2) {</span>
-<span class="nc" id="L99">            threadListInfoPs.remove(0); // header removed</span>
-<span class="nc" id="L100">            threadListInfoPs.remove(0); // process data removed</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">            for (String threadInfo : threadListInfoPs) {</span>
-                // USER,PID,PPID,TID,ST,CP,PRI,SC,WCHAN,F,TT,BND,COMMAND
-<span class="nc" id="L103">                String[] threadInfoSplit = ParseUtil.whitespaces.split(threadInfo.trim());</span>
-<span class="nc bnc" id="L104" title="All 4 branches missed.">                if (threadInfoSplit.length == 13 &amp;&amp; threadInfoSplit[3].equals(String.valueOf(this.getThreadId()))) {</span>
-<span class="nc" id="L105">                    String[] split = new String[3];</span>
-<span class="nc" id="L106">                    split[0] = threadInfoSplit[3]; // tid</span>
-<span class="nc" id="L107">                    split[1] = threadInfoSplit[4]; // state</span>
-<span class="nc" id="L108">                    split[2] = threadInfoSplit[6]; // priority</span>
-<span class="nc" id="L109">                    updateAttributes(split);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (threadListInfoPs.size() &gt; 2) {</span>
+<span class="nc" id="L101">            threadListInfoPs.remove(0); // header removed</span>
+<span class="nc" id="L102">            threadListInfoPs.remove(0); // process data removed</span>
+<span class="nc" id="L103">            String tidStr = Integer.toString(this.getThreadId());</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            for (String threadInfo : threadListInfoPs) {</span>
+<span class="nc" id="L105">                Map&lt;PsThreadColumns, String&gt; threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,</span>
+<span class="nc" id="L106">                        threadInfo.trim(), ' ');</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                if (threadMap.containsKey(PsThreadColumns.COMMAND)</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                        &amp;&amp; tidStr.equals(threadMap.get(PsThreadColumns.TID))) {</span>
+<span class="nc" id="L109">                    return updateAttributes(threadMap);</span>
                 }
 <span class="nc" id="L111">            }</span>
         }
@@ -114,10 +114,10 @@ public class AixOSThread extends AbstractOSThread {
 <span class="nc" id="L114">        return false;</span>
     }
 
-    private boolean updateAttributes(String[] split) {
-<span class="nc" id="L118">        this.threadId = ParseUtil.parseIntOrDefault(split[0], 0);</span>
-<span class="nc" id="L119">        this.state = AixOSProcess.getStateFromOutput(split[1].charAt(0));</span>
-<span class="nc" id="L120">        this.priority = ParseUtil.parseIntOrDefault(split[2], 0);</span>
+    private boolean updateAttributes(Map&lt;PsThreadColumns, String&gt; threadMap) {
+<span class="nc" id="L118">        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);</span>
+<span class="nc" id="L119">        this.state = AixOSProcess.getStateFromOutput(threadMap.get(PsThreadColumns.ST).charAt(0));</span>
+<span class="nc" id="L120">        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);</span>
 <span class="nc" id="L121">        return true;</span>
     }
 }

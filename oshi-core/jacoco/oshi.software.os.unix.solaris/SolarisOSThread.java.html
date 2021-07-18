@@ -25,11 +25,13 @@ package oshi.software.os.unix.solaris;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSProcess.State;
+import oshi.software.os.unix.solaris.SolarisOSProcess.PsThreadColumns;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem.PrstatKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -40,7 +42,7 @@ import oshi.util.ParseUtil;
 public class SolarisOSThread extends AbstractOSThread {
 
     private int threadId;
-<span class="nc" id="L43">    private OSProcess.State state = OSProcess.State.INVALID;</span>
+<span class="nc" id="L45">    private OSProcess.State state = OSProcess.State.INVALID;</span>
     private long startMemoryAddress;
     private long contextSwitches;
     private long kernelTime;
@@ -49,90 +51,103 @@ public class SolarisOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public SolarisOSThread(int pid, String[] split) {
-<span class="nc" id="L53">        super(pid);</span>
-<span class="nc" id="L54">        updateAttributes(split);</span>
-<span class="nc" id="L55">    }</span>
+    public SolarisOSThread(int pid, Map&lt;PsThreadColumns, String&gt; psMap, Map&lt;PrstatKeywords, String&gt; prstatMap) {
+<span class="nc" id="L55">        super(pid);</span>
+<span class="nc" id="L56">        updateAttributes(psMap, prstatMap);</span>
+<span class="nc" id="L57">    }</span>
 
     @Override
     public int getThreadId() {
-<span class="nc" id="L59">        return this.threadId;</span>
+<span class="nc" id="L61">        return this.threadId;</span>
     }
 
     @Override
     public OSProcess.State getState() {
-<span class="nc" id="L64">        return this.state;</span>
+<span class="nc" id="L66">        return this.state;</span>
     }
 
     @Override
     public long getStartMemoryAddress() {
-<span class="nc" id="L69">        return this.startMemoryAddress;</span>
+<span class="nc" id="L71">        return this.startMemoryAddress;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L74">        return this.contextSwitches;</span>
+<span class="nc" id="L76">        return this.contextSwitches;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L79">        return this.kernelTime;</span>
+<span class="nc" id="L81">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L84">        return this.userTime;</span>
+<span class="nc" id="L86">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L89">        return this.upTime;</span>
+<span class="nc" id="L91">        return this.upTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L94">        return this.startTime;</span>
+<span class="nc" id="L96">        return this.startTime;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L99">        return this.priority;</span>
+<span class="nc" id="L101">        return this.priority;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L104">        List&lt;String&gt; threadListInfo1 = ExecutingCommand</span>
-<span class="nc" id="L105">                .runNative(&quot;ps -o lwp,s,etime,stime,time,addr,pri -p &quot; + getOwningProcessId());</span>
-<span class="nc" id="L106">        List&lt;String&gt; threadListInfo2 = ExecutingCommand.runNative(&quot;prstat -L -v -p &quot; + getOwningProcessId() + &quot; 1 1&quot;);</span>
-<span class="nc" id="L107">        Map&lt;Integer, String[]&gt; threadMap = SolarisOSProcess.parseAndMergePSandPrstatInfo(threadListInfo1, 0, 7,</span>
-                threadListInfo2, true);
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (threadMap.keySet().size() &gt; 1) {</span>
-<span class="nc" id="L110">            Optional&lt;String[]&gt; split = threadMap.entrySet().stream()</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">                    .filter(entry -&gt; entry.getKey() == this.getThreadId()).map(Map.Entry::getValue).findFirst();</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (split.isPresent()) {</span>
-<span class="nc" id="L113">                return updateAttributes(split.get());</span>
-            }
+<span class="nc" id="L106">        int pid = getOwningProcessId();</span>
+<span class="nc" id="L107">        List&lt;String&gt; threadList = ExecutingCommand</span>
+<span class="nc" id="L108">                .runNative(&quot;ps -o &quot; + SolarisOSProcess.PS_THREAD_COLUMNS + &quot; -p &quot; + pid);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (threadList.size() &gt; 1) {</span>
+            // there is no switch for thread in ps command, hence filtering.
+<span class="nc" id="L111">            String lwpStr = Integer.toString(this.threadId);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            for (String psOutput : threadList) {</span>
+<span class="nc" id="L113">                Map&lt;PsThreadColumns, String&gt; threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,</span>
+<span class="nc" id="L114">                        psOutput.trim(), ' ');</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">                if (threadMap.containsKey(PsThreadColumns.PRI) &amp;&amp; lwpStr.equals(threadMap.get(PsThreadColumns.LWP))) {</span>
+<span class="nc" id="L116">                    List&lt;String&gt; prstatList = ExecutingCommand.runNative(&quot;prstat -L -v -p &quot; + pid + &quot; 1 1&quot;);</span>
+<span class="nc" id="L117">                    String prstatRow = &quot;&quot;;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                    for (String s : prstatList) {</span>
+<span class="nc" id="L119">                        String row = s.trim();</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                        if (row.endsWith(&quot;/&quot; + lwpStr)) {</span>
+<span class="nc" id="L121">                            prstatRow = row;</span>
+<span class="nc" id="L122">                            break;</span>
+                        }
+<span class="nc" id="L124">                    }</span>
+<span class="nc" id="L125">                    Map&lt;PrstatKeywords, String&gt; prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class, prstatRow,</span>
+                            ' ');
+<span class="nc" id="L127">                    return updateAttributes(threadMap, prstatMap);</span>
+                }
+<span class="nc" id="L129">            }</span>
         }
-<span class="nc" id="L116">        this.state = OSProcess.State.INVALID;</span>
-<span class="nc" id="L117">        return false;</span>
+<span class="nc" id="L131">        this.state = State.INVALID;</span>
+<span class="nc" id="L132">        return false;</span>
     }
 
-    private boolean updateAttributes(String[] split) {
-<span class="nc" id="L121">        this.threadId = ParseUtil.parseIntOrDefault(split[0], 0);</span>
-<span class="nc" id="L122">        this.state = SolarisOSProcess.getStateFromOutput(split[1].charAt(0));</span>
+    private boolean updateAttributes(Map&lt;PsThreadColumns, String&gt; psMap, Map&lt;PrstatKeywords, String&gt; prstatMap) {
+<span class="nc" id="L136">        this.threadId = ParseUtil.parseIntOrDefault(psMap.get(PsThreadColumns.LWP), 0);</span>
+<span class="nc" id="L137">        this.state = SolarisOSProcess.getStateFromOutput(psMap.get(PsThreadColumns.S).charAt(0));</span>
         // Avoid divide by zero for processes up less than a second
-<span class="nc" id="L124">        long elapsedTime = ParseUtil.parseDHMSOrDefault(split[2], 0L); // etimes</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
-<span class="nc" id="L126">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L127">        this.startTime = now - this.upTime;</span>
-<span class="nc" id="L128">        this.kernelTime = ParseUtil.parseDHMSOrDefault(split[3], 0L); // systime</span>
-<span class="nc" id="L129">        this.userTime = ParseUtil.parseDHMSOrDefault(split[4], 0L) - this.kernelTime; // time</span>
-<span class="nc" id="L130">        this.startMemoryAddress = ParseUtil.hexStringToLong(split[5], 0L);</span>
-<span class="nc" id="L131">        this.priority = ParseUtil.parseIntOrDefault(split[6], 0);</span>
-<span class="nc" id="L132">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[7], 0L);</span>
-<span class="nc" id="L133">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(split[8], 0L);</span>
-<span class="nc" id="L134">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
-<span class="nc" id="L135">        return true;</span>
+<span class="nc" id="L139">        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsThreadColumns.ETIME), 0L);</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
+<span class="nc" id="L141">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L142">        this.startTime = now - this.upTime;</span>
+<span class="nc" id="L143">        this.kernelTime = 0L;</span>
+<span class="nc" id="L144">        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsThreadColumns.TIME), 0L);</span>
+<span class="nc" id="L145">        this.startMemoryAddress = ParseUtil.hexStringToLong(psMap.get(PsThreadColumns.ADDR), 0L);</span>
+<span class="nc" id="L146">        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsThreadColumns.PRI), 0);</span>
+<span class="nc" id="L147">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.ICX), 0L);</span>
+<span class="nc" id="L148">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.VCX), 0L);</span>
+<span class="nc" id="L149">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
+<span class="nc" id="L150">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
