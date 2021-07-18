@@ -24,6 +24,7 @@
 package oshi.software.os;
 
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32ProcessCached;
@@ -53,21 +54,31 @@ public interface OSProcess {
 
     /**
      * Gets the process command line used to start the process, including arguments
-     * if available to be determined.
+     * if available to be determined. This method generally returns the same
+     * information as {@link #getArguments()} in a more user-readable format, and is
+     * more robust to non-elevated access.
      * <p>
-     * The format of this string is platform-dependent and may require the end user
-     * to parse the result.
+     * The format of this string is platform-dependent, may be truncated, and may
+     * require the end user to parse the result. Users should generally prefer
+     * {@link #getArguments()} which already parses the results, and use this method
+     * as a backup.
      * <p>
      * On Linux and macOS systems, the string is null-character-delimited, to permit
-     * the end user to parse the executable and arguments if desired. Further, the
-     * macOS variant may include environment variables which the end user may wish
-     * to exclude from display.
+     * the end user to parse the executable and arguments if desired. This
+     * null-delimited behavior may change in future versions and should not be
+     * relied upon; use {@link #getArguments()} instead.
      * <p>
-     * On Solaris, the string is truncated to 80 characters.
+     * On AIX and Solaris, the string may be truncated to 80 characters if there was
+     * insufficient permission to read the process memory.
      * <p>
-     * On Windows, by default, performs a single WMI query for this process, with
-     * some latency. If this method will be frequently called for multiple
-     * processes, see the configuration file to enable a batch query mode leveraging
+     * On Windows, attempts to retrieve the value from process memory, which
+     * requires that the process be owned by the same user as the executing process,
+     * or elevated permissions, and additionally requires the target process to have
+     * the same bitness (e.g., this will fail on a 32-bit process if queried by
+     * 64-bit and vice versa). If reading process memory fails, by default, performs
+     * a single WMI query for this process, with some latency. If this method will
+     * be frequently called for multiple processes, see the configuration file to
+     * enable a batch query mode leveraging
      * {@link Win32ProcessCached#getCommandLine} to improve performance, or setting
      * that parameter via {@link GlobalConfig#set(String, Object)} before
      * instantiating any {@link OSProcess} object.
@@ -77,11 +88,31 @@ public interface OSProcess {
     String getCommandLine();
 
     /**
-     * Gets the current working directory for the process.
+     * Makes a best effort attempt to get a list of the the command-line arguments
+     * of the process. Returns the same information as {@link #getCommandLine()} but
+     * parsed to a list. May require elevated permissions or same-user ownership.
+     *
+     * @return A list of Strings representing the arguments. May return an empty
+     *         list if there was a failure (for example, because the process is
+     *         already dead or permission was denied).
+     */
+    List<String> getArguments();
+
+    /**
+     * Makes a best effort attempt to obtain the environment variables of the
+     * process. May require elevated permissions or same-user ownership.
+     *
+     * @return A map representing the environment variables and their values. May
+     *         return an empty map if there was a failure (for example, because the
+     *         process is already dead or permission was denied).
+     */
+    Map<String, String> getEnvironmentVariables();
+
+    /**
+     * Makes a best effort attempt to obtain the current working directory for the
+     * process.
      *
      * @return the process current working directory.
-     *
-     *         On Windows, this value is only populated for the current process.
      */
     String getCurrentWorkingDirectory();
 

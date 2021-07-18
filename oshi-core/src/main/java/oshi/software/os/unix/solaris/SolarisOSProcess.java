@@ -40,6 +40,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.solaris.PsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem.PrstatKeywords;
@@ -47,9 +48,10 @@ import oshi.software.os.unix.solaris.SolarisOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
- * OSProcess implemenation
+ * OSProcess implementation
  */
 @ThreadSafe
 public class SolarisOSProcess extends AbstractOSProcess {
@@ -64,10 +66,12 @@ public class SolarisOSProcess extends AbstractOSProcess {
             .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
 
     private String name;
     private String path = "";
-    private String commandLine;
+    private String commandLineBackup;
     private String user;
     private String userID;
     private String group;
@@ -103,7 +107,26 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return this.commandLine;
+        return this.commandLine.get();
+    }
+
+    private String queryCommandLine() {
+        String cl = String.join(" ", getArguments());
+        return cl.isEmpty() ? this.commandLineBackup : cl;
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return cmdEnv.get().getA();
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return cmdEnv.get().getB();
+    }
+
+    private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
+        return PsInfo.queryArgsEnv(getProcessID());
     }
 
     @Override
@@ -334,7 +357,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
         this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
         this.path = psMap.get(PsKeywords.COMM);
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.commandLine = psMap.get(PsKeywords.ARGS);
+        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
         if (prstatMap.containsKey(PrstatKeywords.ICX)) {
             long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.ICX), 0L);
             long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.VCX), 0L);

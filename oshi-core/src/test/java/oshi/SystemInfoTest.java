@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -271,6 +272,15 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
+        }
+        OSProcess p = os.getProcess(os.getProcessId());
+        oshi.add("Current process arguments: ");
+        for (String s : p.getArguments()) {
+            oshi.add("  " + s);
+        }
+        oshi.add("Current process environment: ");
+        for (Entry<String, String> e : p.getEnvironmentVariables().entrySet()) {
+            oshi.add("  " + e.getKey() + "=" + e.getValue());
         }
     }
 
