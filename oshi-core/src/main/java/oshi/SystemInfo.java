@@ -85,9 +85,9 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
-        if (getCurrentPlatform().equals(PlatformEnum.UNKNOWN)) {
-            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
-        }
+        // Intentionally empty, here to enable the constructor javadoc.
+        // Trying to access the static currentPlatform variable for OS check caused
+        // unexplained problems with initialization.
     }
 
     /**
@@ -158,7 +158,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdOperatingSystem();
         default:
-            return null;
+            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
         }
     }
 
@@ -189,7 +189,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdHardwareAbstractionLayer();
         default:
-            return null;
+            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
         }
     }
 }
