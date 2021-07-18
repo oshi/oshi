@@ -29,14 +29,13 @@ import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
 import oshi.jna.platform.unix.CLibrary;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 
 /**
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
 public interface OpenBsdLibc extends CLibrary {
-<span class="nc" id="L39">    OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);</span>
+<span class="nc" id="L38">    OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);</span>
 
     int CTL_KERN = 1; // &quot;high kernel&quot;: proc, limits
     int CTL_VM = 1; // &quot;high kernel&quot;: proc, limits
@@ -77,8 +76,8 @@ public interface OpenBsdLibc extends CLibrary {
     int CP_INTR = 3; // 4 on 6.4 and later
     int CP_IDLE = 4; // 5 on 6.4 and later
 
-<span class="nc" id="L80">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
-<span class="nc" id="L81">    int INT_SIZE = Native.getNativeSize(int.class);</span>
+<span class="nc" id="L79">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
+<span class="nc" id="L80">    int INT_SIZE = Native.getNativeSize(int.class);</span>
 
     /**
      * OpenBSD Cache stats for memory
@@ -107,20 +106,18 @@ public interface OpenBsdLibc extends CLibrary {
         public long dmaflips; // total flips from high to DMA
 
         public Bcachestats(Pointer p) {
-<span class="nc" id="L110">            super(p);</span>
-<span class="nc" id="L111">            read();</span>
-<span class="nc" id="L112">        }</span>
+<span class="nc" id="L109">            super(p);</span>
+<span class="nc" id="L110">            read();</span>
+<span class="nc" id="L111">        }</span>
     }
 
     /**
      * Return type for BSD sysctl kern.boottime
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L119">    class Timeval extends Structure {</span>
+<span class="nc" id="L118">    class Timeval extends Structure {</span>
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
     }
-
-    int sysctl(int[] name, int namelen, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

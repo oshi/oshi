@@ -52,33 +52,34 @@ public final class ProcPath {
 <span class="nc" id="L52">    public static final String PID_CMDLINE = PROC + &quot;/%d/cmdline&quot;;</span>
 <span class="nc" id="L53">    public static final String PID_CWD = PROC + &quot;/%d/cwd&quot;;</span>
 <span class="nc" id="L54">    public static final String PID_EXE = PROC + &quot;/%d/exe&quot;;</span>
-<span class="nc" id="L55">    public static final String PID_FD = PROC + &quot;/%d/fd&quot;;</span>
-<span class="nc" id="L56">    public static final String PID_IO = PROC + &quot;/%d/io&quot;;</span>
-<span class="nc" id="L57">    public static final String PID_STAT = PROC + &quot;/%d/stat&quot;;</span>
-<span class="nc" id="L58">    public static final String PID_STATM = PROC + &quot;/%d/statm&quot;;</span>
-<span class="nc" id="L59">    public static final String PID_STATUS = PROC + &quot;/%d/status&quot;;</span>
-<span class="nc" id="L60">    public static final String SELF_STAT = PROC + &quot;/self/stat&quot;;</span>
-<span class="nc" id="L61">    public static final String STAT = PROC + &quot;/stat&quot;;</span>
-<span class="nc" id="L62">    public static final String SYS_FS_FILE_NR = PROC + &quot;/sys/fs/file-nr&quot;;</span>
-<span class="nc" id="L63">    public static final String TASK_PATH = PROC + &quot;/%d/task&quot;;</span>
-<span class="nc" id="L64">    public static final String TASK_COMM = TASK_PATH + &quot;/%d/comm&quot;;</span>
-<span class="nc" id="L65">    public static final String TASK_STATUS = TASK_PATH + &quot;/%d/status&quot;;</span>
-<span class="nc" id="L66">    public static final String TASK_STAT = TASK_PATH + &quot;/%d/stat&quot;;</span>
-<span class="nc" id="L67">    public static final String UPTIME = PROC + &quot;/uptime&quot;;</span>
-<span class="nc" id="L68">    public static final String VERSION = PROC + &quot;/version&quot;;</span>
-<span class="nc" id="L69">    public static final String VMSTAT = PROC + &quot;/vmstat&quot;;</span>
+<span class="nc" id="L55">    public static final String PID_ENVIRON = PROC + &quot;/%d/environ&quot;;</span>
+<span class="nc" id="L56">    public static final String PID_FD = PROC + &quot;/%d/fd&quot;;</span>
+<span class="nc" id="L57">    public static final String PID_IO = PROC + &quot;/%d/io&quot;;</span>
+<span class="nc" id="L58">    public static final String PID_STAT = PROC + &quot;/%d/stat&quot;;</span>
+<span class="nc" id="L59">    public static final String PID_STATM = PROC + &quot;/%d/statm&quot;;</span>
+<span class="nc" id="L60">    public static final String PID_STATUS = PROC + &quot;/%d/status&quot;;</span>
+<span class="nc" id="L61">    public static final String SELF_STAT = PROC + &quot;/self/stat&quot;;</span>
+<span class="nc" id="L62">    public static final String STAT = PROC + &quot;/stat&quot;;</span>
+<span class="nc" id="L63">    public static final String SYS_FS_FILE_NR = PROC + &quot;/sys/fs/file-nr&quot;;</span>
+<span class="nc" id="L64">    public static final String TASK_PATH = PROC + &quot;/%d/task&quot;;</span>
+<span class="nc" id="L65">    public static final String TASK_COMM = TASK_PATH + &quot;/%d/comm&quot;;</span>
+<span class="nc" id="L66">    public static final String TASK_STATUS = TASK_PATH + &quot;/%d/status&quot;;</span>
+<span class="nc" id="L67">    public static final String TASK_STAT = TASK_PATH + &quot;/%d/stat&quot;;</span>
+<span class="nc" id="L68">    public static final String UPTIME = PROC + &quot;/uptime&quot;;</span>
+<span class="nc" id="L69">    public static final String VERSION = PROC + &quot;/version&quot;;</span>
+<span class="nc" id="L70">    public static final String VMSTAT = PROC + &quot;/vmstat&quot;;</span>
 
     private ProcPath() {
     }
 
     private static String queryProcConfig() {
-<span class="nc" id="L75">        String procPath = GlobalConfig.get(&quot;oshi.util.proc.path&quot;, &quot;/proc&quot;);</span>
+<span class="nc" id="L76">        String procPath = GlobalConfig.get(&quot;oshi.util.proc.path&quot;, &quot;/proc&quot;);</span>
         // Ensure prefix begins with path separator, but doesn't end with one
-<span class="nc" id="L77">        procPath = '/' + procPath.replaceAll(&quot;/$|^/&quot;, &quot;&quot;);</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (!new File(procPath).exists()) {</span>
-<span class="nc" id="L79">            throw new GlobalConfig.PropertyException(&quot;oshi.util.proc.path&quot;, &quot;The path does not exist&quot;);</span>
+<span class="nc" id="L78">        procPath = '/' + procPath.replaceAll(&quot;/$|^/&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (!new File(procPath).exists()) {</span>
+<span class="nc" id="L80">            throw new GlobalConfig.PropertyException(&quot;oshi.util.proc.path&quot;, &quot;The path does not exist&quot;);</span>
         }
-<span class="nc" id="L81">        return procPath;</span>
+<span class="nc" id="L82">        return procPath;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
