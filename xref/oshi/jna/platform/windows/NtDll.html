@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>NtDll xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../apidocs/oshi/jna/platform/windows/NtDll.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * in the Software without restriction, including without limitation the rights</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * copies of the Software, and to permit persons to whom the Software is</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * furnished to do so, subject to the following conditions:</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * The above copyright notice and this permission notice shall be included in all</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * copies or substantial portions of the Software.</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_comment"> * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_comment"> * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> * SOFTWARE.</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.jna.platform.windows;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure.FieldOrder;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.BaseTSD.ULONG_PTR;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.win32.W32APIOptions;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="NtDll" href="../../../../oshi/jna/platform/windows/NtDll.html#NtDll">NtDll</a> <strong class="jxr_keyword">extends</strong> com.sun.jna.platform.win32.NtDll {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <a name="NtDll" href="../../../../oshi/jna/platform/windows/NtDll.html#NtDll">NtDll</a> INSTANCE = Native.load(<span class="jxr_string">"NtDll"</span>, NtDll.<strong class="jxr_keyword">class</strong>, W32APIOptions.DEFAULT_OPTIONS);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">int</strong> PROCESS_BASIC_INFORMATION = 0;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @FieldOrder({ <span class="jxr_string">"Reserved1"</span>, <span class="jxr_string">"PebBaseAddress"</span>, <span class="jxr_string">"Reserved2"</span> })
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">class</strong> PROCESS_BASIC_INFORMATION <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">public</strong> Pointer Reserved1;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">public</strong> Pointer PebBaseAddress;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">public</strong> Pointer[] Reserved2 = <strong class="jxr_keyword">new</strong> Pointer[4];
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @FieldOrder({ <span class="jxr_string">"pad"</span>, <span class="jxr_string">"pad2"</span>, <span class="jxr_string">"ProcessParameters"</span> })
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">class</strong> PEB <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">public</strong> byte[] pad = <strong class="jxr_keyword">new</strong> byte[4];
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">public</strong> Pointer[] pad2 = <strong class="jxr_keyword">new</strong> Pointer[3];
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">public</strong> Pointer ProcessParameters; <em class="jxr_comment">// RTL_USER_PROCESS_PARAMETERS</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      @FieldOrder({ <span class="jxr_string">"MaximumLength"</span>, <span class="jxr_string">"Length"</span>, <span class="jxr_string">"Flags"</span>, <span class="jxr_string">"DebugFlags"</span>, <span class="jxr_string">"ConsoleHandle"</span>, <span class="jxr_string">"ConsoleFlags"</span>, <span class="jxr_string">"StandardInput"</span>,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <span class="jxr_string">"StandardOutput"</span>, <span class="jxr_string">"StandardError"</span>, <span class="jxr_string">"CurrentDirectory"</span>, <span class="jxr_string">"DllPath"</span>, <span class="jxr_string">"ImagePathName"</span>, <span class="jxr_string">"CommandLine"</span>,
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <span class="jxr_string">"Environment"</span>, <span class="jxr_string">"StartingX"</span>, <span class="jxr_string">"StartingY"</span>, <span class="jxr_string">"CountX"</span>, <span class="jxr_string">"CountY"</span>, <span class="jxr_string">"CountCharsX"</span>, <span class="jxr_string">"CountCharsY"</span>, <span class="jxr_string">"FillAttribute"</span>,
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <span class="jxr_string">"WindowFlags"</span>, <span class="jxr_string">"ShowWindowFlags"</span>, <span class="jxr_string">"WindowTitle"</span>, <span class="jxr_string">"DesktopInfo"</span>, <span class="jxr_string">"ShellInfo"</span>, <span class="jxr_string">"RuntimeData"</span>,
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <span class="jxr_string">"CurrentDirectories"</span>, <span class="jxr_string">"EnvironmentSize"</span>, <span class="jxr_string">"EnvironmentVersion"</span>, <span class="jxr_string">"PackageDependencyData"</span>, <span class="jxr_string">"ProcessGroupId"</span>,
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <span class="jxr_string">"LoaderThreads"</span>, <span class="jxr_string">"RedirectionDllName"</span>, <span class="jxr_string">"HeapPartitionName"</span>, <span class="jxr_string">"DefaultThreadpoolCpuSetMasks"</span>,
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <span class="jxr_string">"DefaultThreadpoolCpuSetMaskCount"</span> })
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">class</strong> RTL_USER_PROCESS_PARAMETERS <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> MaximumLength;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> Length;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> Flags;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> DebugFlags;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> HANDLE ConsoleHandle;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ConsoleFlags;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> HANDLE StandardInput;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">public</strong> HANDLE StandardOutput;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">public</strong> HANDLE StandardError;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">public</strong> CURDIR CurrentDirectory;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING DllPath;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING ImagePathName;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING CommandLine;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">public</strong> Pointer Environment;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> StartingX;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> StartingY;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> CountX;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> CountY;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> CountCharsX;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> CountCharsY;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> FillAttribute;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> WindowFlags;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ShowWindowFlags;
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING WindowTitle;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING DesktopInfo;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING ShellInfo;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING RuntimeData;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">public</strong> RTL_DRIVE_LETTER_CURDIR[] CurrentDirectories = <strong class="jxr_keyword">new</strong> RTL_DRIVE_LETTER_CURDIR[32];
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">public</strong> ULONG_PTR EnvironmentSize;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">public</strong> ULONG_PTR EnvironmentVersion;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">public</strong> Pointer PackageDependencyData;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ProcessGroupId;
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> LoaderThreads;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING RedirectionDllName;
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">public</strong> UNICODE_STRING HeapPartitionName;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">public</strong> ULONG_PTR DefaultThreadpoolCpuSetMasks;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> DefaultThreadpoolCpuSetMaskCount;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     @FieldOrder({ <span class="jxr_string">"Length"</span>, <span class="jxr_string">"MaximumLength"</span>, <span class="jxr_string">"Buffer"</span> })
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">class</strong> UNICODE_STRING <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> Length;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> MaximumLength;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">public</strong> Pointer Buffer;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     @FieldOrder({ <span class="jxr_string">"Length"</span>, <span class="jxr_string">"MaximumLength"</span>, <span class="jxr_string">"Buffer"</span> })
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">class</strong> STRING <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> Length;
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> MaximumLength;
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">public</strong> Pointer Buffer;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @FieldOrder({ <span class="jxr_string">"DosPath"</span>, <span class="jxr_string">"Handle"</span> })
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">class</strong> CURDIR <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">public</strong> UNICODE_STRING DosPath;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">public</strong> Pointer Handle;
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     @FieldOrder({ <span class="jxr_string">"Flags"</span>, <span class="jxr_string">"Length"</span>, <span class="jxr_string">"TimeStamp"</span>, <span class="jxr_string">"DosPath"</span> })
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">class</strong> RTL_DRIVE_LETTER_CURDIR <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> Flags;
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> Length;
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> TimeStamp;
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">public</strong> STRING DosPath;
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_comment">     * Windows API docs say NtQueryInformationProcess may be altered or unavailable</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_comment">     * in future versions of Windows. Applications should use the alternate</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_comment">     * functions listed in this topic. However, there is no other way to get this</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_comment">     * information, it's been officially non-API for over a decade, and many many</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_comment">     * programs including windows sysinternal tools rely on this behavior, so the</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_comment">     * odds of it going away are small.</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">int</strong> NtQueryInformationProcess(HANDLE ProcessHandle, <strong class="jxr_keyword">int</strong> ProcessInformationClass, Pointer ProcessInformation,
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <strong class="jxr_keyword">int</strong> ProcessInformationLength, IntByReference ReturnLength);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+</body>
+</html>
