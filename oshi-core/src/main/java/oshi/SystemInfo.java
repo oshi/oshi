@@ -143,22 +143,22 @@ public class SystemInfo {
 
     private static OperatingSystem createOperatingSystem() {
         switch (currentPlatform) {
-            case WINDOWS:
-                return new WindowsOperatingSystem();
-            case LINUX:
-                return new LinuxOperatingSystem();
-            case MACOS:
-                return new MacOperatingSystem();
-            case SOLARIS:
-                return new SolarisOperatingSystem();
-            case FREEBSD:
-                return new FreeBsdOperatingSystem();
-            case AIX:
-                return new AixOperatingSystem();
-            case OPENBSD:
-                return new OpenBsdOperatingSystem();
-            default:
-                return null;
+        case WINDOWS:
+            return new WindowsOperatingSystem();
+        case LINUX:
+            return new LinuxOperatingSystem();
+        case MACOS:
+            return new MacOperatingSystem();
+        case SOLARIS:
+            return new SolarisOperatingSystem();
+        case FREEBSD:
+            return new FreeBsdOperatingSystem();
+        case AIX:
+            return new AixOperatingSystem();
+        case OPENBSD:
+            return new OpenBsdOperatingSystem();
+        default:
+            return null;
         }
     }
 
@@ -174,22 +174,22 @@ public class SystemInfo {
 
     private static HardwareAbstractionLayer createHardware() {
         switch (currentPlatform) {
-            case WINDOWS:
-                return new WindowsHardwareAbstractionLayer();
-            case LINUX:
-                return new LinuxHardwareAbstractionLayer();
-            case MACOS:
-                return new MacHardwareAbstractionLayer();
-            case SOLARIS:
-                return new SolarisHardwareAbstractionLayer();
-            case FREEBSD:
-                return new FreeBsdHardwareAbstractionLayer();
-            case AIX:
-                return new AixHardwareAbstractionLayer();
-            case OPENBSD:
-                return new OpenBsdHardwareAbstractionLayer();
-            default:
-                return null;
+        case WINDOWS:
+            return new WindowsHardwareAbstractionLayer();
+        case LINUX:
+            return new LinuxHardwareAbstractionLayer();
+        case MACOS:
+            return new MacHardwareAbstractionLayer();
+        case SOLARIS:
+            return new SolarisHardwareAbstractionLayer();
+        case FREEBSD:
+            return new FreeBsdHardwareAbstractionLayer();
+        case AIX:
+            return new AixHardwareAbstractionLayer();
+        case OPENBSD:
+            return new OpenBsdHardwareAbstractionLayer();
+        default:
+            return null;
         }
     }
 }
