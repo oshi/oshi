@@ -110,7 +110,6 @@
         <maven-site-plugin.version>3.9.1</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <!-- maven-site-plugin dependencies -->
-        <doxia-module-markdown.version>1.9.1</doxia-module-markdown.version>
         <wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
         <wagon-ssh.version>3.4.3</wagon-ssh.version>
         <maven-fluido-skin.version>1.9</maven-fluido-skin.version>
@@ -215,11 +214,6 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven-site-plugin.version}</version>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.doxia</groupId>
-                            <artifactId>doxia-module-markdown</artifactId>
-                            <version>${doxia-module-markdown.version}</version>
-                        </dependency>
                         <dependency>
                             <groupId>net.trajano.wagon</groupId>
                             <artifactId>wagon-git</artifactId>
