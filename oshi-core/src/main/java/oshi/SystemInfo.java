@@ -105,9 +105,9 @@ public class SystemInfo {
      * {@link SystemInfo} object for future queries.
      */
     public SystemInfo() {
-        // Intentionally empty, here to enable the constructor javadoc.
-        // Trying to access the static currentPlatform variable for OS check caused
-        // unexplained problems with initialization.
+        if (getCurrentPlatform() == PlatformEnum.UNKNOWN) {
+            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+        }
     }
 
     /**
@@ -128,7 +128,7 @@ public class SystemInfo {
     @Deprecated
     public static PlatformEnum getCurrentPlatformEnum() {
         PlatformEnum platform = getCurrentPlatform();
-        return platform.equals(MACOS) ? MACOSX : platform;
+        return platform == MACOS ? MACOSX : platform;
     }
 
     /**
@@ -143,22 +143,22 @@ public class SystemInfo {
 
     private static OperatingSystem createOperatingSystem() {
         switch (currentPlatform) {
-        case WINDOWS:
-            return new WindowsOperatingSystem();
-        case LINUX:
-            return new LinuxOperatingSystem();
-        case MACOS:
-            return new MacOperatingSystem();
-        case SOLARIS:
-            return new SolarisOperatingSystem();
-        case FREEBSD:
-            return new FreeBsdOperatingSystem();
-        case AIX:
-            return new AixOperatingSystem();
-        case OPENBSD:
-            return new OpenBsdOperatingSystem();
-        default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+            case WINDOWS:
+                return new WindowsOperatingSystem();
+            case LINUX:
+                return new LinuxOperatingSystem();
+            case MACOS:
+                return new MacOperatingSystem();
+            case SOLARIS:
+                return new SolarisOperatingSystem();
+            case FREEBSD:
+                return new FreeBsdOperatingSystem();
+            case AIX:
+                return new AixOperatingSystem();
+            case OPENBSD:
+                return new OpenBsdOperatingSystem();
+            default:
+                return null;
         }
     }
 
@@ -174,22 +174,22 @@ public class SystemInfo {
 
     private static HardwareAbstractionLayer createHardware() {
         switch (currentPlatform) {
-        case WINDOWS:
-            return new WindowsHardwareAbstractionLayer();
-        case LINUX:
-            return new LinuxHardwareAbstractionLayer();
-        case MACOS:
-            return new MacHardwareAbstractionLayer();
-        case SOLARIS:
-            return new SolarisHardwareAbstractionLayer();
-        case FREEBSD:
-            return new FreeBsdHardwareAbstractionLayer();
-        case AIX:
-            return new AixHardwareAbstractionLayer();
-        case OPENBSD:
-            return new OpenBsdHardwareAbstractionLayer();
-        default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+            case WINDOWS:
+                return new WindowsHardwareAbstractionLayer();
+            case LINUX:
+                return new LinuxHardwareAbstractionLayer();
+            case MACOS:
+                return new MacHardwareAbstractionLayer();
+            case SOLARIS:
+                return new SolarisHardwareAbstractionLayer();
+            case FREEBSD:
+                return new FreeBsdHardwareAbstractionLayer();
+            case AIX:
+                return new AixHardwareAbstractionLayer();
+            case OPENBSD:
+                return new OpenBsdHardwareAbstractionLayer();
+            default:
+                return null;
         }
     }
 }
