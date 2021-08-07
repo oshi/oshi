@@ -1,0 +1,30 @@
+# CI on Unix OS 
+# Separated from main CI matrix to reduce churn on failures due to infra
+name: Solaris CI
+
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+
+jobs:
+  # Runs current branch on Solaris 11.4 in a VM
+  testsolaris:
+    runs-on: macos-latest
+    name: Test JDK 8, solaris
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test in Solaris
+        id: test-solaris
+        uses: vmactions/solaris-vm@v0.0.3
+        with:
+          prepare: |
+            pkg install jdk-8
+          run: |    
+            ./mvnw test -B -Djacoco.skip=true
+          

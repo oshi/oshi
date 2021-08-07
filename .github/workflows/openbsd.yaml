@@ -1,0 +1,40 @@
+# CI on Unix OS 
+# Separated from main CI matrix to reduce churn on failures due to infra
+name: OpenBSD CI
+
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+
+jobs:   
+  # SSH into OpenBSD server and run test on OpenBSD 6.8 32-bit
+  # Configured to pull latest from oshi master branch
+  # To test on a PR, log into the openbsd server and create a new branch
+  testopenbsd:
+    runs-on: ubuntu-latest
+    name: Test JDK 8, openbsd
+    steps:
+    - name: Test in OpenBSD
+      uses: appleboy/ssh-action@master    
+      with:
+        host: ${{ secrets.OPENBSD_OSHI_DOMAIN }}
+        username: oshi
+        password: ${{ secrets.OPENBSD_OSHI_PW }}
+        port: 22
+        script_stop: true
+        command_timeout: 15m
+        script: |
+          cd ~/git/oshi
+          git checkout master
+          doas git reset --hard HEAD~2
+          doas git pull
+          doas mvn clean
+          mvn test -B -Djacoco.skip=true
+          doas mvn test -B -Djacoco.skip=true
+          
