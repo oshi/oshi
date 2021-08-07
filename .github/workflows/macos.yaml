@@ -1,5 +1,5 @@
 # Full CI matrix on all pushes to master branch
-name: Java CI
+name: macOS CI
 
 on: 
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [8, 11, 16, 17-ea]
-        os: [ubuntu-latest, macos-latest, macos-11.0, windows-latest]
+        os: [macos-latest, macos-11]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
 

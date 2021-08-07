@@ -1,0 +1,45 @@
+# Full CI matrix on all pushes to master branch
+name: Linux CI
+
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+    
+jobs:
+  # Runs current branch on Windows, Linux, macOS with multiple JDKs
+  testmatrix:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # Baseline support, Current LTS, Current GA, Current EA
+        java: [8, 11, 16, 17-ea]
+        os: [ubuntu-latest]
+      fail-fast: false
+    name: JDK ${{ matrix.java }}, ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'adopt'
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2          
+      - name: Test with Maven
+        run: ./mvnw test -B
+      - name: Report Coverage to Coveralls
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
+        run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
