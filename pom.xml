@@ -139,7 +139,7 @@
         <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
         <!-- SCM -->
         <maven-scm-plugin.version>1.11.2</maven-scm-plugin.version>
-        <maven-scm-provider-jgit.version>1.11.2</maven-scm-provider-jgit.version>
+        <maven-scm-provider-jgit.version>1.11.3</maven-scm-provider-jgit.version>
         <jgit.version>5.12.0.202106070339-r</jgit.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
