@@ -564,7 +564,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
         return defaultCwdCommandlineEnvironment();
     }
 
-    private Triplet<String, String, Map<String, String>> defaultCwdCommandlineEnvironment() {
+    private static Triplet<String, String, Map<String, String>> defaultCwdCommandlineEnvironment() {
         return new Triplet<>("", "", Collections.emptyMap());
     }
 
