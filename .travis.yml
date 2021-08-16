@@ -10,10 +10,6 @@ addons:
 cache:
   directories:
     - $HOME/.m2
-
-# disable shallow clone
-git:
-  depth: false
     
 before_install:
   - |
