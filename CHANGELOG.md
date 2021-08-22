@@ -1,8 +1,8 @@
-# 5.8.1 (in progress)
+# 5.8.2 (in progress)
 
 * Your contribution here
 
-# 5.8.0 (2021-07-18)
+# 5.8.0 (2021-07-18), 5.8.1 (2021-08-22)
 
 ##### New Features
 * [#1654](https://github.com/oshi/oshi/pull/1654): API for process arguments and environment - [@basil](https://github.com/basil) and [@dbwiddis](https://github.com/dbwiddis).
@@ -12,6 +12,7 @@
 * [#1675](https://github.com/oshi/oshi/pull/1675): Replace ps argument lists with enum - [@dbwiddis](https://github.com/dbwiddis).
 * [#1678](https://github.com/oshi/oshi/pull/1678): Refactor to fix leaking udev reference in LinuxUsbDevice - [@mattmacleod](https://github.com/mattmacleod).
 * [#1680](https://github.com/oshi/oshi/pull/1680): Move supported operating system check out of SystemInfo constructor - [@KyongSik-Yoon](https://github.com/KyongSik-Yoon).
+* [#1701](https://github.com/oshi/oshi/pull/1701): Update to JNA 5.9.0 - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16), 5.7.4 (2021-05-30), 5.7.5 (2021-06-12)
 
