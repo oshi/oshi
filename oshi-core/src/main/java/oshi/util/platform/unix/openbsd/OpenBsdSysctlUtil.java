@@ -33,7 +33,6 @@ import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -63,8 +62,8 @@ public final class OpenBsdSysctlUtil {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(int[] name, int def) {
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(OpenBsdLibc.INT_SIZE));
-        Pointer p = new Memory(size.getValue().longValue());
+        size_t.ByReference size = new size_t.ByReference(new size_t(OpenBsdLibc.INT_SIZE));
+        Pointer p = new Memory(size.longValue());
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return def;
@@ -82,8 +81,8 @@ public final class OpenBsdSysctlUtil {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(int[] name, long def) {
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(OpenBsdLibc.UINT64_SIZE));
-        Pointer p = new Memory(size.getValue().longValue());
+        size_t.ByReference size = new size_t.ByReference(new size_t(OpenBsdLibc.UINT64_SIZE));
+        Pointer p = new Memory(size.longValue());
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
             LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
@@ -102,13 +101,13 @@ public final class OpenBsdSysctlUtil {
      */
     public static String sysctl(int[] name, String def) {
         // Call first time with null pointer to get value of size
-        NativeSizeTByReference size = new NativeSizeTByReference();
+        size_t.ByReference size = new size_t.ByReference();
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {
             LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         // Add 1 to size for null terminated string
-        Pointer p = new Memory(size.getValue().longValue() + 1L);
+        Pointer p = new Memory(size.longValue() + 1L);
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
             LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
@@ -127,7 +126,7 @@ public final class OpenBsdSysctlUtil {
      */
     public static boolean sysctl(int[] name, Structure struct) {
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, struct.getPointer(),
-                new NativeSizeTByReference(new size_t(struct.size())), null, size_t.ZERO)) {
+                new size_t.ByReference(new size_t(struct.size())), null, size_t.ZERO)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return false;
         }
@@ -144,12 +143,12 @@ public final class OpenBsdSysctlUtil {
      *         otherwise. Its value on failure is undefined.
      */
     public static Memory sysctl(int[] name) {
-        NativeSizeTByReference size = new NativeSizeTByReference();
+        size_t.ByReference size = new size_t.ByReference();
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return null;
         }
-        Memory m = new Memory(size.getValue().longValue());
+        Memory m = new Memory(size.longValue());
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, m, size, null, size_t.ZERO)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
             return null;

@@ -50,7 +50,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -83,7 +82,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         mib[0] = 1; // CTL_KERN
         mib[1] = 8; // KERN_ARGMAX
         Memory m = new Memory(Integer.BYTES);
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(Integer.BYTES));
+        size_t.ByReference size = new size_t.ByReference(new size_t(Integer.BYTES));
         if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
             ARGMAX = m.getInt(0);
         } else {
@@ -165,7 +164,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             mib[3] = 1; // KERN_PROC_ARGV
             // Allocate memory for arguments
             Memory m = new Memory(ARGMAX);
-            NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+            size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
             // Fetch arguments
             if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
                 // Returns a null-terminated list of pointers to the actual data
@@ -202,7 +201,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         mib[3] = 3; // KERN_PROC_ENV
         // Allocate memory for environment variables
         Memory m = new Memory(ARGMAX);
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(ARGMAX));
+        size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
         // Fetch environment variables
         if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
             // Returns a null-terminated list of pointers to the actual data
@@ -211,7 +210,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             long offset = 0;
             // Get the data base address to calculate offsets
             long baseAddr = Pointer.nativeValue(m);
-            long maxAddr = baseAddr + size.getValue().longValue();
+            long maxAddr = baseAddr + size.longValue();
             // Get the address of the data. If null (0) we're done iterating
             long argAddr = Pointer.nativeValue(m.getPointer(offset));
             while (argAddr > baseAddr && argAddr < maxAddr) {

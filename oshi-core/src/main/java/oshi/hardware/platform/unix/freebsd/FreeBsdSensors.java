@@ -29,7 +29,6 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 
 /**
@@ -51,8 +50,8 @@ final class FreeBsdSensors extends AbstractSensors {
      */
     private static double queryKldloadCoretemp() {
         String name = "dev.cpu.%d.temperature";
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        Pointer p = new Memory(size.getValue().longValue());
+        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
+        Pointer p = new Memory(size.longValue());
         int cpu = 0;
         double sumTemp = 0d;
         while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, size_t.ZERO)) {
