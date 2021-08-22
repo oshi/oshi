@@ -48,6 +48,7 @@ import com.sun.jna.platform.win32.Advapi32Util.Account;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.Shell32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
@@ -67,7 +68,6 @@ import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
 import oshi.jna.platform.windows.NtDll;
 import oshi.jna.platform.windows.NtDll.UNICODE_STRING;
-import oshi.jna.platform.windows.Shell32;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
@@ -410,16 +410,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private List<String> queryArguments() {
         String cl = getCommandLine();
         if (!cl.isEmpty()) {
-            IntByReference nargs = new IntByReference();
-            Pointer strArr = Shell32.INSTANCE.CommandLineToArgvW(cl, nargs);
-            if (strArr != null) {
-                try {
-                    String[] argv = strArr.getWideStringArray(0);
-                    return Collections.unmodifiableList(Arrays.asList(argv));
-                } finally {
-                    Kernel32.INSTANCE.LocalFree(strArr);
-                }
-            }
+            return Arrays.asList(Shell32Util.CommandLineToArgv(cl));
         }
         return Collections.emptyList();
     }

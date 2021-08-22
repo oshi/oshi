@@ -38,7 +38,6 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc.CpTime;
 import oshi.util.ExecutingCommand;
@@ -271,7 +270,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         Pointer p = new Memory(arraySize);
         String name = "kern.cp_times";
         // Fetch
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, new NativeSizeTByReference(new size_t(arraySize)), null,
+        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, new size_t.ByReference(new size_t(arraySize)), null,
                 size_t.ZERO)) {
             LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
             return ticks;
@@ -317,8 +316,8 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long queryContextSwitches() {
         String name = "vm.stats.sys.v_swtch";
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        Pointer p = new Memory(size.getValue().longValue());
+        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
+        Pointer p = new Memory(size.longValue());
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
             return 0L;
         }
@@ -328,8 +327,8 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long queryInterrupts() {
         String name = "vm.stats.sys.v_intr";
-        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        Pointer p = new Memory(size.getValue().longValue());
+        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
+        Pointer p = new Memory(size.longValue());
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
             return 0L;
         }
