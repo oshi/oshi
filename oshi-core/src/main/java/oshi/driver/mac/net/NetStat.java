@@ -34,7 +34,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.IFmsgHdr;
 import com.sun.jna.platform.mac.SystemB.IFmsgHdr2;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -71,13 +71,13 @@ public final class NetStat {
         Map<Integer, IFdata> data = new HashMap<>();
         // Get buffer of all interface information
         int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
-        IntByReference len = new IntByReference();
-        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {
+        size_t.ByReference len = new size_t.ByReference();
+        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, size_t.ZERO)) {
             LOG.error("Didn't get buffer length for IFLIST2");
             return data;
         }
-        Memory buf = new Memory(len.getValue());
-        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {
+        Memory buf = new Memory(len.longValue());
+        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, size_t.ZERO)) {
             LOG.error("Didn't get buffer for IFLIST2");
             return data;
         }
