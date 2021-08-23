@@ -42,7 +42,7 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB.IFmsgHdr;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB.IFmsgHdr2;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.LibCAPI.size_t;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
@@ -79,13 +79,13 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          Map&lt;Integer, IFdata&gt; data = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// Get buffer of all interface information</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">int</strong>[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          IntByReference len = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctl(mib, 6, <strong class="jxr_keyword">null</strong>, len, <strong class="jxr_keyword">null</strong>, 0)) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          size_t.ByReference len = <strong class="jxr_keyword">new</strong> size_t.ByReference();
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctl(mib, 6, <strong class="jxr_keyword">null</strong>, len, <strong class="jxr_keyword">null</strong>, size_t.ZERO)) {
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              LOG.error(<span class="jxr_string">"Didn't get buffer length for IFLIST2"</span>);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">return</strong> data;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          Memory buf = <strong class="jxr_keyword">new</strong> Memory(len.getValue());
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, <strong class="jxr_keyword">null</strong>, 0)) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          Memory buf = <strong class="jxr_keyword">new</strong> Memory(len.longValue());
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">if</strong> (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, <strong class="jxr_keyword">null</strong>, size_t.ZERO)) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              LOG.error(<span class="jxr_string">"Didn't get buffer for IFLIST2"</span>);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> data;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
