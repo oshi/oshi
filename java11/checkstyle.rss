@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2010 - 2021 oshi</copyright>
     <item>
-      <title>File: 396,
-             Errors: 11905,
+      <title>File: 393,
+             Errors: 11878,
              Warnings: 0,
              Infos: 0
       </title>
@@ -55,7 +55,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  14
                 </td>
               </tr>
                           <tr>
@@ -699,7 +699,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  168
+                  169
                 </td>
               </tr>
                           <tr>
@@ -886,20 +886,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.NativeSizeTByReference.java">oshi/jna/platform/unix/NativeSizeTByReference.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  17
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.windows.wmi.Win32BaseBoard.java">oshi/driver/windows/wmi/Win32BaseBoard.java</a>
                 </td>
                 <td>
@@ -951,7 +937,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  135
+                  138
                 </td>
               </tr>
                           <tr>
@@ -1567,7 +1553,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  224
+                  218
                 </td>
               </tr>
                           <tr>
@@ -1987,7 +1973,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  177
+                  180
                 </td>
               </tr>
                           <tr>
@@ -2043,7 +2029,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  63
+                  64
                 </td>
               </tr>
                           <tr>
@@ -2239,7 +2225,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  142
+                  146
                 </td>
               </tr>
                           <tr>
@@ -2394,20 +2380,6 @@ under the License.
                 </td>
                 <td>
                   339
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.Cfgmgr32.java">oshi/jna/platform/windows/Cfgmgr32.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  12
                 </td>
               </tr>
                           <tr>
@@ -3616,20 +3588,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.windows.Shell32.java">oshi/jna/platform/windows/Shell32.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  6
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer.java">oshi/hardware/platform/unix/solaris/SolarisHardwareAbstractionLayer.java</a>
                 </td>
                 <td>
@@ -4157,7 +4115,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  30
                 </td>
               </tr>
                           <tr>
@@ -4241,7 +4199,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  129
+                  128
                 </td>
               </tr>
                           <tr>
@@ -4353,7 +4311,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  32
+                  31
                 </td>
               </tr>
                           <tr>
@@ -4451,7 +4409,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  90
+                  92
                 </td>
               </tr>
                           <tr>
@@ -4675,7 +4633,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  116
+                  115
                 </td>
               </tr>
                           <tr>
@@ -4927,7 +4885,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  108
+                  107
                 </td>
               </tr>
                           <tr>
@@ -5417,7 +5375,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  85
+                  86
                 </td>
               </tr>
                           <tr>
