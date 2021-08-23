@@ -227,7 +227,7 @@ public interface CLibrary extends LibCAPI, Library {
      *            Size of information to be written
      * @return 0 on success; sets errno on failure
      */
-    int sysctl(int[] name, int namelen, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
+    int sysctl(int[] name, int namelen, Pointer oldp, size_t.ByReference oldlenp, Pointer newp, size_t newlen);
 
     /**
      * The sysctlbyname() function accepts an ASCII representation of the name and
@@ -246,7 +246,7 @@ public interface CLibrary extends LibCAPI, Library {
      *            Size of information to be written
      * @return 0 on success; sets errno on failure
      */
-    int sysctlbyname(String name, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
+    int sysctlbyname(String name, Pointer oldp, size_t.ByReference oldlenp, Pointer newp, size_t newlen);
 
     /**
      * The sysctlnametomib() function accepts an ASCII representation of the name,
@@ -276,7 +276,7 @@ public interface CLibrary extends LibCAPI, Library {
      *            number of entries copied.
      * @return 0 on success; sets errno on failure
      */
-    int sysctlnametomib(String name, Pointer mibp, NativeSizeTByReference sizep);
+    int sysctlnametomib(String name, Pointer mibp, size_t.ByReference sizep);
 
     int open(String absolutePath, int i);
 

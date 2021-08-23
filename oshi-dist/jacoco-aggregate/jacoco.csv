@@ -50,7 +50,7 @@ oshi-dist/oshi-core,oshi.software.os.windows,WindowsFileSystem,607,0,48,0,111,0,
 oshi-dist/oshi-core,oshi.software.os.windows,WindowsOSSystemInfo,65,0,4,0,21,0,7,0,5,0
 oshi-dist/oshi-core,oshi.software.os.windows,WindowsOSThread,170,0,16,0,48,0,23,0,13,0
 oshi-dist/oshi-core,oshi.software.os.windows,WindowsNetworkParams,197,0,22,0,47,0,20,0,9,0
-oshi-dist/oshi-core,oshi.software.os.windows,WindowsOSProcess,954,0,92,0,224,0,86,0,40,0
+oshi-dist/oshi-core,oshi.software.os.windows,WindowsOSProcess,929,0,90,0,219,0,85,0,40,0
 oshi-dist/oshi-core,oshi.software.os.windows,WindowsOSFileStore,140,0,10,0,35,0,15,0,10,0
 oshi-dist/oshi-core,oshi.software.os.windows,WindowsInternetProtocolStats,523,0,30,0,88,0,32,0,12,0
 oshi-dist/oshi-core,oshi.util.platform.unix.solaris,KstatUtil,181,0,26,0,38,0,21,0,4,0
@@ -58,7 +58,7 @@ oshi-dist/oshi-core,oshi.util.platform.unix.solaris,KstatUtil.KstatChain,122,0,2
 oshi-dist/oshi-core,oshi.software.os.mac,MacNetworkParams,143,0,18,0,37,0,15,0,6,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacOperatingSystem,560,0,62,0,102,0,56,0,25,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
-oshi-dist/oshi-core,oshi.software.os.mac,MacOSProcess,638,0,51,0,141,0,62,0,34,0
+oshi-dist/oshi-core,oshi.software.os.mac,MacOSProcess,633,0,51,0,141,0,62,0,34,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacOSThread,46,0,0,0,16,0,8,0,8,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacInternetProtocolStats,762,0,58,0,145,0,47,0,13,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacFileSystem,475,0,58,0,104,0,37,0,8,0
@@ -97,7 +97,7 @@ oshi-dist/oshi-core,oshi.driver.unix.aix,Uptime,56,0,6,0,12,0,5,0,2,0
 oshi-dist/oshi-core,oshi.driver.unix.aix,Lssrad,95,0,14,0,20,0,8,0,1,0
 oshi-dist/oshi-core,oshi.driver.unix.aix,Lscfg,152,0,22,0,35,0,14,0,3,0
 oshi-dist/oshi-core,oshi.driver.unix.aix,Lspv,240,0,24,0,37,0,13,0,1,0
-oshi-dist/oshi-core,oshi.util.platform.unix.freebsd,BsdSysctlUtil,206,0,14,0,37,0,13,0,6,0
+oshi-dist/oshi-core,oshi.util.platform.unix.freebsd,BsdSysctlUtil,202,0,14,0,37,0,13,0,6,0
 oshi-dist/oshi-core,oshi.util.platform.unix.freebsd,ProcstatUtil,148,0,20,0,23,0,13,0,3,0
 oshi-dist/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem.PsKeywords,123,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSThread,245,0,14,0,55,0,24,0,15,0
@@ -167,7 +167,7 @@ oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSFileStore,124,0,8,0,3
 oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdNetworkParams,11,0,0,0,3,0,3,0,3,0
 oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSThread,234,0,14,0,55,0,24,0,15,0
 oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOperatingSystem,399,0,34,0,78,0,39,0,22,0
-oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSProcess,799,0,50,0,169,0,64,0,37,0
+oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSProcess,798,0,50,0,169,0,64,0,37,0
 oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOperatingSystem.PsKeywords,111,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSProcess.PsThreadColumns,63,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core,oshi.software.os.unix.openbsd,OpenBsdFileSystem,287,0,38,0,58,0,26,0,7,0
@@ -247,10 +247,8 @@ oshi-dist/oshi-core,oshi.jna.platform.windows,PowrProf.BATTERY_STATUS,3,0,0,0,1,
 oshi-dist/oshi-core,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.windows,PowrProf.BATTERY_QUERY_INFORMATION_LEVEL,57,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.windows,PowrProf.BATTERY_WAIT_STATUS,3,0,0,0,1,0,1,0,1,0
-oshi-dist/oshi-core,oshi.jna.platform.windows,Shell32,7,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.windows,NtDll.PEB,11,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.windows,PowrProf.ProcessorPowerInformation,9,0,0,0,5,0,2,0,2,0
-oshi-dist/oshi-core,oshi.jna.platform.windows,Cfgmgr32,7,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.windows,NtDll.STRING,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.windows,NtDll.CURDIR,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.windows,PowrProf.BATTERY_INFORMATION,11,0,0,0,3,0,1,0,1,0
@@ -299,8 +297,8 @@ oshi-dist/oshi-core,oshi.driver.linux,Dmidecode,119,0,16,0,26,0,11,0,3,0
 oshi-dist/oshi-core,oshi.driver.linux,Who,83,0,14,0,15,0,9,0,2,0
 oshi-dist/oshi-core,oshi.driver.linux,Sysfs,189,0,36,0,54,0,30,0,12,0
 oshi-dist/oshi-core,oshi.driver.mac.net,NetStat.IFdata,87,0,0,0,24,0,12,0,12,0
-oshi-dist/oshi-core,oshi.driver.mac.net,NetStat,176,0,14,0,28,0,9,0,2,0
-oshi-dist/oshi-core,oshi.util.platform.unix.openbsd,OpenBsdSysctlUtil,264,0,18,0,43,0,18,0,9,0
+oshi-dist/oshi-core,oshi.driver.mac.net,NetStat,175,0,14,0,28,0,9,0,2,0
+oshi-dist/oshi-core,oshi.util.platform.unix.openbsd,OpenBsdSysctlUtil,260,0,18,0,43,0,18,0,9,0
 oshi-dist/oshi-core,oshi.util.platform.unix.openbsd,FstatUtil,73,0,10,0,12,0,7,0,2,0
 oshi-dist/oshi-core,oshi.util.tuples,Quartet,0,27,0,0,0,10,0,5,0,5
 oshi-dist/oshi-core,oshi.util.tuples,Pair,0,15,0,0,0,6,0,3,0,3
@@ -329,7 +327,7 @@ oshi-dist/oshi-core,oshi.util.platform.mac,SmcUtil.SMCKeyDataVers,3,0,0,0,1,0,1,
 oshi-dist/oshi-core,oshi.util.platform.mac,SmcUtil.SMCKeyDataKeyInfo,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.util.platform.mac,SmcUtil.SMCVal,15,0,0,0,4,0,1,0,1,0
 oshi-dist/oshi-core,oshi.util.platform.mac,SmcUtil.SMCKeyData,7,0,0,0,2,0,1,0,1,0
-oshi-dist/oshi-core,oshi.util.platform.mac,SysctlUtil,198,0,14,0,37,0,13,0,6,0
+oshi-dist/oshi-core,oshi.util.platform.mac,SysctlUtil,193,0,14,0,36,0,13,0,6,0
 oshi-dist/oshi-core,oshi.util.platform.mac,SmcUtil,323,0,32,0,66,0,24,0,8,0
 oshi-dist/oshi-core,oshi.jna.platform.unix,CLibrary.Addrinfo.ByReference,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.unix,CLibrary.BsdTcpstat,3,0,0,0,1,0,1,0,1,0
@@ -339,7 +337,6 @@ oshi-dist/oshi-core,oshi.jna.platform.unix,CLibrary.BsdIpstat,3,0,0,0,1,0,1,0,1,
 oshi-dist/oshi-core,oshi.jna.platform.unix,CLibrary.BsdUdpstat,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.unix,CLibrary.BsdIp6stat,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.unix,CLibrary.Sockaddr,7,0,0,0,2,0,1,0,1,0
-oshi-dist/oshi-core,oshi.jna.platform.unix,NativeSizeTByReference,88,0,6,0,15,0,8,0,5,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.aix,AixBaseboard,55,0,6,0,10,0,8,0,5,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.aix,AixVirtualMemory,55,0,0,0,10,0,7,0,7,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.aix,AixGraphicsCard,116,0,24,0,25,0,14,0,2,0
@@ -364,9 +361,9 @@ oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdSoundCard,137,0,1
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdHWDiskStore,314,0,14,0,60,0,18,0,11,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdPowerSource,297,0,32,0,69,0,19,0,3,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdGraphicsCard,262,0,48,0,46,0,26,0,2,0
-oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,767,0,72,0,147,0,52,0,15,0
+oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,765,0,72,0,147,0,52,0,15,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
-oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,71,0,4,0,13,0,7,0,5,0
+oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,70,0,4,0,13,0,7,0,5,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdFirmware,112,0,14,0,23,0,12,0,5,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdVirtualMemory,102,0,2,0,21,0,12,0,11,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.freebsd,FreeBsdComputerSystem,227,0,30,0,45,0,24,0,9,0
@@ -509,7 +506,7 @@ oshi-dist/oshi-demo,oshi.software.os.windows,WindowsFileSystem,607,0,48,0,111,0,
 oshi-dist/oshi-demo,oshi.software.os.windows,WindowsOSSystemInfo,65,0,4,0,21,0,7,0,5,0
 oshi-dist/oshi-demo,oshi.software.os.windows,WindowsOSThread,170,0,16,0,48,0,23,0,13,0
 oshi-dist/oshi-demo,oshi.software.os.windows,WindowsNetworkParams,197,0,22,0,47,0,20,0,9,0
-oshi-dist/oshi-demo,oshi.software.os.windows,WindowsOSProcess,954,0,92,0,224,0,86,0,40,0
+oshi-dist/oshi-demo,oshi.software.os.windows,WindowsOSProcess,929,0,90,0,219,0,85,0,40,0
 oshi-dist/oshi-demo,oshi.software.os.windows,WindowsOSFileStore,140,0,10,0,35,0,15,0,10,0
 oshi-dist/oshi-demo,oshi.software.os.windows,WindowsInternetProtocolStats,523,0,30,0,88,0,32,0,12,0
 oshi-dist/oshi-demo,oshi.util.platform.unix.solaris,KstatUtil,181,0,26,0,38,0,21,0,4,0
@@ -517,7 +514,7 @@ oshi-dist/oshi-demo,oshi.util.platform.unix.solaris,KstatUtil.KstatChain,122,0,2
 oshi-dist/oshi-demo,oshi.software.os.mac,MacNetworkParams,143,0,18,0,37,0,15,0,6,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacOperatingSystem,560,0,62,0,102,0,56,0,25,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
-oshi-dist/oshi-demo,oshi.software.os.mac,MacOSProcess,638,0,51,0,141,0,62,0,34,0
+oshi-dist/oshi-demo,oshi.software.os.mac,MacOSProcess,633,0,51,0,141,0,62,0,34,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacOSThread,46,0,0,0,16,0,8,0,8,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacInternetProtocolStats,762,0,58,0,145,0,47,0,13,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacFileSystem,475,0,58,0,104,0,37,0,8,0
@@ -556,7 +553,7 @@ oshi-dist/oshi-demo,oshi.driver.unix.aix,Uptime,56,0,6,0,12,0,5,0,2,0
 oshi-dist/oshi-demo,oshi.driver.unix.aix,Lssrad,95,0,14,0,20,0,8,0,1,0
 oshi-dist/oshi-demo,oshi.driver.unix.aix,Lscfg,152,0,22,0,35,0,14,0,3,0
 oshi-dist/oshi-demo,oshi.driver.unix.aix,Lspv,240,0,24,0,37,0,13,0,1,0
-oshi-dist/oshi-demo,oshi.util.platform.unix.freebsd,BsdSysctlUtil,206,0,14,0,37,0,13,0,6,0
+oshi-dist/oshi-demo,oshi.util.platform.unix.freebsd,BsdSysctlUtil,202,0,14,0,37,0,13,0,6,0
 oshi-dist/oshi-demo,oshi.util.platform.unix.freebsd,ProcstatUtil,148,0,20,0,23,0,13,0,3,0
 oshi-dist/oshi-demo,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem.PsKeywords,123,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.software.os.unix.freebsd,FreeBsdOSThread,245,0,14,0,55,0,24,0,15,0
@@ -626,7 +623,7 @@ oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdOSFileStore,124,0,8,0,3
 oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdNetworkParams,11,0,0,0,3,0,3,0,3,0
 oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdOSThread,234,0,14,0,55,0,24,0,15,0
 oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdOperatingSystem,399,0,34,0,78,0,39,0,22,0
-oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdOSProcess,799,0,50,0,169,0,64,0,37,0
+oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdOSProcess,798,0,50,0,169,0,64,0,37,0
 oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdOperatingSystem.PsKeywords,111,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdOSProcess.PsThreadColumns,63,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.software.os.unix.openbsd,OpenBsdFileSystem,287,0,38,0,58,0,26,0,7,0
@@ -706,10 +703,8 @@ oshi-dist/oshi-demo,oshi.jna.platform.windows,PowrProf.BATTERY_STATUS,3,0,0,0,1,
 oshi-dist/oshi-demo,oshi.jna.platform.windows,PowrProf,6,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.windows,PowrProf.BATTERY_QUERY_INFORMATION_LEVEL,57,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.windows,PowrProf.BATTERY_WAIT_STATUS,3,0,0,0,1,0,1,0,1,0
-oshi-dist/oshi-demo,oshi.jna.platform.windows,Shell32,7,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.windows,NtDll.PEB,11,0,0,0,3,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.windows,PowrProf.ProcessorPowerInformation,9,0,0,0,5,0,2,0,2,0
-oshi-dist/oshi-demo,oshi.jna.platform.windows,Cfgmgr32,7,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.windows,NtDll.STRING,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.windows,NtDll.CURDIR,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.windows,PowrProf.BATTERY_INFORMATION,11,0,0,0,3,0,1,0,1,0
@@ -766,8 +761,8 @@ oshi-dist/oshi-demo,oshi.demo.gui,MemoryPanel,275,0,2,0,60,0,9,0,8,0
 oshi-dist/oshi-demo,oshi.demo.gui,ProcessorPanel,246,0,4,0,48,0,8,0,6,0
 oshi-dist/oshi-demo,oshi.demo.gui,OsHwTextPanel,416,0,10,0,85,0,13,0,8,0
 oshi-dist/oshi-demo,oshi.driver.mac.net,NetStat.IFdata,87,0,0,0,24,0,12,0,12,0
-oshi-dist/oshi-demo,oshi.driver.mac.net,NetStat,176,0,14,0,28,0,9,0,2,0
-oshi-dist/oshi-demo,oshi.util.platform.unix.openbsd,OpenBsdSysctlUtil,264,0,18,0,43,0,18,0,9,0
+oshi-dist/oshi-demo,oshi.driver.mac.net,NetStat,175,0,14,0,28,0,9,0,2,0
+oshi-dist/oshi-demo,oshi.util.platform.unix.openbsd,OpenBsdSysctlUtil,260,0,18,0,43,0,18,0,9,0
 oshi-dist/oshi-demo,oshi.util.platform.unix.openbsd,FstatUtil,73,0,10,0,12,0,7,0,2,0
 oshi-dist/oshi-demo,oshi.util.tuples,Quartet,0,27,0,0,0,10,0,5,0,5
 oshi-dist/oshi-demo,oshi.util.tuples,Pair,0,15,0,0,0,6,0,3,0,3
@@ -796,7 +791,7 @@ oshi-dist/oshi-demo,oshi.util.platform.mac,SmcUtil.SMCKeyDataVers,3,0,0,0,1,0,1,
 oshi-dist/oshi-demo,oshi.util.platform.mac,SmcUtil.SMCKeyDataKeyInfo,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.util.platform.mac,SmcUtil.SMCVal,15,0,0,0,4,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.util.platform.mac,SmcUtil.SMCKeyData,7,0,0,0,2,0,1,0,1,0
-oshi-dist/oshi-demo,oshi.util.platform.mac,SysctlUtil,198,0,14,0,37,0,13,0,6,0
+oshi-dist/oshi-demo,oshi.util.platform.mac,SysctlUtil,193,0,14,0,36,0,13,0,6,0
 oshi-dist/oshi-demo,oshi.util.platform.mac,SmcUtil,323,0,32,0,66,0,24,0,8,0
 oshi-dist/oshi-demo,oshi.jna.platform.unix,CLibrary.Addrinfo.ByReference,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.unix,CLibrary.BsdTcpstat,3,0,0,0,1,0,1,0,1,0
@@ -806,7 +801,6 @@ oshi-dist/oshi-demo,oshi.jna.platform.unix,CLibrary.BsdIpstat,3,0,0,0,1,0,1,0,1,
 oshi-dist/oshi-demo,oshi.jna.platform.unix,CLibrary.BsdUdpstat,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.unix,CLibrary.BsdIp6stat,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.unix,CLibrary.Sockaddr,7,0,0,0,2,0,1,0,1,0
-oshi-dist/oshi-demo,oshi.jna.platform.unix,NativeSizeTByReference,88,0,6,0,15,0,8,0,5,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.aix,AixBaseboard,55,0,6,0,10,0,8,0,5,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.aix,AixVirtualMemory,55,0,0,0,10,0,7,0,7,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.aix,AixGraphicsCard,116,0,24,0,25,0,14,0,2,0
@@ -831,9 +825,9 @@ oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdSoundCard,137,0,1
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdHWDiskStore,314,0,14,0,60,0,18,0,11,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdPowerSource,297,0,32,0,69,0,19,0,3,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdGraphicsCard,262,0,48,0,46,0,26,0,2,0
-oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,767,0,72,0,147,0,52,0,15,0
+oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdCentralProcessor,765,0,72,0,147,0,52,0,15,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
-oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,71,0,4,0,13,0,7,0,5,0
+oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdSensors,70,0,4,0,13,0,7,0,5,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdFirmware,112,0,14,0,23,0,12,0,5,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdVirtualMemory,102,0,2,0,21,0,12,0,11,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.freebsd,FreeBsdComputerSystem,227,0,30,0,45,0,24,0,9,0

@@ -34,7 +34,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.IFmsgHdr;
 import com.sun.jna.platform.mac.SystemB.IFmsgHdr2;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -71,13 +71,13 @@ public final class NetStat {
 <span class="nc" id="L71">        Map&lt;Integer, IFdata&gt; data = new HashMap&lt;&gt;();</span>
         // Get buffer of all interface information
 <span class="nc" id="L73">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
-<span class="nc" id="L74">        IntByReference len = new IntByReference();</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, 0)) {</span>
+<span class="nc" id="L74">        size_t.ByReference len = new size_t.ByReference();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, size_t.ZERO)) {</span>
 <span class="nc" id="L76">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
 <span class="nc" id="L77">            return data;</span>
         }
-<span class="nc" id="L79">        Memory buf = new Memory(len.getValue());</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, 0)) {</span>
+<span class="nc" id="L79">        Memory buf = new Memory(len.longValue());</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, size_t.ZERO)) {</span>
 <span class="nc" id="L81">            LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
 <span class="nc" id="L82">            return data;</span>
         }
