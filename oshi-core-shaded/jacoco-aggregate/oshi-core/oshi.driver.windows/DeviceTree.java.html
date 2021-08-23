@@ -23,15 +23,15 @@
  */
 package oshi.driver.windows;
 
-import static com.sun.jna.platform.win32.SetupApi.DIGCF_DEVICEINTERFACE; // NOSONAR squid:S1191
+import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_CLASS; // NOSONAR squid:S1191
+import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_DEVICEDESC;
+import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_FRIENDLYNAME;
+import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_MFG;
+import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_SERVICE;
+import static com.sun.jna.platform.win32.SetupApi.DIGCF_DEVICEINTERFACE;
 import static com.sun.jna.platform.win32.SetupApi.DIGCF_PRESENT;
 import static com.sun.jna.platform.win32.WinBase.INVALID_HANDLE_VALUE;
 import static com.sun.jna.platform.win32.WinError.ERROR_SUCCESS;
-import static oshi.jna.platform.windows.Cfgmgr32.CM_DRP_CLASS;
-import static oshi.jna.platform.windows.Cfgmgr32.CM_DRP_DEVICEDESC;
-import static oshi.jna.platform.windows.Cfgmgr32.CM_DRP_FRIENDLYNAME;
-import static oshi.jna.platform.windows.Cfgmgr32.CM_DRP_MFG;
-import static oshi.jna.platform.windows.Cfgmgr32.CM_DRP_SERVICE;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Memory;
+import com.sun.jna.platform.win32.Cfgmgr32;
 import com.sun.jna.platform.win32.Cfgmgr32Util;
 import com.sun.jna.platform.win32.Guid.GUID;
 import com.sun.jna.platform.win32.SetupApi;
@@ -49,7 +50,6 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.windows.Cfgmgr32;
 import oshi.util.tuples.Quintet;
 
 /**
