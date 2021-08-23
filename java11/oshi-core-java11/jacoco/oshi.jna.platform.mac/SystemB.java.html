@@ -24,13 +24,11 @@
 package oshi.jna.platform.mac;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.Union;
 
 import oshi.jna.platform.unix.CLibrary;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 
 /**
  * System class. This class should be considered non-API as it may be removed
@@ -38,7 +36,7 @@ import oshi.jna.platform.unix.NativeSizeTByReference;
  */
 public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
 
-<span class="nc" id="L41">    SystemB INSTANCE = Native.load(&quot;System&quot;, SystemB.class);</span>
+<span class="nc" id="L39">    SystemB INSTANCE = Native.load(&quot;System&quot;, SystemB.class);</span>
 
     int PROC_PIDLISTFDS = 1;
     int PROX_FDTYPE_SOCKET = 2;
@@ -59,22 +57,22 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      * Mac connection info
      */
     @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_host&quot;, &quot;ut_pad&quot; })
-<span class="nc" id="L62">    class MacUtmpx extends Structure {</span>
-<span class="nc" id="L63">        public byte[] ut_user = new byte[UTX_USERSIZE]; // login name</span>
-<span class="nc" id="L64">        public byte[] ut_id = new byte[UTX_IDSIZE]; // id</span>
-<span class="nc" id="L65">        public byte[] ut_line = new byte[UTX_LINESIZE]; // tty name</span>
+<span class="nc" id="L60">    class MacUtmpx extends Structure {</span>
+<span class="nc" id="L61">        public byte[] ut_user = new byte[UTX_USERSIZE]; // login name</span>
+<span class="nc" id="L62">        public byte[] ut_id = new byte[UTX_IDSIZE]; // id</span>
+<span class="nc" id="L63">        public byte[] ut_line = new byte[UTX_LINESIZE]; // tty name</span>
         public int ut_pid; // process id creating the entry
         public short ut_type; // type of this entry
         public Timeval ut_tv; // time entry was created
-<span class="nc" id="L69">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
-<span class="nc" id="L70">        public byte[] ut_pad = new byte[16]; // reserved for future use</span>
+<span class="nc" id="L67">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L68">        public byte[] ut_pad = new byte[16]; // reserved for future use</span>
     }
 
     /**
      * Mac file descriptor info
      */
     @FieldOrder({ &quot;proc_fd&quot;, &quot;proc_fdtype&quot; })
-<span class="nc" id="L77">    class ProcFdInfo extends Structure {</span>
+<span class="nc" id="L75">    class ProcFdInfo extends Structure {</span>
         public int proc_fd;
         public int proc_fdtype;
     }
@@ -84,7 +82,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      */
     @FieldOrder({ &quot;insi_fport&quot;, &quot;insi_lport&quot;, &quot;insi_gencnt&quot;, &quot;insi_flags&quot;, &quot;insi_flow&quot;, &quot;insi_vflag&quot;, &quot;insi_ip_ttl&quot;,
             &quot;rfu_1&quot;, &quot;insi_faddr&quot;, &quot;insi_laddr&quot;, &quot;insi_v4&quot;, &quot;insi_v6&quot; })
-<span class="nc" id="L87">    class InSockInfo extends Structure {</span>
+<span class="nc" id="L85">    class InSockInfo extends Structure {</span>
         public int insi_fport; /* foreign port */
         public int insi_lport; /* local port */
         public long insi_gencnt; /* generation count of this instance */
@@ -95,20 +93,20 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
         public byte insi_ip_ttl; /* time to live proto */
         public int rfu_1; /* reserved */
         /* protocol dependent part, v4 only in last element */
-<span class="nc" id="L98">        public int[] insi_faddr = new int[4]; /* foreign host table entry */</span>
-<span class="nc" id="L99">        public int[] insi_laddr = new int[4]; /* local host table entry */</span>
+<span class="nc" id="L96">        public int[] insi_faddr = new int[4]; /* foreign host table entry */</span>
+<span class="nc" id="L97">        public int[] insi_laddr = new int[4]; /* local host table entry */</span>
         public byte insi_v4; /* type of service */
-<span class="nc" id="L101">        public byte[] insi_v6 = new byte[9];</span>
+<span class="nc" id="L99">        public byte[] insi_v6 = new byte[9];</span>
     }
 
     /**
      * Mac TCP socket info
      */
     @FieldOrder({ &quot;tcpsi_ini&quot;, &quot;tcpsi_state&quot;, &quot;tcpsi_timer&quot;, &quot;tcpsi_mss&quot;, &quot;tcpsi_flags&quot;, &quot;rfu_1&quot;, &quot;tcpsi_tp&quot; })
-<span class="nc" id="L108">    class TcpSockInfo extends Structure {</span>
+<span class="nc" id="L106">    class TcpSockInfo extends Structure {</span>
         public InSockInfo tcpsi_ini;
         public int tcpsi_state;
-<span class="nc" id="L111">        public int[] tcpsi_timer = new int[TSI_T_NTIMERS];</span>
+<span class="nc" id="L109">        public int[] tcpsi_timer = new int[TSI_T_NTIMERS];</span>
         public int tcpsi_mss;
         public int tcpsi_flags;
         public int rfu_1; /* reserved */
@@ -121,8 +119,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     @FieldOrder({ &quot;soi_stat&quot;, &quot;soi_so&quot;, &quot;soi_pcb&quot;, &quot;soi_type&quot;, &quot;soi_protocol&quot;, &quot;soi_family&quot;, &quot;soi_options&quot;,
             &quot;soi_linger&quot;, &quot;soi_state&quot;, &quot;soi_qlen&quot;, &quot;soi_incqlen&quot;, &quot;soi_qlimit&quot;, &quot;soi_timeo&quot;, &quot;soi_error&quot;, &quot;soi_oobmark&quot;,
             &quot;soi_rcv&quot;, &quot;soi_snd&quot;, &quot;soi_kind&quot;, &quot;rfu_1&quot;, &quot;soi_proto&quot; })
-<span class="nc" id="L124">    class SocketInfo extends Structure {</span>
-<span class="nc" id="L125">        public long[] soi_stat = new long[17]; // vinfo_stat</span>
+<span class="nc" id="L122">    class SocketInfo extends Structure {</span>
+<span class="nc" id="L123">        public long[] soi_stat = new long[17]; // vinfo_stat</span>
         public long soi_so; /* opaque handle of socket */
         public long soi_pcb; /* opaque handle of protocol control block */
         public int soi_type;
@@ -137,8 +135,8 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
         public short soi_timeo;
         public short soi_error;
         public int soi_oobmark;
-<span class="nc" id="L140">        public int[] soi_rcv = new int[6]; // sockbuf_info</span>
-<span class="nc" id="L141">        public int[] soi_snd = new int[6]; // sockbuf_info</span>
+<span class="nc" id="L138">        public int[] soi_rcv = new int[6]; // sockbuf_info</span>
+<span class="nc" id="L139">        public int[] soi_snd = new int[6]; // sockbuf_info</span>
         public int soi_kind;
         public int rfu_1; /* reserved */
         public Pri soi_proto;
@@ -148,7 +146,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      * Mac file info
      */
     @FieldOrder({ &quot;fi_openflags&quot;, &quot;fi_status&quot;, &quot;fi_offset&quot;, &quot;fi_type&quot;, &quot;fi_guardflags&quot; })
-<span class="nc" id="L151">    class ProcFileInfo extends Structure {</span>
+<span class="nc" id="L149">    class ProcFileInfo extends Structure {</span>
         public int fi_openflags;
         public int fi_status;
         public long fi_offset;
@@ -160,7 +158,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      * Mac socket info
      */
     @FieldOrder({ &quot;pfi&quot;, &quot;psi&quot; })
-<span class="nc" id="L163">    class SocketFdInfo extends Structure {</span>
+<span class="nc" id="L161">    class SocketFdInfo extends Structure {</span>
         public ProcFileInfo pfi;
         public SocketInfo psi;
     }
@@ -168,11 +166,11 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     /**
      * Union for TCP or internet socket info
      */
-<span class="nc" id="L171">    class Pri extends Union {</span>
+<span class="nc" id="L169">    class Pri extends Union {</span>
         public InSockInfo pri_in;
         public TcpSockInfo pri_tcp;
         // max element is 524 bytes
-<span class="nc" id="L175">        public byte[] max_size = new byte[524];</span>
+<span class="nc" id="L173">        public byte[] max_size = new byte[524];</span>
     }
 
     /**
@@ -187,11 +185,5 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     MacUtmpx getutxent();
 
     int proc_pidfdinfo(int pid, int fd, int flavor, Structure buffer, int buffersize);
-
-    int sysctl(int[] name, int namelen, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
-
-    int sysctlbyname(String name, Pointer oldp, NativeSizeTByReference oldlenp, Pointer newp, size_t newlen);
-
-    int sysctlnametomib(String name, Pointer mibp, NativeSizeTByReference sizep);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

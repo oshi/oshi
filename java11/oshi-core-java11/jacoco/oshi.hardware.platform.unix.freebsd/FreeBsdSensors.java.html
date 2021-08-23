@@ -29,18 +29,17 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 
 /**
  * Sensors from coretemp
  */
 @ThreadSafe
-<span class="nc" id="L39">final class FreeBsdSensors extends AbstractSensors {</span>
+<span class="nc" id="L38">final class FreeBsdSensors extends AbstractSensors {</span>
 
     @Override
     public double queryCpuTemperature() {
-<span class="nc" id="L43">        return queryKldloadCoretemp();</span>
+<span class="nc" id="L42">        return queryKldloadCoretemp();</span>
     }
 
     /*
@@ -50,28 +49,28 @@ import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
      * @return Tempurature if successful, otherwise NaN
      */
     private static double queryKldloadCoretemp() {
-<span class="nc" id="L53">        String name = &quot;dev.cpu.%d.temperature&quot;;</span>
-<span class="nc" id="L54">        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(FreeBsdLibc.INT_SIZE));</span>
-<span class="nc" id="L55">        Pointer p = new Memory(size.getValue().longValue());</span>
-<span class="nc" id="L56">        int cpu = 0;</span>
-<span class="nc" id="L57">        double sumTemp = 0d;</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L59">            sumTemp += p.getInt(0) / 10d - 273.15;</span>
-<span class="nc" id="L60">            cpu++;</span>
+<span class="nc" id="L52">        String name = &quot;dev.cpu.%d.temperature&quot;;</span>
+<span class="nc" id="L53">        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));</span>
+<span class="nc" id="L54">        Pointer p = new Memory(size.longValue());</span>
+<span class="nc" id="L55">        int cpu = 0;</span>
+<span class="nc" id="L56">        double sumTemp = 0d;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L58">            sumTemp += p.getInt(0) / 10d - 273.15;</span>
+<span class="nc" id="L59">            cpu++;</span>
         }
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        return cpu &gt; 0 ? sumTemp / cpu : Double.NaN;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        return cpu &gt; 0 ? sumTemp / cpu : Double.NaN;</span>
     }
 
     @Override
     public int[] queryFanSpeeds() {
         // Nothing known on FreeBSD for this.
-<span class="nc" id="L68">        return new int[0];</span>
+<span class="nc" id="L67">        return new int[0];</span>
     }
 
     @Override
     public double queryCpuVoltage() {
         // Nothing known on FreeBSD for this.
-<span class="nc" id="L74">        return 0d;</span>
+<span class="nc" id="L73">        return 0d;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
