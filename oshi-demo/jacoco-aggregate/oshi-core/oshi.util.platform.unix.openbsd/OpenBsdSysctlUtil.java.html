@@ -33,7 +33,6 @@ import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.NativeSizeTByReference;
 import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -46,7 +45,7 @@ public final class OpenBsdSysctlUtil {
 
     private static final String SYSCTL_N = &quot;sysctl -n &quot;;
 
-<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdSysctlUtil.class);</span>
+<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdSysctlUtil.class);</span>
 
     private static final String SYSCTL_FAIL = &quot;Failed sysctl call: {}, Error code: {}&quot;;
 
@@ -63,13 +62,13 @@ public final class OpenBsdSysctlUtil {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(int[] name, int def) {
-<span class="nc" id="L66">        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(OpenBsdLibc.INT_SIZE));</span>
-<span class="nc" id="L67">        Pointer p = new Memory(size.getValue().longValue());</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L69">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L70">            return def;</span>
+<span class="nc" id="L65">        size_t.ByReference size = new size_t.ByReference(new size_t(OpenBsdLibc.INT_SIZE));</span>
+<span class="nc" id="L66">        Pointer p = new Memory(size.longValue());</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L68">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L69">            return def;</span>
         }
-<span class="nc" id="L72">        return p.getInt(0);</span>
+<span class="nc" id="L71">        return p.getInt(0);</span>
     }
 
     /**
@@ -82,13 +81,13 @@ public final class OpenBsdSysctlUtil {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(int[] name, long def) {
-<span class="nc" id="L85">        NativeSizeTByReference size = new NativeSizeTByReference(new size_t(OpenBsdLibc.UINT64_SIZE));</span>
-<span class="nc" id="L86">        Pointer p = new Memory(size.getValue().longValue());</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L88">            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L89">            return def;</span>
+<span class="nc" id="L84">        size_t.ByReference size = new size_t.ByReference(new size_t(OpenBsdLibc.UINT64_SIZE));</span>
+<span class="nc" id="L85">        Pointer p = new Memory(size.longValue());</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L87">            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L88">            return def;</span>
         }
-<span class="nc" id="L91">        return p.getLong(0);</span>
+<span class="nc" id="L90">        return p.getLong(0);</span>
     }
 
     /**
@@ -102,18 +101,18 @@ public final class OpenBsdSysctlUtil {
      */
     public static String sysctl(int[] name, String def) {
         // Call first time with null pointer to get value of size
-<span class="nc" id="L105">        NativeSizeTByReference size = new NativeSizeTByReference();</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L107">            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L108">            return def;</span>
+<span class="nc" id="L104">        size_t.ByReference size = new size_t.ByReference();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L106">            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L107">            return def;</span>
         }
         // Add 1 to size for null terminated string
-<span class="nc" id="L111">        Pointer p = new Memory(size.getValue().longValue() + 1L);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L113">            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L114">            return def;</span>
+<span class="nc" id="L110">        Pointer p = new Memory(size.longValue() + 1L);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L112">            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L113">            return def;</span>
         }
-<span class="nc" id="L116">        return p.getString(0);</span>
+<span class="nc" id="L115">        return p.getString(0);</span>
     }
 
     /**
@@ -126,13 +125,13 @@ public final class OpenBsdSysctlUtil {
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(int[] name, Structure struct) {
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, struct.getPointer(),</span>
-<span class="nc" id="L130">                new NativeSizeTByReference(new size_t(struct.size())), null, size_t.ZERO)) {</span>
-<span class="nc" id="L131">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L132">            return false;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, struct.getPointer(),</span>
+<span class="nc" id="L129">                new size_t.ByReference(new size_t(struct.size())), null, size_t.ZERO)) {</span>
+<span class="nc" id="L130">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L131">            return false;</span>
         }
-<span class="nc" id="L134">        struct.read();</span>
-<span class="nc" id="L135">        return true;</span>
+<span class="nc" id="L133">        struct.read();</span>
+<span class="nc" id="L134">        return true;</span>
     }
 
     /**
@@ -144,17 +143,17 @@ public final class OpenBsdSysctlUtil {
      *         otherwise. Its value on failure is undefined.
      */
     public static Memory sysctl(int[] name) {
-<span class="nc" id="L147">        NativeSizeTByReference size = new NativeSizeTByReference();</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L149">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L150">            return null;</span>
+<span class="nc" id="L146">        size_t.ByReference size = new size_t.ByReference();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L148">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L149">            return null;</span>
         }
-<span class="nc" id="L152">        Memory m = new Memory(size.getValue().longValue());</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, m, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L154">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L155">            return null;</span>
+<span class="nc" id="L151">        Memory m = new Memory(size.longValue());</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, m, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L153">            LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L154">            return null;</span>
         }
-<span class="nc" id="L157">        return m;</span>
+<span class="nc" id="L156">        return m;</span>
     }
 
     /*
@@ -171,7 +170,7 @@ public final class OpenBsdSysctlUtil {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
-<span class="nc" id="L174">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
+<span class="nc" id="L173">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
     }
 
     /**
@@ -184,7 +183,7 @@ public final class OpenBsdSysctlUtil {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
-<span class="nc" id="L187">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
+<span class="nc" id="L186">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
     }
 
     /**
@@ -197,11 +196,11 @@ public final class OpenBsdSysctlUtil {
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
-<span class="nc" id="L200">        String v = ExecutingCommand.getFirstAnswer(SYSCTL_N + name);</span>
-<span class="nc bnc" id="L201" title="All 4 branches missed.">        if (null == v || v.isEmpty()) {</span>
-<span class="nc" id="L202">            return def;</span>
+<span class="nc" id="L199">        String v = ExecutingCommand.getFirstAnswer(SYSCTL_N + name);</span>
+<span class="nc bnc" id="L200" title="All 4 branches missed.">        if (null == v || v.isEmpty()) {</span>
+<span class="nc" id="L201">            return def;</span>
         }
-<span class="nc" id="L204">        return v;</span>
+<span class="nc" id="L203">        return v;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
