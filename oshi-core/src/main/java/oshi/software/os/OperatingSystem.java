@@ -505,7 +505,13 @@ public interface OperatingSystem {
         private final String versionStr;
 
         public OSVersionInfo(String version, String codeName, String buildNumber) {
-            this.version = version;
+            // Insider Preview Windows 11 is marked as Windows 10 build 22000
+            // Temporary code until JDK os.name matches up
+            if ("10".equals(version) && buildNumber.compareTo("22000") >= 0) {
+                this.version = "11";
+            } else {
+                this.version = version;
+            }
             this.codeName = codeName;
             this.buildNumber = buildNumber;
 
