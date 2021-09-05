@@ -23,7 +23,7 @@ oshi-dist/oshi-core,oshi.software.os,InternetProtocolStats.TcpStats,0,120,0,0,0,
 oshi-dist/oshi-core,oshi.software.os,OSDesktopWindow,55,33,0,0,6,12,5,4,5,4
 oshi-dist/oshi-core,oshi.software.os,InternetProtocolStats.TcpState,0,81,0,0,0,3,0,1,0,1
 oshi-dist/oshi-core,oshi.software.os,OSProcess.State,0,57,0,0,0,10,0,1,0,1
-oshi-dist/oshi-core,oshi.software.os,OperatingSystem.OSVersionInfo,1,62,3,3,0,15,3,5,0,5
+oshi-dist/oshi-core,oshi.software.os,OperatingSystem.OSVersionInfo,9,66,6,4,1,16,5,5,0,5
 oshi-dist/oshi-core,oshi.software.os,InternetProtocolStats.UdpStats,0,54,0,0,0,11,0,6,0,6
 oshi-dist/oshi-core,oshi.software.os,OperatingSystem.ProcessSorting,36,29,10,0,11,11,9,2,1,2
 oshi-dist/oshi-core,oshi.software.os,OSProcess,6,0,0,0,3,0,3,0,3,0
@@ -305,8 +305,8 @@ oshi-dist/oshi-core,oshi.util.tuples,Pair,0,15,0,0,0,6,0,3,0,3
 oshi-dist/oshi-core,oshi.util.tuples,Quintet,0,33,0,0,0,12,0,6,0,6
 oshi-dist/oshi-core,oshi.util.tuples,Triplet,0,21,0,0,0,8,0,4,0,4
 oshi-dist/oshi-core,oshi.driver.unix.solaris.kstat,SystemPages,32,0,4,0,8,0,3,0,1,0
-oshi-dist/oshi-core,oshi,PlatformEnum,0,57,0,0,0,10,0,1,0,1
-oshi-dist/oshi-core,oshi,SystemInfo,104,52,27,5,27,16,23,8,1,8
+oshi-dist/oshi-core,oshi,PlatformEnum,9,119,2,2,3,20,4,3,2,3
+oshi-dist/oshi-core,oshi,SystemInfo,84,45,16,2,16,12,16,7,1,7
 oshi-dist/oshi-core,oshi.jna.platform.linux,LinuxLibc.Ut_Tv,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.linux,LinuxLibc.Exit_status,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-core,oshi.jna.platform.linux,LinuxLibc.LinuxUtmpx,27,0,0,0,7,0,1,0,1,0
@@ -479,7 +479,7 @@ oshi-dist/oshi-demo,oshi.software.os,InternetProtocolStats.TcpStats,0,120,0,0,0,
 oshi-dist/oshi-demo,oshi.software.os,OSDesktopWindow,55,33,0,0,6,12,5,4,5,4
 oshi-dist/oshi-demo,oshi.software.os,InternetProtocolStats.TcpState,0,81,0,0,0,3,0,1,0,1
 oshi-dist/oshi-demo,oshi.software.os,OSProcess.State,0,57,0,0,0,10,0,1,0,1
-oshi-dist/oshi-demo,oshi.software.os,OperatingSystem.OSVersionInfo,1,62,3,3,0,15,3,5,0,5
+oshi-dist/oshi-demo,oshi.software.os,OperatingSystem.OSVersionInfo,9,66,6,4,1,16,5,5,0,5
 oshi-dist/oshi-demo,oshi.software.os,InternetProtocolStats.UdpStats,0,54,0,0,0,11,0,6,0,6
 oshi-dist/oshi-demo,oshi.software.os,OperatingSystem.ProcessSorting,36,29,10,0,11,11,9,2,1,2
 oshi-dist/oshi-demo,oshi.software.os,OSProcess,6,0,0,0,3,0,3,0,3,0
@@ -769,8 +769,8 @@ oshi-dist/oshi-demo,oshi.util.tuples,Pair,0,15,0,0,0,6,0,3,0,3
 oshi-dist/oshi-demo,oshi.util.tuples,Quintet,0,33,0,0,0,12,0,6,0,6
 oshi-dist/oshi-demo,oshi.util.tuples,Triplet,0,21,0,0,0,8,0,4,0,4
 oshi-dist/oshi-demo,oshi.driver.unix.solaris.kstat,SystemPages,32,0,4,0,8,0,3,0,1,0
-oshi-dist/oshi-demo,oshi,PlatformEnum,0,57,0,0,0,10,0,1,0,1
-oshi-dist/oshi-demo,oshi,SystemInfo,104,52,27,5,27,16,23,8,1,8
+oshi-dist/oshi-demo,oshi,PlatformEnum,9,119,2,2,3,20,4,3,2,3
+oshi-dist/oshi-demo,oshi,SystemInfo,84,45,16,2,16,12,16,7,1,7
 oshi-dist/oshi-demo,oshi.jna.platform.linux,LinuxLibc.Ut_Tv,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.linux,LinuxLibc.Exit_status,3,0,0,0,1,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.jna.platform.linux,LinuxLibc.LinuxUtmpx,27,0,0,0,7,0,1,0,1,0
