@@ -3,6 +3,7 @@
 ##### Bug fixes / Improvements
 * [#1707](https://github.com/oshi/oshi/pull/1707): Display Windows 11 version for insider builds - [@dbwiddis](https://github.com/dbwiddis).
 * [#1711](https://github.com/oshi/oshi/pull/1711): Fix WMI backup table source for process counters - [@dbwiddis](https://github.com/dbwiddis).
+* [#1712](https://github.com/oshi/oshi/pull/1712): Align PlatformEnum to JNA Platform type - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.8.0 (2021-07-18), 5.8.1 (2021-08-22)
 
