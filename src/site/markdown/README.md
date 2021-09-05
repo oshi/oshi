@@ -63,15 +63,15 @@ Downloads
 ---------
 | Stable Release Version | Current Development Version | Dependencies |
 | ------------- | ------------- | ------------- |
-| [oshi-core-5.8.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.8.1&amp;e=jar)  | [oshi-core-5.8.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.8.2-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
+| [oshi-core-5.8.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.8.2&amp;e=jar)  | [oshi-core-5.8.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=5.8.3-SNAPSHOT&amp;e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
 | Java 11 (JPMS) Version | Current Development Version | 
 | ------------- | ------------- | 
-| [oshi-core-java11-5.8.1](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=5.8.1&amp;e=jar)  | [oshi-core-java11-5.8.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=5.8.2-SNAPSHOT&amp;e=jar) |
+| [oshi-core-java11-5.8.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=5.8.2&amp;e=jar)  | [oshi-core-java11-5.8.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=5.8.3-SNAPSHOT&amp;e=jar) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.8.1/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.8.2/jar). 
 
 2. Create a new instance of `SystemInfo` 
 
@@ -250,7 +250,7 @@ Acknowledgements
 -------------------
 Many thanks to the following companies for providing free support of Open Source projects including OSHI:
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
-* [Travis CI](https://travis-ci.org/) for continuous integration testing
+* [GitHub Actions](https://github.com/features/actions), [Travis CI](https://travis-ci.com/), [AppVeyor](https://www.appveyor.com/), and [Cirrus CI](https://cirrus-ci.org/) for continuous integration testing
 * The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate cpu bottlenecks
 
 License
