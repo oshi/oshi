@@ -23,15 +23,8 @@
  */
 package oshi;
 
-import static oshi.PlatformEnum.AIX;
-import static oshi.PlatformEnum.FREEBSD;
-import static oshi.PlatformEnum.LINUX;
 import static oshi.PlatformEnum.MACOS;
 import static oshi.PlatformEnum.MACOSX;
-import static oshi.PlatformEnum.OPENBSD;
-import static oshi.PlatformEnum.SOLARIS;
-import static oshi.PlatformEnum.UNKNOWN;
-import static oshi.PlatformEnum.WINDOWS;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -66,9 +59,9 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static final PlatformEnum currentPlatform = queryCurrentPlatform();
+    private static final PlatformEnum currentPlatform = PlatformEnum.getValue(Platform.getOSType());
 
-    private static final String NOT_SUPPORTED = "Operating system not supported: JNA Platform type ";
+    private static final String NOT_SUPPORTED = "Operating system not supported: ";
 
     private final Supplier<OperatingSystem> os = memoize(SystemInfo::createOperatingSystem);
 
@@ -86,8 +79,6 @@ public class SystemInfo {
      */
     public SystemInfo() {
         // Intentionally empty, here to enable the constructor javadoc.
-        // Trying to access the static currentPlatform variable for OS check caused
-        // unexplained problems with initialization.
     }
 
     /**
@@ -97,26 +88,6 @@ public class SystemInfo {
      */
     public static PlatformEnum getCurrentPlatform() {
         return currentPlatform;
-    }
-
-    private static PlatformEnum queryCurrentPlatform() {
-        if (Platform.isWindows()) {
-            return WINDOWS;
-        } else if (Platform.isLinux()) {
-            return LINUX;
-        } else if (Platform.isMac()) {
-            return MACOS;
-        } else if (Platform.isSolaris()) {
-            return SOLARIS;
-        } else if (Platform.isFreeBSD()) {
-            return FREEBSD;
-        } else if (Platform.isAIX()) {
-            return AIX;
-        } else if (Platform.isOpenBSD()) {
-            return OPENBSD;
-        } else {
-            return UNKNOWN;
-        }
     }
 
     /**
@@ -158,7 +129,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdOperatingSystem();
         default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());
         }
     }
 
@@ -189,7 +160,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdHardwareAbstractionLayer();
         default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + Platform.getOSType());
+            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());
         }
     }
 }
