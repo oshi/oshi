@@ -24,47 +24,110 @@
 package oshi;
 
 /**
- * Enum of supported operating systems.
+ * An enumeration of supported operating systems. The order of declaration
+ * matches the osType constants in the JNA Platform class.
  */
-<span class="fc" id="L29">public enum PlatformEnum {</span>
+<span class="fc" id="L30">public enum PlatformEnum {</span>
     /**
-     * Microsoft Windows
+     * macOS
      */
-<span class="fc" id="L33">    WINDOWS,</span>
+<span class="fc" id="L34">    MACOS(&quot;macOS&quot;),</span>
     /**
      * A flavor of Linux
      */
-<span class="fc" id="L37">    LINUX,</span>
+<span class="fc" id="L38">    LINUX(&quot;Linux&quot;),</span>
     /**
-     * macOS (formerly OS X)
+     * Microsoft Windows
      */
-<span class="fc" id="L41">    MACOS,</span>
-    /**
-     * Mac OS X
-     *
-     * @deprecated Use {@link #MACOS}
-     */
-<span class="fc" id="L47">    @Deprecated</span>
-    MACOSX,
+<span class="fc" id="L42">    WINDOWS(&quot;Windows&quot;),</span>
     /**
      * Solaris (SunOS)
      */
-<span class="fc" id="L52">    SOLARIS,</span>
+<span class="fc" id="L46">    SOLARIS(&quot;Solaris&quot;),</span>
     /**
      * FreeBSD
      */
-<span class="fc" id="L56">    FREEBSD,</span>
-    /**
-     * IBM AIX
-     */
-<span class="fc" id="L60">    AIX,</span>
+<span class="fc" id="L50">    FREEBSD(&quot;FreeBSD&quot;),</span>
     /**
      * OpenBSD
      */
-<span class="fc" id="L64">    OPENBSD,</span>
+<span class="fc" id="L54">    OPENBSD(&quot;OpenBSD&quot;),</span>
     /**
-     * WindowsCE, or an unspecified system
+     * Windows Embedded Compact
      */
-<span class="fc" id="L68">    UNKNOWN;</span>
+<span class="fc" id="L58">    WINDOWSCE(&quot;Windows CE&quot;),</span>
+    /**
+     * IBM AIX
+     */
+<span class="fc" id="L62">    AIX(&quot;AIX&quot;),</span>
+    /**
+     * Android
+     */
+<span class="fc" id="L66">    ANDROID(&quot;Android&quot;),</span>
+    /**
+     * GNU operating system
+     */
+<span class="fc" id="L70">    GNU(&quot;GNU&quot;),</span>
+    /**
+     * Debian GNU/kFreeBSD
+     */
+<span class="fc" id="L74">    KFREEBSD(&quot;kFreeBSD&quot;),</span>
+    /**
+     * NetBSD
+     */
+<span class="fc" id="L78">    NETBSD(&quot;NetBSD&quot;),</span>
+    /**
+     * An unspecified system
+     */
+<span class="fc" id="L82">    UNKNOWN(&quot;Unknown&quot;),</span>
+    /**
+     * Legacy name for Mac OS version 10.x
+     *
+     * @deprecated use {@link MACOS}
+     */
+<span class="fc" id="L88">    @Deprecated</span>
+    MACOSX(&quot;macOS&quot;);
+
+    private String name;
+
+<span class="fc" id="L93">    PlatformEnum(String name) {</span>
+<span class="fc" id="L94">        this.name = name;</span>
+<span class="fc" id="L95">    }</span>
+
+    /**
+     * Gets the friendly name of the platform
+     *
+     * @return the friendly name of the platform
+     */
+    public String getName() {
+<span class="nc" id="L103">        return this.name;</span>
+    }
+
+    /**
+     * Gets the friendly name of the specified JNA Platform type
+     *
+     * @param osType
+     *            The constant returned from JNA's
+     *            {@link com.sun.jna.Platform#getOSType()} method.
+     * @return the friendly name of the specified JNA Platform type
+     */
+    public static String getName(int osType) {
+<span class="nc" id="L115">        return getValue(osType).getName();</span>
+    }
+
+    /**
+     * Gets the value corresponding to the specified JNA Platform type
+     *
+     * @param osType
+     *            The constant returned from JNA's
+     *            {@link com.sun.jna.Platform#getOSType()} method.
+     * @return the value corresponding to the specified JNA Platform type
+     */
+    public static PlatformEnum getValue(int osType) {
+<span class="pc bpc" id="L127" title="2 of 4 branches missed.">        if (osType &lt; 0 || osType &gt;= UNKNOWN.ordinal()) {</span>
+<span class="nc" id="L128">            return UNKNOWN;</span>
+        }
+<span class="fc" id="L130">        return values()[osType];</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

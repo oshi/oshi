@@ -505,19 +505,25 @@ public interface OperatingSystem {
         private final String versionStr;
 
 <span class="fc" id="L507">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="fc" id="L508">            this.version = version;</span>
-<span class="fc" id="L509">            this.codeName = codeName;</span>
-<span class="fc" id="L510">            this.buildNumber = buildNumber;</span>
+            // Insider Preview Windows 11 is marked as Windows 10 build 22000
+            // Temporary code until JDK os.name matches up
+<span class="pc bpc" id="L510" title="3 of 4 branches missed.">            if (&quot;10&quot;.equals(version) &amp;&amp; buildNumber.compareTo(&quot;22000&quot;) &gt;= 0) {</span>
+<span class="nc" id="L511">                this.version = &quot;11&quot;;</span>
+            } else {
+<span class="fc" id="L513">                this.version = version;</span>
+            }
+<span class="fc" id="L515">            this.codeName = codeName;</span>
+<span class="fc" id="L516">            this.buildNumber = buildNumber;</span>
 
-<span class="pc bpc" id="L512" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="pc bpc" id="L513" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="fc" id="L514">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="pc bpc" id="L518" title="1 of 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="pc bpc" id="L519" title="1 of 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="fc" id="L520">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="pc bpc" id="L516" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="fc" id="L517">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="pc bpc" id="L522" title="1 of 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="fc" id="L523">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="fc" id="L519">            this.versionStr = sb.toString();</span>
-<span class="fc" id="L520">        }</span>
+<span class="fc" id="L525">            this.versionStr = sb.toString();</span>
+<span class="fc" id="L526">        }</span>
 
         /**
          * Gets the operating system version.
@@ -525,7 +531,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="fc" id="L528">            return version;</span>
+<span class="fc" id="L534">            return version;</span>
         }
 
         /**
@@ -534,7 +540,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="fc" id="L537">            return codeName;</span>
+<span class="fc" id="L543">            return codeName;</span>
         }
 
         /**
@@ -543,12 +549,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="fc" id="L546">            return buildNumber;</span>
+<span class="fc" id="L552">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="fc" id="L551">            return this.versionStr;</span>
+<span class="fc" id="L557">            return this.versionStr;</span>
         }
     }
 }
