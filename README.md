@@ -304,6 +304,8 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://github.com/gomint/gomint"><img src="./src/site/markdown/gomint.png" alt="GoMint" width=122px><sub><br/><br/>GoMint</sub></a></td>
     <td align=center width=134px><a href="https://www.ruoyi.vip/"><img src="./src/site/markdown/ruoyi.png" alt="RuoYi Management System" width=122px><sub><br/>RuoYi Management System</sub></a></td>
     <td align=center width=134px><a href="https://github.com/WeiYe-Jing/datax-web"><img src="./src/site/markdown/dataxweb.jpg" alt="DataX Web" width=122px><sub><br/>DataX Web</sub></a></td>
+</tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://javahost.org"><img src="./src/site/markdown/javahost.png" alt="javahost" width=122px><sub><br/>JavaHost.org</sub></a></td>
 </tr></table>
 
 License
