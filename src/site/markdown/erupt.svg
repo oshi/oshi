@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.5, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="erupt_logo_svg" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     x="0px" y="0px" viewBox="0 0 500 500" enable-background="new 0 0 500 500">
+    <style>
+        /*#p1{*/
+        /*	fill:#014893;*/
+        /*}*/
+        /*#p2{*/
+        /*	fill:#0568B5;*/
+        /*}*/
+        #p3 {
+            fill: #FF5722;
+        }
+
+        #p3:hover {
+            fill: #000;
+        }
+
+        /*#p4{*/
+        /*	fill:#0F0B5A;*/
+        /*}*/
+        /*#p5{*/
+        /*	fill: #06005a;*/
+        /*}*/
+
+        path {
+            transition: all 0.5s;
+            fill: #000;
+        }
+
+        path:hover {
+            fill: #FF5722;
+        }
+
+        polygon {
+            transition: all 0.5s;
+            fill: #FF5722;
+        }
+
+        polygon:hover {
+            stroke: #000;
+
+        }
+    </style>
+    <g id="eagle_1_">
+        <path id="p1" d="M270.7,216.7l-15.5,46.9l0,0h0L220.7,368c12.1,15.4,21.7,37.9,22.8,70.8l6.9-7.8l123.3-139.6l-24-17.4
+		L270.7,216.7z"/>
+        <path id="p2" d="M439,132.8c-41.3-8.4-88.7-16.5-124.3-18.4l-78.1,57.1l123.2,86.6l26.8,18.8l115.1-130.4
+		C485.3,142.7,463.2,137.7,439,132.8z"/>
+        <path id="p3" d="M51.3,263.4l186.2,0.2l-30,90.8c-18.7-15.5-38.2-18.7-40.5-19.1c-66.8-10.2-110.7,35.8-114.2,38.9
+		c-17.7,15.9-12.4,36.3-12.4,36.3c-23.5-17.7-33.5-38-36.3-46C-9.2,326.5,30.4,283.4,51.3,263.4z"/>
+        <path id="p4" d="M222.1,161.1l0,0.1L190,184.7l-7.8,5.7l-19.4-57.1c32.5-15.6,78.4-20.4,124.7-19.8L222.1,161.1L222.1,161.1
+		z"/>
+        <path id="p5" d="M68,246.5c4-6.3,3.8-11.5,3.8-13.4c0-2.6-7.6-39.1,76-91.3l35.7,104.9L68,246.5z"/>
+        <polygon stroke="#000" points="201.9,243.9 190,207.5 221.1,184.9 252.1,207.5 240.3,243.9">
+            <animate attributeType="CSS" attributeName="fill"
+                     from="#0ff" to="#f0f" dur="5s"
+                     repeatCount="indefinite">
+            </animate>
+            <animate attributeType="CSS" attributeName="stroke-width"
+                     from="1px" to="8px" dur="4s"
+                     repeatCount="indefinite">
+            </animate>
+            <!--            <animateTransform attributeName="transform" begin="0s" dur="3s"-->
+            <!--                              type="rotate" from="1 220 220" to="360 220 220" repeatCount="indefinite"/>-->
+        </polygon>
+    </g>
+</svg>

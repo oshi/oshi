@@ -299,12 +299,19 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://www.hutool.cn/"><br/><img src="./src/site/markdown/hutool.jpg" alt="Hutool" width=122px><sub><br/><br/><br/>Hutool</sub></a></td>  
     <td align=center width=134px><a href="https://github.com/fizzed/crux"><img src="./src/site/markdown/crux.png" alt="Crux Utilities" width=122px><sub><br/><br/>Crux Utilities</sub></a></td>
   </tr><tr></tr><tr>
-    <td align=center width=134px><a href="https://github.com/Krillsson/sys-API"><img src="./src/site/markdown/sysapi.png" alt="sys-API" width=122px><sub><br/>sys-API</sub></a></td>
+    <td align=center width=134px><a href="https://app.rossonet.net/"><img src="./src/site/markdown/ar4k.png" alt="A44K Edge Agent" width=122px><sub><br/>AR4K Edge Agent</sub></a></td>
     <td align=center width=134px><a href="https://www.nexess-solutions.com/fr/produits/application-nexcap-mat/"><img src="./src/site/markdown/nexcap.png" alt="NexCap MAT" width=122px><sub><br/>NexCap MAT</sub></a></td>
     <td align=center width=134px><a href="https://360suite.io/"><br/><img src="./src/site/markdown/360suite.png" alt="SAP 360Suite" width=122px><sub><br/><br/>SAP 360Suite</sub></a></td>
     <td align=center width=134px><a href="https://github.com/gomint/gomint"><img src="./src/site/markdown/gomint.png" alt="GoMint" width=122px><sub><br/><br/>GoMint</sub></a></td>
     <td align=center width=134px><a href="https://www.ruoyi.vip/"><img src="./src/site/markdown/ruoyi.png" alt="RuoYi Management System" width=122px><sub><br/>RuoYi Management System</sub></a></td>
     <td align=center width=134px><a href="https://github.com/WeiYe-Jing/datax-web"><img src="./src/site/markdown/dataxweb.jpg" alt="DataX Web" width=122px><sub><br/>DataX Web</sub></a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://github.com/Krillsson/sys-API"><img src="./src/site/markdown/sysapi.png" alt="sys-API" width=122px><sub><br/>sys-API</sub></a></td>
+    <td align=center width=134px><a href="https://vaadin.com/"><br/><br/><img src="./src/site/markdown/vaadin.png" alt="Vaadin Platform" width=122px><sub><br/><br/>Vaadin Platform</sub></a></td>
+    <td align=center width=134px><a href="https://javahost.org"><img src="./src/site/markdown/javahost.org.png" alt="javahost" width=122px><sub><br/>JavaHost.org monitoring pane</sub></a></td>
+    <td align=center width=134px><a href="https://axway.github.io/ats-framework/ATS-Documentation.html"><img src="./src/site/markdown/axway.png" alt="Axway ATS Agent" width=122px><sub><br/>Axway ATS Agent</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/CloudSlang/score"><br/><img src="./src/site/markdown/cloudslang.png" alt="CloudSlang Score" width=122px><sub><br/>CloudSlang Score</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/erupts/erupt"><br/><img src="./src/site/markdown/erupt.svg" alt="Erupt Framework" width=122px><sub><br/>Erupt Framework</sub></a></td>
 </tr></table>
 
 License
