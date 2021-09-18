@@ -306,13 +306,21 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://www.ruoyi.vip/"><img src="./src/site/markdown/ruoyi.png" alt="RuoYi Management System" width=122px><sub><br/>RuoYi Management System</sub></a></td>
     <td align=center width=134px><a href="https://github.com/WeiYe-Jing/datax-web"><img src="./src/site/markdown/dataxweb.jpg" alt="DataX Web" width=122px><sub><br/>DataX Web</sub></a></td>
   </tr><tr></tr><tr>
-    <td align=center width=134px><a href="https://github.com/Krillsson/sys-API"><img src="./src/site/markdown/sysapi.png" alt="sys-API" width=122px><sub><br/>sys-API</sub></a></td>
-    <td align=center width=134px><a href="https://vaadin.com/"><br/><br/><img src="./src/site/markdown/vaadin.png" alt="Vaadin Platform" width=122px><sub><br/><br/>Vaadin Platform</sub></a></td>
+    <td align=center width=134px><a href="https://konduit.ai/"><img src="./src/site/markdown/konduit.png" alt="Konduit" width=122px><sub><br/>Konduit</sub></a></td>
+    <td align=center width=134px><a href="https://www.gocypher.com/gocypher/"><img src="./src/site/markdown/gocypher.png" alt="GoCypher" width=122px><sub><br/>GoCypher</sub></a></td>
     <td align=center width=134px><a href="https://javahost.org"><img src="./src/site/markdown/javahost.org.png" alt="javahost" width=122px><sub><br/>JavaHost.org monitoring pane</sub></a></td>
     <td align=center width=134px><a href="https://axway.github.io/ats-framework/ATS-Documentation.html"><img src="./src/site/markdown/axway.png" alt="Axway ATS Agent" width=122px><sub><br/>Axway ATS Agent</sub></a></td>
-    <td align=center width=134px><a href="https://github.com/CloudSlang/score"><br/><img src="./src/site/markdown/cloudslang.png" alt="CloudSlang Score" width=122px><sub><br/>CloudSlang Score</sub></a></td>
-    <td align=center width=134px><a href="https://github.com/erupts/erupt"><br/><img src="./src/site/markdown/erupt.svg" alt="Erupt Framework" width=122px><sub><br/>Erupt Framework</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/CloudSlang/score"><img src="./src/site/markdown/cloudslang.png" alt="CloudSlang Score" width=122px><sub><br/>CloudSlang Score</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/erupts/erupt"><img src="./src/site/markdown/erupt.svg" alt="Erupt Framework" width=122px><sub><br/>Erupt Framework</sub></a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://www.starrocks.com/en-US/index"><img src="./src/site/markdown/starrocks.png" alt="StarRocks" width=122px><sub>StarRocks</sub></a></td>
+    <td align=center width=134px><a href="https://www.graylog.org/"><br/><br/><img src="./src/site/markdown/graylog.svg" alt="Graylog" width=122px><sub><br/><br/>Graylog</sub></a></td>
+    <td align=center width=134px><a href="https://vaadin.com/"><br/><br/><img src="./src/site/markdown/vaadin.png" alt="Vaadin Platform" width=122px><sub><br/><br/>Vaadin Platform</sub></a></td>
+    <td align=center width=134px><a href="https://docs.habit.io/"><img src="./src/site/markdown/habit.png" alt="Habit Analytics" width=122px><sub><br/>Habit Analytics</sub></a></td>
+    <td align=center width=134px><a href="http://www.ridkorfid.com/"><br/><br/><img src="./src/site/markdown/ridko.jpg" alt="Ridko Notify" width=122px><sub><br/><br/>Ridko Notify</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/Krillsson/sys-API"><img src="./src/site/markdown/sysapi.png" alt="sys-API" width=122px><sub><br/>sys-API</sub></a></td>
 </tr></table>
+
 
 License
 -------
