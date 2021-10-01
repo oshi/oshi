@@ -23,8 +23,7 @@
  */
 package oshi;
 
-import static oshi.PlatformEnum.MACOS;
-import static oshi.PlatformEnum.MACOSX;
+
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -88,18 +87,6 @@ public class SystemInfo {
      */
     public static PlatformEnum getCurrentPlatform() {
         return currentPlatform;
-    }
-
-    /**
-     * Gets the {@link PlatformEnum} value representing this system.
-     *
-     * @return Returns the current platform
-     * @deprecated Use {@link #getCurrentPlatform()}
-     */
-    @Deprecated
-    public static PlatformEnum getCurrentPlatformEnum() {
-        PlatformEnum platform = getCurrentPlatform();
-        return platform.equals(MACOS) ? MACOSX : platform;
     }
 
     /**

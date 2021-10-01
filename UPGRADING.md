@@ -6,6 +6,8 @@
 
 The deprecated methods `getProcesses(int limit, ProcessSort sort)`, `getChildProcesses(int parentPid, int limit, ProcessSort sort)`, and the enum `ProcessSort` were removed, replaced by methods leveraging constants in the `ProcessSorting` class.
 
+The deprecated method `getCurrentPlatformEnum()` was removed from `SystemInfo` and the deprecated `MACOSX` value has been removed from `PlatformEnum`.
+
 # Guide to upgrading from OSHI 4.x to 5.x
 
 OSHI 5.0.0-5.1.2 releases are functionally equivalent to 4.7.0-4.8.2 releases,
