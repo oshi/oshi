@@ -1,16 +1,12 @@
 # Guide to upgrading from OSHI 5.x to 6.x
 
-<<<<<<< HEAD
-### Deprecated method removal
-
-The deprecated MACOSX value has been removed from `PlatformEnum` and `SystemInfo`.
-=======
 ## API Changes
 
 ### Deprecated method removal
 
 The deprecated methods `getProcesses(int limit, ProcessSort sort)`, `getChildProcesses(int parentPid, int limit, ProcessSort sort)`, and the enum `ProcessSort` were removed, replaced by methods leveraging constants in the `ProcessSorting` class.
->>>>>>> c6af360e4108bf700bae746a17e8b7968ed28375
+
+The deprecated method `getCurrentPlatformEnum()` was removed from `SystemInfo` and the deprecated `MACOSX` value has been removed from `PlatformEnum`.
 
 # Guide to upgrading from OSHI 4.x to 5.x
 
