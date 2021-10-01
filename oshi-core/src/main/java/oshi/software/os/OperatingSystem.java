@@ -52,16 +52,6 @@ import oshi.util.Util;
 public interface OperatingSystem {
 
     /**
-     * Controls sorting of Process lists.
-     *
-     * @deprecated Use comparators from {@link ProcessSorting}.
-     */
-    @Deprecated
-    enum ProcessSort {
-        CPU, MEMORY, OLDEST, NEWEST, PID, PARENTPID, NAME
-    }
-
-    /**
      * Constants which may be used to filter Process lists in
      * {@link #getProcesses(Predicate, Comparator, int)},
      * {@link #getChildProcesses(int, Predicate, Comparator, int)}, and
@@ -139,41 +129,6 @@ public interface OperatingSystem {
          */
         public static final Comparator<OSProcess> NAME_ASC = Comparator.comparing(OSProcess::getName,
                 String.CASE_INSENSITIVE_ORDER);
-
-        /**
-         * Temporary method to convert deprecated ProcessSort to its corresponding
-         * comparator. Remove when the deprecated enum is removed.
-         *
-         * @param sort
-         *            The process sort
-         * @return The corresponding comparator
-         */
-        private static Comparator<OSProcess> convertSortToComparator(ProcessSort sort) {
-            if (sort != null) {
-                switch (sort) {
-                case CPU:
-                    return CPU_DESC;
-                case MEMORY:
-                    return RSS_DESC;
-                case OLDEST:
-                    return UPTIME_DESC;
-                case NEWEST:
-                    return UPTIME_ASC;
-                case PID:
-                    return PID_ASC;
-                case PARENTPID:
-                    return PARENTPID_ASC;
-                case NAME:
-                    return NAME_ASC;
-                default:
-                    // Should never get here! If you get this exception you've
-                    // added something to the enum without adding it here. Tsk.
-                    // But that enum is now deprecated so double-tsk if you add!
-                    throw new IllegalArgumentException("Unimplemented enum type: " + sort.toString());
-                }
-            }
-            return NO_SORTING;
-        }
     }
 
     /**
@@ -248,30 +203,6 @@ public interface OperatingSystem {
     List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit);
 
     /**
-     * Gets currently running processes, optionally limited to the top "N" for a
-     * particular sorting order. If a positive limit is specified, returns only that
-     * number of processes; zero will return all processes. The order may be
-     * specified by the sort parameter, for example, to return the top cpu or memory
-     * consuming processes; if the sort is {@code null}, no order is guaranteed.
-     *
-     * @param limit
-     *            Max number of results to return, or 0 to return all results
-     * @param sort
-     *            If not null, determines sorting of results
-     * @return A list of {@link oshi.software.os.OSProcess} objects for the
-     *         specified number (or all) of currently running processes, sorted as
-     *         specified. The list may contain null elements or processes with a
-     *         state of {@link OSProcess.State#INVALID} if a process terminates
-     *         during iteration.
-     * @deprecated Use {@link #getProcesses(Predicate, Comparator, int)} with
-     *             sorting constants from {@link ProcessSorting}.
-     */
-    @Deprecated
-    default List<OSProcess> getProcesses(int limit, ProcessSort sort) {
-        return getProcesses(null, ProcessSorting.convertSortToComparator(sort), limit);
-    }
-
-    /**
      * Gets information on a {@link Collection} of currently running processes. This
      * has potentially improved performance vs. iterating individual processes.
      *
@@ -294,33 +225,6 @@ public interface OperatingSystem {
      *         process id if it is running; null otherwise
      */
     OSProcess getProcess(int pid);
-
-    /**
-     * Gets currently running child processes of provided parent PID, optionally
-     * limited to the top "N" for a particular sorting order. If a positive limit is
-     * specified, returns only that number of processes; zero will return all
-     * processes. The order may be specified by the sort parameter, for example, to
-     * return the top cpu or memory consuming processes; if the sort is
-     * {@code null}, no order is guaranteed.
-     *
-     * @param parentPid
-     *            A process ID
-     * @param limit
-     *            Max number of results to return, or 0 to return all results
-     * @param sort
-     *            If not null, determines sorting of results
-     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
-     *         specified number (or all) of currently running child processes of the
-     *         provided PID, sorted as specified. The list may contain null elements
-     *         or processes with a state of {@link OSProcess.State#INVALID} if a
-     *         process terminates during iteration.
-     * @deprecated Use {@link #getChildProcesses(int, Predicate, Comparator, int)}
-     *             with sorting constants from {@link ProcessSorting}.
-     */
-    @Deprecated
-    default List<OSProcess> getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        return getChildProcesses(parentPid, null, ProcessSorting.convertSortToComparator(sort), limit);
-    }
 
     /**
      * Gets currently running child processes of provided parent PID, optionally
