@@ -1,8 +1,16 @@
 # Guide to upgrading from OSHI 5.x to 6.x
 
+<<<<<<< HEAD
 ### Deprecated method removal
 
 The deprecated MACOSX value has been removed from `PlatformEnum` and `SystemInfo`.
+=======
+## API Changes
+
+### Deprecated method removal
+
+The deprecated methods `getProcesses(int limit, ProcessSort sort)`, `getChildProcesses(int parentPid, int limit, ProcessSort sort)`, and the enum `ProcessSort` were removed, replaced by methods leveraging constants in the `ProcessSorting` class.
+>>>>>>> c6af360e4108bf700bae746a17e8b7968ed28375
 
 # Guide to upgrading from OSHI 4.x to 5.x
 
@@ -73,7 +81,7 @@ as proof-of-concept only, and are not intended for production use.
 `NetworkIF#getNetworkInterface()` is now `queryNetworkInterface()` to prevent
 Jackson's ObjectMapper from attempting to serialize the returned object.
 
-There is a new `VirtualMemory `class which is accessible with a getter from 
+There is a new `VirtualMemory `class which is accessible with a getter from
 `GlobalMemory`.  Methods associated with swap file usage were moved to this
 new class.
 
@@ -82,9 +90,9 @@ The `CentralProcessor` setters were removed from the API. The methods
 an argument with the previous set of ticks, rather than internally saving the
 previous call. This enables users to measure over a longer period or multiple
 different periods.  The `getSystemCpuLoad()` method has been removed; users
-running the Oracle JVM should use the  `OperatingSystemMXBean` method if 
-they desire this value.  The no-argument `getSystemLoadAverage()` has been 
-removed; users can call with an argument of 1 to obtain the same value. 
+running the Oracle JVM should use the  `OperatingSystemMXBean` method if
+they desire this value.  The no-argument `getSystemLoadAverage()` has been
+removed; users can call with an argument of 1 to obtain the same value.
 
 The `getSystemUptime()` method was moved from the `CentralProcessor` class to
 the `OperatingSystem` class.
@@ -98,12 +106,12 @@ to permit update of individual elements of arrays.
 The most significant change in OSHI 3.0 is the separation of JSON output to a
 separate artifact, filtering output using configurable properties. Users of
 `oshi-core` who do not require JSON will find most of the API the same except
-as noted below.  Those who use JSON will find improved functionality in the 
+as noted below.  Those who use JSON will find improved functionality in the
 `oshi-json` module.
 
 ## API Changes - oshi-core
 
-The `CentralProcessor`'s `getSystemIOWaitTicks()` and `getSystemIrqTicks()` 
+The `CentralProcessor`'s `getSystemIOWaitTicks()` and `getSystemIrqTicks()`
 methods were removed. The `getSystemCpuLoadTicks()` now include the IOWait and
 IRQ tick information previously reported by those methods, although Idle time
 no longer includes IOWait, and System Time no longer includes IRQ ticks. The
@@ -140,9 +148,9 @@ JSON objects associated with the above method changes were updated:
  been removed from the `processor` object.
  - `fileSystem` is now an element of `operatingSystem` rather than `processor`.
  - `fileStores` is now an element of `fileSystem` rather than `processor`.
- - `processID`, `processCount`, `threadCount`, and `processes` are now 
+ - `processID`, `processCount`, `threadCount`, and `processes` are now
  elements of `operatingSystem` rather than `processor`.
- 
+
 While the existing `toJSON()` method remains and is backwards compatible, the
 new API permits using a `java.util.Properties` object as an optional parameter
 which will be persistent to future (no argument) calls to that method until
@@ -162,7 +170,7 @@ New packages `oshi.jna.platform.*` were created and code which extends
 classes should be considered non-API as they may be removed if/when their
 code is incorporated into the JNA project.
 
-New packages `oshi.hardware.platform.*` were created and contain the 
+New packages `oshi.hardware.platform.*` were created and contain the
 platform-specific implementations of interfaces in `oshi.hardware`, with
 implementing classes renamed to prepend the platform name to the interface
 name.  Similar renaming was done for implementations of `oshi.software.os`
@@ -176,15 +184,15 @@ JNA's `Memory` class.
 The `Processor` interface, which represented one of an array of logical
 processor objects, was renamed `CentralProcessor` and represents the entire
 System CPU which may contain multiple logical processors.  Methods applicable
-to an individual logical processor were modified to return arrays.  
+to an individual logical processor were modified to return arrays.
 
 The `HardwareAbstractionLayer`'s `getProcessors()` method was renamed to
 `getProcessor()` and now returns a singular `CentralProcessor` object.
 
 Specific changes to `CentralProcessor` methods:
-* The constructor no longer takes a processor number argument and the 
+* The constructor no longer takes a processor number argument and the
 `getProcessorNumber()` method was removed
-* The deprecated `getLoad()` method was removed. Use 
+* The deprecated `getLoad()` method was removed. Use
 `getSystemCpuLoadBetweenTicks()`.
 * The `getProcessorCpuLoadBetweenTicks()` method now returns an array of
 load values, one value for each logical processor.
