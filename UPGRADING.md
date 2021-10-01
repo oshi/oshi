@@ -1,3 +1,9 @@
+# Guide to upgrading from OSHI 5.x to 6.x
+
+### Deprecated method removal
+
+The deprecated MACOSX value has been removed from `PlatformEnum` and `SystemInfo`.
+
 # Guide to upgrading from OSHI 4.x to 5.x
 
 OSHI 5.0.0-5.1.2 releases are functionally equivalent to 4.7.0-4.8.2 releases,

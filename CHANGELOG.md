@@ -1,6 +1,8 @@
-# 5.8.3 (in progress)
+# 6.0.0 (in progress)
+* Your contribution here
 
-* [#1724](https://github.com/oshi/oshi/pull/1724): Removed deprecated MACOSX value from PlatformEnum and SystemInfo - [@Novaenn](https://github.com/Novaenn).
+#### Breaking Changes
+* [#1724](https://github.com/oshi/oshi/pull/1724): Removed deprecated MACOSX value from PlatformEnum and SystemInfo and removed the getCurrentPlatformEnum() method. - [@Novaenn](https://github.com/Novaenn).
 
 # 5.8.0 (2021-07-18), 5.8.1 (2021-08-22), 5.8.2 (2021-09-05)
 

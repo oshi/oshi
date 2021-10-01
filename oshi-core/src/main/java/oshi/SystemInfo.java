@@ -90,13 +90,6 @@ public class SystemInfo {
     }
 
     /**
-     * Gets the {@link PlatformEnum} value representing this system.
-     *
-     * @return Returns the current platform
-     * @deprecated Use {@link #getCurrentPlatform()}
-     */
-
-    /**
      * Creates a new instance of the appropriate platform-specific
      * {@link oshi.software.os.OperatingSystem}.
      *
