@@ -23,7 +23,6 @@
  */
 package oshi;
 
-
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;

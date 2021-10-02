@@ -123,7 +123,9 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
-        return Arrays.stream(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID())).split("\0")).collect(Collectors.joining(" "));
+        return Arrays
+                .stream(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID())).split("\0"))
+                .collect(Collectors.joining(" "));
     }
 
     @Override
