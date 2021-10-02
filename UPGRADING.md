@@ -6,6 +6,8 @@
 
 The deprecated methods `getProcesses(int limit, ProcessSort sort)`, `getChildProcesses(int parentPid, int limit, ProcessSort sort)`, and the enum `ProcessSort` were removed, replaced by methods leveraging constants in the `ProcessSorting` class.
 
+The deprecated method `getCurrentPlatformEnum()` was removed from `SystemInfo` and the deprecated `MACOSX` value has been removed from `PlatformEnum`.
+
 ### Changed the type of string value returned by `getCommandLine()`
 
 The value returned from `macOSProcess` and `LinuxOSProcess` method `getCommandLine()` has been changed from null-delimited string to space-delimited string.

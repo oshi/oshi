@@ -79,14 +79,7 @@ public enum PlatformEnum {
     /**
      * An unspecified system
      */
-    UNKNOWN("Unknown"),
-    /**
-     * Legacy name for Mac OS version 10.x
-     *
-     * @deprecated use {@link MACOS}
-     */
-    @Deprecated
-    MACOSX("macOS");
+    UNKNOWN("Unknown");
 
     private String name;
 
