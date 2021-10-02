@@ -40,6 +40,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.Arrays;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +136,7 @@ public class MacOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return this.commandLine.get();
+        return Arrays.stream(commandLine.get().split("\0")).collect(Collectors.joining(" "));
     }
 
     private String queryCommandLine() {
