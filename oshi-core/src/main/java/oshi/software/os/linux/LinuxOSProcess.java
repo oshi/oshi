@@ -119,11 +119,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-       return Arrays.stream(commandLine.get().split("\0")).collect(Collectors.joining(" "));
+        return commandLine.get();
     }
 
     private String queryCommandLine() {
-        return FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID()));
+        return Arrays.stream(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID())).split("\0")).collect(Collectors.joining(" "));
     }
 
     @Override

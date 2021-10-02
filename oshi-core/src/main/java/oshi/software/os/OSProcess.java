@@ -63,8 +63,6 @@ public interface OSProcess {
      * {@link #getArguments()} which already parses the results, and use this method
      * as a backup.
      * <p>
-     * On Linux and macOS systems, the string is space-character-delimited.
-     * <p>
      * On AIX and Solaris, the string may be truncated to 80 characters if there was
      * insufficient permission to read the process memory.
      * <p>

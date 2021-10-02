@@ -135,11 +135,11 @@ public class MacOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCommandLine() {
-        return Arrays.stream(commandLine.get().split("\0")).collect(Collectors.joining(" "));
+        return this.commandLine.get();
     }
 
     private String queryCommandLine() {
-        return String.join("\0", getArguments());
+        return String.join(" ", getArguments());
     }
 
     @Override
