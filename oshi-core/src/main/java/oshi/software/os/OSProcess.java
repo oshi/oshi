@@ -63,11 +63,6 @@ public interface OSProcess {
      * {@link #getArguments()} which already parses the results, and use this method
      * as a backup.
      * <p>
-     * On Linux and macOS systems, the string is null-character-delimited, to permit
-     * the end user to parse the executable and arguments if desired. This
-     * null-delimited behavior may change in future versions and should not be
-     * relied upon; use {@link #getArguments()} instead.
-     * <p>
      * On AIX and Solaris, the string may be truncated to 80 characters if there was
      * insufficient permission to read the process memory.
      * <p>

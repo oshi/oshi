@@ -137,7 +137,7 @@ public class MacOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
-        return String.join("\0", getArguments());
+        return String.join(" ", getArguments());
     }
 
     @Override
