@@ -559,7 +559,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSService[] getServices() {
+    public List<OSService> getServices() {
         // Get running services
         List<OSService> services = new ArrayList<>();
         Set<String> running = new HashSet<>();
@@ -602,7 +602,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 LOG.error("Directory: /etc/init does not exist");
             }
         }
-        return services.toArray(new OSService[0]);
+        return services;
     }
 
     /**

@@ -29,14 +29,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -481,32 +474,32 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSService[] getServices() {
+    public List<OSService> getServices() {
         try (W32ServiceManager sm = new W32ServiceManager()) {
             sm.open(Winsvc.SC_MANAGER_ENUMERATE_SERVICE);
             Winsvc.ENUM_SERVICE_STATUS_PROCESS[] services = sm.enumServicesStatusExProcess(WinNT.SERVICE_WIN32,
                     Winsvc.SERVICE_STATE_ALL, null);
-            OSService[] svcArray = new OSService[services.length];
-            for (int i = 0; i < services.length; i++) {
+            List<OSService> svcArray = new ArrayList<>();
+            for (Winsvc.ENUM_SERVICE_STATUS_PROCESS service : services) {
                 State state;
-                switch (services[i].ServiceStatusProcess.dwCurrentState) {
-                case 1:
-                    state = STOPPED;
-                    break;
-                case 4:
-                    state = RUNNING;
-                    break;
-                default:
-                    state = OTHER;
-                    break;
+                switch (service.ServiceStatusProcess.dwCurrentState) {
+                    case 1:
+                        state = STOPPED;
+                        break;
+                    case 4:
+                        state = RUNNING;
+                        break;
+                    default:
+                        state = OTHER;
+                        break;
                 }
-                svcArray[i] = new OSService(services[i].lpDisplayName, services[i].ServiceStatusProcess.dwProcessId,
-                        state);
+                svcArray.add(new OSService(service.lpDisplayName, service.ServiceStatusProcess.dwProcessId,
+                    state));
             }
             return svcArray;
         } catch (com.sun.jna.platform.win32.Win32Exception ex) {
             LOG.error("Win32Exception: {}", ex.getMessage());
-            return new OSService[0];
+            return new ArrayList<>();
         }
     }
 
