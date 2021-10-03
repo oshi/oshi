@@ -238,7 +238,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSService[] getServices() {
+    public List<OSService> getServices() {
         List<OSService> services = new ArrayList<>();
         // Get legacy RC service name possibilities
         List<String> legacySvcs = new ArrayList<>();
@@ -286,6 +286,6 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-        return services.toArray(new OSService[0]);
+        return services;
     }
 }

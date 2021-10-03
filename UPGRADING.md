@@ -13,6 +13,8 @@ The deprecated method `getCurrentPlatformEnum()` was removed from `SystemInfo` a
 The value returned from `macOSProcess` and `LinuxOSProcess` method `getCommandLine()` has been changed from null-delimited string to space-delimited string.
 Note : To parse the executables and arguments, the `getArguments()` method is the preferred alternative.
 
+The method `getServices()` now returns a `List<OSService>` rather than an array.
+
 # Guide to upgrading from OSHI 4.x to 5.x
 
 OSHI 5.0.0-5.1.2 releases are functionally equivalent to 4.7.0-4.8.2 releases,
