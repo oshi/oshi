@@ -62,7 +62,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private String name;
     private String displayName;
     private int index;
-    private int mtu;
+    private long mtu;
     private String mac;
     private String[] ipv4;
     private Short[] subnetMasks;
@@ -75,10 +75,9 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * Construct a {@link NetworkIF} object backed by the specified
      * {@link NetworkInterface}.
      *
-     * @param netint
-     *            The core java {@link NetworkInterface} backing this object.
-     * @throws InstantiationException
-     *             If a socket exception prevents access to the backing interface.
+     * @param netint The core java {@link NetworkInterface} backing this object.
+     * @throws InstantiationException If a socket exception prevents access to the
+     *                                backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint) throws InstantiationException {
         this(netint, netint.getDisplayName());
@@ -88,13 +87,12 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * Construct a {@link NetworkIF} object backed by the specified
      * {@link NetworkInterface}.
      *
-     * @param netint
-     *            The core java {@link NetworkInterface} backing this object.
-     * @param displayName
-     *            A string to use for the display name in preference to the
-     *            {@link NetworkInterface} value.
-     * @throws InstantiationException
-     *             If a socket exception prevents access to the backing interface.
+     * @param netint      The core java {@link NetworkInterface} backing this
+     *                    object.
+     * @param displayName A string to use for the display name in preference to the
+     *                    {@link NetworkInterface} value.
+     * @throws InstantiationException If a socket exception prevents access to the
+     *                                backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint, String displayName) throws InstantiationException {
         this.networkInterface = netint;
@@ -103,7 +101,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             this.displayName = displayName;
             this.index = networkInterface.getIndex();
             // Set MTU
-            this.mtu = networkInterface.getMTU();
+            this.mtu = ParseUtil.unsignedIntToLong(networkInterface.getMTU());
             // Set MAC
             byte[] hwmac = networkInterface.getHardwareAddress();
             if (hwmac != null) {
@@ -146,8 +144,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     /**
      * Returns network interfaces on this machine.
      *
-     * @param includeLocalInterfaces
-     *            include local interfaces in the result
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return A list of network interfaces
      */
     protected static List<NetworkInterface> getNetworkInterfaces(boolean includeLocalInterfaces) {
@@ -205,7 +202,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     }
 
     @Override
-    public int getMTU() {
+    public long getMTU() {
         return this.mtu;
     }
 
@@ -256,8 +253,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         }
         sb.append("\n");
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
-        sb.append("  MTU: ").append(ParseUtil.unsignedIntToLong(getMTU())).append(", ").append("Speed: ")
-                .append(getSpeed()).append("\n");
+        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
         String[] ipv4withmask = getIPv4addr();
         if (this.ipv4.length == this.subnetMasks.length) {
             for (int i = 0; i < this.subnetMasks.length; i++) {
