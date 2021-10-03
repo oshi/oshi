@@ -23,7 +23,11 @@
  */
 package oshi.software.os;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
