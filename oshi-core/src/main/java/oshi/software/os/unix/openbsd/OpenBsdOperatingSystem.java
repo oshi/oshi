@@ -220,7 +220,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSService[] getServices() {
+    public List<OSService> getServices() {
         // Get running services
         List<OSService> services = new ArrayList<>();
         Set<String> running = new HashSet<>();
@@ -243,6 +243,6 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         } else {
             LOG.error("Directory: /etc/rc.d does not exist");
         }
-        return services.toArray(new OSService[0]);
+        return services;
     }
 }

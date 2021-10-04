@@ -5,7 +5,8 @@
 -   [#1724](https://github.com/oshi/oshi/pull/1724): Removed deprecated MACOSX value from PlatformEnum and SystemInfo and removed the getCurrentPlatformEnum() method - [@Novaenn](https://github.com/Novaenn).
 -   [#1725](https://github.com/oshi/oshi/pull/1725): Removed deprecated process sorting methods from the OperatingSystem class - [@varnaa](https://github.com/varnaa).
 -   [#1729](https://github.com/oshi/oshi/pull/1729): Changed the return value of linuxOSPRocess and macOSProcess method getCommandLine() from null-delimited string to space-delimited string - [@prathamgandhi](https://github.com/prathamgandhi).
--   [#1732](https://github.com/oshi/oshi/pull/1732): Changed the return type of the NetworkInterface method getMTU() from int to long for all its OS implementations. - [@Simba-97](https://github.com/Simba-97).
+-   [#1730](https://github.com/oshi/oshi/pull/1730): Changed the return value of getServices() from `OSService[]` to `List<OSService>` in OperatingSystem - [@adrian-kong](https://github.com/adrian-kong).
+-   [#1](https://github.com/oshi/oshi/pull/1): Changed the return type of the NetworkInterface method getMTU() from int to long in all its OS implementations - [@Simba-97](https://github.com/Simba-97).
 
 # 5.8.0 (2021-07-18), 5.8.1 (2021-08-22), 5.8.2 (2021-09-05)
 
