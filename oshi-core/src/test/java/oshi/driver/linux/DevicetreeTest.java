@@ -24,9 +24,8 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
 
@@ -39,7 +38,7 @@ public class DevicetreeTest {
     public void testQueryModel() {
         if (Platform.isLinux()) {
             String queryModel = Devicetree.queryModel();
-            assertThat("queryModel format", queryModel, is(either(emptyOrNullString()).or(not(containsString("Machine: ")))));
+            assertThat("queryModel format", queryModel, anyOf(not(containsString("Machine: ")), nullValue()));
         }
     }
 }
