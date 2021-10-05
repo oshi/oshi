@@ -402,7 +402,8 @@ public interface NetworkIF {
         /**
          * Find IfOperStatus by the integer value.
          *
-         * @param value Integer value specified in RFC 2863
+         * @param value 
+         *            Integer value specified in RFC 2863
          * @return the matching IfOperStatu or UNKNOWN if no matching IfOperStatus can
          *         be found
          */
