@@ -132,7 +132,7 @@ class NetworksTest {
                     is(notNullValue()));
 
             // On Windows, virtual interfaces may return max unsigned int value, -1.
-            assertThat("NetworkIF MTU should not be negative", net.getMTU(), is(greaterThanOrEqualTo(0)));
+            assertThat("NetworkIF MTU should not be negative", net.getMTU(), is(greaterThanOrEqualTo(0L)));
 
             assertThat("NetworkIF MacAddress should not be null", net.getMacaddr(), is(notNullValue()));
         }
