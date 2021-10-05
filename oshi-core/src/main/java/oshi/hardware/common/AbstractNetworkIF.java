@@ -75,9 +75,9 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * Construct a {@link NetworkIF} object backed by the specified
      * {@link NetworkInterface}.
      *
-     * @param netint 
+     * @param netint
      *            The core java {@link NetworkInterface} backing this object.
-     * @throws InstantiationException 
+     * @throws InstantiationException
      *             If a socket exception prevents access to the backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint) throws InstantiationException {
@@ -88,12 +88,12 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * Construct a {@link NetworkIF} object backed by the specified
      * {@link NetworkInterface}.
      *
-     * @param netint      
+     * @param netint
      *            The core java {@link NetworkInterface} backing this object.
-     * @param displayName 
+     * @param displayName
      *            A string to use for the display name in preference to the
      *            {@link NetworkInterface} value.
-     * @throws InstantiationException 
+     * @throws InstantiationException
      *             If a socket exception prevents access to the backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint, String displayName) throws InstantiationException {
@@ -146,7 +146,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     /**
      * Returns network interfaces on this machine.
      *
-     * @param includeLocalInterfaces 
+     * @param includeLocalInterfaces
      *            include local interfaces in the result
      * @return A list of network interfaces
      */
@@ -256,8 +256,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         }
         sb.append("\n");
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
-        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ")
-                .append(getSpeed()).append("\n");
+        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
         String[] ipv4withmask = getIPv4addr();
         if (this.ipv4.length == this.subnetMasks.length) {
             for (int i = 0; i < this.subnetMasks.length; i++) {

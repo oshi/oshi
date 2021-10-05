@@ -107,6 +107,7 @@ class NetworksTest {
                 is(greaterThanOrEqualTo(0L)));
         assertThat("NetworkIF collisions after update attr should not be negative", net.getCollisions(),
                 is(greaterThanOrEqualTo(0L)));
+        assertThat("NetworkIF MTU should not be negative", net.getMTU(), is(greaterThanOrEqualTo(0L)));
         assertThat("NetworkIF speed after update attr should not be negative", net.getSpeed(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("NetworkIF time stamp after update attr should not be negative", net.getTimeStamp(),
@@ -130,9 +131,6 @@ class NetworksTest {
                     net.queryNetworkInterface().isLoopback(), is(false));
             assertThat("Network interface has a hardware address", net.queryNetworkInterface().getHardwareAddress(),
                     is(notNullValue()));
-
-            // On Windows, virtual interfaces may return max unsigned int value, -1.
-            assertThat("NetworkIF MTU should not be negative", net.getMTU(), is(greaterThanOrEqualTo(0L)));
 
             assertThat("NetworkIF MacAddress should not be null", net.getMacaddr(), is(notNullValue()));
         }
