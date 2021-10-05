@@ -89,11 +89,10 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * {@link NetworkInterface}.
      *
      * @param netint      
-     *            The core java {@link NetworkInterface} backing this
-     *                    object.
+     *            The core java {@link NetworkInterface} backing this object.
      * @param displayName 
      *            A string to use for the display name in preference to the
-     *                    {@link NetworkInterface} value.
+     *            {@link NetworkInterface} value.
      * @throws InstantiationException 
      *             If a socket exception prevents access to the
      *                                backing interface.
