@@ -94,8 +94,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      *            A string to use for the display name in preference to the
      *            {@link NetworkInterface} value.
      * @throws InstantiationException 
-     *             If a socket exception prevents access to the
-     *                                backing interface.
+     *             If a socket exception prevents access to the backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint, String displayName) throws InstantiationException {
         this.networkInterface = netint;
