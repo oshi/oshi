@@ -39,14 +39,20 @@ public class DmidecodeTest {
     @Test
     public void testQuerySerialNumber() {
         if (Platform.isLinux()) {
-            assertThat("Test Dmidecode querySerialNumber", Dmidecode.querySerialNumber(), anyOf(nullValue(), not(emptyString())));
+            String serialNumber = Dmidecode.querySerialNumber();
+            if (serialNumber != null) {
+                assertThat("Test Dmidecode querySerialNumber", serialNumber, not(emptyString()));
+            }
         }
     }
 
     @Test
     public void testQueryUUID() {
         if (Platform.isLinux()) {
-            assertThat("Test Dmidecode queryUUID", Dmidecode.querySerialNumber(), anyOf(nullValue(), not(emptyString())));
+            String uuid = Dmidecode.queryUUID();
+            if (uuid != null) {
+                assertThat("Test Dmidecode queryUUID", uuid, not(emptyString()));
+            }
         }
     }
 
@@ -54,8 +60,14 @@ public class DmidecodeTest {
     public void testQueryBiosNameRev() {
         if (Platform.isLinux()) {
             Pair<String, String> biosNameRev = Dmidecode.queryBiosNameRev();
-            assertThat("Test Dmidecode queryBiosNameRev biosName", biosNameRev.getA(), anyOf(nullValue(), containsString(" ")));
-            assertThat("Test Dmidecode queryBiosNameRev revision", biosNameRev.getA(), anyOf(nullValue(), not(emptyString())));
+            String biosName = biosNameRev.getA();
+            String revision = biosNameRev.getB();
+            if (biosName != null) {
+                assertThat("Test Dmidecode queryBiosNameRev biosName", biosName, containsString(" "));
+            }
+            if (revision != null) {
+                assertThat("Test Dmidecode queryBiosNameRev revision", revision, not(emptyString()));
+            }
         }
     }
 }

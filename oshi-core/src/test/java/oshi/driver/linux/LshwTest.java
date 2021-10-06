@@ -40,21 +40,30 @@ public class LshwTest {
     @Test
     public void testQueryModel() {
         if (Platform.isLinux()) {
-            assertThat("Test Lshw queryModel", Lshw.queryModel(), anyOf(nullValue(), not(emptyString())));
+            String model = Lshw.queryModel();
+            if (model != null) {
+                assertThat("Test Lshw queryModel", model, not(emptyString()));
+            }
         }
     }
 
     @Test
     public void testQuerySerialNumber() {
         if (Platform.isLinux()) {
-            assertThat("Test Lshw querySerialNumber", Lshw.querySerialNumber(), anyOf(nullValue(), not(emptyString())));
+            String serialNumber = Lshw.querySerialNumber();
+            if (serialNumber != null) {
+                assertThat("Test Lshw querySerialNumber", serialNumber, not(emptyString()));
+            }
         }
     }
 
     @Test
     public void testQueryUUID() {
         if (Platform.isLinux()) {
-            assertThat("Test Lshw queryUUID", Lshw.queryUUID(), anyOf(nullValue(), not(emptyString())));
+            String uuid = Lshw.queryUUID();
+            if (uuid != null) {
+                assertThat("Test Lshw queryUUID", uuid, not(emptyString()));
+            }
         }
     }
 
