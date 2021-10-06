@@ -65,7 +65,7 @@ public final class Win32Process {
      * @param pidsToQuery Process IDs to query for command lines. Pass {@code null} to query
      *                    all processes.
      * @return A {@link WmiResult} containing process IDs and command lines used to
-     * start the provided processes.
+     *                    start the provided processes.
      */
     public static WmiResult<CommandLineProperty> queryCommandLines(Set<Integer> pidsToQuery) {
         String sb = WIN32_PROCESS;
