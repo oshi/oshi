@@ -111,7 +111,7 @@ public interface NetworkIF {
      *         This value is set when the {@link oshi.hardware.NetworkIF} is
      *         instantiated and may not be up to date.
      */
-    int getMTU();
+    long getMTU();
 
     /**
      * The Media Access Control (MAC) address.

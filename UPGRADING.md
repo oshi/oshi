@@ -1,5 +1,7 @@
 # Guide to upgrading from OSHI 5.x to 6.x
 
+OSHI 6.0.0 is functionally equivalent to 5.8.2, with minor API updates as noted below.
+
 ## API Changes
 
 ### Deprecated method removal
@@ -8,12 +10,14 @@ The deprecated methods `getProcesses(int limit, ProcessSort sort)`, `getChildPro
 
 The deprecated method `getCurrentPlatformEnum()` was removed from `SystemInfo` and the deprecated `MACOSX` value has been removed from `PlatformEnum`.
 
-### Changed the type of string value returned by `getCommandLine()`
+### Changed return values/types
 
 The value returned from `macOSProcess` and `LinuxOSProcess` method `getCommandLine()` has been changed from null-delimited string to space-delimited string.
 Note : To parse the executables and arguments, the `getArguments()` method is the preferred alternative.
 
 The method `getServices()` now returns a `List<OSService>` rather than an array.
+
+The value returned from `NetworkIF` method `getMTU()` has been changed from an `int` to a `long`. This impacts Windows users who had special treatment of local interfaces which previously matched the JDK's `NetworkInterface` return of a 32-bit -1 value.
 
 # Guide to upgrading from OSHI 4.x to 5.x
 

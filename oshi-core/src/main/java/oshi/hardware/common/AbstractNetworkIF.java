@@ -62,7 +62,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private String name;
     private String displayName;
     private int index;
-    private int mtu;
+    private long mtu;
     private String mac;
     private String[] ipv4;
     private Short[] subnetMasks;
@@ -103,7 +103,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             this.displayName = displayName;
             this.index = networkInterface.getIndex();
             // Set MTU
-            this.mtu = networkInterface.getMTU();
+            this.mtu = ParseUtil.unsignedIntToLong(networkInterface.getMTU());
             // Set MAC
             byte[] hwmac = networkInterface.getHardwareAddress();
             if (hwmac != null) {
@@ -205,7 +205,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     }
 
     @Override
-    public int getMTU() {
+    public long getMTU() {
         return this.mtu;
     }
 
@@ -256,8 +256,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         }
         sb.append("\n");
         sb.append("  MAC Address: ").append(getMacaddr()).append("\n");
-        sb.append("  MTU: ").append(ParseUtil.unsignedIntToLong(getMTU())).append(", ").append("Speed: ")
-                .append(getSpeed()).append("\n");
+        sb.append("  MTU: ").append(getMTU()).append(", ").append("Speed: ").append(getSpeed()).append("\n");
         String[] ipv4withmask = getIPv4addr();
         if (this.ipv4.length == this.subnetMasks.length) {
             for (int i = 0; i < this.subnetMasks.length; i++) {
