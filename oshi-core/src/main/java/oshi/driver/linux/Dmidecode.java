@@ -113,7 +113,6 @@ public final class Dmidecode {
      *         in the pair otherwise
      */
     public static Pair<String, String> queryBiosNameRev() {
-
         String biosName = null;
         String revision = null;
 
