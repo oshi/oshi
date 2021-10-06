@@ -28,6 +28,8 @@ import com.sun.jna.platform.win32.COM.COMException; // NOSONAR squid:S1191
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+import java.util.Objects;
+
 /**
  * Class demonstrating WMI stat performance improvements if the user does COM
  * initialization so OSHI doesn't have to
@@ -61,7 +63,7 @@ public class UserComInit {
     private static void loopWmiQueriesWithUserCom() {
         // Create instance using existing WmiQueryHandler class for convenience, only to
         // be used for COM init/uninit. Not needed if user initializes COM.
-        WmiQueryHandler handlerForSingleCOMinit = WmiQueryHandler.createInstance();
+        WmiQueryHandler handlerForSingleCOMinit = Objects.requireNonNull(WmiQueryHandler.createInstance());
 
         boolean singleComInit = false;
         try {

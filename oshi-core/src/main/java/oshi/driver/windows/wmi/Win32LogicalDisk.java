@@ -29,6 +29,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+import java.util.Objects;
+
 /**
  * Utility to query WMI class {@code Win32_LogicalDisk}
  */
@@ -68,6 +70,6 @@ public final class Win32LogicalDisk {
         }
         WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(wmiClassName.toString(),
                 LogicalDiskProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(logicalDiskQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(logicalDiskQuery);
     }
 }

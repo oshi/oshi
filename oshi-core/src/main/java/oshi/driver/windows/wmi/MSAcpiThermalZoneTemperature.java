@@ -29,6 +29,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+import java.util.Objects;
+
 /**
  * Utility to query WMI class {@code MSAcpi_ThermalZoneTemperature}
  */
@@ -56,6 +58,6 @@ public final class MSAcpiThermalZoneTemperature {
     public static WmiResult<TemperatureProperty> queryCurrentTemperature() {
         WmiQuery<TemperatureProperty> curTempQuery = new WmiQuery<>(WMI_NAMESPACE, MS_ACPI_THERMAL_ZONE_TEMPERATURE,
                 TemperatureProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(curTempQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(curTempQuery);
     }
 }

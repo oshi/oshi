@@ -29,6 +29,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+import java.util.Objects;
+
 /**
  * Utility to query WMI class {@code Win32_BIOS}
  */
@@ -62,7 +64,7 @@ public final class Win32Bios {
     public static WmiResult<BiosSerialProperty> querySerialNumber() {
         WmiQuery<BiosSerialProperty> serialNumQuery = new WmiQuery<>(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE,
                 BiosSerialProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(serialNumQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(serialNumQuery);
     }
 
     /**
@@ -72,6 +74,6 @@ public final class Win32Bios {
      */
     public static WmiResult<BiosProperty> queryBiosInfo() {
         WmiQuery<BiosProperty> biosQuery = new WmiQuery<>(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE, BiosProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(biosQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(biosQuery);
     }
 }

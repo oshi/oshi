@@ -23,12 +23,7 @@
  */
 package oshi.util.platform.windows;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -191,7 +186,7 @@ public final class PerfCounterWildcardQuery {
         List<String> instances = new ArrayList<>();
         EnumMap<T, List<Long>> valuesMap = new EnumMap<>(propertyEnum);
         WmiQuery<T> query = new WmiQuery<>(wmiClass, propertyEnum);
-        WmiResult<T> result = WmiQueryHandler.createInstance().queryWMI(query);
+        WmiResult<T> result = Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query);
         if (result.getResultCount() > 0) {
             for (T prop : propertyEnum.getEnumConstants()) {
                 // First element is instance name
@@ -204,7 +199,7 @@ public final class PerfCounterWildcardQuery {
                     for (int i = 0; i < result.getResultCount(); i++) {
                         switch (result.getCIMType(prop)) {
                         case Wbemcli.CIM_UINT16:
-                            values.add(Long.valueOf(WmiUtil.getUint16(result, prop, i)));
+                            values.add((long) WmiUtil.getUint16(result, prop, i));
                             break;
                         case Wbemcli.CIM_UINT32:
                             values.add(WmiUtil.getUint32asLong(result, prop, i));

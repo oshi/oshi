@@ -29,6 +29,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+import java.util.Objects;
+
 /**
  * Utility to query WMI class {@code Win32_ComputerSystem}
  */
@@ -55,6 +57,6 @@ public final class Win32ComputerSystem {
     public static WmiResult<ComputerSystemProperty> queryComputerSystem() {
         WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM,
                 ComputerSystemProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(computerSystemQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(computerSystemQuery);
     }
 }

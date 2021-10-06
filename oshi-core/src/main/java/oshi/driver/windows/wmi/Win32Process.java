@@ -24,7 +24,9 @@
 package oshi.driver.windows.wmi;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -60,52 +62,32 @@ public final class Win32Process {
     /**
      * Returns process command lines
      *
-     * @param pidsToQuery
-     *            Process IDs to query for command lines. Pass {@code null} to query
-     *            all processes.
+     * @param pidsToQuery Process IDs to query for command lines. Pass {@code null} to query
+     *                    all processes.
      * @return A {@link WmiResult} containing process IDs and command lines used to
-     *         start the provided processes.
+     * start the provided processes.
      */
     public static WmiResult<CommandLineProperty> queryCommandLines(Set<Integer> pidsToQuery) {
-        StringBuilder sb = new StringBuilder(WIN32_PROCESS);
+        String sb = WIN32_PROCESS;
         if (pidsToQuery != null) {
-            boolean first = true;
-            for (Integer pid : pidsToQuery) {
-                if (first) {
-                    sb.append(" WHERE ProcessID=");
-                    first = false;
-                } else {
-                    sb.append(" OR ProcessID=");
-                }
-                sb.append(pid);
-            }
+            sb += " WHERE ProcessID=" + pidsToQuery.stream().map(String::valueOf).collect(Collectors.joining(" OR PROCESSID="));
         }
-        WmiQuery<CommandLineProperty> commandLineQuery = new WmiQuery<>(sb.toString(), CommandLineProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(commandLineQuery);
+        WmiQuery<CommandLineProperty> commandLineQuery = new WmiQuery<>(sb, CommandLineProperty.class);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(commandLineQuery);
     }
 
     /**
      * Returns process info
      *
-     * @param pids
-     *            Process IDs to query.
+     * @param pids Process IDs to query.
      * @return Information on the provided processes.
      */
     public static WmiResult<ProcessXPProperty> queryProcesses(Collection<Integer> pids) {
-        StringBuilder sb = new StringBuilder(WIN32_PROCESS);
+        String sb = WIN32_PROCESS;
         if (pids != null) {
-            boolean first = true;
-            for (Integer pid : pids) {
-                if (first) {
-                    sb.append(" WHERE ProcessID=");
-                    first = false;
-                } else {
-                    sb.append(" OR ProcessID=");
-                }
-                sb.append(pid);
-            }
+            sb += " WHERE ProcessID=" + pids.stream().map(String::valueOf).collect(Collectors.joining(" OR PROCESSID="));
         }
-        WmiQuery<ProcessXPProperty> processQueryXP = new WmiQuery<>(sb.toString(), ProcessXPProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(processQueryXP);
+        WmiQuery<ProcessXPProperty> processQueryXP = new WmiQuery<>(sb, ProcessXPProperty.class);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(processQueryXP);
     }
 }

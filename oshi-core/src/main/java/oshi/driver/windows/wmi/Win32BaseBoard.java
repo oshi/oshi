@@ -29,6 +29,8 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+import java.util.Objects;
+
 /**
  * Utility to query WMI class {@code Win32_BaseBoard}
  */
@@ -54,6 +56,6 @@ public final class Win32BaseBoard {
      */
     public static WmiResult<BaseBoardProperty> queryBaseboardInfo() {
         WmiQuery<BaseBoardProperty> baseboardQuery = new WmiQuery<>(WIN32_BASEBOARD, BaseBoardProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(baseboardQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(baseboardQuery);
     }
 }
