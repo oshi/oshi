@@ -192,14 +192,11 @@ public class MacFileSystem extends AbstractFileSystem {
                             || NETWORK_FS_TYPES.contains(type)) {
                         description = "Network Drive";
                     }
-                    String name = "";
                     File file = new File(path);
+                    String name = file.getName();
+                    // getName() for / is still blank, so:
                     if (name.isEmpty()) {
-                        name = file.getName();
-                        // getName() for / is still blank, so:
-                        if (name.isEmpty()) {
-                            name = file.getPath();
-                        }
+                        name = file.getPath();
                     }
                     if (nameToMatch != null && !nameToMatch.equals(name)) {
                         continue;

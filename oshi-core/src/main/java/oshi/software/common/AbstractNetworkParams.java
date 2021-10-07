@@ -63,9 +63,8 @@ public abstract class AbstractNetworkParams implements NetworkParams {
             int dot = hn.indexOf('.');
             if (dot == -1) {
                 return hn;
-            } else {
-                return hn.substring(0, dot);
             }
+            return hn.substring(0, dot);
         } catch (UnknownHostException e) {
             LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
             return "";

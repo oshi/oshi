@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -56,6 +58,6 @@ public final class MSAcpiThermalZoneTemperature {
     public static WmiResult<TemperatureProperty> queryCurrentTemperature() {
         WmiQuery<TemperatureProperty> curTempQuery = new WmiQuery<>(WMI_NAMESPACE, MS_ACPI_THERMAL_ZONE_TEMPERATURE,
                 TemperatureProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(curTempQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(curTempQuery);
     }
 }

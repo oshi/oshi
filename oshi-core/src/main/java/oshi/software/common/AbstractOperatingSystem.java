@@ -89,7 +89,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         }
         // Initialize based on JVM Bitness. Individual OS implementations will test
         // if 32-bit JVM running on 64-bit OS
-        int jvmBitness = System.getProperty("os.arch").indexOf("64") != -1 ? 64 : 32;
+        int jvmBitness = System.getProperty("os.arch").contains("64") ? 64 : 32;
         return queryBitness(jvmBitness);
     }
 

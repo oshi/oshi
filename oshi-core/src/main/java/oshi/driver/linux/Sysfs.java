@@ -67,9 +67,8 @@ public final class Sysfs {
         } else {
             if (!productVersion.isEmpty() && !"None".equals(productVersion)) {
                 return productName + " (version: " + productVersion + ")";
-            } else {
-                return productName;
             }
+            return productName;
         }
         return null;
     }

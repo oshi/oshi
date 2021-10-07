@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -55,6 +57,6 @@ public final class Win32ComputerSystem {
     public static WmiResult<ComputerSystemProperty> queryComputerSystem() {
         WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM,
                 ComputerSystemProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(computerSystemQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(computerSystemQuery);
     }
 }

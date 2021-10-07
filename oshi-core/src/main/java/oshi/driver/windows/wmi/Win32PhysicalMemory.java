@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -62,7 +64,7 @@ public final class Win32PhysicalMemory {
     public static WmiResult<PhysicalMemoryProperty> queryphysicalMemory() {
         WmiQuery<PhysicalMemoryProperty> physicalMemoryQuery = new WmiQuery<>(WIN32_PHYSICAL_MEMORY,
                 PhysicalMemoryProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(physicalMemoryQuery);
     }
 
     /**
@@ -73,6 +75,6 @@ public final class Win32PhysicalMemory {
     public static WmiResult<PhysicalMemoryPropertyWin8> queryphysicalMemoryWin8() {
         WmiQuery<PhysicalMemoryPropertyWin8> physicalMemoryQuery = new WmiQuery<>(WIN32_PHYSICAL_MEMORY,
                 PhysicalMemoryPropertyWin8.class);
-        return WmiQueryHandler.createInstance().queryWMI(physicalMemoryQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(physicalMemoryQuery);
     }
 }

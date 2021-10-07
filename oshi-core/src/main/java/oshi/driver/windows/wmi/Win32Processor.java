@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -70,7 +72,7 @@ public final class Win32Processor {
      */
     public static WmiResult<VoltProperty> queryVoltage() {
         WmiQuery<VoltProperty> voltQuery = new WmiQuery<>(WIN32_PROCESSOR, VoltProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(voltQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(voltQuery);
     }
 
     /**
@@ -89,7 +91,7 @@ public final class Win32Processor {
      */
     public static WmiResult<ProcessorIdProperty> queryProcessorId() {
         WmiQuery<ProcessorIdProperty> idQuery = new WmiQuery<>(WIN32_PROCESSOR, ProcessorIdProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(idQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(idQuery);
     }
 
     /**
@@ -100,6 +102,6 @@ public final class Win32Processor {
      */
     public static WmiResult<BitnessProperty> queryBitness() {
         WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>(WIN32_PROCESSOR, BitnessProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(bitnessQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(bitnessQuery);
     }
 }

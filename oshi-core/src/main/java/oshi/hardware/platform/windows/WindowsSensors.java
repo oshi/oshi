@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +76,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getTempFromOHM() {
-        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
         boolean comInit = false;
         try {
             comInit = h.initCOM();
@@ -139,7 +141,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromOHM() {
-        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
         boolean comInit = false;
         try {
             comInit = h.initCOM();
@@ -197,7 +199,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromOHM() {
-        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
         boolean comInit = false;
         try {
             comInit = h.initCOM();

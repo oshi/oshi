@@ -29,24 +29,24 @@
 [![buymeacoffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://buymeacoffee.com/dbwiddis)
 
 OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
-It does not require the installation of any additional native libraries and aims to provide a 
-cross-platform implementation to retrieve system information, such as OS version, processes, 
+It does not require the installation of any additional native libraries and aims to provide a
+cross-platform implementation to retrieve system information, such as OS version, processes,
 memory and CPU usage, disks and partitions, devices, sensors, etc.
 
-Supported platforms 
---------------------------- 
-Windows • Linux • macOS • Unix (AIX, FreeBSD, OpenBSD, Solaris) 
+Supported platforms
+---------------------------
+Windows • Linux • macOS • Unix (AIX, FreeBSD, OpenBSD, Solaris)
 
 Essentials
 ----------
 * [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs) - [Operating System](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/software/os/package-summary.html) / [Hardware](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/hardware/package-summary.html)
 * [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md)
 * [Find OSHI on Maven Central](https://search.maven.org/search?q=com.github.oshi)
-* [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md) 
+* [Upgrading from an earlier version?](https://github.com/oshi/oshi/blob/master/UPGRADING.md)
 
-Supported features 
+Supported features
 --------------------------
-* Computer System and firmware, baseboard 
+* Computer System and firmware, baseboard
 * Operating System and Version/Build
 * Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes
 * System and per-processor load, usage tick counters, interrupts, uptime
@@ -66,19 +66,19 @@ Downloads
 | ------------- | ------------- | ------------- |
 | [oshi-core-5.8.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=5.8.2&e=jar)  | [oshi-core-6.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=6.0.0-SNAPSHOT&e=jar) | [JNA](https://github.com/java-native-access/jna) • [SLF4J](http://www.slf4j.org/) |
 
-| Java 11 (JPMS) Version | Current Development Version | 
-| ------------- | ------------- | 
+| Java 11 (JPMS) Version | Current Development Version |
+| ------------- | ------------- |
 | [oshi-core-java11-5.8.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=5.8.2&e=jar)  | [oshi-core-java11-6.0.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=6.0.0-SNAPSHOT&e=jar) |
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.8.2/jar). 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.8.2/jar).
 
-2. Create a new instance of `SystemInfo` 
+2. Create a new instance of `SystemInfo`
 
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
-```
+```java
 SystemInfo si = new SystemInfo();
 HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
@@ -96,7 +96,7 @@ Note: OSHI uses the latest version of [JNA](https://github.com/java-native-acces
 If you experience a `NoClassDefFoundError` or `NoSuchMethodError` issues with JNA artifacts, you likely have
 an older version of either `jna` or `jna-platform` in your classpath from a transitive dependency on another project.
 Consider one or more of the following steps to resolve the conflict:
- - Listing OSHI earlier (or first) in your dependency list 
+ - Listing OSHI earlier (or first) in your dependency list
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` as dependencies.
  - If you are using the Spring Boot Starter Parent version 2.2 and earlier that includes JNA as a dependency:
    - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
@@ -104,7 +104,7 @@ Consider one or more of the following steps to resolve the conflict:
 
 Support
 -------------------
-* For bug reports, feature requests, or general questions about OSHI's longer term plans, please [create an issue](https://github.com/oshi/oshi/issues).  
+* For bug reports, feature requests, or general questions about OSHI's longer term plans, please [create an issue](https://github.com/oshi/oshi/issues).
 * For help integrating OSHI into your own project or maintainer code review of your PRs, tag `@dbwiddis` in issues or pull requests on your project site.
 * For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, asking a new question if it hasn't been answered before.
 * To say thanks to OSHI's primary maintainer, you can [sponsor him](https://github.com/sponsors/dbwiddis) or [buy him a coffee](https://www.buymeacoffee.com/dbwiddis).
@@ -122,13 +122,13 @@ Tidelift will coordinate the fix and disclosure.
 
 Output
 -------------
-OSHI provides output directly via Java methods for each of its interfaces.  
+OSHI provides output directly via Java methods for each of its interfaces.
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
 
 You can see more examples and run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
 and see the full output for your system by cloning the project and building it with [Maven](https://maven.apache.org/index.html):
 
-```
+```sh
 git clone https://github.com/oshi/oshi.git && cd oshi
 
 ./mvnw test-compile -pl oshi-core exec:java \
@@ -154,7 +154,7 @@ Memory and swapfile information is available.
 Statistics for the system battery are provided:
 
 ```
-Power Sources: 
+Power Sources:
  Name: InternalBattery-0, Device Name: bq20z451,
  RemainingCapacityPercent: 100.0%, Time Remaining: 5:42, Time Remaining Instant: 5:42,
  Power Usage Rate: -16045.216mW, Voltage: 12.694V, Amperage: -1264.0mA,
@@ -171,14 +171,14 @@ Displays:
  Display 0:
   Manuf. ID=SAM, Product ID=2ad, Analog, Serial=HA19, ManufDate=3/2008, EDID v1.3
   41 x 27 cm (16.1 x 10.6 in)
-  Preferred Timing: Clock 106MHz, Active Pixels 3840x2880 
+  Preferred Timing: Clock 106MHz, Active Pixels 3840x2880
   Range Limits: Field Rate 56-75 Hz vertical, 30-81 Hz horizontal, Max clock: 140 MHz
   Monitor Name: SyncMaster
   Serial Number: H9FQ345476
  Display 1:
   Manuf. ID=SAM, Product ID=226, Analog, Serial=HA19, ManufDate=4/2007, EDID v1.3
   41 x 26 cm (16.1 x 10.2 in)
-  Preferred Timing: Clock 106MHz, Active Pixels 3840x2880 
+  Preferred Timing: Clock 106MHz, Active Pixels 3840x2880
   Range Limits: Field Rate 56-75 Hz vertical, 30-81 Hz horizontal, Max clock: 140 MHz
   Monitor Name: SyncMaster
   Serial Number: HMCP431880
@@ -235,9 +235,9 @@ USB Devices:
 
 Where are we? How can I help?
 -----------------------------
-[OSHI originated](https://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html) 
-as a platform-independent library that did not require additional software and had a license compatible with 
-both open source and commercial products. We have developed a strong core of features on major Operating Systems, 
+[OSHI originated](https://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html)
+as a platform-independent library that did not require additional software and had a license compatible with
+both open source and commercial products. We have developed a strong core of features on major Operating Systems,
 but we would love for *you* to help by:
 * Testing!  Our CI testing is limited to a few platforms.  Download and test the program on various operating systems/versions and hardware and help identify gaps that our limited development and testing may have missed. Particular testing needs include:
   * Windows systems with over 64 processors
@@ -283,7 +283,7 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://wiki.jenkins.io/display/JENKINS/Swarm+Plugin"><img src="./src/site/markdown/jenkins.png" alt="Jenkins Swarm Plugin" width=122px><sub><br/>Jenkins Swarm Plugin</sub></a></td>
     <td align=center width=134px><a href="https://ibm-watson-iot.github.io/iot-java/"><img src="./src/site/markdown/watson.png" alt="IBM Watson IoT Platform" width=122px><sub><br/>IBM Watson IoT Platform</sub></a></td>
     <td align=center width=134px><a href="https://github.com/fulcrumgenomics/dagr"><img src="./src/site/markdown/dagr.png" alt="DAGR" width=122px><sub><br/>DAGR</sub></a></td>
-    <td align=center width=134px><a href="https://dolphinscheduler.apache.org/"><img src="./src/site/markdown/dolphinscheduler.png" alt="Apache Dolphin Scheduler" width=122px><sub><br/>Apache Dolphin Scheduler</sub></a></td> 
+    <td align=center width=134px><a href="https://dolphinscheduler.apache.org/"><img src="./src/site/markdown/dolphinscheduler.png" alt="Apache Dolphin Scheduler" width=122px><sub><br/>Apache Dolphin Scheduler</sub></a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://github.com/hawkular/hawkular-agent"><img src="./src/site/markdown/hawkular.png" alt="Hawkular Agent" width=122px><sub><br/>Hawkular Agent</sub></a></td>
     <td align=center width=134px><a href="https://dynamiasoluciones.com/"><img src="./src/site/markdown/dynamia.png" alt="DynamiaModules SaaS Remote" width=122px><sub><br/>DynamiaModules SaaS Remote</sub></a></td>
@@ -296,7 +296,7 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://developer.envisioniot.com/"><img src="./src/site/markdown/enosiot.png" alt="EnOS IoT Hub" width=122px><sub><br/>EnOS IoT Hub</sub></a></td>
     <td align=center width=134px><a href="https://www.fastchar.com/fc_lib/13"><img src="./src/site/markdown/fastchar.png" alt="FastChar-ExtJs" width=122px><sub><br/>FastChar-ExtJs</sub></a></td>
     <td align=center width=134px><a href="https://github.com/criteo/garmadon"><br/><img src="./src/site/markdown/garmadon.png" alt="Garmadon" width=122px><sub><br/><br/><br/>Garmadon</sub></a></td>
-    <td align=center width=134px><a href="https://www.hutool.cn/"><br/><img src="./src/site/markdown/hutool.jpg" alt="Hutool" width=122px><sub><br/><br/><br/>Hutool</sub></a></td>  
+    <td align=center width=134px><a href="https://www.hutool.cn/"><br/><img src="./src/site/markdown/hutool.jpg" alt="Hutool" width=122px><sub><br/><br/><br/>Hutool</sub></a></td>
     <td align=center width=134px><a href="https://github.com/fizzed/crux"><img src="./src/site/markdown/crux.png" alt="Crux Utilities" width=122px><sub><br/><br/>Crux Utilities</sub></a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://app.rossonet.net/"><img src="./src/site/markdown/ar4k.png" alt="A44K Edge Agent" width=122px><sub><br/>AR4K Edge Agent</sub></a></td>

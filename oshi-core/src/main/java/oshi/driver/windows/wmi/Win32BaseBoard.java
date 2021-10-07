@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -54,6 +56,6 @@ public final class Win32BaseBoard {
      */
     public static WmiResult<BaseBoardProperty> queryBaseboardInfo() {
         WmiQuery<BaseBoardProperty> baseboardQuery = new WmiQuery<>(WIN32_BASEBOARD, BaseBoardProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(baseboardQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(baseboardQuery);
     }
 }

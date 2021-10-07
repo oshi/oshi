@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -55,6 +57,6 @@ public final class Win32VideoController {
     public static WmiResult<VideoControllerProperty> queryVideoController() {
         WmiQuery<VideoControllerProperty> videoControllerQuery = new WmiQuery<>(WIN32_VIDEO_CONTROLLER,
                 VideoControllerProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(videoControllerQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(videoControllerQuery);
     }
 }

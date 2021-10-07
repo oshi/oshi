@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,7 +73,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         if (!IS_WINDOWS8_OR_GREATER) {
             return Collections.emptyList();
         }
-        WmiQueryHandler h = WmiQueryHandler.createInstance();
+        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
         boolean comInit = false;
         try {
             comInit = h.initCOM();

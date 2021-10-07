@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -55,6 +57,6 @@ public final class Win32ComputerSystemProduct {
     public static WmiResult<ComputerSystemProductProperty> queryIdentifyingNumberUUID() {
         WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM_PRODUCT,
                 ComputerSystemProductProperty.class);
-        return WmiQueryHandler.createInstance().queryWMI(identifyingNumberQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(identifyingNumberQuery);
     }
 }
