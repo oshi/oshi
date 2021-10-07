@@ -94,7 +94,8 @@ public abstract class AbstractNetworkParams implements NetworkParams {
      * Convenience method to parse the output of the `route` command. While the
      * command arguments vary between OS's the output is consistently parsable.
      *
-     * @param lines output of OS-specific route command
+     * @param lines
+     *            output of OS-specific route command
      * @return default gateway
      */
     protected static String searchGateway(List<String> lines) {
@@ -114,8 +115,8 @@ public abstract class AbstractNetworkParams implements NetworkParams {
     @Override
     public String toString() {
         return String.format("Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s",
-            this.getHostName(), this.getDomainName(), Arrays.toString(this.getDnsServers()),
-            this.getIpv4DefaultGateway(), this.getIpv6DefaultGateway());
+                this.getHostName(), this.getDomainName(), Arrays.toString(this.getDnsServers()),
+                this.getIpv4DefaultGateway(), this.getIpv6DefaultGateway());
 
     }
 }

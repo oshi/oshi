@@ -23,13 +23,13 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
-
-import java.util.Objects;
 
 /**
  * Utility to query WMI class {@code Win32_OperatingSystem}

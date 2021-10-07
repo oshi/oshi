@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +45,6 @@ import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
-
-import java.util.Objects;
 
 /**
  * Sensors from WMI or Open Hardware Monitor

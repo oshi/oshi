@@ -59,7 +59,7 @@ public final class Sysfs {
     public static String queryProductModel() {
         final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_name").trim();
         final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_version")
-            .trim();
+                .trim();
         if (productName.isEmpty()) {
             if (!productVersion.isEmpty()) {
                 return productVersion;
@@ -184,7 +184,8 @@ public final class Sysfs {
     /**
      * Query the bios version from sysfs
      *
-     * @param biosRevision A revision string to append
+     * @param biosRevision
+     *            A revision string to append
      * @return The bios version if available, null otherwise
      */
     public static String queryBiosVersion(String biosRevision) {
