@@ -21,23 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.linux;
+package oshi.driver.mac;
 
 import com.sun.jna.Platform;
 import org.junit.Test;
 import oshi.software.os.OSSession;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 public class WhoTest {
     @Test
     public void testQueryUtxent() {
-        if (Platform.isLinux()) {
+        if (Platform.isMac()) {
             for (OSSession session : Who.queryUtxent()) {
                 assertThat("Session login time should be greater than 0", session.getLoginTime(), is(greaterThan(0L)));
                 assertThat("Session login time should be less than current time", session.getLoginTime(), is(lessThan(System.currentTimeMillis())));
