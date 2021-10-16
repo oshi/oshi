@@ -37,16 +37,16 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Utility to query fsstat
  */
 @ThreadSafe
-public class Fsstat {
+public final class Fsstat {
 
-    Fsstat() {
+    private Fsstat() {
     }
 
-    public int queryFsstat(Statfs[] buf, int bufsize, int flags) {
+    public static int queryFsstat(Statfs[] buf, int bufsize, int flags) {
         return SystemB.INSTANCE.getfsstat64(buf, bufsize, flags);
     }
 
-    public Statfs[] getFileSystems(int numfs) {
+    public static Statfs[] getFileSystems(int numfs) {
         // Create array to hold results
         Statfs[] fs = new Statfs[numfs];
         // Write file system data to array
@@ -59,16 +59,15 @@ public class Fsstat {
      * @return A map with partitions as the key and mount points as the value
      */
     public static Map<String, String> queryPartitionToMountMap() {
-        Fsstat fsstat = new Fsstat();
         Map<String, String> mountPointMap = new HashMap<>();
 
         // Use statfs to get size of mounted file systems
-        int numfs = fsstat.queryFsstat(null, 0, 0);
-        Statfs[] fs = fsstat.getFileSystems(numfs);
+        int numfs = queryFsstat(null, 0, 0);
+        System.out.print(numfs);
+        Statfs[] fs = getFileSystems(numfs);
 
         // Iterate all mounted file systems
         for (Statfs f : fs) {
-            System.out.print(f);
             String mntFrom = Native.toString(f.f_mntfromname, StandardCharsets.UTF_8);
             mountPointMap.put(mntFrom.replace("/dev/", ""), Native.toString(f.f_mntonname, StandardCharsets.UTF_8));
         }
