@@ -14,7 +14,32 @@ import java.util.Map;
 
 public class FsstatTest {
 
+    @Test
+    void testQueryFsstat(){
+        if(Platform.isMac()){
+            int mockNumfs = 5;
+            try(MockedStatic<Fsstat> fsstatMock = Mockito.mockStatic(Fsstat.class)){
+                fsstatMock.when(() -> { Fsstat.queryFsstat(null,0,0); })
+                    .thenReturn(mockNumfs);
 
+                Assert.assertEquals(Fsstat.queryFsstat(null,0,0),mockNumfs);
+            }
+        }
+    }
+
+    @Test
+    void testGetFileSystems(){
+        if(Platform.isMac()){
+            int mockNumfs = 5;
+            SystemB.Statfs[] mockFileSystems = new SystemB.Statfs[mockNumfs];
+            try(MockedStatic<Fsstat> fsstatMock = Mockito.mockStatic(Fsstat.class)){
+                fsstatMock.when(() -> { Fsstat.getFileSystems(mockNumfs);})
+                    .thenReturn(mockFileSystems);
+
+                Assert.assertEquals(Fsstat.getFileSystems(mockNumfs)[0],mockFileSystems[0]);
+            }
+        }
+    }
 
     @Test
     void testQueryPartitionToMountMap(){
@@ -26,8 +51,8 @@ public class FsstatTest {
             fs.f_mntonname = "/hello".getBytes();
             mockFileSystems[0] = fs;
 
-            Map<String, String> expeectedMountPointMap = new HashMap<>();
-            expeectedMountPointMap.put("/test","/hello");
+            Map<String, String> expectedMountPointMap = new HashMap<>();
+            expectedMountPointMap.put("/test","/hello");
 
             try(MockedStatic<Fsstat> fsstatMock = Mockito.mockStatic(Fsstat.class,Mockito.CALLS_REAL_METHODS)){
                 fsstatMock.when(() -> { Fsstat.queryFsstat(null,0,0); })
@@ -38,7 +63,7 @@ public class FsstatTest {
                 Assert.assertEquals(Fsstat.queryFsstat(null,0,0),mockNumfs);
                 Assert.assertEquals(Fsstat.getFileSystems(mockNumfs)[0],mockFileSystems[0]);
 
-                Assert.assertEquals(Fsstat.queryPartitionToMountMap(), expeectedMountPointMap);
+                Assert.assertEquals(Fsstat.queryPartitionToMountMap(), expectedMountPointMap);
             }
         }
     }

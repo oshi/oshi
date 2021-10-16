@@ -63,7 +63,7 @@ public final class Fsstat {
 
         // Use statfs to get size of mounted file systems
         int numfs = queryFsstat(null, 0, 0);
-        System.out.print(numfs);
+        // Get data on file system
         Statfs[] fs = getFileSystems(numfs);
 
         // Iterate all mounted file systems
