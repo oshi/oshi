@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 11
-          distribution: 'adopt'
+          distribution: 'zulu'
       - uses: webfactory/ssh-agent@master
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
