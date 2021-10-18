@@ -21,7 +21,7 @@
     </scm>
 
     <properties>
-        <!-- Users of the Spring Boot Starter Parent should include this property 
+        <!-- Users of the Spring Boot Starter Parent should include this property
             in their POM -->
         <jna.version>5.9.0</jna.version>
         <main.basedir>${project.parent.basedir}</main.basedir>
@@ -30,7 +30,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Due to critical nature of OSHI jna usage, set to dependency management 
+            <!-- Due to critical nature of OSHI jna usage, set to dependency management
                 to help influence usage -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -80,6 +80,12 @@
             <groupId>guru.nidi</groupId>
             <artifactId>code-assert</artifactId>
             <version>${code-assert.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

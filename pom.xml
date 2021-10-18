@@ -97,6 +97,7 @@
         <!-- Dependency versions -->
         <slf4j.version>1.7.32</slf4j.version>
         <junit.version>5.8.1</junit.version>
+        <mockito.version>3.12.4</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <!-- Compile versions -->
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -406,13 +407,13 @@
                         </archive>
                     </configuration>
                     <executions>
-                        <!-- ! here we override the super-pom attach-sources execution 
-                            id which ! calls sources:jar goal. That goals forks the lifecycle, ! causing the 
-                            generate-sources phase to be called twice for the install goal. ! Starting with 
-                            Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed 
+                        <!-- ! here we override the super-pom attach-sources execution
+                            id which ! calls sources:jar goal. That goals forks the lifecycle, ! causing the
+                            generate-sources phase to be called twice for the install goal. ! Starting with
+                            Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed
                             anymore. -->
-                        <!-- except that OSSRH fails with no sources with this 
-                            excluded <execution> <id>attach-sources</id> <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> 
+                        <!-- except that OSSRH fails with no sources with this
+                            excluded <execution> <id>attach-sources</id> <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase>
                             </execution> -->
                     </executions>
                 </plugin>
@@ -707,7 +708,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <!-- Checkstyle dependencies required here or they won't be used (per 
+            <!-- Checkstyle dependencies required here or they won't be used (per
                 maven) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -885,7 +886,7 @@
             <build>
                 <pluginManagement>
                     <plugins>
-                        <!--This plugin's configuration is used to store Eclipse 
+                        <!--This plugin's configuration is used to store Eclipse
                             m2e settings only. It has no influence on the Maven build itself. -->
                         <plugin>
                             <groupId>org.eclipse.m2e</groupId>
@@ -1007,7 +1008,7 @@
                                 <configuration>
                                     <keyname>${gpg.keyname}</keyname>
                                     <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                                    <!-- GPG 2.1 requires pinentry-mode to be set 
+                                    <!-- GPG 2.1 requires pinentry-mode to be set
                                         to loopback in order to pick up the gpg.passphrase value defined in Maven settings.xml. -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
