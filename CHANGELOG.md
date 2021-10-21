@@ -7,7 +7,7 @@
 * [#1730](https://github.com/oshi/oshi/pull/1730): Changed the return value of getServices() from array to list in OperatingSystem - [@adrian-kong](https://github.com/adrian-kong).
 * [#1736](https://github.com/oshi/oshi/pull/1736): Changed the return type of the NetworkInterface method getMTU() from int to long in all its OS implementations.  - [@Simba-97](https://github.com/Simba-97).
 
-# 5.8.0 (2021-07-18), 5.8.1 (2021-08-22), 5.8.2 (2021-09-05)
+# 5.8.0 (2021-07-18), 5.8.1 (2021-08-22), 5.8.2 (2021-09-05), 5.8.3 (2021-10-21)
 
 ##### New Features
 * [#1654](https://github.com/oshi/oshi/pull/1654): API for process arguments and environment - [@basil](https://github.com/basil) and [@dbwiddis](https://github.com/dbwiddis).
@@ -19,7 +19,8 @@
 * [#1680](https://github.com/oshi/oshi/pull/1680): Move supported operating system check out of SystemInfo constructor - [@KyongSik-Yoon](https://github.com/KyongSik-Yoon).
 * [#1701](https://github.com/oshi/oshi/pull/1701): Update to JNA 5.9.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#1707](https://github.com/oshi/oshi/pull/1707): Display Windows 11 version for insider builds - [@dbwiddis](https://github.com/dbwiddis).
-* [#1711](https://github.com/oshi/oshi/pull/1711): Fix WMI backup table source for process counters - [@dbwiddis](https://github.com/dbwiddis).
+* [#1711](https://github.com/oshi/oshi/pull/1711),
+  [#1749](https://github.com/oshi/oshi/pull/1749): Fix WMI backup table source for process counters - [@dbwiddis](https://github.com/dbwiddis).
 * [#1712](https://github.com/oshi/oshi/pull/1712): Align PlatformEnum to JNA Platform type - [@dbwiddis](https://github.com/dbwiddis).
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16), 5.7.4 (2021-05-30), 5.7.5 (2021-06-12)
