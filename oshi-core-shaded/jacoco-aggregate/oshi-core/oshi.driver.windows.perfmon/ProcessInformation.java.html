@@ -40,8 +40,8 @@ public final class ProcessInformation {
 
     private static final String WIN32_PERFPROC_PROCESS = &quot;Win32_PerfRawData_PerfProc_Process&quot;;
     private static final String PROCESS = &quot;Process&quot;;
-    private static final String WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
-            + &quot;Win32_Process WHERE NOT Name LIKE\&quot;%_Total\&quot;&quot;;
+    private static final String WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
+            + &quot; WHERE NOT Name LIKE \&quot;%_Total\&quot;&quot;;
 
     /**
      * Process performance counters
@@ -102,7 +102,7 @@ public final class ProcessInformation {
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ProcessPerformanceProperty, List&lt;Long&gt;&gt;&gt; queryProcessCounters() {
 <span class="nc" id="L104">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessPerformanceProperty.class, PROCESS,</span>
-                WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
+                WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 
     /**
