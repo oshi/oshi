@@ -48,8 +48,8 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERFPROC_PROCESS = <span class="jxr_string">"Win32_PerfRawData_PerfProc_Process"</span>;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROCESS = <span class="jxr_string">"Process"</span>;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>              + <span class="jxr_string">"Win32_Process WHERE NOT Name LIKE\&quot;%_Total\&quot;"</span>;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              + <span class="jxr_string">" WHERE NOT Name LIKE \&quot;%_Total\&quot;"</span>;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * Process performance counters</em>
@@ -110,7 +110,7 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Pair&lt;List&lt;String&gt;, Map&lt;ProcessPerformanceProperty, List&lt;Long&gt;&gt;&gt; queryProcessCounters() {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">return</strong> PerfCounterWildcardQuery.queryInstancesAndValues(ProcessPerformanceProperty.<strong class="jxr_keyword">class</strong>, PROCESS,
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 WIN32_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> 
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     <em class="jxr_javadoccomment">/**</em>
