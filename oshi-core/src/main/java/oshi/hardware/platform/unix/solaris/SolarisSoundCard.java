@@ -41,8 +41,8 @@ public class SolarisSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
     private static final String DEFAULT_AUDIO_DRIVER = "audio810";
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> productMap = new HashMap<>();
+    private static Map<String, String> vendorMap = new HashMap<String, String>();
+    private static Map<String, String> productMap = new HashMap<String, String>();
 
     public SolarisSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
@@ -51,7 +51,7 @@ public class SolarisSoundCard extends AbstractSoundCard {
     public static List<SolarisSoundCard> getSoundCards() {
         vendorMap.clear();
         productMap.clear();
-        List<String> sounds = new ArrayList<>();
+        List<String> sounds = new ArrayList<String>();
         String key = "";
         for (String line : ExecutingCommand.runNative(LSHAL)) {
             if (line.startsWith("udi =")) {
@@ -75,7 +75,7 @@ public class SolarisSoundCard extends AbstractSoundCard {
                 vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
             }
         }
-        List<SolarisSoundCard> soundCards = new ArrayList<>();
+        List<SolarisSoundCard> soundCards = new ArrayList<SolarisSoundCard>();
         for (String _key : sounds) {
             soundCards.add(new SolarisSoundCard(productMap.get(_key) + " " + DEFAULT_AUDIO_DRIVER,
                     vendorMap.get(_key) + " " + productMap.get(_key), productMap.get(_key)));

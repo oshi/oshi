@@ -56,7 +56,7 @@ public class SmcUtil {
     /**
      * Map for caching info retrieved by a key necessary for subsequent calls.
      */
-    private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<>();
+    private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<Integer, SMCKeyDataKeyInfo>();
 
     /**
      * Byte array used for matching return type
@@ -103,8 +103,7 @@ public class SmcUtil {
     }
 
     /**
-     * Get a value from SMC which is in a floating point datatype (SP78, FPE2,
-     * FLT)
+     * Get a value from SMC which is in a floating point datatype (SP78, FPE2, FLT)
      *
      * @param key
      *            The key to retrieve

@@ -65,7 +65,7 @@ public class MacDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-        List<Display> displays = new ArrayList<>();
+        List<Display> displays = new ArrayList<Display>();
         // Iterate IO Registry IODisplayConnect
         IntByReference serviceIterator = new IntByReference();
         IOKitUtil.getMatchingServices("IODisplayConnect", serviceIterator);

@@ -103,7 +103,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
-        List<OSProcess> procs = new ArrayList<>();
+        List<OSProcess> procs = new ArrayList<OSProcess>();
         int[] pids = new int[this.maxProc];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
                 pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
@@ -238,7 +238,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        List<OSProcess> procs = new ArrayList<>();
+        List<OSProcess> procs = new ArrayList<OSProcess>();
         int[] pids = new int[this.maxProc];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
                 pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
@@ -292,7 +292,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Nonsensical number of process arguments for pid {}: {}", pid, nargs);
             return "";
         }
-        List<String> args = new ArrayList<>(nargs);
+        List<String> args = new ArrayList<String>(nargs);
         // Skip first int (containing value of nargs)
         long offset = SystemB.INT_SIZE;
         // Skip exec_command

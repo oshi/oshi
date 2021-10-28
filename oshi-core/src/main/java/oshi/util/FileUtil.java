@@ -88,12 +88,12 @@ public class FileUtil {
         } else if (reportError) {
             LOG.warn("File not found or not readable: {}", filename);
         }
-        return new ArrayList<>();
+        return new ArrayList<String>();
     }
 
     /**
-     * Read a file and return the long value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the long value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -114,8 +114,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the unsigned long value contained therein as a
-     * long. Intended primarily for Linux /sys filesystem
+     * Read a file and return the unsigned long value contained therein as a long.
+     * Intended primarily for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -136,8 +136,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the int value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the int value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -162,8 +162,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the String value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the String value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -190,12 +190,12 @@ public class FileUtil {
      * @param filename
      *            The file to read
      * @param separator
-     *            Characters in each line of the file that separate the key and
-     *            the value
+     *            Characters in each line of the file that separate the key and the
+     *            value
      * @return The map contained in the file, if any; otherwise empty map
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<String, String>();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Reading file {}", filename);
         }

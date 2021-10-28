@@ -51,7 +51,7 @@ public class LinuxSensors implements Sensors {
     private static final String THERMAL_ZONE = "/sys/class/thermal/thermal_zone";
 
     // Map from sensor to path
-    private Map<String, String> sensorsMap = new HashMap<>();
+    private Map<String, String> sensorsMap = new HashMap<String, String>();
 
     public LinuxSensors() {
         // Iterate over all hwmon* directories and look for sensor files
@@ -158,7 +158,7 @@ public class LinuxSensors implements Sensors {
     public int[] getFanSpeeds() {
         if (this.sensorsMap.containsKey(FAN)) {
             String hwmon = this.sensorsMap.get(FAN);
-            List<Integer> speeds = new ArrayList<>();
+            List<Integer> speeds = new ArrayList<Integer>();
             int fan = 1;
             for (;;) {
                 String fanPath = String.format("%s%d_input", hwmon, fan);

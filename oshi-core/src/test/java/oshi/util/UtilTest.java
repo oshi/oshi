@@ -40,17 +40,17 @@ public class UtilTest {
         // Windows counters may be up to 10ms off
         long now = System.nanoTime();
         Util.sleep(100);
-        assertTrue(System.nanoTime() - now >= 90_000_000);
+        assertTrue(System.nanoTime() - now >= 90000000);
 
         now = System.nanoTime();
         long then = System.currentTimeMillis() + 100;
         Util.sleepAfter(then, 100);
-        assertTrue(System.nanoTime() - now >= 190_000_000);
+        assertTrue(System.nanoTime() - now >= 190000000);
 
         now = System.nanoTime();
         then = System.currentTimeMillis() - 550;
         Util.sleepAfter(then, 500);
-        assertTrue(System.nanoTime() - now < 500_000_000);
+        assertTrue(System.nanoTime() - now < 500000000);
     }
 
     @Test

@@ -143,7 +143,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /*
      * This process map will cache process info to avoid repeated calls for data
      */
-    private final Map<Integer, OSProcess> processMap = new HashMap<>();
+    private final Map<Integer, OSProcess> processMap = new HashMap<Integer, OSProcess>();
 
     public LinuxOperatingSystem() {
         this.manufacturer = "GNU/Linux";
@@ -174,9 +174,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getProcesses(int limit, ProcessSort sort, boolean slowFields) {
-        List<OSProcess> procs = new ArrayList<>();
+        List<OSProcess> procs = new ArrayList<OSProcess>();
         File[] pids = ProcUtil.getPidFiles();
-        List<Integer> pidsToKeep = new ArrayList<>();
+        List<Integer> pidsToKeep = new ArrayList<Integer>();
 
         // now for each file (with digit name) get process info
         for (File pidFile : pids) {
@@ -188,7 +188,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
         }
         // Clear out anything not in cache
-        for (Integer pid : new HashSet<>(this.processMap.keySet())) {
+        for (Integer pid : new HashSet<Integer>(this.processMap.keySet())) {
             if (!pidsToKeep.contains(pid)) {
                 this.processMap.remove(pid);
             }
@@ -212,7 +212,13 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         try {
             Path link = Paths.get(procPidExe);
             path = Files.readSymbolicLink(link).toString();
-        } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
+        } catch (InvalidPathException e) {
+            LOG.debug("Unable to open symbolic link {}", procPidExe);
+        } catch (IOException e) {
+            LOG.debug("Unable to open symbolic link {}", procPidExe);
+        } catch (UnsupportedOperationException e) {
+            LOG.debug("Unable to open symbolic link {}", procPidExe);
+        } catch (SecurityException e) {
             LOG.debug("Unable to open symbolic link {}", procPidExe);
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
@@ -310,7 +316,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        List<OSProcess> procs = new ArrayList<>();
+        List<OSProcess> procs = new ArrayList<OSProcess>();
         File[] procFiles = ProcUtil.getPidFiles();
 
         // now for each file (with digit name) get process info
@@ -361,7 +367,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
                 return 0;
             }
             return info.procs;
-        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
+        } catch (UnsatisfiedLinkError e) {
+            LOG.error("Failed to get procs from sysinfo. {}", e);
+        } catch (NoClassDefFoundError e) {
             LOG.error("Failed to get procs from sysinfo. {}", e);
         }
         return 0;
@@ -630,65 +638,63 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return Mixed case family
      */
     private static String filenameToFamily(String name) {
-        switch (name.toLowerCase()) {
+        String n = name.toLowerCase();
         // Handle known special cases
-        case "":
+        if (n.equals("")) {
             return "Solaris";
-        case "blackcat":
+        } else if (n.equals("blackcat")) {
             return "Black Cat";
-        case "bluewhite64":
+        } else if (n.equals("bluewhite64")) {
             return "BlueWhite64";
-        case "e-smith":
+        } else if (n.equals("e-smith")) {
             return "SME Server";
-        case "eos":
+        } else if (n.equals("eos")) {
             return "FreeEOS";
-        case "hlfs":
+        } else if (n.equals("hlfs")) {
             return "HLFS";
-        case "lfs":
+        } else if (n.equals("lfs")) {
             return "Linux-From-Scratch";
-        case "linuxppc":
+        } else if (n.equals("linuxppc")) {
             return "Linux-PPC";
-        case "meego":
+        } else if (n.equals("meego")) {
             return "MeeGo";
-        case "mandakelinux":
+        } else if (n.equals("mandakelinux")) {
             return "Mandrake";
-        case "mklinux":
+        } else if (n.equals("mklinux")) {
             return "MkLinux";
-        case "nld":
+        } else if (n.equals("nld")) {
             return "Novell Linux Desktop";
-        case "novell":
-        case "SuSE":
+        } else if (n.equals("novell") || n.equals("SuSE")) {
             return "SUSE Linux";
-        case "pld":
+        } else if (n.equals("pld")) {
             return "PLD";
-        case "redhat":
+        } else if (n.equals("redhat")) {
             return "Red Hat Linux";
-        case "sles":
+        } else if (n.equals("sles")) {
             return "SUSE Linux ES9";
-        case "sun":
+        } else if (n.equals("sun")) {
             return "Sun JDS";
-        case "synoinfo":
+        } else if (n.equals("synoinfo")) {
             return "Synology";
-        case "tinysofa":
+        } else if (n.equals("tinysofa")) {
             return "Tiny Sofa";
-        case "turbolinux":
+        } else if (n.equals("turbolinux")) {
             return "TurboLinux";
-        case "ultrapenguin":
+        } else if (n.equals("ultrapenguin")) {
             return "UltraPenguin";
-        case "va":
+        } else if (n.equals("va")) {
             return "VA-Linux";
-        case "vmware":
+        } else if (n.equals("vmware")) {
             return "VMWareESX";
-        case "yellowdog":
+        } else if (n.equals("yellowdog")) {
             return "Yellow Dog";
 
-        // /etc/issue will end up here:
-        case "issue":
+            // /etc/issue will end up here:
+        } else if (n.equals("issue")) {
             return "Unknown";
-        // If not a special case just capitalize first letter
-        default:
-            return name.substring(0, 1).toUpperCase() + name.substring(1);
         }
+        // If not a special case just capitalize first letter
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
     /**

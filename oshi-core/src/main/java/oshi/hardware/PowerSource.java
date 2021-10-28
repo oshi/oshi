@@ -49,8 +49,8 @@ public interface PowerSource extends Serializable {
     /**
      * Estimated time remaining on the power source, in seconds.
      *
-     * @return If positive, seconds remaining. If negative, -1.0 (calculating)
-     *         or -2.0 (unlimited)
+     * @return If positive, seconds remaining. If negative, -1.0 (calculating) or
+     *         -2.0 (unlimited)
      */
     double getTimeRemaining();
 }

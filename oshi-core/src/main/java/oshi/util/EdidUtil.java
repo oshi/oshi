@@ -173,8 +173,7 @@ public class EdidUtil {
      *
      * @param edid
      *            The EDID byte array
-     * @return A 2D array with four 18-byte elements representing VESA
-     *         descriptors
+     * @return A 2D array with four 18-byte elements representing VESA descriptors
      */
     public static byte[][] getDescriptors(byte[] edid) {
         byte[][] desc = new byte[4][18];
@@ -189,8 +188,7 @@ public class EdidUtil {
      *
      * @param desc
      *            An 18-byte VESA descriptor
-     * @return An integer representing the first four bytes of the VESA
-     *         descriptor
+     * @return An integer representing the first four bytes of the VESA descriptor
      */
     public static int getDescriptorType(byte[] desc) {
         return ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 4)).getInt();

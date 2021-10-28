@@ -51,8 +51,8 @@ public class ExecutingCommand {
      *
      * @param cmdToRun
      *            Command to run
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
@@ -60,25 +60,30 @@ public class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result line
-     * by line.
+     * Executes a command on the native command line and returns the result line by
+     * line.
      *
      * @param cmdToRunWithArgs
      *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command, or
-     *         empty string if the command failed
+     * @return A list of Strings representing the result of the command, or empty
+     *         string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs) {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
-        } catch (SecurityException | IOException e) {
+        } catch (SecurityException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e);
-            return new ArrayList<>(0);
+            return new ArrayList<String>(0);
+        } catch (IOException e) {
+            LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e);
+            return new ArrayList<String>(0);
         }
 
-        ArrayList<String> sa = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+        ArrayList<String> sa = new ArrayList<String>();
+        InputStreamReader isr = new InputStreamReader(p.getInputStream());
+        BufferedReader reader = new BufferedReader(isr);
+        try {
             String line;
             while ((line = reader.readLine()) != null) {
                 sa.add(line);
@@ -86,10 +91,19 @@ public class ExecutingCommand {
             p.waitFor();
         } catch (IOException e) {
             LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), e);
-            return new ArrayList<>(0);
+            return new ArrayList<String>(0);
         } catch (InterruptedException ie) {
             LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), ie);
             Thread.currentThread().interrupt();
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+            }
+            try {
+                isr.close();
+            } catch (IOException e) {
+            }
         }
         return sa;
     }

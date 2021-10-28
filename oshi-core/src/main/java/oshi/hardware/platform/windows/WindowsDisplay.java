@@ -34,6 +34,7 @@ import com.sun.jna.platform.win32.Guid;
 import com.sun.jna.platform.win32.SetupApi;
 import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
 import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
+import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg.HKEY;
@@ -64,12 +65,12 @@ public class WindowsDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static Display[] getDisplays() {
-        List<Display> displays = new ArrayList<>();
+        List<Display> displays = new ArrayList<Display>();
 
         Guid.GUID monitorGuid = new Guid.GUID("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7");
         WinNT.HANDLE hDevInfo = SetupApi.INSTANCE.SetupDiGetClassDevs(monitorGuid, null, null,
                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
-        if (!hDevInfo.equals(WinNT.INVALID_HANDLE_VALUE)) {
+        if (!hDevInfo.equals(WinBase.INVALID_HANDLE_VALUE)) {
             SP_DEVICE_INTERFACE_DATA deviceInterfaceData = new SetupApi.SP_DEVICE_INTERFACE_DATA();
             deviceInterfaceData.cbSize = deviceInterfaceData.size();
 

@@ -54,14 +54,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             .getOperatingSystemMXBean();
 
     /**
-     * Calling OperatingSystemMxBean too rapidly results in NaN. Store the
-     * latest value to return if polling is too rapid
+     * Calling OperatingSystemMxBean too rapidly results in NaN. Store the latest
+     * value to return if polling is too rapid
      */
     private double lastCpuLoad = 0d;
 
     /**
-     * Keep track of last CPU Load poll to OperatingSystemMXBean to ensure
-     * enough time has elapsed
+     * Keep track of last CPU Load poll to OperatingSystemMXBean to ensure enough
+     * time has elapsed
      */
     private long lastCpuLoadTime = 0;
 
@@ -131,9 +131,12 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             this.lastCpuLoadTime = System.currentTimeMillis();
             this.sunMXBean = true;
             LOG.debug("Oracle MXBean detected.");
-        } catch (ClassNotFoundException | ClassCastException e) {
+        } catch (ClassNotFoundException e) {
             LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("{}", e);
+            LOG.trace("", e);
+        } catch (ClassCastException e) {
+            LOG.debug("Oracle MXBean not detected.");
+            LOG.trace("", e);
         }
     }
 
@@ -397,10 +400,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     /**
      * Updates system tick information. Stores in array with seven elements
-     * representing clock ticks or milliseconds (platform dependent) spent in
-     * User (0), Nice (1), System (2), Idle (3), IOwait (4), IRQ (5), and
-     * SoftIRQ (6) states. By measuring the difference between ticks across a
-     * time interval, CPU load over that interval may be calculated.
+     * representing clock ticks or milliseconds (platform dependent) spent in User
+     * (0), Nice (1), System (2), Idle (3), IOwait (4), IRQ (5), and SoftIRQ (6)
+     * states. By measuring the difference between ticks across a time interval, CPU
+     * load over that interval may be calculated.
      */
     protected void updateSystemTicks() {
         LOG.trace("Updating System Ticks");
@@ -479,12 +482,12 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * Updates per-processor tick information. Stores in 2D array; an array for
-     * each logical processor with with seven elements representing clock ticks
-     * or milliseconds (platform dependent) spent in User (0), Nice (1), System
-     * (2), Idle (3), IOwait (4), IRQ (5), and SoftIRQ (6) states. By measuring
-     * the difference between ticks across a time interval, CPU load over that
-     * interval may be calculated.
+     * Updates per-processor tick information. Stores in 2D array; an array for each
+     * logical processor with with seven elements representing clock ticks or
+     * milliseconds (platform dependent) spent in User (0), Nice (1), System (2),
+     * Idle (3), IOwait (4), IRQ (5), and SoftIRQ (6) states. By measuring the
+     * difference between ticks across a time interval, CPU load over that interval
+     * may be calculated.
      */
     protected void updateProcessorTicks() {
         LOG.trace("Updating Processor Ticks");
@@ -542,8 +545,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * Creates a Processor ID by encoding the stepping, model, family, and
-     * feature flags.
+     * Creates a Processor ID by encoding the stepping, model, family, and feature
+     * flags.
      *
      * @param stepping
      *            The CPU stepping
@@ -570,99 +573,66 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         processorIdBytes |= (familyL & 0xf0) << 20;
         // 13:12 – Processor Type, assume 0
         for (String flag : flags) {
-            switch (flag) {
-            case "fpu":
+            if (flag.equals("fpu")) {
                 processorIdBytes |= 1L << 32;
-                break;
-            case "vme":
+            } else if (flag.equals("vme")) {
                 processorIdBytes |= 1L << 33;
-                break;
-            case "de":
+            } else if (flag.equals("de")) {
                 processorIdBytes |= 1L << 34;
-                break;
-            case "pse":
+            } else if (flag.equals("pse")) {
                 processorIdBytes |= 1L << 35;
-                break;
-            case "tsc":
+            } else if (flag.equals("tsc")) {
                 processorIdBytes |= 1L << 36;
-                break;
-            case "msr":
+            } else if (flag.equals("msr")) {
                 processorIdBytes |= 1L << 37;
-                break;
-            case "pae":
+            } else if (flag.equals("pae")) {
                 processorIdBytes |= 1L << 38;
-                break;
-            case "mce":
+            } else if (flag.equals("mce")) {
                 processorIdBytes |= 1L << 39;
-                break;
-            case "cx8":
+            } else if (flag.equals("cx8")) {
                 processorIdBytes |= 1L << 40;
-                break;
-            case "apic":
+            } else if (flag.equals("apic")) {
                 processorIdBytes |= 1L << 41;
-                break;
-            case "sep":
+            } else if (flag.equals("sep")) {
                 processorIdBytes |= 1L << 43;
-                break;
-            case "mtrr":
+            } else if (flag.equals("mtrr")) {
                 processorIdBytes |= 1L << 44;
-                break;
-            case "pge":
+            } else if (flag.equals("pge")) {
                 processorIdBytes |= 1L << 45;
-                break;
-            case "mca":
+            } else if (flag.equals("mca")) {
                 processorIdBytes |= 1L << 46;
-                break;
-            case "cmov":
+            } else if (flag.equals("cmov")) {
                 processorIdBytes |= 1L << 47;
-                break;
-            case "pat":
+            } else if (flag.equals("pat")) {
                 processorIdBytes |= 1L << 48;
-                break;
-            case "pse-36":
+            } else if (flag.equals("pse-36")) {
                 processorIdBytes |= 1L << 49;
-                break;
-            case "psn":
+            } else if (flag.equals("psn")) {
                 processorIdBytes |= 1L << 50;
-                break;
-            case "clfsh":
+            } else if (flag.equals("clfsh")) {
                 processorIdBytes |= 1L << 51;
-                break;
-            case "ds":
+            } else if (flag.equals("ds")) {
                 processorIdBytes |= 1L << 53;
-                break;
-            case "acpi":
+            } else if (flag.equals("acpi")) {
                 processorIdBytes |= 1L << 54;
-                break;
-            case "mmx":
+            } else if (flag.equals("mmx")) {
                 processorIdBytes |= 1L << 55;
-                break;
-            case "fxsr":
+            } else if (flag.equals("fxsr")) {
                 processorIdBytes |= 1L << 56;
-                break;
-            case "sse":
+            } else if (flag.equals("sse")) {
                 processorIdBytes |= 1L << 57;
-                break;
-            case "sse2":
+            } else if (flag.equals("sse2")) {
                 processorIdBytes |= 1L << 58;
-                break;
-            case "ss":
+            } else if (flag.equals("ss")) {
                 processorIdBytes |= 1L << 59;
-                break;
-            case "htt":
+            } else if (flag.equals("htt")) {
                 processorIdBytes |= 1L << 60;
-                break;
-            case "tm":
+            } else if (flag.equals("tm")) {
                 processorIdBytes |= 1L << 61;
-                break;
-            case "ia64":
+            } else if (flag.equals("ia64")) {
                 processorIdBytes |= 1L << 62;
-                break;
-            case "pbe":
+            } else if (flag.equals("pbe")) {
                 processorIdBytes |= 1L << 63;
-                break;
-            default:
-                break;
             }
         }
         return String.format("%016X", processorIdBytes);

@@ -53,8 +53,8 @@ public interface Sensors extends Serializable {
     /**
      * Fan speeds
      *
-     * @return Speed in rpm for all fans. May return empty array if no fans
-     *         detected or 0 fan speed if unable to measure fan speed.
+     * @return Speed in rpm for all fans. May return empty array if no fans detected
+     *         or 0 fan speed if unable to measure fan speed.
      */
     int[] getFanSpeeds();
 

@@ -52,7 +52,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
         IDENTIFYINGNUMBER;
     }
 
-    private final transient WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<>(
+    private final transient WmiQuery<ComputerSystemProductProperty> identifyingNumberQuery = new WmiQuery<ComputerSystemProductProperty>(
             "Win32_ComputerSystemProduct", ComputerSystemProductProperty.class);
 
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
@@ -64,8 +64,8 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private void init() {
-        WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>("Win32_ComputerSystem",
-                ComputerSystemProperty.class);
+        WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<ComputerSystemProperty>(
+                "Win32_ComputerSystem", ComputerSystemProperty.class);
         WmiResult<ComputerSystemProperty> win32ComputerSystem = wmiQueryHandler.queryWMI(computerSystemQuery);
         if (win32ComputerSystem.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0));
@@ -82,7 +82,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
             return this.systemSerialNumber;
         }
         // This should always work
-        WmiQuery<BiosProperty> serialNumberQuery = new WmiQuery<>("Win32_BIOS where PrimaryBIOS=true",
+        WmiQuery<BiosProperty> serialNumberQuery = new WmiQuery<BiosProperty>("Win32_BIOS where PrimaryBIOS=true",
                 BiosProperty.class);
         WmiResult<BiosProperty> serialNumber = wmiQueryHandler.queryWMI(serialNumberQuery);
         if (serialNumber.getResultCount() > 0) {

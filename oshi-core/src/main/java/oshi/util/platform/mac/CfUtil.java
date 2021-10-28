@@ -47,7 +47,7 @@ public class CfUtil {
     /**
      * Cache cfStrings
      */
-    private static Map<String, CFStringRef> cfStringMap = new ConcurrentHashMap<>();
+    private static Map<String, CFStringRef> cfStringMap = new ConcurrentHashMap<String, CFStringRef>();
 
     /**
      * Return a CFStringRef representing a string, caching the result
@@ -73,7 +73,10 @@ public class CfUtil {
      * fetch the corresponding constant.
      */
     public enum CFNumberType {
-        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type, kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType, kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType, kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType
+        unusedZero, kCFNumberSInt8Type, kCFNumberSInt16Type, kCFNumberSInt32Type, kCFNumberSInt64Type,
+        kCFNumberFloat32Type, kCFNumberFloat64Type, kCFNumberCharType, kCFNumberShortType, kCFNumberIntType,
+        kCFNumberLongType, kCFNumberLongLongType, kCFNumberFloatType, kCFNumberDoubleType, kCFNumberCFIndexType,
+        kCFNumberNSIntegerType, kCFNumberCGFloatType, kCFNumberMaxType
     }
 
     /**
@@ -103,8 +106,7 @@ public class CfUtil {
     }
 
     /**
-     * Convert a pointer representing a Core Foundations Boolean into its
-     * boolean
+     * Convert a pointer representing a Core Foundations Boolean into its boolean
      *
      * @param p
      *            The pointer to a boolean
@@ -136,8 +138,8 @@ public class CfUtil {
     }
 
     /**
-     * Releases a CF reference. Mandatory when an object is owned (using
-     * 'create' or 'copy' methods).
+     * Releases a CF reference. Mandatory when an object is owned (using 'create' or
+     * 'copy' methods).
      *
      * @param ref
      *            The reference to release

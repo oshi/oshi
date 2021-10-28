@@ -123,8 +123,7 @@ public class PerfDataUtil {
      *            The instance of the counter, or null if no instance
      * @param counter
      *            The counter name
-     * @return A PerfCounter object encapsulating the object, instance, and
-     *         counter
+     * @return A PerfCounter object encapsulating the object, instance, and counter
      */
     public static PerfCounter createCounter(String object, String instance, String counter) {
         return INSTANCE.new PerfCounter(object, instance, counter);
@@ -194,8 +193,8 @@ public class PerfDataUtil {
      *
      * @param counter
      *            The counter to get the value of
-     * @return long value of the counter, or negative value representing an
-     *         error code
+     * @return long value of the counter, or negative value representing an error
+     *         code
      */
     public static long queryCounter(WinNT.HANDLEByReference counter) {
         PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();

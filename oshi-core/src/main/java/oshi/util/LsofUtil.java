@@ -39,7 +39,7 @@ public class LsofUtil {
 
     public static Map<Integer, String> getCwdMap(int pid) {
         List<String> lsof = ExecutingCommand.runNative("lsof -Fn -d cwd" + (pid < 0 ? "" : " -p " + pid));
-        Map<Integer, String> cwdMap = new HashMap<>();
+        Map<Integer, String> cwdMap = new HashMap<Integer, String>();
         Integer key = -1;
         for (String line : lsof) {
             if (line.isEmpty()) {

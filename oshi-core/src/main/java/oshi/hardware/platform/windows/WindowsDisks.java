@@ -70,24 +70,24 @@ public class WindowsDisks implements Disks {
         INDEX, MANUFACTURER, MODEL, NAME, SERIALNUMBER, SIZE;
     }
 
-    private final transient WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>("Win32_DiskDrive",
-            DiskDriveProperty.class);
+    private final transient WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<DiskDriveProperty>(
+            "Win32_DiskDrive", DiskDriveProperty.class);
 
     enum DriveToPartitionProperty {
         ANTECEDENT, DEPENDENT;
     }
 
-    private final transient WmiQuery<DriveToPartitionProperty> driveToPartitionQuery = new WmiQuery<>(
+    private final transient WmiQuery<DriveToPartitionProperty> driveToPartitionQuery = new WmiQuery<DriveToPartitionProperty>(
             "Win32_DiskDriveToDiskPartition", DriveToPartitionProperty.class);
-    private final transient WmiQuery<DriveToPartitionProperty> diskToParitionQuery = new WmiQuery<>(
+    private final transient WmiQuery<DriveToPartitionProperty> diskToParitionQuery = new WmiQuery<DriveToPartitionProperty>(
             "Win32_LogicalDiskToPartition", DriveToPartitionProperty.class);
 
     enum DiskPartitionProperty {
         DESCRIPTION, DEVICEID, DISKINDEX, INDEX, NAME, SIZE, TYPE;
     }
 
-    private final transient WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<>("Win32_DiskPartition",
-            DiskPartitionProperty.class);
+    private final transient WmiQuery<DiskPartitionProperty> partitionQuery = new WmiQuery<DiskPartitionProperty>(
+            "Win32_DiskPartition", DiskPartitionProperty.class);
 
     /*
      * For disk query
@@ -118,7 +118,7 @@ public class WindowsDisks implements Disks {
         }
     }
 
-    private static final PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<>(
+    private static final PerfCounterWildcardQuery<PhysicalDiskProperty> physicalDiskPerfCounters = new PerfCounterWildcardQuery<PhysicalDiskProperty>(
             PhysicalDiskProperty.class, PHYSICAL_DISK,
             "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE NOT Name=\"_Total\"");
 
@@ -154,7 +154,8 @@ public class WindowsDisks implements Disks {
             diskStore.setWriteBytes(MapUtil.getOrDefault(stats.writeByteMap, index, 0L));
             diskStore.setCurrentQueueLength(MapUtil.getOrDefault(stats.queueLengthMap, index, 0L));
             diskStore.setTimeStamp(stats.timeStamp);
-            diskStore.setTransferTime(diskStore.getTimeStamp() - MapUtil.getOrDefault(stats.idleTimeMap, index, diskStore.getTimeStamp()));
+            diskStore.setTransferTime(diskStore.getTimeStamp()
+                    - MapUtil.getOrDefault(stats.idleTimeMap, index, diskStore.getTimeStamp()));
             return true;
         } else
 
@@ -167,7 +168,7 @@ public class WindowsDisks implements Disks {
     @Override
     public HWDiskStore[] getDisks() {
         List<HWDiskStore> result;
-        result = new ArrayList<>();
+        result = new ArrayList<HWDiskStore>();
         DiskStats stats = queryReadWriteStats(null);
         PartitionMaps maps = queryPartitionMaps();
 
@@ -190,7 +191,7 @@ public class WindowsDisks implements Disks {
             ds.setTransferTime(ds.getTimeStamp() - MapUtil.getOrDefault(stats.idleTimeMap, index, ds.getTimeStamp()));
             ds.setSize(WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
             // Get partitions
-            List<HWPartition> partitions = new ArrayList<>();
+            List<HWPartition> partitions = new ArrayList<HWPartition>();
             List<String> partList = maps.driveToPartitionMap.get(ds.getName());
             if (partList != null && !partList.isEmpty()) {
                 for (String part : partList) {
@@ -208,8 +209,8 @@ public class WindowsDisks implements Disks {
     }
 
     /**
-     * Populates the maps for the specified index. If the index is null,
-     * populates all the maps
+     * Populates the maps for the specified index. If the index is null, populates
+     * all the maps
      *
      * @param index
      *            The index to populate/update maps for
@@ -243,7 +244,7 @@ public class WindowsDisks implements Disks {
             stats.writeMap.put(name, writeList.get(i));
             stats.writeByteMap.put(name, writeByteList.get(i));
             stats.queueLengthMap.put(name, queueLengthList.get(i));
-            stats.idleTimeMap.put(name, idleTimeList.get(i) / 10_000L);
+            stats.idleTimeMap.put(name, idleTimeList.get(i) / 10000L);
         }
         return stats;
     }
@@ -319,12 +320,12 @@ public class WindowsDisks implements Disks {
      * Maps to store read/write bytes per drive index
      */
     private final class DiskStats {
-        private final Map<String, Long> readMap = new HashMap<>();
-        private final Map<String, Long> readByteMap = new HashMap<>();
-        private final Map<String, Long> writeMap = new HashMap<>();
-        private final Map<String, Long> writeByteMap = new HashMap<>();
-        private final Map<String, Long> queueLengthMap = new HashMap<>();
-        private final Map<String, Long> idleTimeMap = new HashMap<>();
+        private final Map<String, Long> readMap = new HashMap<String, Long>();
+        private final Map<String, Long> readByteMap = new HashMap<String, Long>();
+        private final Map<String, Long> writeMap = new HashMap<String, Long>();
+        private final Map<String, Long> writeByteMap = new HashMap<String, Long>();
+        private final Map<String, Long> queueLengthMap = new HashMap<String, Long>();
+        private final Map<String, Long> idleTimeMap = new HashMap<String, Long>();
         private long timeStamp;
     }
 
@@ -332,8 +333,8 @@ public class WindowsDisks implements Disks {
      * Maps for the partition structure
      */
     private final class PartitionMaps {
-        private final Map<String, List<String>> driveToPartitionMap = new HashMap<>();
-        private final Map<String, String> partitionToLogicalDriveMap = new HashMap<>();
-        private final Map<String, HWPartition> partitionMap = new HashMap<>();
+        private final Map<String, List<String>> driveToPartitionMap = new HashMap<String, List<String>>();
+        private final Map<String, String> partitionToLogicalDriveMap = new HashMap<String, String>();
+        private final Map<String, HWPartition> partitionMap = new HashMap<String, HWPartition>();
     }
 }

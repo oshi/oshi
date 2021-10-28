@@ -54,13 +54,12 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
     }
 
     /**
-     * Updates instance variables from reading /proc/meminfo no more frequently
-     * than every 100ms. While most of the information is available in the
-     * sysinfo structure, the most accurate calculation of MemAvailable is only
-     * available from reading this pseudo-file. The maintainers of the Linux
-     * Kernel have indicated this location will be kept up to date if the
-     * calculation changes: see
-     * https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
+     * Updates instance variables from reading /proc/meminfo no more frequently than
+     * every 100ms. While most of the information is available in the sysinfo
+     * structure, the most accurate calculation of MemAvailable is only available
+     * from reading this pseudo-file. The maintainers of the Linux Kernel have
+     * indicated this location will be kept up to date if the calculation changes:
+     * see https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?
      * id=34e431b0ae398fc54ea69ff85ec700722c9da773
      *
      * Internally, reading /proc/meminfo is faster than sysinfo because it only
@@ -75,36 +74,25 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             for (String checkLine : memInfo) {
                 String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
                 if (memorySplit.length > 1) {
-                    switch (memorySplit[0]) {
-                    case "MemTotal:":
+                    if (memorySplit[0].equals("MemTotal:")) {
                         this.memTotal = parseMeminfo(memorySplit);
-                        break;
-                    case "MemFree:":
+                    } else if (memorySplit[0].equals("MemFree:")) {
                         this.memFree = parseMeminfo(memorySplit);
-                        break;
-                    case "MemAvailable:":
+                    } else if (memorySplit[0].equals("MemAvailable:")) {
                         this.memAvailable = parseMeminfo(memorySplit);
                         found = true;
-                        break;
-                    case "Active(file):":
+                    } else if (memorySplit[0].equals("Active(file):")) {
                         this.activeFile = parseMeminfo(memorySplit);
-                        break;
-                    case "Inactive(file):":
+                    } else if (memorySplit[0].equals("Inactive(file):")) {
                         this.inactiveFile = parseMeminfo(memorySplit);
-                        break;
-                    case "SReclaimable:":
+                    } else if (memorySplit[0].equals("SReclaimable:")) {
                         this.sReclaimable = parseMeminfo(memorySplit);
-                        break;
-                    case "SwapTotal:":
+                    } else if (memorySplit[0].equals("SwapTotal:")) {
                         this.swapTotal = parseMeminfo(memorySplit);
-                        break;
-                    case "SwapFree:":
+                    } else if (memorySplit[0].equals("SwapFree:")) {
                         this.swapFree = parseMeminfo(memorySplit);
-                        break;
-                    default:
-                        // do nothing with other lines
-                        break;
                     }
+                    // do nothing with other lines
                 }
             }
             this.swapUsed = this.swapTotal - this.swapFree;
@@ -117,17 +105,12 @@ public class LinuxGlobalMemory extends AbstractGlobalMemory {
             for (String checkLine : memInfo) {
                 String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
                 if (memorySplit.length > 1) {
-                    switch (memorySplit[0]) {
-                    case "pgpgin":
+                    if (memorySplit[0].equals("pgpgin")) {
                         this.swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-                        break;
-                    case "pgpgout":
+                    } else if (memorySplit[0].equals("pgpgout")) {
                         this.swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-                        break;
-                    default:
-                        // do nothing with other lines
-                        break;
                     }
+                    // do nothing with other lines
                 }
             }
 

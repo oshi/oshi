@@ -66,7 +66,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
         if (psNames == null) {
             psNames = new String[0];
         }
-        List<LinuxPowerSource> psList = new ArrayList<>(psNames.length);
+        List<LinuxPowerSource> psList = new ArrayList<LinuxPowerSource>(psNames.length);
         // For each power source, output various info
         for (String psName : psNames) {
             // Skip if name is ADP* or AC* (AC power supply)

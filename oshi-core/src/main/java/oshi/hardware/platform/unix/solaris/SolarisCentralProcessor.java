@@ -84,8 +84,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected void calculateProcessorCounts() {
         List<Kstat> kstats = KstatUtil.kstatLookupAll("cpu_info", -1, null);
-        Set<String> chipIDs = new HashSet<>();
-        Set<String> coreIDs = new HashSet<>();
+        Set<String> chipIDs = new HashSet<String>();
+        Set<String> coreIDs = new HashSet<String>();
         this.logicalProcessorCount = 0;
         for (Kstat ksp : kstats) {
             if (ksp != null && KstatUtil.kstatRead(ksp)) {
@@ -184,8 +184,8 @@ public class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fetches the ProcessorID by encoding the stepping, model, family, and
-     * feature flags.
+     * Fetches the ProcessorID by encoding the stepping, model, family, and feature
+     * flags.
      *
      * @param stepping
      * @param model

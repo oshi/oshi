@@ -52,69 +52,63 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);
 
     private EnumMap<T, List<PerfCounter>> counterListMap = null;
-    private List<String> instancesFromLastQuery = new ArrayList<>();
+    private List<String> instancesFromLastQuery = new ArrayList<String>();
     private final String perfObjectLocalized;
     private final String instanceFilter;
 
     /**
-     * Construct a new object to hold performance counter data source and
-     * results
+     * Construct a new object to hold performance counter data source and results
      * 
      * @param propertyEnum
-     *            An enum which implements {@link PdhCounterWildcardProperty}
-     *            and contains the WMI field (Enum value) and PDH Counter string
+     *            An enum which implements {@link PdhCounterWildcardProperty} and
+     *            contains the WMI field (Enum value) and PDH Counter string
      *            (instance or counter).
      *            <P>
-     *            The first element of the enum defines the instance filter,
-     *            rather than a counter name. This acts as a filter for PDH
-     *            instances only and should correlate with a WMI String field
-     *            defining the same name. If the instance is null then all
-     *            counters will be added to the PDH query, otherwise the PDH
-     *            counter will only include instances which are wildcard matches
-     *            with the given instance, replacing '?' with a single
-     *            character, '*' with any number of characters, and reversing
-     *            the test if the first character is '^'. If the counter source
-     *            is WMI, the instance filtering has no effect, and it is the
-     *            responsibility of the user to add filtering to the
-     *            perfWmiClass string using a WHERE clause.
+     *            The first element of the enum defines the instance filter, rather
+     *            than a counter name. This acts as a filter for PDH instances only
+     *            and should correlate with a WMI String field defining the same
+     *            name. If the instance is null then all counters will be added to
+     *            the PDH query, otherwise the PDH counter will only include
+     *            instances which are wildcard matches with the given instance,
+     *            replacing '?' with a single character, '*' with any number of
+     *            characters, and reversing the test if the first character is '^'.
+     *            If the counter source is WMI, the instance filtering has no
+     *            effect, and it is the responsibility of the user to add filtering
+     *            to the perfWmiClass string using a WHERE clause.
      * @param perfObject
-     *            The PDH object for this counter; all counters on this object
-     *            will be refreshed at the same time
+     *            The PDH object for this counter; all counters on this object will
+     *            be refreshed at the same time
      * @param perfWmiClass
-     *            The WMI PerfData_RawData_* class corresponding to the PDH
-     *            object
+     *            The WMI PerfData_RawData_* class corresponding to the PDH object
      */
     public PerfCounterWildcardQuery(Class<T> propertyEnum, String perfObject, String perfWmiClass) {
         this(propertyEnum, perfObject, perfWmiClass, perfObject);
     }
 
     /**
-     * Construct a new object to hold performance counter data source and
-     * results
+     * Construct a new object to hold performance counter data source and results
      * 
      * @param propertyEnum
-     *            An enum which implements {@link PdhCounterWildcardProperty}
-     *            and contains the WMI field (Enum value) and PDH Counter string
+     *            An enum which implements {@link PdhCounterWildcardProperty} and
+     *            contains the WMI field (Enum value) and PDH Counter string
      *            (instance or counter).
      *            <P>
-     *            The first element of the enum defines the instance filter,
-     *            rather than a counter name. This acts as a filter for PDH
-     *            instances only and should correlate with a WMI String field
-     *            defining the same name. If the instance is null then all
-     *            counters will be added to the PDH query, otherwise the PDH
-     *            counter will only include instances which are wildcard matches
-     *            with the given instance, replacing '?' with a single
-     *            character, '*' with any number of characters, and reversing
-     *            the test if the first character is '^'. If the counter source
-     *            is WMI, the instance filtering has no effect, and it is the
-     *            responsibility of the user to add filtering to the
-     *            perfWmiClass string using a WHERE clause.
+     *            The first element of the enum defines the instance filter, rather
+     *            than a counter name. This acts as a filter for PDH instances only
+     *            and should correlate with a WMI String field defining the same
+     *            name. If the instance is null then all counters will be added to
+     *            the PDH query, otherwise the PDH counter will only include
+     *            instances which are wildcard matches with the given instance,
+     *            replacing '?' with a single character, '*' with any number of
+     *            characters, and reversing the test if the first character is '^'.
+     *            If the counter source is WMI, the instance filtering has no
+     *            effect, and it is the responsibility of the user to add filtering
+     *            to the perfWmiClass string using a WHERE clause.
      * @param perfObject
-     *            The PDH object for this counter; all counters on this object
-     *            will be refreshed at the same time
+     *            The PDH object for this counter; all counters on this object will
+     *            be refreshed at the same time
      * @param perfWmiClass
-     *            The WMI PerfData_RawData_* class corresponding to the PDH
-     *            object
+     *            The WMI PerfData_RawData_* class corresponding to the PDH object
      * @param queryKey
      *            An optional key for PDH counter updates; defaults to the PDH
      *            object name
@@ -132,12 +126,12 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     }
 
     /**
-     * Localize a PerfCounter string. English counter names should normally be
-     * in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
-     * NT\CurrentVersion\Perflib\009\Counter, but language manipulations may
-     * delete the 009 index. In this case we can assume English must be the
-     * language and continue. We may still fail to match the name if the
-     * assumption is wrong but it's better than nothing.
+     * Localize a PerfCounter string. English counter names should normally be in
+     * HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows
+     * NT\CurrentVersion\Perflib\009\Counter, but language manipulations may delete
+     * the 009 index. In this case we can assume English must be the language and
+     * continue. We may still fail to match the name if the assumption is wrong but
+     * it's better than nothing.
      * 
      * @param perfObject
      *            A String to localize
@@ -159,8 +153,8 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     }
 
     /**
-     * Initialize PDH counters for this data source. Adds necessary counters to
-     * a PDH Query.
+     * Initialize PDH counters for this data source. Adds necessary counters to a
+     * PDH Query.
      * 
      * @return True if the counters were successfully added.
      */
@@ -170,8 +164,8 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     }
 
     /**
-     * Uninitialize PDH counters for this data source. Removes necessary
-     * counters from the PDH Query, releasing their handles.
+     * Uninitialize PDH counters for this data source. Removes necessary counters
+     * from the PDH Query, releasing their handles.
      */
     @Override
     protected void unInitPdhCounters() {
@@ -190,13 +184,13 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     }
 
     /**
-     * Query the current data source (PDH or WMI) for the Performance Counter
-     * values corresponding to the property enum.
+     * Query the current data source (PDH or WMI) for the Performance Counter values
+     * corresponding to the property enum.
      * 
      * @return A map of the values by the counter enum.
      */
     public Map<T, List<Long>> queryValuesWildcard() {
-        EnumMap<T, List<Long>> valueMap = new EnumMap<>(propertyEnum);
+        EnumMap<T, List<Long>> valueMap = new EnumMap<T, List<Long>>(propertyEnum);
         this.instancesFromLastQuery.clear();
         T[] props = this.propertyEnum.getEnumConstants();
         if (source.equals(CounterDataSource.PDH)) {
@@ -220,7 +214,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
         if (this.counterListMap != null && 0 < pdhQueryHandler.updateQuery(this.queryKey)) {
             for (int i = 1; i < props.length; i++) {
                 T prop = props[i];
-                List<Long> values = new ArrayList<>();
+                List<Long> values = new ArrayList<Long>();
                 for (PerfCounter counter : counterListMap.get(prop)) {
                     values.add(pdhQueryHandler.queryCounter(counter));
                     if (i == 1) {
@@ -246,7 +240,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
             // Remaining elements are counters
             for (int p = 1; p < props.length; p++) {
                 T prop = props[p];
-                List<Long> values = new ArrayList<>();
+                List<Long> values = new ArrayList<Long>();
                 for (int i = 0; i < result.getResultCount(); i++) {
                     switch (result.getCIMType(prop)) {
                     case Wbemcli.CIM_UINT16:
@@ -270,8 +264,7 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
     /**
      * List the instances corresponding to the value map lists
      * 
-     * @return A list of the in the order they are returned in the value map
-     *         query
+     * @return A list of the in the order they are returned in the value map query
      */
     public List<String> getInstancesFromLastQuery() {
         return this.instancesFromLastQuery;
@@ -294,13 +287,13 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
             }
         }
         // Track instances not in counter list, to add
-        Set<String> instancesToAdd = new HashSet<>(instances);
+        Set<String> instancesToAdd = new HashSet<String>(instances);
         // Populate map with instances to add. Skip first counter, which defines
         // instance filter
-        this.counterListMap = new EnumMap<>(propertyEnum);
+        this.counterListMap = new EnumMap<T, List<PerfCounter>>(propertyEnum);
         for (int i = 1; i < propertyEnum.getEnumConstants().length; i++) {
             T prop = propertyEnum.getEnumConstants()[i];
-            List<PerfCounter> counterList = new ArrayList<>(instances.size());
+            List<PerfCounter> counterList = new ArrayList<PerfCounter>(instances.size());
             for (String instance : instancesToAdd) {
                 PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,
                         ((PdhCounterWildcardProperty) prop).getCounter());
@@ -320,8 +313,8 @@ public class PerfCounterWildcardQuery<T extends Enum<T>> extends PerfCounterQuer
      */
     public interface PdhCounterWildcardProperty {
         /**
-         * @return Returns the counter. The first element of the enum will
-         *         return the instance filter rather than a counter.
+         * @return Returns the counter. The first element of the enum will return the
+         *         instance filter rather than a counter.
          */
         String getCounter();
     }

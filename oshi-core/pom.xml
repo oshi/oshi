@@ -29,11 +29,11 @@
 
 	<parent>
 		<groupId>com.github.oshi</groupId>
-		<artifactId>oshi-parent</artifactId>
-		<version>3.13.7-SNAPSHOT</version>
+		<artifactId>oshi-parent-java6</artifactId>
+		<version>3.13.6-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>oshi-core</artifactId>
+	<artifactId>oshi-core-java6</artifactId>
 	<packaging>jar</packaging>
 
 	<name>oshi-core</name>

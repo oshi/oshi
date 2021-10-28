@@ -46,13 +46,13 @@ public class MacSoundCard extends AbstractSoundCard {
 
     /**
      * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access
-     * the sound cards.
+     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
+     * sound cards.
      *
      * @return List of {@link MacSoundCard} objects.
      */
     public static List<MacSoundCard> getSoundCards() {
-        List<MacSoundCard> soundCards = new ArrayList<>();
+        List<MacSoundCard> soundCards = new ArrayList<MacSoundCard>();
 
         // /System/Library/Extensions/AppleHDA.kext/Contents/Info.plist
 

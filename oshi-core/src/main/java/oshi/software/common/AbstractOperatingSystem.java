@@ -115,18 +115,18 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     /**
-     * Sorts an array of processes using the specified sorting, returning an
-     * array with the top limit results if positive.
+     * Sorts an array of processes using the specified sorting, returning an array
+     * with the top limit results if positive.
      *
      * @param processes
      *            The array to sort
      * @param limit
-     *            The number of results to return if positive; if zero returns
-     *            all results
+     *            The number of results to return if positive; if zero returns all
+     *            results
      * @param sort
      *            The sorting to use, or null
-     * @return An array of size limit (if positive) or of all processes, sorted
-     *         as specified
+     * @return An array of size limit (if positive) or of all processes, sorted as
+     *         specified
      */
     protected List<OSProcess> processSort(List<OSProcess> processes, int limit, ProcessSort sort) {
         if (sort != null) {
@@ -166,7 +166,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         } else {
             return processes;
         }
-        List<OSProcess> procs = new ArrayList<>();
+        List<OSProcess> procs = new ArrayList<OSProcess>();
         for (int i = 0; i < maxProcs; i++) {
             procs.add(processes.get(i));
         }
@@ -193,7 +193,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        List<OSProcess> returnValue = new ArrayList<>(pids.size());
+        List<OSProcess> returnValue = new ArrayList<OSProcess>(pids.size());
         for (Integer pid : pids) {
             OSProcess process = getProcess(pid);
             if (process != null) {

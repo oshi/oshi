@@ -62,7 +62,7 @@ public class FreeBsdDisplay extends AbstractDisplay {
         if (xrandr.isEmpty()) {
             return new Display[0];
         }
-        List<Display> displays = new ArrayList<>();
+        List<Display> displays = new ArrayList<Display>();
         StringBuilder sb = null;
         for (String s : xrandr) {
             if (s.contains("EDID")) {

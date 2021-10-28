@@ -42,8 +42,8 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
 
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> productMap = new HashMap<>();
+    private static Map<String, String> vendorMap = new HashMap<String, String>();
+    private static Map<String, String> productMap = new HashMap<String, String>();
 
     public FreeBsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
@@ -52,7 +52,7 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
     public static List<SoundCard> getSoundCards() {
         vendorMap.clear();
         productMap.clear();
-        List<String> sounds = new ArrayList<>();
+        List<String> sounds = new ArrayList<String>();
         String key = "";
         for (String line : ExecutingCommand.runNative(LSHAL)) {
             if (line.startsWith("udi =")) {
@@ -75,7 +75,7 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
                 vendorMap.put(key, ParseUtil.getStringBetween(line, '\''));
             }
         }
-        List<SoundCard> soundCards = new ArrayList<>();
+        List<SoundCard> soundCards = new ArrayList<SoundCard>();
         for (String _key : sounds) {
             soundCards.add(new FreeBsdSoundCard(productMap.get(_key), vendorMap.get(_key) + " " + productMap.get(_key),
                     productMap.get(_key)));

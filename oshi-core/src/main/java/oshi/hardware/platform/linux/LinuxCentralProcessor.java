@@ -68,38 +68,29 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         List<String> cpuInfo = FileUtil.readFile("/proc/cpuinfo");
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
-            if (splitLine.length < 2) {
-                break;
-            }
-            switch (splitLine[0]) {
-            case "vendor_id":
-                setVendor(splitLine[1]);
-                break;
-            case "model name":
-                setName(splitLine[1]);
-                break;
-            case "flags":
-                flags = splitLine[1].toLowerCase().split(" ");
-                boolean found = false;
-                for (String flag : flags) {
-                    if ("lm".equals(flag)) {
-                        found = true;
-                        break;
+            if (splitLine.length > 1) {
+                if (splitLine[0].equals("vendor_id")) {
+                    setVendor(splitLine[1]);
+                } else if (splitLine[0].equals("model name")) {
+                    setName(splitLine[1]);
+                } else if (splitLine[0].equals("flags")) {
+                    flags = splitLine[1].toLowerCase().split(" ");
+                    boolean found = false;
+                    for (String flag : flags) {
+                        if ("lm".equals(flag)) {
+                            found = true;
+                            break;
+                        }
                     }
+                    setCpu64(found);
+                } else if (splitLine[0].equals("stepping")) {
+                    setStepping(splitLine[1]);
+                } else if (splitLine[0].equals("model")) {
+                    setModel(splitLine[1]);
+                } else if (splitLine[0].equals("cpu family")) {
+                    setFamily(splitLine[1]);
                 }
-                setCpu64(found);
-                break;
-            case "stepping":
-                setStepping(splitLine[1]);
-                break;
-            case "model":
-                setModel(splitLine[1]);
-                break;
-            case "cpu family":
-                setFamily(splitLine[1]);
-                break;
-            default:
-                // Do nothing
+                // else Do nothing
             }
         }
         setProcessorID(getProcessorID(getStepping(), getModel(), getFamily(), flags));
@@ -114,8 +105,8 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
         uniqueID[0] = -1;
         uniqueID[1] = -1;
 
-        Set<String> processorIDs = new HashSet<>();
-        Set<Integer> packageIDs = new HashSet<>();
+        Set<String> processorIDs = new HashSet<String>();
+        Set<Integer> packageIDs = new HashSet<Integer>();
 
         List<String> procCpu = FileUtil.readFile("/proc/cpuinfo");
         for (String cpu : procCpu) {
@@ -223,9 +214,9 @@ public class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fetches the ProcessorID from dmidecode (if possible with root
-     * permissions), the cpuid command (if installed) or by encoding the
-     * stepping, model, family, and feature flags.
+     * Fetches the ProcessorID from dmidecode (if possible with root permissions),
+     * the cpuid command (if installed) or by encoding the stepping, model, family,
+     * and feature flags.
      *
      * @param stepping
      * @param model

@@ -52,9 +52,9 @@ public class FreeBsdDisks implements Disks {
     private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
 
     // Create map indexed by device name to populate data from multiple commands
-    private static final Map<String, HWDiskStore> diskMap = new HashMap<>();
+    private static final Map<String, HWDiskStore> diskMap = new HashMap<String, HWDiskStore>();
     // Map of partitions to mount points
-    private static final Map<String, String> mountMap = new HashMap<>();
+    private static final Map<String, String> mountMap = new HashMap<String, String>();
 
     public static boolean updateDiskStats(HWDiskStore diskStore) {
         List<String> output = ExecutingCommand.runNative("iostat -Ix " + diskStore.getName());
@@ -96,7 +96,7 @@ public class FreeBsdDisks implements Disks {
         List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("kern.disks", "")));
 
         // Temporary list to hold partitions
-        List<HWPartition> partList = new ArrayList<>();
+        List<HWPartition> partList = new ArrayList<HWPartition>();
 
         // Run iostat -Ix to enumerate disks by name and get kb r/w
         List<String> disks = ExecutingCommand.runNative("iostat -Ix");
@@ -227,7 +227,7 @@ public class FreeBsdDisks implements Disks {
         }
 
         // Populate result array
-        List<HWDiskStore> diskList = new ArrayList<>(diskMap.keySet().size());
+        List<HWDiskStore> diskList = new ArrayList<HWDiskStore>(diskMap.keySet().size());
         diskList.addAll(diskMap.values());
         Collections.sort(diskList);
 

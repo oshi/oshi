@@ -100,13 +100,12 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     /**
      * Make a best effort to update all the statistics about the drive without
-     * needing to recreate the drive list. This method provides for more
-     * frequent periodic updates of drive statistics. It will not detect if a
-     * removable drive has been removed and replaced by a different drive in
-     * between method calls.
+     * needing to recreate the drive list. This method provides for more frequent
+     * periodic updates of drive statistics. It will not detect if a removable drive
+     * has been removed and replaced by a different drive in between method calls.
      *
-     * @return True if the update was (probably) successful, false if the disk
-     *         was not found
+     * @return True if the update was (probably) successful, false if the disk was
+     *         not found
      */
     public boolean updateDiskStats() {
         boolean diskFound = false;
@@ -191,8 +190,8 @@ public class HWDiskStore implements Serializable, Comparable<HWDiskStore> {
 
     /**
      * @return the length of the disk queue (#I/O's in progress). Includes I/O
-     *         requests that have been issued to the device driver but have not
-     *         yet completed. Not supported on macOS.
+     *         requests that have been issued to the device driver but have not yet
+     *         completed. Not supported on macOS.
      */
     public long getCurrentQueueLength() {
         return this.currentQueueLength;

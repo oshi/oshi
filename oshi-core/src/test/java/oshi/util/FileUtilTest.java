@@ -97,7 +97,7 @@ public class FileUtilTest {
 
     @Test
     public void testReadProcIo() {
-        Map<String, String> expected = new HashMap<>();
+        Map<String, String> expected = new HashMap<String, String>();
         expected.put("rchar", "124788352");
         expected.put("wchar", "124802481");
         expected.put("syscr", "135");

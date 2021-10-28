@@ -82,7 +82,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private transient PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<>(
+    private transient PerfCounterQuery<PageSwapProperty> memoryPerfCounters = new PerfCounterQuery<PageSwapProperty>(
             PageSwapProperty.class, "Memory", "Win32_PerfRawData_PerfOS_Memory");
 
     /*
@@ -116,7 +116,7 @@ public class WindowsGlobalMemory extends AbstractGlobalMemory {
         }
     }
 
-    private transient PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<>(
+    private transient PerfCounterQuery<PagingPercentProperty> pagingPerfCounters = new PerfCounterQuery<PagingPercentProperty>(
             PagingPercentProperty.class, "Paging File", "Win32_PerfRawData_PerfOS_PagingFile");
 
     /**

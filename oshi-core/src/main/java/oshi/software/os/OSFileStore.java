@@ -102,9 +102,9 @@ public class OSFileStore implements Serializable {
     /**
      * Logical volume of the File System
      *
-     * Provides an optional alternative volume identifier for the file system.
-     * Only supported on Linux, provides symlink value via '/dev/mapper/' (used
-     * with LVM file systems).
+     * Provides an optional alternative volume identifier for the file system. Only
+     * supported on Linux, provides symlink value via '/dev/mapper/' (used with LVM
+     * file systems).
      *
      * @return The logical volume of the file system
      */
@@ -269,8 +269,8 @@ public class OSFileStore implements Serializable {
      * Total / maximum number of inodes of the filesystem. Not applicable on
      * Windows.
      *
-     * @return Total / maximum number of inodes of the filesystem (count), or -1
-     *         if unimplemented
+     * @return Total / maximum number of inodes of the filesystem (count), or -1 if
+     *         unimplemented
      */
     public long getTotalInodes() {
         return this.totalInodes;

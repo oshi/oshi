@@ -50,29 +50,30 @@ public class WindowsSensors implements Sensors {
         IDENTIFIER;
     }
 
-    private final transient WmiQuery<OhmHardwareProperty> ohmHardwareQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
-            "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
-    private final transient WmiQuery<OhmHardwareProperty> owhVoltageQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE,
-            "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
+    private final transient WmiQuery<OhmHardwareProperty> ohmHardwareQuery = new WmiQuery<OhmHardwareProperty>(
+            WmiUtil.OHM_NAMESPACE, "Hardware WHERE HardwareType=\"CPU\"", OhmHardwareProperty.class);
+    private final transient WmiQuery<OhmHardwareProperty> owhVoltageQuery = new WmiQuery<OhmHardwareProperty>(
+            WmiUtil.OHM_NAMESPACE, "Hardware WHERE SensorType=\"Voltage\"", OhmHardwareProperty.class);
 
     enum OhmSensorProperty {
         VALUE;
     }
 
-    private final transient WmiQuery<OhmSensorProperty> ohmSensorQuery = new WmiQuery<>(WmiUtil.OHM_NAMESPACE, null,
-            OhmSensorProperty.class);
+    private final transient WmiQuery<OhmSensorProperty> ohmSensorQuery = new WmiQuery<OhmSensorProperty>(
+            WmiUtil.OHM_NAMESPACE, null, OhmSensorProperty.class);
 
     enum FanProperty {
         DESIREDSPEED;
     }
 
-    private final transient WmiQuery<FanProperty> fanQuery = new WmiQuery<>("Win32_Fan", FanProperty.class);
+    private final transient WmiQuery<FanProperty> fanQuery = new WmiQuery<FanProperty>("Win32_Fan", FanProperty.class);
 
     enum VoltProperty {
         CURRENTVOLTAGE, VOLTAGECAPS;
     }
 
-    private final transient WmiQuery<VoltProperty> voltQuery = new WmiQuery<>("Win32_Processor", VoltProperty.class);
+    private final transient WmiQuery<VoltProperty> voltQuery = new WmiQuery<VoltProperty>("Win32_Processor",
+            VoltProperty.class);
 
     /*
      * For temperature query
@@ -98,7 +99,7 @@ public class WindowsSensors implements Sensors {
         }
     }
 
-    private final transient PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<>(
+    private final transient PerfCounterWildcardQuery<ThermalZoneProperty> thermalZonePerfCounters = new PerfCounterWildcardQuery<ThermalZoneProperty>(
             ThermalZoneProperty.class, "Thermal Zone Information",
             "Win32_PerfRawData_Counters_ThermalZoneInformation WHERE Name LIKE \"%cpu%\"");
 

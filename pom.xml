@@ -28,8 +28,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.oshi</groupId>
-	<artifactId>oshi-parent</artifactId>
-	<version>3.13.7-SNAPSHOT</version>
+	<artifactId>oshi-parent-java6</artifactId>
+	<version>3.13.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Operating System and Hardware Information</name>
@@ -65,9 +65,6 @@
 
 	<modules>
 		<module>oshi-core</module>
-		<module>oshi-core-shaded</module>
-		<module>oshi-json</module>
-		<module>oshi-dist</module>
 	</modules>
 
 	<scm>
@@ -105,15 +102,15 @@
 	<properties>
 		<copyright>2010 - 2019</copyright>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-		<maven.compiler.testSource>1.7</maven.compiler.testSource>
-		<maven.compiler.testTarget>1.7</maven.compiler.testTarget>
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.compiler.testSource>1.6</maven.compiler.testSource>
+		<maven.compiler.testTarget>1.6</maven.compiler.testTarget>
 		<maven.min-version>3.3.9</maven.min-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<signature.artifact>java17</signature.artifact>
+		<signature.artifact>java16</signature.artifact>
 		<signature.version>1.0</signature.version>
 		<!-- Base directory, overwrite in submodules -->
 		<main.basedir>${project.basedir}</main.basedir>
