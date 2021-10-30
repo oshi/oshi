@@ -23,11 +23,10 @@
  */
 package oshi.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,21 +73,34 @@ public class FileUtil {
      *         list if file could not be read or is empty
      */
     public static List<String> readFile(String filename, boolean reportError) {
-        if (new File(filename).canRead()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Reading file {}", filename);
-            }
+        List<String> lines = new ArrayList<String>();
+        File file = new File(filename);
+        if (file.canRead()) {
+            LOG.debug("Reading file {}", filename);
+            BufferedReader br = null;
             try {
-                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+                br = new BufferedReader(new FileReader(file));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    lines.add(line);
+                }
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e);
+                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                }
+            } finally {
+                try {
+                    if (br != null) {
+                        br.close();
+                    }
+                } catch (IOException ex) {
+                    LOG.error("Error closing file {}.  {}", filename, ex.getMessage());
                 }
             }
         } else if (reportError) {
             LOG.warn("File not found or not readable: {}", filename);
         }
-        return new ArrayList<String>();
+        return lines;
     }
 
     /**
