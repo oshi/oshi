@@ -23,7 +23,6 @@
  */
 package oshi.software.os.mac;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -228,7 +227,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
                 }
                 len++;
             }
-            proc.setCurrentWorkingDirectory(new String(vpi.pvi_cdir.vip_path, 0, len, StandardCharsets.US_ASCII));
+            proc.setCurrentWorkingDirectory(new String(vpi.pvi_cdir.vip_path, 0, len, ParseUtil.US_ASCII));
         }
         return proc;
     }

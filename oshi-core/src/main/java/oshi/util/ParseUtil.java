@@ -24,7 +24,7 @@
 package oshi.util;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +88,8 @@ public class ParseUtil {
     public static final Pattern notDigits = Pattern.compile("[^0-9]+");
 
     public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
+
+    public static final Charset US_ASCII = Charset.forName("US-ASCII");
 
     static {
         multipliers = new HashMap<String, Long>();
@@ -236,7 +238,7 @@ public class ParseUtil {
      *         string length, will be filled with zeroes.
      */
     public static byte[] stringToByteArray(String text, int length) {
-        return Arrays.copyOf(text.getBytes(), length);
+        return Arrays.copyOf(text.getBytes(US_ASCII), length);
     }
 
     /**
@@ -276,7 +278,7 @@ public class ParseUtil {
      *         a byte
      */
     public static long strToLong(String str, int size) {
-        return byteArrayToLong(str.getBytes(StandardCharsets.US_ASCII), size);
+        return byteArrayToLong(str.getBytes(), size);
     }
 
     /**
