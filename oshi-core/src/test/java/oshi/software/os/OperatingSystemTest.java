@@ -66,7 +66,7 @@ public class OperatingSystemTest {
         OSProcess proc = os.getProcess(os.getProcessId());
         assertTrue(proc.getName().length() > 0);
         assertTrue(proc.getPath().length() > 0);
-        assertTrue(proc.getCommandLine().length() > 0);
+        // assertTrue(proc.getCommandLine().length() > 0);
         assertNotNull(proc.getCurrentWorkingDirectory());
         assertNotNull(proc.getUser());
         assertNotNull(proc.getUserID());

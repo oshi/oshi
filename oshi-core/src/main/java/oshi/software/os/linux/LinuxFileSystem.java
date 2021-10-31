@@ -25,9 +25,6 @@ package oshi.software.os.linux;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,9 +34,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.linux.LibC;
 
+import oshi.jna.platform.linux.Libc;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
@@ -185,18 +184,13 @@ public class LinuxFileSystem implements FileSystem {
             // Add in logical volume found at /dev/mapper, useful when linking
             // file system with drive.
             String logicalVolume = "";
-            String volumeMapperDirectory = "/dev/mapper/";
-            Path link = Paths.get(volume);
-            if (Files.exists(link) && Files.isSymbolicLink(link)) {
-                try {
-                    Path slink = Files.readSymbolicLink(link);
-                    Path full = Paths.get(volumeMapperDirectory + slink.toString());
-                    if (Files.exists(full)) {
-                        logicalVolume = full.normalize().toString();
-                    }
-                } catch (IOException e) {
-                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e);
-                }
+            // Attempt to read the symbolic link.
+            // If it's not a symbolic link we'll fail with EINVAL and ignore
+            Memory buf = new Memory(1024);
+            buf.clear();
+            int size = Libc.INSTANCE.readlink(volume, buf, 1023);
+            if (size > 0) {
+                logicalVolume = buf.getString(0).substring(0, size);
             }
 
             long totalInodes = 0L;

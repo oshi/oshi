@@ -26,10 +26,6 @@ package oshi.software.os.linux;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +35,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
@@ -208,18 +205,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private OSProcess getProcess(int pid, boolean slowFields) {
         String path = "";
-        String procPidExe = String.format("/proc/%d/exe", pid);
-        try {
-            Path link = Paths.get(procPidExe);
-            path = Files.readSymbolicLink(link).toString();
-        } catch (InvalidPathException e) {
-            LOG.debug("Unable to open symbolic link {}", procPidExe);
-        } catch (IOException e) {
-            LOG.debug("Unable to open symbolic link {}", procPidExe);
-        } catch (UnsupportedOperationException e) {
-            LOG.debug("Unable to open symbolic link {}", procPidExe);
-        } catch (SecurityException e) {
-            LOG.debug("Unable to open symbolic link {}", procPidExe);
+        Memory buf = new Memory(1024);
+        buf.clear();
+        int size = Libc.INSTANCE.readlink(String.format("/proc/%d/exe", pid), buf, 1023);
+        if (size > 0) {
+            path = buf.getString(0).substring(0, size);
         }
         Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format("/proc/%d/io", pid), ":");
         // See man proc for how to parse /proc/[pid]/stat
