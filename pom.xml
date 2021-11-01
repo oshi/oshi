@@ -151,7 +151,7 @@
         <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.20</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>6.4.1</dependency-check-maven.version>
-        <puppycrawl.checkstyle.version>9.0.1</puppycrawl.checkstyle.version>
+        <puppycrawl.checkstyle.version>9.1</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 
