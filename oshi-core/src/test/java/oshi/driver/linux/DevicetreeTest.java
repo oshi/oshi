@@ -24,11 +24,12 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+
+import org.junit.Test;
 
 import com.sun.jna.Platform;
-import org.junit.Test;
 
 public class DevicetreeTest {
 

@@ -24,12 +24,14 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.emptyString;
+
+import org.junit.Test;
 
 import com.sun.jna.Platform;
-import org.junit.Test;
+
 import oshi.TestConstants;
 
 public class LshalTest {
