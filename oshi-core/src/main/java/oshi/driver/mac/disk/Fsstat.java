@@ -42,6 +42,18 @@ public final class Fsstat {
     private Fsstat() {
     }
 
+    public static int queryFsstat(Statfs[] buf, int bufsize, int flags) {
+        return SystemB.INSTANCE.getfsstat64(buf, bufsize, flags);
+    }
+
+    public static Statfs[] getFileSystems(int numfs) {
+        // Create array to hold results
+        Statfs[] fs = new Statfs[numfs];
+        // Write file system data to array
+        queryFsstat(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+        return fs;
+    }
+
     /**
      * Query fsstat to map partitions to mount points
      *

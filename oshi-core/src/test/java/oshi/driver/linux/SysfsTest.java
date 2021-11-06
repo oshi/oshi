@@ -25,13 +25,15 @@ package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.emptyString;
 
-import com.sun.jna.Platform;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+
+import com.sun.jna.Platform;
+
 import oshi.TestConstants;
 
 public class SysfsTest {
@@ -154,7 +156,8 @@ public class SysfsTest {
             final String biosRevision = Sysfs.queryBiosVersion(biosRevisionSuffix);
             if (biosRevision != null) {
                 assertThat("Test Sysfs queryBiosVersion", biosRevision, not(emptyString()));
-                assertThat("Test Sysfs queryBiosVersion with biosRevision", biosRevision, containsString(biosRevisionSuffix));
+                assertThat("Test Sysfs queryBiosVersion with biosRevision", biosRevision,
+                        containsString(biosRevisionSuffix));
             }
         }
     }
