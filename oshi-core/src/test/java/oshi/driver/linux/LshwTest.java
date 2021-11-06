@@ -24,24 +24,34 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.not;
 
 import org.junit.Test;
 
 import com.sun.jna.Platform;
 
-import oshi.TestConstants;
+public class LshwTest {
 
-public class LshalTest {
+    @Test
+    public void testQueryModel() {
+        if (Platform.isLinux()) {
+            String model = Lshw.queryModel();
+            if (model != null) {
+                assertThat("Test Lshw queryModel", model, not(emptyString()));
+            }
+        }
+    }
 
     @Test
     public void testQuerySerialNumber() {
         if (Platform.isLinux()) {
-            final String serialNumber = Lshal.querySerialNumber();
+            String serialNumber = Lshw.querySerialNumber();
             if (serialNumber != null) {
-                assertThat("Test Lshal querySerialNumber", serialNumber, not(emptyString()));
+                assertThat("Test Lshw querySerialNumber", serialNumber, not(emptyString()));
             }
         }
     }
@@ -49,12 +59,17 @@ public class LshalTest {
     @Test
     public void testQueryUUID() {
         if (Platform.isLinux()) {
-            final String uuid = Lshal.queryUUID();
+            String uuid = Lshw.queryUUID();
             if (uuid != null) {
-                assertThat("Test Lshal queryUUID", uuid, not(emptyString()));
-                assertThat("Test Lshal queryUUID format", uuid, matchesRegex(TestConstants.UUID_REGEX));
+                assertThat("Test Lshw queryUUID", uuid, not(emptyString()));
             }
         }
     }
 
+    @Test
+    public void testQueryCpuCapacity() {
+        if (Platform.isLinux()) {
+            assertThat("Test Lshw queryCpuCapacity", Lshw.queryCpuCapacity(), anyOf(greaterThan(0L), equalTo(-1L)));
+        }
+    }
 }

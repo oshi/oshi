@@ -24,24 +24,24 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
 
 import org.junit.Test;
 
 import com.sun.jna.Platform;
 
-import oshi.TestConstants;
+import oshi.util.tuples.Pair;
 
-public class LshalTest {
+public class DmidecodeTest {
 
     @Test
     public void testQuerySerialNumber() {
         if (Platform.isLinux()) {
-            final String serialNumber = Lshal.querySerialNumber();
+            String serialNumber = Dmidecode.querySerialNumber();
             if (serialNumber != null) {
-                assertThat("Test Lshal querySerialNumber", serialNumber, not(emptyString()));
+                assertThat("Test Dmidecode querySerialNumber", serialNumber, not(emptyString()));
             }
         }
     }
@@ -49,12 +49,25 @@ public class LshalTest {
     @Test
     public void testQueryUUID() {
         if (Platform.isLinux()) {
-            final String uuid = Lshal.queryUUID();
+            String uuid = Dmidecode.queryUUID();
             if (uuid != null) {
-                assertThat("Test Lshal queryUUID", uuid, not(emptyString()));
-                assertThat("Test Lshal queryUUID format", uuid, matchesRegex(TestConstants.UUID_REGEX));
+                assertThat("Test Dmidecode queryUUID", uuid, not(emptyString()));
             }
         }
     }
 
+    @Test
+    public void testQueryBiosNameRev() {
+        if (Platform.isLinux()) {
+            Pair<String, String> biosNameRev = Dmidecode.queryBiosNameRev();
+            String biosName = biosNameRev.getA();
+            String revision = biosNameRev.getB();
+            if (biosName != null) {
+                assertThat("Test Dmidecode queryBiosNameRev biosName", biosName, containsString(" "));
+            }
+            if (revision != null) {
+                assertThat("Test Dmidecode queryBiosNameRev revision", revision, not(emptyString()));
+            }
+        }
+    }
 }
