@@ -23,7 +23,7 @@
     <properties>
         <!-- Users of the Spring Boot Starter Parent should include this property 
             in their POM -->
-        <jna.version>5.9.0</jna.version>
+        <jna.version>5.10.0</jna.version>
         <main.basedir>${project.parent.basedir}</main.basedir>
         <automatic.module.name>com.github.oshi</automatic.module.name>
     </properties>
