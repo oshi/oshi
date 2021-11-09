@@ -261,23 +261,9 @@ public interface CentralProcessor extends Serializable {
     long[] getSystemCpuLoadTicks();
 
     /**
-     * Returns the "recent cpu usage" for the whole system from
-     * {@link com.sun.management.OperatingSystemMXBean#getSystemCpuLoad()} if a user
-     * is running the Oracle JVM. This value is a double in the [0.0,1.0] interval.
-     * A value of 0.0 means that all CPUs were idle during the recent period of time
-     * observed, while a value of 1.0 means that all CPUs were actively running 100%
-     * of the time during the recent period being observed. All values between 0.0
-     * and 1.0 are possible depending of the activities going on in the system. If
-     * the system recent cpu usage is not available, the method returns a negative
-     * value. Calling this method immediately upon instantiating the
-     * {@link CentralProcessor} may give unreliable results. If a user is not
-     * running the Oracle JVM, this method will default to the behavior and return
-     * value of {@link #getSystemCpuLoadBetweenTicks()}.
-     *
-     * @return the "recent cpu usage" for the whole system; a negative value if not
-     *         available.
+     * @deprecated Use {@link #getSystemCpuLoadBetweenTicks()}
      */
-    @SuppressWarnings("restriction")
+    @Deprecated
     double getSystemCpuLoad();
 
     /**

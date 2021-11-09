@@ -23,7 +23,6 @@
  */
 package oshi.hardware.common;
 
-import java.lang.management.ManagementFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,35 +39,11 @@ import oshi.util.ParseUtil;
  * @author alessio.fachechi[at]gmail[dot]com
  * @author widdis[at]gmail[dot]com
  */
-@SuppressWarnings("restriction")
 public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
-
-    /**
-     * Instantiate an OperatingSystemMXBean for future convenience
-     */
-    private static final java.lang.management.OperatingSystemMXBean OS_MXBEAN = ManagementFactory
-            .getOperatingSystemMXBean();
-
-    /**
-     * Calling OperatingSystemMxBean too rapidly results in NaN. Store the latest
-     * value to return if polling is too rapid
-     */
-    private double lastCpuLoad = 0d;
-
-    /**
-     * Keep track of last CPU Load poll to OperatingSystemMXBean to ensure enough
-     * time has elapsed
-     */
-    private long lastCpuLoadTime = 0;
-
-    /**
-     * Keep track whether MXBean supports Oracle JVM methods
-     */
-    private boolean sunMXBean = false;
 
     // Logical and Physical Processor Counts
     protected int logicalProcessorCount = 0;
@@ -115,29 +90,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * Create a Processor
      */
     public AbstractCentralProcessor() {
-        initMXBean();
         // Initialize processor counts
         calculateProcessorCounts();
-    }
-
-    /**
-     * Initializes mxBean boolean
-     */
-    private void initMXBean() {
-        try {
-            Class.forName("com.sun.management.OperatingSystemMXBean");
-            // Initialize CPU usage
-            this.lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-            this.lastCpuLoadTime = System.currentTimeMillis();
-            this.sunMXBean = true;
-            LOG.debug("Oracle MXBean detected.");
-        } catch (ClassNotFoundException e) {
-            LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("", e);
-        } catch (ClassCastException e) {
-            LOG.debug("Oracle MXBean not detected.");
-            LOG.trace("", e);
-        }
     }
 
     /**
@@ -429,16 +383,6 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      */
     @Override
     public double getSystemCpuLoad() {
-        if (this.sunMXBean) {
-            long now = System.currentTimeMillis();
-            // If called too recently, return latest value
-            if (now - this.lastCpuLoadTime < 200) {
-                return this.lastCpuLoad;
-            }
-            this.lastCpuLoad = ((com.sun.management.OperatingSystemMXBean) OS_MXBEAN).getSystemCpuLoad();
-            this.lastCpuLoadTime = now;
-            return this.lastCpuLoad;
-        }
         return getSystemCpuLoadBetweenTicks();
     }
 
