@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.ptr.PointerByReference; // NOSONAR
 
 import oshi.jna.platform.mac.SystemB;
+import oshi.jna.platform.unix.CLibrary;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -53,7 +54,7 @@ public class MacNetworkParams extends AbstractNetworkParams {
     @Override
     public String getDomainName() {
         SystemB.Addrinfo hint = new SystemB.Addrinfo();
-        hint.ai_flags = SystemB.AI_CANONNAME;
+        hint.ai_flags = CLibrary.AI_CANONNAME;
         String hostname = "";
         try {
             hostname = InetAddress.getLocalHost().getHostName();

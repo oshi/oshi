@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.ptr.PointerByReference; // NOSONAR
 
+import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.freebsd.Libc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
@@ -47,7 +48,7 @@ public class FreeBsdNetworkParams extends AbstractNetworkParams {
     @Override
     public String getDomainName() {
         Libc.Addrinfo hint = new Libc.Addrinfo();
-        hint.ai_flags = Libc.AI_CANONNAME;
+        hint.ai_flags = CLibrary.AI_CANONNAME;
         String hostname = "";
         try {
             hostname = InetAddress.getLocalHost().getHostName();

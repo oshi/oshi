@@ -42,15 +42,15 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using node # as the key
      */
-    private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorIdMap = new HashMap<>();
-    private static Map<String, String> productIdMap = new HashMap<>();
-    private static Map<String, List<String>> hubMap = new HashMap<>();
-    private static Map<String, String> deviceTypeMap = new HashMap<>();
+    private static Map<String, String> nameMap = new HashMap<String, String>();
+    private static Map<String, String> vendorIdMap = new HashMap<String, String>();
+    private static Map<String, String> productIdMap = new HashMap<String, String>();
+    private static Map<String, List<String>> hubMap = new HashMap<String, List<String>>();
+    private static Map<String, String> deviceTypeMap = new HashMap<String, String>();
     /*
      * For parsing tree
      */
-    private static Map<Integer, String> lastParent = new HashMap<>();
+    private static Map<Integer, String> lastParent = new HashMap<Integer, String>();
 
     public SolarisUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -65,7 +65,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         if (tree) {
             return devices;
         }
-        List<UsbDevice> deviceList = new ArrayList<>();
+        List<UsbDevice> deviceList = new ArrayList<UsbDevice>();
         // Top level is controllers; they won't be added to the list, but all
         // their connected devices will be
         for (UsbDevice device : devices) {
@@ -98,7 +98,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         // For each item enumerated, store information in the maps
         String key = "";
         int indent = 0;
-        List<String> usbControllers = new ArrayList<>();
+        List<String> usbControllers = new ArrayList<String>();
         for (String line : devices) {
             // Node 0x... identifies start of a new tree
             if (line.contains("Node 0x")) {
@@ -152,7 +152,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         }
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<>();
+        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
         for (String controller : usbControllers) {
             // Only do controllers that are USB device type
             if ("usb".equals(MapUtil.getOrDefault(deviceTypeMap, controller, ""))) {
@@ -163,8 +163,8 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates SolarisUsbDevices by fetching information from maps
-     * to populate fields
+     * Recursively creates SolarisUsbDevices by fetching information from maps to
+     * populate fields
      *
      * @param devPath
      *            The device node path.
@@ -178,7 +178,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         String vendorId = MapUtil.getOrDefault(vendorIdMap, devPath, vid);
         String productId = MapUtil.getOrDefault(productIdMap, devPath, pid);
         List<String> childPaths = MapUtil.getOrDefault(hubMap, devPath, new ArrayList<String>());
-        List<SolarisUsbDevice> usbDevices = new ArrayList<>();
+        List<SolarisUsbDevice> usbDevices = new ArrayList<SolarisUsbDevice>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }

@@ -26,7 +26,6 @@ package oshi.hardware.platform.linux;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +50,7 @@ public class LinuxSensors implements Sensors {
     private static final String THERMAL_ZONE = "/sys/class/thermal/thermal_zone";
 
     // Map from sensor to path
-    private Map<String, String> sensorsMap = new HashMap<>();
+    private Map<String, String> sensorsMap = new HashMap<String, String>();
 
     public LinuxSensors() {
         // Iterate over all hwmon* directories and look for sensor files
@@ -98,14 +97,14 @@ public class LinuxSensors implements Sensors {
      */
     private void getSensorFilesFromPath(String sensorPath, String sensor, FileFilter sensorFileFilter) {
         int i = 0;
-        while (Paths.get(sensorPath + i).toFile().isDirectory()) {
-            String path = sensorPath + i;
-            File dir = new File(path);
+        String path = sensorPath + i;
+        File dir = new File(path);
+        while (dir.isDirectory()) {
             File[] matchingFiles = dir.listFiles(sensorFileFilter);
             if (matchingFiles != null && matchingFiles.length > 0) {
                 this.sensorsMap.put(sensor, String.format("%s/%s", path, sensor));
             }
-            i++;
+            dir = new File(sensorPath + ++i);
         }
     }
 
@@ -158,7 +157,7 @@ public class LinuxSensors implements Sensors {
     public int[] getFanSpeeds() {
         if (this.sensorsMap.containsKey(FAN)) {
             String hwmon = this.sensorsMap.get(FAN);
-            List<Integer> speeds = new ArrayList<>();
+            List<Integer> speeds = new ArrayList<Integer>();
             int fan = 1;
             for (;;) {
                 String fanPath = String.format("%s%d_input", hwmon, fan);

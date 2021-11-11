@@ -52,9 +52,9 @@ public class LinuxDisks implements Disks {
 
     private static final int SECTORSIZE = 512;
 
-    private final Map<String, String> mountsMap = new HashMap<>();
+    private final Map<String, String> mountsMap = new HashMap<String, String>();
 
-    private static final Map<Integer, String> hashCodeToPathMap = new HashMap<>();
+    private static final Map<Integer, String> hashCodeToPathMap = new HashMap<Integer, String>();
 
     // Order the field is in udev stats
     enum UdevStat {
@@ -110,7 +110,7 @@ public class LinuxDisks implements Disks {
         Udev.UdevListEntry entry;
         Udev.UdevListEntry oldEntry;
 
-        result = new ArrayList<>();
+        result = new ArrayList<HWDiskStore>();
 
         handle = Udev.INSTANCE.udev_new();
         enumerate = Udev.INSTANCE.udev_enumerate_new(handle);

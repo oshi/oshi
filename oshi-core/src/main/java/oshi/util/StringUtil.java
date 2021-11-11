@@ -35,8 +35,8 @@ public class StringUtil {
     }
 
     /**
-     * Returns a new String composed of copies of the array elements joined
-     * together with a copy of the specified delimiter.
+     * Returns a new String composed of copies of the array elements joined together
+     * with a copy of the specified delimiter.
      *
      * @param delimiter
      *            The character to separate the strings
@@ -57,8 +57,8 @@ public class StringUtil {
     }
 
     /**
-     * Returns a new String composed of copies of the list elements joined
-     * together with a copy of the specified delimiter.
+     * Returns a new String composed of copies of the list elements joined together
+     * with a copy of the specified delimiter.
      *
      * @param delimiter
      *            The character to separate the strings

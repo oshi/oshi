@@ -85,7 +85,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         List<String> resolv = FileUtil.readFile("/etc/resolv.conf");
         String key = NAMESERVER;
         int maxNameServer = 3;
-        List<String> servers = new ArrayList<>();
+        List<String> servers = new ArrayList<String>();
         for (int i = 0; i < resolv.size() && servers.size() < maxNameServer; i++) {
             String line = resolv.get(i);
             if (line.startsWith(key)) {

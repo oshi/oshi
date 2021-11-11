@@ -59,8 +59,8 @@ public class SolarisDisks implements Disks {
             diskStore.setWriteBytes(data.nwritten);
             diskStore.setCurrentQueueLength((long) data.wcnt + data.rcnt);
             // rtime and snaptime are nanoseconds, convert to millis
-            diskStore.setTransferTime(data.rtime / 1_000_000L);
-            diskStore.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
+            diskStore.setTransferTime(data.rtime / 1000000L);
+            diskStore.setTimeStamp(ksp.ks_snaptime / 1000000L);
             return true;
         } else {
             return false;
@@ -70,7 +70,7 @@ public class SolarisDisks implements Disks {
     @Override
     public HWDiskStore[] getDisks() {
         // Create map indexed by device name for multiple command reference
-        Map<String, HWDiskStore> diskMap = new HashMap<>();
+        Map<String, HWDiskStore> diskMap = new HashMap<String, HWDiskStore>();
         // First, run iostat -er to enumerate disks by name. Sample output:
         // errors
         // device,s/w,h/w,trn,tot
@@ -80,7 +80,7 @@ public class SolarisDisks implements Disks {
 
         // Create map to correlate disk name with block device mount point for
         // later use in partition info
-        Map<String, String> deviceMap = new HashMap<>();
+        Map<String, String> deviceMap = new HashMap<String, String>();
         // Also run iostat -ern to get the same list by mount point. Sample
         // output:
         // errors
@@ -110,7 +110,7 @@ public class SolarisDisks implements Disks {
 
         // Create map to correlate disk name with blick device mount point for
         // later use in partition info
-        Map<String, Integer> majorMap = new HashMap<>();
+        Map<String, Integer> majorMap = new HashMap<String, Integer>();
         // Run lshal, if available, to get block device major (we'll use
         // partition # for minor)
         List<String> lshal = ExecutingCommand.runNative("lshal");
@@ -226,7 +226,7 @@ public class SolarisDisks implements Disks {
         store.setSize(size);
 
         // Temporary list to hold partitions
-        List<HWPartition> partList = new ArrayList<>();
+        List<HWPartition> partList = new ArrayList<HWPartition>();
 
         // Now grab prtvotc output for partitions
         // This requires sudo permissions; will result in "permission denied
@@ -318,19 +318,14 @@ public class SolarisDisks implements Disks {
                 }
                 // Third field is flags.
                 // First character writable, second is mountable
-                switch (split[2]) {
-                case "00":
+                if (split[2].equals("00")) {
                     partition.setType("wm");
-                    break;
-                case "10":
+                } else if (split[2].equals("10")) {
                     partition.setType("rm");
-                    break;
-                case "01":
+                } else if (split[2].equals("01")) {
                     partition.setType("wu");
-                    break;
-                default:
+                } else {
                     partition.setType("ru");
-                    break;
                 }
                 // Fifth field is sector count
                 partition.setSize(bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L));

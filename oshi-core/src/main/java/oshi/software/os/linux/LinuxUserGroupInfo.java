@@ -46,7 +46,7 @@ public class LinuxUserGroupInfo {
 
     private static class UsersCache {
 
-        private Map<String, OSUser> usersIdMap = new HashMap<>();
+        private Map<String, OSUser> usersIdMap = new HashMap<String, OSUser>();
         private long lastRefreshedTimestamp;
 
         public OSUser getUser(String userId) {
@@ -86,7 +86,7 @@ public class LinuxUserGroupInfo {
     }
 
     private static class GroupsCache {
-        private Map<String, String> groupsIdMap = new HashMap<>();
+        private Map<String, String> groupsIdMap = new HashMap<String, String>();
         private long lastRefreshedTimestamp;
 
         public String getGroup(String groupId) {

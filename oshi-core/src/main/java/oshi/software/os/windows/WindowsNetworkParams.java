@@ -83,7 +83,7 @@ public class WindowsNetworkParams extends AbstractNetworkParams {
         }
         FIXED_INFO fixedInfo = new FIXED_INFO(buffer);
 
-        List<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<String>();
         IP_ADDR_STRING dns = fixedInfo.DnsServerList;
         while (dns != null) {
             String addr = new String(dns.IpAddress.String);

@@ -68,11 +68,11 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
     }
 
     /*
-     * Code below this point is largely a copy of LinuxOperatingSystem class
-     * except family is not set. If this class has been called from that class
-     * then no new information would be added here. This is provided in the odd
-     * event someone wants to instantiate this class without having first gone
-     * through the LinuxOperatingSystem
+     * Code below this point is largely a copy of LinuxOperatingSystem class except
+     * family is not set. If this class has been called from that class then no new
+     * information would be added here. This is provided in the odd event someone
+     * wants to instantiate this class without having first gone through the
+     * LinuxOperatingSystem
      */
 
     private void setVersionFromReleaseFiles() {
@@ -234,8 +234,7 @@ public class LinuxOSVersionInfoEx extends AbstractOSVersionInfoEx {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @return true if file successfully read and " release " or " VERSION "
-     *         found
+     * @return true if file successfully read and " release " or " VERSION " found
      */
     private boolean readDistribRelease(String filename) {
         if (new File(filename).exists()) {

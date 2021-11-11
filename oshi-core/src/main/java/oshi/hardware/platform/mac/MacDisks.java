@@ -70,8 +70,8 @@ public class MacDisks implements Disks {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisks.class);
 
-    private static final Map<String, String> mountPointMap = new HashMap<>();
-    private static final Map<String, String> logicalVolumeMap = new HashMap<>();
+    private static final Map<String, String> mountPointMap = new HashMap<String, String>();
+    private static final Map<String, String> logicalVolumeMap = new HashMap<String, String>();
 
     private static boolean updateDiskStats(HWDiskStore diskStore, DASessionRef session) {
         // Now look up the device using the BSD Name to get its
@@ -137,7 +137,7 @@ public class MacDisks implements Disks {
                         LOG.debug("Unable to find block storage driver properties for {}", bsdName);
                     }
                     // Now get partitions for this disk.
-                    List<HWPartition> partitions = new ArrayList<>();
+                    List<HWPartition> partitions = new ArrayList<HWPartition>();
                     if (IOKit.INSTANCE.IORegistryEntryCreateCFProperties(drive, propsPtr, CfUtil.ALLOCATOR, 0) == 0) {
                         CFMutableDictionaryRef properties = new CFMutableDictionaryRef();
                         properties.setPointer(propsPtr.getValue());
@@ -252,7 +252,7 @@ public class MacDisks implements Disks {
     public HWDiskStore[] getDisks() {
         mountPointMap.clear();
         logicalVolumeMap.clear();
-        List<HWDiskStore> result = new ArrayList<>();
+        List<HWDiskStore> result = new ArrayList<HWDiskStore>();
 
         // Use statfs to populate mount point map
         int numfs = SystemB.INSTANCE.getfsstat64(null, 0, 0);
@@ -267,7 +267,7 @@ public class MacDisks implements Disks {
         }
 
         // Parse `diskutil cs list` to populate logical volume map
-        Set<String> physicalVolumes = new HashSet<>();
+        Set<String> physicalVolumes = new HashSet<String>();
         boolean logicalVolume = false;
         for (String line : ExecutingCommand.runNative("diskutil cs list")) {
             if (line.contains("Logical Volume Group")) {
@@ -305,7 +305,7 @@ public class MacDisks implements Disks {
         }
 
         // Get IOMedia objects representing whole drives
-        List<String> bsdNames = new ArrayList<>();
+        List<String> bsdNames = new ArrayList<String>();
         IntByReference iter = new IntByReference();
         IOKitUtil.getMatchingServices("IOMedia", iter);
         int media = IOKit.INSTANCE.IOIteratorNext(iter.getValue());

@@ -52,7 +52,7 @@ public abstract class AbstractNetworks implements Networks {
      */
     @Override
     public NetworkIF[] getNetworks() {
-        List<NetworkIF> result = new ArrayList<>();
+        List<NetworkIF> result = new ArrayList<NetworkIF>();
         Enumeration<NetworkInterface> interfaces;
 
         try {

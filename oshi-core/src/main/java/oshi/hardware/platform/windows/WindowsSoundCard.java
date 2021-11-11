@@ -75,15 +75,15 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * Does the following :
      * <ul>
      * <li>Creates and runs our 'built where clause' query</li>
-     * <li>Then iterates over the key values of our map and compares the key
-     * with the DeviceName attribute returned by our where-clause query.If its a
-     * match then we create our SoundCard object</li>
+     * <li>Then iterates over the key values of our map and compares the key with
+     * the DeviceName attribute returned by our where-clause query.If its a match
+     * then we create our SoundCard object</li>
      * </ul>
      * <br>
      * NOTE : The reason why the codec name is same as the card name is because
-     * windows does not provide the name of the codec chip but sometimes the
-     * name of the card returned is infact the name of the codec chip also.
-     * Example : Realtek ALC887 HD Audio Device
+     * windows does not provide the name of the codec chip but sometimes the name of
+     * the card returned is infact the name of the codec chip also. Example :
+     * Realtek ALC887 HD Audio Device
      *
      * @return List of sound cards
      */
@@ -93,11 +93,11 @@ public class WindowsSoundCard extends AbstractSoundCard {
         Map<String, String> deviceManufacturerMap = getDeviceManufacturerMap(wmiQueryHandler);
         String driverQuery = createClause(deviceManufacturerMap);
 
-        WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<>(driverQuery,
+        WbemcliUtil.WmiQuery<SoundCardKernel> cardKernelQuery = new WbemcliUtil.WmiQuery<SoundCardKernel>(driverQuery,
                 SoundCardKernel.class);
         WbemcliUtil.WmiResult<SoundCardKernel> cardKernelQueryResult = wmiQueryHandler.queryWMI(cardKernelQuery);
 
-        List<WindowsSoundCard> soundCards = new ArrayList<>();
+        List<WindowsSoundCard> soundCards = new ArrayList<WindowsSoundCard>();
         for (int i = 0; i < cardKernelQueryResult.getResultCount(); i++) {
             // If the map has a key that is equal to the value returned by
             // cardKernelQuery
@@ -122,9 +122,9 @@ public class WindowsSoundCard extends AbstractSoundCard {
      * @return THe map
      */
     private static Map<String, String> getDeviceManufacturerMap(WmiQueryHandler wmiQueryHandler) {
-        Map<String, String> deviceManufacturerMap = new HashMap<>();
-        WbemcliUtil.WmiQuery<SoundCardName> soundCardQuery = new WbemcliUtil.WmiQuery<>("Win32_SoundDevice",
-                SoundCardName.class);
+        Map<String, String> deviceManufacturerMap = new HashMap<String, String>();
+        WbemcliUtil.WmiQuery<SoundCardName> soundCardQuery = new WbemcliUtil.WmiQuery<SoundCardName>(
+                "Win32_SoundDevice", SoundCardName.class);
         WbemcliUtil.WmiResult<SoundCardName> soundCardResult = wmiQueryHandler.queryWMI(soundCardQuery);
         for (int i = 0; i < soundCardResult.getResultCount(); i++) {
             deviceManufacturerMap.put(WmiUtil.getString(soundCardResult, SoundCardName.NAME, i),

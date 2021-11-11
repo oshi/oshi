@@ -85,8 +85,8 @@ public interface CoreFoundation extends Library {
     }
 
     /*
-     * References are owned if created by functions including "Create" or "Copy"
-     * and must be released with CFRelease to avoid leaking references
+     * References are owned if created by functions including "Create" or "Copy" and
+     * must be released with CFRelease to avoid leaking references
      */
 
     CFStringRef CFStringCreateWithCharacters(Object object, char[] chars, NativeLong length);
@@ -97,9 +97,9 @@ public interface CoreFoundation extends Library {
     void CFRelease(PointerType blob);
 
     /*
-     * References are not owned if created by functions using "Get". Use
-     * CFRetain if object retention is required, and then CFRelease later. Do
-     * not use CFRelease if you do not own.
+     * References are not owned if created by functions using "Get". Use CFRetain if
+     * object retention is required, and then CFRelease later. Do not use CFRelease
+     * if you do not own.
      */
 
     void CFDictionarySetValue(CFMutableDictionaryRef dict, PointerType key, PointerType value);

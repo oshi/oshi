@@ -23,11 +23,11 @@
  */
 package oshi.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +42,13 @@ import org.slf4j.LoggerFactory;
  * @author widdis[at]gmail[dot]com
  */
 public class FileUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
+
+    private static final String READ = "Read {}";
+    private static final String READING_FILE = "Reading file {}";
+    private static final String ERROR_READING_FILE = "Error reading file {}. {}";
+    private static final String ERROR_CLOSING_FILE = "Error closing file {}. {}";
 
     private FileUtil() {
     }
@@ -74,26 +80,57 @@ public class FileUtil {
      *         list if file could not be read or is empty
      */
     public static List<String> readFile(String filename, boolean reportError) {
-        if (new File(filename).canRead()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Reading file {}", filename);
-            }
+        List<String> lines = new ArrayList<String>();
+        File file = new File(filename);
+        if (file.canRead()) {
+            LOG.debug(READING_FILE, filename);
+            BufferedReader br = null;
+            InputStreamReader isr = null;
+            FileInputStream fis = null;
             try {
-                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+                fis = new FileInputStream(file);
+                isr = new InputStreamReader(fis, ParseUtil.UTF_8);
+                br = new BufferedReader(isr);
+                String line;
+                while ((line = br.readLine()) != null) {
+                    lines.add(line);
+                }
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e);
+                    LOG.error(ERROR_READING_FILE, filename, e.getMessage());
+                }
+            } finally {
+                try {
+                    if (fis != null) {
+                        fis.close();
+                    }
+                } catch (IOException ex) {
+                    LOG.error(ERROR_CLOSING_FILE, filename, ex.getMessage());
+                }
+                try {
+                    if (isr != null) {
+                        isr.close();
+                    }
+                } catch (IOException ex) {
+                    LOG.error(ERROR_CLOSING_FILE, filename, ex.getMessage());
+                }
+                try {
+                    if (br != null) {
+                        br.close();
+                    }
+                } catch (IOException ex) {
+                    LOG.error(ERROR_CLOSING_FILE, filename, ex.getMessage());
                 }
             }
         } else if (reportError) {
             LOG.warn("File not found or not readable: {}", filename);
         }
-        return new ArrayList<>();
+        return lines;
     }
 
     /**
-     * Read a file and return the long value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the long value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -101,12 +138,12 @@ public class FileUtil {
      */
     public static long getLongFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ, read.get(0));
             }
             return ParseUtil.parseLongOrDefault(read.get(0), 0L);
         }
@@ -114,8 +151,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the unsigned long value contained therein as a
-     * long. Intended primarily for Linux /sys filesystem
+     * Read a file and return the unsigned long value contained therein as a long.
+     * Intended primarily for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -123,12 +160,12 @@ public class FileUtil {
      */
     public static long getUnsignedLongFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ, read.get(0));
             }
             return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);
         }
@@ -136,8 +173,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the int value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the int value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -145,13 +182,13 @@ public class FileUtil {
      */
     public static int getIntFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         try {
             List<String> read = FileUtil.readFile(filename, false);
             if (!read.isEmpty()) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Read {}", read.get(0));
+                    LOG.trace(READ, read.get(0));
                 }
                 return Integer.parseInt(read.get(0));
             }
@@ -162,8 +199,8 @@ public class FileUtil {
     }
 
     /**
-     * Read a file and return the String value contained therein. Intended
-     * primarily for Linux /sys filesystem
+     * Read a file and return the String value contained therein. Intended primarily
+     * for Linux /sys filesystem
      *
      * @param filename
      *            The file to read
@@ -171,12 +208,12 @@ public class FileUtil {
      */
     public static String getStringFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ, read.get(0));
             }
             return read.get(0);
         }
@@ -190,14 +227,14 @@ public class FileUtil {
      * @param filename
      *            The file to read
      * @param separator
-     *            Characters in each line of the file that separate the key and
-     *            the value
+     *            Characters in each line of the file that separate the key and the
+     *            value
      * @return The map contained in the file, if any; otherwise empty map
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<String, String>();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> lines = FileUtil.readFile(filename, false);
         for (String line : lines) {

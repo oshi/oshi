@@ -38,7 +38,7 @@ public class MapUtilTest {
 
     @Test
     public void testGetPutAndCompute() {
-        Map<String, String> testMap = new HashMap<>();
+        Map<String, String> testMap = new HashMap<String, String>();
 
         testMap.put("a", "A");
         assertEquals("A", MapUtil.getOrDefault(testMap, "a", "Z"));
@@ -49,7 +49,7 @@ public class MapUtilTest {
         assertEquals(null, MapUtil.putIfAbsent(testMap, "b", "B"));
         assertEquals("B", testMap.get("b"));
 
-        Map<String, List<String>> testListMap = new HashMap<>();
+        Map<String, List<String>> testListMap = new HashMap<String, List<String>>();
         assertEquals(0, MapUtil.createNewListIfAbsent(testListMap, "a").size());
         testListMap.get("a").add("foo");
         assertEquals(1, MapUtil.createNewListIfAbsent(testListMap, "a").size());

@@ -53,8 +53,8 @@ public interface NetworkParams extends Serializable {
     String getIpv4DefaultGateway();
 
     /**
-     * @return Gets default gateway(routing destination for ::/0) for IPv6,
-     *         empty string if not defined.
+     * @return Gets default gateway(routing destination for ::/0) for IPv6, empty
+     *         string if not defined.
      */
     String getIpv6DefaultGateway();
 }

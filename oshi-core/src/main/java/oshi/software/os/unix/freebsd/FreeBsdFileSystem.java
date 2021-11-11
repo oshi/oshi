@@ -75,8 +75,8 @@ public class FreeBsdFileSystem implements FileSystem {
      *            A list of path prefixes
      * @param charSeq
      *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory
-     *         in aList
+     * @return true if the charSeq exactly equals, or starts with the directory in
+     *         aList
      */
     private boolean listElementStartsWith(List<String> aList, String charSeq) {
         for (String match : aList) {
@@ -90,14 +90,14 @@ public class FreeBsdFileSystem implements FileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link OSFileStore} objects representing mounted volumes.
+     *         May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     @Override
     public OSFileStore[] getFileStores() {
         // Find any partition UUIDs and map them
-        Map<String, String> uuidMap = new HashMap<>();
+        Map<String, String> uuidMap = new HashMap<String, String>();
         // Now grab dmssg output
         String device = "";
         for (String line : ExecutingCommand.runNative("geom part list")) {
@@ -115,11 +115,11 @@ public class FreeBsdFileSystem implements FileSystem {
             }
         }
 
-        List<OSFileStore> fsList = new ArrayList<>();
+        List<OSFileStore> fsList = new ArrayList<OSFileStore>();
 
         // Get inode usage data
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeTotalMap = new HashMap<>();
+        Map<String, Long> inodeFreeMap = new HashMap<String, Long>();
+        Map<String, Long> inodeTotalMap = new HashMap<String, Long>();
         for (String line : ExecutingCommand.runNative("df -i")) {
             /*- Sample Output:
             Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on

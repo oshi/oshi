@@ -69,8 +69,8 @@ public class MacFileSystem implements FileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link OSFileStore} objects representing mounted volumes.
+     *         May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     @Override
@@ -83,7 +83,7 @@ public class MacFileSystem implements FileSystem {
         }
 
         // List of file systems
-        List<OSFileStore> fsList = new ArrayList<>();
+        List<OSFileStore> fsList = new ArrayList<OSFileStore>();
 
         // Use getfsstat to find fileSystems
         // Query with null to get total # required

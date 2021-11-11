@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.jna.platform.win32.Kernel32; //NOSONAR
+import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -62,8 +63,8 @@ public class WindowsFileSystem implements FileSystem {
         DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE;
     }
 
-    private final transient WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>("Win32_LogicalDisk",
-            LogicalDiskProperty.class);
+    private final transient WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<LogicalDiskProperty>(
+            "Win32_LogicalDisk", LogicalDiskProperty.class);
 
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
@@ -91,7 +92,7 @@ public class WindowsFileSystem implements FileSystem {
         }
     }
 
-    private final transient PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<>(
+    private final transient PerfCounterWildcardQuery<HandleCountProperty> handlePerfCounters = new PerfCounterWildcardQuery<HandleCountProperty>(
             HandleCountProperty.class, "Process", "Win32_Process");
 
     private static final long MAX_WINDOWS_HANDLES;
@@ -100,9 +101,9 @@ public class WindowsFileSystem implements FileSystem {
         // essentially infinite for practical purposes. See
         // https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/
         if (System.getenv("ProgramFiles(x86)") == null) {
-            MAX_WINDOWS_HANDLES = 16_777_216L - 32_768L;
+            MAX_WINDOWS_HANDLES = 16777216L - 32768L;
         } else {
-            MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
+            MAX_WINDOWS_HANDLES = 16777216L - 65536L;
         }
     }
 
@@ -114,8 +115,8 @@ public class WindowsFileSystem implements FileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link OSFileStore} objects representing mounted volumes.
+     *         May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     @Override
@@ -127,7 +128,7 @@ public class WindowsFileSystem implements FileSystem {
         result = getLocalVolumes();
 
         // Build a map of existing mount point to OSFileStore
-        Map<String, OSFileStore> volumeMap = new HashMap<>();
+        Map<String, OSFileStore> volumeMap = new HashMap<String, OSFileStore>();
         for (OSFileStore volume : result) {
             volumeMap.put(volume.getMount(), volume);
         }
@@ -150,8 +151,8 @@ public class WindowsFileSystem implements FileSystem {
     /**
      * Private method for getting all mounted local drives.
      *
-     * @return A list of {@link OSFileStore} objects representing all local
-     *         mounted volumes
+     * @return A list of {@link OSFileStore} objects representing all local mounted
+     *         volumes
      */
     private ArrayList<OSFileStore> getLocalVolumes() {
         ArrayList<OSFileStore> fs;
@@ -169,11 +170,11 @@ public class WindowsFileSystem implements FileSystem {
         char[] name;
         char[] mount;
 
-        fs = new ArrayList<>();
+        fs = new ArrayList<OSFileStore>();
         aVolume = new char[BUFSIZE];
 
         hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
-        if (hVol == WinNT.INVALID_HANDLE_VALUE) {
+        if (WinBase.INVALID_HANDLE_VALUE.equals(hVol)) {
             return fs;
         }
 
@@ -229,7 +230,7 @@ public class WindowsFileSystem implements FileSystem {
     private List<OSFileStore> getWmiVolumes() {
         long free;
         long total;
-        List<OSFileStore> fs = new ArrayList<>();
+        List<OSFileStore> fs = new ArrayList<OSFileStore>();
 
         WmiResult<LogicalDiskProperty> drives = wmiQueryHandler.queryWMI(this.logicalDiskQuery);
 

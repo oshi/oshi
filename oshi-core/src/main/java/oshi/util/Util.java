@@ -46,7 +46,7 @@ public class Util {
 
     // Constant for Mac address OUI portion, the first 24 bits of MAC address
     // https://www.webopedia.com/TERM/O/OUI.html
-    private static final Map<String, String> vmMacAddressOUI = new HashMap<>();
+    private static final Map<String, String> vmMacAddressOUI = new HashMap<String, String>();
     static {
         vmMacAddressOUI.put("00:50:56", "VMware ESX 3");
         vmMacAddressOUI.put("00:0C:29", "VMware ESX 3");
@@ -81,9 +81,9 @@ public class Util {
     }
 
     /**
-     * Sleeps for the specified number of milliseconds after the given system
-     * time in milliseconds. If that number of milliseconds has already elapsed,
-     * does nothing.
+     * Sleeps for the specified number of milliseconds after the given system time
+     * in milliseconds. If that number of milliseconds has already elapsed, does
+     * nothing.
      *
      * @param startTime
      *            System time in milliseconds to sleep after
@@ -100,16 +100,16 @@ public class Util {
     }
 
     /**
-     * Generates a Computer Identifier, which may be part of a strategy to
-     * construct a licence key. (The identifier may not be unique as in one case
-     * hashcode could be same for multiple values, and the result may differ
-     * based on whether the program is running with sudo/root permission.) The
-     * identifier string is based upon the processor serial number, vendor,
-     * processor identifier, and total processor count.
+     * Generates a Computer Identifier, which may be part of a strategy to construct
+     * a licence key. (The identifier may not be unique as in one case hashcode
+     * could be same for multiple values, and the result may differ based on whether
+     * the program is running with sudo/root permission.) The identifier string is
+     * based upon the processor serial number, vendor, processor identifier, and
+     * total processor count.
      * 
      * @return A string containing four hyphen-delimited fields representing the
-     *         processor; the first 3 are 32-bit hexadecimal values and the last
-     *         one is an integer value.
+     *         processor; the first 3 are 32-bit hexadecimal values and the last one
+     *         is an integer value.
      */
     public static String getComputerIdentifier() {
         SystemInfo systemInfo = new SystemInfo();
@@ -131,11 +131,11 @@ public class Util {
     }
 
     /**
-     * The function attempts to identify which Virtual Machine (VM) based on
-     * common VM signatures in MAC address and computer model.
+     * The function attempts to identify which Virtual Machine (VM) based on common
+     * VM signatures in MAC address and computer model.
      * 
-     * @return A string indicating the machine's virtualization info if it can
-     *         be determined, or an emptry string otherwise.
+     * @return A string indicating the machine's virtualization info if it can be
+     *         determined, or an emptry string otherwise.
      */
     public static String identifyVM() {
 
@@ -175,10 +175,10 @@ public class Util {
      *            The String to test
      * @param pattern
      *            The String containing a wildcard pattern where ? represents a
-     *            single character and * represents any number of characters. If
-     *            the first character of the pattern is a carat (^) the test is
-     *            performed against the remaining characters and the result of
-     *            the test is the opposite.
+     *            single character and * represents any number of characters. If the
+     *            first character of the pattern is a carat (^) the test is
+     *            performed against the remaining characters and the result of the
+     *            test is the opposite.
      * @return True if the String matches or if the first character is ^ and the
      *         remainder of the String does not match.
      */

@@ -24,7 +24,7 @@
 package oshi.util;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,21 +89,23 @@ public class ParseUtil {
 
     public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
 
+    public static final Charset US_ASCII = Charset.forName("US-ASCII");
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
+
     static {
-        multipliers = new HashMap<>();
+        multipliers = new HashMap<String, Long>();
         multipliers.put(HZ, 1L);
-        multipliers.put(KHZ, 1_000L);
-        multipliers.put(MHZ, 1_000_000L);
-        multipliers.put(GHZ, 1_000_000_000L);
-        multipliers.put(THZ, 1_000_000_000_000L);
-        multipliers.put(PHZ, 1_000_000_000_000_000L);
+        multipliers.put(KHZ, 1000L);
+        multipliers.put(MHZ, 1000000L);
+        multipliers.put(GHZ, 1000000000L);
+        multipliers.put(THZ, 1000000000000L);
+        multipliers.put(PHZ, 1000000000000000L);
     }
 
     // Fast decimal exponentiation: pow(10,y) --> POWERS_OF_10[y]
-    private static final long[] POWERS_OF_TEN = { 1L, 10L, 100L, 1_000L, 10_000L, 100_000L, 1_000_000L, 10_000_000L,
-            100_000_000L, 1_000_000_000L, 10_000_000_000L, 100_000_000_000L, 1_000_000_000_000L, 10_000_000_000_000L,
-            100_000_000_000_000L, 1_000_000_000_000_000L, 10_000_000_000_000_000L, 100_000_000_000_000_000L,
-            1_000_000_000_000_000_000L };
+    private static final long[] POWERS_OF_TEN = { 1L, 10L, 100L, 1000L, 10000L, 100000L, 1000000L, 10000000L,
+            100000000L, 1000000000L, 10000000000L, 100000000000L, 1000000000000L, 10000000000000L, 100000000000000L,
+            1000000000000000L, 10000000000000000L, 100000000000000000L, 1000000000000000000L };
 
     // Fast hex character lookup
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
@@ -237,7 +239,7 @@ public class ParseUtil {
      *         string length, will be filled with zeroes.
      */
     public static byte[] stringToByteArray(String text, int length) {
-        return Arrays.copyOf(text.getBytes(), length);
+        return Arrays.copyOf(text.getBytes(US_ASCII), length);
     }
 
     /**
@@ -277,7 +279,7 @@ public class ParseUtil {
      *         a byte
      */
     public static long strToLong(String str, int size) {
-        return byteArrayToLong(str.getBytes(StandardCharsets.US_ASCII), size);
+        return byteArrayToLong(str.getBytes(US_ASCII), size);
     }
 
     /**
@@ -351,7 +353,7 @@ public class ParseUtil {
      * @return The signed long value.
      */
     public static long unsignedLongToSignedLong(long unsignedValue) {
-        return unsignedValue & 0x7fffffff_ffffffffL;
+        return unsignedValue & 0x7fffffffffffffffL;
     }
 
     /**

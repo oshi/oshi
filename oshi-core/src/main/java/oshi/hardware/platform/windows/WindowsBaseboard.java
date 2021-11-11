@@ -48,7 +48,8 @@ public class WindowsBaseboard extends AbstractBaseboard {
     }
 
     private void init() {
-        WmiQuery<BaseboardProperty> baseboardQuery = new WmiQuery<>("Win32_BaseBoard", BaseboardProperty.class);
+        WmiQuery<BaseboardProperty> baseboardQuery = new WmiQuery<BaseboardProperty>("Win32_BaseBoard",
+                BaseboardProperty.class);
         WmiResult<BaseboardProperty> win32BaseBoard = WmiQueryHandler.createInstance().queryWMI(baseboardQuery);
         if (win32BaseBoard.getResultCount() > 0) {
             setManufacturer(WmiUtil.getString(win32BaseBoard, BaseboardProperty.MANUFACTURER, 0));

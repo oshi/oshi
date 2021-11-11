@@ -25,9 +25,6 @@ package oshi.software.os.linux;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,9 +34,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native; // NOSONAR
 import com.sun.jna.platform.linux.LibC;
 
+import oshi.jna.platform.linux.Libc;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileUtil;
@@ -101,8 +100,8 @@ public class LinuxFileSystem implements FileSystem {
      *            A list of path prefixes
      * @param charSeq
      *            a path to check
-     * @return true if the charSeq exactly equals, or starts with the directory
-     *         in aList
+     * @return true if the charSeq exactly equals, or starts with the directory in
+     *         aList
      */
     private boolean listElementStartsWith(List<String> aList, String charSeq) {
         for (String match : aList) {
@@ -116,14 +115,14 @@ public class LinuxFileSystem implements FileSystem {
     /**
      * Gets File System Information.
      *
-     * @return An array of {@link OSFileStore} objects representing mounted
-     *         volumes. May return disconnected volumes with
+     * @return An array of {@link OSFileStore} objects representing mounted volumes.
+     *         May return disconnected volumes with
      *         {@link OSFileStore#getTotalSpace()} = 0.
      */
     @Override
     public OSFileStore[] getFileStores() {
         // Map uuids with device path as key
-        Map<String, String> uuidMap = new HashMap<>();
+        Map<String, String> uuidMap = new HashMap<String, String>();
         File uuidDir = new File("/dev/disk/by-uuid");
         if (uuidDir.listFiles() != null) {
             for (File uuid : uuidDir.listFiles()) {
@@ -137,7 +136,7 @@ public class LinuxFileSystem implements FileSystem {
         }
 
         // List file systems
-        List<OSFileStore> fsList = new ArrayList<>();
+        List<OSFileStore> fsList = new ArrayList<OSFileStore>();
 
         // Parse /proc/self/mounts to get fs types
         List<String> mounts = FileUtil.readFile("/proc/self/mounts");
@@ -159,8 +158,7 @@ public class LinuxFileSystem implements FileSystem {
             String type = split[2];
             if (this.pseudofs.contains(type) // exclude non-fs types
                     || path.equals("/dev") // exclude plain dev directory
-                    || listElementStartsWith(this.tmpfsPaths, path) 
-                    || path.endsWith("/shm") // exclude shared memory
+                    || listElementStartsWith(this.tmpfsPaths, path) || path.endsWith("/shm") // exclude shared memory
             ) {
                 continue;
             }
@@ -186,18 +184,13 @@ public class LinuxFileSystem implements FileSystem {
             // Add in logical volume found at /dev/mapper, useful when linking
             // file system with drive.
             String logicalVolume = "";
-            String volumeMapperDirectory = "/dev/mapper/";
-            Path link = Paths.get(volume);
-            if (Files.exists(link) && Files.isSymbolicLink(link)) {
-                try {
-                    Path slink = Files.readSymbolicLink(link);
-                    Path full = Paths.get(volumeMapperDirectory + slink.toString());
-                    if (Files.exists(full)) {
-                        logicalVolume = full.normalize().toString();
-                    }
-                } catch (IOException e) {
-                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e);
-                }
+            // Attempt to read the symbolic link.
+            // If it's not a symbolic link we'll fail with EINVAL and ignore
+            Memory buf = new Memory(1024);
+            buf.clear();
+            int size = Libc.INSTANCE.readlink(volume, buf, 1023);
+            if (size > 0) {
+                logicalVolume = buf.getString(0).substring(0, size);
             }
 
             long totalInodes = 0L;
@@ -219,8 +212,10 @@ public class LinuxFileSystem implements FileSystem {
                     LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path,
                             Native.getLastError());
                 }
-            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-                LOG.error("Failed to get file counts from statvfs. {}", e);
+            } catch (UnsatisfiedLinkError e) {
+                LOG.error("Failed to get file counts from statvfs.", e);
+            } catch (NoClassDefFoundError e) {
+                LOG.error("Failed to get file counts from statvfs.", e);
             }
 
             OSFileStore osStore = new OSFileStore();
@@ -256,11 +251,11 @@ public class LinuxFileSystem implements FileSystem {
      * Returns a value from the Linux system file /proc/sys/fs/file-nr.
      *
      * @param index
-     *            The index of the value to retrieve. 0 returns the total
-     *            allocated file descriptors. 1 returns the number of used file
-     *            descriptors for kernel 2.4, or the number of unused file
-     *            descriptors for kernel 2.6. 2 returns the maximum number of
-     *            file descriptors that can be allocated.
+     *            The index of the value to retrieve. 0 returns the total allocated
+     *            file descriptors. 1 returns the number of used file descriptors
+     *            for kernel 2.4, or the number of unused file descriptors for
+     *            kernel 2.6. 2 returns the maximum number of file descriptors that
+     *            can be allocated.
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private long getFileDescriptors(int index) {

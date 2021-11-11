@@ -58,7 +58,7 @@ public class MacNetworks extends AbstractNetworks {
      *
      * Key is the index of the IF.
      */
-    private static Map<Integer, IFdata> ifMap = new HashMap<>();
+    private static Map<Integer, IFdata> ifMap = new HashMap<Integer, IFdata>();
     private static long lastIFmapTime = 0L;
 
     /**

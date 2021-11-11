@@ -61,7 +61,7 @@ public class LinuxSoundCard extends AbstractSoundCard {
      */
     private static List<File> getCardFolders() {
         File cardsDirectory = new File(SC_PATH);
-        List<File> cardFolders = new ArrayList<>();
+        List<File> cardFolders = new ArrayList<File>();
         File[] allContents = cardsDirectory.listFiles();
         if (allContents != null) {
             for (File card : allContents) {
@@ -76,9 +76,9 @@ public class LinuxSoundCard extends AbstractSoundCard {
     }
 
     /**
-     * Reads the 'version' file in the asound folder that contains the complete
-     * name of the ALSA driver. Reads all the lines of the file and retrieves
-     * the first line.
+     * Reads the 'version' file in the asound folder that contains the complete name
+     * of the ALSA driver. Reads all the lines of the file and retrieves the first
+     * line.
      *
      * @return The complete name of the ALSA driver currently residing in our
      *         machine
@@ -89,12 +89,11 @@ public class LinuxSoundCard extends AbstractSoundCard {
     }
 
     /**
-     * Retrieves the codec of the sound card contained in the <b>codec</b> file.
-     * The name of the codec is always the first line of that file. <br>
+     * Retrieves the codec of the sound card contained in the <b>codec</b> file. The
+     * name of the codec is always the first line of that file. <br>
      * <b>Working</b> <br>
-     * This converts the codec file into key value pairs using the
-     * {@link FileUtil} class and then returns the value of the <b>Codec</b>
-     * key.
+     * This converts the codec file into key value pairs using the {@link FileUtil}
+     * class and then returns the value of the <b>Codec</b> key.
      *
      * @param cardDir
      *            The sound card directory
@@ -132,8 +131,8 @@ public class LinuxSoundCard extends AbstractSoundCard {
     /**
      * Retrieves the name of the sound card by :
      * <ol>
-     * <li>Reading the <b>id</b> file and comparing each id with the card id
-     * present in the <b>cards</b> file</li>
+     * <li>Reading the <b>id</b> file and comparing each id with the card id present
+     * in the <b>cards</b> file</li>
      * <li>If the id and the card name matches , then it assigns that name to
      * {@literal cardName}</li>
      * </ol>
@@ -157,13 +156,13 @@ public class LinuxSoundCard extends AbstractSoundCard {
 
     /**
      * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access
-     * the sound cards.
+     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
+     * sound cards.
      *
      * @return List of {@link LinuxSoundCard} objects.
      */
     public static List<LinuxSoundCard> getSoundCards() {
-        List<LinuxSoundCard> soundCards = new ArrayList<>();
+        List<LinuxSoundCard> soundCards = new ArrayList<LinuxSoundCard>();
         for (File cardFile : getCardFolders()) {
             soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));
         }

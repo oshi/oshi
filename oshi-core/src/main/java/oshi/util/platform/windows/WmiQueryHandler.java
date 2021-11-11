@@ -47,7 +47,7 @@ public class WmiQueryHandler {
     private int wmiTimeout = Wbemcli.WBEM_INFINITE;
 
     // Cache failed wmi classes
-    private final Set<String> failedWmiClassNames = new HashSet<>();
+    private final Set<String> failedWmiClassNames = new HashSet<String>();
 
     // Preferred threading model
     private int comThreading = Ole32.COINIT_MULTITHREADED;
@@ -62,10 +62,10 @@ public class WmiQueryHandler {
     private static Class<? extends WmiQueryHandler> customClass = null;
 
     /**
-     * Factory method to create an instance of this class. To override this
-     * class, use {@link #setInstanceClass(Class)} to define a sublcass which
-     * extends {@link WmiQueryHandler}.
-     * 
+     * Factory method to create an instance of this class. To override this class,
+     * use {@link #setInstanceClass(Class)} to define a sublcass which extends
+     * {@link WmiQueryHandler}.
+     *
      * @return An instance of this class or a class defined by
      *         {@link #setInstanceClass(Class)}
      */
@@ -75,19 +75,26 @@ public class WmiQueryHandler {
         }
         try {
             return customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);
-        } catch (NoSuchMethodException | SecurityException e) {
+        } catch (NoSuchMethodException e) {
             LOG.error("Failed to find or access a no-arg constructor for {}", customClass);
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
+        } catch (SecurityException e) {
+            LOG.error("Failed to find or access a no-arg constructor for {}", customClass);
+        } catch (InstantiationException e) {
+            LOG.error("Failed to create a new instance of {}", customClass);
+        } catch (IllegalAccessException e) {
+            LOG.error("Failed to create a new instance of {}", customClass);
+        } catch (IllegalArgumentException e) {
+            LOG.error("Failed to create a new instance of {}", customClass);
+        } catch (InvocationTargetException e) {
             LOG.error("Failed to create a new instance of {}", customClass);
         }
         return null;
     }
 
     /**
-     * Define a subclass to be instantiated by {@link #createInstance()}. The
-     * class must extend {@link WmiQueryHandler}.
-     * 
+     * Define a subclass to be instantiated by {@link #createInstance()}. The class
+     * must extend {@link WmiQueryHandler}.
+     *
      * @param instanceClass
      *            The class to instantiate with {@link #createInstance()}.
      */
@@ -103,12 +110,11 @@ public class WmiQueryHandler {
      * @param query
      *            A WmiQuery object encapsulating the namespace, class, and
      *            properties
-     * @return a WmiResult object containing the query results, wrapping an
-     *         EnumMap
+     * @return a WmiResult object containing the query results, wrapping an EnumMap
      */
     public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query) {
 
-        WbemcliUtil.WmiResult<T> result = WbemcliUtil.INSTANCE.new WmiResult<>(query.getPropertyEnum());
+        WbemcliUtil.WmiResult<T> result = WbemcliUtil.INSTANCE.new WmiResult<T>(query.getPropertyEnum());
         if (failedWmiClassNames.contains(query.getWmiClassName())) {
             return result;
         }
@@ -153,7 +159,7 @@ public class WmiQueryHandler {
 
     /**
      * Initializes COM library and sets security to impersonate the local user
-     * 
+     *
      * @return True if COM was initialized and needs to be uninitialized, false
      *         otherwise
      */
@@ -199,8 +205,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * UnInitializes COM library. This should be called once for every
-     * successful call to initCOM.
+     * UnInitializes COM library. This should be called once for every successful
+     * call to initCOM.
      */
     public void unInitCOM() {
         Ole32.INSTANCE.CoUninitialize();
@@ -209,7 +215,7 @@ public class WmiQueryHandler {
     /**
      * Returns the current threading model for COM initialization, as OSHI is
      * required to match if an external program has COM initialized already.
-     * 
+     *
      * @return The current threading model
      */
     public int getComThreading() {
@@ -219,7 +225,7 @@ public class WmiQueryHandler {
     /**
      * Switches the current threading model for COM initialization, as OSHI is
      * required to match if an external program has COM initialized already.
-     * 
+     *
      * @return The new threading model after switching
      */
     public int switchComThreading() {
@@ -232,8 +238,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Security only needs to be initialized once. This boolean identifies
-     * whether that has happened.
+     * Security only needs to be initialized once. This boolean identifies whether
+     * that has happened.
      *
      * @return Returns the securityInitialized.
      */
@@ -242,8 +248,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Gets the current WMI timeout. WMI queries will fail if they take longer
-     * than this number of milliseconds. A value of -1 is infinite (no timeout).
+     * Gets the current WMI timeout. WMI queries will fail if they take longer than
+     * this number of milliseconds. A value of -1 is infinite (no timeout).
      *
      * @return Returns the current value of wmiTimeout.
      */
@@ -256,8 +262,8 @@ public class WmiQueryHandler {
      * number of milliseconds.
      *
      * @param wmiTimeout
-     *            The wmiTimeout to set, in milliseconds. To disable timeouts,
-     *            set timeout as -1 (infinite).
+     *            The wmiTimeout to set, in milliseconds. To disable timeouts, set
+     *            timeout as -1 (infinite).
      */
     public void setWmiTimeout(int wmiTimeout) {
         this.wmiTimeout = wmiTimeout;

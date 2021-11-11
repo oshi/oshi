@@ -91,14 +91,16 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static final String PROCESS_BASE_CLASS = "Win32_Process";
-    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = new WmiQuery<>(null, ProcessProperty.class);
+    private static final WmiQuery<ProcessProperty> PROCESS_QUERY = new WmiQuery<ProcessProperty>(null,
+            ProcessProperty.class);
 
     // Properties to get from WMI if WTSEnumerateProcesses doesn't work
     enum ProcessXPProperty {
         PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;
     }
 
-    private static final WmiQuery<ProcessXPProperty> PROCESS_QUERY_XP = new WmiQuery<>(null, ProcessXPProperty.class);
+    private static final WmiQuery<ProcessXPProperty> PROCESS_QUERY_XP = new WmiQuery<ProcessXPProperty>(null,
+            ProcessXPProperty.class);
 
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
@@ -127,7 +129,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     /*
      * This process map will cache process info to avoid repeated calls for data
      */
-    private final Map<Integer, OSProcess> processMap = new HashMap<>();
+    private final Map<Integer, OSProcess> processMap = new HashMap<Integer, OSProcess>();
 
     private final transient WmiQueryHandler wmiQueryHandler = WmiQueryHandler.createInstance();
 
@@ -256,7 +258,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             if (System.getenv("ProgramFiles(x86)") != null) {
                 this.bitness = 64;
             } else {
-                WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>("Win32_Processor", BitnessProperty.class);
+                WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<BitnessProperty>("Win32_Processor",
+                        BitnessProperty.class);
                 WmiResult<BitnessProperty> bitnessMap = wmiQueryHandler.queryWMI(bitnessQuery);
                 if (bitnessMap.getResultCount() > 0) {
                     this.bitness = WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
@@ -288,7 +291,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     @Override
     public OSProcess[] getChildProcesses(int parentPid, int limit, ProcessSort sort) {
-        Set<Integer> childPids = new HashSet<>();
+        Set<Integer> childPids = new HashSet<Integer>();
         // Get processes from ToolHelp API for parent PID
         Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
         WinNT.HANDLE snapshot = Kernel32.INSTANCE.CreateToolhelp32Snapshot(Tlhelp32.TH32CS_SNAPPROCESS, new DWORD(0));
@@ -315,7 +318,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private OSProcess getProcess(int pid, boolean slowFields) {
-        Set<Integer> pids = new HashSet<>(1);
+        Set<Integer> pids = new HashSet<Integer>(1);
         pids.add(pid);
         List<OSProcess> procList = processMapToList(pids, slowFields);
         return procList.isEmpty() ? null : procList.get(0);
@@ -333,8 +336,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Private method to do the heavy lifting for all the getProcess functions.
      *
      * @param pids
-     *            A collection of pids to query. If null, the entire process
-     *            list will be queried.
+     *            A collection of pids to query. If null, the entire process list
+     *            will be queried.
      * @param slowFields
      *            Whether to include fields that incur processor latency
      * @return A corresponding list of processes
@@ -344,8 +347,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         updateProcessMapFromRegistry(pids);
 
         // define here to avoid object repeated creation overhead later
-        List<String> groupList = new ArrayList<>();
-        List<String> groupIDList = new ArrayList<>();
+        List<String> groupList = new ArrayList<String>();
+        List<String> groupIDList = new ArrayList<String>();
         int myPid = getProcessId();
 
         // Structure we'll fill from native memory pointer for Vista+
@@ -363,7 +366,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                     new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
                     pCount)) {
                 LOG.error("Failed to enumerate Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-                return new ArrayList<>(0);
+                return new ArrayList<OSProcess>(0);
             }
             // extract the pointed-to pointer and create array
             pProcessInfo = ppProcessInfo.getValue();
@@ -390,7 +393,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         }
 
         // Store a subset of processes in a list to later return.
-        List<OSProcess> processList = new ArrayList<>();
+        List<OSProcess> processList = new ArrayList<OSProcess>();
 
         int procCount = IS_WINDOWS7_OR_GREATER ? processInfo.length : processWmiResult.getResultCount();
         for (int i = 0; i < procCount; i++) {
@@ -433,15 +436,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 proc.setKernelTime(procInfo.KernelTime.getValue() / 10000L);
                 proc.setUserTime(procInfo.UserTime.getValue() / 10000L);
                 proc.setThreadCount(procInfo.NumberOfThreads);
-                proc.setVirtualSize(procInfo.PagefileUsage & 0xffff_ffffL);
+                proc.setVirtualSize(procInfo.PagefileUsage & 0xffffffffL);
                 proc.setOpenFiles(procInfo.HandleCount);
             } else {
                 proc.setKernelTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10000L);
                 proc.setUserTime(WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10000L);
                 proc.setThreadCount(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i));
                 // WMI Pagefile usage is in KB
-                proc.setVirtualSize(1024
-                        * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffff_ffffL));
+                proc.setVirtualSize(
+                        1024 * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffffffffL));
                 proc.setOpenFiles(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i));
             }
 
@@ -506,12 +509,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
         {
             LOG.error("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new ArrayList<>(0);
+            return new ArrayList<OSProcess>(0);
         }
 
         // Command Line only accessible via WMI.
         // Utilize cache to only update new processes
-        Set<Integer> emptyCommandLines = new HashSet<>();
+        Set<Integer> emptyCommandLines = new HashSet<Integer>();
         for (OSProcess cachedProcess : processList) {
             // If the process in the cache has an empty command line.
             if (cachedProcess.getCommandLine().isEmpty()) {
@@ -554,7 +557,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private void updateProcessMapFromRegistry(Collection<Integer> pids) {
-        List<Integer> pidsToKeep = new ArrayList<>();
+        List<Integer> pidsToKeep = new ArrayList<Integer>();
 
         // Grab the PERF_DATA_BLOCK from the registry.
         // Sequentially increase the buffer until everything fits.
@@ -621,7 +624,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                         // If not in cache or if start time differs too much,
                         // create new process to add/replace cache value
                         long upTime = (perfTime100nSec
-                                - pPerfData.getLong(perfCounterBlockOffset + this.elapsedTimeOffset)) / 10_000L;
+                                - pPerfData.getLong(perfCounterBlockOffset + this.elapsedTimeOffset)) / 10000L;
                         long startTime = now - upTime;
                         if (proc == null || Math.abs(startTime - proc.getStartTime()) > 200) {
                             proc = new OSProcess();
@@ -657,7 +660,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // If this was a full update, delete any pid we didn't find from the
         // cache.
         if (pids == null) {
-            for (Integer pid : new HashSet<>(this.processMap.keySet())) {
+            for (Integer pid : new HashSet<Integer>(this.processMap.keySet())) {
                 if (!pidsToKeep.contains(pid)) {
                     this.processMap.remove(pid);
                 }
@@ -708,8 +711,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Enables debug privileges for this process, required for OpenProcess() to
-     * get processes other than the current user
+     * Enables debug privileges for this process, required for OpenProcess() to get
+     * processes other than the current user
      */
     private static void enableDebugPrivilege() {
         HANDLEByReference hToken = new HANDLEByReference();

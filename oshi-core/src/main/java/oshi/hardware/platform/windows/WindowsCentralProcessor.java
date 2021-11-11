@@ -98,7 +98,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = new PerfCounterWildcardQuery<>(
+    private final transient PerfCounterWildcardQuery<ProcessorTickCountProperty> processorTickPerfCounters = new PerfCounterWildcardQuery<ProcessorTickCountProperty>(
             ProcessorTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE NOT Name=\"_Total\"",
             "Processor Tick Count");
 
@@ -131,7 +131,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounterQuery<SystemTickCountProperty> systemTickPerfCounters = new PerfCounterQuery<>(
+    private final transient PerfCounterQuery<SystemTickCountProperty> systemTickPerfCounters = new PerfCounterQuery<SystemTickCountProperty>(
             SystemTickCountProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
             "System Tick Count");
 
@@ -163,7 +163,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounterQuery<InterruptsProperty> interruptsPerfCounters = new PerfCounterQuery<>(
+    private final transient PerfCounterQuery<InterruptsProperty> interruptsPerfCounters = new PerfCounterQuery<InterruptsProperty>(
             InterruptsProperty.class, PROCESSOR, "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"",
             "Interrupt Count");
 
@@ -198,7 +198,7 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    private final transient PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<>(
+    private final transient PerfCounterQuery<ContextSwitchProperty> contextSwitchPerfCounters = new PerfCounterQuery<ContextSwitchProperty>(
             ContextSwitchProperty.class, "System", "Win32_PerfRawData_PerfOS_System");
 
     /**
@@ -238,7 +238,8 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
             setCpu64(false);
         }
 
-        WmiQuery<ProcessorProperty> processorIdQuery = new WmiQuery<>("Win32_Processor", ProcessorProperty.class);
+        WmiQuery<ProcessorProperty> processorIdQuery = new WmiQuery<ProcessorProperty>("Win32_Processor",
+                ProcessorProperty.class);
         WmiResult<ProcessorProperty> processorId = WmiQueryHandler.createInstance().queryWMI(processorIdQuery);
         if (processorId.getResultCount() > 0) {
             setProcessorID(WmiUtil.getString(processorId, ProcessorProperty.PROCESSORID, 0));
@@ -285,18 +286,18 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
 
         // IRQ and ticks:
         // Percent time raw value is cumulative 100NS-ticks
-        // Divide by 10_000 to get milliseconds
+        // Divide by 10000 to get milliseconds
 
         Map<SystemTickCountProperty, Long> valueMap = this.systemTickPerfCounters.queryValues();
         ticks[TickType.IRQ.getIndex()] = MapUtil.getOrDefault(valueMap, SystemTickCountProperty.PERCENTINTERRUPTTIME,
-                0L) / 10_000L;
+                0L) / 10000L;
         ticks[TickType.SOFTIRQ.getIndex()] = MapUtil.getOrDefault(valueMap, SystemTickCountProperty.PERCENTDPCTIME, 0L)
-                / 10_000L;
+                / 10000L;
 
-        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10_000L;
-        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10_000L
+        ticks[TickType.IDLE.getIndex()] = lpIdleTime.toDWordLong().longValue() / 10000L;
+        ticks[TickType.SYSTEM.getIndex()] = lpKernelTime.toDWordLong().longValue() / 10000L
                 - ticks[TickType.IDLE.getIndex()];
-        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10_000L;
+        ticks[TickType.USER.getIndex()] = lpUserTime.toDWordLong().longValue() / 10000L;
         // Additional decrement to avoid double counting in the total array
         ticks[TickType.SYSTEM.getIndex()] -= ticks[TickType.IRQ.getIndex()] + ticks[TickType.SOFTIRQ.getIndex()];
         return ticks;
@@ -354,12 +355,12 @@ public class WindowsCentralProcessor extends AbstractCentralProcessor {
                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
 
             // Raw value is cumulative 100NS-ticks
-            // Divide by 10_000 to get milliseconds
-            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;
+            // Divide by 10000 to get milliseconds
+            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10000L;
+            ticks[cpu][TickType.USER.getIndex()] /= 10000L;
+            ticks[cpu][TickType.IRQ.getIndex()] /= 10000L;
+            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10000L;
+            ticks[cpu][TickType.IDLE.getIndex()] /= 10000L;
         }
         // Skipping nice and IOWait, they'll stay 0
         return ticks;

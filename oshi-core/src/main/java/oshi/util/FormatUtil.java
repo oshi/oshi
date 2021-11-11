@@ -48,8 +48,8 @@ public class FormatUtil {
     private static final long EXBI = 1L << 60;
 
     /**
-     * Decimal prefixes, used for Hz and other metric units and for bytes by
-     * hard drive manufacturers
+     * Decimal prefixes, used for Hz and other metric units and for bytes by hard
+     * drive manufacturers
      */
     private static final long KILO = 1000L;
     private static final long MEGA = 1000000L;
@@ -69,11 +69,11 @@ public class FormatUtil {
     }
 
     /**
-     * Format bytes into a rounded string representation using IEC standard
-     * (matches Mac/Linux). For hard drive capacities, use @link
-     * {@link #formatBytesDecimal(long)}. For Windows displays for KB, MB and
-     * GB, in JEDEC units, edit the returned string to remove the 'i' to display
-     * the (incorrect) JEDEC units.
+     * Format bytes into a rounded string representation using IEC standard (matches
+     * Mac/Linux). For hard drive capacities, use @link
+     * {@link #formatBytesDecimal(long)}. For Windows displays for KB, MB and GB, in
+     * JEDEC units, edit the returned string to remove the 'i' to display the
+     * (incorrect) JEDEC units.
      *
      * @param bytes
      *            Bytes.
@@ -120,8 +120,8 @@ public class FormatUtil {
 
     /**
      * Format bytes into a rounded string representation using decimal SI units.
-     * These are used by hard drive manufacturers for capacity. Most other
-     * storage should use {@link #formatBytes(long)}.
+     * These are used by hard drive manufacturers for capacity. Most other storage
+     * should use {@link #formatBytes(long)}.
      *
      * @param bytes
      *            Bytes.

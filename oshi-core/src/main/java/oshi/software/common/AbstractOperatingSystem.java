@@ -56,31 +56,31 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private static final Comparator<OSProcess> RSS_DESC_SORT = new Comparator<OSProcess>() {
         @Override
         public int compare(OSProcess p1, OSProcess p2) {
-            return Long.compare(p2.getResidentSetSize(), p1.getResidentSetSize());
+            return longCompare(p2.getResidentSetSize(), p1.getResidentSetSize());
         }
     };
     private static final Comparator<OSProcess> UPTIME_DESC_SORT = new Comparator<OSProcess>() {
         @Override
         public int compare(OSProcess p1, OSProcess p2) {
-            return Long.compare(p2.getUpTime(), p1.getUpTime());
+            return longCompare(p2.getUpTime(), p1.getUpTime());
         }
     };
     private static final Comparator<OSProcess> UPTIME_ASC_SORT = new Comparator<OSProcess>() {
         @Override
         public int compare(OSProcess p1, OSProcess p2) {
-            return Long.compare(p1.getUpTime(), p2.getUpTime());
+            return longCompare(p1.getUpTime(), p2.getUpTime());
         }
     };
     private static final Comparator<OSProcess> PID_ASC_SORT = new Comparator<OSProcess>() {
         @Override
         public int compare(OSProcess p1, OSProcess p2) {
-            return Integer.compare(p1.getProcessID(), p2.getProcessID());
+            return intCompare(p1.getProcessID(), p2.getProcessID());
         }
     };
     private static final Comparator<OSProcess> PARENTPID_ASC_SORT = new Comparator<OSProcess>() {
         @Override
         public int compare(OSProcess p1, OSProcess p2) {
-            return Integer.compare(p1.getParentProcessID(), p2.getParentProcessID());
+            return intCompare(p1.getParentProcessID(), p2.getParentProcessID());
         }
     };
     private static final Comparator<OSProcess> NAME_ASC_SORT = new Comparator<OSProcess>() {
@@ -89,6 +89,24 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
             return p1.getName().toLowerCase().compareTo(p2.getName().toLowerCase());
         }
     };
+
+    private static int longCompare(long x, long y) {
+        if (x < y) {
+            return -1;
+        } else if (x > y) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private static int intCompare(int x, int y) {
+        if (x < y) {
+            return -1;
+        } else if (x > y) {
+            return 1;
+        }
+        return 0;
+    }
 
     /**
      * {@inheritDoc}
@@ -115,18 +133,18 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     /**
-     * Sorts an array of processes using the specified sorting, returning an
-     * array with the top limit results if positive.
+     * Sorts an array of processes using the specified sorting, returning an array
+     * with the top limit results if positive.
      *
      * @param processes
      *            The array to sort
      * @param limit
-     *            The number of results to return if positive; if zero returns
-     *            all results
+     *            The number of results to return if positive; if zero returns all
+     *            results
      * @param sort
      *            The sorting to use, or null
-     * @return An array of size limit (if positive) or of all processes, sorted
-     *         as specified
+     * @return An array of size limit (if positive) or of all processes, sorted as
+     *         specified
      */
     protected List<OSProcess> processSort(List<OSProcess> processes, int limit, ProcessSort sort) {
         if (sort != null) {
@@ -166,7 +184,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         } else {
             return processes;
         }
-        List<OSProcess> procs = new ArrayList<>();
+        List<OSProcess> procs = new ArrayList<OSProcess>();
         for (int i = 0; i < maxProcs; i++) {
             procs.add(processes.get(i));
         }
@@ -193,7 +211,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
      */
     @Override
     public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        List<OSProcess> returnValue = new ArrayList<>(pids.size());
+        List<OSProcess> returnValue = new ArrayList<OSProcess>(pids.size());
         for (Integer pid : pids) {
             OSProcess process = getProcess(pid);
             if (process != null) {

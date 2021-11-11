@@ -44,11 +44,11 @@ public class ParseUtilTest {
         assertEquals(Long.MAX_VALUE, ParseUtil.parseHertz("10000000000000000000 Hz"));
         assertEquals(1L, ParseUtil.parseHertz("1Hz"));
         assertEquals(500L, ParseUtil.parseHertz("500 Hz"));
-        assertEquals(1_000L, ParseUtil.parseHertz("1kHz"));
-        assertEquals(1_000_000L, ParseUtil.parseHertz("1MHz"));
-        assertEquals(1_000_000_000L, ParseUtil.parseHertz("1GHz"));
-        assertEquals(1_500_000_000L, ParseUtil.parseHertz("1.5GHz"));
-        assertEquals(1_000_000_000_000L, ParseUtil.parseHertz("1THz"));
+        assertEquals(1000L, ParseUtil.parseHertz("1kHz"));
+        assertEquals(1000000L, ParseUtil.parseHertz("1MHz"));
+        assertEquals(1000000000L, ParseUtil.parseHertz("1GHz"));
+        assertEquals(1500000000L, ParseUtil.parseHertz("1.5GHz"));
+        assertEquals(1000000000000L, ParseUtil.parseHertz("1THz"));
         // GHz exceeds max double
     }
 

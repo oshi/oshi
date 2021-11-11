@@ -61,7 +61,7 @@ public class SolarisSensors implements Sensors {
      */
     @Override
     public int[] getFanSpeeds() {
-        List<Integer> speedList = new ArrayList<>();
+        List<Integer> speedList = new ArrayList<Integer>();
         // Return max found temp
         for (String line : ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c fan")) {
             if (line.trim().startsWith("Speed:")) {

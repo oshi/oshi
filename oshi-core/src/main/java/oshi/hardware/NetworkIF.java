@@ -77,8 +77,7 @@ public class NetworkIF implements Serializable {
     }
 
     /**
-     * Sets the network interface and calculates other information derived from
-     * it
+     * Sets the network interface and calculates other information derived from it
      *
      * @param networkInterface
      *            The network interface to set
@@ -91,7 +90,7 @@ public class NetworkIF implements Serializable {
             // Set MAC
             byte[] hwmac = networkInterface.getHardwareAddress();
             if (hwmac != null) {
-                List<String> octets = new ArrayList<>(6);
+                List<String> octets = new ArrayList<String>(6);
                 for (byte b : hwmac) {
                     octets.add(String.format("%02x", b));
                 }
@@ -100,8 +99,8 @@ public class NetworkIF implements Serializable {
                 this.mac = "Unknown";
             }
             // Set IP arrays
-            ArrayList<String> ipv4list = new ArrayList<>();
-            ArrayList<String> ipv6list = new ArrayList<>();
+            ArrayList<String> ipv4list = new ArrayList<String>();
+            ArrayList<String> ipv6list = new ArrayList<String>();
             for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {
                 if (address.getHostAddress().length() > 0) {
                     if (address.getHostAddress().contains(":")) {
@@ -126,8 +125,8 @@ public class NetworkIF implements Serializable {
     }
 
     /**
-     * @return The description of the network interface. On some platforms, this
-     *         is identical to the name.
+     * @return The description of the network interface. On some platforms, this is
+     *         identical to the name.
      */
     public String getDisplayName() {
         return this.networkInterface.getDisplayName();
@@ -145,35 +144,35 @@ public class NetworkIF implements Serializable {
 
     /**
      * @return The MAC Address. This value is set when the {@link NetworkIF} is
-     *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link #setNetworkInterface(NetworkInterface)} method
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String getMacaddr() {
         return this.mac;
     }
 
     /**
-     * @return The IPv4 Addresses. This value is set when the {@link NetworkIF}
-     *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The IPv4 Addresses. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv4addr() {
         return Arrays.copyOf(this.ipv4, this.ipv4.length);
     }
 
     /**
-     * @return The IPv6 Addresses. This value is set when the {@link NetworkIF}
-     *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link #setNetworkInterface(NetworkInterface)} method
+     * @return The IPv6 Addresses. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #setNetworkInterface(NetworkInterface)} method
      */
     public String[] getIPv6addr() {
         return Arrays.copyOf(this.ipv6, this.ipv6.length);
     }
 
     /**
-     * @return The Bytes Received. This value is set when the {@link NetworkIF}
-     *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateNetworkStats()} method
+     * @return The Bytes Received. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateNetworkStats()} method
      */
     public long getBytesRecv() {
         return this.bytesRecv;
@@ -189,8 +188,8 @@ public class NetworkIF implements Serializable {
 
     /**
      * @return The Bytes Sent. This value is set when the {@link NetworkIF} is
-     *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateNetworkStats()} method
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateNetworkStats()} method
      */
     public long getBytesSent() {
         return this.bytesSent;
@@ -205,10 +204,9 @@ public class NetworkIF implements Serializable {
     }
 
     /**
-     * @return The Packets Received. This value is set when the
-     *         {@link NetworkIF} is instantiated and may not be up to date. To
-     *         update this value, execute the {@link #updateNetworkStats()}
-     *         method
+     * @return The Packets Received. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateNetworkStats()} method
      */
     public long getPacketsRecv() {
         return this.packetsRecv;
@@ -224,8 +222,8 @@ public class NetworkIF implements Serializable {
 
     /**
      * @return The Packets Sent. This value is set when the {@link NetworkIF} is
-     *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateNetworkStats()} method
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateNetworkStats()} method
      */
     public long getPacketsSent() {
         return this.packetsSent;
@@ -241,8 +239,8 @@ public class NetworkIF implements Serializable {
 
     /**
      * @return Input Errors. This value is set when the {@link NetworkIF} is
-     *         instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateNetworkStats()} method
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateNetworkStats()} method
      */
     public long getInErrors() {
         return this.inErrors;
@@ -257,9 +255,9 @@ public class NetworkIF implements Serializable {
     }
 
     /**
-     * @return The Output Errors. This value is set when the {@link NetworkIF}
-     *         is instantiated and may not be up to date. To update this value,
-     *         execute the {@link #updateNetworkStats()} method
+     * @return The Output Errors. This value is set when the {@link NetworkIF} is
+     *         instantiated and may not be up to date. To update this value, execute
+     *         the {@link #updateNetworkStats()} method
      */
     public long getOutErrors() {
         return this.outErrors;
@@ -274,10 +272,10 @@ public class NetworkIF implements Serializable {
     }
 
     /**
-     * @return The speed of the network interface in bits per second. This value
-     *         is set when the {@link NetworkIF} is instantiated and may not be
-     *         up to date. To update this value, execute the
-     *         {@link #updateNetworkStats()} method
+     * @return The speed of the network interface in bits per second. This value is
+     *         set when the {@link NetworkIF} is instantiated and may not be up to
+     *         date. To update this value, execute the {@link #updateNetworkStats()}
+     *         method
      */
     public long getSpeed() {
         return this.speed;
@@ -307,8 +305,8 @@ public class NetworkIF implements Serializable {
     }
 
     /**
-     * Updates interface network statistics on this interface. Statistics
-     * include packets and bytes sent and received, and interface speed.
+     * Updates interface network statistics on this interface. Statistics include
+     * packets and bytes sent and received, and interface speed.
      */
     public void updateNetworkStats() {
         switch (SystemInfo.getCurrentPlatformEnum()) {

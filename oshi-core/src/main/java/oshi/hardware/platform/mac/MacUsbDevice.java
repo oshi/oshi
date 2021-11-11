@@ -51,12 +51,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using RegistryEntryID as the key
      */
-    private static Map<Long, String> nameMap = new HashMap<>();
-    private static Map<Long, String> vendorMap = new HashMap<>();
-    private static Map<Long, String> vendorIdMap = new HashMap<>();
-    private static Map<Long, String> productIdMap = new HashMap<>();
-    private static Map<Long, String> serialMap = new HashMap<>();
-    private static Map<Long, List<Long>> hubMap = new HashMap<>();
+    private static Map<Long, String> nameMap = new HashMap<Long, String>();
+    private static Map<Long, String> vendorMap = new HashMap<Long, String>();
+    private static Map<Long, String> vendorIdMap = new HashMap<Long, String>();
+    private static Map<Long, String> productIdMap = new HashMap<Long, String>();
+    private static Map<Long, String> serialMap = new HashMap<Long, String>();
+    private static Map<Long, List<Long>> hubMap = new HashMap<Long, List<Long>>();
 
     public MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -71,7 +71,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
         if (tree) {
             return devices;
         }
-        List<UsbDevice> deviceList = new ArrayList<>();
+        List<UsbDevice> deviceList = new ArrayList<UsbDevice>();
         // Top level is controllers; they won't be added to the list, but all
         // their connected devices will be
         for (UsbDevice device : devices) {
@@ -102,7 +102,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
 
         // Iterate over USB Controllers. All devices are children of one of
         // these controllers in the "IOService" plane
-        List<Long> usbControllers = new ArrayList<>();
+        List<Long> usbControllers = new ArrayList<Long>();
         IntByReference iter = new IntByReference();
         IOKitUtil.getMatchingServices("IOUSBController", iter);
         int device = IOKit.INSTANCE.IOIteratorNext(iter.getValue());
@@ -184,7 +184,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
         IOKit.INSTANCE.IOObjectRelease(iter.getValue());
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<>();
+        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
         for (Long controller : usbControllers) {
             controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000"));
         }
@@ -259,7 +259,7 @@ public class MacUsbDevice extends AbstractUsbDevice {
         String vendorId = MapUtil.getOrDefault(vendorIdMap, registryEntryId, vid);
         String productId = MapUtil.getOrDefault(productIdMap, registryEntryId, pid);
         List<Long> childIds = MapUtil.getOrDefault(hubMap, registryEntryId, new ArrayList<Long>());
-        List<MacUsbDevice> usbDevices = new ArrayList<>();
+        List<MacUsbDevice> usbDevices = new ArrayList<MacUsbDevice>();
         for (Long id : childIds) {
             usbDevices.add(getDeviceAndChildren(id, vendorId, productId));
         }

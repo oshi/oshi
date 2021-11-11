@@ -73,7 +73,7 @@ public class MacPowerSource extends AbstractPowerSource {
         double timeRemaining = IOKit.INSTANCE.IOPSGetTimeRemainingEstimate();
 
         // For each power source, output various info
-        List<MacPowerSource> psList = new ArrayList<>(powerSourcesCount);
+        List<MacPowerSource> psList = new ArrayList<MacPowerSource>(powerSourcesCount);
         for (int ps = 0; ps < powerSourcesCount; ps++) {
             // Get the dictionary for that Power Source
             CFTypeRef powerSource = CoreFoundation.INSTANCE.CFArrayGetValueAtIndex(powerSourcesList, ps);

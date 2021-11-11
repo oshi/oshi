@@ -71,8 +71,8 @@ public interface UsbDevice extends Serializable, Comparable<UsbDevice> {
     /**
      * Other devices connected to this hub
      *
-     * @return An array of other devices connected to this hub, if any, or an
-     *         empty array if none
+     * @return An array of other devices connected to this hub, if any, or an empty
+     *         array if none
      */
     UsbDevice[] getConnectedDevices();
 }

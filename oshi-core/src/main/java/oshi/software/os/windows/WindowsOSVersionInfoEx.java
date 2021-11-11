@@ -57,7 +57,8 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
 
     private void init() {
         // Populate a key-value map from WMI
-        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>("Win32_OperatingSystem", OSVersionProperty.class);
+        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<OSVersionProperty>("Win32_OperatingSystem",
+                OSVersionProperty.class);
         WmiResult<OSVersionProperty> versionInfo = WmiQueryHandler.createInstance().queryWMI(osVersionQuery);
         if (versionInfo.getResultCount() < 1) {
             handleNoVersionInfo();
@@ -161,7 +162,7 @@ public class WindowsOSVersionInfoEx extends AbstractOSVersionInfoEx {
      * @return Suites
      */
     private String parseCodeName(int suiteMask) {
-        List<String> suites = new ArrayList<>();
+        List<String> suites = new ArrayList<String>();
         if ((suiteMask & 0x00000002) != 0) {
             suites.add("Enterprise");
         }

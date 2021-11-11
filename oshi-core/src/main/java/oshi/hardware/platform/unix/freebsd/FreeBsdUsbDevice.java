@@ -42,13 +42,13 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     /*
      * Maps to store information using node # as the key
      */
-    private static Map<String, String> nameMap = new HashMap<>();
-    private static Map<String, String> vendorMap = new HashMap<>();
-    private static Map<String, String> vendorIdMap = new HashMap<>();
-    private static Map<String, String> productIdMap = new HashMap<>();
-    private static Map<String, String> serialMap = new HashMap<>();
-    private static Map<String, String> parentMap = new HashMap<>();
-    private static Map<String, List<String>> hubMap = new HashMap<>();
+    private static Map<String, String> nameMap = new HashMap<String, String>();
+    private static Map<String, String> vendorMap = new HashMap<String, String>();
+    private static Map<String, String> vendorIdMap = new HashMap<String, String>();
+    private static Map<String, String> productIdMap = new HashMap<String, String>();
+    private static Map<String, String> serialMap = new HashMap<String, String>();
+    private static Map<String, String> parentMap = new HashMap<String, String>();
+    private static Map<String, List<String>> hubMap = new HashMap<String, List<String>>();
 
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             UsbDevice[] connectedDevices) {
@@ -64,7 +64,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         if (tree) {
             return devices;
         }
-        List<UsbDevice> deviceList = new ArrayList<>();
+        List<UsbDevice> deviceList = new ArrayList<UsbDevice>();
         // Top level is controllers; they won't be added to the list, but all
         // their connected devices will be
         for (UsbDevice device : devices) {
@@ -104,7 +104,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         }
         // For each item enumerated, store information in the maps
         String key = "";
-        List<String> usBuses = new ArrayList<>();
+        List<String> usBuses = new ArrayList<String>();
         for (String line : devices) {
             // udi = ... identifies start of a new tree
             if (line.startsWith("udi =")) {
@@ -147,7 +147,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         }
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<>();
+        List<UsbDevice> controllerDevices = new ArrayList<UsbDevice>();
         for (String usbus : usBuses) {
             // Skip the usbuses: make their parents the controllers and replace
             // parents' children with the buses' children
@@ -159,8 +159,8 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates SolarisUsbDevices by fetching information from maps
-     * to populate fields
+     * Recursively creates SolarisUsbDevices by fetching information from maps to
+     * populate fields
      *
      * @param devPath
      *            The device node path.
@@ -174,7 +174,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         String vendorId = MapUtil.getOrDefault(vendorIdMap, devPath, vid);
         String productId = MapUtil.getOrDefault(productIdMap, devPath, pid);
         List<String> childPaths = MapUtil.getOrDefault(hubMap, devPath, new ArrayList<String>());
-        List<FreeBsdUsbDevice> usbDevices = new ArrayList<>();
+        List<FreeBsdUsbDevice> usbDevices = new ArrayList<FreeBsdUsbDevice>();
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId));
         }

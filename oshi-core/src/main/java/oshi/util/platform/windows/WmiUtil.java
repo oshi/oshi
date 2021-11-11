@@ -51,7 +51,7 @@ public class WmiUtil {
 
     /**
      * Translate a WmiQuery to the actual query string
-     * 
+     *
      * @param <T>
      *            The properties enum
      * @param query
@@ -145,9 +145,9 @@ public class WmiUtil {
     }
 
     /**
-     * Gets a Uint64 value from a WmiResult (parsing the String). Note that
-     * while the CIM type is unsigned, the return type is signed and the parsing
-     * will exclude any return values above Long.MAX_VALUE.
+     * Gets a Uint64 value from a WmiResult (parsing the String). Note that while
+     * the CIM type is unsigned, the return type is signed and the parsing will
+     * exclude any return values above Long.MAX_VALUE.
      *
      * @param <T>
      *            The enum type containing the property keys
@@ -171,9 +171,9 @@ public class WmiUtil {
     }
 
     /**
-     * Gets an UINT32 value from a WmiResult. Note that while a UINT32 CIM type
-     * is unsigned, the return type is signed and requires further processing by
-     * the user if unsigned values are desired.
+     * Gets an UINT32 value from a WmiResult. Note that while a UINT32 CIM type is
+     * unsigned, the return type is signed and requires further processing by the
+     * user if unsigned values are desired.
      *
      * @param <T>
      *            The enum type containing the property keys
@@ -194,8 +194,7 @@ public class WmiUtil {
     }
 
     /**
-     * Gets an UINT32 value from a WmiResult as a long, preserving the
-     * unsignedness.
+     * Gets an UINT32 value from a WmiResult as a long, preserving the unsignedness.
      *
      * @param <T>
      *            The enum type containing the property keys
@@ -217,8 +216,8 @@ public class WmiUtil {
 
     /**
      * Gets a Sint32 value from a WmiResult. Note that while the CIM type is
-     * unsigned, the return type is signed and requires further processing by
-     * the user if unsigned values are desired.
+     * unsigned, the return type is signed and requires further processing by the
+     * user if unsigned values are desired.
      *
      * @param <T>
      *            The enum type containing the property keys
@@ -240,8 +239,8 @@ public class WmiUtil {
 
     /**
      * Gets a Uint16 value from a WmiResult. Note that while the CIM type is
-     * unsigned, the return type is signed and requires further processing by
-     * the user if unsigned values are desired.
+     * unsigned, the return type is signed and requires further processing by the
+     * user if unsigned values are desired.
      *
      * @param <T>
      *            The enum type containing the property keys
@@ -266,7 +265,7 @@ public class WmiUtil {
         if (o == null) {
             return 0;
         } else if (result.getVtType(property) == Variant.VT_I4) {
-            return (int) o;
+            return (Integer) o;
         }
         throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "32-bit integer",
                 result.getCIMType(property), result.getVtType(property)));
@@ -290,7 +289,7 @@ public class WmiUtil {
         if (o == null) {
             return 0f;
         } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 && result.getVtType(property) == Variant.VT_R4) {
-            return (float) o;
+            return (Float) o;
         }
         throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Float",
                 result.getCIMType(property), result.getVtType(property)));

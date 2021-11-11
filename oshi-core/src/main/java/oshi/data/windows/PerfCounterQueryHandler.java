@@ -41,9 +41,9 @@ public class PerfCounterQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 
-    private Map<PerfCounter, HANDLEByReference> counterHandleMap = new ConcurrentHashMap<>();
-    private Map<String, HANDLEByReference> queryHandleMap = new ConcurrentHashMap<>();
-    private Map<String, List<PerfCounter>> queryCounterMap = new ConcurrentHashMap<>();
+    private Map<PerfCounter, HANDLEByReference> counterHandleMap = new ConcurrentHashMap<PerfCounter, HANDLEByReference>();
+    private Map<String, HANDLEByReference> queryHandleMap = new ConcurrentHashMap<String, HANDLEByReference>();
+    private Map<String, List<PerfCounter>> queryCounterMap = new ConcurrentHashMap<String, List<PerfCounter>>();
 
     // Singleton pattern
     private static PerfCounterQueryHandler instance;
@@ -73,8 +73,8 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Begin monitoring a Performance Data counter, attached to a query whose
-     * key is the counter's object.
+     * Begin monitoring a Performance Data counter, attached to a query whose key is
+     * the counter's object.
      *
      * @param counter
      *            A PerfCounter object.
@@ -85,14 +85,14 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Begin monitoring a Performance Data counter, attached to a query whose
-     * key is the specified string.
+     * Begin monitoring a Performance Data counter, attached to a query whose key is
+     * the specified string.
      *
      * @param counter
      *            A PerfCounter object.
      * @param key
-     *            A string used as the key for the query. All counters with this
-     *            key will be updated when any single counter is updated.
+     *            A string used as the key for the query. All counters with this key
+     *            will be updated when any single counter is updated.
      * @return True if the counter was successfully added.
      */
     public boolean addCounterToQuery(PerfCounter counter, String key) {
@@ -116,8 +116,8 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Stop monitoring a Performance Data counter, attached to a query whose key
-     * is the counter's object.
+     * Stop monitoring a Performance Data counter, attached to a query whose key is
+     * the counter's object.
      *
      * @param counter
      *            A PerfCounter object
@@ -128,14 +128,14 @@ public class PerfCounterQueryHandler {
     }
 
     /**
-     * Stop monitoring a Performance Data counter, attached to a query whose key
-     * is the specified string..
+     * Stop monitoring a Performance Data counter, attached to a query whose key is
+     * the specified string..
      *
      * @param counter
      *            A PerfCounter object
      * @param key
-     *            A string used as the key for the query. All counters with this
-     *            key will be updated when any single counter is updated.
+     *            A string used as the key for the query. All counters with this key
+     *            will be updated when any single counter is updated.
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter, String key) {
@@ -243,13 +243,12 @@ public class PerfCounterQueryHandler {
 
     /**
      * Open a query for the given string, or confirm a query is already open for
-     * that string. Multiple counters may be added to this string, but will all
-     * be queried at the same time.
+     * that string. Multiple counters may be added to this string, but will all be
+     * queried at the same time.
      *
      * @param key
-     *            String to associate with the counter. Most code defaults to
-     *            the English PDH object name so custom keys should avoid these
-     *            strings.
+     *            String to associate with the counter. Most code defaults to the
+     *            English PDH object name so custom keys should avoid these strings.
      * @return A handle to the query, or null if an error occurred.
      */
     private HANDLEByReference getOrOpenQuery(String key) {
@@ -259,7 +258,7 @@ public class PerfCounterQueryHandler {
         HANDLEByReference q = new HANDLEByReference();
         if (PerfDataUtil.openQuery(q)) {
             queryHandleMap.put(key, q);
-            List<PerfCounter> counterList = new ArrayList<>();
+            List<PerfCounter> counterList = new ArrayList<PerfCounter>();
             queryCounterMap.put(key, counterList);
             return q;
         }

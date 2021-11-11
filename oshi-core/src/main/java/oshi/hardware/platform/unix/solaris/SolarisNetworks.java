@@ -57,7 +57,7 @@ public class SolarisNetworks extends AbstractNetworks {
             netIF.setInErrors(KstatUtil.kstatDataLookupLong(ksp, "ierrors"));
             netIF.setSpeed(KstatUtil.kstatDataLookupLong(ksp, "ifspeed"));
             // Snap time in ns; convert to ms
-            netIF.setTimeStamp(ksp.ks_snaptime / 1_000_000L);
+            netIF.setTimeStamp(ksp.ks_snaptime / 1000000L);
         }
     }
 }
