@@ -174,7 +174,7 @@ public class WindowsFileSystem implements FileSystem {
         aVolume = new char[BUFSIZE];
 
         hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
-        if (hVol == WinBase.INVALID_HANDLE_VALUE) {
+        if (WinBase.INVALID_HANDLE_VALUE.equals(hVol)) {
             return fs;
         }
 

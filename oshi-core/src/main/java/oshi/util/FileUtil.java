@@ -25,8 +25,9 @@ package oshi.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,13 @@ import org.slf4j.LoggerFactory;
  * @author widdis[at]gmail[dot]com
  */
 public class FileUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
+
+    private static final String READ = "Read {}";
+    private static final String READING_FILE = "Reading file {}";
+    private static final String ERROR_READING_FILE = "Error reading file {}. {}";
+    private static final String ERROR_CLOSING_FILE = "Error closing file {}. {}";
 
     private FileUtil() {
     }
@@ -76,25 +83,43 @@ public class FileUtil {
         List<String> lines = new ArrayList<String>();
         File file = new File(filename);
         if (file.canRead()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
             BufferedReader br = null;
+            InputStreamReader isr = null;
+            FileInputStream fis = null;
             try {
-                br = new BufferedReader(new FileReader(file));
+                fis = new FileInputStream(file);
+                isr = new InputStreamReader(fis, ParseUtil.UTF_8);
+                br = new BufferedReader(isr);
                 String line;
                 while ((line = br.readLine()) != null) {
                     lines.add(line);
                 }
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                    LOG.error(ERROR_READING_FILE, filename, e.getMessage());
                 }
             } finally {
+                try {
+                    if (fis != null) {
+                        fis.close();
+                    }
+                } catch (IOException ex) {
+                    LOG.error(ERROR_CLOSING_FILE, filename, ex.getMessage());
+                }
+                try {
+                    if (isr != null) {
+                        isr.close();
+                    }
+                } catch (IOException ex) {
+                    LOG.error(ERROR_CLOSING_FILE, filename, ex.getMessage());
+                }
                 try {
                     if (br != null) {
                         br.close();
                     }
                 } catch (IOException ex) {
-                    LOG.error("Error closing file {}.  {}", filename, ex.getMessage());
+                    LOG.error(ERROR_CLOSING_FILE, filename, ex.getMessage());
                 }
             }
         } else if (reportError) {
@@ -113,12 +138,12 @@ public class FileUtil {
      */
     public static long getLongFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ, read.get(0));
             }
             return ParseUtil.parseLongOrDefault(read.get(0), 0L);
         }
@@ -135,12 +160,12 @@ public class FileUtil {
      */
     public static long getUnsignedLongFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ, read.get(0));
             }
             return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);
         }
@@ -157,13 +182,13 @@ public class FileUtil {
      */
     public static int getIntFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         try {
             List<String> read = FileUtil.readFile(filename, false);
             if (!read.isEmpty()) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Read {}", read.get(0));
+                    LOG.trace(READ, read.get(0));
                 }
                 return Integer.parseInt(read.get(0));
             }
@@ -183,12 +208,12 @@ public class FileUtil {
      */
     public static String getStringFromFile(String filename) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> read = FileUtil.readFile(filename, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Read {}", read.get(0));
+                LOG.trace(READ, read.get(0));
             }
             return read.get(0);
         }
@@ -209,7 +234,7 @@ public class FileUtil {
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
         Map<String, String> map = new HashMap<String, String>();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading file {}", filename);
+            LOG.debug(READING_FILE, filename);
         }
         List<String> lines = FileUtil.readFile(filename, false);
         for (String line : lines) {

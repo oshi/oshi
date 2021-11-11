@@ -81,7 +81,7 @@ public class ExecutingCommand {
         }
 
         ArrayList<String> sa = new ArrayList<String>();
-        InputStreamReader isr = new InputStreamReader(p.getInputStream());
+        InputStreamReader isr = new InputStreamReader(p.getInputStream(), ParseUtil.UTF_8);
         BufferedReader reader = new BufferedReader(isr);
         try {
             String line;

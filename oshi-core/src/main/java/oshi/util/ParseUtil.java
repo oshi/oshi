@@ -90,6 +90,7 @@ public class ParseUtil {
     public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
 
     public static final Charset US_ASCII = Charset.forName("US-ASCII");
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     static {
         multipliers = new HashMap<String, Long>();
@@ -278,7 +279,7 @@ public class ParseUtil {
      *         a byte
      */
     public static long strToLong(String str, int size) {
-        return byteArrayToLong(str.getBytes(), size);
+        return byteArrayToLong(str.getBytes(US_ASCII), size);
     }
 
     /**
