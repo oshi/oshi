@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -115,14 +116,16 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs, String[] envp) {
-        Process p = null;
         try {
-            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
+            Process p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
+            return getProcessOutputAndDestroy(p, cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
-            return new ArrayList<>(0);
         }
+        return Collections.emptyList();
+    }
 
+    private static List<String> getProcessOutputAndDestroy(Process p, String[] cmd) {
         ArrayList<String> sa = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {
@@ -132,12 +135,12 @@ public final class ExecutingCommand {
             }
             p.waitFor();
         } catch (IOException e) {
-            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
-            return new ArrayList<>(0);
+            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmd), e.getMessage());
         } catch (InterruptedException ie) {
-            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmdToRunWithArgs),
-                    ie.getMessage());
+            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmd), ie.getMessage());
             Thread.currentThread().interrupt();
+        } finally {
+            p.destroy();
         }
         return sa;
     }
