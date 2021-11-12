@@ -996,7 +996,7 @@ public final class ParseUtil {
 
         double number = ParseUtil.parseDoubleOrDefault(mem[0], 0L);
         if (mem.length == 2 && mem[1] != null && mem[1].length() >= 1) {
-            switch ((mem[1].charAt(0))) {
+            switch (mem[1].charAt(0)) {
             case 'T':
                 number *= 1_000_000_000_000L;
                 break;
