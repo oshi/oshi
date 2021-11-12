@@ -181,7 +181,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         aVolume = new char[BUFSIZE];
 
         hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
-        if (hVol.equals(WinBase.INVALID_HANDLE_VALUE)) {
+        if (WinBase.INVALID_HANDLE_VALUE.equals(hVol)) {
             return fs;
         }
         try {
