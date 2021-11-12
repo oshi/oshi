@@ -1,5 +1,8 @@
 # 6.0.0 (in progress)
 
+##### Bug fixes / Improvements
+* [#1768](https://github.com/oshi/oshi/pull/1768): Fix Incorrect use of Reference Equality - [@mythili-rajaraman](https://github.com/mythili-rajaraman).
+
 ##### Breaking Changes
 * [#1724](https://github.com/oshi/oshi/pull/1724): Removed deprecated MACOSX value from PlatformEnum and SystemInfo and removed the getCurrentPlatformEnum() method - [@Novaenn](https://github.com/Novaenn).
 * [#1725](https://github.com/oshi/oshi/pull/1725): Removed deprecated process sorting methods from the OperatingSystem class - [@varnaa](https://github.com/varnaa).

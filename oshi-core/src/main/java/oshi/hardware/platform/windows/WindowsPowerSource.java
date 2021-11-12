@@ -151,7 +151,7 @@ public final class WindowsPowerSource extends AbstractPowerSource {
 
         HANDLE hdev = SetupApi.INSTANCE.SetupDiGetClassDevs(GUID_DEVCLASS_BATTERY, null, null,
                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
-        if (WinBase.INVALID_HANDLE_VALUE != hdev) {
+        if (!WinBase.INVALID_HANDLE_VALUE.equals(hdev)) {
             boolean batteryFound = false;
             // Limit search to 100 batteries max
             for (int idev = 0; !batteryFound && idev < 100; idev++) {

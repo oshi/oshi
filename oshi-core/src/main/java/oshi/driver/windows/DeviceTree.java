@@ -91,7 +91,7 @@ public final class DeviceTree {
         Map<Integer, String> mfgMap = new HashMap<>();
         // Get device IDs for the top level devices
         HANDLE hDevInfo = SA.SetupDiGetClassDevs(guidDevInterface, null, null, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
-        if (hDevInfo != INVALID_HANDLE_VALUE) {
+        if (!hDevInfo.equals(INVALID_HANDLE_VALUE)) {
             try {
                 // Create re-usable native allocations
                 Memory buf = new Memory(MAX_PATH);
