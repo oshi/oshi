@@ -23,14 +23,16 @@
  */
 package oshi.driver.linux.proc;
 
-import com.sun.jna.Platform;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+
 import org.junit.Test;
+
+import com.sun.jna.Platform;
+
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 /**
  * Tests for {@link CpuStat}.
@@ -66,21 +68,24 @@ public class CpuStatTest {
     @Test
     public void testGetContextSwitches() {
         if (Platform.isLinux()) {
-            assertThat("Context switches should be greater than or equal to -1", CpuStat.getContextSwitches(), greaterThanOrEqualTo(-1L));
+            assertThat("Context switches should be greater than or equal to -1", CpuStat.getContextSwitches(),
+                    greaterThanOrEqualTo(-1L));
         }
     }
 
     @Test
     public void testGetInterrupts() {
         if (Platform.isLinux()) {
-            assertThat("Interrupts should be greater than or equal to -1", CpuStat.getInterrupts(), greaterThanOrEqualTo(-1L));
+            assertThat("Interrupts should be greater than or equal to -1", CpuStat.getInterrupts(),
+                    greaterThanOrEqualTo(-1L));
         }
     }
 
     @Test
     public void testGetBootTime() {
         if (Platform.isLinux()) {
-            assertThat("Boot time should be greater than or equal to 0", CpuStat.getBootTime(), greaterThanOrEqualTo(0L));
+            assertThat("Boot time should be greater than or equal to 0", CpuStat.getBootTime(),
+                    greaterThanOrEqualTo(0L));
         }
     }
 }

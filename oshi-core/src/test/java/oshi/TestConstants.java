@@ -21,25 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.linux;
+package oshi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+public class TestConstants {
 
-import org.junit.Test;
+    public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
 
-import com.sun.jna.Platform;
-
-public class DevicetreeTest {
-
-    @Test
-    public void testQueryModel() {
-        if (Platform.isLinux()) {
-            String queryModel = Devicetree.queryModel();
-            if (queryModel != null) {
-                assertThat("queryModel format", queryModel, not(containsString("Machine: ")));
-            }
-        }
-    }
 }

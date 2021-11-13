@@ -23,12 +23,18 @@
  */
 package oshi.driver.linux.proc;
 
-import com.sun.jna.Platform;
-import org.junit.Test;
-import oshi.util.tuples.Quartet;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+
+import org.junit.Test;
+
+import com.sun.jna.Platform;
+
+import oshi.util.tuples.Quartet;
 
 /**
  * Tests for {@link CpuInfo}.
@@ -39,7 +45,8 @@ public class CpuInfoTest {
     public void testQueryCpuManufacturer() {
         if (Platform.isLinux()) {
             String cpuManufacturer = CpuInfo.queryCpuManufacturer();
-            assertThat("CPU manufacturer should be a non-empty String or null", cpuManufacturer, anyOf(nullValue(), not(emptyString())));
+            assertThat("CPU manufacturer should be a non-empty String or null", cpuManufacturer,
+                    anyOf(nullValue(), not(emptyString())));
         }
     }
 
@@ -48,13 +55,17 @@ public class CpuInfoTest {
         if (Platform.isLinux()) {
             Quartet<String, String, String, String> boardInfo = CpuInfo.queryBoardInfo();
             String pcManufacturer = boardInfo.getA();
-            assertThat("PC manufacturer should be a non-empty String or null", pcManufacturer, anyOf(nullValue(), not(emptyString())));
+            assertThat("PC manufacturer should be a non-empty String or null", pcManufacturer,
+                    anyOf(nullValue(), not(emptyString())));
             String pcModel = boardInfo.getB();
-            assertThat("PC model should be null, blank, empty or non-empty", pcModel, anyOf(blankOrNullString(), not(emptyString()), emptyString()));
+            assertThat("PC model should be null, blank, empty or non-empty", pcModel,
+                    anyOf(blankOrNullString(), not(emptyString()), emptyString()));
             String pcVersion = boardInfo.getC();
-            assertThat("PC version should be null, blank, empty or non-empty", pcVersion, anyOf(blankOrNullString(), not(emptyString()), emptyString()));
+            assertThat("PC version should be null, blank, empty or non-empty", pcVersion,
+                    anyOf(blankOrNullString(), not(emptyString()), emptyString()));
             String pcSerialNumber = boardInfo.getD();
-            assertThat("PC serial number should be null, blank, empty or non-empty", pcSerialNumber, anyOf(blankOrNullString(), not(emptyString()), emptyString()));
+            assertThat("PC serial number should be null, blank, empty or non-empty", pcSerialNumber,
+                    anyOf(blankOrNullString(), not(emptyString()), emptyString()));
         }
     }
 }

@@ -24,22 +24,37 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
 
 import org.junit.Test;
 
 import com.sun.jna.Platform;
 
-public class DevicetreeTest {
+import oshi.TestConstants;
+
+public class LshalTest {
 
     @Test
-    public void testQueryModel() {
+    public void testQuerySerialNumber() {
         if (Platform.isLinux()) {
-            String queryModel = Devicetree.queryModel();
-            if (queryModel != null) {
-                assertThat("queryModel format", queryModel, not(containsString("Machine: ")));
+            final String serialNumber = Lshal.querySerialNumber();
+            if (serialNumber != null) {
+                assertThat("Test Lshal querySerialNumber", serialNumber, not(emptyString()));
             }
         }
     }
+
+    @Test
+    public void testQueryUUID() {
+        if (Platform.isLinux()) {
+            final String uuid = Lshal.queryUUID();
+            if (uuid != null) {
+                assertThat("Test Lshal queryUUID", uuid, not(emptyString()));
+                assertThat("Test Lshal queryUUID format", uuid, matchesRegex(TestConstants.UUID_REGEX));
+            }
+        }
+    }
+
 }

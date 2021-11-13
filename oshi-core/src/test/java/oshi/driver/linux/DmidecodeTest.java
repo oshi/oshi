@@ -23,14 +23,16 @@
  */
 package oshi.driver.linux;
 
-import com.sun.jna.Platform;
-import org.junit.Test;
-import oshi.util.tuples.Pair;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.not;
+
+import org.junit.Test;
+
+import com.sun.jna.Platform;
+
+import oshi.util.tuples.Pair;
 
 public class DmidecodeTest {
 

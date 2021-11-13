@@ -23,16 +23,16 @@
  */
 package oshi.driver.linux;
 
-import com.sun.jna.Platform;
-import org.junit.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.not;
 
+import org.junit.Test;
+
+import com.sun.jna.Platform;
 
 public class LshwTest {
 
