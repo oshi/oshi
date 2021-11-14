@@ -81,7 +81,7 @@ public enum PlatformEnum {
      */
     UNKNOWN("Unknown");
 
-    private String name;
+    private final String name;
 
     PlatformEnum(String name) {
         this.name = name;

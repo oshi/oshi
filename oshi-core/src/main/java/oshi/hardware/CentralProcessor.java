@@ -288,7 +288,7 @@ public interface CentralProcessor {
          */
         STEAL(7);
 
-        private int index;
+        private final int index;
 
         TickType(int value) {
             this.index = value;
