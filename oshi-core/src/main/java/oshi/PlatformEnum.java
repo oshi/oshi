@@ -88,7 +88,7 @@ public enum PlatformEnum {
     @Deprecated
     MACOSX("macOS");
 
-    private String name;
+    private final String name;
 
     PlatformEnum(String name) {
         this.name = name;
