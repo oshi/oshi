@@ -24,7 +24,7 @@ OSHI publishes an `oshi-core-java11` artifact with a full module descriptor (and
 
 The `oshi-core` artifact includes `Automatic-Module-Name` of `com.github.oshi` in its manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to otherwise make `oshi-core` modular.
 
-More fine grained modularization is being considered in a possible future major API rewrite targeting JDK 17 compatibility and leveraging features from Project Panama. If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
+More fine grained modularization is being considered in a possible future major API rewrite targeting JDK 21 compatibility and leveraging features from Project Panama (JEP-370, JEP-383, and JEP-389). If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
 
 Is OSHI Thread Safe?
 ========
@@ -43,9 +43,9 @@ Earlier versions do not guarantee thread safety, and it should not be assumed.
 
 What minimum Java version is required?
 ========
-OSHI 3.x is compatible with Java 7, but will not see any added features.  
-
 OSHI 4.x and later require minimum Java 8 compatibility. This minimum level will be retained through at least OpenJDK 8 EOL.
+
+OSHI 3.x is compatible with Java 7 up to 3.13.x versions.  OSHI 3.14.0 restored Java 6 compatibility for the `oshi-core` artifact only. While no new features are envisioned for this branch, bug fixes will be considered if requested on a case basis, particularly if fixed in a later version.
 
 Which operating systems are supported?
 ========
@@ -53,10 +53,12 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
 * macOS version 10.6 (Snow Leopard) and higher.
 * Linux (Most major distributions) Kernel 2.6 and higher
-* AIX 7.1 (POWER4)
 * FreeBSD 10 
 * OpenBSD 6.8
 * Solaris 11 (SunOS 5.11) 
+* AIX 7.1 (POWER4) (See Note)
+
+Note: Testing on AIX has not been conducted since March 2021. AIX users of OSHI 5.7.x and later should run tests to confirm compatibility of newer versions. Future compatibility with JNA is also at risk.  Users requiring support for AIX are requested to make testing and build resources available to OSHI and JNA developers.
 
 How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?
 ========
@@ -104,7 +106,7 @@ products and have completely abandoned SIGAR. The [last release](https://github.
 was in 2010 and the [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
 was in 2015. [Multiple independent forks](https://github.com/hyperic/sigar/issues/95) by existing users attempt
 to fix specific bugs/incompatibilities but none has emerged as a maintained/released fork.  In contrast, OSHI's 
-development has been entirely done by open source volunteers, and it is under active development as of 2020.
+development has been entirely done by open source volunteers, and it is under active development as of 2021.
  - **Support** SIGAR is completely unsupported by its authors, and there is no organized community support.
 OSHI is supported actively to fix bugs, respond to questions, and implement new features.
 

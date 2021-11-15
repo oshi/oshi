@@ -70,6 +70,11 @@ Downloads
 | ------------- | ------------- | 
 | [oshi-core-java11-5.8.2](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=5.8.2&e=jar)  | [oshi-core-java11-5.8.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=5.8.3-SNAPSHOT&e=jar) |
 
+| Java 6 Version | Current Development Version |
+| ------------- | ------------- |
+| [oshi-core-3.14.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=3.14.0&e=jar)  | None |
+
+
 Usage
 -----
 1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. You can [find the appropriate syntax to include OSHI here](https://search.maven.org/artifact/com.github.oshi/oshi-core/5.8.2/jar). 
