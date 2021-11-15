@@ -330,6 +330,11 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#928](https://github.com/oshi/oshi/pull/928): Raspberry Pi compatibility fixes. - [@dbwiddis](https://github.com/dbwiddis).
 * [#931](https://github.com/oshi/oshi/pull/931): Standardize attribute updating. - [@dbwiddis](https://github.com/dbwiddis).
 
+3.14.0 (2021-11-14)
+================
+(`oshi-core` artifact only)
+* [#1764](https://github.com/oshi/oshi/pull/1764): Restore Java 6 compatibility. - [@dbwiddis](https://github.com/dbwiddis).
+
 3.13.0 (2019-01-18), 3.13.1 (2019-04-21), 3.13.2 (2019-04-28), 3.13.3 (2019-06-05), 3.13.4 (2019-09-06), 3.13.5 (2020-01-02), 3.13.6 (2020-07-14)
 ================
 * [#763](https://github.com/oshi/oshi/pull/763): Refactor PDH/WMI Fallback. - [@dbwiddis](https://github.com/dbwiddis).
