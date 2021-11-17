@@ -1344,7 +1344,7 @@ public final class ParseUtil {
                 }
                 // Otherwise add string and reset start
                 // Intentionally using platform default charset
-                strList.add(new String(bytes, start , end - start ,StandardCharsets.UTF_8));
+                strList.add(new String(bytes, start, end - start, StandardCharsets.UTF_8));
                 start = end + 1;
             }
         } while (end++ < bytes.length);
@@ -1378,11 +1378,11 @@ public final class ParseUtil {
                 }
                 // Otherwise add string (possibly empty) and reset start
                 // Intentionally using platform default charset
-                strMap.put(key, new String(bytes, start, end - start,StandardCharsets.UTF_8));
+                strMap.put(key, new String(bytes, start, end - start, StandardCharsets.UTF_8));
                 key = null;
                 start = end + 1;
             } else if (bytes[end] == '=' && key == null) {
-                key = new String(bytes, start, end - start,StandardCharsets.UTF_8);
+                key = new String(bytes, start, end - start, StandardCharsets.UTF_8);
                 start = end + 1;
             }
         } while (end++ < bytes.length);
