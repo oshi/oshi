@@ -26,17 +26,13 @@ public class WindowInfoTest {
             assertThat("Desktop should have at least one window.", osDesktopWindows.size(), is(greaterThan(0)));
             assertThat("The number of all desktop windows should be greater than the number of visible desktop windows", allOsDesktopWindows.size(), is(greaterThan(osDesktopWindows.size())));
             for(OSDesktopWindow window : osDesktopWindows){
+                assertThat("Window IDs are not unique.", windowIds.contains(window.getWindowId()), is(false));
                 windowOrders.add(window.getOrder());
                 windowIds.add(window.getWindowId());
                 assertThat("Windows should have a title.", window.getTitle(), is(not(emptyOrNullString())));
                 assertThat("Window should be visible", window.isVisible(), is(true));
-                System.out.println(window);
             }
             assertThat("Number of layers must be less than or equal to 20.", windowOrders.size(), is(lessThanOrEqualTo(20)));
-            assertThat("Desktop window layer is not present.", windowOrders.contains(0), is(true));
-            assertThat("Dock window layer is not present", windowOrders.contains(24), is(true));
-            assertThat("Dock icon window layer is not present", windowOrders.contains(25), is(true));
-
         }
     }
 }
