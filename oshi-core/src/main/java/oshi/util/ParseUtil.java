@@ -1382,7 +1382,7 @@ public final class ParseUtil {
                 key = null;
                 start = end + 1;
             } else if (bytes[end] == '=' && key == null) {
-                key = new String(bytes, start, end - start,StandardCharsets.UTF_8);
+                key = new String(bytes,StandardCharsets.UTF_8);
                 start = end + 1;
             }
         } while (end++ < bytes.length);
