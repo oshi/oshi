@@ -102,8 +102,8 @@ public final class WindowInfo {
                     CGRect rect = new CGRect();
                     CoreGraphics.INSTANCE.CGRectMakeWithDictionaryRepresentation(new CFDictionaryRef(result), rect);
                     Rectangle windowBounds = new Rectangle(FormatUtil.roundToInt(rect.origin.x),
-                                FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),
-                                FormatUtil.roundToInt(rect.size.height));
+                            FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),
+                            FormatUtil.roundToInt(rect.size.height));
 
                     // Note: the Quartz name returned by this field is rarely used
                     result = windowRef.getValue(kCGWindowName); // Optional key, check for null
