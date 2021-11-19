@@ -65,7 +65,7 @@ public final class OpenBsdSysctlUtil {
         size_t.ByReference size = new size_t.ByReference(new size_t(OpenBsdLibc.INT_SIZE));
         Pointer p = new Memory(size.longValue());
         if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
-            LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
             return def;
         }
         return p.getInt(0);
