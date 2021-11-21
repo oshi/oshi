@@ -162,6 +162,27 @@ public final class ExecutingCommand {
             LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmd), ie.getMessage());
             Thread.currentThread().interrupt();
         } finally {
+            if (p != null) {
+                if (p.getOutputStream() != null) {
+                    try {
+                        p.getOutputStream().close();
+                    } catch (IOException e) {
+                    }
+                }
+                if (p.getInputStream() != null) {
+                    try {
+                        p.getInputStream().close();
+                    } catch (IOException e) {
+                    }
+                }
+                if (p.getErrorStream() != null) {
+                    try {
+                        p.getErrorStream().close();
+                    } catch (IOException e) {
+                    }
+                }
+
+            }
             p.destroy();
         }
         return sa;
