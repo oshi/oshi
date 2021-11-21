@@ -116,11 +116,33 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs, String[] envp) {
+        Process p = null;
         try {
-            Process p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
+            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
             return getProcessOutputAndDestroy(p, cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
+        } finally {
+            if (p != null) {
+                if (p.getOutputStream() != null) {
+                    try {
+                        p.getOutputStream().close();
+                    } catch (IOException e) {
+                    }
+                }
+                if (p.getInputStream() != null) {
+                    try {
+                        p.getInputStream().close();
+                    } catch (IOException e) {
+                    }
+                }
+                if (p.getErrorStream() != null) {
+                    try {
+                        p.getErrorStream().close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
         }
         return Collections.emptyList();
     }
