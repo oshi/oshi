@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test JDK 8, solaris
     steps:
-    - name: Test in OpenBSD
+    - name: Test in Solaris
       uses: appleboy/ssh-action@master    
       with:
         host: ${{ secrets.SOLARIS_OSHI_DOMAIN }}
