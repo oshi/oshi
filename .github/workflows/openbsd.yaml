@@ -26,7 +26,7 @@ jobs:
         host: ${{ secrets.OPENBSD_OSHI_DOMAIN }}
         username: oshi
         password: ${{ secrets.OPENBSD_OSHI_PW }}
-        port: 22
+        port: 10060
         script_stop: true
         command_timeout: 15m
         script: |
