@@ -81,12 +81,14 @@ class DisksTest {
 
             long oldReads = disk.getReads();
             long oldReadBytes = disk.getReadBytes();
-            assertThat("Updating the disk statistics should work", disk.updateAttributes(), is(true));
-            assertThat("Number of reads from the disk has not been updated", disk.getReads(),
-                    is(greaterThanOrEqualTo(oldReads)));
-            assertThat("Number of read bytes from the disk has not been updated", disk.getReadBytes(),
-                    is(greaterThanOrEqualTo(oldReadBytes)));
-
+            if (oldReads > 0) {
+                assertThat("Updating the disk statistics should work for " + disk.getName(), disk.updateAttributes(),
+                        is(true));
+                assertThat("Number of reads from the disk has not been updated", disk.getReads(),
+                        is(greaterThanOrEqualTo(oldReads)));
+                assertThat("Number of read bytes from the disk has not been updated", disk.getReadBytes(),
+                        is(greaterThanOrEqualTo(oldReadBytes)));
+            }
             for (HWPartition partition : disk.getPartitions()) {
                 assertThat("Identification of partition is null", partition.getIdentification(), is(notNullValue()));
                 assertThat("Name of partition is null", partition.getName(), is(notNullValue()));
