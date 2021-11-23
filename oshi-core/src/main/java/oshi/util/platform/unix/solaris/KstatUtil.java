@@ -253,8 +253,8 @@ public final class KstatUtil {
         }
         Pointer p = KS.kstat_data_lookup(ksp, name);
         if (p == null) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed lo lookup kstat value on {}:{}:{} for key {}",
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Failed lo lookup kstat value on {}:{}:{} for key {}",
                         Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
                         Native.toString(ksp.ks_name, StandardCharsets.US_ASCII), name);
             }
