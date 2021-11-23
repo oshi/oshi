@@ -72,7 +72,7 @@ Downloads
 
 | Java 6 Version | Current Development Version |
 | ------------- | ------------- |
-| [oshi-core-3.14.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core-java11&v=3.14.0&e=jar)  | None |
+| [oshi-core-3.14.0](https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.github.oshi&a=oshi-core&v=3.14.0&e=jar)  | None |
 
 
 Usage
@@ -265,7 +265,7 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://www.atlassian.com/software/confluence"><img src="./src/site/markdown/confluence.png" alt="Atlassian Confluence" width=122px><sub><br/>Atlassian Confluence</sub></a></td>
     <td align=center width=134px><a href="https://apereo.github.io/cas"><img src="./src/site/markdown/cas.png" alt="CAS Server" width=122px><sub><br/><br/>CAS Server</sub></a></td>
     <td align=center width=134px><a href="https://docs.geoserver.org/stable/en/user/community/status-monitoring/index.html"><img src="./src/site/markdown/geoserver.png" alt="GeoServer" width=122px><sub><br/>GeoServer</sub></a></td>
-    <td align=center width=134px><a href="https://flink.apache.org/"><img src="./src/site/markdown/flink.jpg" alt="Apache Flink" width=122px><sub><br/>Apache Flink</sub></a></td>
+    <td align=center width=134px><a href="https://flink.apache.org/"><img src="./src/site/markdown/flink.png" alt="Apache Flink" width=122px><sub><br/>Apache Flink</sub></a></td>
     <td align=center width=134px><a href="https://deeplearning4j.org/"><img src="./src/site/markdown/dl4j.png" alt="DeepLearning4J" width=122px><sub><br/>DeepLearning4J</sub></a></td>
     <td align=center width=134px><a href="https://kamon.io/"><img src="./src/site/markdown/kamon.png" alt="Kamon System Metrics" width=122px><sub><br/>Kamon System Metrics</sub></a></td>
   </tr><tr></tr><tr>
