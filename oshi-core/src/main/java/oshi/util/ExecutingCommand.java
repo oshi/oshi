@@ -116,16 +116,39 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs, String[] envp) {
+        Process p = null;
         try {
-            Process p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
-            return getProcessOutputAndDestroy(p, cmdToRunWithArgs);
+            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
+            return getProcessOutput(p, cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
+        } finally {
+            p.destroy();
+            if (p != null) {
+                if (p.getOutputStream() != null) {
+                    try {
+                        p.getOutputStream().close();
+                    } catch (Exception e) {
+                    }
+                }
+                if (p.getInputStream() != null) {
+                    try {
+                        p.getInputStream().close();
+                    } catch (Exception e) {
+                    }
+                }
+                if (p.getErrorStream() != null) {
+                    try {
+                        p.getErrorStream().close();
+                    } catch (Exception e) {
+                    }
+                }
+            }
         }
         return Collections.emptyList();
     }
 
-    private static List<String> getProcessOutputAndDestroy(Process p, String[] cmd) {
+    private static List<String> getProcessOutput(Process p, String[] cmd) {
         ArrayList<String> sa = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {
@@ -139,8 +162,6 @@ public final class ExecutingCommand {
         } catch (InterruptedException ie) {
             LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmd), ie.getMessage());
             Thread.currentThread().interrupt();
-        } finally {
-            p.destroy();
         }
         return sa;
     }
