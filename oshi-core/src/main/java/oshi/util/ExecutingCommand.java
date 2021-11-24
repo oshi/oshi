@@ -119,11 +119,12 @@ public final class ExecutingCommand {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
-            return getProcessOutputAndDestroy(p, cmdToRunWithArgs);
+            return getProcessOutput(p, cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
         } finally {
             if (p != null) {
+                p.destroy();
                 if (p.getOutputStream() != null) {
                     try {
                         p.getOutputStream().close();
@@ -147,7 +148,7 @@ public final class ExecutingCommand {
         return Collections.emptyList();
     }
 
-    private static List<String> getProcessOutputAndDestroy(Process p, String[] cmd) {
+    private static List<String> getProcessOutput(Process p, String[] cmd) {
         ArrayList<String> sa = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {
@@ -161,29 +162,6 @@ public final class ExecutingCommand {
         } catch (InterruptedException ie) {
             LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmd), ie.getMessage());
             Thread.currentThread().interrupt();
-        } finally {
-            if (p != null) {
-                if (p.getOutputStream() != null) {
-                    try {
-                        p.getOutputStream().close();
-                    } catch (IOException e) {
-                    }
-                }
-                if (p.getInputStream() != null) {
-                    try {
-                        p.getInputStream().close();
-                    } catch (IOException e) {
-                    }
-                }
-                if (p.getErrorStream() != null) {
-                    try {
-                        p.getErrorStream().close();
-                    } catch (IOException e) {
-                    }
-                }
-
-            }
-            p.destroy();
         }
         return sa;
     }
