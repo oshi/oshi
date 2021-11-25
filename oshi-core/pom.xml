@@ -87,11 +87,5 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>guru.nidi</groupId>
-            <artifactId>code-assert</artifactId>
-            <version>${code-assert.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
