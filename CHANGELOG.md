@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#1768](https://github.com/oshi/oshi/pull/1768): Fixed incorrect use of reference equality - [@mythili-rajaraman](https://github.com/mythili-rajaraman).
+* [#1792](https://github.com/oshi/oshi/pull/1792): Fix fd leaks in Solaris after Runtime.exec calls - [@shvo123](https://github.com/shvo123).
 
 ##### Breaking Changes
 * [#1724](https://github.com/oshi/oshi/pull/1724): Removed deprecated MACOSX value from PlatformEnum and SystemInfo and removed the getCurrentPlatformEnum() method - [@Novaenn](https://github.com/Novaenn).
