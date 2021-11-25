@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.sun.jna.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,25 +125,24 @@ public final class ExecutingCommand {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
         } finally {
             if (p != null) {
-                p.destroy();
-                if (p.getOutputStream() != null) {
+                if (Platform.isSolaris()) {
                     try {
                         p.getOutputStream().close();
                     } catch (IOException e) {
+                        LOG.warn("close OutputStream failed {}", e.getMessage());
                     }
-                }
-                if (p.getInputStream() != null) {
                     try {
                         p.getInputStream().close();
                     } catch (IOException e) {
+                        LOG.warn("close InputStream failed {}", e.getMessage());
                     }
-                }
-                if (p.getErrorStream() != null) {
                     try {
                         p.getErrorStream().close();
                     } catch (IOException e) {
+                        LOG.warn("close ErrorStream failed {}", e.getMessage());
                     }
                 }
+                p.destroy();
             }
         }
         return Collections.emptyList();
