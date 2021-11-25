@@ -6,6 +6,12 @@
   com.github.oshi/oshi.software.os=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.util=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.linux=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.linux.proc=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac=org.junit.platform.commons
 
 --add-reads
   com.github.oshi=org.junit.jupiter.api
