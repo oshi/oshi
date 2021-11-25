@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import com.sun.jna.Platform;
@@ -142,7 +141,7 @@ public class SysfsTest {
     @Test
     public void testQueryBiosVersionEmptyBiosRevision() {
         if (Platform.isLinux()) {
-            final String biosRevision = Sysfs.queryBiosVersion(StringUtils.EMPTY);
+            final String biosRevision = Sysfs.queryBiosVersion("");
             if (biosRevision != null) {
                 assertThat("Test Sysfs queryBiosVersion", biosRevision, not(emptyString()));
             }
