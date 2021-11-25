@@ -32,12 +32,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.sun.jna.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.PlatformEnum;
-import oshi.SystemInfo;
+import com.sun.jna.Platform;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -55,13 +54,10 @@ public final class ExecutingCommand {
     }
 
     private static String[] getDefaultEnv() {
-        PlatformEnum platform = SystemInfo.getCurrentPlatform();
-        if (platform == PlatformEnum.WINDOWS) {
+        if (Platform.isWindows()) {
             return new String[] { "LANGUAGE=C" };
-        } else if (platform != PlatformEnum.UNKNOWN) {
-            return new String[] { "LC_ALL=C" };
         } else {
-            return null; // NOSONAR squid:S1168
+            return new String[] { "LC_ALL=C" };
         }
     }
 
@@ -124,22 +120,24 @@ public final class ExecutingCommand {
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
         } finally {
+            // Ensure all resources are released
             if (p != null) {
+                // Solaris doesn't close descriptors on destroy so we must handle separately
                 if (Platform.isSolaris()) {
                     try {
                         p.getOutputStream().close();
                     } catch (IOException e) {
-                        LOG.warn("close OutputStream failed {}", e.getMessage());
+                        // do nothing on failure
                     }
                     try {
                         p.getInputStream().close();
                     } catch (IOException e) {
-                        LOG.warn("close InputStream failed {}", e.getMessage());
+                        // do nothing on failure
                     }
                     try {
                         p.getErrorStream().close();
                     } catch (IOException e) {
-                        LOG.warn("close ErrorStream failed {}", e.getMessage());
+                        // do nothing on failure
                     }
                 }
                 p.destroy();
