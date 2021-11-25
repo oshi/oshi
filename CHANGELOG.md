@@ -24,6 +24,7 @@
 * [#1712](https://github.com/oshi/oshi/pull/1712): Align PlatformEnum to JNA Platform type - [@dbwiddis](https://github.com/dbwiddis).
 * [#1768](https://github.com/oshi/oshi/pull/1768): Fixed incorrect use of reference equality - [@mythili-rajaraman](https://github.com/mythili-rajaraman).
 * [#1792](https://github.com/oshi/oshi/pull/1792): Fix fd leaks in Solaris after Runtime.exec calls - [@shvo123](https://github.com/shvo123).
+* [#1796](https://github.com/oshi/oshi/pull/1796): Ban the use of Junit 4 and associated Hamcrest Core - [@mprins](https://github.com/mprins)
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16), 5.7.4 (2021-05-30), 5.7.5 (2021-06-12)
 

@@ -24,7 +24,7 @@
     </scm>
 
     <properties>
-        <!-- Users of the Spring Boot Starter Parent should include this property 
+        <!-- Users of the Spring Boot Starter Parent should include this property
             in their POM -->
         <jna.version>5.10.0</jna.version>
         <main.basedir>${project.parent.basedir}</main.basedir>
@@ -33,7 +33,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Due to critical nature of OSHI jna usage, set to dependency management 
+            <!-- Due to critical nature of OSHI jna usage, set to dependency management
                 to help influence usage -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -84,6 +84,16 @@
             <artifactId>code-assert</artifactId>
             <version>${code-assert.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
