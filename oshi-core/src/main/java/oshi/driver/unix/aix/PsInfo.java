@@ -78,14 +78,15 @@ public final class PsInfo {
         PR_BINDPRO(Native.POINTER_SIZE), // processor to which thread is bound
         SIZE(0);
 
-        private final int size;
+        private final int theSize;
+
 
         LwpsInfoT(int bytes) {
-            size = bytes;
+            theSize = bytes;
         }
 
         public int size() {
-            return size;
+            return theSize;
         }
     }
 
@@ -121,14 +122,15 @@ public final class PsInfo {
         PR_LWP(lwpsInfoOffsets.get(LwpsInfoT.SIZE)), // "representative" thread info
         SIZE(0);
 
-        private final int size;
+        private final int theSize;
 
         PsInfoT(int bytes) {
-            size = bytes;
+            theSize = bytes;
         }
 
+
         public int size() {
-            return size;
+            return theSize;
         }
     }
 
@@ -142,7 +144,7 @@ public final class PsInfo {
         int offset = 0;
         for (LwpsInfoT field : LwpsInfoT.values()) {
             infoMap.put(field, offset);
-            offset += field.size;
+            offset += field.theSize;
         }
         return infoMap;
     }
@@ -152,7 +154,7 @@ public final class PsInfo {
         int offset = 0;
         for (PsInfoT field : PsInfoT.values()) {
             infoMap.put(field, offset);
-            offset += field.size;
+            offset += field.theSize;
         }
         return infoMap;
     }

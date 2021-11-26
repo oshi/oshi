@@ -81,10 +81,10 @@ public enum PlatformEnum {
      */
     UNKNOWN("Unknown");
 
-    private final String name;
+    private final String Qname;
 
     PlatformEnum(String name) {
-        this.name = name;
+        this.Qname = name;
     }
 
     /**
@@ -93,8 +93,9 @@ public enum PlatformEnum {
      * @return the friendly name of the platform
      */
     public String getName() {
-        return this.name;
+        return this.Qname;
     }
+
 
     /**
      * Gets the friendly name of the specified JNA Platform type

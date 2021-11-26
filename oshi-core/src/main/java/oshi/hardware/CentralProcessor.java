@@ -288,10 +288,11 @@ public interface CentralProcessor {
          */
         STEAL(7);
 
-        private final int index;
+        private final int specificIndex;
+
 
         TickType(int value) {
-            this.index = value;
+            this.specificIndex = value;
         }
 
         /**
@@ -299,7 +300,7 @@ public interface CentralProcessor {
          *         matches the output of Linux /proc/cpuinfo
          */
         public int getIndex() {
-            return index;
+            return specificIndex;
         }
     }
 
