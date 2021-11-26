@@ -200,8 +200,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             total += ticks[i] - oldTicks[i];
         }
         // Calculate idle from difference in idle and IOwait
-        long idle = ticks[TickType.IDLE.getIndex()] + ticks[TickType.IOWAIT.getIndex()]
-                - oldTicks[TickType.IDLE.getIndex()] - oldTicks[TickType.IOWAIT.getIndex()];
+        long idle = ticks[TickType.IDLE.getjIndex()] + ticks[TickType.IOWAIT.getjIndex()]
+                - oldTicks[TickType.IDLE.getjIndex()] - oldTicks[TickType.IOWAIT.getjIndex()];
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
         return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
@@ -222,8 +222,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 total += ticks[cpu][i] - oldTicks[cpu][i];
             }
             // Calculate idle from difference in idle and IOwait
-            long idle = ticks[cpu][TickType.IDLE.getIndex()] + ticks[cpu][TickType.IOWAIT.getIndex()]
-                    - oldTicks[cpu][TickType.IDLE.getIndex()] - oldTicks[cpu][TickType.IOWAIT.getIndex()];
+            long idle = ticks[cpu][TickType.IDLE.getjIndex()] + ticks[cpu][TickType.IOWAIT.getjIndex()]
+                    - oldTicks[cpu][TickType.IDLE.getjIndex()] - oldTicks[cpu][TickType.IOWAIT.getjIndex()];
             LOG.trace("CPU: {}  Total ticks: {}  Idle ticks: {}", cpu, total, idle);
             // update
             load[cpu] = total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;

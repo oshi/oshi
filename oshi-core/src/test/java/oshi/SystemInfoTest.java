@@ -210,14 +210,14 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         Util.sleep(1000);
         long[] ticks = processor.getSystemCpuLoadTicks();
         oshi.add("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks));
-        long user = ticks[TickType.USER.getIndex()] - prevTicks[TickType.USER.getIndex()];
-        long nice = ticks[TickType.NICE.getIndex()] - prevTicks[TickType.NICE.getIndex()];
-        long sys = ticks[TickType.SYSTEM.getIndex()] - prevTicks[TickType.SYSTEM.getIndex()];
-        long idle = ticks[TickType.IDLE.getIndex()] - prevTicks[TickType.IDLE.getIndex()];
-        long iowait = ticks[TickType.IOWAIT.getIndex()] - prevTicks[TickType.IOWAIT.getIndex()];
-        long irq = ticks[TickType.IRQ.getIndex()] - prevTicks[TickType.IRQ.getIndex()];
-        long softirq = ticks[TickType.SOFTIRQ.getIndex()] - prevTicks[TickType.SOFTIRQ.getIndex()];
-        long steal = ticks[TickType.STEAL.getIndex()] - prevTicks[TickType.STEAL.getIndex()];
+        long user = ticks[TickType.USER.getjIndex()] - prevTicks[TickType.USER.getjIndex()];
+        long nice = ticks[TickType.NICE.getjIndex()] - prevTicks[TickType.NICE.getjIndex()];
+        long sys = ticks[TickType.SYSTEM.getjIndex()] - prevTicks[TickType.SYSTEM.getjIndex()];
+        long idle = ticks[TickType.IDLE.getjIndex()] - prevTicks[TickType.IDLE.getjIndex()];
+        long iowait = ticks[TickType.IOWAIT.getjIndex()] - prevTicks[TickType.IOWAIT.getjIndex()];
+        long irq = ticks[TickType.IRQ.getjIndex()] - prevTicks[TickType.IRQ.getjIndex()];
+        long softirq = ticks[TickType.SOFTIRQ.getjIndex()] - prevTicks[TickType.SOFTIRQ.getjIndex()];
+        long steal = ticks[TickType.STEAL.getjIndex()] - prevTicks[TickType.STEAL.getjIndex()];
         long totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
 
         oshi.add(String.format(

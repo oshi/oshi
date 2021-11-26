@@ -298,24 +298,24 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             if (cpu >= getLogicalProcessorCount()) {
                 continue;
             }
-            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);
-            ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);
-            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);
-            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);
-            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);
+            ticks[cpu][TickType.SYSTEM.getjIndex()] = systemList.get(cpu);
+            ticks[cpu][TickType.USER.getjIndex()] = userList.get(cpu);
+            ticks[cpu][TickType.IRQ.getjIndex()] = irqList.get(cpu);
+            ticks[cpu][TickType.SOFTIRQ.getjIndex()] = softIrqList.get(cpu);
+            ticks[cpu][TickType.IDLE.getjIndex()] = idleList.get(cpu);
 
             // Additional decrement to avoid double counting in the
             // total array
-            ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
-                    + ticks[cpu][TickType.SOFTIRQ.getIndex()];
+            ticks[cpu][TickType.SYSTEM.getjIndex()] -= ticks[cpu][TickType.IRQ.getjIndex()]
+                    + ticks[cpu][TickType.SOFTIRQ.getjIndex()];
 
             // Raw value is cumulative 100NS-ticks
             // Divide by 10_000 to get milliseconds
-            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;
-            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;
+            ticks[cpu][TickType.SYSTEM.getjIndex()] /= 10_000L;
+            ticks[cpu][TickType.USER.getjIndex()] /= 10_000L;
+            ticks[cpu][TickType.IRQ.getjIndex()] /= 10_000L;
+            ticks[cpu][TickType.SOFTIRQ.getjIndex()] /= 10_000L;
+            ticks[cpu][TickType.IDLE.getjIndex()] /= 10_000L;
         }
         // Skipping nice and IOWait, they'll stay 0
         return ticks;

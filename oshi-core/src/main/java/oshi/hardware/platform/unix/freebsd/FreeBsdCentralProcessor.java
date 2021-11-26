@@ -204,11 +204,11 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         long[] ticks = new long[TickType.values().length];
         CpTime cpTime = new CpTime();
         BsdSysctlUtil.sysctl("kern.cp_time", cpTime);
-        ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_USER];
-        ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_NICE];
-        ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_SYS];
-        ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_INTR];
-        ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_IDLE];
+        ticks[TickType.USER.getjIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_USER];
+        ticks[TickType.NICE.getjIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_NICE];
+        ticks[TickType.SYSTEM.getjIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_SYS];
+        ticks[TickType.IRQ.getjIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_INTR];
+        ticks[TickType.IDLE.getjIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_IDLE];
         return ticks;
     }
 
@@ -277,14 +277,14 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         }
         // p now points to the data; need to copy each element
         for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-            ticks[cpu][TickType.USER.getIndex()] = p
+            ticks[cpu][TickType.USER.getjIndex()] = p
                     .getLong(size * cpu + FreeBsdLibc.CP_USER * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.NICE.getIndex()] = p
+            ticks[cpu][TickType.NICE.getjIndex()] = p
                     .getLong(size * cpu + FreeBsdLibc.CP_NICE * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.SYSTEM.getIndex()] = p
+            ticks[cpu][TickType.SYSTEM.getjIndex()] = p
                     .getLong(size * cpu + FreeBsdLibc.CP_SYS * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_INTR * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.IDLE.getIndex()] = p
+            ticks[cpu][TickType.IRQ.getjIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_INTR * FreeBsdLibc.UINT64_SIZE); // lgtm
+            ticks[cpu][TickType.IDLE.getjIndex()] = p
                     .getLong(size * cpu + FreeBsdLibc.CP_IDLE * FreeBsdLibc.UINT64_SIZE); // lgtm
         }
         return ticks;

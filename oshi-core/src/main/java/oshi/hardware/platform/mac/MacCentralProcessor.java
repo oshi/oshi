@@ -146,10 +146,10 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             return ticks;
         }
 
-        ticks[TickType.USER.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-        ticks[TickType.NICE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-        ticks[TickType.SYSTEM.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-        ticks[TickType.IDLE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+        ticks[TickType.USER.getjIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+        ticks[TickType.NICE.getjIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+        ticks[TickType.SYSTEM.getjIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+        ticks[TickType.IDLE.getjIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
         // Leave IOWait and IRQ values as 0
         return ticks;
     }
@@ -197,11 +197,11 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
         for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
             int offset = cpu * SystemB.CPU_STATE_MAX;
-            ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-            ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-            ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil
+            ticks[cpu][TickType.USER.getjIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+            ticks[cpu][TickType.NICE.getjIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+            ticks[cpu][TickType.SYSTEM.getjIndex()] = FormatUtil
                     .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-            ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
+            ticks[cpu][TickType.IDLE.getjIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
         }
         return ticks;
     }

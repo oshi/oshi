@@ -71,7 +71,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         for (ProcPidStat stat : ProcPidStat.values()) {
             // The PROC_PID_STAT enum indices are 1-indexed.
             // Subtract one to get a zero-based index
-            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
+            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getJOrder() - 1;
         }
     }
 
@@ -421,14 +421,14 @@ public class LinuxOSProcess extends AbstractOSProcess {
         PPID(4), MINOR_FAULTS(10), MAJOR_FAULTS(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20),
         START_TIME(22), VSZ(23), RSS(24);
 
-        private final int order;
+        private final int JOrder;
 
-        public int getOrder() {
-            return this.order;
+        public int getJOrder() {
+            return this.JOrder;
         }
 
         ProcPidStat(int order) {
-            this.order = order;
+            this.JOrder = order;
         }
     }
 }

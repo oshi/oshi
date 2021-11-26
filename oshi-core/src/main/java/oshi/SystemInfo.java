@@ -115,7 +115,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdOperatingSystem();
         default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());
+            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getsName());
         }
     }
 
@@ -146,7 +146,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdHardwareAbstractionLayer();
         default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());
+            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getsName());
         }
     }
 }

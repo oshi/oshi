@@ -201,9 +201,9 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
                     break;
                 }
                 if (KstatChain.read(ksp)) {
-                    ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_idle");
-                    ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_kernel");
-                    ticks[cpu][TickType.USER.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_user");
+                    ticks[cpu][TickType.IDLE.getjIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_idle");
+                    ticks[cpu][TickType.SYSTEM.getjIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_kernel");
+                    ticks[cpu][TickType.USER.getjIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_user");
                 }
             }
         }

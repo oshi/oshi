@@ -60,7 +60,7 @@ public final class CpuStat {
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
         String[] tickArr = ParseUtil.whitespaces.split(tickStr);
-        if (tickArr.length <= TickType.IDLE.getIndex()) {
+        if (tickArr.length <= TickType.IDLE.getjIndex()) {
             // If ticks don't at least go user/nice/system/idle, abort
             return ticks;
         }
@@ -94,7 +94,7 @@ public final class CpuStat {
                 // remaining
                 // elements are offset by 1 from the enum index
                 String[] tickArr = ParseUtil.whitespaces.split(stat);
-                if (tickArr.length <= TickType.IDLE.getIndex()) {
+                if (tickArr.length <= TickType.IDLE.getjIndex()) {
                     // If ticks don't at least go user/nice/system/idle, abort
                     return ticks;
                 }

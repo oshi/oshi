@@ -112,7 +112,7 @@ public interface CentralProcessor {
      * representing milliseconds spent in User (0), Nice (1), System (2), Idle (3),
      * IOwait (4), Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ)
      * (6), or Steal (7) states. Use
-     * {@link oshi.hardware.CentralProcessor.TickType#getIndex()} to retrieve the
+     * {@link oshi.hardware.CentralProcessor.TickType#getjIndex()} to retrieve the
      * appropriate index. By measuring the difference between ticks across a time
      * interval, CPU load over that interval may be calculated.
      * <p>
@@ -175,7 +175,7 @@ public interface CentralProcessor {
      * representing milliseconds spent in User (0), Nice (1), System (2), Idle (3),
      * IOwait (4), Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ)
      * (6), or Steal (7) states. Use
-     * {@link oshi.hardware.CentralProcessor.TickType#getIndex()} to retrieve the
+     * {@link oshi.hardware.CentralProcessor.TickType#getjIndex()} to retrieve the
      * appropriate index. By measuring the difference between ticks across a time
      * interval, CPU load over that interval may be calculated.
      * <p>
@@ -288,18 +288,18 @@ public interface CentralProcessor {
          */
         STEAL(7);
 
-        private final int index;
+        private final int jIndex;
 
         TickType(int value) {
-            this.index = value;
+            this.jIndex = value;
         }
 
         /**
          * @return The integer index of this ENUM in the processor tick arrays, which
          *         matches the output of Linux /proc/cpuinfo
          */
-        public int getIndex() {
-            return index;
+        public int getjIndex() {
+            return jIndex;
         }
     }
 

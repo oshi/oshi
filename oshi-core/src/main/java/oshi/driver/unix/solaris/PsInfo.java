@@ -92,14 +92,14 @@ public final class PsInfo {
         PR_LAST_ONPROC(8), // Timestamp of when thread last ran on a processor
         SIZE(0);
 
-        private final int size;
+        private final int jSize;
 
         LwpsInfoT(int bytes) {
-            size = bytes;
+            jSize = bytes;
         }
 
         public int size() {
-            return size;
+            return jSize;
         }
     }
 
@@ -144,14 +144,14 @@ public final class PsInfo {
         PR_CONTRACT(4), // process contract id
         SIZE(0);
 
-        private final int size;
+        private final int jSizes;
 
         PsInfoT(int bytes) {
-            size = bytes;
+            jSizes = bytes;
         }
 
         public int size() {
-            return size;
+            return jSizes;
         }
     }
 
@@ -165,7 +165,7 @@ public final class PsInfo {
         int offset = 0;
         for (LwpsInfoT field : LwpsInfoT.values()) {
             infoMap.put(field, offset);
-            offset += field.size;
+            offset += field.jSize;
         }
         return infoMap;
     }
@@ -175,7 +175,7 @@ public final class PsInfo {
         int offset = 0;
         for (PsInfoT field : PsInfoT.values()) {
             infoMap.put(field, offset);
-            offset += field.size;
+            offset += field.jSizes;
         }
         return infoMap;
     }
