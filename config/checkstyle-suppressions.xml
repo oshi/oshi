@@ -7,6 +7,7 @@
     <suppress checks=".*" files="\.xml"/>
     <suppress checks=".*" files="[\\/]demo[\\/].*"/>
     
+    <!-- Sun checks -->
     <suppress checks="DesignForExtension" files="\.java"/>
     <suppress checks="FinalParameters" files="\.java"/>
     <suppress checks="HiddenField" files="\.java"/>
@@ -39,5 +40,20 @@
     <suppress checks="TypeName" files="[\\/]jna[\\/].*"/>
 
     <!-- Imports for classes linked in javadocs -->
-    <suppress checks="UnusedImports" files="CentralProcessor\.java|OSDesktopWindow\.java|OSProcess\.java"/>
+    <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>
+    
+    <!-- Google checks -->
+    <suppress checks="AbbreviationAsWordInName" files="\.java"/>
+    <suppress checks="CustomImportOrder" files="\.java"/>
+    <suppress checks="EmptyLineSeparator" files="\.java"/>
+    <suppress checks="Indentation" files="\.java"/>
+    <suppress checks="JavadocParagraph" files="\.java"/>
+    <suppress checks="LocalVariableName" files="\.java"/>
+    <suppress checks="MissingJavadocType" files="\.java"/>
+    <suppress checks="SummaryJavadoc" files="\.java"/>
+    <suppress checks="VariableDeclarationUsageDistance" files="\.java"/>
+    
+    <suppress checks="(Member|Parameter)Name" files="[\\/]tuples[\\/].*"/>
+    <suppress checks="(Member|Parameter)Name" files="(WindowsPowerSource|SmcUtil|NetStat|ThreadInfo|EnumWindows).*"/>
+    
 </suppressions>
