@@ -122,6 +122,7 @@
         <junit-platform-maven-plugin.version>1.1.5</junit-platform-maven-plugin.version>
         <!-- reporting plugins -->
         <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
+        <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>        
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <!-- tools -->
         <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
@@ -713,8 +714,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <!-- Checkstyle dependencies required here or they won't be used (per
-                maven) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -805,7 +804,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <failOnViolation>false</failOnViolation>
+                            <consoleOutput>true</consoleOutput>
+                            <failOnViolation>true</failOnViolation>
                         </configuration>
                     </plugin>
                     <!-- External Tools -->

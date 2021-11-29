@@ -1,0 +1,43 @@
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.0//EN"
+        "https://checkstyle.org/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+    <suppress checks=".*" files="\.properties"/>
+    <suppress checks=".*" files="\.xml"/>
+    <suppress checks=".*" files="[\\/]demo[\\/].*"/>
+    
+    <suppress checks="DesignForExtension" files="\.java"/>
+    <suppress checks="FinalParameters" files="\.java"/>
+    <suppress checks="HiddenField" files="\.java"/>
+    <suppress checks="InnerAssignment" files="\.java"/>
+    <suppress checks="JavadocStyle" files="\.java"/>
+    <suppress checks="JavadocVariable" files="\.java"/>
+    <suppress checks="LineLength" files="\.java"/>
+    <suppress checks="MagicNumber" files="\.java"/>
+    <suppress checks="MethodLength" files="\.java"/>
+    <suppress checks="MissingJavadocMethod" files="\.java"/>
+    <suppress checks="NewlineAtEndOfFile" files="\.java"/>
+    <suppress checks="NoWhitespaceAfter" files="\.java"/>
+    <suppress checks="OperatorWrap" files="\.java"/>
+    <suppress checks="ParameterNumber" files="\.java"/>
+
+    <!-- Intentional style breaks -->
+    <suppress checks="ConstantName" files="ParseUtil\.java" lines="115-135"/>
+    <suppress checks="VisibilityModifier" files="SmcUtil\.java"/>
+    <suppress checks="VisibilityModifier" files="WmiQueryHandler\.*" lines="63,66"/>
+    <suppress checks="VisibilityModifier" files="Memoizer\.*" lines="76-78"/>
+
+    <!-- JNA convention  -->
+    <suppress checks="InterfaceIsType" files="[\\/]jna[\\/].*"/>
+    <suppress checks="VisibilityModifier" files="[\\/]jna[\\/].*"/>
+
+    <suppress checks="ConstantName" files="[\\/]jna[\\/].*"/>
+    <suppress checks="MemberName" files="[\\/]jna[\\/].*"/>
+    <suppress checks="MethodName" files="[\\/]jna[\\/].*"/>
+    <suppress checks="ParameterName" files="[\\/]jna[\\/].*"/>
+    <suppress checks="TypeName" files="[\\/]jna[\\/].*"/>
+
+    <!-- Imports for classes linked in javadocs -->
+    <suppress checks="UnusedImports" files="CentralProcessor\.java|OSDesktopWindow\.java|OSProcess\.java"/>
+</suppressions>

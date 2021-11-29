@@ -43,9 +43,9 @@ import oshi.util.ExecutingCommand;
 public final class UserGroupInfo {
 
     // Temporarily cache users and groups, update each minute
-    private static final Supplier<Map<String, String>> usersIdMap = memoize(UserGroupInfo::getUserMap,
+    private static final Supplier<Map<String, String>> USERS_ID_MAP = memoize(UserGroupInfo::getUserMap,
             TimeUnit.MINUTES.toNanos(1));
-    private static final Supplier<Map<String, String>> groupsIdMap = memoize(UserGroupInfo::getGroupMap,
+    private static final Supplier<Map<String, String>> GROUPS_ID_MAP = memoize(UserGroupInfo::getGroupMap,
             TimeUnit.MINUTES.toNanos(1));
 
     private UserGroupInfo() {
@@ -60,7 +60,7 @@ public final class UserGroupInfo {
      *         as the second
      */
     public static String getUser(String userId) {
-        return usersIdMap.get().getOrDefault(userId, Constants.UNKNOWN);
+        return USERS_ID_MAP.get().getOrDefault(userId, Constants.UNKNOWN);
     }
 
     /**
@@ -71,7 +71,7 @@ public final class UserGroupInfo {
      * @return a {@link java.lang.String} object.
      */
     public static String getGroupName(String groupId) {
-        return groupsIdMap.get().getOrDefault(groupId, Constants.UNKNOWN);
+        return GROUPS_ID_MAP.get().getOrDefault(groupId, Constants.UNKNOWN);
     }
 
     private static Map<String, String> getUserMap() {

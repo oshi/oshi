@@ -79,21 +79,5 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>guru.nidi</groupId>
-            <artifactId>code-assert</artifactId>
-            <version>${code-assert.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 </project>

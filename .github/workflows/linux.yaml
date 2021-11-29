@@ -36,6 +36,9 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2          
+      - name: Checkstyle
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
+        run: ./mvnw checkstyle:check
       - name: Test with Maven
         run: ./mvnw test -B
       - name: Report Coverage to Coveralls
