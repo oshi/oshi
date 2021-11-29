@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE import-control PUBLIC
+    "-//Checkstyle//DTD ImportControl Configuration 1.4//EN"
+    "https://checkstyle.org/dtds/import_control_1_4.dtd">
+
+<import-control
+    pkg="(oshi|oshi\..*)"
+    regex="true"
+    strategyOnMismatch="disallowed">
+    <!-- Allow imports from anywhere in OSHI :-) -->
+    <allow
+        pkg="(oshi|oshi\..*)"
+        regex="true" />
+
+    <!-- Otherwise only allow imports of packages in associated module-info.java -->
+
+    <!-- jna -->
+    <allow pkg="com.sun.jna" />
+    <allow pkg="com.sun.jna.ptr" />
+    <allow pkg="com.sun.jna.win32" />
+
+    <!-- jna-platform -->
+    <allow pkg="com.sun.jna.platform" />
+    <allow pkg="com.sun.jna.platform.dnd" />
+    <allow pkg="com.sun.jna.platform.linux" />
+    <allow pkg="com.sun.jna.platform.mac" />
+    <allow pkg="com.sun.jna.platform.unix" />
+    <allow pkg="com.sun.jna.platform.unix.aix" />
+    <allow pkg="com.sun.jna.platform.unix.solaris" />
+    <allow pkg="com.sun.jna.platform.win32" />
+    <allow pkg="com.sun.jna.platform.win32.COM" />
+    <allow pkg="com.sun.jna.platform.win32.COM.tlb" />
+    <allow pkg="com.sun.jna.platform.win32.COM.tlb.imp" />
+    <allow pkg="com.sun.jna.platform.win32.COM.util" />
+    <allow pkg="com.sun.jna.platform.win32.COM.util.annotation" />
+    <allow pkg="com.sun.jna.platform.wince" />
+
+    <!-- slf4j -->
+    <allow pkg="org.slf4j" />
+
+    <!--java.base -->
+    <allow pkg="java.io" />
+    <allow pkg="java.lang" />
+    <allow pkg="java.lang.annotation" />
+    <allow pkg="java.lang.constant" />
+    <allow pkg="java.lang.invoke" />
+    <allow pkg="java.lang.module" />
+    <allow pkg="java.lang.ref" />
+    <allow pkg="java.lang.reflect" />
+    <allow pkg="java.lang.runtime" />
+    <allow pkg="java.math" />
+    <allow pkg="java.net" />
+    <allow pkg="java.net.spi" />
+    <allow pkg="java.nio" />
+    <allow pkg="java.nio.channels" />
+    <allow pkg="java.nio.channels.spi" />
+    <allow pkg="java.nio.charset" />
+    <allow pkg="java.nio.charset.spi" />
+    <allow pkg="java.nio.file" />
+    <allow pkg="java.nio.file.attribute" />
+    <allow pkg="java.nio.file.spi" />
+    <allow pkg="java.security" />
+    <allow pkg="java.security.cert" />
+    <allow pkg="java.security.interfaces" />
+    <allow pkg="java.security.spec" />
+    <allow pkg="java.text" />
+    <allow pkg="java.text.spi" />
+    <allow pkg="java.time" />
+    <allow pkg="java.time.chrono" />
+    <allow pkg="java.time.format" />
+    <allow pkg="java.time.temporal" />
+    <allow pkg="java.time.zone" />
+    <allow pkg="java.util" />
+    <allow pkg="java.util.concurrent" />
+    <allow pkg="java.util.concurrent.atomic" />
+    <allow pkg="java.util.concurrent.locks" />
+    <allow pkg="java.util.function" />
+    <allow pkg="java.util.jar" />
+    <allow pkg="java.util.random" />
+    <allow pkg="java.util.regex" />
+    <allow pkg="java.util.spi" />
+    <allow pkg="java.util.stream" />
+    <allow pkg="java.util.zip" />
+    <allow pkg="javax.crypto" />
+    <allow pkg="javax.crypto.interfaces" />
+    <allow pkg="javax.crypto.spec" />
+    <allow pkg="javax.net" />
+    <allow pkg="javax.net.ssl" />
+    <allow pkg="javax.security.auth" />
+    <allow pkg="javax.security.auth.callback" />
+    <allow pkg="javax.security.auth.login" />
+    <allow pkg="javax.security.auth.spi" />
+    <allow pkg="javax.security.auth.x500" />
+    <allow pkg="javax.security.cert" />
+
+    <!--java.desktop -->
+    <allow class="java.awt.Rectangle" />
+
+    <!-- JDK7 Date is evil -->
+    <disallow class="java.util.Date" />
+
+</import-control>

@@ -58,8 +58,8 @@ final class MemoizerTest {
         final ThreadPoolExecutor ex = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         ex.allowCoreThreadTimeOut(false);
-        ex.prestartAllCoreThreads();// make sure we don't lose refreshes in tests because of spending time to start
-                                    // threads
+        ex.prestartAllCoreThreads(); // make sure we don't lose refreshes in tests because of
+                                     // spending time to start threads
         this.ex = ex;
     }
 
@@ -182,28 +182,27 @@ final class MemoizerTest {
     private static void testIncrementCounts(long actualNumberOfIncrements, long iterationDurationNanos, long ttlNanos) {
         if (ttlNanos < 0) {
             assertThat(String.format("ttlNanos=%d", ttlNanos), actualNumberOfIncrements, is(1L));
-        }
-        /*
-         * Calculation of expectedNumberOfIncrements is a bit tricky because there is no
-         * such thing. We can only talk about min and max possible values when ttl > 0.
-         *
-         * Min: Two increments are guaranteed: the initial one, because it does not
-         * depend on timings, and a second one which ensures at least ttlNanos have
-         * elapsed since the first one. All other refreshes may or may not happen
-         * depending on the timings. Therefore the min is 2. In the case of negative ttl
-         * we should get only one increment ever; otherwise we must have at least 2
-         * increments.
-         *
-         * Max: Each thread has a chance to refresh one more time after
-         * (iterationDurationNanos / ttlNanos) refreshes have been collectively done,
-         * which will increment again. This happens because an arbitrary amount of time
-         * may elapse between the instant when a thread enters the while cycle body for
-         * the last time (the last iteration), and the instant that is observed by the
-         * MemoizedObject.get method. Additionally, each thread may refresh one more
-         * time because of the last iteration of the loop caused by guaranteedIteration.
-         * Therefore each thread may do up to 2 additional refreshes.
-         */
-        else {
+        } else {
+            /*
+             * Calculation of expectedNumberOfIncrements is a bit tricky because there is no
+             * such thing. We can only talk about min and max possible values when ttl > 0.
+             *
+             * Min: Two increments are guaranteed: the initial one, because it does not
+             * depend on timings, and a second one which ensures at least ttlNanos have
+             * elapsed since the first one. All other refreshes may or may not happen
+             * depending on the timings. Therefore the min is 2. In the case of negative ttl
+             * we should get only one increment ever; otherwise we must have at least 2
+             * increments.
+             *
+             * Max: Each thread has a chance to refresh one more time after
+             * (iterationDurationNanos / ttlNanos) refreshes have been collectively done,
+             * which will increment again. This happens because an arbitrary amount of time
+             * may elapse between the instant when a thread enters the while cycle body for
+             * the last time (the last iteration), and the instant that is observed by the
+             * MemoizedObject.get method. Additionally, each thread may refresh one more
+             * time because of the last iteration of the loop caused by guaranteedIteration.
+             * Therefore each thread may do up to 2 additional refreshes.
+             */
             final long minExpectedNumberOfIncrements = 2L;
             final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * numberOfThreads;
 

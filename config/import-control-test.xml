@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE import-control PUBLIC
+    "-//Checkstyle//DTD ImportControl Configuration 1.4//EN"
+    "https://checkstyle.org/dtds/import_control_1_4.dtd">
+
+<import-control
+    pkg="(oshi|oshi\..*)"
+    regex="true"
+    strategyOnMismatch="disallowed">
+    <!-- Allow imports from anywhere in OSHI :-) -->
+    <allow
+        pkg="(oshi|oshi\..*)"
+        regex="true" />
+
+    <!-- Otherwise only allow imports of packages in associated module-info.java -->
+    <!-- jna -->
+    <allow class="com.sun.jna.Platform" />
+
+    <!-- slf4j -->
+    <allow pkg="org.slf4j" />
+
+    <!-- org.junit.jupiter.api -->
+    <allow pkg="org.junit.jupiter.api" />
+    <allow pkg="org.junit.jupiter.api.condition" />
+    <allow pkg="org.junit.jupiter.api.extension" />
+    <allow pkg="org.junit.jupiter.api.function" />
+    <allow pkg="org.junit.jupiter.api.io" />
+    <allow pkg="org.junit.jupiter.api.parallel" />
+
+    <!-- org.hamcrest -->
+    <allow pkg="org.hamcrest" />
+
+    <!--java.base -->
+    <allow pkg="java.io" />
+    <allow pkg="java.lang" />
+    <allow pkg="java.math" />
+    <allow pkg="java.nio.file" />
+    <allow pkg="java.text" />
+    <allow pkg="java.time" />
+    <allow pkg="java.util" />
+
+</import-control>
