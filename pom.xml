@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.oshi</groupId>
@@ -122,8 +125,8 @@
         <junit-platform-maven-plugin.version>1.1.5</junit-platform-maven-plugin.version>
         <!-- reporting plugins -->
         <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
-        <checkstyle.config.location>config/checkstyle-merged.xml</checkstyle.config.location>        
-        <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>        
+        <checkstyle.config.location>config/checkstyle-merged.xml</checkstyle.config.location>
+        <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <!-- tools -->
         <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
@@ -322,6 +325,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${maven-checkstyle-plugin.version}</version>
+                    <configuration>
+                        <consoleOutput>true</consoleOutput>
+                        <failOnViolation>true</failOnViolation>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -414,7 +422,7 @@
                             Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed
                             anymore. -->
                         <!-- except that OSSRH fails with no sources with this
-                            excluded <execution> <id>attach-sources</id> <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase>
+                            excluded <execution> <id>attach-sources</id> <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> 
                             </execution> -->
                     </executions>
                 </plugin>
@@ -804,10 +812,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                            <consoleOutput>true</consoleOutput>
-                            <failOnViolation>true</failOnViolation>
-                        </configuration>
                     </plugin>
                     <!-- External Tools -->
                     <plugin>

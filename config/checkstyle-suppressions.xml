@@ -55,5 +55,8 @@
     
     <suppress checks="(Member|Parameter)Name" files="[\\/]tuples[\\/].*"/>
     <suppress checks="(Member|Parameter)Name" files="(WindowsPowerSource|SmcUtil|NetStat|ThreadInfo|EnumWindows).*"/>
-    
+
+    <!-- Test files -->
+    <suppress checks="(JavadocPackage|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants)\.java"/>
+    <suppress checks="(ConstantName|VisibilityModifier)" files="SystemInfoTest\.java"/>
 </suppressions>

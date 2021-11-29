@@ -34,31 +34,31 @@ import org.junit.jupiter.api.Test;
  */
 class EdidUtilTest {
 
-    private final static String EDID_HEADER = "00FFFFFFFFFFFF00";
-    private final static String EDID_MANUFID = "0610";
-    private final static String EDID_PRODCODE = "2792";
-    private final static String EDID_SERIAL = "250C2C16";
-    private final static String EDID_WKYR = "2C16";
-    private final static String EDID_VERSION = "0104";
-    private final static String EDID_VIDEO = "B53C2278226FB1A7554C9E250C5054000000";
-    private final static String EDID_TIMING = "01010101010101010101010101010101";
-    private final static String EDID_DESC1 = "565E00A0A0A029503020350055502100001A";
-    private final static String EDID_DESC2 = "1A1D008051D01C204080350055502100001C";
-    private final static String EDID_DESC3 = "000000FF004330324A4D325046463247430A";
-    private final static String EDID_DESC4 = "000000FC005468756E646572626F6C740A20";
-    private final static String EDID_DESC5 = "000000FA004330324A4D325046463247430A";
-    private final static String EDID_DESC6 = "000000FB005468756E646572626F6C740A20";
-    private final static String EDID_DESC7 = "000000FD004330324A4D325046463247430A";
-    private final static String EDID_DESC8 = "000000FE005468756E646572626F6C740A20";
-    private final static String EDID_EXTS = "01";
-    private final static String EDID_CHKSUM = "C7";
-    private final static String EDID_STR = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
+    private static final String EDID_HEADER = "00FFFFFFFFFFFF00";
+    private static final String EDID_MANUFID = "0610";
+    private static final String EDID_PRODCODE = "2792";
+    private static final String EDID_SERIAL = "250C2C16";
+    private static final String EDID_WKYR = "2C16";
+    private static final String EDID_VERSION = "0104";
+    private static final String EDID_VIDEO = "B53C2278226FB1A7554C9E250C5054000000";
+    private static final String EDID_TIMING = "01010101010101010101010101010101";
+    private static final String EDID_DESC1 = "565E00A0A0A029503020350055502100001A";
+    private static final String EDID_DESC2 = "1A1D008051D01C204080350055502100001C";
+    private static final String EDID_DESC3 = "000000FF004330324A4D325046463247430A";
+    private static final String EDID_DESC4 = "000000FC005468756E646572626F6C740A20";
+    private static final String EDID_DESC5 = "000000FA004330324A4D325046463247430A";
+    private static final String EDID_DESC6 = "000000FB005468756E646572626F6C740A20";
+    private static final String EDID_DESC7 = "000000FD004330324A4D325046463247430A";
+    private static final String EDID_DESC8 = "000000FE005468756E646572626F6C740A20";
+    private static final String EDID_EXTS = "01";
+    private static final String EDID_CHKSUM = "C7";
+    private static final String EDID_STR = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
             + EDID_VERSION + EDID_VIDEO + EDID_TIMING + EDID_DESC1 + EDID_DESC2 + EDID_DESC3 + EDID_DESC4 + EDID_EXTS
             + EDID_CHKSUM;
-    private final static String EDID_STR2 = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
+    private static final String EDID_STR2 = EDID_HEADER + EDID_MANUFID + EDID_PRODCODE + EDID_SERIAL + EDID_WKYR
             + EDID_VERSION + EDID_VIDEO + EDID_TIMING + EDID_DESC5 + EDID_DESC6 + EDID_DESC7 + EDID_DESC8 + EDID_EXTS
             + EDID_CHKSUM;
-    private final static byte[] EDID = ParseUtil.hexStringToByteArray(EDID_STR);
+    private static final byte[] EDID = ParseUtil.hexStringToByteArray(EDID_STR);
 
     @Test
     void testGetEdidAttrs() {
@@ -112,5 +112,5 @@ class EdidUtilTest {
         assertThat("edid toString", EdidUtil.toString(EDID).split("\\n"), is(arrayWithSize(6)));
         assertThat("edid2 toString", EdidUtil.toString(ParseUtil.hexStringToByteArray(EDID_STR2)).split("\\n"),
                 is(arrayWithSize(6)));
-    };
+    }
 }

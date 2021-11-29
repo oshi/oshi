@@ -512,6 +512,16 @@
 
     <!-- End google_checks.xml -->
 
-    <!--  add rules here -->
+    <!-- add custom rules below this line -->
+    <module name="ImportControl">
+      <property name="id" value="ImportControlMain" />
+      <property name="file" value="config/import-control.xml" />
+      <property name="path" value="^.*[\\/]src[\\/]main[\\/].*$" />
     </module>
+    <module name="ImportControl">
+      <property name="id" value="ImportControlTest" />
+      <property name="file" value="config/import-control-test.xml" />
+      <property name="path" value="^.*[\\/]src[\\/]test[\\/].*$" />
+    </module>
+  </module>
 </module>
