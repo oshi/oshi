@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="Checker">
+  <module name="TreeWalker">
+    <!-- add custom rules below this line -->
+    <module name="ImportControl">
+      <property name="id" value="ImportControlMain" />
+      <property name="file" value="config/import-control.xml" />
+      <property name="path" value="^.*[\\/]src[\\/]main[\\/].*$" />
+    </module>
+    <module name="ImportControl">
+      <property name="id" value="ImportControlTest" />
+      <property name="file" value="config/import-control-test.xml" />
+      <property name="path" value="^.*[\\/]src[\\/]test[\\/].*$" />
+    </module>
+  </module>
+</module>

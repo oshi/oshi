@@ -69,7 +69,8 @@ import oshi.util.tuples.Pair;
 public class AixOperatingSystem extends AbstractOperatingSystem {
 
     private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
-    Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses, defaultExpiration());
+    private final Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses,
+            defaultExpiration());
 
     private static final long BOOTTIME = querySystemBootTimeMillis() / 1000L;
 

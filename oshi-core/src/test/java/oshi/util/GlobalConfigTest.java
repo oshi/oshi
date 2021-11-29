@@ -127,7 +127,7 @@ class GlobalConfigTest {
         return updates;
     }
 
-    static class GlobalConfigAsserter {
+    static final class GlobalConfigAsserter {
         private static final String FAILURE_MESSAGE_TEMPLATE = "property: %s value for def: %s should be";
         private static final String DEFAULT_FAILURE_MESSAGE_TEMPLATE = "Property: %s default value def: %s should be";
         private final String property;
@@ -145,11 +145,6 @@ class GlobalConfigTest {
             return this;
         }
 
-        GlobalConfigAsserter assertDefaultThat(Object expected, Object def) {
-            assertThat(defaultFailureMessage(def), expected, def);
-            return this;
-        }
-
         GlobalConfigAsserter assertThat(String message, Object expected, Object def) {
             if (def instanceof String) {
                 assertThat(message, get(property, (String) def), is(expected));
@@ -160,6 +155,11 @@ class GlobalConfigTest {
             } else if (def instanceof Double) {
                 assertThat(message, get(property, (Double) def), is(closeTo((Double) expected, EPSILON)));
             }
+            return this;
+        }
+
+        GlobalConfigAsserter assertDefaultThat(Object expected, Object def) {
+            assertThat(defaultFailureMessage(def), expected, def);
             return this;
         }
 

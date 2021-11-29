@@ -57,7 +57,7 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-    private static final PlatformEnum currentPlatform = PlatformEnum.getValue(Platform.getOSType());
+    private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
 
     private static final String NOT_SUPPORTED = "Operating system not supported: ";
 
@@ -85,7 +85,7 @@ public class SystemInfo {
      * @return Returns the current platform
      */
     public static PlatformEnum getCurrentPlatform() {
-        return currentPlatform;
+        return CURRENT_PLATFORM;
     }
 
     /**
@@ -99,7 +99,7 @@ public class SystemInfo {
     }
 
     private static OperatingSystem createOperatingSystem() {
-        switch (currentPlatform) {
+        switch (CURRENT_PLATFORM) {
         case WINDOWS:
             return new WindowsOperatingSystem();
         case LINUX:
@@ -115,7 +115,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdOperatingSystem();
         default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());
+            throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
         }
     }
 
@@ -130,7 +130,7 @@ public class SystemInfo {
     }
 
     private static HardwareAbstractionLayer createHardware() {
-        switch (currentPlatform) {
+        switch (CURRENT_PLATFORM) {
         case WINDOWS:
             return new WindowsHardwareAbstractionLayer();
         case LINUX:
@@ -146,7 +146,7 @@ public class SystemInfo {
         case OPENBSD:
             return new OpenBsdHardwareAbstractionLayer();
         default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());
+            throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
         }
     }
 }

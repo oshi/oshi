@@ -40,7 +40,7 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
 
-    OpenBsdGlobalMemory global;
+    private final OpenBsdGlobalMemory global;
 
     private final Supplier<Triplet<Integer, Integer, Integer>> usedTotalPgin = memoize(
             OpenBsdVirtualMemory::queryVmstat, defaultExpiration());
