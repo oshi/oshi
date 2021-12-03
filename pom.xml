@@ -107,7 +107,7 @@
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
         <nexus-staging-plugin.version>1.6.8</nexus-staging-plugin.version>
         <maven-enforcer-plugin.version>3.0.0</maven-enforcer-plugin.version>
-        <restrict-imports-enforcer-rule.version>2.0.0-SNAPSHOT</restrict-imports-enforcer-rule.version>
+        <restrict-imports-enforcer-rule.version>2.0.0</restrict-imports-enforcer-rule.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
         <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
@@ -646,23 +646,22 @@
                         <configuration>
                             <rules>
                                 <RestrictImports>
+                                    <reason>Disallow dependencies not on module path</reason>
                                     <includeTestCode>true</includeTestCode>
-                                    <!-- Disallow all imports except explicitly 
-                                        allowed -->
-                                    <reason>Disallow transitive dependencies</reason>
                                     <bannedImports>
+                                        <!-- Disallow all imports except explicitly allowed -->
                                         <bannedImport>**</bannedImport>
                                     </bannedImports>
                                     <allowedImports>
                                         <!-- Allow oshi itself :-) -->
                                         <allowedImport>oshi.**</allowedImport>
-                                        <!-- Allow core Java usages -->
+                                        <!-- Allow core Java usage  -->
                                         <allowedImport>java.**</allowedImport>
                                         <!-- Allow known dependencies -->
                                         <allowedImport>com.sun.jna.**</allowedImport>
                                         <allowedImport>org.slf4j.**</allowedImport>
                                         <allowedImport>org.junit.jupiter.api.**</allowedImport>
-                                        <allowedImport>org.hamcrest.**</allowedImport>
+                                        <allowedImport>static org.hamcrest.**</allowedImport>
                                     </allowedImports>
                                     <!-- No restrictions on oshi-demo -->
                                     <exclusion>oshi.demo.**</exclusion>
