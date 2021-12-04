@@ -126,7 +126,7 @@
         <junit-platform-maven-plugin.version>1.1.5</junit-platform-maven-plugin.version>
         <!-- reporting plugins -->
         <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
-        <checkstyle.config.location>config/checkstyle-merged.xml</checkstyle.config.location>
+        <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
         <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <!-- tools -->

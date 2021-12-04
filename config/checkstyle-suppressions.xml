@@ -3,26 +3,8 @@
         "https://checkstyle.org/dtds/suppressions_1_0.dtd">
 
 <suppressions>
-    <suppress checks=".*" files="\.properties"/>
-    <suppress checks=".*" files="\.xml"/>
     <suppress checks=".*" files="[\\/]demo[\\/].*"/>
     
-    <!-- Sun checks -->
-    <suppress checks="DesignForExtension" files="\.java"/>
-    <suppress checks="FinalParameters" files="\.java"/>
-    <suppress checks="HiddenField" files="\.java"/>
-    <suppress checks="InnerAssignment" files="\.java"/>
-    <suppress checks="JavadocStyle" files="\.java"/>
-    <suppress checks="JavadocVariable" files="\.java"/>
-    <suppress checks="LineLength" files="\.java"/>
-    <suppress checks="MagicNumber" files="\.java"/>
-    <suppress checks="MethodLength" files="\.java"/>
-    <suppress checks="MissingJavadocMethod" files="\.java"/>
-    <suppress checks="NewlineAtEndOfFile" files="\.java"/>
-    <suppress checks="NoWhitespaceAfter" files="\.java"/>
-    <suppress checks="OperatorWrap" files="\.java"/>
-    <suppress checks="ParameterNumber" files="\.java"/>
-
     <!-- Intentional style breaks -->
     <suppress checks="ConstantName" files="ParseUtil\.java" lines="115-135"/>
     <suppress checks="VisibilityModifier" files="SmcUtil\.java"/>
@@ -41,21 +23,6 @@
 
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>
-    
-    <!-- Google checks -->
-    <suppress checks="AbbreviationAsWordInName" files="\.java"/>
-    <suppress checks="CustomImportOrder" files="\.java"/>
-    <suppress checks="EmptyLineSeparator" files="\.java"/>
-    <suppress checks="Indentation" files="\.java"/>
-    <suppress checks="JavadocParagraph" files="\.java"/>
-    <suppress checks="LocalVariableName" files="\.java"/>
-    <suppress checks="MissingJavadocType" files="\.java"/>
-    <suppress checks="SummaryJavadoc" files="\.java"/>
-    <suppress checks="VariableDeclarationUsageDistance" files="\.java"/>
-    
-    <suppress checks="(Member|Parameter)Name" files="[\\/]tuples[\\/].*"/>
-    <suppress checks="(Member|Parameter)Name" files="(WindowsPowerSource|SmcUtil|NetStat|ThreadInfo|EnumWindows).*"/>
-
     <!-- Test files -->
     <suppress checks="(JavadocPackage|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants)\.java"/>
     <suppress checks="(ConstantName|VisibilityModifier)" files="SystemInfoTest\.java"/>
