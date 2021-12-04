@@ -141,7 +141,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
   -Dexec.classpathScope="test"
 ```
 
-In addition, the `oshi-demo` project includes an [OshiGui](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/OshiGui.java) class implementing a basic Swing GUI offering suggestions for potential visualizations using OSHI in a UI, monitoring, or alerting application, as shown below:
+In addition, the `oshi-demo` project includes an [OshiGui](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/OshiGui.java) class implementing a basic Swing GUI offering suggestions for potential visualizations using OSHI in a UI, monitoring, or alerting application, as shown below.  For a more advanced GUI based on this approach, see the [MooInfo project](https://github.com/rememberber/MooInfo).
 
 General information about the operating system and computer system hardware:
 ![Operating System and Hardware](https://github.com/dbwiddis/oshi/blob/master/src/site/markdown/OSHW.PNG)
@@ -276,12 +276,19 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://github.com/psi-probe/psi-probe"><img src="./src/site/markdown/psi.jpg" alt="PSI Probe" width=122px><sub><br/>PSI Probe</sub></a></td>
     <td align=center width=134px><a href="https://jppf.org/"><br/><img src="./src/site/markdown/jppf.gif" alt="JPPF" width=122px><sub><br/><br/><br/>JPPF</sub></a></td>
   </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://www.minecraft.net"><img src="./src/site/markdown/minecraft.png" alt="Minecraft: Java Edition" width=122px><sub><br/>Minecraft: Java Edition</sub></a></td>
+    <td align=center width=134px><a href="https://konduit.ai/"><img src="./src/site/markdown/konduit.png" alt="Konduit" width=122px><sub><br/>Konduit</sub></a></td>
     <td align=center width=134px><a href="https://www.appdynamics.com/"><img src="./src/site/markdown/appdynamics.png" alt="AppDynamics" width=122px><sub><br/>AppDynamics</sub></a></td>
-    <td align=center width=134px><a href="https://www.alluxio.io/"><img src="./src/site/markdown/alluxio.png" alt="Alluxio" width=122px><sub><br/>Alluxio</sub></a></td>
-    <td align=center width=134px><a href="https://lightstep.com/"><img src="./src/site/markdown/lightstep.png" alt="Lightstep" width=122px><sub><br/>Lightstep</sub></a></td>
     <td align=center width=134px><a href="https://www.hivemq.com/"><img src="./src/site/markdown/hivemq.png" alt="HiveMQ" width=122px><sub><br/>HiveMQ</sub></a></td>
     <td align=center width=134px><a href="https://mosip.io/"><img src="./src/site/markdown/mosip.png" alt="MOSIP" width=122px><sub><br/>MOSIP</sub></a></td>
     <td align=center width=134px><a href="https://www.handle.net/"><br/><img src="./src/site/markdown/hdl.gif" alt="Handle.net" width=122px><sub><br/><br/><br/>Handle.net</sub></a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://trino.io/"><img src="./src/site/markdown/trino.svg" alt="Trino DB" height=122px><sub>Trino DB</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/tianshiyeben/wgcloud"><img src="./src/site/markdown/wgcloud.png" alt="WGCLOUD" width=122px><sub><br/>WGCLOUD</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/tywo45/t-io"><img src="./src/site/markdown/t-io.jpg" alt="t-io" width=122px><sub><br/>t-io</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/apache/incubator-datalab"><br/><img src="./src/site/markdown/datalab.svg" alt="Apache DataLab" width=122px><sub><br/><br/>Apache DataLab</sub></a></td>
+    <td align=center width=134px><a href="https://cryptolens.io/"><img src="./src/site/markdown/cryptolens.png" alt="Cryptolens" width=122px><sub><br/>Cryptolens</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/hiparker/opsli-boot"><img src="./src/site/markdown/opsli.png" alt="OPSLI" width=122px><sub><br/>OPSLI</sub></a></td>
   </tr><tr></tr><tr>
     <td align=center width=134px><a href="https://xap.github.io/"><img src="./src/site/markdown/xap.png" alt="GigaSpaces XAP" width=122px><sub><br/><br/>GigaSpaces XAP</sub></a></td>
     <td align=center width=134px><a href="https://github.com/openhab/openhab-addons/tree/main/bundles/org.openhab.binding.systeminfo"><img src="./src/site/markdown/openhab.png" alt="OpenHAB Systeminfo Binding" width=122px><sub><br/>OpenHAB Systeminfo Binding</sub></a></td>
@@ -311,7 +318,7 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://www.ruoyi.vip/"><img src="./src/site/markdown/ruoyi.png" alt="RuoYi Management System" width=122px><sub><br/>RuoYi Management System</sub></a></td>
     <td align=center width=134px><a href="https://github.com/WeiYe-Jing/datax-web"><img src="./src/site/markdown/dataxweb.jpg" alt="DataX Web" width=122px><sub><br/>DataX Web</sub></a></td>
   </tr><tr></tr><tr>
-    <td align=center width=134px><a href="https://konduit.ai/"><img src="./src/site/markdown/konduit.png" alt="Konduit" width=122px><sub><br/>Konduit</sub></a></td>
+    <td align=center width=134px><a href="https://lightstep.com/"><img src="./src/site/markdown/lightstep.png" alt="Lightstep" width=122px><sub><br/>Lightstep</sub></a></td>
     <td align=center width=134px><a href="https://www.gocypher.com/gocypher/"><img src="./src/site/markdown/gocypher.png" alt="GoCypher" width=122px><sub><br/>GoCypher</sub></a></td>
     <td align=center width=134px><a href="https://javahost.org"><img src="./src/site/markdown/javahost.org.png" alt="javahost" width=122px><sub><br/>JavaHost.org monitoring pane</sub></a></td>
     <td align=center width=134px><a href="https://axway.github.io/ats-framework/ATS-Documentation.html"><img src="./src/site/markdown/axway.png" alt="Axway ATS Agent" width=122px><sub><br/>Axway ATS Agent</sub></a></td>
@@ -324,7 +331,15 @@ Applications and Projects using OSHI
     <td align=center width=134px><a href="https://docs.habit.io/"><img src="./src/site/markdown/habit.png" alt="Habit Analytics" width=122px><sub><br/>Habit Analytics</sub></a></td>
     <td align=center width=134px><a href="http://www.ridkorfid.com/"><br/><br/><img src="./src/site/markdown/ridko.jpg" alt="Ridko Notify" width=122px><sub><br/><br/>Ridko Notify</sub></a></td>
     <td align=center width=134px><a href="https://github.com/Krillsson/sys-API"><img src="./src/site/markdown/sysapi.png" alt="sys-API" width=122px><sub><br/>sys-API</sub></a></td>
+  </tr><tr></tr><tr>
+    <td align=center width=134px><a href="https://biop.github.io/ijp-imagetoatlas/"><img src="./src/site/markdown/BIOP.png" alt="BioImaging And Optics Platform" width=122px><sub><br/>BioImaging And Optics Platform</sub></a></td>
+    <td align=center width=134px><a href="https://www.alluxio.io/"><img src="./src/site/markdown/alluxio.png" alt="Alluxio" width=122px><sub><br/>Alluxio</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/MattFLying/PC-Details"><br/><br/><img src="./src/site/markdown/pc-details.png" alt="PC-Details" width=122px><sub><br/><br/>PC-Details</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/paremus/ui_server"><img src="./src/site/markdown/paremus.png" alt="Paremus UI Server" width=122px><sub><br/><br/>Paremus UI Server</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/B-Software/Ward"><img src="./src/site/markdown/ward.png" alt="Ward" width=122px><sub><br/>Ward</sub></a></td>
+    <td align=center width=134px><a href="https://github.com/rememberber/MooInfo"><img src="./src/site/markdown/MooInfo.svg" alt="MooInfo" width=122px><sub><br/>MooInfo</sub></a></td>
 </tr></table>
+
 
 
 License
