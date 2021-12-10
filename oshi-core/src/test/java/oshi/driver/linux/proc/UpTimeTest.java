@@ -23,35 +23,18 @@
  */
 package oshi.driver.linux.proc;
 
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.FileUtil;
-import oshi.util.platform.linux.ProcPath;
+import com.sun.jna.Platform;
+import org.junit.jupiter.api.Test;
 
-/**
- * Utility to read system uptime from {@code /proc/uptime}
- */
-@ThreadSafe
-public final class UpTime {
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    private UpTime() {
-    }
+public class UpTimeTest {
 
-    /**
-     * Parses the first value in {@code /proc/uptime} for seconds since boot
-     *
-     * @return Seconds since boot
-     */
-    public static double getSystemUptimeSeconds() {
-        String uptime = FileUtil.getStringFromFile(ProcPath.UPTIME);
-        int spaceIndex = uptime.indexOf(' ');
-        try {
-            if (spaceIndex < 0) {
-                // No space, error
-                return 0d;
-            }
-            return Double.parseDouble(uptime.substring(0, spaceIndex));
-        } catch (NumberFormatException nfe) {
-            return 0d;
+    @Test
+    public void testGetSystemUptimeSeconds() {
+        if (Platform.isLinux()) {
+            double uptime = UpTime.getSystemUptimeSeconds();
+            assertTrue(uptime >= 0, "Uptime should be more than equal to 0 seconds");
         }
     }
 }

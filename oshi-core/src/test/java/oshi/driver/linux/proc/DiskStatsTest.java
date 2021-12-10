@@ -23,35 +23,29 @@
  */
 package oshi.driver.linux.proc;
 
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.FileUtil;
-import oshi.util.platform.linux.ProcPath;
+import com.sun.jna.Platform;
+import org.junit.jupiter.api.Test;
 
-/**
- * Utility to read system uptime from {@code /proc/uptime}
- */
-@ThreadSafe
-public final class UpTime {
+import java.util.EnumMap;
+import java.util.Map;
 
-    private UpTime() {
-    }
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-    /**
-     * Parses the first value in {@code /proc/uptime} for seconds since boot
-     *
-     * @return Seconds since boot
-     */
-    public static double getSystemUptimeSeconds() {
-        String uptime = FileUtil.getStringFromFile(ProcPath.UPTIME);
-        int spaceIndex = uptime.indexOf(' ');
-        try {
-            if (spaceIndex < 0) {
-                // No space, error
-                return 0d;
-            }
-            return Double.parseDouble(uptime.substring(0, spaceIndex));
-        } catch (NumberFormatException nfe) {
-            return 0d;
+public class DiskStatsTest {
+
+    @Test
+    public void testGetDiskStats() {
+        if (Platform.isLinux()) {
+            Map<String, Map<DiskStats.IoStat, Long>> map = DiskStats.getDiskStats();
+            assertNotNull(map, "DiskStats should not be null");
+            DiskStats.IoStat[] enumArray = DiskStats.IoStat.class.getEnumConstants();
+
+            map.forEach((key, value) -> {
+                assertNotNull(value, "Entry should not have a null map!");
+                assertInstanceOf(EnumMap.class, value, "Value should be enum map!");
+            });
         }
     }
+
 }
