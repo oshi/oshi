@@ -48,9 +48,8 @@ public final class UpTime {
             if (spaceIndex < 0) {
                 // No space, error
                 return 0d;
-            } else {
-                return Double.parseDouble(uptime.substring(0, spaceIndex));
             }
+            return Double.parseDouble(uptime.substring(0, spaceIndex));
         } catch (NumberFormatException nfe) {
             return 0d;
         }
