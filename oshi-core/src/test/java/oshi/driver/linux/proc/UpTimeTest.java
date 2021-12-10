@@ -24,13 +24,9 @@
 package oshi.driver.linux.proc;
 
 import com.sun.jna.Platform;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UpTimeTest {
 
