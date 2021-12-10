@@ -383,7 +383,7 @@ public final class ProcessStat {
     public static final int PROC_PID_STAT_LENGTH;
     static {
         String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
-        if (!stat.isEmpty() && stat.contains(")")) {
+        if (stat.contains(")")) {
             // add 3 to account for pid, process name in prarenthesis, and state
             PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
         } else {
