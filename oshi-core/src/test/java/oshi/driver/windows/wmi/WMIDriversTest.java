@@ -38,6 +38,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 
 import com.sun.jna.Platform;
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
@@ -48,15 +49,23 @@ import oshi.util.platform.windows.WmiUtil;
 public class WMIDriversTest {
 
     @Test
-    public void testQueryWMI() {
+    public void testQueryWMIMSAcpi() {
         if (Platform.isWindows()) {
-
             assertThat("Failed MSAcpiThermalZoneTemperature.queryCurrentTemperature",
                     MSAcpiThermalZoneTemperature.queryCurrentTemperature().getResultCount(),
                     is(greaterThanOrEqualTo(0)));
+        }
+    }
 
+    @Test
+    public void testQueryWMIMSFT() {
+        if (Platform.isWindows()) {
             WmiQueryHandler handler = WmiQueryHandler.createInstance();
             assertThat(handler, is(notNullValue()));
+
+            // Storage queries assume COM externally initialized
+            boolean comInit = handler.initCOM();
+
             assertThat("Failed MSFTStorage.queryPhysicalDisks",
                     MSFTStorage.queryPhysicalDisks(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
             assertThat("Failed MSFTStorage.queryStoragePoolPhysicalDisks",
@@ -66,8 +75,20 @@ public class WMIDriversTest {
             assertThat("Failed MSFTStorage.queryVirtualDisks", MSFTStorage.queryVirtualDisks(handler).getResultCount(),
                     is(greaterThanOrEqualTo(0)));
 
-            // OhmHardware and OhmSensor excluded
-            // We'll never have OHM running during testing
+            if (comInit) {
+                handler.unInitCOM();
+            }
+        }
+    }
+
+    // OhmHardware and OhmSensor excluded
+    // We'll never have OHM running during testing
+
+    @Test
+    public void testQueryWMIWin32() {
+        if (Platform.isWindows()) {
+            WmiQueryHandler handler = WmiQueryHandler.createInstance();
+            assertThat(handler, is(notNullValue()));
 
             assertThat("Failed Win32BaseBoard.queryBaseboardInfo", Win32BaseBoard.queryBaseboardInfo().getResultCount(),
                     is(greaterThan(0)));
@@ -108,10 +129,13 @@ public class WMIDriversTest {
             assertThat("Failed Win32OperatingSystem.queryOsVersion",
                     Win32OperatingSystem.queryOsVersion().getResultCount(), is(greaterThan(0)));
 
-            assertThat("Failed Win32PhysicalMemory.queryphysicalMemory",
-                    Win32PhysicalMemory.queryphysicalMemory().getResultCount(), is(greaterThan(0)));
-            assertThat("Failed Win32PhysicalMemory.queryphysicalMemoryWin8",
-                    Win32PhysicalMemory.queryphysicalMemoryWin8().getResultCount(), is(greaterThan(0)));
+            if (VersionHelpers.IsWindows10OrGreater()) {
+                assertThat("Failed Win32PhysicalMemory.queryphysicalMemory",
+                        Win32PhysicalMemory.queryphysicalMemory().getResultCount(), is(greaterThan(0)));
+            } else {
+                assertThat("Failed Win32PhysicalMemory.queryphysicalMemoryWin8",
+                        Win32PhysicalMemory.queryphysicalMemoryWin8().getResultCount(), is(greaterThan(0)));
+            }
 
             WmiResult<CommandLineProperty> cl = Win32Process.queryCommandLines(null);
             assertThat("Failed Win32Process.queryCommandLines", cl.getResultCount(), is(greaterThan(0)));

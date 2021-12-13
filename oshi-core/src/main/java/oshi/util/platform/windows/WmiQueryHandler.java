@@ -176,9 +176,10 @@ public class WmiQueryHandler {
             }
         } catch (TimeoutException e) {
             LOG.warn("WMI query timed out after {} ms: {}", wmiTimeout, WmiUtil.queryToString(query));
-        }
-        if (comInit) {
-            unInitCOM();
+        } finally {
+            if (comInit) {
+                unInitCOM();
+            }
         }
         return result;
     }
