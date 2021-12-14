@@ -13,8 +13,10 @@
         regex="true" />
 
     <!-- Otherwise only allow imports of packages in associated module-info.java -->
-    <!-- jna -->
-    <allow class="com.sun.jna.Platform" />
+    <!-- jna (add specific classes used) -->
+    <allow
+        pkg="com\.sun\.(jna|jna\..*)"
+        regex="true" />
 
     <!-- slf4j -->
     <allow pkg="org.slf4j" />
