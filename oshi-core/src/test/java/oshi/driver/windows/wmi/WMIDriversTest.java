@@ -46,10 +46,10 @@ import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
-public class WMIDriversTest {
+class WMIDriversTest {
 
     @Test
-    public void testQueryWMIMSAcpi() {
+    void testQueryWMIMSAcpi() {
         if (Platform.isWindows()) {
             assertThat("Failed MSAcpiThermalZoneTemperature.queryCurrentTemperature",
                     MSAcpiThermalZoneTemperature.queryCurrentTemperature().getResultCount(),
@@ -58,7 +58,7 @@ public class WMIDriversTest {
     }
 
     @Test
-    public void testQueryWMIMSFT() {
+    void testQueryWMIMSFT() {
         if (Platform.isWindows()) {
             WmiQueryHandler handler = WmiQueryHandler.createInstance();
             assertThat(handler, is(notNullValue()));
@@ -85,7 +85,7 @@ public class WMIDriversTest {
     // We'll never have OHM running during testing
 
     @Test
-    public void testQueryWMIWin32() {
+    void testQueryWMIWin32() {
         if (Platform.isWindows()) {
             WmiQueryHandler handler = WmiQueryHandler.createInstance();
             assertThat(handler, is(notNullValue()));

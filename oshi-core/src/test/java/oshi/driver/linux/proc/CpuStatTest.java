@@ -37,10 +37,10 @@ import oshi.hardware.HardwareAbstractionLayer;
 /**
  * Tests for {@link CpuStat}.
  */
-public class CpuStatTest {
+class CpuStatTest {
 
     @Test
-    public void testSystemCpuLoadTicks() {
+    void testSystemCpuLoadTicks() {
         if (Platform.isLinux()) {
             long[] systemCpuLoadTicks = CpuStat.getSystemCpuLoadTicks();
             for (long systemCpuTick : systemCpuLoadTicks) {
@@ -50,7 +50,7 @@ public class CpuStatTest {
     }
 
     @Test
-    public void testGetProcessorCpuLoadTicks() {
+    void testGetProcessorCpuLoadTicks() {
         if (Platform.isLinux()) {
             SystemInfo si = new SystemInfo();
             HardwareAbstractionLayer hal = si.getHardware();
@@ -66,7 +66,7 @@ public class CpuStatTest {
     }
 
     @Test
-    public void testGetContextSwitches() {
+    void testGetContextSwitches() {
         if (Platform.isLinux()) {
             assertThat("Context switches should be greater than or equal to -1", CpuStat.getContextSwitches(),
                     greaterThanOrEqualTo(-1L));
@@ -74,7 +74,7 @@ public class CpuStatTest {
     }
 
     @Test
-    public void testGetInterrupts() {
+    void testGetInterrupts() {
         if (Platform.isLinux()) {
             assertThat("Interrupts should be greater than or equal to -1", CpuStat.getInterrupts(),
                     greaterThanOrEqualTo(-1L));
@@ -82,7 +82,7 @@ public class CpuStatTest {
     }
 
     @Test
-    public void testGetBootTime() {
+    void testGetBootTime() {
         if (Platform.isLinux()) {
             assertThat("Boot time should be greater than or equal to 0", CpuStat.getBootTime(),
                     greaterThanOrEqualTo(0L));

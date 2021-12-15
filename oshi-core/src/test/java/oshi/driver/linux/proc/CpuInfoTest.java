@@ -39,10 +39,10 @@ import oshi.util.tuples.Quartet;
 /**
  * Tests for {@link CpuInfo}.
  */
-public class CpuInfoTest {
+class CpuInfoTest {
 
     @Test
-    public void testQueryCpuManufacturer() {
+    void testQueryCpuManufacturer() {
         if (Platform.isLinux()) {
             String cpuManufacturer = CpuInfo.queryCpuManufacturer();
             assertThat("CPU manufacturer should be a non-empty String or null", cpuManufacturer,
@@ -51,7 +51,7 @@ public class CpuInfoTest {
     }
 
     @Test
-    public void testQueryBoardInfo() {
+    void testQueryBoardInfo() {
         if (Platform.isLinux()) {
             Quartet<String, String, String, String> boardInfo = CpuInfo.queryBoardInfo();
             String pcManufacturer = boardInfo.getA();

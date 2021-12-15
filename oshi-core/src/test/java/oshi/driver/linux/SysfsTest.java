@@ -35,10 +35,10 @@ import com.sun.jna.Platform;
 
 import oshi.TestConstants;
 
-public class SysfsTest {
+class SysfsTest {
 
     @Test
-    public void testQuerySystemVendor() {
+    void testQuerySystemVendor() {
         if (Platform.isLinux()) {
             final String sysVendor = Sysfs.querySystemVendor();
             if (sysVendor != null) {
@@ -48,7 +48,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryProductModel() {
+    void testQueryProductModel() {
         if (Platform.isLinux()) {
             final String sysProductModel = Sysfs.queryProductModel();
             if (sysProductModel != null) {
@@ -58,7 +58,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryProductSerial() {
+    void testQueryProductSerial() {
         if (Platform.isLinux()) {
             final String serialNumber = Sysfs.queryProductSerial();
             if (serialNumber != null) {
@@ -68,7 +68,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryUUID() {
+    void testQueryUUID() {
         if (Platform.isLinux()) {
             final String uuid = Sysfs.queryUUID();
             if (uuid != null) {
@@ -79,7 +79,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBoardVendor() {
+    void testQueryBoardVendor() {
         if (Platform.isLinux()) {
             final String boardVendor = Sysfs.queryBoardVendor();
             if (boardVendor != null) {
@@ -89,7 +89,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBoardModel() {
+    void testQueryBoardModel() {
         if (Platform.isLinux()) {
             final String boardModel = Sysfs.queryBoardModel();
             if (boardModel != null) {
@@ -99,7 +99,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBoardVersion() {
+    void testQueryBoardVersion() {
         if (Platform.isLinux()) {
             final String boardVersion = Sysfs.queryBoardVersion();
             if (boardVersion != null) {
@@ -109,7 +109,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBoardSerial() {
+    void testQueryBoardSerial() {
         if (Platform.isLinux()) {
             final String boardSerial = Sysfs.queryBoardSerial();
             if (boardSerial != null) {
@@ -119,7 +119,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBiosVendor() {
+    void testQueryBiosVendor() {
         if (Platform.isLinux()) {
             final String biosVendor = Sysfs.queryBiosVendor();
             if (biosVendor != null) {
@@ -129,7 +129,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBiosDescription() {
+    void testQueryBiosDescription() {
         if (Platform.isLinux()) {
             final String biosDescription = Sysfs.queryBiosDescription();
             if (biosDescription != null) {
@@ -139,7 +139,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBiosVersionEmptyBiosRevision() {
+    void testQueryBiosVersionEmptyBiosRevision() {
         if (Platform.isLinux()) {
             final String biosRevision = Sysfs.queryBiosVersion("");
             if (biosRevision != null) {
@@ -149,7 +149,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBiosVersion() {
+    void testQueryBiosVersion() {
         if (Platform.isLinux()) {
             final String biosRevisionSuffix = "biosRevision";
             final String biosRevision = Sysfs.queryBiosVersion(biosRevisionSuffix);
@@ -162,7 +162,7 @@ public class SysfsTest {
     }
 
     @Test
-    public void testQueryBiosReleaseDate() {
+    void testQueryBiosReleaseDate() {
         if (Platform.isLinux()) {
             final String biosReleaseDate = Sysfs.queryBiosReleaseDate();
             if (biosReleaseDate != null) {
