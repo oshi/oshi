@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Test;
 
 import oshi.util.ExecutingCommand;
 
-public class UserGroupInfoTest {
+class UserGroupInfoTest {
 
     @Test
-    public void testGetUser() {
+    void testGetUser() {
         List<String> checkedUid = new ArrayList<>();
         List<String> passwd = ExecutingCommand.runNative("getent passwd");
         passwd.stream().map(s -> s.split(":")).filter(arr -> arr.length > 2).forEach(split -> {
@@ -49,7 +49,7 @@ public class UserGroupInfoTest {
     }
 
     @Test
-    public void testGetGroupName() {
+    void testGetGroupName() {
         List<String> checkedGid = new ArrayList<>();
         List<String> group = ExecutingCommand.runNative("getent group");
         group.stream().map(s -> s.split(":")).filter(arr -> arr.length > 2).forEach(split -> {

@@ -34,10 +34,10 @@ import com.sun.jna.Platform;
 
 import oshi.TestConstants;
 
-public class LshalTest {
+class LshalTest {
 
     @Test
-    public void testQuerySerialNumber() {
+    void testQuerySerialNumber() {
         if (Platform.isLinux()) {
             final String serialNumber = Lshal.querySerialNumber();
             if (serialNumber != null) {
@@ -47,7 +47,7 @@ public class LshalTest {
     }
 
     @Test
-    public void testQueryUUID() {
+    void testQueryUUID() {
         if (Platform.isLinux()) {
             final String uuid = Lshal.queryUUID();
             if (uuid != null) {

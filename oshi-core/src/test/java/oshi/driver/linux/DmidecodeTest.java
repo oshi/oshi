@@ -34,10 +34,10 @@ import com.sun.jna.Platform;
 
 import oshi.util.tuples.Pair;
 
-public class DmidecodeTest {
+class DmidecodeTest {
 
     @Test
-    public void testQuerySerialNumber() {
+    void testQuerySerialNumber() {
         if (Platform.isLinux()) {
             String serialNumber = Dmidecode.querySerialNumber();
             if (serialNumber != null) {
@@ -47,7 +47,7 @@ public class DmidecodeTest {
     }
 
     @Test
-    public void testQueryUUID() {
+    void testQueryUUID() {
         if (Platform.isLinux()) {
             String uuid = Dmidecode.queryUUID();
             if (uuid != null) {
@@ -57,7 +57,7 @@ public class DmidecodeTest {
     }
 
     @Test
-    public void testQueryBiosNameRev() {
+    void testQueryBiosNameRev() {
         if (Platform.isLinux()) {
             Pair<String, String> biosNameRev = Dmidecode.queryBiosNameRev();
             String biosName = biosNameRev.getA();

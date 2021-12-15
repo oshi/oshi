@@ -29,10 +29,10 @@ import org.junit.jupiter.api.Test;
 
 import com.sun.jna.Platform;
 
-public class UpTimeTest {
+class UpTimeTest {
 
     @Test
-    public void testGetSystemUptimeSeconds() {
+    void testGetSystemUptimeSeconds() {
         if (Platform.isLinux()) {
             double uptime = UpTime.getSystemUptimeSeconds();
             assertTrue(uptime >= 0, "Uptime should be more than equal to 0 seconds");

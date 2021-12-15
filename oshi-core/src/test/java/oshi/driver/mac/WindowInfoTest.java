@@ -40,7 +40,7 @@ import com.sun.jna.Platform;
 
 import oshi.software.os.OSDesktopWindow;
 
-public class WindowInfoTest {
+class WindowInfoTest {
     @Test
     void testQueryDesktopWindows() {
         if (Platform.isMac()) {
