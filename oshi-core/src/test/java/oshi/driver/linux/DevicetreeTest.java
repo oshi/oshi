@@ -31,10 +31,10 @@ import org.junit.jupiter.api.Test;
 
 import com.sun.jna.Platform;
 
-public class DevicetreeTest {
+class DevicetreeTest {
 
     @Test
-    public void testQueryModel() {
+    void testQueryModel() {
         if (Platform.isLinux()) {
             String queryModel = Devicetree.queryModel();
             if (queryModel != null) {

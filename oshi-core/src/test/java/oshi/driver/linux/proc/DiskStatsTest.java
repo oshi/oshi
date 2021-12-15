@@ -33,14 +33,13 @@ import org.junit.jupiter.api.Test;
 
 import com.sun.jna.Platform;
 
-public class DiskStatsTest {
+class DiskStatsTest {
 
     @Test
-    public void testGetDiskStats() {
+    void testGetDiskStats() {
         if (Platform.isLinux()) {
             Map<String, Map<DiskStats.IoStat, Long>> map = DiskStats.getDiskStats();
             assertNotNull(map, "DiskStats should not be null");
-            DiskStats.IoStat[] enumArray = DiskStats.IoStat.class.getEnumConstants();
 
             map.forEach((key, value) -> {
                 assertNotNull(value, "Entry should not have a null map!");
@@ -48,5 +47,4 @@ public class DiskStatsTest {
             });
         }
     }
-
 }

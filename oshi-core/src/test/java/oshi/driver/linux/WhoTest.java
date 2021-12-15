@@ -36,9 +36,9 @@ import com.sun.jna.Platform;
 
 import oshi.software.os.OSSession;
 
-public class WhoTest {
+class WhoTest {
     @Test
-    public void testQueryUtxent() {
+    void testQueryUtxent() {
         if (Platform.isLinux()) {
             for (OSSession session : Who.queryUtxent()) {
                 assertThat("Session login time should be greater than 0", session.getLoginTime(), is(greaterThan(0L)));

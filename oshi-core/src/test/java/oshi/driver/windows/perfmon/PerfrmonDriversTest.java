@@ -50,7 +50,7 @@ import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
-public class PerfrmonDriversTest {
+class PerfrmonDriversTest {
 
     private static final String MEMORY = "Memory";
     private static final String WIN32_PERF_RAW_DATA_PERF_OS_MEMORY = "Win32_PerfRawData_PerfOS_Memory";
@@ -83,7 +83,7 @@ public class PerfrmonDriversTest {
     private static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD = "Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \"%_Total\"";
 
     @Test
-    public void testQueryPageSwaps() {
+    void testQueryPageSwaps() {
         if (Platform.isWindows()) {
             assertThat("Failed Combined queryPageSwaps", MemoryInformation.queryPageSwaps(),
                     is(aMapWithSize(PageSwapProperty.values().length)));
@@ -96,7 +96,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQuerySwapUsed() {
+    void testQuerySwapUsed() {
         if (Platform.isWindows()) {
             assertThat("Failed Combined querySwapUsed", PagingFile.querySwapUsed(),
                     is(aMapWithSize(PagingPercentProperty.values().length)));
@@ -111,7 +111,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryDiskCounters() {
+    void testQueryDiskCounters() {
         if (Platform.isWindows()) {
             testWildcardCounters("Combined DiskCounters", PhysicalDisk.queryDiskCounters());
             testWildcardCounters("PDH DiskCounters",
@@ -122,7 +122,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryProcessCounters() {
+    void testQueryProcessCounters() {
         if (Platform.isWindows()) {
             testWildcardCounters("Combined ProcessCounters", ProcessInformation.queryProcessCounters());
             testWildcardCounters("PDH ProcessCounters",
@@ -133,7 +133,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryHandles() {
+    void testQueryHandles() {
         if (Platform.isWindows()) {
             testWildcardCounters("Combined Handles", ProcessInformation.queryHandles());
             testWildcardCounters("PDH Handles",
@@ -144,7 +144,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryProcessorCounters() {
+    void testQueryProcessorCounters() {
         if (Platform.isWindows()) {
             testWildcardCounters("Combined ProcessorCounters", ProcessorInformation.queryProcessorCounters());
             testWildcardCounters("PDH ProcessorCounters", PerfCounterWildcardQuery
@@ -162,7 +162,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryInterruptCounters() {
+    void testQueryInterruptCounters() {
         if (Platform.isWindows()) {
             assertThat("Failed Combined queryInterruptCounters", ProcessorInformation.queryInterruptCounters(),
                     is(aMapWithSize(InterruptsProperty.values().length)));
@@ -177,7 +177,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryFrequencyCounters() {
+    void testQueryFrequencyCounters() {
         if (Platform.isWindows()) {
             testWildcardCounters("Combined FrequencyCounters", ProcessorInformation.queryFrequencyCounters());
             testWildcardCounters("PDH FrequencyCounters", PerfCounterWildcardQuery
@@ -189,7 +189,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryContextSwitchCounters() {
+    void testQueryContextSwitchCounters() {
         if (Platform.isWindows()) {
             assertThat("Failed Combined queryContextSwitchCounters", SystemInformation.queryContextSwitchCounters(),
                     is(aMapWithSize(ContextSwitchProperty.values().length)));
@@ -204,7 +204,7 @@ public class PerfrmonDriversTest {
     }
 
     @Test
-    public void testQueryThreadCounters() {
+    void testQueryThreadCounters() {
         if (Platform.isWindows()) {
             testWildcardCounters("Combined ThreadCounters", ThreadInformation.queryThreadCounters());
             testWildcardCounters("PDH ThreadCounters",

@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
 
 import com.sun.jna.Platform;
 
-public class LshwTest {
+class LshwTest {
 
     @Test
-    public void testQueryModel() {
+    void testQueryModel() {
         if (Platform.isLinux()) {
             String model = Lshw.queryModel();
             if (model != null) {
@@ -47,7 +47,7 @@ public class LshwTest {
     }
 
     @Test
-    public void testQuerySerialNumber() {
+    void testQuerySerialNumber() {
         if (Platform.isLinux()) {
             String serialNumber = Lshw.querySerialNumber();
             if (serialNumber != null) {
@@ -57,7 +57,7 @@ public class LshwTest {
     }
 
     @Test
-    public void testQueryUUID() {
+    void testQueryUUID() {
         if (Platform.isLinux()) {
             String uuid = Lshw.queryUUID();
             if (uuid != null) {
@@ -67,7 +67,7 @@ public class LshwTest {
     }
 
     @Test
-    public void testQueryCpuCapacity() {
+    void testQueryCpuCapacity() {
         if (Platform.isLinux()) {
             assertThat("Test Lshw queryCpuCapacity", Lshw.queryCpuCapacity(), anyOf(greaterThan(0L), equalTo(-1L)));
         }
