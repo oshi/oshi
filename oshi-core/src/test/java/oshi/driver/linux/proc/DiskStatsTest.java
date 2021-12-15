@@ -23,14 +23,15 @@
  */
 package oshi.driver.linux.proc;
 
-import com.sun.jna.Platform;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import org.junit.jupiter.api.Test;
+
+import com.sun.jna.Platform;
 
 public class DiskStatsTest {
 

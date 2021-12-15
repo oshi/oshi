@@ -23,13 +23,14 @@
  */
 package oshi.driver.linux.proc;
 
-import org.junit.jupiter.api.Test;
-import oshi.util.ExecutingCommand;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import oshi.util.ExecutingCommand;
 
 public class UserGroupInfoTest {
 
