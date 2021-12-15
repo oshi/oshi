@@ -23,10 +23,11 @@
  */
 package oshi.driver.linux.proc;
 
-import com.sun.jna.Platform;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.sun.jna.Platform;
 
 public class UpTimeTest {
 
