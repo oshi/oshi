@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.oshi</groupId>
-    <artifactId>oshi-parent</artifactId>
+    <artifactId>oshi-parent-java11</artifactId>
     <version>5.8.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -45,9 +45,6 @@
 
     <modules>
         <module>oshi-core</module>
-        <module>oshi-core-shaded</module>
-        <module>oshi-demo</module>
-        <module>oshi-dist</module>
     </modules>
 
     <scm>
@@ -85,15 +82,15 @@
     <properties>
         <copyright>2010 - 2021</copyright>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.testSource>1.8</maven.compiler.testSource>
-        <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.testSource>11</maven.compiler.testSource>
+        <maven.compiler.testTarget>11</maven.compiler.testTarget>
         <maven.min-version>3.3.9</maven.min-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <signature.artifact>java18</signature.artifact>
+        <signature.artifact>unused</signature.artifact>
         <signature.version>1.0</signature.version>
         <!-- Base directory, overwrite in submodules -->
         <main.basedir>${project.basedir}</main.basedir>
@@ -139,7 +136,7 @@
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
-        <license-maven-plugin.version>4.1</license-maven-plugin.version>
+        <license-maven-plugin.version>unused</license-maven-plugin.version>
         <code-assert.version>0.9.15</code-assert.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
@@ -155,7 +152,7 @@
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
-        <animal-sniffer-maven-plugin.version>1.20</animal-sniffer-maven-plugin.version>
+        <animal-sniffer-maven-plugin.version>unused</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>6.5.0</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>9.1</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
@@ -450,30 +447,6 @@
                     <artifactId>tidy-maven-plugin</artifactId>
                     <version>${tidy-maven-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>${license-maven-plugin.version}</version>
-                    <configuration>
-                        <header>${main.basedir}/LICENSE.txt</header>
-                        <excludes>
-                            <exclude>**/MavenWrapperDownloader.java</exclude>
-                            <exclude>mvnw</exclude>
-                            <exclude>mvnw.cmd</exclude>
-                            <exclude>.editorconfig</exclude>
-                            <exclude>.gitattributes</exclude>
-                            <exclude>**/*.PNG</exclude>
-                            <exclude>*.xml</exclude>
-                            <exclude>*.yml</exclude>
-                            <exclude>**/*.properties</exclude>
-                            <exclude>**/*.txt</exclude>
-                            <exclude>**/*.xml</exclude>
-                            <exclude>**/*.yml</exclude>
-                            <exclude>**/*.yaml</exclude>
-                            <exclude>**/cov-analysis*/**</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
                 <!-- Report Only -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -534,18 +507,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>wagon-maven-plugin</artifactId>
                     <version>${wagon-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>${animal-sniffer-maven-plugin.version}</version>
-                    <configuration>
-                        <signature>
-                            <groupId>org.codehaus.mojo.signature</groupId>
-                            <artifactId>${signature.artifact}</artifactId>
-                            <version>${signature.version}</version>
-                        </signature>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
@@ -668,31 +629,6 @@
                                 </RestrictImports>
                             </rules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>test-sniffer</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -945,19 +881,6 @@
                             <configuration>
                                 <lifecycleMappingMetadata>
                                     <pluginExecutions>
-                                        <pluginExecution>
-                                            <pluginExecutionFilter>
-                                                <groupId>com.mycila</groupId>
-                                                <artifactId>license-maven-plugin</artifactId>
-                                                <versionRange>[3.0,)</versionRange>
-                                                <goals>
-                                                    <goal>format</goal>
-                                                </goals>
-                                            </pluginExecutionFilter>
-                                            <action>
-                                                <ignore />
-                                            </action>
-                                        </pluginExecution>
                                         <pluginExecution>
                                             <pluginExecutionFilter>
                                                 <groupId>org.jacoco</groupId>

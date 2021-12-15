@@ -4,11 +4,11 @@
 
     <parent>
         <groupId>com.github.oshi</groupId>
-        <artifactId>oshi-parent</artifactId>
+        <artifactId>oshi-parent-java11</artifactId>
         <version>5.8.6-SNAPSHOT</version>
     </parent>
 
-    <artifactId>oshi-core</artifactId>
+    <artifactId>oshi-core-java11</artifactId>
     <packaging>jar</packaging>
 
     <name>oshi-core</name>
@@ -34,12 +34,12 @@
                 to help influence usage -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna</artifactId>
+                <artifactId>jna-jpms</artifactId>
                 <version>${jna.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna-platform</artifactId>
+                <artifactId>jna-platform-jpms</artifactId>
                 <version>${jna.version}</version>
             </dependency>
         </dependencies>
@@ -47,11 +47,11 @@
     <dependencies>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
+            <artifactId>jna-jpms</artifactId>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
+            <artifactId>jna-platform-jpms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
