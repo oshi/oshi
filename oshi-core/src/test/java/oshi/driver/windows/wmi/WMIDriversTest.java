@@ -62,8 +62,6 @@ class WMIDriversTest {
         if (Platform.isWindows()) {
             WmiQueryHandler handler = WmiQueryHandler.createInstance();
             assertThat(handler, is(notNullValue()));
-
-            // Storage queries assume COM externally initialized
             boolean comInit = handler.initCOM();
 
             assertThat("Failed MSFTStorage.queryPhysicalDisks",
@@ -89,6 +87,25 @@ class WMIDriversTest {
         if (Platform.isWindows()) {
             WmiQueryHandler handler = WmiQueryHandler.createInstance();
             assertThat(handler, is(notNullValue()));
+            boolean comInit = handler.initCOM();
+
+            assertThat("Failed Win32DiskDrive.queryDiskDrive", Win32DiskDrive.queryDiskDrive(handler).getResultCount(),
+                    is(greaterThanOrEqualTo(0)));
+
+            assertThat("Failed Win32DiskDriveToDiskPartition.queryDriveToPartition",
+                    Win32DiskDriveToDiskPartition.queryDriveToPartition(handler).getResultCount(),
+                    is(greaterThanOrEqualTo(0)));
+
+            assertThat("Failed Win32DiskPartition.queryPartition",
+                    Win32DiskPartition.queryPartition(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
+
+            assertThat("Failed Win32LogicalDiskToPartition.queryDiskToPartition",
+                    Win32LogicalDiskToPartition.queryDiskToPartition(handler).getResultCount(),
+                    is(greaterThanOrEqualTo(0)));
+
+            if (comInit) {
+                handler.unInitCOM();
+            }
 
             assertThat("Failed Win32BaseBoard.queryBaseboardInfo", Win32BaseBoard.queryBaseboardInfo().getResultCount(),
                     is(greaterThan(0)));
@@ -101,16 +118,6 @@ class WMIDriversTest {
             assertThat("Failed Win32ComputerSystemProduct.queryIdentifyingNumberUUID",
                     Win32ComputerSystemProduct.queryIdentifyingNumberUUID().getResultCount(), is(greaterThan(0)));
 
-            assertThat("Failed Win32DiskDrive.queryDiskDrive", Win32DiskDrive.queryDiskDrive(handler).getResultCount(),
-                    is(greaterThanOrEqualTo(0)));
-
-            assertThat("Failed Win32DiskDriveToDiskPartition.queryDriveToPartition",
-                    Win32DiskDriveToDiskPartition.queryDriveToPartition(handler).getResultCount(),
-                    is(greaterThanOrEqualTo(0)));
-
-            assertThat("Failed Win32DiskPartition.queryPartition",
-                    Win32DiskPartition.queryPartition(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
-
             assertThat("Failed Win32Fan.querySpeed", Win32Fan.querySpeed().getResultCount(),
                     is(greaterThanOrEqualTo(0)));
 
@@ -121,10 +128,6 @@ class WMIDriversTest {
                     is(greaterThan(0)));
             assertThat("Failed Win32LogicalDisk.queryLogicalDisk",
                     Win32LogicalDisk.queryLogicalDisk(null, true).getResultCount(), is(greaterThan(0)));
-
-            assertThat("Failed Win32LogicalDiskToPartition.queryDiskToPartition",
-                    Win32LogicalDiskToPartition.queryDiskToPartition(handler).getResultCount(),
-                    is(greaterThanOrEqualTo(0)));
 
             assertThat("Failed Win32OperatingSystem.queryOsVersion",
                     Win32OperatingSystem.queryOsVersion().getResultCount(), is(greaterThan(0)));
