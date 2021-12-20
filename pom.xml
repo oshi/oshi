@@ -150,8 +150,8 @@
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>unused</animal-sniffer-maven-plugin.version>
-        <dependency-check-maven.version>6.5.0</dependency-check-maven.version>
-        <puppycrawl.checkstyle.version>9.1</puppycrawl.checkstyle.version>
+        <dependency-check-maven.version>6.5.1</dependency-check-maven.version>
+        <puppycrawl.checkstyle.version>9.2</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 
