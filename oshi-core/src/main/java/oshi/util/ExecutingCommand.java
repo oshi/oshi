@@ -123,7 +123,7 @@ public final class ExecutingCommand {
             // Ensure all resources are released
             if (p != null) {
                 // Solaris doesn't close descriptors on destroy so we must handle separately
-                if (Platform.isSolaris()) {
+                if (Platform.isSolaris() || Platform.isWindows()) {
                     try {
                         p.getOutputStream().close();
                     } catch (IOException e) {
