@@ -23,9 +23,9 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_VFS;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VFS_BCACHESTAT;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.VFS_GENERIC;
+import static oshi.jna.platform.unix.OpenBsdLibc.CTL_VFS;
+import static oshi.jna.platform.unix.OpenBsdLibc.VFS_BCACHESTAT;
+import static oshi.jna.platform.unix.OpenBsdLibc.VFS_GENERIC;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -36,7 +36,7 @@ import com.sun.jna.Memory; // NOSONAR squid:S1191
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc.Bcachestats;
+import oshi.jna.platform.unix.OpenBsdLibc.Bcachestats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;

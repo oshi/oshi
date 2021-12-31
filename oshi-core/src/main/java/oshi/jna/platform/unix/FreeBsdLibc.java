@@ -21,60 +21,78 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.jna.platform.unix.solaris;
+package oshi.jna.platform.unix;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
-
-import oshi.jna.platform.unix.CLibrary;
 
 /**
  * C library. This class should be considered non-API as it may be removed
  * if/when its code is incorporated into the JNA project.
  */
-public interface SolarisLibc extends CLibrary {
-
-    SolarisLibc INSTANCE = Native.load("c", SolarisLibc.class);
+public interface FreeBsdLibc extends CLibrary {
+    FreeBsdLibc INSTANCE = Native.load("libc", FreeBsdLibc.class);
 
     int UTX_USERSIZE = 32;
-    int UTX_LINESIZE = 32;
-    int UTX_IDSIZE = 4;
-    int UTX_HOSTSIZE = 257;
+    int UTX_LINESIZE = 16;
+    int UTX_IDSIZE = 8;
+    int UTX_HOSTSIZE = 128;
 
     /**
      * Connection info
      */
-    @FieldOrder({ "ut_user", "ut_id", "ut_line", "ut_pid", "ut_type", "ut_tv", "ut_session", "ut_syslen", "ut_host" })
-    class SolarisUtmpx extends Structure {
-        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name
-        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)
-        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name
-        public int ut_pid; // process id
+    @FieldOrder({ "ut_type", "ut_tv", "ut_id", "ut_pid", "ut_user", "ut_line", "ut_host", "ut_spare" })
+    class FreeBsdUtmpx extends Structure {
         public short ut_type; // type of entry
         public Timeval ut_tv; // time entry was made
-        public int ut_session; // session ID, used for windowing
-        public short ut_syslen; // significant length of ut_host including terminating null
+        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)
+        public int ut_pid; // process id
+        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name
+        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name
         public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name
+        public byte[] ut_spare = new byte[64];
     }
 
-    /**
-     * Part of utmpx structure
+    /*
+     * Data size
      */
-    @FieldOrder({ "e_termination", "e_exit" })
-    class Exit_status extends Structure {
-        public short e_termination; // Process termination status
-        public short e_exit; // Process exit status
-    }
+    /** Constant <code>UINT64_SIZE=Native.getNativeSize(long.class)</code> */
+    int UINT64_SIZE = Native.getNativeSize(long.class);
+    /** Constant <code>INT_SIZE=Native.getNativeSize(int.class)</code> */
+    int INT_SIZE = Native.getNativeSize(int.class);
+
+    /*
+     * CPU state indices
+     */
+    /** Constant <code>CPUSTATES=5</code> */
+    int CPUSTATES = 5;
+    /** Constant <code>CP_USER=0</code> */
+    int CP_USER = 0;
+    /** Constant <code>CP_NICE=1</code> */
+    int CP_NICE = 1;
+    /** Constant <code>CP_SYS=2</code> */
+    int CP_SYS = 2;
+    /** Constant <code>CP_INTR=3</code> */
+    int CP_INTR = 3;
+    /** Constant <code>CP_IDLE=4</code> */
+    int CP_IDLE = 4;
 
     /**
-     * 64-bit timeval required for utmpx structure
+     * Return type for BSD sysctl kern.boottime
      */
     @FieldOrder({ "tv_sec", "tv_usec" })
     class Timeval extends Structure {
-        public NativeLong tv_sec; // seconds
-        public NativeLong tv_usec; // microseconds
+        public long tv_sec; // seconds
+        public long tv_usec; // microseconds
+    }
+
+    /**
+     * CPU Ticks
+     */
+    @FieldOrder({ "cpu_ticks" })
+    class CpTime extends Structure {
+        public long[] cpu_ticks = new long[CPUSTATES];
     }
 
     /**
@@ -83,8 +101,8 @@ public interface SolarisLibc extends CLibrary {
      * <p>
      * Not thread safe
      *
-     * @return a {@link SolarisUtmpx} on success, and NULL on failure (which
+     * @return a {@link FreeBsdUtmpx} on success, and NULL on failure (which
      *         includes the "record not found" case)
      */
-    SolarisUtmpx getutxent();
+    FreeBsdUtmpx getutxent();
 }

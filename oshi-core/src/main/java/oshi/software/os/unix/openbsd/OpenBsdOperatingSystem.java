@@ -23,10 +23,10 @@
  */
 package oshi.software.os.unix.openbsd;
 
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_OSRELEASE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_OSTYPE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_VERSION;
+import static oshi.jna.platform.unix.OpenBsdLibc.CTL_KERN;
+import static oshi.jna.platform.unix.OpenBsdLibc.KERN_OSRELEASE;
+import static oshi.jna.platform.unix.OpenBsdLibc.KERN_OSTYPE;
+import static oshi.jna.platform.unix.OpenBsdLibc.KERN_VERSION;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
+import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;

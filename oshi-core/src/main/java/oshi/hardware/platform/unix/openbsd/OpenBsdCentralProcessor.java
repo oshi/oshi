@@ -23,18 +23,18 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_IDLE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_INTR;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_NICE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_SYS;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_USER;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_CPUSPEED;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MACHINE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MODEL;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME2;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_IDLE;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_INTR;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_NICE;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_SYS;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_USER;
+import static oshi.jna.platform.unix.OpenBsdLibc.CTL_HW;
+import static oshi.jna.platform.unix.OpenBsdLibc.CTL_KERN;
+import static oshi.jna.platform.unix.OpenBsdLibc.HW_CPUSPEED;
+import static oshi.jna.platform.unix.OpenBsdLibc.HW_MACHINE;
+import static oshi.jna.platform.unix.OpenBsdLibc.HW_MODEL;
+import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME;
+import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME2;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -52,7 +52,7 @@ import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
+import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;

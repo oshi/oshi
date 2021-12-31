@@ -21,9 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package oshi.jna.platform.unix;
+
+import com.sun.jna.Native; // NOSONAR squid:S1191
+
 /**
- * Provides extensions of JNA libraries for FreeBSD. These classes should be
- * considered non-API as they may be removed if/when their code is incorporated
- * into the JNA project.
+ * C library. This class should be considered non-API as it may be removed
+ * if/when its code is incorporated into the JNA project.
  */
-package oshi.jna.platform.unix.openbsd;
+public interface AixLibc extends CLibrary {
+
+    AixLibc INSTANCE = Native.load("c", AixLibc.class);
+
+}

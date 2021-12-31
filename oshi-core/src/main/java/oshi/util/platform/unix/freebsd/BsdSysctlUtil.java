@@ -33,7 +33,7 @@ import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
+import oshi.jna.platform.unix.FreeBsdLibc;
 
 /**
  * Provides access to sysctl calls on FreeBSD
