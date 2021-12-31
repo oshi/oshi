@@ -1,6 +1,6 @@
 # Guide to upgrading from OSHI 5.x to 6.x
 
-OSHI 6.0.0 is functionally equivalent to 5.8.2, with minor API updates as noted below.
+OSHI 6.0.0 is functionally equivalent to 5.8.7, with minor API updates as noted below.
 
 ## API Changes
 

@@ -7,10 +7,7 @@
 * [#1730](https://github.com/oshi/oshi/pull/1730): Changed the return value of getServices() from array to list in OperatingSystem - [@adrian-kong](https://github.com/adrian-kong).
 * [#1736](https://github.com/oshi/oshi/pull/1736): Changed the return type of the NetworkInterface method getMTU() from int to long in all its OS implementations.  - [@Simba-97](https://github.com/Simba-97).
 
-##### Bug fixes / Improvements
-* [#1822](https://github.com/oshi/oshi/pull/1822): Fix handle leaks in Windows after Runtime.exec calls - [@shvo123](https://github.com/shvo123).
-
-# 5.8.0 (2021-07-18), 5.8.1 (2021-08-22), 5.8.2 (2021-09-05), 5.8.3 (2021-10-21), 5.8.5 (2021-11-24), 5.8.6 (2021-12-14)
+# 5.8.0 (2021-07-18), 5.8.1 (2021-08-22), 5.8.2 (2021-09-05), 5.8.3 (2021-10-21), 5.8.5 (2021-11-24), 5.8.6 (2021-12-14), 5.8.7 (2021-12-31)
 
 ##### New Features
 * [#1654](https://github.com/oshi/oshi/pull/1654): API for process arguments and environment - [@basil](https://github.com/basil) and [@dbwiddis](https://github.com/dbwiddis).
@@ -31,6 +28,7 @@
 * [#1803](https://github.com/oshi/oshi/pull/1803): Configure checkstyle, remove code-assert - [@dbwiddis](https://github.com/dbwiddis).
 * [#1808](https://github.com/oshi/oshi/pull/1808): Restrict imports with maven enforcer - [@dbwiddis](https://github.com/dbwiddis).
 * [#1812](https://github.com/oshi/oshi/pull/1812): Add tests for all WMI drivers and fix failures - [@dbwiddis](https://github.com/dbwiddis).
+* [#1822](https://github.com/oshi/oshi/pull/1822): Fix handle leaks in Windows after Runtime.exec calls - [@shvo123](https://github.com/shvo123).
 
 # 5.7.0 (2021-04-01), 5.7.1 (2021-04-15), 5.7.2 (2021-05-01), 5.7.3 (2021-05-16), 5.7.4 (2021-05-30), 5.7.5 (2021-06-12)
 
