@@ -48,7 +48,7 @@ import oshi.driver.unix.aix.Uptime;
 import oshi.driver.unix.aix.Who;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatProcess;
-import oshi.jna.platform.unix.aix.AixLibc;
+import oshi.jna.platform.unix.AixLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;

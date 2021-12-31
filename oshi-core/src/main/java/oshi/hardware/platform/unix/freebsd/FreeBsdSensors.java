@@ -29,7 +29,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
+import oshi.jna.platform.unix.FreeBsdLibc;
 
 /**
  * Sensors from coretemp

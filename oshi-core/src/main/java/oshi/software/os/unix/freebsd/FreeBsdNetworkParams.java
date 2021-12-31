@@ -33,8 +33,8 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.CLibrary;
+import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 

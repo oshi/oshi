@@ -45,7 +45,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.aix.AixLibc;
+import oshi.jna.platform.unix.AixLibc;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 

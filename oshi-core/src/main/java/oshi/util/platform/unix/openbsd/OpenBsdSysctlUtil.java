@@ -33,7 +33,7 @@ import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
+import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 

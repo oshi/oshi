@@ -33,7 +33,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.solaris.SolarisLibc;
+import oshi.jna.platform.unix.SolarisLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;

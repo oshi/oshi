@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.Who;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc.Timeval;
+import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;

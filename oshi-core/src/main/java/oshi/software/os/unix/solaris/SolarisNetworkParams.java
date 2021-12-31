@@ -28,7 +28,7 @@ import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.solaris.SolarisLibc;
+import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 

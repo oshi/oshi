@@ -38,8 +38,8 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc.CpTime;
+import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.FreeBsdLibc.CpTime;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;

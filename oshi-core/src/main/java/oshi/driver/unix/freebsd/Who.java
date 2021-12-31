@@ -33,8 +33,8 @@ import java.util.List;
 import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc.FreeBsdUtmpx;
+import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.FreeBsdLibc.FreeBsdUtmpx;
 import oshi.software.os.OSSession;
 
 /**
