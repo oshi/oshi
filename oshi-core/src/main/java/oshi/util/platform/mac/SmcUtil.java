@@ -33,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.NativeLong; // NOSONAR squid:S1191
-import com.sun.jna.Structure;
-import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOService;
 import com.sun.jna.platform.mac.IOKitUtil;
@@ -43,6 +41,9 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.IOKit.SMCKeyData;
+import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
+import oshi.jna.platform.mac.IOKit.SMCVal;
 import oshi.jna.platform.mac.SystemB;
 import oshi.util.ParseUtil;
 
@@ -55,68 +56,6 @@ public final class SmcUtil {
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
 
     private static final IOKit IO = IOKit.INSTANCE;
-
-    /**
-     * Holds the return value of SMC version query.
-     */
-    @FieldOrder({ "major", "minor", "build", "reserved", "release" })
-    public static class SMCKeyDataVers extends Structure {
-        public byte major;
-        public byte minor;
-        public byte build;
-        public byte reserved;
-        public short release;
-
-    }
-
-    /**
-     * Holds the return value of SMC pLimit query.
-     */
-    @FieldOrder({ "version", "length", "cpuPLimit", "gpuPLimit", "memPLimit" })
-    public static class SMCKeyDataPLimitData extends Structure {
-        public short version;
-        public short length;
-        public int cpuPLimit;
-        public int gpuPLimit;
-        public int memPLimit;
-    }
-
-    /**
-     * Holds the return value of SMC KeyInfo query.
-     */
-    @FieldOrder({ "dataSize", "dataType", "dataAttributes" })
-    public static class SMCKeyDataKeyInfo extends Structure {
-        public int dataSize;
-        public int dataType;
-        public byte dataAttributes;
-    }
-
-    /**
-     * Holds the return value of SMC query.
-     */
-    @FieldOrder({ "key", "vers", "pLimitData", "keyInfo", "result", "status", "data8", "data32", "bytes" })
-    public static class SMCKeyData extends Structure {
-        public int key;
-        public SMCKeyDataVers vers;
-        public SMCKeyDataPLimitData pLimitData;
-        public SMCKeyDataKeyInfo keyInfo;
-        public byte result;
-        public byte status;
-        public byte data8;
-        public int data32;
-        public byte[] bytes = new byte[32];
-    }
-
-    /**
-     * Holds an SMC value
-     */
-    @FieldOrder({ "key", "dataSize", "dataType", "bytes" })
-    public static class SMCVal extends Structure {
-        public byte[] key = new byte[5];
-        public int dataSize;
-        public byte[] dataType = new byte[5];
-        public byte[] bytes = new byte[32];
-    }
 
     /**
      * Thread-safe map for caching info retrieved by a key necessary for subsequent
