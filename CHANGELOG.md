@@ -7,6 +7,9 @@
 * [#1730](https://github.com/oshi/oshi/pull/1730): Changed the return value of getServices() from array to list in OperatingSystem - [@adrian-kong](https://github.com/adrian-kong).
 * [#1736](https://github.com/oshi/oshi/pull/1736): Changed the return type of the NetworkInterface method getMTU() from int to long in all its OS implementations.  - [@Simba-97](https://github.com/Simba-97).
 
+##### Bug fixes / Improvements
+* [#1822](https://github.com/oshi/oshi/pull/1822): Fix handle leaks in Windows after Runtime.exec calls - [@shvo123](https://github.com/shvo123).
+
 # 5.8.0 (2021-07-18), 5.8.1 (2021-08-22), 5.8.2 (2021-09-05), 5.8.3 (2021-10-21), 5.8.5 (2021-11-24), 5.8.6 (2021-12-14)
 
 ##### New Features
