@@ -28,7 +28,7 @@ More fine grained modularization is being considered in a possible future major 
 
 Is OSHI Thread Safe?
 ========
-OSHI 5.X is thread safe with the exceptions noted below. `@Immutable`, `@ThreadSafe`, and `@NotThreadSafe` document
+OSHI 5.X and above is thread safe with the exceptions noted below. `@Immutable`, `@ThreadSafe`, and `@NotThreadSafe` document
 each class. The following classes are not thread-safe:
  - `GlobalConfig` does not protect against multiple threads manipulating the configuration programmatically.
  However, these methods are intended to be used by a single thread at startup in lieu of reading a configuration file.

@@ -12,12 +12,12 @@ The deprecated method `getCurrentPlatformEnum()` was removed from `SystemInfo` a
 
 ### Changed return values/types
 
-The value returned from `macOSProcess` and `LinuxOSProcess` method `getCommandLine()` has been changed from null-delimited string to space-delimited string.
-Note : To parse the executables and arguments, the `getArguments()` method is the preferred alternative.
+The value returned from `MacOSProcess` and `LinuxOSProcess` method `getCommandLine()` has been changed from null-delimited string to space-delimited string. Due to potential truncation on some operating systems, parsing this method should not be relied upon. The `getArguments()` method is the preferred alternative to obtain a list of the command line arguments.
 
 The method `getServices()` now returns a `List<OSService>` rather than an array.
 
-The value returned from `NetworkIF` method `getMTU()` has been changed from an `int` to a `long`. This impacts Windows users who had special treatment of local interfaces which previously matched the JDK's `NetworkInterface` return of a 32-bit -1 value.
+The value returned from `NetworkIF` method `getMTU()` has been changed from an `int` to a `long`. This impacts Windows users who had special treatment of local interfaces which previously matched the JDK's `NetworkInterface` return of a 32-bit -1 value. This value is now a long
+representing the max unsigned integer value.
 
 # Guide to upgrading from OSHI 4.x to 5.x
 
