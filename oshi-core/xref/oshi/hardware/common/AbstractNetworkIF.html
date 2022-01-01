@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> String name;
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> String displayName;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> index;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> mtu;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> mtu;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> String mac;
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> String[] ipv4;
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> Short[] subnetMasks;
@@ -111,7 +111,7 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">this</strong>.displayName = displayName;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">this</strong>.index = networkInterface.getIndex();
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>             <em class="jxr_comment">// Set MTU</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">this</strong>.mtu = networkInterface.getMTU();
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">this</strong>.mtu = ParseUtil.unsignedIntToLong(networkInterface.getMTU());
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>             <em class="jxr_comment">// Set MAC</em>
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>             byte[] hwmac = networkInterface.getHardwareAddress();
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">if</strong> (hwmac != <strong class="jxr_keyword">null</strong>) {
@@ -213,7 +213,7 @@
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>     }
 <a class="jxr_linenumber" name="L206" href="#L206">206</a> 
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>     @Override
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getMTU() {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMTU() {
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.mtu;
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>     }
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> 
@@ -264,31 +264,30 @@
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>         }
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>         sb.append(<span class="jxr_string">"\n"</span>);
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         sb.append(<span class="jxr_string">"  MAC Address: "</span>).append(getMacaddr()).append(<span class="jxr_string">"\n"</span>);
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         sb.append(<span class="jxr_string">"  MTU: "</span>).append(ParseUtil.unsignedIntToLong(getMTU())).append(<span class="jxr_string">", "</span>).append(<span class="jxr_string">"Speed: "</span>)
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 .append(getSpeed()).append(<span class="jxr_string">"\n"</span>);
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         String[] ipv4withmask = getIPv4addr();
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.ipv4.length == <strong class="jxr_keyword">this</strong>.subnetMasks.length) {
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.subnetMasks.length; i++) {
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 ipv4withmask[i] += <span class="jxr_string">"/"</span> + <strong class="jxr_keyword">this</strong>.subnetMasks[i];
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             }
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         }
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         sb.append(<span class="jxr_string">"  IPv4: "</span>).append(Arrays.toString(ipv4withmask)).append(<span class="jxr_string">"\n"</span>);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         String[] ipv6withprefixlength = getIPv6addr();
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.ipv6.length == <strong class="jxr_keyword">this</strong>.prefixLengths.length) {
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; <strong class="jxr_keyword">this</strong>.prefixLengths.length; j++) {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 ipv6withprefixlength[j] += <span class="jxr_string">"/"</span> + <strong class="jxr_keyword">this</strong>.prefixLengths[j];
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             }
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         sb.append(<span class="jxr_string">"  IPv6: "</span>).append(Arrays.toString(ipv6withprefixlength)).append(<span class="jxr_string">"\n"</span>);
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         sb.append(<span class="jxr_string">"  Traffic: received "</span>).append(getPacketsRecv()).append(<span class="jxr_string">" packets/"</span>)
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 .append(FormatUtil.formatBytes(getBytesRecv())).append(<span class="jxr_string">" ("</span> + getInErrors() + <span class="jxr_string">" err, "</span>)
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 .append(getInDrops() + <span class="jxr_string">" drop);"</span>);
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         sb.append(<span class="jxr_string">" transmitted "</span>).append(getPacketsSent()).append(<span class="jxr_string">" packets/"</span>)
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 .append(FormatUtil.formatBytes(getBytesSent())).append(<span class="jxr_string">" ("</span> + getOutErrors() + <span class="jxr_string">" err, "</span>)
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 .append(getCollisions() + <span class="jxr_string">" coll);"</span>);
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">return</strong> sb.toString();
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> }
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         sb.append(<span class="jxr_string">"  MTU: "</span>).append(getMTU()).append(<span class="jxr_string">", "</span>).append(<span class="jxr_string">"Speed: "</span>).append(getSpeed()).append(<span class="jxr_string">"\n"</span>);
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         String[] ipv4withmask = getIPv4addr();
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.ipv4.length == <strong class="jxr_keyword">this</strong>.subnetMasks.length) {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; <strong class="jxr_keyword">this</strong>.subnetMasks.length; i++) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 ipv4withmask[i] += <span class="jxr_string">"/"</span> + <strong class="jxr_keyword">this</strong>.subnetMasks[i];
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         }
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         sb.append(<span class="jxr_string">"  IPv4: "</span>).append(Arrays.toString(ipv4withmask)).append(<span class="jxr_string">"\n"</span>);
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         String[] ipv6withprefixlength = getIPv6addr();
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.ipv6.length == <strong class="jxr_keyword">this</strong>.prefixLengths.length) {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; <strong class="jxr_keyword">this</strong>.prefixLengths.length; j++) {
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 ipv6withprefixlength[j] += <span class="jxr_string">"/"</span> + <strong class="jxr_keyword">this</strong>.prefixLengths[j];
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             }
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         }
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         sb.append(<span class="jxr_string">"  IPv6: "</span>).append(Arrays.toString(ipv6withprefixlength)).append(<span class="jxr_string">"\n"</span>);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         sb.append(<span class="jxr_string">"  Traffic: received "</span>).append(getPacketsRecv()).append(<span class="jxr_string">" packets/"</span>)
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 .append(FormatUtil.formatBytes(getBytesRecv())).append(<span class="jxr_string">" ("</span> + getInErrors() + <span class="jxr_string">" err, "</span>)
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 .append(getInDrops() + <span class="jxr_string">" drop);"</span>);
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         sb.append(<span class="jxr_string">" transmitted "</span>).append(getPacketsSent()).append(<span class="jxr_string">" packets/"</span>)
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 .append(FormatUtil.formatBytes(getBytesSent())).append(<span class="jxr_string">" ("</span> + getOutErrors() + <span class="jxr_string">" err, "</span>)
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 .append(getCollisions() + <span class="jxr_string">" coll);"</span>);
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">return</strong> sb.toString();
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

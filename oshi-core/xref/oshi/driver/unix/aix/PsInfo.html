@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2022-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -53,7 +53,7 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.LibCAPI.ssize_t;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.aix.AixLibc;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.AixLibc;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
@@ -64,7 +64,7 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="PsInfo" href="../../../../oshi/driver/unix/aix/PsInfo.html#PsInfo">PsInfo</a> {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(PsInfo.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="AixLibc" href="../../../../oshi/jna/platform/unix/aix/AixLibc.html#AixLibc">AixLibc</a> LIBC = AixLibc.INSTANCE;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="AixLibc" href="../../../../oshi/jna/platform/unix/AixLibc.html#AixLibc">AixLibc</a> LIBC = AixLibc.INSTANCE;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_comment">// AIX has multiple page size units, but for purposes of "pages" in perfstat,</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <em class="jxr_comment">// the docs specify 4KB pages so we hardcode this</em>
@@ -86,7 +86,7 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          PR_BINDPRO(Native.POINTER_SIZE), <em class="jxr_comment">// processor to which thread is bound</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          SIZE(0);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> size;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> size;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          LwpsInfoT(<strong class="jxr_keyword">int</strong> bytes) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>              size = bytes;
@@ -129,7 +129,7 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         PR_LWP(lwpsInfoOffsets.get(LwpsInfoT.SIZE)), <em class="jxr_comment">// "representative" thread info</em>
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>         SIZE(0);
 <a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> size;
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> size;
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> 
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         PsInfoT(<strong class="jxr_keyword">int</strong> bytes) {
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>             size = bytes;

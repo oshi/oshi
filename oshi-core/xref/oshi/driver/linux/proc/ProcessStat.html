@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -391,7 +391,7 @@
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PROC_PID_STAT_LENGTH;
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">static</strong> {
 <a class="jxr_linenumber" name="L385" href="#L385">385</a>         String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">if</strong> (!stat.isEmpty() &amp;&amp; stat.contains(<span class="jxr_string">")"</span>)) {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">if</strong> (stat.contains(<span class="jxr_string">")"</span>)) {
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>             <em class="jxr_comment">// add 3 to account for pid, process name in prarenthesis, and state</em>
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>             PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>         } <strong class="jxr_keyword">else</strong> {

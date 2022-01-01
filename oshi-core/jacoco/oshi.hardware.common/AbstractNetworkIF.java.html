@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractNetworkIF.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractNetworkIF.java</span></div><h1>AbstractNetworkIF.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -62,7 +62,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private String name;
     private String displayName;
     private int index;
-    private int mtu;
+    private long mtu;
     private String mac;
     private String[] ipv4;
     private Short[] subnetMasks;
@@ -103,7 +103,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 <span class="nc" id="L103">            this.displayName = displayName;</span>
 <span class="nc" id="L104">            this.index = networkInterface.getIndex();</span>
             // Set MTU
-<span class="nc" id="L106">            this.mtu = networkInterface.getMTU();</span>
+<span class="nc" id="L106">            this.mtu = ParseUtil.unsignedIntToLong(networkInterface.getMTU());</span>
             // Set MAC
 <span class="nc" id="L108">            byte[] hwmac = networkInterface.getHardwareAddress();</span>
 <span class="nc bnc" id="L109" title="All 2 branches missed.">            if (hwmac != null) {</span>
@@ -205,7 +205,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     }
 
     @Override
-    public int getMTU() {
+    public long getMTU() {
 <span class="nc" id="L209">        return this.mtu;</span>
     }
 
@@ -256,29 +256,28 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         }
 <span class="nc" id="L257">        sb.append(&quot;\n&quot;);</span>
 <span class="nc" id="L258">        sb.append(&quot;  MAC Address: &quot;).append(getMacaddr()).append(&quot;\n&quot;);</span>
-<span class="nc" id="L259">        sb.append(&quot;  MTU: &quot;).append(ParseUtil.unsignedIntToLong(getMTU())).append(&quot;, &quot;).append(&quot;Speed: &quot;)</span>
-<span class="nc" id="L260">                .append(getSpeed()).append(&quot;\n&quot;);</span>
-<span class="nc" id="L261">        String[] ipv4withmask = getIPv4addr();</span>
-<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (this.ipv4.length == this.subnetMasks.length) {</span>
-<span class="nc bnc" id="L263" title="All 2 branches missed.">            for (int i = 0; i &lt; this.subnetMasks.length; i++) {</span>
-<span class="nc" id="L264">                ipv4withmask[i] += &quot;/&quot; + this.subnetMasks[i];</span>
+<span class="nc" id="L259">        sb.append(&quot;  MTU: &quot;).append(getMTU()).append(&quot;, &quot;).append(&quot;Speed: &quot;).append(getSpeed()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L260">        String[] ipv4withmask = getIPv4addr();</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (this.ipv4.length == this.subnetMasks.length) {</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">            for (int i = 0; i &lt; this.subnetMasks.length; i++) {</span>
+<span class="nc" id="L263">                ipv4withmask[i] += &quot;/&quot; + this.subnetMasks[i];</span>
             }
         }
-<span class="nc" id="L267">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(ipv4withmask)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L268">        String[] ipv6withprefixlength = getIPv6addr();</span>
-<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (this.ipv6.length == this.prefixLengths.length) {</span>
-<span class="nc bnc" id="L270" title="All 2 branches missed.">            for (int j = 0; j &lt; this.prefixLengths.length; j++) {</span>
-<span class="nc" id="L271">                ipv6withprefixlength[j] += &quot;/&quot; + this.prefixLengths[j];</span>
+<span class="nc" id="L266">        sb.append(&quot;  IPv4: &quot;).append(Arrays.toString(ipv4withmask)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L267">        String[] ipv6withprefixlength = getIPv6addr();</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        if (this.ipv6.length == this.prefixLengths.length) {</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">            for (int j = 0; j &lt; this.prefixLengths.length; j++) {</span>
+<span class="nc" id="L270">                ipv6withprefixlength[j] += &quot;/&quot; + this.prefixLengths[j];</span>
             }
         }
-<span class="nc" id="L274">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(ipv6withprefixlength)).append(&quot;\n&quot;);</span>
-<span class="nc" id="L275">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
-<span class="nc" id="L276">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
-<span class="nc" id="L277">                .append(getInDrops() + &quot; drop);&quot;);</span>
-<span class="nc" id="L278">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
-<span class="nc" id="L279">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
-<span class="nc" id="L280">                .append(getCollisions() + &quot; coll);&quot;);</span>
-<span class="nc" id="L281">        return sb.toString();</span>
+<span class="nc" id="L273">        sb.append(&quot;  IPv6: &quot;).append(Arrays.toString(ipv6withprefixlength)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L274">        sb.append(&quot;  Traffic: received &quot;).append(getPacketsRecv()).append(&quot; packets/&quot;)</span>
+<span class="nc" id="L275">                .append(FormatUtil.formatBytes(getBytesRecv())).append(&quot; (&quot; + getInErrors() + &quot; err, &quot;)</span>
+<span class="nc" id="L276">                .append(getInDrops() + &quot; drop);&quot;);</span>
+<span class="nc" id="L277">        sb.append(&quot; transmitted &quot;).append(getPacketsSent()).append(&quot; packets/&quot;)</span>
+<span class="nc" id="L278">                .append(FormatUtil.formatBytes(getBytesSent())).append(&quot; (&quot; + getOutErrors() + &quot; err, &quot;)</span>
+<span class="nc" id="L279">                .append(getCollisions() + &quot; coll);&quot;);</span>
+<span class="nc" id="L280">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

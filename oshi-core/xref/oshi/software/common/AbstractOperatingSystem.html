@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2022-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <em class="jxr_comment">// Initialize based on JVM Bitness. Individual OS implementations will test</em>
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <em class="jxr_comment">// if 32-bit JVM running on 64-bit OS</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">int</strong> jvmBitness = System.getProperty(<span class="jxr_string">"os.arch"</span>).indexOf(<span class="jxr_string">"64"</span>) != -1 ? 64 : 32;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">int</strong> jvmBitness = System.getProperty(<span class="jxr_string">"os.arch"</span>).contains(<span class="jxr_string">"64"</span>) ? 64 : 32;
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">return</strong> queryBitness(jvmBitness);
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  

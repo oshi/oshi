@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OpenBsdCentralProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.openbsd</a> &gt; <span class="el_source">OpenBsdCentralProcessor.java</span></div><h1>OpenBsdCentralProcessor.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -23,18 +23,18 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_IDLE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_INTR;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_NICE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_SYS;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CP_USER;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_HW;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_CPUSPEED;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MACHINE;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.HW_MODEL;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME;
-import static oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_CPTIME2;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_IDLE;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_INTR;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_NICE;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_SYS;
+import static oshi.jna.platform.unix.OpenBsdLibc.CP_USER;
+import static oshi.jna.platform.unix.OpenBsdLibc.CTL_HW;
+import static oshi.jna.platform.unix.OpenBsdLibc.CTL_KERN;
+import static oshi.jna.platform.unix.OpenBsdLibc.HW_CPUSPEED;
+import static oshi.jna.platform.unix.OpenBsdLibc.HW_MACHINE;
+import static oshi.jna.platform.unix.OpenBsdLibc.HW_MODEL;
+import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME;
+import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME2;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -52,7 +52,7 @@ import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.openbsd.OpenBsdLibc;
+import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;

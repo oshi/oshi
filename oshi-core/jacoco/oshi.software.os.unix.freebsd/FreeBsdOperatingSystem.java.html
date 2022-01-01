@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdOperatingSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.freebsd</a> &gt; <span class="el_source">FreeBsdOperatingSystem.java</span></div><h1>FreeBsdOperatingSystem.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.Who;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc;
-import oshi.jna.platform.unix.freebsd.FreeBsdLibc.Timeval;
+import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -224,7 +224,7 @@ import oshi.util.tuples.Pair;
     }
 
     @Override
-    public OSService[] getServices() {
+    public List&lt;OSService&gt; getServices() {
         // Get running services
 <span class="nc" id="L229">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L230">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
@@ -247,7 +247,7 @@ import oshi.util.tuples.Pair;
         } else {
 <span class="nc" id="L248">            LOG.error(&quot;Directory: /etc/init does not exist&quot;);</span>
         }
-<span class="nc" id="L250">        return services.toArray(new OSService[0]);</span>
+<span class="nc" id="L250">        return services;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

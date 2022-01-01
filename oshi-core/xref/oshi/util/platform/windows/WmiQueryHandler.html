@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -184,148 +184,149 @@
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>             }
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>         } <strong class="jxr_keyword">catch</strong> (TimeoutException e) {
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>             LOG.warn(<span class="jxr_string">"WMI query timed out after {} ms: {}"</span>, wmiTimeout, WmiUtil.queryToString(query));
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         }
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">if</strong> (comInit) {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             unInitCOM();
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         }
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">     * COM Exception handler. Logs a warning message.</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     * @param query</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     *            a {@link com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery}</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     *            object.</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     * @param ex</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     *            a {@link com.sun.jna.platform.win32.COM.COMException} object.</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> handleComException(WbemcliUtil.WmiQuery&lt;?&gt; query, COMException ex) {
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         LOG.warn(
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>                 <span class="jxr_string">"COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was {}: {}"</span>,
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 query.getWmiClassName(), ex.getHresult().intValue(), ex.getMessage());
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     }
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * Initializes COM library and sets security to impersonate the local user</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * @return True if COM was initialized and needs to be uninitialized, false</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     *         otherwise</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> initCOM() {
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">boolean</strong> comInit = false;
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <em class="jxr_comment">// Step 1: --------------------------------------------------</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <em class="jxr_comment">// Initialize COM. ------------------------------------------</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         comInit = initCOM(getComThreading());
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">if</strong> (!comInit) {
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             comInit = initCOM(switchComThreading());
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         }
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <em class="jxr_comment">// Step 2: --------------------------------------------------</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <em class="jxr_comment">// Set general COM security levels --------------------------</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">if</strong> (comInit &amp;&amp; !isSecurityInitialized()) {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(<strong class="jxr_keyword">null</strong>, -1, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>,
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>                     Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, <strong class="jxr_keyword">null</strong>, Ole32.EOAC_NONE, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>             <em class="jxr_comment">// If security already initialized we get RPC_E_TOO_LATE</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <em class="jxr_comment">// This can be safely ignored</em>
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 Ole32.INSTANCE.CoUninitialize();
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> COMException(<span class="jxr_string">"Failed to initialize security."</span>, hres);
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>             securityInitialized = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> comInit;
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * Initializes COM with a specific threading model</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * @param coInitThreading</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     *            The threading model</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * @return True if COM was initialized and needs to be uninitialized, false</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     *         otherwise</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> initCOM(<strong class="jxr_keyword">int</strong> coInitThreading) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(<strong class="jxr_keyword">null</strong>, coInitThreading);
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">switch</strong> (hres.intValue()) {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <em class="jxr_comment">// Successful local initialization (S_OK) or was already initialized</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <em class="jxr_comment">// (S_FALSE) but still needs uninit</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <strong class="jxr_keyword">case</strong> COMUtils.S_OK:
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">case</strong> COMUtils.S_FALSE:
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <em class="jxr_comment">// COM was already initialized with a different threading model</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">case</strong> WinError.RPC_E_CHANGED_MODE:
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <em class="jxr_comment">// Any other results is impossible</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> COMException(<span class="jxr_string">"Failed to initialize COM library."</span>, hres);
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         }
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> 
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * UnInitializes COM library. This should be called once for every successful</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * call to initCOM.</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> unInitCOM() {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         Ole32.INSTANCE.CoUninitialize();
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * Returns the current threading model for COM initialization, as OSHI is</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     * required to match if an external program has COM initialized already.</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     * @return The current threading model</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getComThreading() {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">return</strong> comThreading;
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>     }
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     * Switches the current threading model for COM initialization, as OSHI is</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">     * required to match if an external program has COM initialized already.</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     * @return The new threading model after switching</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> switchComThreading() {
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">if</strong> (comThreading == Ole32.COINIT_APARTMENTTHREADED) {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             comThreading = Ole32.COINIT_MULTITHREADED;
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>             comThreading = Ole32.COINIT_APARTMENTTHREADED;
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         }
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">return</strong> comThreading;
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> 
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * Security only needs to be initialized once. This boolean identifies whether</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     * that has happened.</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     * @return Returns the securityInitialized.</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSecurityInitialized() {
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">return</strong> securityInitialized;
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     }
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> 
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * Gets the current WMI timeout. WMI queries will fail if they take longer than</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * this number of milliseconds. A value of -1 is infinite (no timeout).</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     * @return Returns the current value of wmiTimeout.</em>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getWmiTimeout() {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">return</strong> wmiTimeout;
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>     }
-<a class="jxr_linenumber" name="L308" href="#L308">308</a> 
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     * Sets the WMI timeout. WMI queries will fail if they take longer than this</em>
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">     * number of milliseconds.</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     * @param wmiTimeout</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">     *            The wmiTimeout to set, in milliseconds. To disable timeouts, set</em>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     *            timeout as -1 (infinite).</em>
-<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWmiTimeout(<strong class="jxr_keyword">int</strong> wmiTimeout) {
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">this</strong>.wmiTimeout = wmiTimeout;
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>     }
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">if</strong> (comInit) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>                 unInitCOM();
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             }
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         }
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     * COM Exception handler. Logs a warning message.</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     * @param query</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     *            a {@link com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery}</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     *            object.</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     * @param ex</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">     *            a {@link com.sun.jna.platform.win32.COM.COMException} object.</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> handleComException(WbemcliUtil.WmiQuery&lt;?&gt; query, COMException ex) {
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         LOG.warn(
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 <span class="jxr_string">"COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was {}: {}"</span>,
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                 query.getWmiClassName(), ex.getHresult() == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : ex.getHresult().intValue(), ex.getMessage());
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * Initializes COM library and sets security to impersonate the local user</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     * @return True if COM was initialized and needs to be uninitialized, false</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     *         otherwise</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> initCOM() {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">boolean</strong> comInit = false;
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <em class="jxr_comment">// Step 1: --------------------------------------------------</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <em class="jxr_comment">// Initialize COM. ------------------------------------------</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         comInit = initCOM(getComThreading());
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">if</strong> (!comInit) {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             comInit = initCOM(switchComThreading());
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         }
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <em class="jxr_comment">// Step 2: --------------------------------------------------</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <em class="jxr_comment">// Set general COM security levels --------------------------</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">if</strong> (comInit &amp;&amp; !isSecurityInitialized()) {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>             WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(<strong class="jxr_keyword">null</strong>, -1, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>                     Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, <strong class="jxr_keyword">null</strong>, Ole32.EOAC_NONE, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <em class="jxr_comment">// If security already initialized we get RPC_E_TOO_LATE</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             <em class="jxr_comment">// This can be safely ignored</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">if</strong> (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 Ole32.INSTANCE.CoUninitialize();
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> COMException(<span class="jxr_string">"Failed to initialize security."</span>, hres);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>             }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>             securityInitialized = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">return</strong> comInit;
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     }
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * Initializes COM with a specific threading model</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * @param coInitThreading</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     *            The threading model</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     * @return True if COM was initialized and needs to be uninitialized, false</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     *         otherwise</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> initCOM(<strong class="jxr_keyword">int</strong> coInitThreading) {
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(<strong class="jxr_keyword">null</strong>, coInitThreading);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">switch</strong> (hres.intValue()) {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <em class="jxr_comment">// Successful local initialization (S_OK) or was already initialized</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <em class="jxr_comment">// (S_FALSE) but still needs uninit</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">case</strong> COMUtils.S_OK:
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">case</strong> COMUtils.S_FALSE:
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <em class="jxr_comment">// COM was already initialized with a different threading model</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">case</strong> WinError.RPC_E_CHANGED_MODE:
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <em class="jxr_comment">// Any other results is impossible</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> COMException(<span class="jxr_string">"Failed to initialize COM library."</span>, hres);
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     }
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> 
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * UnInitializes COM library. This should be called once for every successful</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * call to initCOM.</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> unInitCOM() {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         Ole32.INSTANCE.CoUninitialize();
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>     }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     * Returns the current threading model for COM initialization, as OSHI is</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     * required to match if an external program has COM initialized already.</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     * @return The current threading model</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getComThreading() {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">return</strong> comThreading;
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     }
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">     * Switches the current threading model for COM initialization, as OSHI is</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">     * required to match if an external program has COM initialized already.</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     * @return The new threading model after switching</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> switchComThreading() {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">if</strong> (comThreading == Ole32.COINIT_APARTMENTTHREADED) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             comThreading = Ole32.COINIT_MULTITHREADED;
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>             comThreading = Ole32.COINIT_APARTMENTTHREADED;
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">return</strong> comThreading;
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     }
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> 
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     * Security only needs to be initialized once. This boolean identifies whether</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * that has happened.</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * @return Returns the securityInitialized.</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isSecurityInitialized() {
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">return</strong> securityInitialized;
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     }
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * Gets the current WMI timeout. WMI queries will fail if they take longer than</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     * this number of milliseconds. A value of -1 is infinite (no timeout).</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     * @return Returns the current value of wmiTimeout.</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getWmiTimeout() {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <strong class="jxr_keyword">return</strong> wmiTimeout;
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">     * Sets the WMI timeout. WMI queries will fail if they take longer than this</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     * number of milliseconds.</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">     * @param wmiTimeout</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     *            The wmiTimeout to set, in milliseconds. To disable timeouts, set</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     *            timeout as -1 (infinite).</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setWmiTimeout(<strong class="jxr_keyword">int</strong> wmiTimeout) {
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">this</strong>.wmiTimeout = wmiTimeout;
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2019-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -71,64 +71,63 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">int</strong> dot = hn.indexOf('.');
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">if</strong> (dot == -1) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <strong class="jxr_keyword">return</strong> hn;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <strong class="jxr_keyword">return</strong> hn.substring(0, dot);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e.getMessage());
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      @Override
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> String[] getDnsServers() {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          List&lt;String&gt; resolv = FileUtil.readFile(<span class="jxr_string">"/etc/resolv.conf"</span>);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          String key = NAMESERVER;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">int</strong> maxNameServer = 3;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          List&lt;String&gt; servers = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; resolv.size() &amp;&amp; servers.size() &lt; maxNameServer; i++) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              String line = resolv.get(i);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(key)) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  String value = line.substring(key.length()).replaceFirst(<span class="jxr_string">"^[ \t]+"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  <strong class="jxr_keyword">if</strong> (value.length() != 0 &amp;&amp; value.charAt(0) != '#' &amp;&amp; value.charAt(0) != ';') {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                      String val = value.split(<span class="jxr_string">"[ \t#;]"</span>, 2)[0];
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                      servers.add(val);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  }
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              }
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> servers.toArray(<strong class="jxr_keyword">new</strong> String[0]);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * Convenience method to parse the output of the `route` command. While the</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     * command arguments vary between OS's the output is consistently parsable.</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     * @param lines</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     *            output of OS-specific route command</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     * @return default gateway</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String searchGateway(List&lt;String&gt; lines) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             String leftTrimmed = line.replaceFirst(<span class="jxr_string">"^&#92;&#92;s+"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">if</strong> (leftTrimmed.startsWith(<span class="jxr_string">"gateway:"</span>)) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 String[] split = ParseUtil.whitespaces.split(leftTrimmed);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 <strong class="jxr_keyword">if</strong> (split.length &lt; 2) {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                     <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 <strong class="jxr_keyword">return</strong> split[1].split(<span class="jxr_string">"%"</span>)[0];
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         }
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> 
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @Override
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s"</span>,
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                 <strong class="jxr_keyword">this</strong>.getHostName(), <strong class="jxr_keyword">this</strong>.getDomainName(), Arrays.toString(<strong class="jxr_keyword">this</strong>.getDnsServers()),
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 <strong class="jxr_keyword">this</strong>.getIpv4DefaultGateway(), <strong class="jxr_keyword">this</strong>.getIpv6DefaultGateway());
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">return</strong> hn.substring(0, dot);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              LOG.error(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e.getMessage());
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      @Override
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> String[] getDnsServers() {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          List&lt;String&gt; resolv = FileUtil.readFile(<span class="jxr_string">"/etc/resolv.conf"</span>);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          String key = NAMESERVER;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">int</strong> maxNameServer = 3;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          List&lt;String&gt; servers = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; resolv.size() &amp;&amp; servers.size() &lt; maxNameServer; i++) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              String line = resolv.get(i);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(key)) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  String value = line.substring(key.length()).replaceFirst(<span class="jxr_string">"^[ \t]+"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">if</strong> (value.length() != 0 &amp;&amp; value.charAt(0) != '#' &amp;&amp; value.charAt(0) != ';') {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                      String val = value.split(<span class="jxr_string">"[ \t#;]"</span>, 2)[0];
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                      servers.add(val);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          }
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">return</strong> servers.toArray(<strong class="jxr_keyword">new</strong> String[0]);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     * Convenience method to parse the output of the `route` command. While the</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * command arguments vary between OS's the output is consistently parsable.</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * @param lines</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     *            output of OS-specific route command</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     * @return default gateway</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String searchGateway(List&lt;String&gt; lines) {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             String leftTrimmed = line.replaceFirst(<span class="jxr_string">"^&#92;&#92;s+"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">if</strong> (leftTrimmed.startsWith(<span class="jxr_string">"gateway:"</span>)) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 String[] split = ParseUtil.whitespaces.split(leftTrimmed);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">if</strong> (split.length &lt; 2) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 <strong class="jxr_keyword">return</strong> split[1].split(<span class="jxr_string">"%"</span>)[0];
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     @Override
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">return</strong> String.format(<span class="jxr_string">"Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s"</span>,
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 <strong class="jxr_keyword">this</strong>.getHostName(), <strong class="jxr_keyword">this</strong>.getDomainName(), Arrays.toString(<strong class="jxr_keyword">this</strong>.getDnsServers()),
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                 <strong class="jxr_keyword">this</strong>.getIpv4DefaultGateway(), <strong class="jxr_keyword">this</strong>.getIpv6DefaultGateway());
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
