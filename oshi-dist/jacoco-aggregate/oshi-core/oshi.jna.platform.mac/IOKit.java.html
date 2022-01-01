@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>IOKit.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.mac</a> &gt; <span class="el_source">IOKit.java</span></div><h1>IOKit.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -26,6 +26,7 @@ package oshi.jna.platform.mac;
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.NativeLongByReference;
 
 /**
@@ -34,7 +35,67 @@ import com.sun.jna.ptr.NativeLongByReference;
  */
 public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 
-<span class="nc" id="L37">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
+<span class="nc" id="L38">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
+
+    /*
+     * Do not commit SMC structures to JNA
+     */
+    /**
+     * Holds the return value of SMC version query.
+     */
+<span class="nc" id="L46">    @FieldOrder({ &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; }) class SMCKeyDataVers extends Structure {</span>
+        public byte major;
+        public byte minor;
+        public byte build;
+        public byte reserved;
+        public short release;
+
+    }
+
+    /**
+     * Holds the return value of SMC pLimit query.
+     */
+<span class="nc" id="L58">    @FieldOrder({ &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; }) class SMCKeyDataPLimitData extends Structure {</span>
+        public short version;
+        public short length;
+        public int cpuPLimit;
+        public int gpuPLimit;
+        public int memPLimit;
+    }
+
+    /**
+     * Holds the return value of SMC KeyInfo query.
+     */
+<span class="nc" id="L69">    @FieldOrder({ &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; }) class SMCKeyDataKeyInfo extends Structure {</span>
+        public int dataSize;
+        public int dataType;
+        public byte dataAttributes;
+    }
+
+    /**
+     * Holds the return value of SMC query.
+     */
+<span class="nc" id="L78">    @FieldOrder({ &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;, &quot;data32&quot;, &quot;bytes&quot; }) class SMCKeyData extends Structure {</span>
+        public int key;
+        public SMCKeyDataVers vers;
+        public SMCKeyDataPLimitData pLimitData;
+        public SMCKeyDataKeyInfo keyInfo;
+        public byte result;
+        public byte status;
+        public byte data8;
+        public int data32;
+<span class="nc" id="L87">        public byte[] bytes = new byte[32];</span>
+    }
+
+    /**
+     * Holds an SMC value
+     */
+<span class="nc" id="L93">    @FieldOrder({ &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; }) class SMCVal extends Structure {</span>
+<span class="nc" id="L94">        public byte[] key = new byte[5];</span>
+        public int dataSize;
+<span class="nc" id="L96">        public byte[] dataType = new byte[5];</span>
+<span class="nc" id="L97">        public byte[] bytes = new byte[32];</span>
+    }
 
     /*
      * Beta/Non-API do not commit to JNA

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>UserComInit.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo</a> &gt; <span class="el_source">UserComInit.java</span></div><h1>UserComInit.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -28,59 +28,61 @@ import com.sun.jna.platform.win32.COM.COMException; // NOSONAR squid:S1191
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.util.platform.windows.WmiQueryHandler;
 
+import java.util.Objects;
+
 /**
  * Class demonstrating WMI stat performance improvements if the user does COM
  * initialization so OSHI doesn't have to
  */
-<span class="nc" id="L35">public class UserComInit {</span>
+<span class="nc" id="L37">public class UserComInit {</span>
 
     private static final int REPETITIONS = 300;
 
     public static void main(String[] args) {
-<span class="nc" id="L40">        wakeUpCom();</span>
-<span class="nc" id="L41">        System.out.println(&quot;Collecting statistics with default COM setup&quot;);</span>
-<span class="nc" id="L42">        loopWmiQueries();</span>
-<span class="nc" id="L43">        System.out.println(&quot;Collecting statistics with user-init COM setup&quot;);</span>
-<span class="nc" id="L44">        loopWmiQueriesWithUserCom();</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L42">        wakeUpCom();</span>
+<span class="nc" id="L43">        System.out.println(&quot;Collecting statistics with default COM setup&quot;);</span>
+<span class="nc" id="L44">        loopWmiQueries();</span>
+<span class="nc" id="L45">        System.out.println(&quot;Collecting statistics with user-init COM setup&quot;);</span>
+<span class="nc" id="L46">        loopWmiQueriesWithUserCom();</span>
+<span class="nc" id="L47">    }</span>
 
     private static void wakeUpCom() {
         // The first COM query can take extra long so just do one separately
-<span class="nc" id="L49">        Win32OperatingSystem.queryOsVersion();</span>
-<span class="nc" id="L50">    }</span>
+<span class="nc" id="L51">        Win32OperatingSystem.queryOsVersion();</span>
+<span class="nc" id="L52">    }</span>
 
     private static void loopWmiQueries() {
-<span class="nc" id="L53">        long t = System.nanoTime();</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        for (int i = 0; i &lt; REPETITIONS; i++) {</span>
-<span class="nc" id="L55">            Win32OperatingSystem.queryOsVersion();</span>
+<span class="nc" id="L55">        long t = System.nanoTime();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (int i = 0; i &lt; REPETITIONS; i++) {</span>
+<span class="nc" id="L57">            Win32OperatingSystem.queryOsVersion();</span>
         }
-<span class="nc" id="L57">        t = System.nanoTime() - t;</span>
-<span class="nc" id="L58">        System.out.println(&quot;Average ms per rep: &quot; + t / (1_000_000d * REPETITIONS));</span>
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L59">        t = System.nanoTime() - t;</span>
+<span class="nc" id="L60">        System.out.println(&quot;Average ms per rep: &quot; + t / (1_000_000d * REPETITIONS));</span>
+<span class="nc" id="L61">    }</span>
 
     private static void loopWmiQueriesWithUserCom() {
         // Create instance using existing WmiQueryHandler class for convenience, only to
         // be used for COM init/uninit. Not needed if user initializes COM.
-<span class="nc" id="L64">        WmiQueryHandler handlerForSingleCOMinit = WmiQueryHandler.createInstance();</span>
+<span class="nc" id="L66">        WmiQueryHandler handlerForSingleCOMinit = Objects.requireNonNull(WmiQueryHandler.createInstance());</span>
 
-<span class="nc" id="L66">        boolean singleComInit = false;</span>
+<span class="nc" id="L68">        boolean singleComInit = false;</span>
         try {
             // Initialize using the default query handler. This is unnecessary in a user
             // application if the application controls COM initialization elsewhere.
-<span class="nc" id="L70">            singleComInit = handlerForSingleCOMinit.initCOM();</span>
+<span class="nc" id="L72">            singleComInit = handlerForSingleCOMinit.initCOM();</span>
 
             // Change query handler class to not initialize COM
-<span class="nc" id="L73">            WmiQueryHandler.setInstanceClass(WmiNoComInitQueryHandler.class);</span>
+<span class="nc" id="L75">            WmiQueryHandler.setInstanceClass(WmiNoComInitQueryHandler.class);</span>
 
-<span class="nc" id="L75">            loopWmiQueries();</span>
-<span class="nc" id="L76">        } catch (COMException e) {</span>
+<span class="nc" id="L77">            loopWmiQueries();</span>
+<span class="nc" id="L78">        } catch (COMException e) {</span>
             // Ignore for demo. Production code should handle this!
         } finally {
             // User should ununitialize COM in their own application
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (singleComInit) {</span>
-<span class="nc" id="L81">                handlerForSingleCOMinit.unInitCOM();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (singleComInit) {</span>
+<span class="nc" id="L83">                handlerForSingleCOMinit.unInitCOM();</span>
             }
         }
-<span class="nc" id="L84">    }</span>
+<span class="nc" id="L86">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

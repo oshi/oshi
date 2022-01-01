@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsLogicalVolumeGroup.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsLogicalVolumeGroup.java</span></div><h1>WindowsLogicalVolumeGroup.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,125 +56,125 @@ import oshi.util.tuples.Pair;
 
 final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
-<span class="nc" id="L58">    private static final Logger LOG = LoggerFactory.getLogger(WindowsLogicalVolumeGroup.class);</span>
+<span class="nc" id="L59">    private static final Logger LOG = LoggerFactory.getLogger(WindowsLogicalVolumeGroup.class);</span>
 
-<span class="nc" id="L60">    private static final Pattern SP_OBJECT_ID = Pattern.compile(&quot;.*ObjectId=.*SP:(\\{.*\\}).*&quot;);</span>
-<span class="nc" id="L61">    private static final Pattern PD_OBJECT_ID = Pattern.compile(&quot;.*ObjectId=.*PD:(\\{.*\\}).*&quot;);</span>
-<span class="nc" id="L62">    private static final Pattern VD_OBJECT_ID = Pattern.compile(&quot;.*ObjectId=.*VD:(\\{.*\\})(\\{.*\\}).*&quot;);</span>
+<span class="nc" id="L61">    private static final Pattern SP_OBJECT_ID = Pattern.compile(&quot;.*ObjectId=.*SP:(\\{.*\\}).*&quot;);</span>
+<span class="nc" id="L62">    private static final Pattern PD_OBJECT_ID = Pattern.compile(&quot;.*ObjectId=.*PD:(\\{.*\\}).*&quot;);</span>
+<span class="nc" id="L63">    private static final Pattern VD_OBJECT_ID = Pattern.compile(&quot;.*ObjectId=.*VD:(\\{.*\\})(\\{.*\\}).*&quot;);</span>
 
-<span class="nc" id="L64">    private static final boolean IS_WINDOWS8_OR_GREATER = VersionHelpers.IsWindows8OrGreater();</span>
+<span class="nc" id="L65">    private static final boolean IS_WINDOWS8_OR_GREATER = VersionHelpers.IsWindows8OrGreater();</span>
 
     WindowsLogicalVolumeGroup(String name, Map&lt;String, Set&lt;String&gt;&gt; lvMap, Set&lt;String&gt; pvSet) {
-<span class="nc" id="L67">        super(name, lvMap, pvSet);</span>
-<span class="nc" id="L68">    }</span>
+<span class="nc" id="L68">        super(name, lvMap, pvSet);</span>
+<span class="nc" id="L69">    }</span>
 
     static List&lt;LogicalVolumeGroup&gt; getLogicalVolumeGroups() {
         // Storage Spaces requires Windows 8 or Server 2012
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!IS_WINDOWS8_OR_GREATER) {</span>
-<span class="nc" id="L73">            return Collections.emptyList();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (!IS_WINDOWS8_OR_GREATER) {</span>
+<span class="nc" id="L74">            return Collections.emptyList();</span>
         }
-<span class="nc" id="L75">        WmiQueryHandler h = WmiQueryHandler.createInstance();</span>
-<span class="nc" id="L76">        boolean comInit = false;</span>
+<span class="nc" id="L76">        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());</span>
+<span class="nc" id="L77">        boolean comInit = false;</span>
         try {
-<span class="nc" id="L78">            comInit = h.initCOM();</span>
+<span class="nc" id="L79">            comInit = h.initCOM();</span>
             // Query Storage Pools first, so we can skip other queries if we have no pools
-<span class="nc" id="L80">            WmiResult&lt;StoragePoolProperty&gt; sp = MSFTStorage.queryStoragePools(h);</span>
-<span class="nc" id="L81">            int count = sp.getResultCount();</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (count == 0) {</span>
-<span class="nc" id="L83">                return Collections.emptyList();</span>
+<span class="nc" id="L81">            WmiResult&lt;StoragePoolProperty&gt; sp = MSFTStorage.queryStoragePools(h);</span>
+<span class="nc" id="L82">            int count = sp.getResultCount();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (count == 0) {</span>
+<span class="nc" id="L84">                return Collections.emptyList();</span>
             }
             // We have storage pool(s) but now need to gather other info
 
             // Get all the Virtual Disks
-<span class="nc" id="L88">            Map&lt;String, String&gt; vdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L89">            WmiResult&lt;VirtualDiskProperty&gt; vds = MSFTStorage.queryVirtualDisks(h);</span>
-<span class="nc" id="L90">            count = vds.getResultCount();</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
-<span class="nc" id="L92">                String vdObjectId = WmiUtil.getString(vds, VirtualDiskProperty.OBJECTID, i);</span>
-<span class="nc" id="L93">                Matcher m = VD_OBJECT_ID.matcher(vdObjectId);</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                if (m.matches()) {</span>
-<span class="nc" id="L95">                    vdObjectId = m.group(2) + &quot; &quot; + m.group(1);</span>
+<span class="nc" id="L89">            Map&lt;String, String&gt; vdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L90">            WmiResult&lt;VirtualDiskProperty&gt; vds = MSFTStorage.queryVirtualDisks(h);</span>
+<span class="nc" id="L91">            count = vds.getResultCount();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L93">                String vdObjectId = WmiUtil.getString(vds, VirtualDiskProperty.OBJECTID, i);</span>
+<span class="nc" id="L94">                Matcher m = VD_OBJECT_ID.matcher(vdObjectId);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                if (m.matches()) {</span>
+<span class="nc" id="L96">                    vdObjectId = m.group(2) + &quot; &quot; + m.group(1);</span>
                 }
                 // Store key with SP|VD
-<span class="nc" id="L98">                vdMap.put(vdObjectId, WmiUtil.getString(vds, VirtualDiskProperty.FRIENDLYNAME, i));</span>
+<span class="nc" id="L99">                vdMap.put(vdObjectId, WmiUtil.getString(vds, VirtualDiskProperty.FRIENDLYNAME, i));</span>
             }
 
             // Get all the Physical Disks
-<span class="nc" id="L102">            Map&lt;String, Pair&lt;String, String&gt;&gt; pdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L103">            WmiResult&lt;PhysicalDiskProperty&gt; pds = MSFTStorage.queryPhysicalDisks(h);</span>
-<span class="nc" id="L104">            count = pds.getResultCount();</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
-<span class="nc" id="L106">                String pdObjectId = WmiUtil.getString(pds, PhysicalDiskProperty.OBJECTID, i);</span>
-<span class="nc" id="L107">                Matcher m = PD_OBJECT_ID.matcher(pdObjectId);</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (m.matches()) {</span>
-<span class="nc" id="L109">                    pdObjectId = m.group(1);</span>
+<span class="nc" id="L103">            Map&lt;String, Pair&lt;String, String&gt;&gt; pdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L104">            WmiResult&lt;PhysicalDiskProperty&gt; pds = MSFTStorage.queryPhysicalDisks(h);</span>
+<span class="nc" id="L105">            count = pds.getResultCount();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L107">                String pdObjectId = WmiUtil.getString(pds, PhysicalDiskProperty.OBJECTID, i);</span>
+<span class="nc" id="L108">                Matcher m = PD_OBJECT_ID.matcher(pdObjectId);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (m.matches()) {</span>
+<span class="nc" id="L110">                    pdObjectId = m.group(1);</span>
                 }
                 // Store key with PD
-<span class="nc" id="L112">                pdMap.put(pdObjectId, new Pair&lt;&gt;(WmiUtil.getString(pds, PhysicalDiskProperty.FRIENDLYNAME, i),</span>
-<span class="nc" id="L113">                        WmiUtil.getString(pds, PhysicalDiskProperty.PHYSICALLOCATION, i)));</span>
+<span class="nc" id="L113">                pdMap.put(pdObjectId, new Pair&lt;&gt;(WmiUtil.getString(pds, PhysicalDiskProperty.FRIENDLYNAME, i),</span>
+<span class="nc" id="L114">                        WmiUtil.getString(pds, PhysicalDiskProperty.PHYSICALLOCATION, i)));</span>
             }
 
             // Get the Storage Pool to Physical Disk mappping
-<span class="nc" id="L117">            Map&lt;String, String&gt; sppdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L118">            WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; sppd = MSFTStorage.queryStoragePoolPhysicalDisks(h);</span>
-<span class="nc" id="L119">            count = sppd.getResultCount();</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L118">            Map&lt;String, String&gt; sppdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L119">            WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; sppd = MSFTStorage.queryStoragePoolPhysicalDisks(h);</span>
+<span class="nc" id="L120">            count = sppd.getResultCount();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
                 // Ref string contains object id, will do partial match later
-<span class="nc" id="L122">                String spObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.STORAGEPOOL, i);</span>
-<span class="nc" id="L123">                Matcher m = SP_OBJECT_ID.matcher(spObjectId);</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">                if (m.matches()) {</span>
-<span class="nc" id="L125">                    spObjectId = m.group(1);</span>
+<span class="nc" id="L123">                String spObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.STORAGEPOOL, i);</span>
+<span class="nc" id="L124">                Matcher m = SP_OBJECT_ID.matcher(spObjectId);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (m.matches()) {</span>
+<span class="nc" id="L126">                    spObjectId = m.group(1);</span>
                 }
-<span class="nc" id="L127">                String pdObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.PHYSICALDISK, i);</span>
-<span class="nc" id="L128">                m = PD_OBJECT_ID.matcher(pdObjectId);</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">                if (m.matches()) {</span>
-<span class="nc" id="L130">                    pdObjectId = m.group(1);</span>
+<span class="nc" id="L128">                String pdObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.PHYSICALDISK, i);</span>
+<span class="nc" id="L129">                m = PD_OBJECT_ID.matcher(pdObjectId);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                if (m.matches()) {</span>
+<span class="nc" id="L131">                    pdObjectId = m.group(1);</span>
                 }
-<span class="nc" id="L132">                sppdMap.put(spObjectId + &quot; &quot; + pdObjectId, pdObjectId);</span>
+<span class="nc" id="L133">                sppdMap.put(spObjectId + &quot; &quot; + pdObjectId, pdObjectId);</span>
             }
 
             // Finally process the storage pools
-<span class="nc" id="L136">            List&lt;LogicalVolumeGroup&gt; lvgList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L137">            count = sp.getResultCount();</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L137">            List&lt;LogicalVolumeGroup&gt; lvgList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L138">            count = sp.getResultCount();</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            for (int i = 0; i &lt; count; i++) {</span>
                 // Name
-<span class="nc" id="L140">                String name = WmiUtil.getString(sp, StoragePoolProperty.FRIENDLYNAME, i);</span>
+<span class="nc" id="L141">                String name = WmiUtil.getString(sp, StoragePoolProperty.FRIENDLYNAME, i);</span>
                 // Parse object ID to match
-<span class="nc" id="L142">                String spObjectId = WmiUtil.getString(sp, StoragePoolProperty.OBJECTID, i);</span>
-<span class="nc" id="L143">                Matcher m = SP_OBJECT_ID.matcher(spObjectId);</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                if (m.matches()) {</span>
-<span class="nc" id="L145">                    spObjectId = m.group(1);</span>
+<span class="nc" id="L143">                String spObjectId = WmiUtil.getString(sp, StoragePoolProperty.OBJECTID, i);</span>
+<span class="nc" id="L144">                Matcher m = SP_OBJECT_ID.matcher(spObjectId);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                if (m.matches()) {</span>
+<span class="nc" id="L146">                    spObjectId = m.group(1);</span>
                 }
                 // find matching physical and logical volumes
-<span class="nc" id="L148">                Set&lt;String&gt; physicalVolumeSet = new HashSet&lt;&gt;();</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">                for (Entry&lt;String, String&gt; entry : sppdMap.entrySet()) {</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">                    if (entry.getKey().contains(spObjectId)) {</span>
-<span class="nc" id="L151">                        String pdObjectId = entry.getValue();</span>
-<span class="nc" id="L152">                        Pair&lt;String, String&gt; nameLoc = pdMap.get(pdObjectId);</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">                        if (nameLoc != null) {</span>
-<span class="nc" id="L154">                            physicalVolumeSet.add(nameLoc.getA() + &quot; @ &quot; + nameLoc.getB());</span>
+<span class="nc" id="L149">                Set&lt;String&gt; physicalVolumeSet = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                for (Entry&lt;String, String&gt; entry : sppdMap.entrySet()) {</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">                    if (entry.getKey().contains(spObjectId)) {</span>
+<span class="nc" id="L152">                        String pdObjectId = entry.getValue();</span>
+<span class="nc" id="L153">                        Pair&lt;String, String&gt; nameLoc = pdMap.get(pdObjectId);</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">                        if (nameLoc != null) {</span>
+<span class="nc" id="L155">                            physicalVolumeSet.add(nameLoc.getA() + &quot; @ &quot; + nameLoc.getB());</span>
                         }
                     }
-<span class="nc" id="L157">                }</span>
+<span class="nc" id="L158">                }</span>
                 // find matching logical volume
-<span class="nc" id="L159">                Map&lt;String, Set&lt;String&gt;&gt; logicalVolumeMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">                for (Entry&lt;String, String&gt; entry : vdMap.entrySet()) {</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">                    if (entry.getKey().contains(spObjectId)) {</span>
-<span class="nc" id="L162">                        String vdObjectId = ParseUtil.whitespaces.split(entry.getKey())[0];</span>
-<span class="nc" id="L163">                        logicalVolumeMap.put(entry.getValue() + &quot; &quot; + vdObjectId, physicalVolumeSet);</span>
+<span class="nc" id="L160">                Map&lt;String, Set&lt;String&gt;&gt; logicalVolumeMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                for (Entry&lt;String, String&gt; entry : vdMap.entrySet()) {</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                    if (entry.getKey().contains(spObjectId)) {</span>
+<span class="nc" id="L163">                        String vdObjectId = ParseUtil.whitespaces.split(entry.getKey())[0];</span>
+<span class="nc" id="L164">                        logicalVolumeMap.put(entry.getValue() + &quot; &quot; + vdObjectId, physicalVolumeSet);</span>
                     }
-<span class="nc" id="L165">                }</span>
+<span class="nc" id="L166">                }</span>
                 // Add to list
-<span class="nc" id="L167">                lvgList.add(new WindowsLogicalVolumeGroup(name, logicalVolumeMap, physicalVolumeSet));</span>
+<span class="nc" id="L168">                lvgList.add(new WindowsLogicalVolumeGroup(name, logicalVolumeMap, physicalVolumeSet));</span>
             }
 
-<span class="nc" id="L170">            return lvgList;</span>
-<span class="nc" id="L171">        } catch (COMException e) {</span>
-<span class="nc" id="L172">            LOG.warn(&quot;COM exception: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L173">            return Collections.emptyList();</span>
+<span class="nc" id="L171">            return lvgList;</span>
+<span class="nc" id="L172">        } catch (COMException e) {</span>
+<span class="nc" id="L173">            LOG.warn(&quot;COM exception: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L174">            return Collections.emptyList();</span>
         } finally {
-<span class="nc bnc" id="L175" title="All 2 branches missed.">            if (comInit) {</span>
-<span class="nc" id="L176">                h.unInitCOM();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">            if (comInit) {</span>
+<span class="nc" id="L177">                h.unInitCOM();</span>
             }
         }
     }

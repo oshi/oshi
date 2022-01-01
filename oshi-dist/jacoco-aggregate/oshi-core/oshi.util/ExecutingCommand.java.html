@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ExecutingCommand.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ExecutingCommand.java</span></div><h1>ExecutingCommand.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -29,13 +29,14 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.PlatformEnum;
-import oshi.SystemInfo;
+import com.sun.jna.Platform;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -45,21 +46,18 @@ import oshi.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ExecutingCommand {
 
-<span class="fc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
+<span class="fc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);</span>
 
-<span class="fc" id="L50">    private static final String[] DEFAULT_ENV = getDefaultEnv();</span>
+<span class="fc" id="L51">    private static final String[] DEFAULT_ENV = getDefaultEnv();</span>
 
     private ExecutingCommand() {
     }
 
     private static String[] getDefaultEnv() {
-<span class="fc" id="L56">        PlatformEnum platform = SystemInfo.getCurrentPlatform();</span>
-<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (platform == PlatformEnum.WINDOWS) {</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (Platform.isWindows()) {</span>
 <span class="nc" id="L58">            return new String[] { &quot;LANGUAGE=C&quot; };</span>
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        } else if (platform != PlatformEnum.UNKNOWN) {</span>
-<span class="fc" id="L60">            return new String[] { &quot;LC_ALL=C&quot; };</span>
         } else {
-<span class="nc" id="L62">            return null; // NOSONAR squid:S1168</span>
+<span class="fc" id="L60">            return new String[] { &quot;LC_ALL=C&quot; };</span>
         }
     }
 
@@ -76,8 +74,8 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List&lt;String&gt; runNative(String cmdToRun) {
-<span class="fc" id="L79">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
-<span class="fc" id="L80">        return runNative(cmd);</span>
+<span class="fc" id="L77">        String[] cmd = cmdToRun.split(&quot; &quot;);</span>
+<span class="fc" id="L78">        return runNative(cmd);</span>
     }
 
     /**
@@ -94,7 +92,7 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List&lt;String&gt; runNative(String[] cmdToRunWithArgs) {
-<span class="fc" id="L97">        return runNative(cmdToRunWithArgs, DEFAULT_ENV);</span>
+<span class="fc" id="L95">        return runNative(cmdToRunWithArgs, DEFAULT_ENV);</span>
     }
 
     /**
@@ -115,31 +113,56 @@ public final class ExecutingCommand {
      *         string if the command failed
      */
     public static List&lt;String&gt; runNative(String[] cmdToRunWithArgs, String[] envp) {
-<span class="fc" id="L118">        Process p = null;</span>
+<span class="fc" id="L116">        Process p = null;</span>
         try {
-<span class="fc" id="L120">            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);</span>
-<span class="fc" id="L121">        } catch (SecurityException | IOException e) {</span>
-<span class="fc" id="L122">            LOG.trace(&quot;Couldn't run command {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
-<span class="fc" id="L123">            return new ArrayList&lt;&gt;(0);</span>
-<span class="fc" id="L124">        }</span>
-
-<span class="fc" id="L126">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L127">        try (BufferedReader reader = new BufferedReader(</span>
-<span class="fc" id="L128">                new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {</span>
-            String line;
-<span class="fc bfc" id="L130" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
-<span class="fc" id="L131">                sa.add(line);</span>
+<span class="fc" id="L118">            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);</span>
+<span class="fc" id="L119">            return getProcessOutput(p, cmdToRunWithArgs);</span>
+<span class="fc" id="L120">        } catch (SecurityException | IOException e) {</span>
+<span class="fc" id="L121">            LOG.trace(&quot;Couldn't run command {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
+        } finally {
+            // Ensure all resources are released
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            if (p != null) {</span>
+                // Windows and Solaris don't close descriptors on destroy,
+                // so we must handle separately
+<span class="pc bpc" id="L127" title="2 of 4 branches missed.">                if (Platform.isWindows() || Platform.isSolaris()) {</span>
+                    try {
+<span class="nc" id="L129">                        p.getOutputStream().close();</span>
+<span class="nc" id="L130">                    } catch (IOException e) {</span>
+                        // do nothing on failure
+<span class="nc" id="L132">                    }</span>
+                    try {
+<span class="nc" id="L134">                        p.getInputStream().close();</span>
+<span class="nc" id="L135">                    } catch (IOException e) {</span>
+                        // do nothing on failure
+<span class="nc" id="L137">                    }</span>
+                    try {
+<span class="nc" id="L139">                        p.getErrorStream().close();</span>
+<span class="nc" id="L140">                    } catch (IOException e) {</span>
+                        // do nothing on failure
+<span class="nc" id="L142">                    }</span>
+                }
+<span class="fc" id="L144">                p.destroy();</span>
             }
-<span class="fc" id="L133">            p.waitFor();</span>
-<span class="nc" id="L134">        } catch (IOException e) {</span>
-<span class="nc" id="L135">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs), e.getMessage());</span>
-<span class="nc" id="L136">            return new ArrayList&lt;&gt;(0);</span>
-<span class="nc" id="L137">        } catch (InterruptedException ie) {</span>
-<span class="nc" id="L138">            LOG.trace(&quot;Interrupted while reading output from {}: {}&quot;, Arrays.toString(cmdToRunWithArgs),</span>
-<span class="nc" id="L139">                    ie.getMessage());</span>
-<span class="nc" id="L140">            Thread.currentThread().interrupt();</span>
-<span class="fc" id="L141">        }</span>
-<span class="fc" id="L142">        return sa;</span>
+        }
+<span class="fc" id="L147">        return Collections.emptyList();</span>
+    }
+
+    private static List&lt;String&gt; getProcessOutput(Process p, String[] cmd) {
+<span class="fc" id="L151">        ArrayList&lt;String&gt; sa = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L152">        try (BufferedReader reader = new BufferedReader(</span>
+<span class="fc" id="L153">                new InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {</span>
+            String line;
+<span class="fc bfc" id="L155" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L156">                sa.add(line);</span>
+            }
+<span class="fc" id="L158">            p.waitFor();</span>
+<span class="nc" id="L159">        } catch (IOException e) {</span>
+<span class="nc" id="L160">            LOG.trace(&quot;Problem reading output from {}: {}&quot;, Arrays.toString(cmd), e.getMessage());</span>
+<span class="nc" id="L161">        } catch (InterruptedException ie) {</span>
+<span class="nc" id="L162">            LOG.trace(&quot;Interrupted while reading output from {}: {}&quot;, Arrays.toString(cmd), ie.getMessage());</span>
+<span class="nc" id="L163">            Thread.currentThread().interrupt();</span>
+<span class="pc" id="L164">        }</span>
+<span class="fc" id="L165">        return sa;</span>
     }
 
     /**
@@ -150,7 +173,7 @@ public final class ExecutingCommand {
      * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
-<span class="fc" id="L153">        return getAnswerAt(cmd2launch, 0);</span>
+<span class="fc" id="L176">        return getAnswerAt(cmd2launch, 0);</span>
     }
 
     /**
@@ -165,12 +188,12 @@ public final class ExecutingCommand {
      *         running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
-<span class="fc" id="L168">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
+<span class="fc" id="L191">        List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);</span>
 
-<span class="pc bpc" id="L170" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
-<span class="fc" id="L171">            return sa.get(answerIdx);</span>
+<span class="pc bpc" id="L193" title="1 of 4 branches missed.">        if (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {</span>
+<span class="fc" id="L194">            return sa.get(answerIdx);</span>
         }
-<span class="fc" id="L173">        return &quot;&quot;;</span>
+<span class="fc" id="L196">        return &quot;&quot;;</span>
     }
 
 }

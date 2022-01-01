@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisLibc.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">SolarisLibc.java</span></div><h1>SolarisLibc.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.unix;
+
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.NativeLong;
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
+
+/**
+ * C library. This class should be considered non-API as it may be removed
+ * if/when its code is incorporated into the JNA project.
+ */
+public interface SolarisLibc extends CLibrary {
+
+<span class="nc" id="L37">    SolarisLibc INSTANCE = Native.load(&quot;c&quot;, SolarisLibc.class);</span>
+
+    int UTX_USERSIZE = 32;
+    int UTX_LINESIZE = 32;
+    int UTX_IDSIZE = 4;
+    int UTX_HOSTSIZE = 257;
+
+    /**
+     * Connection info
+     */
+    @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_session&quot;, &quot;ut_syslen&quot;, &quot;ut_host&quot; })
+<span class="nc" id="L48">    class SolarisUtmpx extends Structure {</span>
+<span class="nc" id="L49">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
+<span class="nc" id="L50">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
+<span class="nc" id="L51">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
+        public int ut_pid; // process id
+        public short ut_type; // type of entry
+        public Timeval ut_tv; // time entry was made
+        public int ut_session; // session ID, used for windowing
+        public short ut_syslen; // significant length of ut_host including terminating null
+<span class="nc" id="L57">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+    }
+
+    /**
+     * Part of utmpx structure
+     */
+    @FieldOrder({ &quot;e_termination&quot;, &quot;e_exit&quot; })
+<span class="nc" id="L64">    class Exit_status extends Structure {</span>
+        public short e_termination; // Process termination status
+        public short e_exit; // Process exit status
+    }
+
+    /**
+     * 64-bit timeval required for utmpx structure
+     */
+    @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
+<span class="nc" id="L73">    class Timeval extends Structure {</span>
+        public NativeLong tv_sec; // seconds
+        public NativeLong tv_usec; // microseconds
+    }
+
+    /**
+     * Reads a line from the current file position in the utmp file. It returns a
+     * pointer to a structure containing the fields of the line.
+     * &lt;p&gt;
+     * Not thread safe
+     *
+     * @return a {@link SolarisUtmpx} on success, and NULL on failure (which
+     *         includes the &quot;record not found&quot; case)
+     */
+    SolarisUtmpx getutxent();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
