@@ -1,4 +1,8 @@
-# 6.0.0 (in progress)
+# 6.0.1 (in progress)
+
+* Your contribution here!
+
+# 6.0.0 (2021-12-31)
 
 ##### Breaking Changes
 * [#1724](https://github.com/oshi/oshi/pull/1724): Removed deprecated MACOSX value from PlatformEnum and SystemInfo and removed the getCurrentPlatformEnum() method - [@Novaenn](https://github.com/Novaenn).
