@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSProcess.java</span></div><h1>OSProcess.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -62,11 +62,6 @@ public interface OSProcess {
      * require the end user to parse the result. Users should generally prefer
      * {@link #getArguments()} which already parses the results, and use this method
      * as a backup.
-     * &lt;p&gt;
-     * On Linux and macOS systems, the string is null-character-delimited, to permit
-     * the end user to parse the executable and arguments if desired. This
-     * null-delimited behavior may change in future versions and should not be
-     * relied upon; use {@link #getArguments()} instead.
      * &lt;p&gt;
      * On AIX and Solaris, the string may be truncated to 80 characters if there was
      * insufficient permission to read the process memory.
@@ -388,7 +383,7 @@ public interface OSProcess {
      * @return minor page faults (reclaims).
      */
     default long getMinorFaults() {
-<span class="nc" id="L391">        return 0L;</span>
+<span class="nc" id="L386">        return 0L;</span>
     }
 
     /**
@@ -402,7 +397,7 @@ public interface OSProcess {
      * @return major page faults.
      */
     default long getMajorFaults() {
-<span class="nc" id="L405">        return 0L;</span>
+<span class="nc" id="L400">        return 0L;</span>
     }
 
     /**
@@ -418,51 +413,51 @@ public interface OSProcess {
      *         0 otherwise.
      */
     default long getContextSwitches() {
-<span class="nc" id="L421">        return 0L;</span>
+<span class="nc" id="L416">        return 0L;</span>
     }
 
     /**
      * Process and Thread Execution States
      */
-<span class="fc" id="L427">    enum State {</span>
+<span class="fc" id="L422">    enum State {</span>
         /**
          * Intermediate state in process creation
          */
-<span class="fc" id="L431">        NEW,</span>
+<span class="fc" id="L426">        NEW,</span>
         /**
          * Actively executing process
          */
-<span class="fc" id="L435">        RUNNING,</span>
+<span class="fc" id="L430">        RUNNING,</span>
         /**
          * Interruptible sleep state
          */
-<span class="fc" id="L439">        SLEEPING,</span>
+<span class="fc" id="L434">        SLEEPING,</span>
         /**
          * Blocked, uninterruptible sleep state
          */
-<span class="fc" id="L443">        WAITING,</span>
+<span class="fc" id="L438">        WAITING,</span>
         /**
          * Intermediate state in process termination
          */
-<span class="fc" id="L447">        ZOMBIE,</span>
+<span class="fc" id="L442">        ZOMBIE,</span>
         /**
          * Stopped by the user, such as for debugging
          */
-<span class="fc" id="L451">        STOPPED,</span>
+<span class="fc" id="L446">        STOPPED,</span>
         /**
          * Other or unknown states not defined
          */
-<span class="fc" id="L455">        OTHER,</span>
+<span class="fc" id="L450">        OTHER,</span>
         /**
          * The state resulting if the process fails to update statistics, probably due
          * to termination.
          */
-<span class="fc" id="L460">        INVALID,</span>
+<span class="fc" id="L455">        INVALID,</span>
         /**
          * Special case of waiting if the process has been intentionally suspended
          * (Windows only)
          */
-<span class="fc" id="L465">        SUSPENDED</span>
+<span class="fc" id="L460">        SUSPENDED</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
