@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -261,8 +261,8 @@
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>         }
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>         Pointer p = KS.kstat_data_lookup(ksp, name);
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">if</strong> (p == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 LOG.error(<span class="jxr_string">"Failed lo lookup kstat value on {}:{}:{} for key {}"</span>,
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 LOG.debug(<span class="jxr_string">"Failed lo lookup kstat value on {}:{}:{} for key {}"</span>,
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>                         Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>                         Native.toString(ksp.ks_name, StandardCharsets.US_ASCII), name);
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>             }

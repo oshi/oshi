@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -115,37 +115,35 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>                 is(greaterThanOrEqualTo(0L)));
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertThat(<span class="jxr_string">"NetworkIF collisions after update attr should not be negative"</span>, net.getCollisions(),
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>                 is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertThat(<span class="jxr_string">"NetworkIF speed after update attr should not be negative"</span>, net.getSpeed(),
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertThat(<span class="jxr_string">"NetworkIF time stamp after update attr should not be negative"</span>, net.getTimeStamp(),
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 is(greaterThan(0L)));
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> 
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * Test all network interfaces extraction.</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     @Test
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">void</strong> testNonLocalNetworkInterfaces() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : si.getHardware().getNetworkIFs(false)) {
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>             assertThat(<span class="jxr_string">"NetworkIF should not be null"</span>, net.queryNetworkInterface(), is(notNullValue()));
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>             assertThat(<span class="jxr_string">"Network interface is not localhost "</span> + net.getDisplayName(),
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                     net.queryNetworkInterface().isLoopback(), is(false));
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             assertThat(<span class="jxr_string">"Network interface has a hardware address"</span>, net.queryNetworkInterface().getHardwareAddress(),
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                     is(notNullValue()));
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <em class="jxr_comment">// On Windows, virtual interfaces may return max unsigned int value, -1.</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             assertThat(<span class="jxr_string">"NetworkIF MTU should not be negative"</span>, net.getMTU(), is(greaterThanOrEqualTo(0)));
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>             assertThat(<span class="jxr_string">"NetworkIF MacAddress should not be null"</span>, net.getMacaddr(), is(notNullValue()));
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     }
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertThat(<span class="jxr_string">"NetworkIF MTU should not be negative"</span>, net.getMTU(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertThat(<span class="jxr_string">"NetworkIF speed after update attr should not be negative"</span>, net.getSpeed(),
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertThat(<span class="jxr_string">"NetworkIF time stamp after update attr should not be negative"</span>, net.getTimeStamp(),
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 is(greaterThan(0L)));
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     * Test all network interfaces extraction.</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     *             Signals that an I/O exception has occurred.</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     @Test
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">void</strong> testNonLocalNetworkInterfaces() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">for</strong> (NetworkIF net : si.getHardware().getNetworkIFs(false)) {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             assertThat(<span class="jxr_string">"NetworkIF should not be null"</span>, net.queryNetworkInterface(), is(notNullValue()));
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             assertThat(<span class="jxr_string">"Network interface is not localhost "</span> + net.getDisplayName(),
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                     net.queryNetworkInterface().isLoopback(), is(false));
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             assertThat(<span class="jxr_string">"Network interface has a hardware address"</span>, net.queryNetworkInterface().getHardwareAddress(),
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                     is(notNullValue()));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             assertThat(<span class="jxr_string">"NetworkIF MacAddress should not be null"</span>, net.getMacaddr(), is(notNullValue()));
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

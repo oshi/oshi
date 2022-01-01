@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -121,30 +121,29 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">     *         in the pair otherwise</em>
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Pair&lt;String, String&gt; queryBiosNameRev() {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         String biosName = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         String revision = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">final</strong> String biosMarker = <span class="jxr_string">"SMBIOS"</span>;
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">final</strong> String revMarker = <span class="jxr_string">"Bios Revision:"</span>;
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <em class="jxr_comment">// Requires root, may not return anything</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t bios"</span>)) {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(biosMarker)) {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 String[] biosArr = ParseUtil.whitespaces.split(checkLine);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 <strong class="jxr_keyword">if</strong> (biosArr.length &gt;= 2) {
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     biosName = biosArr[0] + <span class="jxr_string">" "</span> + biosArr[1];
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             }
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(revMarker)) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 revision = checkLine.split(revMarker)[1].trim();
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <em class="jxr_comment">// SMBIOS should be first line so if we're here we are done iterating</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(biosName, revision);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         String biosName = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         String revision = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">final</strong> String biosMarker = <span class="jxr_string">"SMBIOS"</span>;
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">final</strong> String revMarker = <span class="jxr_string">"Bios Revision:"</span>;
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <em class="jxr_comment">// Requires root, may not return anything</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t bios"</span>)) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(biosMarker)) {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 String[] biosArr = ParseUtil.whitespaces.split(checkLine);
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <strong class="jxr_keyword">if</strong> (biosArr.length &gt;= 2) {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     biosName = biosArr[0] + <span class="jxr_string">" "</span> + biosArr[1];
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(revMarker)) {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 revision = checkLine.split(revMarker)[1].trim();
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <em class="jxr_comment">// SMBIOS should be first line so if we're here we are done iterating</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(biosName, revision);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

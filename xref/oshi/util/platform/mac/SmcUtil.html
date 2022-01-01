@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -41,281 +41,220 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong; <em class="jxr_comment">// NOSONAR squid:S1191</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure.FieldOrder;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IOConnect;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IOService;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKitUtil;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.NativeLongByReference;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> * Provides access to SMC calls on macOS</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="SmcUtil" href="../../../../oshi/util/platform/mac/SmcUtil.html#SmcUtil">SmcUtil</a> {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(SmcUtil.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="IOKit" href="../../../../oshi/jna/platform/mac/IOKit.html#IOKit">IOKit</a> IO = IOKit.INSTANCE;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * Holds the return value of SMC version query.</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      @FieldOrder({ <span class="jxr_string">"major"</span>, <span class="jxr_string">"minor"</span>, <span class="jxr_string">"build"</span>, <span class="jxr_string">"reserved"</span>, <span class="jxr_string">"release"</span> })
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SMCKeyDataVers <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> byte major;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> byte minor;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">public</strong> byte build;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> byte reserved;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> release;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * Holds the return value of SMC pLimit query.</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      @FieldOrder({ <span class="jxr_string">"version"</span>, <span class="jxr_string">"length"</span>, <span class="jxr_string">"cpuPLimit"</span>, <span class="jxr_string">"gpuPLimit"</span>, <span class="jxr_string">"memPLimit"</span> })
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SMCKeyDataPLimitData <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> version;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> length;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> cpuPLimit;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> gpuPLimit;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> memPLimit;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     * Holds the return value of SMC KeyInfo query.</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      @FieldOrder({ <span class="jxr_string">"dataSize"</span>, <span class="jxr_string">"dataType"</span>, <span class="jxr_string">"dataAttributes"</span> })
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SMCKeyDataKeyInfo <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> dataSize;
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> dataType;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">public</strong> byte dataAttributes;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * Holds the return value of SMC query.</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      @FieldOrder({ <span class="jxr_string">"key"</span>, <span class="jxr_string">"vers"</span>, <span class="jxr_string">"pLimitData"</span>, <span class="jxr_string">"keyInfo"</span>, <span class="jxr_string">"result"</span>, <span class="jxr_string">"status"</span>, <span class="jxr_string">"data8"</span>, <span class="jxr_string">"data32"</span>, <span class="jxr_string">"bytes"</span> })
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SMCKeyData <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> key;
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">public</strong> SMCKeyDataVers vers;
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">public</strong> SMCKeyDataPLimitData pLimitData;
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">public</strong> SMCKeyDataKeyInfo keyInfo;
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">public</strong> byte result;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">public</strong> byte status;
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">public</strong> byte data8;
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> data32;
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">public</strong> byte[] bytes = <strong class="jxr_keyword">new</strong> byte[32];
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
-<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     * Holds an SMC value</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     @FieldOrder({ <span class="jxr_string">"key"</span>, <span class="jxr_string">"dataSize"</span>, <span class="jxr_string">"dataType"</span>, <span class="jxr_string">"bytes"</span> })
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SMCVal <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">public</strong> byte[] key = <strong class="jxr_keyword">new</strong> byte[5];
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> dataSize;
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">public</strong> byte[] dataType = <strong class="jxr_keyword">new</strong> byte[5];
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">public</strong> byte[] bytes = <strong class="jxr_keyword">new</strong> byte[32];
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * Thread-safe map for caching info retrieved by a key necessary for subsequent</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * calls.</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, SMCKeyDataKeyInfo&gt; keyInfoCache = <strong class="jxr_keyword">new</strong> ConcurrentHashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * Byte array used for matching return type</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] DATATYPE_SP78 = ParseUtil.asciiStringToByteArray(<span class="jxr_string">"sp78"</span>, 5);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] DATATYPE_FPE2 = ParseUtil.asciiStringToByteArray(<span class="jxr_string">"fpe2"</span>, 5);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] DATATYPE_FLT = ParseUtil.asciiStringToByteArray(<span class="jxr_string">"flt "</span>, 5);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_FAN_NUM = <span class="jxr_string">"FNum"</span>;
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_FAN_SPEED = <span class="jxr_string">"F%dAc"</span>;
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_CPU_TEMP = <span class="jxr_string">"TC0P"</span>;
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_CPU_VOLTAGE = <span class="jxr_string">"VC0C"</span>;
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte SMC_CMD_READ_BYTES = 5;
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte SMC_CMD_READ_KEYINFO = 9;
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> KERNEL_INDEX_SMC = 2;
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">private</strong> <a name="SmcUtil" href="../../../../oshi/util/platform/mac/SmcUtil.html#SmcUtil">SmcUtil</a>() {
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * Open a connection to SMC.</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * @return The connection if successful, null if failure</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> IOConnect smcOpen() {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         IOService smcService = IOKitUtil.getMatchingService(<span class="jxr_string">"AppleSMC"</span>);
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">if</strong> (smcService != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             PointerByReference connPtr = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">int</strong> result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             smcService.release();
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">if</strong> (result == 0) {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> IOConnect(connPtr.getValue());
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 LOG.error(String.format(<span class="jxr_string">"Unable to open connection to AppleSMC service. Error: 0x%08x"</span>, result));
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             LOG.error(<span class="jxr_string">"Unable to locate AppleSMC service"</span>);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     * Close connection to SMC.</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * @param conn</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     *            The connection</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcClose(IOConnect conn) {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">return</strong> IO.IOServiceClose(conn);
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
-<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     * Get a value from SMC which is in a floating point datatype (SP78, FPE2, FLT)</em>
-<a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     * @param conn</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     *            The connection</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">     * @param key</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">     *            The key to retrieve</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">     * @return Double representing the value</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> smcGetFloat(IOConnect conn, String key) {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         SMCVal val = <strong class="jxr_keyword">new</strong> SMCVal();
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <strong class="jxr_keyword">int</strong> result = smcReadKey(conn, key, val);
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">if</strong> (result == 0 &amp;&amp; val.dataSize &gt; 0) {
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_SP78) &amp;&amp; val.dataSize == 2) {
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>                 <em class="jxr_comment">// First bit is sign, next 7 bits are integer portion, last 8 bits are</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>                 <em class="jxr_comment">// fractional portion</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>                 <strong class="jxr_keyword">return</strong> val.bytes[0] + val.bytes[1] / 256d;
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_FPE2) &amp;&amp; val.dataSize == 2) {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 <em class="jxr_comment">// First E (14) bits are integer portion last 2 bits are fractional portion</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_FLT) &amp;&amp; val.dataSize == 4) {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 <em class="jxr_comment">// Standard 32-bit floating point</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>                 <strong class="jxr_keyword">return</strong> ByteBuffer.wrap(val.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             }
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         }
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <em class="jxr_comment">// Read failed</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">return</strong> 0d;
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     }
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     * Get a 64-bit integer value from SMC</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     * @param conn</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     *            The connection</em>
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     * @param key</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     *            The key to retrieve</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     * @return Long representing the value</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> smcGetLong(IOConnect conn, String key) {
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         SMCVal val = <strong class="jxr_keyword">new</strong> SMCVal();
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">int</strong> result = smcReadKey(conn, key, val);
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">if</strong> (result == 0) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             <strong class="jxr_keyword">return</strong> ParseUtil.byteArrayToLong(val.bytes, val.dataSize);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         }
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <em class="jxr_comment">// Read failed</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     }
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     * Get cached keyInfo if it exists, or generate new keyInfo</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * @param conn</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     *            The connection</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * @param inputStructure</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     *            Key data input</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * @param outputStructure</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     *            Key data output</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcGetKeyInfo(IOConnect conn, SMCKeyData inputStructure, SMCKeyData outputStructure) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">if</strong> (keyInfoCache.containsKey(inputStructure.key)) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>             SMCKeyDataKeyInfo keyInfo = keyInfoCache.get(inputStructure.key);
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             outputStructure.keyInfo.dataSize = keyInfo.dataSize;
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>             outputStructure.keyInfo.dataType = keyInfo.dataType;
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>             outputStructure.keyInfo.dataAttributes = keyInfo.dataAttributes;
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>             inputStructure.data8 = SMC_CMD_READ_KEYINFO;
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             <strong class="jxr_keyword">int</strong> result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <strong class="jxr_keyword">if</strong> (result != 0) {
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>                 <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             }
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             SMCKeyDataKeyInfo keyInfo = <strong class="jxr_keyword">new</strong> SMCKeyDataKeyInfo();
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>             keyInfo.dataSize = outputStructure.keyInfo.dataSize;
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>             keyInfo.dataType = outputStructure.keyInfo.dataType;
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>             keyInfo.dataAttributes = outputStructure.keyInfo.dataAttributes;
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>             keyInfoCache.put(inputStructure.key, keyInfo);
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         }
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * Read a key from SMC</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * @param conn</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     *            The connection</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * @param key</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     *            Key to read</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     * @param val</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     *            Structure to receive the result</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcReadKey(IOConnect conn, String key, SMCVal val) {
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         SMCKeyData inputStructure = <strong class="jxr_keyword">new</strong> SMCKeyData();
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         SMCKeyData outputStructure = <strong class="jxr_keyword">new</strong> SMCKeyData();
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         inputStructure.key = (<strong class="jxr_keyword">int</strong>) ParseUtil.strToLong(key, 4);
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">int</strong> result = smcGetKeyInfo(conn, inputStructure, outputStructure);
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">if</strong> (result == 0) {
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             val.dataSize = outputStructure.keyInfo.dataSize;
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>             val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a> 
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>             inputStructure.keyInfo.dataSize = val.dataSize;
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             inputStructure.data8 = SMC_CMD_READ_BYTES;
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> 
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>             result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>             <strong class="jxr_keyword">if</strong> (result == 0) {
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>             }
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         }
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * Call SMC</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     * @param conn</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     *            The connection</em>
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     * @param index</em>
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     *            Kernel index</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * @param inputStructure</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     *            Key data input</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     * @param outputStructure</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     *            Key data output</em>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcCall(IOConnect conn, <strong class="jxr_keyword">int</strong> index, SMCKeyData inputStructure, SMCKeyData outputStructure) {
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <strong class="jxr_keyword">return</strong> IO.IOConnectCallStructMethod(conn, index, inputStructure, <strong class="jxr_keyword">new</strong> NativeLong(inputStructure.size()),
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>                 outputStructure, <strong class="jxr_keyword">new</strong> NativeLongByReference(<strong class="jxr_keyword">new</strong> NativeLong(outputStructure.size())));
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>     }
-<a class="jxr_linenumber" name="L310" href="#L310">310</a> }
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IOConnect;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IOService;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKitUtil;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.NativeLongByReference;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit.SMCKeyData;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.IOKit.SMCVal;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> * Provides access to SMC calls on macOS</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="SmcUtil" href="../../../../oshi/util/platform/mac/SmcUtil.html#SmcUtil">SmcUtil</a> {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(SmcUtil.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <a name="IOKit" href="../../../../oshi/jna/platform/mac/IOKit.html#IOKit">IOKit</a> IO = IOKit.INSTANCE;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * Thread-safe map for caching info retrieved by a key necessary for subsequent</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * calls.</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, SMCKeyDataKeyInfo&gt; keyInfoCache = <strong class="jxr_keyword">new</strong> ConcurrentHashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     * Byte array used for matching return type</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] DATATYPE_SP78 = ParseUtil.asciiStringToByteArray(<span class="jxr_string">"sp78"</span>, 5);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] DATATYPE_FPE2 = ParseUtil.asciiStringToByteArray(<span class="jxr_string">"fpe2"</span>, 5);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] DATATYPE_FLT = ParseUtil.asciiStringToByteArray(<span class="jxr_string">"flt "</span>, 5);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_FAN_NUM = <span class="jxr_string">"FNum"</span>;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_FAN_SPEED = <span class="jxr_string">"F%dAc"</span>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_CPU_TEMP = <span class="jxr_string">"TC0P"</span>;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SMC_KEY_CPU_VOLTAGE = <span class="jxr_string">"VC0C"</span>;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte SMC_CMD_READ_BYTES = 5;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte SMC_CMD_READ_KEYINFO = 9;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> KERNEL_INDEX_SMC = 2;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">private</strong> <a name="SmcUtil" href="../../../../oshi/util/platform/mac/SmcUtil.html#SmcUtil">SmcUtil</a>() {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * Open a connection to SMC.</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     * @return The connection if successful, null if failure</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> IOConnect smcOpen() {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          IOService smcService = IOKitUtil.getMatchingService(<span class="jxr_string">"AppleSMC"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">if</strong> (smcService != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              PointerByReference connPtr = <strong class="jxr_keyword">new</strong> PointerByReference();
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <strong class="jxr_keyword">int</strong> result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              smcService.release();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">if</strong> (result == 0) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> IOConnect(connPtr.getValue());
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (LOG.isErrorEnabled()) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  LOG.error(String.format(<span class="jxr_string">"Unable to open connection to AppleSMC service. Error: 0x%08x"</span>, result));
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             LOG.error(<span class="jxr_string">"Unable to locate AppleSMC service"</span>);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">     * Close connection to SMC.</em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     * @param conn</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     *            The connection</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcClose(IOConnect conn) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">return</strong> IO.IOServiceClose(conn);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     * Get a value from SMC which is in a floating point datatype (SP78, FPE2, FLT)</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * @param conn</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     *            The connection</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * @param key</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     *            The key to retrieve</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @return Double representing the value</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> smcGetFloat(IOConnect conn, String key) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         SMCVal val = <strong class="jxr_keyword">new</strong> SMCVal();
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">int</strong> result = smcReadKey(conn, key, val);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">if</strong> (result == 0 &amp;&amp; val.dataSize &gt; 0) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_SP78) &amp;&amp; val.dataSize == 2) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <em class="jxr_comment">// First bit is sign, next 7 bits are integer portion, last 8 bits are</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <em class="jxr_comment">// fractional portion</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 <strong class="jxr_keyword">return</strong> val.bytes[0] + val.bytes[1] / 256d;
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_FPE2) &amp;&amp; val.dataSize == 2) {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 <em class="jxr_comment">// First E (14) bits are integer portion last 2 bits are fractional portion</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_FLT) &amp;&amp; val.dataSize == 4) {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 <em class="jxr_comment">// Standard 32-bit floating point</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                 <strong class="jxr_keyword">return</strong> ByteBuffer.wrap(val.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         }
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <em class="jxr_comment">// Read failed</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">return</strong> 0d;
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * Get a 64-bit integer value from SMC</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * @param conn</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     *            The connection</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * @param key</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     *            The key to retrieve</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     * @return Long representing the value</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> smcGetLong(IOConnect conn, String key) {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         SMCVal val = <strong class="jxr_keyword">new</strong> SMCVal();
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">int</strong> result = smcReadKey(conn, key, val);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">if</strong> (result == 0) {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">return</strong> ParseUtil.byteArrayToLong(val.bytes, val.dataSize);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         }
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <em class="jxr_comment">// Read failed</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     * Get cached keyInfo if it exists, or generate new keyInfo</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     * @param conn</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     *            The connection</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * @param inputStructure</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     *            Key data input</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * @param outputStructure</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     *            Key data output</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcGetKeyInfo(IOConnect conn, SMCKeyData inputStructure, SMCKeyData outputStructure) {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">if</strong> (keyInfoCache.containsKey(inputStructure.key)) {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>             SMCKeyDataKeyInfo keyInfo = keyInfoCache.get(inputStructure.key);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             outputStructure.keyInfo.dataSize = keyInfo.dataSize;
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             outputStructure.keyInfo.dataType = keyInfo.dataType;
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>             outputStructure.keyInfo.dataAttributes = keyInfo.dataAttributes;
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             inputStructure.data8 = SMC_CMD_READ_KEYINFO;
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">int</strong> result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             <strong class="jxr_keyword">if</strong> (result != 0) {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>             SMCKeyDataKeyInfo keyInfo = <strong class="jxr_keyword">new</strong> SMCKeyDataKeyInfo();
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             keyInfo.dataSize = outputStructure.keyInfo.dataSize;
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             keyInfo.dataType = outputStructure.keyInfo.dataType;
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             keyInfo.dataAttributes = outputStructure.keyInfo.dataAttributes;
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             keyInfoCache.put(inputStructure.key, keyInfo);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * Read a key from SMC</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * @param conn</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     *            The connection</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * @param key</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     *            Key to read</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     * @param val</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     *            Structure to receive the result</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcReadKey(IOConnect conn, String key, SMCVal val) {
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         SMCKeyData inputStructure = <strong class="jxr_keyword">new</strong> SMCKeyData();
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         SMCKeyData outputStructure = <strong class="jxr_keyword">new</strong> SMCKeyData();
+<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         inputStructure.key = (<strong class="jxr_keyword">int</strong>) ParseUtil.strToLong(key, 4);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">int</strong> result = smcGetKeyInfo(conn, inputStructure, outputStructure);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">if</strong> (result == 0) {
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             val.dataSize = outputStructure.keyInfo.dataSize;
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             inputStructure.keyInfo.dataSize = val.dataSize;
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             inputStructure.data8 = SMC_CMD_READ_BYTES;
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             <strong class="jxr_keyword">if</strong> (result == 0) {
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>             }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     }
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * Call SMC</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * @param conn</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     *            The connection</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     * @param index</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     *            Kernel index</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     * @param inputStructure</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     *            Key data input</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * @param outputStructure</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     *            Key data output</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     * @return 0 if successful, nonzero if failure</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> smcCall(IOConnect conn, <strong class="jxr_keyword">int</strong> index, SMCKeyData inputStructure, SMCKeyData outputStructure) {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">return</strong> IO.IOConnectCallStructMethod(conn, index, inputStructure, <strong class="jxr_keyword">new</strong> NativeLong(inputStructure.size()),
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                 outputStructure, <strong class="jxr_keyword">new</strong> NativeLongByReference(<strong class="jxr_keyword">new</strong> NativeLong(outputStructure.size())));
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>     }
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

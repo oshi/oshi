@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2022-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -31,10 +31,10 @@
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.software.os.unix.openbsd;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.openbsd.OpenBsdLibc.CTL_KERN;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_OSRELEASE;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_OSTYPE;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.openbsd.OpenBsdLibc.KERN_VERSION;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.OpenBsdLibc.CTL_KERN;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.OpenBsdLibc.KERN_OSRELEASE;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.OpenBsdLibc.KERN_OSTYPE;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.unix.OpenBsdLibc.KERN_VERSION;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSService.State.RUNNING;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSService.State.STOPPED;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.openbsd.OpenBsdLibc;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.OpenBsdLibc;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOperatingSystem;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.FileSystem;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats;
@@ -228,7 +228,7 @@
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>     }
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> 
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     @Override
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">public</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>[] getServices() {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">public</strong> List&lt;OSService&gt; getServices() {
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>         <em class="jxr_comment">// Get running services</em>
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>         List&lt;OSService&gt; services = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
@@ -251,7 +251,7 @@
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>             LOG.error(<span class="jxr_string">"Directory: /etc/rc.d does not exist"</span>);
 <a class="jxr_linenumber" name="L245" href="#L245">245</a>         }
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">return</strong> services.toArray(<strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>[0]);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">return</strong> services;
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>     }
 <a class="jxr_linenumber" name="L248" href="#L248">248</a> }
 </pre>

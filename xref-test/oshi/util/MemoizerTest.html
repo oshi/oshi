@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -66,8 +66,8 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">final</strong> ThreadPoolExecutor ex = <strong class="jxr_keyword">new</strong> ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L,
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>                  TimeUnit.MILLISECONDS, <strong class="jxr_keyword">new</strong> LinkedBlockingQueue&lt;Runnable&gt;());
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          ex.allowCoreThreadTimeOut(false);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          ex.prestartAllCoreThreads();<em class="jxr_comment">// make sure we don't lose refreshes in tests because of spending time to start</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                                      <em class="jxr_comment">// threads</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          ex.prestartAllCoreThreads(); <em class="jxr_comment">// make sure we don't lose refreshes in tests because of</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                                       <em class="jxr_comment">// spending time to start threads</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">this</strong>.ex = ex;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
@@ -190,38 +190,37 @@
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> testIncrementCounts(<strong class="jxr_keyword">long</strong> actualNumberOfIncrements, <strong class="jxr_keyword">long</strong> iterationDurationNanos, <strong class="jxr_keyword">long</strong> ttlNanos) {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">if</strong> (ttlNanos &lt; 0) {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             assertThat(String.format(<span class="jxr_string">"ttlNanos=%d"</span>, ttlNanos), actualNumberOfIncrements, is(1L));
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         }
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_comment">         * Calculation of expectedNumberOfIncrements is a bit tricky because there is no</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_comment">         * such thing. We can only talk about min and max possible values when ttl &gt; 0.</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_comment">         *</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_comment">         * Min: Two increments are guaranteed: the initial one, because it does not</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_comment">         * depend on timings, and a second one which ensures at least ttlNanos have</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_comment">         * elapsed since the first one. All other refreshes may or may not happen</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_comment">         * depending on the timings. Therefore the min is 2. In the case of negative ttl</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_comment">         * we should get only one increment ever; otherwise we must have at least 2</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_comment">         * increments.</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_comment">         *</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_comment">         * Max: Each thread has a chance to refresh one more time after</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_comment">         * (iterationDurationNanos / ttlNanos) refreshes have been collectively done,</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_comment">         * which will increment again. This happens because an arbitrary amount of time</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_comment">         * may elapse between the instant when a thread enters the while cycle body for</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_comment">         * the last time (the last iteration), and the instant that is observed by the</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_comment">         * MemoizedObject.get method. Additionally, each thread may refresh one more</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_comment">         * time because of the last iteration of the loop caused by guaranteedIteration.</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_comment">         * Therefore each thread may do up to 2 additional refreshes.</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_comment">         */</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> minExpectedNumberOfIncrements = 2L;
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * numberOfThreads;
-<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>             assertThat(String.format(<span class="jxr_string">"ttlNanos=%s"</span>, ttlNanos), minExpectedNumberOfIncrements,
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>                     is(lessThanOrEqualTo(actualNumberOfIncrements)));
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>             assertThat(String.format(<span class="jxr_string">"ttlNanos=%s"</span>, ttlNanos), actualNumberOfIncrements,
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>                     is(lessThanOrEqualTo(maxExpectedNumberOfIncrements)));
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         }
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>     }
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> }
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_comment">             * Calculation of expectedNumberOfIncrements is a bit tricky because there is no</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_comment">             * such thing. We can only talk about min and max possible values when ttl &gt; 0.</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_comment">             *</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_comment">             * Min: Two increments are guaranteed: the initial one, because it does not</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_comment">             * depend on timings, and a second one which ensures at least ttlNanos have</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_comment">             * elapsed since the first one. All other refreshes may or may not happen</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_comment">             * depending on the timings. Therefore the min is 2. In the case of negative ttl</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_comment">             * we should get only one increment ever; otherwise we must have at least 2</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_comment">             * increments.</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_comment">             *</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_comment">             * Max: Each thread has a chance to refresh one more time after</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_comment">             * (iterationDurationNanos / ttlNanos) refreshes have been collectively done,</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_comment">             * which will increment again. This happens because an arbitrary amount of time</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_comment">             * may elapse between the instant when a thread enters the while cycle body for</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_comment">             * the last time (the last iteration), and the instant that is observed by the</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_comment">             * MemoizedObject.get method. Additionally, each thread may refresh one more</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_comment">             * time because of the last iteration of the loop caused by guaranteedIteration.</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_comment">             * Therefore each thread may do up to 2 additional refreshes.</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_comment">             */</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> minExpectedNumberOfIncrements = 2L;
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * numberOfThreads;
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             assertThat(String.format(<span class="jxr_string">"ttlNanos=%s"</span>, ttlNanos), minExpectedNumberOfIncrements,
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>                     is(lessThanOrEqualTo(actualNumberOfIncrements)));
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             assertThat(String.format(<span class="jxr_string">"ttlNanos=%s"</span>, ttlNanos), actualNumberOfIncrements,
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>                     is(lessThanOrEqualTo(maxExpectedNumberOfIncrements)));
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

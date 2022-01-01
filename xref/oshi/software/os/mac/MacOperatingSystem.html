@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2022-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -261,7 +261,7 @@
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> 
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     @Override
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">public</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[] getServices() {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">public</strong> List&lt;OSService&gt; getServices() {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>         <em class="jxr_comment">// Get running services</em>
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         List&lt;OSService&gt; services = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
@@ -294,7 +294,7 @@
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>                 services.add(s);
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>             }
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>         }
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">return</strong> services.toArray(<strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>[0]);
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">return</strong> services;
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
 <a class="jxr_linenumber" name="L291" href="#L291">291</a> 
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>     @Override

@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -51,9 +51,9 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="UserGroupInfo" href="../../../../oshi/driver/linux/proc/UserGroupInfo.html#UserGroupInfo">UserGroupInfo</a> {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <em class="jxr_comment">// Temporarily cache users and groups, update each minute</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Map&lt;String, String&gt;&gt; usersIdMap = memoize(UserGroupInfo::getUserMap,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Map&lt;String, String&gt;&gt; USERS_ID_MAP = memoize(UserGroupInfo::getUserMap,
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>              TimeUnit.MINUTES.toNanos(1));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Map&lt;String, String&gt;&gt; groupsIdMap = memoize(UserGroupInfo::getGroupMap,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Map&lt;String, String&gt;&gt; GROUPS_ID_MAP = memoize(UserGroupInfo::getGroupMap,
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>              TimeUnit.MINUTES.toNanos(1));
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <a name="UserGroupInfo" href="../../../../oshi/driver/linux/proc/UserGroupInfo.html#UserGroupInfo">UserGroupInfo</a>() {
@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     *         as the second</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getUser(String userId) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">return</strong> usersIdMap.get().getOrDefault(userId, Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">return</strong> USERS_ID_MAP.get().getOrDefault(userId, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
@@ -79,7 +79,7 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * @return a {@link java.lang.String} object.</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getGroupName(String groupId) {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> groupsIdMap.get().getOrDefault(groupId, Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> GROUPS_ID_MAP.get().getOrDefault(groupId, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; getUserMap() {
