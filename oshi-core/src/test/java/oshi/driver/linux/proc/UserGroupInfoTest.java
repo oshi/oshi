@@ -31,6 +31,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.ExecutingCommand;
+import oshi.util.UserGroupInfo;
 
 class UserGroupInfoTest {
 

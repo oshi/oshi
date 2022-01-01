@@ -25,6 +25,7 @@ package oshi.jna.platform.unix;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
@@ -40,6 +41,11 @@ public interface SolarisLibc extends CLibrary {
     int UTX_LINESIZE = 32;
     int UTX_IDSIZE = 4;
     int UTX_HOSTSIZE = 257;
+
+    int PRCLSZ = 8;
+    int PRFNSZ = 16;
+    int PRLNSZ = 32;
+    int PRARGSZ = 80;
 
     /**
      * Connection info
@@ -67,7 +73,7 @@ public interface SolarisLibc extends CLibrary {
     }
 
     /**
-     * 64-bit timeval required for utmpx structure
+     * 32/64-bit timeval required for utmpx structure
      */
     @FieldOrder({ "tv_sec", "tv_usec" })
     class Timeval extends Structure {
@@ -85,4 +91,114 @@ public interface SolarisLibc extends CLibrary {
      *         includes the "record not found" case)
      */
     SolarisUtmpx getutxent();
+
+    /**
+     * Structure for psinfo file
+     */
+    @FieldOrder({ "pr_flag", "pr_nlwp", "pr_pid", "pr_ppid", "pr_pgid", "pr_sid", "pr_uid", "pr_euid", "pr_gid",
+            "pr_egid", "pr_addr", "pr_size", "pr_rssize", "pr_rssizepriv", "pr_ttydev", "pr_pctcpu", "pr_pctmem",
+            "pr_start", "pr_time", "pr_ctime", "pr_fname", "pr_psargs", "pr_wstat", "pr_argc", "pr_argv", "pr_envp",
+            "pr_dmodel", "pr_pad2", "pr_taskid", "pr_projid", "pr_nzomb", "pr_poolid", "pr_zoneid", "pr_contract",
+            "pr_filler", "pr_lwp" })
+    class SolarisPsInfo extends Structure {
+        public int pr_flag; // process flags (DEPRECATED; do not use)
+        public int pr_nlwp; // number of active lwps in the process
+        public int pr_pid; // unique process id
+        public int pr_ppid; // process id of parent
+        public int pr_pgid; // pid of process group leader
+        public int pr_sid; // session id
+        public int pr_uid; // real user id
+        public int pr_euid; // effective user id
+        public int pr_gid; // real group id
+        public int pr_egid; // effective group id
+        public Pointer pr_addr; // address of process
+        public size_t pr_size; // size of process image in Kbytes
+        public size_t pr_rssize; // resident set size in Kbytes
+        public size_t pr_rssizepriv; // resident set size of private mappings
+        public NativeLong pr_ttydev; // controlling tty device (or PRNODEV)
+        // The following percent numbers are 16-bit binary
+        // fractions [0 .. 1] with the binary point to the
+        // right of the high-order bit (1.0 == 0x8000)
+        public short pr_pctcpu; // % of recent cpu time used by all lwps
+        public short pr_pctmem; // % of system memory used by process
+        public Timestruc pr_start; // process start time, from the epoch
+        public Timestruc pr_time; // usr+sys cpu time for this process
+        public Timestruc pr_ctime; // usr+sys cpu time for reaped children
+        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file
+        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list
+        public int pr_wstat; // if zombie, the wait() status
+        public int pr_argc; // initial argument count
+        public Pointer pr_argv; // address of initial argument vector
+        public Pointer pr_envp; // address of initial environment vector
+        public byte pr_dmodel; // data model of the process
+        public byte[] pr_pad2 = new byte[3];
+        public int pr_taskid; // task id
+        public int pr_projid; // project id
+        public int pr_nzomb; // number of zombie lwps in the process
+        public int pr_poolid; // pool id
+        public int pr_zoneid; // zone id
+        public int pr_contract; // process contract id
+        public int[] pr_filler = new int[1]; // reserved for future use
+        public Lwpsinfo pr_lwp; // information for representative lwp
+
+        public SolarisPsInfo() {
+            super();
+        }
+
+        public SolarisPsInfo(byte[] bytes) {
+            super();
+            // Truncate bytes and pad with 0 if necessary
+            byte[] structBytes = new byte[size()];
+            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);
+            // Write bytes to native
+            this.getPointer().write(0, structBytes, 0, structBytes.length);
+            // Read bytes to struct
+            read();
+        }
+    }
+
+    /**
+     * Nested Structure for psinfo file
+     */
+    @FieldOrder({ "pr_flag", "pr_lwpid", "pr_addr", "pr_wchan", "pr_stype", "pr_state", "pr_sname", "pr_nice",
+            "pr_syscall", "pr_oldpri", "pr_cpu", "pr_pri", "pr_pctcpu", "pr_pad", "pr_start", "pr_time", "pr_clname",
+            "pr_oldname", "pr_onpro", "pr_bindpro", "pr_bindpset", "pr_lgrp", "pr_last_onproc", "pr_name" })
+    class Lwpsinfo extends Structure {
+        public int pr_flag; // lwp flags (DEPRECATED; do not use)
+        public int pr_lwpid; // lwp id
+        public Pointer pr_addr; // DEPRECATED was internal address of lwp
+        public Pointer pr_wchan; // DEPRECATED was wait addr for sleeping lwp
+        public byte pr_stype; // synchronization event type
+        public byte pr_state; // numeric lwp state
+        public byte pr_sname; // printable character for pr_state
+        public byte pr_nice; // nice for cpu usage
+        public short pr_syscall; // system call number (if in syscall)
+        public byte pr_oldpri; // pre-SVR4, low value is high priority
+        public byte pr_cpu; // pre-SVR4, cpu usage for scheduling
+        public int pr_pri; // priority, high value = high priority
+        // The following percent numbers are 16-bit binary
+        // fractions [0 .. 1] with the binary point to the
+        // right of the high-order bit (1.0 == 0x8000)
+        public short pr_pctcpu; // % of recent cpu time used by this lwp
+        public short pr_pad;
+        public Timestruc pr_start; // lwp start time, from the epoch
+        public Timestruc pr_time; // cpu time for this lwp
+        public byte[] pr_clname = new byte[PRCLSZ]; // scheduling class name
+        public byte[] pr_oldname = new byte[PRFNSZ]; // binary compatibility -- unused
+        public int pr_onpro; // processor which last ran this lwp
+        public int pr_bindpro;// processor to which lwp is bound
+        public int pr_bindpset; // processor set to which lwp is bound
+        public int pr_lgrp; // home lgroup
+        public long pr_last_onproc; // Timestamp of when thread last ran on a processor
+        public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp
+    }
+
+    /**
+     * 32/64-bit timestruc required for psinfo and lwpsinfo structures
+     */
+    @FieldOrder({ "tv_sec", "tv_nsec" })
+    class Timestruc extends Structure {
+        public NativeLong tv_sec; // seconds
+        public NativeLong tv_nsec; // nanoseconds
+    }
 }

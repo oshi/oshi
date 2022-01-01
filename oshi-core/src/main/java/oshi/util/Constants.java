@@ -26,6 +26,7 @@ package oshi.util;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -50,6 +51,8 @@ public final class Constants {
      * The Unix Epoch, a default value when WMI DateTime queries return no value.
      */
     public static final OffsetDateTime UNIX_EPOCH = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);
+
+    public static final Pattern DIGITS = Pattern.compile("\\d+");
 
     /**
      * Everything in this class is static, never instantiate it

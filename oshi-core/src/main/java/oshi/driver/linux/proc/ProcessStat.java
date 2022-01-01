@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -53,7 +54,6 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class ProcessStat {
 
-    private static final Pattern DIGITS = Pattern.compile("\\d+");
     private static final Pattern SOCKET = Pattern.compile("socket:\\[(\\d+)\\]");
 
     /**
@@ -517,7 +517,7 @@ public final class ProcessStat {
 
     private static File[] listNumericFiles(String path) {
         File directory = new File(path);
-        File[] numericFiles = directory.listFiles(file -> DIGITS.matcher(file.getName()).matches());
+        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         return numericFiles == null ? new File[0] : numericFiles;
     }
 

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.linux.proc;
+package oshi.util;
 
 import static oshi.util.Memoizer.memoize;
 
@@ -32,11 +32,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
 
 /**
- * Utility class to temporarily cache the userID and group maps in Linux, for
+ * Utility class to temporarily cache the userID and group maps in *nix, for
  * parsing process ownership. Cache expires after one minute.
  */
 @ThreadSafe

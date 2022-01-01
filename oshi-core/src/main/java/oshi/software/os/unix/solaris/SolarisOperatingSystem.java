@@ -23,12 +23,12 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +48,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -61,16 +62,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
-
-    /*
-     * Package-private for use by SolarisOSProcess
-     */
-    enum PsKeywords {
-        S, PID, PPID, USER, UID, GROUP, GID, NLWP, PRI, VSZ, RSS, ETIME, TIME, COMM, ARGS; // ARGS must always be last
-    }
-
-    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)
-            .collect(Collectors.joining(","));
 
     enum PrstatKeywords {
         PID, USERNAME, USR, SYS, TRP, TFL, DFL, LCK, SLP, LAT, VCX, ICX, SCL, SIG, PROCESS_NLWP; // prstat -v
@@ -119,7 +110,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        List<OSProcess> procs = getProcessListFromPS("ps -o " + PS_COMMAND_ARGS + " -p " + pid, pid);
+        List<OSProcess> procs = getProcessListFromProcfs(pid);
         if (procs.isEmpty()) {
             return null;
         }
@@ -128,54 +119,57 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryAllProcesses() {
-        return queryAllProcessesFromPS();
+        return queryAllProcessesFromPrStat();
     }
 
     @Override
     public List<OSProcess> queryChildProcesses(int parentPid) {
-        List<OSProcess> allProcs = queryAllProcessesFromPS();
+        List<OSProcess> allProcs = queryAllProcessesFromPrStat();
         Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);
         return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
     @Override
     public List<OSProcess> queryDescendantProcesses(int parentPid) {
-        List<OSProcess> allProcs = queryAllProcessesFromPS();
+        List<OSProcess> allProcs = queryAllProcessesFromPrStat();
         Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);
         return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
-    private static List<OSProcess> queryAllProcessesFromPS() {
-        return getProcessListFromPS("ps -eo " + PS_COMMAND_ARGS, -1);
+    private static List<OSProcess> queryAllProcessesFromPrStat() {
+        return getProcessListFromProcfs(-1);
     }
 
-    private static List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+    private static List<OSProcess> getProcessListFromProcfs(int pid) {
         List<OSProcess> procs = new ArrayList<>();
-        List<String> procList = ExecutingCommand.runNative(psCommand);
-        if (procList.size() > 1) {
-            // Get a map by pid of prstat output
-            List<String> prstatList = pid < 0 ? ExecutingCommand.runNative("prstat -v 1 1")
-                    : ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
-            Map<String, String> prstatRowMap = new HashMap<>();
-            for (String s : prstatList) {
-                String row = s.trim();
-                int idx = row.indexOf(' ');
-                if (idx > 0) {
-                    prstatRowMap.put(row.substring(0, idx), row);
-                }
+
+        // Get process files in proc
+        File directory = new File("/proc");
+        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        if (numericFiles == null) {
+            return procs;
+        }
+
+        // Get a map by pid of prstat output
+        List<String> prstatList = pid < 0 ? ExecutingCommand.runNative("prstat -v 1 1")
+                : ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
+        Map<String, String> prstatRowMap = new HashMap<>();
+        for (String s : prstatList) {
+            String row = s.trim();
+            int idx = row.indexOf(' ');
+            if (idx > 0) {
+                prstatRowMap.put(row.substring(0, idx), row);
             }
-            // remove header row and iterate proc list
-            procList.remove(0);
-            for (String proc : procList) {
-                Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
-                // Check if last (thus all) value populated
-                if (psMap.containsKey(PsKeywords.ARGS)) {
-                    String pidStr = psMap.get(PsKeywords.PID);
-                    Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,
-                            prstatRowMap.getOrDefault(pidStr, ""), ' ');
-                    procs.add(new SolarisOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(pidStr, 0) : pid, psMap,
-                            prstatMap));
-                }
+        }
+
+        // Iterate files
+        for (File pidFile : numericFiles) {
+            Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,
+                    prstatRowMap.getOrDefault(pidFile.getName(), ""), ' ');
+            int pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
+            OSProcess proc = new SolarisOSProcess(pidNum, prstatMap);
+            if (proc.getState() != INVALID) {
+                procs.add(proc);
             }
         }
         return procs;
