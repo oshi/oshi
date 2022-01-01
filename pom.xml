@@ -4,7 +4,7 @@
 
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-parent-java11</artifactId>
-    <version>6.0.0</version>
+    <version>6.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
@@ -48,7 +48,7 @@
         <connection>scm:git:git@github.com:oshi/oshi.git</connection>
         <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
         <url>https://github.com/oshi/oshi.git</url>
-        <tag>oshi-parent-java11-6.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>Github</system>
