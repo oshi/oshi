@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Win32Process.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.wmi</a> &gt; <span class="el_source">Win32Process.java</span></div><h1>Win32Process.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -24,7 +24,9 @@
 package oshi.driver.windows.wmi;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -43,15 +45,15 @@ public final class Win32Process {
     /**
      * Process command lines.
      */
-<span class="nc" id="L46">    public enum CommandLineProperty {</span>
-<span class="nc" id="L47">        PROCESSID, COMMANDLINE;</span>
+<span class="nc" id="L48">    public enum CommandLineProperty {</span>
+<span class="nc" id="L49">        PROCESSID, COMMANDLINE;</span>
     }
 
     /**
      * Process properties accessible from WTSEnumerateProcesses in Vista+
      */
-<span class="nc" id="L53">    public enum ProcessXPProperty {</span>
-<span class="nc" id="L54">        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;</span>
+<span class="nc" id="L55">    public enum ProcessXPProperty {</span>
+<span class="nc" id="L56">        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;</span>
     }
 
     private Win32Process() {
@@ -67,21 +69,13 @@ public final class Win32Process {
      *         start the provided processes.
      */
     public static WmiResult&lt;CommandLineProperty&gt; queryCommandLines(Set&lt;Integer&gt; pidsToQuery) {
-<span class="nc" id="L70">        StringBuilder sb = new StringBuilder(WIN32_PROCESS);</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (pidsToQuery != null) {</span>
-<span class="nc" id="L72">            boolean first = true;</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            for (Integer pid : pidsToQuery) {</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">                if (first) {</span>
-<span class="nc" id="L75">                    sb.append(&quot; WHERE ProcessID=&quot;);</span>
-<span class="nc" id="L76">                    first = false;</span>
-                } else {
-<span class="nc" id="L78">                    sb.append(&quot; OR ProcessID=&quot;);</span>
-                }
-<span class="nc" id="L80">                sb.append(pid);</span>
-<span class="nc" id="L81">            }</span>
+<span class="nc" id="L72">        String sb = WIN32_PROCESS;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (pidsToQuery != null) {</span>
+<span class="nc" id="L74">            sb += &quot; WHERE ProcessID=&quot;</span>
+<span class="nc" id="L75">                    + pidsToQuery.stream().map(String::valueOf).collect(Collectors.joining(&quot; OR PROCESSID=&quot;));</span>
         }
-<span class="nc" id="L83">        WmiQuery&lt;CommandLineProperty&gt; commandLineQuery = new WmiQuery&lt;&gt;(sb.toString(), CommandLineProperty.class);</span>
-<span class="nc" id="L84">        return WmiQueryHandler.createInstance().queryWMI(commandLineQuery);</span>
+<span class="nc" id="L77">        WmiQuery&lt;CommandLineProperty&gt; commandLineQuery = new WmiQuery&lt;&gt;(sb, CommandLineProperty.class);</span>
+<span class="nc" id="L78">        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(commandLineQuery);</span>
     }
 
     /**
@@ -92,21 +86,13 @@ public final class Win32Process {
      * @return Information on the provided processes.
      */
     public static WmiResult&lt;ProcessXPProperty&gt; queryProcesses(Collection&lt;Integer&gt; pids) {
-<span class="nc" id="L95">        StringBuilder sb = new StringBuilder(WIN32_PROCESS);</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (pids != null) {</span>
-<span class="nc" id="L97">            boolean first = true;</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            for (Integer pid : pids) {</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                if (first) {</span>
-<span class="nc" id="L100">                    sb.append(&quot; WHERE ProcessID=&quot;);</span>
-<span class="nc" id="L101">                    first = false;</span>
-                } else {
-<span class="nc" id="L103">                    sb.append(&quot; OR ProcessID=&quot;);</span>
-                }
-<span class="nc" id="L105">                sb.append(pid);</span>
-<span class="nc" id="L106">            }</span>
+<span class="nc" id="L89">        String sb = WIN32_PROCESS;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (pids != null) {</span>
+<span class="nc" id="L91">            sb += &quot; WHERE ProcessID=&quot;</span>
+<span class="nc" id="L92">                    + pids.stream().map(String::valueOf).collect(Collectors.joining(&quot; OR PROCESSID=&quot;));</span>
         }
-<span class="nc" id="L108">        WmiQuery&lt;ProcessXPProperty&gt; processQueryXP = new WmiQuery&lt;&gt;(sb.toString(), ProcessXPProperty.class);</span>
-<span class="nc" id="L109">        return WmiQueryHandler.createInstance().queryWMI(processQueryXP);</span>
+<span class="nc" id="L94">        WmiQuery&lt;ProcessXPProperty&gt; processQueryXP = new WmiQuery&lt;&gt;(sb, ProcessXPProperty.class);</span>
+<span class="nc" id="L95">        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(processQueryXP);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

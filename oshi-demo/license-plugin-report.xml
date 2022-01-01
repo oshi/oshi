@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<licensePluginReport goal="FORMAT" timestamp="1641009112497">
+    <module artifactId="oshi-demo" groupId="com.github.oshi" version="6.0.1"/>
+    <files>
+        <file path="src/main/java/oshi/demo/ComputerID.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/DetectVM.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/DiskStoreForPath.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/Json.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/OshiGui.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/OshiHTTPServer.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/UserComInit.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/WmiNoComInitQueryHandler.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/Config.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/FileStorePanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/InterfacePanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/MemoryPanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/OsHwTextPanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/OshiJPanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/ProcessPanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/ProcessorPanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/UsbPanel.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/gui/package-info.java" result="NOOP"/>
+        <file path="src/main/java/oshi/demo/package-info.java" result="NOOP"/>
+    </files>
+</licensePluginReport>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Win32Bios.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.wmi</a> &gt; <span class="el_source">Win32Bios.java</span></div><h1>Win32Bios.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -23,6 +23,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery; //NOSONAR squid:S1191
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -40,15 +42,15 @@ public final class Win32Bios {
     /**
      * Serial number property.
      */
-<span class="nc" id="L43">    public enum BiosSerialProperty {</span>
-<span class="nc" id="L44">        SERIALNUMBER;</span>
+<span class="nc" id="L45">    public enum BiosSerialProperty {</span>
+<span class="nc" id="L46">        SERIALNUMBER;</span>
     }
 
     /**
      * BIOS description properties.
      */
-<span class="nc" id="L50">    public enum BiosProperty {</span>
-<span class="nc" id="L51">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
+<span class="nc" id="L52">    public enum BiosProperty {</span>
+<span class="nc" id="L53">        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;</span>
     }
 
     private Win32Bios() {
@@ -60,9 +62,9 @@ public final class Win32Bios {
      * @return Assigned serial number of the software element.
      */
     public static WmiResult&lt;BiosSerialProperty&gt; querySerialNumber() {
-<span class="nc" id="L63">        WmiQuery&lt;BiosSerialProperty&gt; serialNumQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE,</span>
+<span class="nc" id="L65">        WmiQuery&lt;BiosSerialProperty&gt; serialNumQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE,</span>
                 BiosSerialProperty.class);
-<span class="nc" id="L65">        return WmiQueryHandler.createInstance().queryWMI(serialNumQuery);</span>
+<span class="nc" id="L67">        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(serialNumQuery);</span>
     }
 
     /**
@@ -71,8 +73,8 @@ public final class Win32Bios {
      * @return BIOS name, description, and related fields.
      */
     public static WmiResult&lt;BiosProperty&gt; queryBiosInfo() {
-<span class="nc" id="L74">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE, BiosProperty.class);</span>
-<span class="nc" id="L75">        return WmiQueryHandler.createInstance().queryWMI(biosQuery);</span>
+<span class="nc" id="L76">        WmiQuery&lt;BiosProperty&gt; biosQuery = new WmiQuery&lt;&gt;(WIN32_BIOS_WHERE_PRIMARY_BIOS_TRUE, BiosProperty.class);</span>
+<span class="nc" id="L77">        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(biosQuery);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

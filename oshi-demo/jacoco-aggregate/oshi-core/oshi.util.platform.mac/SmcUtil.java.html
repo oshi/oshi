@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SmcUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.mac</a> &gt; <span class="el_source">SmcUtil.java</span></div><h1>SmcUtil.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -33,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.NativeLong; // NOSONAR squid:S1191
-import com.sun.jna.Structure;
-import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOService;
 import com.sun.jna.platform.mac.IOKitUtil;
@@ -43,6 +41,9 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.mac.IOKit;
+import oshi.jna.platform.mac.IOKit.SMCKeyData;
+import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
+import oshi.jna.platform.mac.IOKit.SMCVal;
 import oshi.jna.platform.mac.SystemB;
 import oshi.util.ParseUtil;
 
@@ -52,84 +53,22 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class SmcUtil {
 
-<span class="nc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);</span>
+<span class="nc" id="L56">    private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);</span>
 
-<span class="nc" id="L57">    private static final IOKit IO = IOKit.INSTANCE;</span>
-
-    /**
-     * Holds the return value of SMC version query.
-     */
-    @FieldOrder({ &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; })
-<span class="nc" id="L63">    public static class SMCKeyDataVers extends Structure {</span>
-        public byte major;
-        public byte minor;
-        public byte build;
-        public byte reserved;
-        public short release;
-
-    }
-
-    /**
-     * Holds the return value of SMC pLimit query.
-     */
-    @FieldOrder({ &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; })
-<span class="nc" id="L76">    public static class SMCKeyDataPLimitData extends Structure {</span>
-        public short version;
-        public short length;
-        public int cpuPLimit;
-        public int gpuPLimit;
-        public int memPLimit;
-    }
-
-    /**
-     * Holds the return value of SMC KeyInfo query.
-     */
-    @FieldOrder({ &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; })
-<span class="nc" id="L88">    public static class SMCKeyDataKeyInfo extends Structure {</span>
-        public int dataSize;
-        public int dataType;
-        public byte dataAttributes;
-    }
-
-    /**
-     * Holds the return value of SMC query.
-     */
-    @FieldOrder({ &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;, &quot;data32&quot;, &quot;bytes&quot; })
-<span class="nc" id="L98">    public static class SMCKeyData extends Structure {</span>
-        public int key;
-        public SMCKeyDataVers vers;
-        public SMCKeyDataPLimitData pLimitData;
-        public SMCKeyDataKeyInfo keyInfo;
-        public byte result;
-        public byte status;
-        public byte data8;
-        public int data32;
-<span class="nc" id="L107">        public byte[] bytes = new byte[32];</span>
-    }
-
-    /**
-     * Holds an SMC value
-     */
-    @FieldOrder({ &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; })
-<span class="nc" id="L114">    public static class SMCVal extends Structure {</span>
-<span class="nc" id="L115">        public byte[] key = new byte[5];</span>
-        public int dataSize;
-<span class="nc" id="L117">        public byte[] dataType = new byte[5];</span>
-<span class="nc" id="L118">        public byte[] bytes = new byte[32];</span>
-    }
+<span class="nc" id="L58">    private static final IOKit IO = IOKit.INSTANCE;</span>
 
     /**
      * Thread-safe map for caching info retrieved by a key necessary for subsequent
      * calls.
      */
-<span class="nc" id="L125">    private static Map&lt;Integer, SMCKeyDataKeyInfo&gt; keyInfoCache = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="nc" id="L64">    private static Map&lt;Integer, SMCKeyDataKeyInfo&gt; keyInfoCache = new ConcurrentHashMap&lt;&gt;();</span>
 
     /**
      * Byte array used for matching return type
      */
-<span class="nc" id="L130">    private static final byte[] DATATYPE_SP78 = ParseUtil.asciiStringToByteArray(&quot;sp78&quot;, 5);</span>
-<span class="nc" id="L131">    private static final byte[] DATATYPE_FPE2 = ParseUtil.asciiStringToByteArray(&quot;fpe2&quot;, 5);</span>
-<span class="nc" id="L132">    private static final byte[] DATATYPE_FLT = ParseUtil.asciiStringToByteArray(&quot;flt &quot;, 5);</span>
+<span class="nc" id="L69">    private static final byte[] DATATYPE_SP78 = ParseUtil.asciiStringToByteArray(&quot;sp78&quot;, 5);</span>
+<span class="nc" id="L70">    private static final byte[] DATATYPE_FPE2 = ParseUtil.asciiStringToByteArray(&quot;fpe2&quot;, 5);</span>
+<span class="nc" id="L71">    private static final byte[] DATATYPE_FLT = ParseUtil.asciiStringToByteArray(&quot;flt &quot;, 5);</span>
 
     public static final String SMC_KEY_FAN_NUM = &quot;FNum&quot;;
     public static final String SMC_KEY_FAN_SPEED = &quot;F%dAc&quot;;
@@ -149,20 +88,20 @@ public final class SmcUtil {
      * @return The connection if successful, null if failure
      */
     public static IOConnect smcOpen() {
-<span class="nc" id="L152">        IOService smcService = IOKitUtil.getMatchingService(&quot;AppleSMC&quot;);</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (smcService != null) {</span>
-<span class="nc" id="L154">            PointerByReference connPtr = new PointerByReference();</span>
-<span class="nc" id="L155">            int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);</span>
-<span class="nc" id="L156">            smcService.release();</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (result == 0) {</span>
-<span class="nc" id="L158">                return new IOConnect(connPtr.getValue());</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">            } else if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L160">                LOG.error(String.format(&quot;Unable to open connection to AppleSMC service. Error: 0x%08x&quot;, result));</span>
+<span class="nc" id="L91">        IOService smcService = IOKitUtil.getMatchingService(&quot;AppleSMC&quot;);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (smcService != null) {</span>
+<span class="nc" id="L93">            PointerByReference connPtr = new PointerByReference();</span>
+<span class="nc" id="L94">            int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);</span>
+<span class="nc" id="L95">            smcService.release();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (result == 0) {</span>
+<span class="nc" id="L97">                return new IOConnect(connPtr.getValue());</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            } else if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L99">                LOG.error(String.format(&quot;Unable to open connection to AppleSMC service. Error: 0x%08x&quot;, result));</span>
             }
-<span class="nc" id="L162">        } else {</span>
-<span class="nc" id="L163">            LOG.error(&quot;Unable to locate AppleSMC service&quot;);</span>
+<span class="nc" id="L101">        } else {</span>
+<span class="nc" id="L102">            LOG.error(&quot;Unable to locate AppleSMC service&quot;);</span>
         }
-<span class="nc" id="L165">        return null;</span>
+<span class="nc" id="L104">        return null;</span>
     }
 
     /**
@@ -174,7 +113,7 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcClose(IOConnect conn) {
-<span class="nc" id="L177">        return IO.IOServiceClose(conn);</span>
+<span class="nc" id="L116">        return IO.IOServiceClose(conn);</span>
     }
 
     /**
@@ -187,23 +126,23 @@ public final class SmcUtil {
      * @return Double representing the value
      */
     public static double smcGetFloat(IOConnect conn, String key) {
-<span class="nc" id="L190">        SMCVal val = new SMCVal();</span>
-<span class="nc" id="L191">        int result = smcReadKey(conn, key, val);</span>
-<span class="nc bnc" id="L192" title="All 4 branches missed.">        if (result == 0 &amp;&amp; val.dataSize &gt; 0) {</span>
-<span class="nc bnc" id="L193" title="All 4 branches missed.">            if (Arrays.equals(val.dataType, DATATYPE_SP78) &amp;&amp; val.dataSize == 2) {</span>
+<span class="nc" id="L129">        SMCVal val = new SMCVal();</span>
+<span class="nc" id="L130">        int result = smcReadKey(conn, key, val);</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">        if (result == 0 &amp;&amp; val.dataSize &gt; 0) {</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">            if (Arrays.equals(val.dataType, DATATYPE_SP78) &amp;&amp; val.dataSize == 2) {</span>
                 // First bit is sign, next 7 bits are integer portion, last 8 bits are
                 // fractional portion
-<span class="nc" id="L196">                return val.bytes[0] + val.bytes[1] / 256d;</span>
-<span class="nc bnc" id="L197" title="All 4 branches missed.">            } else if (Arrays.equals(val.dataType, DATATYPE_FPE2) &amp;&amp; val.dataSize == 2) {</span>
+<span class="nc" id="L135">                return val.bytes[0] + val.bytes[1] / 256d;</span>
+<span class="nc bnc" id="L136" title="All 4 branches missed.">            } else if (Arrays.equals(val.dataType, DATATYPE_FPE2) &amp;&amp; val.dataSize == 2) {</span>
                 // First E (14) bits are integer portion last 2 bits are fractional portion
-<span class="nc" id="L199">                return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);</span>
-<span class="nc bnc" id="L200" title="All 4 branches missed.">            } else if (Arrays.equals(val.dataType, DATATYPE_FLT) &amp;&amp; val.dataSize == 4) {</span>
+<span class="nc" id="L138">                return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);</span>
+<span class="nc bnc" id="L139" title="All 4 branches missed.">            } else if (Arrays.equals(val.dataType, DATATYPE_FLT) &amp;&amp; val.dataSize == 4) {</span>
                 // Standard 32-bit floating point
-<span class="nc" id="L202">                return ByteBuffer.wrap(val.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();</span>
+<span class="nc" id="L141">                return ByteBuffer.wrap(val.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();</span>
             }
         }
         // Read failed
-<span class="nc" id="L206">        return 0d;</span>
+<span class="nc" id="L145">        return 0d;</span>
     }
 
     /**
@@ -216,13 +155,13 @@ public final class SmcUtil {
      * @return Long representing the value
      */
     public static long smcGetLong(IOConnect conn, String key) {
-<span class="nc" id="L219">        SMCVal val = new SMCVal();</span>
-<span class="nc" id="L220">        int result = smcReadKey(conn, key, val);</span>
-<span class="nc bnc" id="L221" title="All 2 branches missed.">        if (result == 0) {</span>
-<span class="nc" id="L222">            return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);</span>
+<span class="nc" id="L158">        SMCVal val = new SMCVal();</span>
+<span class="nc" id="L159">        int result = smcReadKey(conn, key, val);</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (result == 0) {</span>
+<span class="nc" id="L161">            return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);</span>
         }
         // Read failed
-<span class="nc" id="L225">        return 0;</span>
+<span class="nc" id="L164">        return 0;</span>
     }
 
     /**
@@ -237,24 +176,24 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcGetKeyInfo(IOConnect conn, SMCKeyData inputStructure, SMCKeyData outputStructure) {
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (keyInfoCache.containsKey(inputStructure.key)) {</span>
-<span class="nc" id="L241">            SMCKeyDataKeyInfo keyInfo = keyInfoCache.get(inputStructure.key);</span>
-<span class="nc" id="L242">            outputStructure.keyInfo.dataSize = keyInfo.dataSize;</span>
-<span class="nc" id="L243">            outputStructure.keyInfo.dataType = keyInfo.dataType;</span>
-<span class="nc" id="L244">            outputStructure.keyInfo.dataAttributes = keyInfo.dataAttributes;</span>
-<span class="nc" id="L245">        } else {</span>
-<span class="nc" id="L246">            inputStructure.data8 = SMC_CMD_READ_KEYINFO;</span>
-<span class="nc" id="L247">            int result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);</span>
-<span class="nc bnc" id="L248" title="All 2 branches missed.">            if (result != 0) {</span>
-<span class="nc" id="L249">                return result;</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (keyInfoCache.containsKey(inputStructure.key)) {</span>
+<span class="nc" id="L180">            SMCKeyDataKeyInfo keyInfo = keyInfoCache.get(inputStructure.key);</span>
+<span class="nc" id="L181">            outputStructure.keyInfo.dataSize = keyInfo.dataSize;</span>
+<span class="nc" id="L182">            outputStructure.keyInfo.dataType = keyInfo.dataType;</span>
+<span class="nc" id="L183">            outputStructure.keyInfo.dataAttributes = keyInfo.dataAttributes;</span>
+<span class="nc" id="L184">        } else {</span>
+<span class="nc" id="L185">            inputStructure.data8 = SMC_CMD_READ_KEYINFO;</span>
+<span class="nc" id="L186">            int result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (result != 0) {</span>
+<span class="nc" id="L188">                return result;</span>
             }
-<span class="nc" id="L251">            SMCKeyDataKeyInfo keyInfo = new SMCKeyDataKeyInfo();</span>
-<span class="nc" id="L252">            keyInfo.dataSize = outputStructure.keyInfo.dataSize;</span>
-<span class="nc" id="L253">            keyInfo.dataType = outputStructure.keyInfo.dataType;</span>
-<span class="nc" id="L254">            keyInfo.dataAttributes = outputStructure.keyInfo.dataAttributes;</span>
-<span class="nc" id="L255">            keyInfoCache.put(inputStructure.key, keyInfo);</span>
+<span class="nc" id="L190">            SMCKeyDataKeyInfo keyInfo = new SMCKeyDataKeyInfo();</span>
+<span class="nc" id="L191">            keyInfo.dataSize = outputStructure.keyInfo.dataSize;</span>
+<span class="nc" id="L192">            keyInfo.dataType = outputStructure.keyInfo.dataType;</span>
+<span class="nc" id="L193">            keyInfo.dataAttributes = outputStructure.keyInfo.dataAttributes;</span>
+<span class="nc" id="L194">            keyInfoCache.put(inputStructure.key, keyInfo);</span>
         }
-<span class="nc" id="L257">        return 0;</span>
+<span class="nc" id="L196">        return 0;</span>
     }
 
     /**
@@ -269,25 +208,25 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcReadKey(IOConnect conn, String key, SMCVal val) {
-<span class="nc" id="L272">        SMCKeyData inputStructure = new SMCKeyData();</span>
-<span class="nc" id="L273">        SMCKeyData outputStructure = new SMCKeyData();</span>
+<span class="nc" id="L211">        SMCKeyData inputStructure = new SMCKeyData();</span>
+<span class="nc" id="L212">        SMCKeyData outputStructure = new SMCKeyData();</span>
 
-<span class="nc" id="L275">        inputStructure.key = (int) ParseUtil.strToLong(key, 4);</span>
-<span class="nc" id="L276">        int result = smcGetKeyInfo(conn, inputStructure, outputStructure);</span>
-<span class="nc bnc" id="L277" title="All 2 branches missed.">        if (result == 0) {</span>
-<span class="nc" id="L278">            val.dataSize = outputStructure.keyInfo.dataSize;</span>
-<span class="nc" id="L279">            val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);</span>
+<span class="nc" id="L214">        inputStructure.key = (int) ParseUtil.strToLong(key, 4);</span>
+<span class="nc" id="L215">        int result = smcGetKeyInfo(conn, inputStructure, outputStructure);</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (result == 0) {</span>
+<span class="nc" id="L217">            val.dataSize = outputStructure.keyInfo.dataSize;</span>
+<span class="nc" id="L218">            val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);</span>
 
-<span class="nc" id="L281">            inputStructure.keyInfo.dataSize = val.dataSize;</span>
-<span class="nc" id="L282">            inputStructure.data8 = SMC_CMD_READ_BYTES;</span>
+<span class="nc" id="L220">            inputStructure.keyInfo.dataSize = val.dataSize;</span>
+<span class="nc" id="L221">            inputStructure.data8 = SMC_CMD_READ_BYTES;</span>
 
-<span class="nc" id="L284">            result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);</span>
-<span class="nc bnc" id="L285" title="All 2 branches missed.">            if (result == 0) {</span>
-<span class="nc" id="L286">                System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);</span>
-<span class="nc" id="L287">                return 0;</span>
+<span class="nc" id="L223">            result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">            if (result == 0) {</span>
+<span class="nc" id="L225">                System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);</span>
+<span class="nc" id="L226">                return 0;</span>
             }
         }
-<span class="nc" id="L290">        return result;</span>
+<span class="nc" id="L229">        return result;</span>
     }
 
     /**
@@ -304,8 +243,8 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcCall(IOConnect conn, int index, SMCKeyData inputStructure, SMCKeyData outputStructure) {
-<span class="nc" id="L307">        return IO.IOConnectCallStructMethod(conn, index, inputStructure, new NativeLong(inputStructure.size()),</span>
-<span class="nc" id="L308">                outputStructure, new NativeLongByReference(new NativeLong(outputStructure.size())));</span>
+<span class="nc" id="L246">        return IO.IOConnectCallStructMethod(conn, index, inputStructure, new NativeLong(inputStructure.size()),</span>
+<span class="nc" id="L247">                outputStructure, new NativeLongByReference(new NativeLong(outputStructure.size())));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

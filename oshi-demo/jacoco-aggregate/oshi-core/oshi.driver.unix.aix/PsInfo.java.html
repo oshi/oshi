@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PsInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.unix.aix</a> &gt; <span class="el_source">PsInfo.java</span></div><h1>PsInfo.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -45,7 +45,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.aix.AixLibc;
+import oshi.jna.platform.unix.AixLibc;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -78,7 +78,7 @@ public final class PsInfo {
 <span class="nc" id="L78">        PR_BINDPRO(Native.POINTER_SIZE), // processor to which thread is bound</span>
 <span class="nc" id="L79">        SIZE(0);</span>
 
-        private int size;
+        private final int size;
 
 <span class="nc" id="L83">        LwpsInfoT(int bytes) {</span>
 <span class="nc" id="L84">            size = bytes;</span>
@@ -121,7 +121,7 @@ public final class PsInfo {
 <span class="nc" id="L121">        PR_LWP(lwpsInfoOffsets.get(LwpsInfoT.SIZE)), // &quot;representative&quot; thread info</span>
 <span class="nc" id="L122">        SIZE(0);</span>
 
-        private int size;
+        private final int size;
 
 <span class="nc" id="L126">        PsInfoT(int bytes) {</span>
 <span class="nc" id="L127">            size = bytes;</span>
