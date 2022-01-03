@@ -64,7 +64,8 @@ import oshi.util.tuples.Pair;
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     enum PrstatKeywords {
-        PID, USERNAME, USR, SYS, TRP, TFL, DFL, LCK, SLP, LAT, VCX, ICX, SCL, SIG, PROCESS_NLWP; // prstat -v
+        // prstat -v
+        PID, USERNAME, USR, SYS, TRP, TFL, DFL, LCK, SLP, LAT, VCX, ICX, SCL, SIG, PROCESS_NLWP;
     }
 
     private static final long BOOTTIME = querySystemBootTime();

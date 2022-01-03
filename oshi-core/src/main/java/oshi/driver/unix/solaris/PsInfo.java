@@ -43,6 +43,7 @@ import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.SolarisLibc;
+import oshi.jna.platform.unix.SolarisLibc.SolarisLwpsInfo;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -71,6 +72,18 @@ public final class PsInfo {
         Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
         try {
             return new SolarisPsInfo(Files.readAllBytes(path));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
+     */
+    public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
+        Path path = Paths.get(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid));
+        try {
+            return new SolarisLwpsInfo(Files.readAllBytes(path));
         } catch (IOException e) {
             return null;
         }

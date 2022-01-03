@@ -33,13 +33,12 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 
@@ -49,6 +48,7 @@ import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem.PrstatKeywords;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -60,15 +60,11 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class SolarisOSProcess extends AbstractOSProcess {
-    /*
-     * Package-private for use by SolarisOSThread
-     */
-    enum PsThreadColumns {
-        LWP, S, ETIME, TIME, ADDR, PRI;
-    }
 
-    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-            .map(String::toLowerCase).collect(Collectors.joining(","));
+    enum PrstatLKeywords {
+        // prstat -L -v
+        PID, USERNAME, USR, SYS, TRP, TFL, DFL, LCK, SLP, LAT, VCX, ICX, SCL, SIG, LWPID, PROCESS_LWPNAME
+    }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
@@ -289,31 +285,34 @@ public class SolarisOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        List<String> threadList = ExecutingCommand.runNative("ps -o " + PS_THREAD_COLUMNS + " -p " + getProcessID());
-        if (threadList.size() > 1) {
-            // Get a map by lwpid of prstat output
-            List<String> prstatList = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID() + " 1 1");
-            Map<String, String> prstatRowMap = new HashMap<>();
-            for (String s : prstatList) {
-                String row = s.trim();
-                // Last element is PROCESS/LWPID
-                int idx = row.lastIndexOf('/');
-                if (idx > 0) {
-                    prstatRowMap.put(row.substring(idx + 1), row);
-                }
+
+        // Get process files in proc
+        File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
+        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        if (numericFiles == null) {
+            return threads;
+        }
+
+        // Get a map by lwpid of prstat output
+        List<String> prstatList = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID() + " 1 1");
+        Map<String, String> prstatRowMap = new HashMap<>();
+        for (String s : prstatList) {
+            String row = s.trim();
+            // Last element is PROCESS/LWPID
+            int idx = row.lastIndexOf('/');
+            if (idx > 0) {
+                prstatRowMap.put(row.substring(idx + 1), row);
             }
-            // remove header row and iterate thread list
-            threadList.remove(0);
-            for (String thread : threadList) {
-                Map<PsThreadColumns, String> psMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
-                        ' ');
-                // Check if last (thus all) value populated
-                if (psMap.containsKey(PsThreadColumns.PRI)) {
-                    String lwpStr = psMap.get(PsThreadColumns.LWP);
-                    Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,
-                            prstatRowMap.getOrDefault(lwpStr, ""), ' ');
-                    threads.add(new SolarisOSThread(getProcessID(), psMap, prstatMap));
-                }
+        }
+
+        // Iterate files
+        for (File lwpidFile : numericFiles) {
+            Map<PrstatLKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatLKeywords.class,
+                    prstatRowMap.getOrDefault(lwpidFile.getName(), ""), ' ');
+            int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
+            OSThread thread = new SolarisOSThread(getProcessID(), lwpidNum, prstatMap);
+            if (thread.getState() != INVALID) {
+                threads.add(thread);
             }
         }
         return threads;
@@ -354,7 +353,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
         this.virtualSize = info.pr_size.longValue() * 1024;
         this.residentSetSize = info.pr_rssize.longValue() * 1024;
         this.startTime = info.pr_start.tv_sec.longValue() * 1000L + info.pr_start.tv_nsec.longValue() / 1_000_000L;
-        // Avoid divide by zero for processes up less than a second
+        // Avoid divide by zero for processes up less than a millisecond
         long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.kernelTime = 0L;

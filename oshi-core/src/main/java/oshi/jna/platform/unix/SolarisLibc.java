@@ -139,7 +139,7 @@ public interface SolarisLibc extends CLibrary {
         public int pr_zoneid; // zone id
         public int pr_contract; // process contract id
         public int[] pr_filler = new int[1]; // reserved for future use
-        public Lwpsinfo pr_lwp; // information for representative lwp
+        public SolarisLwpsInfo pr_lwp; // information for representative lwp
 
         public SolarisPsInfo() {
             super();
@@ -163,7 +163,7 @@ public interface SolarisLibc extends CLibrary {
     @FieldOrder({ "pr_flag", "pr_lwpid", "pr_addr", "pr_wchan", "pr_stype", "pr_state", "pr_sname", "pr_nice",
             "pr_syscall", "pr_oldpri", "pr_cpu", "pr_pri", "pr_pctcpu", "pr_pad", "pr_start", "pr_time", "pr_clname",
             "pr_oldname", "pr_onpro", "pr_bindpro", "pr_bindpset", "pr_lgrp", "pr_last_onproc", "pr_name" })
-    class Lwpsinfo extends Structure {
+    class SolarisLwpsInfo extends Structure {
         public int pr_flag; // lwp flags (DEPRECATED; do not use)
         public int pr_lwpid; // lwp id
         public Pointer pr_addr; // DEPRECATED was internal address of lwp
@@ -191,6 +191,21 @@ public interface SolarisLibc extends CLibrary {
         public int pr_lgrp; // home lgroup
         public long pr_last_onproc; // Timestamp of when thread last ran on a processor
         public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp
+
+        public SolarisLwpsInfo() {
+            super();
+        }
+
+        public SolarisLwpsInfo(byte[] bytes) {
+            super();
+            // Truncate bytes and pad with 0 if necessary
+            byte[] structBytes = new byte[size()];
+            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);
+            // Write bytes to native
+            this.getPointer().write(0, structBytes, 0, structBytes.length);
+            // Read bytes to struct
+            read();
+        }
     }
 
     /**

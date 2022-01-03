@@ -23,11 +23,12 @@
  */
 package oshi.driver.unix;
 
+import java.util.List;
+
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem;
-import oshi.software.os.OperatingSystem.ProcessFiltering;
-import oshi.software.os.OperatingSystem.ProcessSorting;
 
 public class PsInfo {
 
@@ -68,11 +69,14 @@ public class PsInfo {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         int pid = os.getProcessId();
-        os.getProcess(pid);
-
-        for (OSProcess proc : os.getProcesses(ProcessFiltering.VALID_PROCESS, ProcessSorting.CPU_DESC, -1)) {
-            System.out.println(proc.getProcessID() + " " + proc.getName() + ": " + proc.getUser() + "/"
-                    + proc.getGroup() + " " + proc.getState() + " " + (proc.getUserTime() / (double) proc.getUpTime()));
+        List<OSProcess> procs = os.getProcesses();
+        for (OSProcess proc : procs) {
+            System.out.println("PID: " + proc.getProcessID() + " " + proc.getPriority());
+            for (OSThread thread : proc.getThreadDetails()) {
+                System.out.println(thread.getThreadId() + "@" + thread.getOwningProcessId() + " " + thread.getName()
+                        + ": " + " " + thread.getState() + " " + thread.getPriority() + " >"
+                        + thread.getStartMemoryAddress() + " " + (thread.getUserTime() / (double) thread.getUpTime()));
+            }
         }
     }
 }
