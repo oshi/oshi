@@ -23,60 +23,21 @@
  */
 package oshi.driver.unix;
 
-import java.util.List;
-
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem;
 
 public class PsInfo {
-
-    /*-
-    @FieldOrder({ "pr_flag", "pr_flag2", "pr_nlwp", "pr_uid", "pr_euid", "pr_gid", "pr_egid", "pr_argc", "pr_pid",
-            "pr_ppid", "pr_pgid", "pr_sid", "pr_ttydev", "pr_addr", "pr_size", "pr_rssize", "pr_timestruc64_t",
-            "pr_timestruc64_t", "pr_argv", "pr_envp", "pr_fname", "pr_psargs", "pr__pad[8]",
-            "lwpsinfo" })
-    class AIXPsInfo extends Structure {
-        public int pr_flag; // process flags from proc struct p_flag
-        public int pr_flag2; // process flags from proc struct p_flag2
-        public int pr_nlwp; // number of threads in process
-        public uid_t pr_uid; // real user id
-        public uid_t pr_euid; // effective user id
-        public gid_t pr_gid; // real group id
-        public gid_t pr_egid; // effective group id
-        public int pr_argc; // initial argument count
-        public long pr_pid; // unique process id
-        public long pr_ppid; // process id of parent
-        public long pr_pgid; // pid of process group leader
-        public long pr_sid; // session id
-        public dev64_t pr_ttydev; // controlling tty device
-        public long pr_addr; // internal address of proc struct
-        public long pr_size; // size of process image in KB (1024) units
-        public long pr_rssize; // resident set size in KB (1024) units
-        public struct pr_timestruc64_t; // process start time, time since epoch
-        public struct pr_timestruc64_t; // usr+sys cpu time for this process
-        public long pr_argv; // address of initial argument vector in user process
-        public long pr_envp; // address of initial environment vector in user process
-        public byte pr_fname[PRFNSZ]; // last component of exec()ed pathname
-        public byte pr_psargs[PRARGSZ]; // initial characters of arg list
-        public long pr__pad[8]; // reserved for future use
-        public struct lwpsinfo; // "representative" thread info
-    }
-    */
 
     public static void main(String[] args) {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         int pid = os.getProcessId();
-        List<OSProcess> procs = os.getProcesses();
-        for (OSProcess proc : procs) {
-            System.out.println("PID: " + proc.getProcessID() + " " + proc.getPriority());
-            for (OSThread thread : proc.getThreadDetails()) {
-                System.out.println(thread.getThreadId() + "@" + thread.getOwningProcessId() + " " + thread.getName()
-                        + ": " + " " + thread.getState() + " " + thread.getPriority() + " >"
-                        + thread.getStartMemoryAddress() + " " + (thread.getUserTime() / (double) thread.getUpTime()));
-            }
-        }
+
+        OSProcess p = os.getProcess(pid);
+        System.out.println("PID " + pid + ": " + p.getName());
+        System.out.println("Commandline: " + p.getCommandLine());
+        System.out.println("Args: " + p.getArguments());
+        System.out.println("Env: " + p.getEnvironmentVariables());
     }
 }

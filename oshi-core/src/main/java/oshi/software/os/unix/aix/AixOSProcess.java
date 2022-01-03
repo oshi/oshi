@@ -45,6 +45,7 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squ
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
+import oshi.jna.platform.unix.AixLibc.AIXPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.aix.AixOperatingSystem.PsKeywords;
@@ -66,6 +67,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<AIXPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
     private final Supplier<Long> affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
@@ -101,6 +103,10 @@ public class AixOSProcess extends AbstractOSProcess {
         updateAttributes(psMap, cpuMap);
     }
 
+    private AIXPsInfo queryPsInfo() {
+        return PsInfo.queryPsInfo(this.getProcessID());
+    }
+
     @Override
     public String getName() {
         return this.name;
@@ -132,7 +138,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
-        return PsInfo.queryArgsEnv(getProcessID());
+        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get());
     }
 
     @Override
@@ -320,6 +326,16 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private boolean updateAttributes(Map<PsKeywords, String> psMap, Map<Integer, Pair<Long, Long>> cpuMap) {
+        AIXPsInfo info = psinfo.get();
+        if (info == null) {
+            this.state = INVALID;
+            return false;
+        }
+        System.out.println("PS MAP for pid " + getProcessID());
+        System.out.println(psMap.toString());
+        System.out.println("PSINFO");
+        System.out.println(psinfo.toString());
+
         long now = System.currentTimeMillis();
         this.state = getStateFromOutput(psMap.get(PsKeywords.ST).charAt(0));
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);

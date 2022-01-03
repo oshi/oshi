@@ -144,9 +144,19 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     private static List<OSProcess> getProcessListFromProcfs(int pid) {
         List<OSProcess> procs = new ArrayList<>();
 
-        // Get process files in proc
-        File directory = new File("/proc");
-        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        File[] numericFiles = null;
+        if (pid < 0) {
+            // If no pid, get process files in proc
+            File directory = new File("/proc");
+            numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        } else {
+            // If pid specified just find that file
+            File pidFile = new File("/proc/" + pid);
+            if (pidFile.exists()) {
+                numericFiles = new File[1];
+                numericFiles[0] = pidFile;
+            }
+        }
         if (numericFiles == null) {
             return procs;
         }
