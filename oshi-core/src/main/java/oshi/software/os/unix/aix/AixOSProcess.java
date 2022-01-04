@@ -334,7 +334,7 @@ public class AixOSProcess extends AbstractOSProcess {
         System.out.println("PS MAP for pid " + getProcessID());
         System.out.println(psMap.toString());
         System.out.println("PSINFO");
-        System.out.println(psinfo.toString());
+        System.out.println(psinfo.get().toString());
 
         long now = System.currentTimeMillis();
         this.state = getStateFromOutput(psMap.get(PsKeywords.ST).charAt(0));
