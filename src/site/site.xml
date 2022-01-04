@@ -24,7 +24,13 @@
         <menu name="User guide">
             <item
                 href="README.html"
-                name="README" />
+                name="Overview" />
+            <item
+                href="USAGE.html"
+                name="How to use" />
+            <item
+                href="OUTPUT.html"
+                name="Usage output" />
         </menu>
         <menu ref="reports" />
         <menu
