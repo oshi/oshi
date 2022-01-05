@@ -35,11 +35,11 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -48,10 +48,10 @@ import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.jna.platform.unix.AixLibc.AIXPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.aix.AixOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
 
 /**
@@ -91,16 +91,14 @@ public class AixOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
-    private long majorFaults;
 
     // Memoized copy from OperatingSystem
     private Supplier<perfstat_process_t[]> procCpu;
 
-    public AixOSProcess(int pid, Map<PsKeywords, String> psMap, Map<Integer, Pair<Long, Long>> cpuMap,
-            Supplier<perfstat_process_t[]> procCpu) {
+    public AixOSProcess(int pid, Pair<Long, Long> userSysCpuTime, Supplier<perfstat_process_t[]> procCpu) {
         super(pid);
         this.procCpu = procCpu;
-        updateAttributes(psMap, cpuMap);
+        updateAttributes(userSysCpuTime);
     }
 
     private AIXPsInfo queryPsInfo() {
@@ -300,73 +298,46 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
     public boolean updateAttributes() {
         perfstat_process_t[] perfstat = procCpu.get();
-        List<String> procList = ExecutingCommand
-                .runNative("ps -o " + AixOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID());
-        // Parse array to map of user/system times
-        Map<Integer, Pair<Long, Long>> cpuMap = new HashMap<>();
         for (perfstat_process_t stat : perfstat) {
-            cpuMap.put((int) stat.pid, new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
-        }
-        if (procList.size() > 1) {
-            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
-            // Check if last (thus all) value populated
-            if (psMap.containsKey(PsKeywords.ARGS)) {
-                return updateAttributes(psMap, cpuMap);
+            int statpid = (int) stat.pid;
+            if (statpid == getProcessID()) {
+                return updateAttributes(new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
             }
         }
         this.state = State.INVALID;
         return false;
     }
 
-    private boolean updateAttributes(Map<PsKeywords, String> psMap, Map<Integer, Pair<Long, Long>> cpuMap) {
+    private boolean updateAttributes(Pair<Long, Long> userSysCpuTime) {
         AIXPsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;
             return false;
         }
-        System.out.println("PS MAP for pid " + getProcessID());
-        System.out.println(psMap.toString());
-        System.out.println("PSINFO");
-        System.out.println(psinfo.get().toString());
 
         long now = System.currentTimeMillis();
-        this.state = getStateFromOutput(psMap.get(PsKeywords.ST).charAt(0));
-        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
-        this.user = psMap.get(PsKeywords.USER);
-        this.userID = psMap.get(PsKeywords.UID);
-        this.group = psMap.get(PsKeywords.GROUP);
-        this.groupID = psMap.get(PsKeywords.GID);
-        this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.THCOUNT), 0);
-        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
+        this.state = getStateFromOutput((char) info.pr_lwp.pr_sname);
+        this.parentProcessID = (int) info.pr_ppid;
+        this.userID = Long.toString(info.pr_euid);
+        this.user = UserGroupInfo.getUser(this.userID);
+        this.groupID = Long.toString(info.pr_egid);
+        this.group = UserGroupInfo.getGroupName(this.groupID);
+        this.threadCount = info.pr_nlwp;
+        this.priority = info.pr_lwp.pr_pri;
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSIZE), 0) << 10;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSSIZE), 0) << 10;
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);
-        if (cpuMap.containsKey(getProcessID())) {
-            Pair<Long, Long> userSystem = cpuMap.get(getProcessID());
-            this.userTime = userSystem.getA();
-            this.kernelTime = userSystem.getB();
-        } else {
-            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
-            this.kernelTime = 0L;
-        }
-        // Avoid divide by zero for processes up less than a second
+        this.virtualSize = info.pr_size * 1024;
+        this.residentSetSize = info.pr_rssize * 1024;
+        this.startTime = info.pr_start.tv_sec * 1000L + info.pr_start.tv_nsec / 1_000_000L;
+        // Avoid divide by zero for processes up less than a millisecond
+        long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        while (this.upTime < this.userTime + this.kernelTime) {
-            this.upTime += 500L;
-        }
-        this.startTime = now - this.upTime;
-        this.name = psMap.get(PsKeywords.COMM);
-        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.PAGEIN), 0L);
-        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
-        this.path = ParseUtil.whitespaces.split(this.commandLineBackup)[0];
+        this.userTime = userSysCpuTime.getA();
+        this.kernelTime = userSysCpuTime.getB();
+        this.commandLineBackup = Native.toString(info.pr_psargs);
+        this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
+        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         return true;
     }
 

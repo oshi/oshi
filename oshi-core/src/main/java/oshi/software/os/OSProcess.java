@@ -382,6 +382,8 @@ public interface OSProcess {
      * required loading a memory page from disk. Sometimes called reclaims.
      * <p>
      * On Windows, this includes the total of major and minor faults.
+     * <p>
+     * Not available on AIX.
      *
      * @return minor page faults (reclaims).
      */
@@ -396,6 +398,8 @@ public interface OSProcess {
      * Windows does not distinguish major and minor faults at the process level, so
      * this value returns 0 and major faults are included in
      * {@link #getMinorFaults()}.
+     * <p>
+     * Not available on AIX.
      *
      * @return major page faults.
      */

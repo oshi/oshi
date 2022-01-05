@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import com.sun.jna.Platform;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -74,7 +76,12 @@ public final class UserGroupInfo {
 
     private static Map<String, String> getUserMap() {
         HashMap<String, String> userMap = new HashMap<>();
-        List<String> passwd = ExecutingCommand.runNative("getent passwd");
+        List<String> passwd;
+        if (Platform.isAIX()) {
+            passwd = FileUtil.readFile("/etc/passwd");
+        } else {
+            passwd = ExecutingCommand.runNative("getent passwd");
+        }
         // see man 5 passwd for the fields
         for (String entry : passwd) {
             String[] split = entry.split(":");
@@ -91,7 +98,12 @@ public final class UserGroupInfo {
 
     private static Map<String, String> getGroupMap() {
         Map<String, String> groupMap = new HashMap<>();
-        List<String> group = ExecutingCommand.runNative("getent group");
+        List<String> group;
+        if (Platform.isAIX()) {
+            group = FileUtil.readFile("/etc/group");
+        } else {
+            group = ExecutingCommand.runNative("getent group");
+        }
         // see man 5 group for the fields
         for (String entry : group) {
             String[] split = entry.split(":");
