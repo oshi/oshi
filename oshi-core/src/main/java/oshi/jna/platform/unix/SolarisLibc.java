@@ -209,6 +209,61 @@ public interface SolarisLibc extends CLibrary {
     }
 
     /**
+     * Structure for usage file
+     */
+    @FieldOrder({ "pr_lwpid", "pr_count", "pr_tstamp", "pr_create", "pr_term", "pr_rtime", "pr_utime", "pr_stime",
+            "pr_ttime", "pr_tftime", "pr_dftime", "pr_kftime", "pr_ltime", "pr_slptime", "pr_wtime", "pr_stoptime",
+            "filltime", "pr_minf", "pr_majf", "pr_nswap", "pr_inblk", "pr_oublk", "pr_msnd", "pr_mrcv", "pr_sigs",
+            "pr_vctx", "pr_ictx", "pr_sysc", "pr_ioch", "filler" })
+    class SolarisPrUsage extends Structure {
+        public int pr_lwpid; // lwp id. 0: process or defunct
+        public int pr_count; // number of contributing lwps
+        public Timestruc pr_tstamp; // current time stamp
+        public Timestruc pr_create; // process/lwp creation time stamp
+        public Timestruc pr_term; // process/lwp termination time stamp
+        public Timestruc pr_rtime; // total lwp real (elapsed) time
+        public Timestruc pr_utime; // user level cpu time
+        public Timestruc pr_stime; // system call cpu time
+        public Timestruc pr_ttime; // other system trap cpu time
+        public Timestruc pr_tftime; // text page fault sleep time
+        public Timestruc pr_dftime; // data page fault sleep time
+        public Timestruc pr_kftime; // kernel page fault sleep time
+        public Timestruc pr_ltime; // user lock wait sleep time
+        public Timestruc pr_slptime; // all other sleep time
+        public Timestruc pr_wtime; // wait-cpu (latency) time
+        public Timestruc pr_stoptime; // stopped time
+        public Timestruc[] filltime = new Timestruc[6]; // filler for future expansion
+        public NativeLong pr_minf; // minor page faults
+        public NativeLong pr_majf; // major page faults
+        public NativeLong pr_nswap; // swaps
+        public NativeLong pr_inblk; // input blocks
+        public NativeLong pr_oublk; // output blocks
+        public NativeLong pr_msnd; // messages sent
+        public NativeLong pr_mrcv; // messages received
+        public NativeLong pr_sigs; // signals received
+        public NativeLong pr_vctx; // voluntary context switches
+        public NativeLong pr_ictx; // involuntary context switches
+        public NativeLong pr_sysc; // system calls
+        public NativeLong pr_ioch; // chars read and written
+        public NativeLong[] filler = new NativeLong[10]; // filler for future expansion
+
+        public SolarisPrUsage() {
+            super();
+        }
+
+        public SolarisPrUsage(byte[] bytes) {
+            super();
+            // Truncate bytes and pad with 0 if necessary
+            byte[] structBytes = new byte[size()];
+            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);
+            // Write bytes to native
+            this.getPointer().write(0, structBytes, 0, structBytes.length);
+            // Read bytes to struct
+            read();
+        }
+    }
+
+    /**
      * 32/64-bit timestruc required for psinfo and lwpsinfo structures
      */
     @FieldOrder({ "tv_sec", "tv_nsec" })

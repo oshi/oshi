@@ -44,6 +44,7 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfo;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -70,6 +71,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
+    private Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private String name;
     private String path = "";
@@ -99,6 +101,10 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     private SolarisPsInfo queryPsInfo() {
         return PsInfo.queryPsInfo(this.getProcessID());
+    }
+
+    private SolarisPrUsage queryPrUsage() {
+        return PsInfo.queryPrUsage(this.getProcessID());
     }
 
     @Override
@@ -340,6 +346,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
             this.state = INVALID;
             return false;
         }
+        SolarisPrUsage usage = prusage.get();
         long now = System.currentTimeMillis();
         this.state = getStateFromOutput((char) info.pr_lwp.pr_sname);
         this.parentProcessID = info.pr_ppid;
@@ -366,6 +373,11 @@ public class SolarisOSProcess extends AbstractOSProcess {
             long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.ICX), 0L);
             long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.VCX), 0L);
             this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+            System.out.println("PID: " + getProcessID() + ", ICX=" + nonVoluntaryContextSwitches + ", VCX="
+                    + voluntaryContextSwitches);
+            if (usage != null) {
+                System.out.println("  usage: ICX=" + usage.pr_ictx.longValue() + ", VCX=" + usage.pr_vctx.longValue());
+            }
         }
         return true;
     }

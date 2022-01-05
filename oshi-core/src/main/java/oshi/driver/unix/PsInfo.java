@@ -34,10 +34,14 @@ public class PsInfo {
         OperatingSystem os = si.getOperatingSystem();
         int pid = os.getProcessId();
 
+        for (OSProcess p : os.getProcesses()) {
+            if (p.getProcessID() == pid) {
+                System.out.println("PID " + pid + ": " + p.getName());
+                System.out.println("Commandline: " + p.getCommandLine());
+                System.out.println("Args: " + p.getArguments());
+                System.out.println("Env: " + p.getEnvironmentVariables());
+            }
+        }
         OSProcess p = os.getProcess(pid);
-        System.out.println("PID " + pid + ": " + p.getName());
-        System.out.println("Commandline: " + p.getCommandLine());
-        System.out.println("Args: " + p.getArguments());
-        System.out.println("Env: " + p.getEnvironmentVariables());
     }
 }
