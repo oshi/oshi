@@ -35,7 +35,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -48,7 +47,6 @@ import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem.PrstatKeywords;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
@@ -61,11 +59,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class SolarisOSProcess extends AbstractOSProcess {
-
-    enum PrstatLKeywords {
-        // prstat -L -v
-        PID, USERNAME, USR, SYS, TRP, TFL, DFL, LCK, SLP, LAT, VCX, ICX, SCL, SIG, LWPID, PROCESS_LWPNAME
-    }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
@@ -92,11 +85,13 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
+    private long minorFaults;
+    private long majorFaults;
     private long contextSwitches = 0; // default
 
-    public SolarisOSProcess(int pid, Map<PrstatKeywords, String> prstatMap) {
+    public SolarisOSProcess(int pid) {
         super(pid);
-        updateAttributes(prstatMap);
+        updateAttributes();
     }
 
     private SolarisPsInfo queryPsInfo() {
@@ -227,6 +222,16 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMinorFaults() {
+        return this.minorFaults;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
+    }
+
+    @Override
     public long getContextSwitches() {
         return this.contextSwitches;
     }
@@ -299,24 +304,10 @@ public class SolarisOSProcess extends AbstractOSProcess {
             return threads;
         }
 
-        // Get a map by lwpid of prstat output
-        List<String> prstatList = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID() + " 1 1");
-        Map<String, String> prstatRowMap = new HashMap<>();
-        for (String s : prstatList) {
-            String row = s.trim();
-            // Last element is PROCESS/LWPID
-            int idx = row.lastIndexOf('/');
-            if (idx > 0) {
-                prstatRowMap.put(row.substring(idx + 1), row);
-            }
-        }
-
         // Iterate files
         for (File lwpidFile : numericFiles) {
-            Map<PrstatLKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatLKeywords.class,
-                    prstatRowMap.getOrDefault(lwpidFile.getName(), ""), ' ');
             int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
-            OSThread thread = new SolarisOSThread(getProcessID(), lwpidNum, prstatMap);
+            OSThread thread = new SolarisOSThread(getProcessID(), lwpidNum);
             if (thread.getState() != INVALID) {
                 threads.add(thread);
             }
@@ -326,21 +317,6 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        int pid = getProcessID();
-        List<String> prstatList = ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
-        String prstatRow = "";
-        for (String s : prstatList) {
-            String row = s.trim();
-            if (row.startsWith(pid + " ")) {
-                prstatRow = row;
-                break;
-            }
-        }
-        Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class, prstatRow, ' ');
-        return updateAttributes(prstatMap);
-    }
-
-    private boolean updateAttributes(Map<PrstatKeywords, String> prstatMap) {
         SolarisPsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;
@@ -369,15 +345,14 @@ public class SolarisOSProcess extends AbstractOSProcess {
         this.commandLineBackup = Native.toString(info.pr_psargs);
         this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        if (prstatMap.containsKey(PrstatKeywords.ICX)) {
-            long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.ICX), 0L);
-            long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.VCX), 0L);
-            this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-            System.out.println("PID: " + getProcessID() + ", ICX=" + nonVoluntaryContextSwitches + ", VCX="
-                    + voluntaryContextSwitches);
-            if (usage != null) {
-                System.out.println("  usage: ICX=" + usage.pr_ictx.longValue() + ", VCX=" + usage.pr_vctx.longValue());
-            }
+        if (usage != null) {
+            this.userTime = usage.pr_utime.tv_sec.longValue() * 1000L + usage.pr_utime.tv_nsec.longValue() / 1_000_000L;
+            this.kernelTime = usage.pr_stime.tv_sec.longValue() * 1000L
+                    + usage.pr_stime.tv_nsec.longValue() / 1_000_000L;
+            this.bytesRead = usage.pr_ioch.longValue();
+            this.majorFaults = usage.pr_majf.longValue();
+            this.minorFaults = usage.pr_minf.longValue();
+            this.contextSwitches = usage.pr_ictx.longValue() + usage.pr_vctx.longValue();
         }
         return true;
     }

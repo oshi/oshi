@@ -29,9 +29,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,11 +60,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
-
-    enum PrstatKeywords {
-        // prstat -v
-        PID, USERNAME, USR, SYS, TRP, TFL, DFL, LCK, SLP, LAT, VCX, ICX, SCL, SIG, PROCESS_NLWP;
-    }
 
     private static final long BOOTTIME = querySystemBootTime();
 
@@ -161,24 +154,10 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             return procs;
         }
 
-        // Get a map by pid of prstat output
-        List<String> prstatList = pid < 0 ? ExecutingCommand.runNative("prstat -v 1 1")
-                : ExecutingCommand.runNative("prstat -v -p " + pid + " 1 1");
-        Map<String, String> prstatRowMap = new HashMap<>();
-        for (String s : prstatList) {
-            String row = s.trim();
-            int idx = row.indexOf(' ');
-            if (idx > 0) {
-                prstatRowMap.put(row.substring(0, idx), row);
-            }
-        }
-
         // Iterate files
         for (File pidFile : numericFiles) {
-            Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,
-                    prstatRowMap.getOrDefault(pidFile.getName(), ""), ' ');
             int pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
-            OSProcess proc = new SolarisOSProcess(pidNum, prstatMap);
+            OSProcess proc = new SolarisOSProcess(pidNum);
             if (proc.getState() != INVALID) {
                 procs.add(proc);
             }

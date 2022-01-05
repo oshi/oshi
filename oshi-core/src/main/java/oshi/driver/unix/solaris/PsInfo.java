@@ -103,6 +103,18 @@ public final class PsInfo {
     }
 
     /**
+     * Reads /proc/pid/lwp/tid/usage and returns data in a structure
+     */
+    public static SolarisPrUsage queryPrUsage(int pid, int tid) {
+        Path path = Paths.get(String.format("/proc/%d/lwp/%d/usage", pid, tid));
+        try {
+            return new SolarisPrUsage(Files.readAllBytes(path));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
      * Reads the pr_argc, pr_argv, pr_envp, and pr_dmodel fields from
      * /proc/pid/psinfo
      *

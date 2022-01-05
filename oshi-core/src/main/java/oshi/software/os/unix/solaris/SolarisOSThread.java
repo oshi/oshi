@@ -27,8 +27,6 @@ import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import com.sun.jna.Pointer; // NOSONAR squid:S1191
@@ -36,11 +34,9 @@ import com.sun.jna.Pointer; // NOSONAR squid:S1191
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfo;
 import oshi.jna.platform.unix.SolarisLibc.SolarisLwpsInfo;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.solaris.SolarisOSProcess.PrstatLKeywords;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -50,6 +46,7 @@ import oshi.util.Util;
 public class SolarisOSThread extends AbstractOSThread {
 
     private Supplier<SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
+    private Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private String name;
     private int threadId;
@@ -62,14 +59,18 @@ public class SolarisOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public SolarisOSThread(int pid, int lwpid, Map<PrstatLKeywords, String> prstatMap) {
+    public SolarisOSThread(int pid, int lwpid) {
         super(pid);
         this.threadId = lwpid;
-        updateAttributes(prstatMap);
+        updateAttributes();
     }
 
     private SolarisLwpsInfo queryLwpsInfo() {
         return PsInfo.queryLwpsInfo(this.getOwningProcessId(), this.getThreadId());
+    }
+
+    private SolarisPrUsage queryPrUsage() {
+        return PsInfo.queryPrUsage(this.getOwningProcessId(), this.getThreadId());
     }
 
     @Override
@@ -124,26 +125,12 @@ public class SolarisOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        int pid = getOwningProcessId();
-        List<String> prstatList = ExecutingCommand.runNative("prstat -L -v -p " + pid + " 1 1");
-        String prstatRow = "";
-        for (String s : prstatList) {
-            String row = s.trim();
-            if (row.endsWith("/" + getThreadId())) {
-                prstatRow = row;
-                break;
-            }
-        }
-        Map<PrstatLKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatLKeywords.class, prstatRow, ' ');
-        return updateAttributes(prstatMap);
-    }
-
-    private boolean updateAttributes(Map<PrstatLKeywords, String> prstatMap) {
         SolarisLwpsInfo info = lwpsinfo.get();
         if (info == null) {
             this.state = INVALID;
             return false;
         }
+        SolarisPrUsage usage = prusage.get();
         long now = System.currentTimeMillis();
         this.state = SolarisOSProcess.getStateFromOutput((char) info.pr_sname);
         this.startTime = info.pr_start.tv_sec.longValue() * 1000L + info.pr_start.tv_nsec.longValue() / 1_000_000L;
@@ -154,17 +141,15 @@ public class SolarisOSThread extends AbstractOSThread {
         this.userTime = info.pr_time.tv_sec.longValue() * 1000L + info.pr_time.tv_nsec.longValue() / 1_000_000L;
         this.startMemoryAddress = Pointer.nativeValue(info.pr_addr);
         this.priority = info.pr_pri;
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatLKeywords.ICX), 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatLKeywords.VCX), 0L);
-        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.name = prstatMap.get(PrstatLKeywords.PROCESS_LWPNAME);
-        if (this.name == null) {
-            this.name = com.sun.jna.Native.toString(info.pr_name);
-            if (Util.isBlank(name)) {
-                this.name = com.sun.jna.Native.toString(info.pr_oldname);
-            }
-        } else {
-            this.name = this.name.substring(this.name.lastIndexOf('/') + 1);
+        if (usage != null) {
+            this.userTime = usage.pr_utime.tv_sec.longValue() * 1000L + usage.pr_utime.tv_nsec.longValue() / 1_000_000L;
+            this.kernelTime = usage.pr_stime.tv_sec.longValue() * 1000L
+                    + usage.pr_stime.tv_nsec.longValue() / 1_000_000L;
+            this.contextSwitches = usage.pr_ictx.longValue() + usage.pr_vctx.longValue();
+        }
+        this.name = com.sun.jna.Native.toString(info.pr_name);
+        if (Util.isBlank(name)) {
+            this.name = com.sun.jna.Native.toString(info.pr_oldname);
         }
         return true;
     }
