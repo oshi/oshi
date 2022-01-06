@@ -45,7 +45,7 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squ
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
-import oshi.jna.platform.unix.AixLibc.AIXPsInfo;
+import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
@@ -67,7 +67,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
-    private Supplier<AIXPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
+    private Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
     private final Supplier<Long> affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
@@ -101,7 +101,7 @@ public class AixOSProcess extends AbstractOSProcess {
         updateAttributes(userSysCpuTime);
     }
 
-    private AIXPsInfo queryPsInfo() {
+    private AixPsInfo queryPsInfo() {
         return PsInfo.queryPsInfo(this.getProcessID());
     }
 
@@ -136,7 +136,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
-        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get());
+        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get(), queryBitness());
     }
 
     @Override
@@ -311,7 +311,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private boolean updateAttributes(Pair<Long, Long> userSysCpuTime) {
-        AIXPsInfo info = psinfo.get();
+        AixPsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;
             return false;

@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
-import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
@@ -44,7 +43,7 @@ import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.AixLibc;
 import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
-import oshi.jna.platform.unix.AixLibc.AIXPsInfo;
+import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -67,10 +66,10 @@ public final class PsInfo {
     /**
      * Reads /proc/pid/psinfo and returns data in a structure
      */
-    public static AIXPsInfo queryPsInfo(int pid) {
+    public static AixPsInfo queryPsInfo(int pid) {
         Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
         try {
-            return new AIXPsInfo(Files.readAllBytes(path));
+            return new AixPsInfo(Files.readAllBytes(path));
         } catch (IOException e) {
             return null;
         }
@@ -96,8 +95,9 @@ public final class PsInfo {
      * @return A triplet containing the argc, argv, and envp values, or null if
      *         unable to read
      */
-    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AIXPsInfo psinfo) {
+    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AixPsInfo psinfo) {
         if (psinfo != null) {
+            System.out.println("argc=" + psinfo.pr_argc + ", argv=" + psinfo.pr_argv + ", envp=" + psinfo.pr_envp);
             int argc = psinfo.pr_argc;
             // Must have at least one argc (the command itself) so failure here means exit
             if (argc > 0) {
@@ -117,10 +117,11 @@ public final class PsInfo {
      *
      * @param pid
      *            the process id
+     * @param bitness
      * @return A pair containing a list of the arguments and a map of environment
      *         variables
      */
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AIXPsInfo psinfo) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo, int bitness) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
@@ -132,6 +133,7 @@ public final class PsInfo {
             int fd = LIBC.open(procas, 0);
             if (fd < 0) {
                 LOG.trace("No permission to read file: {} ", procas);
+                System.out.println("No permission to read address space for pid " + pid);
                 return new Pair<>(args, env);
             }
             try {
@@ -142,30 +144,10 @@ public final class PsInfo {
                 long envp = addrs.getC();
 
                 // AIX puts argv and envp pointers near the end of the address space so
-                // their relative location doesn't give any info on data model. We must
-                // calculate separately.
-
-                long increment = 0;
-                if (Native.POINTER_SIZE == 4) {
-                    // For 32-bit OS we know all process data models are 32 bit
-                    increment = 4;
-                } else {
-                    // Otherwise we must read data model from status if we have permission
-                    Path p = Paths.get("/proc/" + pid + "/status");
-                    try {
-                        byte[] status = Files.readAllBytes(p);
-                        // pr_dmodel is byte 17 of the structure (4x int + 2nd byte field)
-                        if (status[17] == 0) {
-                            increment = 4;
-                        } else if (status[17] == 1) {
-                            increment = 8;
-                        }
-                        System.out.println("Read status, dmodel = " + increment / 4);
-                    } catch (IOException e) {
-                        // If we didn't have permission to read, we must guess
-                        System.out.println("Couldn't read status");
-                    }
-                }
+                // their relative location doesn't give any info on data model. And we typically
+                // don't have permissions to proc/pid/status so we rely on data model from
+                // pflags command passed from bitness
+                long increment = bitness / 8;
 
                 // Reusable buffer
                 long bufStart = 0;
@@ -179,19 +161,7 @@ public final class PsInfo {
                 for (int i = 0; i < argc; i++) {
                     bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
                     argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    if (increment > 0) {
-                        offset += increment;
-                    } else {
-                        System.out.println("i=" + i + ", offset argp[i]=" + argp[i]);
-                        long temp1 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 4 - bufStart, increment);
-                        System.out.println("  +4: " + temp1);
-                        long temp2 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 8 - bufStart, increment);
-                        System.out.println("  +8: " + temp2);
-                        long temp3 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 12 - bufStart, increment);
-                        System.out.println("  +12: " + temp3);
-                        long temp4 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 16 - bufStart, increment);
-                        System.out.println("  +16: " + temp4);
-                    }
+                    offset += increment;
                 }
 
                 // Also read the pointers to the env strings
