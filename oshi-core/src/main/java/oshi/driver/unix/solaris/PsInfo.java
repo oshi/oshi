@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,15 +23,11 @@
  */
 package oshi.driver.unix.solaris;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,13 +36,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
-import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.SolarisLibc;
+import oshi.jna.platform.unix.SolarisLibc.SolarisLwpsInfo;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
@@ -59,125 +58,80 @@ import oshi.util.tuples.Quartet;
 public final class PsInfo {
     private static final Logger LOG = LoggerFactory.getLogger(PsInfo.class);
 
-    private static final boolean IS_LITTLE_ENDIAN = "little".equals(System.getProperty("sun.cpu.endian"));
-
     private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
 
     private static final long PAGE_SIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"),
             4096L);
 
-    enum LwpsInfoT {
-        PR_FLAG(4), // lwp flags (DEPRECATED: see below)
-        PR_LWPID(4), // lwp id
-        PR_ADDR(Native.POINTER_SIZE), // DEPRECATED was internal address of lwp
-        PR_WCHAN(Native.POINTER_SIZE), // DEPRECATED was wait addr for sleeping lwp
-        PR_STYPE(1), // synchronization event type
-        PR_STATE(1), // numeric lwp state
-        PR_SNAME(1), // printable character for pr_state
-        PR_NICE(1), // nice for cpu usage
-        PR_SYSCALL(2), // system call number (if in syscall)
-        PR_OLDPRI(1), // pre-SVR4, low value is high priority
-        PR_CPU(1), // pre-SVR4, cpu usage for scheduling
-        PR_PRI(4), // priority, high value = high priority
-        PR_PCTCPU(2), // % of recent cpu time used by this lwp
-        PAD(2), // align to 8 byte boundary
-        PR_START(2 * NativeLong.SIZE), // lwp start time, from the epoch
-        PR_TIME(2 * NativeLong.SIZE), // cpu time for this lwp
-        PR_CLNAME(8), // scheduling class name
-        PR_NAME(16), // name of system lwp
-        PR_ONPRO(4), // processor which last ran this lwp
-        PR_BINDPRO(4), // processor to which lwp is bound
-        PR_BINDPSET(4), // processor set to which lwp is bound
-        PR_LGRP(4), // home lgroup
-        PR_LAST_ONPROC(8), // Timestamp of when thread last ran on a processor
-        SIZE(0);
-
-        private final int size;
-
-        LwpsInfoT(int bytes) {
-            size = bytes;
-        }
-
-        public int size() {
-            return size;
-        }
-    }
-
-    private static Map<LwpsInfoT, Integer> lwpsInfoOffsets = initLwpsOffsets();
-
-    enum PsInfoT {
-        PR_FLAG(4), // process flags (DEPRECATED: see below)
-        PR_NLWP(4), // number of active lwps in the process
-        PR_NZOMB(4), // number of zombie lwps in the process
-        PR_PID(4), // process id
-        PR_PPID(4), // process id of parent
-        PR_PGID(4), // process id of process group leader
-        PR_SID(4), // session id
-        PR_UID(4), // real user id
-        PR_EUID(4), // effective user id
-        PR_GID(4), // real group id
-        PR_EGID(4), // effective group id
-        PAD1(Native.POINTER_SIZE - 4), // align to 8 byte on 64 bit only
-        PR_ADDR(Native.POINTER_SIZE), // DEPRECATED was address of process
-        PR_SIZE(Native.SIZE_T_SIZE), // size of process image in Kbytes
-        PR_RSSIZE(Native.SIZE_T_SIZE), // resident set size in Kbytes
-        PR_TTYDEV(NativeLong.SIZE), // controlling tty device (or PRNODEV)
-        PR_PCTCPU(2), // % of recent cpu time used by all lwps
-        PR_PCTMEM(2), // % of system memory used by process
-        PAD2(Native.POINTER_SIZE - 4), // align to 8 byte on 64 bit only
-        PR_START(2 * NativeLong.SIZE), // process start time, from the epoch
-        PR_TIME(2 * NativeLong.SIZE), // cpu time for this process
-        PR_CTIME(2 * NativeLong.SIZE), // cpu time for reaped children
-        PR_FNAME(16), // name of exec'ed file
-        PR_PSARGS(80), // initial characters of arg list
-        PR_WSTAT(4), // if zombie, the wait() status
-        PR_ARGC(4), // initial argument count
-        PR_ARGV(Native.POINTER_SIZE), // address of initial argument vector
-        PR_ENVP(Native.POINTER_SIZE), // address of initial environment vector
-        PR_DMODEL(1), // data model of the process
-        PAD3(7), // align to 8 byte
-        PR_LWP(lwpsInfoOffsets.get(LwpsInfoT.SIZE)), // information for representative lwp
-        PR_TASKID(4), // task id
-        PR_PROJID(4), // project id
-        PR_POOLID(4), // pool id
-        PR_ZONEID(4), // zone id
-        PR_CONTRACT(4), // process contract id
-        SIZE(0);
-
-        private final int size;
-
-        PsInfoT(int bytes) {
-            size = bytes;
-        }
-
-        public int size() {
-            return size;
-        }
-    }
-
-    private static Map<PsInfoT, Integer> psInfoOffsets = initPsOffsets();
-
     private PsInfo() {
     }
 
-    private static Map<LwpsInfoT, Integer> initLwpsOffsets() {
-        Map<LwpsInfoT, Integer> infoMap = new EnumMap<>(LwpsInfoT.class);
-        int offset = 0;
-        for (LwpsInfoT field : LwpsInfoT.values()) {
-            infoMap.put(field, offset);
-            offset += field.size;
+    /**
+     * Reads /proc/pid/psinfo and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @return A structure containing information for the requested process
+     */
+    public static SolarisPsInfo queryPsInfo(int pid) {
+        Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
+        try {
+            return new SolarisPsInfo(Files.readAllBytes(path));
+        } catch (IOException e) {
+            return null;
         }
-        return infoMap;
     }
 
-    private static Map<PsInfoT, Integer> initPsOffsets() {
-        Map<PsInfoT, Integer> infoMap = new EnumMap<>(PsInfoT.class);
-        int offset = 0;
-        for (PsInfoT field : PsInfoT.values()) {
-            infoMap.put(field, offset);
-            offset += field.size;
+    /**
+     * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @param tid
+     *            The thread ID (lwpid)
+     * @return A structure containing information for the requested thread
+     */
+    public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
+        Path path = Paths.get(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid));
+        try {
+            return new SolarisLwpsInfo(Files.readAllBytes(path));
+        } catch (IOException e) {
+            return null;
         }
-        return infoMap;
+    }
+
+    /**
+     * Reads /proc/pid/usage and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @return A structure containing information for the requested process
+     */
+    public static SolarisPrUsage queryPrUsage(int pid) {
+        Path path = Paths.get(String.format("/proc/%d/usage", pid));
+        try {
+            return new SolarisPrUsage(Files.readAllBytes(path));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Reads /proc/pid/lwp/tid/usage and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @param tid
+     *            The thread ID (lwpid)
+     * @return A structure containing information for the requested thread
+     */
+    public static SolarisPrUsage queryPrUsage(int pid, int tid) {
+        Path path = Paths.get(String.format("/proc/%d/lwp/%d/usage", pid, tid));
+        try {
+            return new SolarisPrUsage(Files.readAllBytes(path));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     /**
@@ -186,48 +140,32 @@ public final class PsInfo {
      *
      * @param pid
      *            The process ID
+     * @param psinfo
+     *            A populated {@link SolarisPsInfo} structure containing the offset
+     *            pointers for these fields
      * @return A quartet containing the argc, argv, envp and dmodel values, or null
      *         if unable to read
      */
-    public static Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid) {
-        File procpsinfo = new File("/proc/" + pid + "/psinfo");
-        try (RandomAccessFile psinfo = new RandomAccessFile(procpsinfo, "r");
-                FileChannel chan = psinfo.getChannel();
-                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            int bufferSize = psInfoOffsets.get(PsInfoT.SIZE);
-            if (bufferSize > chan.size()) {
-                bufferSize = (int) chan.size();
-            }
-
-            ByteBuffer buf = ByteBuffer.allocate(bufferSize);
-            if (chan.read(buf) > psInfoOffsets.get(PsInfoT.PR_DMODEL)) {
-                // We've read bytes up to at least the dmodel
-                if (IS_LITTLE_ENDIAN) {
-                    buf.order(ByteOrder.LITTLE_ENDIAN);
-                }
-                // Now grab the elements we want
-                int argc = buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGC));
-                // Must have at least one argc (the command itself) so failure here means exit
-                if (argc > 0) {
-                    long argv = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ARGV))
-                            : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ARGV));
-                    long envp = Native.POINTER_SIZE == 8 ? buf.getLong(psInfoOffsets.get(PsInfoT.PR_ENVP))
-                            : buf.getInt(psInfoOffsets.get(PsInfoT.PR_ENVP));
-                    // Process data model 1 = 32 bit, 2 = 64 bit
-                    byte dmodel = buf.get(psInfoOffsets.get(PsInfoT.PR_DMODEL));
-                    // Sanity check
-                    if (dmodel * 4 != (envp - argv) / (argc + 1)) {
-                        LOG.trace("Failed data model and offset increment sanity check: dm={} diff={}", dmodel,
-                                envp - argv);
-                        return null;
-                    }
+    public static Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid, SolarisPsInfo psinfo) {
+        if (psinfo != null) {
+            int argc = psinfo.pr_argc;
+            // Must have at least one argc (the command itself) so failure here means exit
+            if (argc > 0) {
+                long argv = Pointer.nativeValue(psinfo.pr_argv);
+                long envp = Pointer.nativeValue(psinfo.pr_envp);
+                // Process data model 1 = 32 bit, 2 = 64 bit
+                byte dmodel = psinfo.pr_dmodel;
+                // Sanity check
+                if (dmodel * 4 == (envp - argv) / (argc + 1)) {
                     return new Quartet<>(argc, argv, envp, dmodel);
                 }
-                LOG.trace("No permission to read file: {} ", procpsinfo);
+                LOG.trace("Failed data model and offset increment sanity check: dm={} diff={}", dmodel, envp - argv);
+                return null;
             }
-        } catch (IOException e) {
-            LOG.debug("Failed to read file: {} ", procpsinfo);
+            LOG.trace("Failed argc sanity check: argc={}", argc);
+            return null;
         }
+        LOG.trace("Failed to read psinfo file for pid: {} ", pid);
         return null;
     }
 
@@ -236,15 +174,18 @@ public final class PsInfo {
      *
      * @param pid
      *            the process id
+     * @param psinfo
+     *            A populated {@link SolarisPsInfo} structure containing the offset
+     *            pointers for these fields
      * @return A pair containing a list of the arguments and a map of environment
      *         variables
      */
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, SolarisPsInfo psinfo) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
         // Get the arg count and list of env vars
-        Quartet<Integer, Long, Long, Byte> addrs = queryArgsEnvAddrs(pid);
+        Quartet<Integer, Long, Long, Byte> addrs = queryArgsEnvAddrs(pid, psinfo);
         if (addrs != null) {
             // Open a file descriptor to the address space
             String procas = "/proc/" + pid + "/as";
