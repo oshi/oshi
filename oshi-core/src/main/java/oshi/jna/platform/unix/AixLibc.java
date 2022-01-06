@@ -44,7 +44,7 @@ public interface AixLibc extends CLibrary {
     @FieldOrder({ "pr_flag", "pr_flag2", "pr_nlwp", "pr__pad1", "pr_uid", "pr_euid", "pr_gid", "pr_egid", "pr_pid",
             "pr_ppid", "pr_pgid", "pr_sid", "pr_ttydev", "pr_addr", "pr_size", "pr_rssize", "pr_start", "pr_time",
             "pr_cid", "pr__pad2", "pr_argc", "pr_argv", "pr_envp", "pr_fname", "pr_psargs", "pr__pad", "pr_lwp" })
-    class AIXPsInfo extends Structure {
+    class AixPsInfo extends Structure {
         public int pr_flag; // process flags from proc struct p_flag
         public int pr_flag2; // process flags from proc struct p_flag2
         public int pr_nlwp; // number of threads in process
@@ -73,11 +73,11 @@ public interface AixLibc extends CLibrary {
         public long[] pr__pad = new long[8]; // reserved for future use
         public AIXLwpsInfo pr_lwp; // "representative" thread info
 
-        public AIXPsInfo() {
+        public AixPsInfo() {
             super();
         }
 
-        public AIXPsInfo(byte[] bytes) {
+        public AixPsInfo(byte[] bytes) {
             super();
             // Truncate bytes and pad with 0 if necessary
             byte[] structBytes = new byte[size()];

@@ -44,7 +44,7 @@ import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.AixLibc;
 import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
-import oshi.jna.platform.unix.AixLibc.AIXPsInfo;
+import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -67,10 +67,10 @@ public final class PsInfo {
     /**
      * Reads /proc/pid/psinfo and returns data in a structure
      */
-    public static AIXPsInfo queryPsInfo(int pid) {
+    public static AixPsInfo queryPsInfo(int pid) {
         Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
         try {
-            return new AIXPsInfo(Files.readAllBytes(path));
+            return new AixPsInfo(Files.readAllBytes(path));
         } catch (IOException e) {
             return null;
         }
@@ -96,8 +96,9 @@ public final class PsInfo {
      * @return A triplet containing the argc, argv, and envp values, or null if
      *         unable to read
      */
-    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AIXPsInfo psinfo) {
+    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AixPsInfo psinfo) {
         if (psinfo != null) {
+            System.out.println("argc=" + psinfo.pr_argc + ", argv=" + psinfo.pr_argv + ", envp=" + psinfo.pr_envp);
             int argc = psinfo.pr_argc;
             // Must have at least one argc (the command itself) so failure here means exit
             if (argc > 0) {
@@ -120,7 +121,7 @@ public final class PsInfo {
      * @return A pair containing a list of the arguments and a map of environment
      *         variables
      */
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AIXPsInfo psinfo) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
@@ -132,6 +133,7 @@ public final class PsInfo {
             int fd = LIBC.open(procas, 0);
             if (fd < 0) {
                 LOG.trace("No permission to read file: {} ", procas);
+                System.out.println("No permission to read file");
                 return new Pair<>(args, env);
             }
             try {
