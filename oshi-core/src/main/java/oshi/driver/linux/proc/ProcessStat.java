@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -53,7 +54,6 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class ProcessStat {
 
-    private static final Pattern DIGITS = Pattern.compile("\\d+");
     private static final Pattern SOCKET = Pattern.compile("socket:\\[(\\d+)\\]");
 
     /**
@@ -517,7 +517,7 @@ public final class ProcessStat {
 
     private static File[] listNumericFiles(String path) {
         File directory = new File(path);
-        File[] numericFiles = directory.listFiles(file -> DIGITS.matcher(file.getName()).matches());
+        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         return numericFiles == null ? new File[0] : numericFiles;
     }
 

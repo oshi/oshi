@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,31 +23,35 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.software.os.OSProcess.State.RUNNING;
 import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfo;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem.PrstatKeywords;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem.PsKeywords;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
 
 /**
@@ -55,19 +59,12 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class SolarisOSProcess extends AbstractOSProcess {
-    /*
-     * Package-private for use by SolarisOSThread
-     */
-    enum PsThreadColumns {
-        LWP, S, ETIME, TIME, ADDR, PRI;
-    }
-
-    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-            .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
+    private Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
+    private Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private String name;
     private String path = "";
@@ -88,11 +85,21 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
+    private long minorFaults;
+    private long majorFaults;
     private long contextSwitches = 0; // default
 
-    public SolarisOSProcess(int pid, Map<PsKeywords, String> psMap, Map<PrstatKeywords, String> prstatMap) {
+    public SolarisOSProcess(int pid) {
         super(pid);
-        updateAttributes(psMap, prstatMap);
+        updateAttributes();
+    }
+
+    private SolarisPsInfo queryPsInfo() {
+        return PsInfo.queryPsInfo(this.getProcessID());
+    }
+
+    private SolarisPrUsage queryPrUsage() {
+        return PsInfo.queryPrUsage(this.getProcessID());
     }
 
     @Override
@@ -126,7 +133,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
-        return PsInfo.queryArgsEnv(getProcessID());
+        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get());
     }
 
     @Override
@@ -215,6 +222,16 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMinorFaults() {
+        return this.minorFaults;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
+    }
+
+    @Override
     public long getContextSwitches() {
         return this.contextSwitches;
     }
@@ -279,31 +296,20 @@ public class SolarisOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         List<OSThread> threads = new ArrayList<>();
-        List<String> threadList = ExecutingCommand.runNative("ps -o " + PS_THREAD_COLUMNS + " -p " + getProcessID());
-        if (threadList.size() > 1) {
-            // Get a map by lwpid of prstat output
-            List<String> prstatList = ExecutingCommand.runNative("prstat -L -v -p " + getProcessID() + " 1 1");
-            Map<String, String> prstatRowMap = new HashMap<>();
-            for (String s : prstatList) {
-                String row = s.trim();
-                // Last element is PROCESS/LWPID
-                int idx = row.lastIndexOf('/');
-                if (idx > 0) {
-                    prstatRowMap.put(row.substring(idx + 1), row);
-                }
-            }
-            // remove header row and iterate thread list
-            threadList.remove(0);
-            for (String thread : threadList) {
-                Map<PsThreadColumns, String> psMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
-                        ' ');
-                // Check if last (thus all) value populated
-                if (psMap.containsKey(PsThreadColumns.PRI)) {
-                    String lwpStr = psMap.get(PsThreadColumns.LWP);
-                    Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,
-                            prstatRowMap.getOrDefault(lwpStr, ""), ' ');
-                    threads.add(new SolarisOSThread(getProcessID(), psMap, prstatMap));
-                }
+
+        // Get process files in proc
+        File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
+        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        if (numericFiles == null) {
+            return threads;
+        }
+
+        // Iterate files
+        for (File lwpidFile : numericFiles) {
+            int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
+            OSThread thread = new SolarisOSThread(getProcessID(), lwpidNum);
+            if (thread.getState() != INVALID) {
+                threads.add(thread);
             }
         }
         return threads;
@@ -311,57 +317,42 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        int pid = getProcessID();
-        List<String> procList = ExecutingCommand
-                .runNative("ps -o " + SolarisOperatingSystem.PS_COMMAND_ARGS + " -p " + pid);
-        if (procList.size() > 1) {
-            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
-            // Check if last (thus all) value populated
-            if (psMap.containsKey(PsKeywords.ARGS)) {
-                String pidStr = psMap.get(PsKeywords.PID);
-                List<String> prstatList = ExecutingCommand.runNative("prstat -v -p " + pidStr + " 1 1");
-                String prstatRow = "";
-                for (String s : prstatList) {
-                    String row = s.trim();
-                    if (row.startsWith(pidStr + " ")) {
-                        prstatRow = row;
-                        break;
-                    }
-                }
-                Map<PrstatKeywords, String> prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class, prstatRow, ' ');
-                return updateAttributes(psMap, prstatMap);
-            }
+        SolarisPsInfo info = psinfo.get();
+        if (info == null) {
+            this.state = INVALID;
+            return false;
         }
-        this.state = State.INVALID;
-        return false;
-    }
-
-    private boolean updateAttributes(Map<PsKeywords, String> psMap, Map<PrstatKeywords, String> prstatMap) {
+        SolarisPrUsage usage = prusage.get();
         long now = System.currentTimeMillis();
-        this.state = getStateFromOutput(psMap.get(PsKeywords.S).charAt(0));
-        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
-        this.user = psMap.get(PsKeywords.USER);
-        this.userID = psMap.get(PsKeywords.UID);
-        this.group = psMap.get(PsKeywords.GROUP);
-        this.groupID = psMap.get(PsKeywords.GID);
-        this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.NLWP), 0);
-        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
+        this.state = getStateFromOutput((char) info.pr_lwp.pr_sname);
+        this.parentProcessID = info.pr_ppid;
+        this.userID = Integer.toString(info.pr_euid);
+        this.user = UserGroupInfo.getUser(this.userID);
+        this.groupID = Integer.toString(info.pr_egid);
+        this.group = UserGroupInfo.getGroupName(this.groupID);
+        this.threadCount = info.pr_nlwp;
+        this.priority = info.pr_lwp.pr_pri;
         // These are in KB, multiply
-        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;
-        // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);
+        this.virtualSize = info.pr_size.longValue() * 1024;
+        this.residentSetSize = info.pr_rssize.longValue() * 1024;
+        this.startTime = info.pr_start.tv_sec.longValue() * 1000L + info.pr_start.tv_nsec.longValue() / 1_000_000L;
+        // Avoid divide by zero for processes up less than a millisecond
+        long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        this.startTime = now - this.upTime;
         this.kernelTime = 0L;
-        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
-        this.path = psMap.get(PsKeywords.COMM);
+        this.userTime = info.pr_time.tv_sec.longValue() * 1000L + info.pr_time.tv_nsec.longValue() / 1_000_000L;
+        // 80 character truncation but enough for path and name (usually)
+        this.commandLineBackup = Native.toString(info.pr_psargs);
+        this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
-        if (prstatMap.containsKey(PrstatKeywords.ICX)) {
-            long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.ICX), 0L);
-            long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.VCX), 0L);
-            this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        if (usage != null) {
+            this.userTime = usage.pr_utime.tv_sec.longValue() * 1000L + usage.pr_utime.tv_nsec.longValue() / 1_000_000L;
+            this.kernelTime = usage.pr_stime.tv_sec.longValue() * 1000L
+                    + usage.pr_stime.tv_nsec.longValue() / 1_000_000L;
+            this.bytesRead = usage.pr_ioch.longValue();
+            this.majorFaults = usage.pr_majf.longValue();
+            this.minorFaults = usage.pr_minf.longValue();
+            this.contextSwitches = usage.pr_ictx.longValue() + usage.pr_vctx.longValue();
         }
         return true;
     }

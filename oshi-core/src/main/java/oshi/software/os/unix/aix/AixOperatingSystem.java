@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 package oshi.software.os.unix.aix;
 
+import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.util.Memoizer.defaultExpiration;
@@ -30,11 +31,10 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -73,17 +73,6 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
             defaultExpiration());
 
     private static final long BOOTTIME = querySystemBootTimeMillis() / 1000L;
-
-    /*
-     * Package-private for use by AixOSProcess
-     */
-    enum PsKeywords {
-        ST, PID, PPID, USER, UID, GROUP, GID, THCOUNT, PRI, VSIZE, RSSIZE, ETIME, TIME, COMM, PAGEIN, ARGS;
-        // ARGS must always be last
-    }
-
-    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)
-            .collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
@@ -134,7 +123,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryAllProcesses() {
-        return getProcessListFromPS("ps -A -o " + PS_COMMAND_ARGS, -1);
+        return getProcessListFromProcfs(-1);
     }
 
     @Override
@@ -153,34 +142,30 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        List<OSProcess> procs = getProcessListFromPS("ps -o " + PS_COMMAND_ARGS + " -p ", pid);
+        List<OSProcess> procs = getProcessListFromProcfs(pid);
         if (procs.isEmpty()) {
             return null;
         }
         return procs.get(0);
     }
 
-    private List<OSProcess> getProcessListFromPS(String psCommand, int pid) {
+    private List<OSProcess> getProcessListFromProcfs(int pid) {
+        List<OSProcess> procs = new ArrayList<>();
+        // Fetch user/system times from perfstat
         perfstat_process_t[] perfstat = procCpu.get();
-        List<String> procList = ExecutingCommand.runNative(psCommand + (pid < 0 ? "" : pid));
-        if (procList.isEmpty() || procList.size() < 2) {
-            return Collections.emptyList();
-        }
-        // Parse array to map of user/system times
         Map<Integer, Pair<Long, Long>> cpuMap = new HashMap<>();
         for (perfstat_process_t stat : perfstat) {
-            cpuMap.put((int) stat.pid, new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
+            int statpid = (int) stat.pid;
+            if (pid < 0 || statpid == pid) {
+                cpuMap.put(statpid, new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
+            }
         }
-        // remove header row
-        procList.remove(0);
-        // Fill list
-        List<OSProcess> procs = new ArrayList<>();
-        for (String proc : procList) {
-            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
-            // Check if last (thus all) value populated
-            if (psMap.containsKey(PsKeywords.ARGS)) {
-                procs.add(new AixOSProcess(pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid,
-                        psMap, cpuMap, procCpu));
+
+        // Keys of this map are pids
+        for (Entry<Integer, Pair<Long, Long>> entry : cpuMap.entrySet()) {
+            OSProcess proc = new AixOSProcess(entry.getKey(), entry.getValue(), procCpu);
+            if (proc.getState() != INVALID) {
+                procs.add(proc);
             }
         }
         return procs;

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2019-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ package oshi.util;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -50,6 +51,8 @@ public final class Constants {
      * The Unix Epoch, a default value when WMI DateTime queries return no value.
      */
     public static final OffsetDateTime UNIX_EPOCH = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);
+
+    public static final Pattern DIGITS = Pattern.compile("\\d+");
 
     /**
      * Everything in this class is static, never instantiate it
