@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#1831](https://github.com/oshi/oshi/pull/1831): Improve Solaris and AIX process listing using procfs - [@dbwiddis](https://github.com/dbwiddis).
+* [#1836](https://github.com/oshi/oshi/pull/1836): Remove all lsof calls and replace with procfs equivalent - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.0.0 (2021-12-31)
 
