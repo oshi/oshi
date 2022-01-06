@@ -34,10 +34,16 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squid:S1191
@@ -51,7 +57,6 @@ import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
 import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
@@ -61,6 +66,8 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class AixOSProcess extends AbstractOSProcess {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AixOSProcess.class);
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
@@ -137,7 +144,16 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public String getCurrentWorkingDirectory() {
-        return LsofUtil.getCwd(getProcessID());
+        try {
+            String cwdLink = "/proc" + getProcessID() + "/cwd";
+            String cwd = new File(cwdLink).getCanonicalPath();
+            if (!cwd.equals(cwdLink)) {
+                return cwd;
+            }
+        } catch (IOException e) {
+            LOG.trace("Couldn't find cwd for pid {}: {}", getProcessID(), e.getMessage());
+        }
+        return "";
     }
 
     @Override
@@ -222,7 +238,11 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public long getOpenFiles() {
-        return LsofUtil.getOpenFiles(getProcessID());
+        try {
+            return Files.list(Paths.get("/proc/" + getProcessID() + "/fd")).count();
+        } catch (IOException e) {
+            return 0L;
+        }
     }
 
     @Override
