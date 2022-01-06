@@ -97,7 +97,6 @@ public final class PsInfo {
      */
     public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AixPsInfo psinfo) {
         if (psinfo != null) {
-            System.out.println("argc=" + psinfo.pr_argc + ", argv=" + psinfo.pr_argv + ", envp=" + psinfo.pr_envp);
             int argc = psinfo.pr_argc;
             // Must have at least one argc (the command itself) so failure here means exit
             if (argc > 0) {
@@ -117,11 +116,10 @@ public final class PsInfo {
      *
      * @param pid
      *            the process id
-     * @param bitness
      * @return A pair containing a list of the arguments and a map of environment
      *         variables
      */
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo, int bitness) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
@@ -133,57 +131,65 @@ public final class PsInfo {
             int fd = LIBC.open(procas, 0);
             if (fd < 0) {
                 LOG.trace("No permission to read file: {} ", procas);
-                System.out.println("No permission to read address space for pid " + pid);
                 return new Pair<>(args, env);
             }
             try {
-
                 // Non-null addrs means argc > 0
                 int argc = addrs.getA();
                 long argv = addrs.getB();
                 long envp = addrs.getC();
 
-                // AIX puts argv and envp pointers near the end of the address space so
-                // their relative location doesn't give any info on data model. And we typically
-                // don't have permissions to proc/pid/status so we rely on data model from
-                // pflags command passed from bitness
-                long increment = bitness / 8;
+                // We need to determine if the process is 32-bit or 64-bit data model.
+                long increment;
+                Path p = Paths.get("/proc/" + pid + "/status");
+                try {
+                    byte[] status = Files.readAllBytes(p);
+                    if (status[17] == 1) {
+                        increment = 8;
+                    } else {
+                        increment = 4;
+                    }
+                } catch (IOException e) {
+                    return new Pair<>(args, env);
+                }
 
                 // Reusable buffer
-                long bufStart = 0;
                 Memory buffer = new Memory(PAGE_SIZE * 2);
                 size_t bufSize = new size_t(buffer.size());
 
                 // Read the pointers to the arg strings
-                // We know argc so we can count them
-                long[] argp = new long[argc];
-                long offset = argv;
-                for (int i = 0; i < argc; i++) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                    argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    offset += increment;
+                long bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, 0, argv);
+                long[] argPtr = new long[argc];
+                long argp = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, argv - bufStart, increment);
+                if (argp > 0) {
+                    for (int i = 0; i < argc; i++) {
+                        long offset = argp + i * increment;
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
+                        argPtr[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
+                    }
                 }
 
                 // Also read the pointers to the env strings
                 // We don't know how many, so stop when we get to null pointer
+                bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envp);
                 List<Long> envPtrList = new ArrayList<>();
-                offset = envp;
-                long addr = 0;
+                long addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, envp - bufStart, increment);
                 int limit = 500; // sane max env strings to stop at
-                do {
+                long offset = addr;
+                while (addr != 0 && --limit > 0) {
                     bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                    addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    if (addr != 0) {
-                        envPtrList.add(addr);
+                    long envPtr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
+                    if (envPtr != 0) {
+                        envPtrList.add(envPtr);
                     }
                     offset += increment;
-                } while (addr != 0 && --limit > 0);
+                }
 
                 // Now read the arg strings from the buffer
-                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);
+                for (int i = 0; i < argPtr.length && argPtr[i] != 0; i++) {
+                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argPtr[i]);
                     if (bufStart != 0) {
-                        String argStr = buffer.getString(argp[i] - bufStart);
+                        String argStr = buffer.getString(argPtr[i] - bufStart);
                         if (!argStr.isEmpty()) {
                             args.add(argStr);
                         }

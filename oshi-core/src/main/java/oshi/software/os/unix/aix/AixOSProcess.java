@@ -136,7 +136,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
-        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get(), queryBitness());
+        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get());
     }
 
     @Override
