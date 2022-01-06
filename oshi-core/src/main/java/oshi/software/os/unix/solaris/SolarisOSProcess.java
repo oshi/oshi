@@ -36,11 +36,13 @@ import static oshi.util.Memoizer.memoize;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -254,8 +256,8 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public long getOpenFiles() {
-        try {
-            return Files.list(Paths.get("/proc/" + getProcessID() + "/fd")).count();
+        try (Stream<Path> fd = Files.list(Paths.get("/proc/" + getProcessID() + "/fd"))) {
+            return fd.count();
         } catch (IOException e) {
             return 0L;
         }
