@@ -68,6 +68,10 @@ public final class PsInfo {
 
     /**
      * Reads /proc/pid/psinfo and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @return A structure containing information for the requested process
      */
     public static SolarisPsInfo queryPsInfo(int pid) {
         Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
@@ -80,6 +84,12 @@ public final class PsInfo {
 
     /**
      * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @param tid
+     *            The thread ID (lwpid)
+     * @return A structure containing information for the requested thread
      */
     public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
         Path path = Paths.get(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid));
@@ -92,6 +102,10 @@ public final class PsInfo {
 
     /**
      * Reads /proc/pid/usage and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @return A structure containing information for the requested process
      */
     public static SolarisPrUsage queryPrUsage(int pid) {
         Path path = Paths.get(String.format("/proc/%d/usage", pid));
@@ -104,6 +118,12 @@ public final class PsInfo {
 
     /**
      * Reads /proc/pid/lwp/tid/usage and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @param tid
+     *            The thread ID (lwpid)
+     * @return A structure containing information for the requested thread
      */
     public static SolarisPrUsage queryPrUsage(int pid, int tid) {
         Path path = Paths.get(String.format("/proc/%d/lwp/%d/usage", pid, tid));
@@ -121,6 +141,8 @@ public final class PsInfo {
      * @param pid
      *            The process ID
      * @param psinfo
+     *            A populated {@link SolarisPsInfo} structure containing the offset
+     *            pointers for these fields
      * @return A quartet containing the argc, argv, envp and dmodel values, or null
      *         if unable to read
      */
@@ -153,7 +175,8 @@ public final class PsInfo {
      * @param pid
      *            the process id
      * @param psinfo
-     *            A psinfo structure with the data
+     *            A populated {@link SolarisPsInfo} structure containing the offset
+     *            pointers for these fields
      * @return A pair containing a list of the arguments and a map of environment
      *         variables
      */

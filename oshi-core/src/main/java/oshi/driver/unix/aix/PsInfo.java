@@ -65,6 +65,10 @@ public final class PsInfo {
 
     /**
      * Reads /proc/pid/psinfo and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @return A structure containing information for the requested process
      */
     public static AixPsInfo queryPsInfo(int pid) {
         Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
@@ -77,6 +81,12 @@ public final class PsInfo {
 
     /**
      * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
+     *
+     * @param pid
+     *            The process ID
+     * @param tid
+     *            The thread ID (lwpid)
+     * @return A structure containing information for the requested thread
      */
     public static AIXLwpsInfo queryLwpsInfo(int pid, int tid) {
         Path path = Paths.get(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid));
@@ -92,6 +102,9 @@ public final class PsInfo {
      *
      * @param pid
      *            The process ID
+     * @param psinfo
+     *            A populated {@link AixPsInfo} structure containing the offset
+     *            pointers for these fields
      * @return A triplet containing the argc, argv, and envp values, or null if
      *         unable to read
      */
@@ -116,6 +129,9 @@ public final class PsInfo {
      *
      * @param pid
      *            the process id
+     * @param psinfo
+     *            A populated {@link AixPsInfo} structure containing the offset
+     *            pointers for these fields
      * @return A pair containing a list of the arguments and a map of environment
      *         variables
      */
