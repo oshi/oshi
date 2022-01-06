@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
@@ -139,10 +140,32 @@ public final class PsInfo {
                 int argc = addrs.getA();
                 long argv = addrs.getB();
                 long envp = addrs.getC();
-                // Most of this method is a direct copy of the Solaris equivalent, except the
-                // Data model is in another structure /proc/pid/status but we can back into the
-                // increment using the known offsets
-                long increment = (envp - argv) / (argc + 1);
+
+                // AIX puts argv and envp pointers near the end of the address space so
+                // their relative location doesn't give any info on data model. We must
+                // calculate separately.
+
+                long increment = 0;
+                if (Native.POINTER_SIZE == 4) {
+                    // For 32-bit OS we know all process data models are 32 bit
+                    increment = 4;
+                } else {
+                    // Otherwise we must read data model from status if we have permission
+                    Path p = Paths.get("/proc/" + pid + "/status");
+                    try {
+                        byte[] status = Files.readAllBytes(p);
+                        // pr_dmodel is byte 17 of the structure (4x int + 2nd byte field)
+                        if (status[17] == 0) {
+                            increment = 4;
+                        } else if (status[17] == 1) {
+                            increment = 8;
+                        }
+                        System.out.println("Read status, dmodel = " + increment / 4);
+                    } catch (IOException e) {
+                        // If we didn't have permission to read, we must guess
+                        System.out.println("Couldn't read status");
+                    }
+                }
 
                 // Reusable buffer
                 long bufStart = 0;
@@ -156,7 +179,19 @@ public final class PsInfo {
                 for (int i = 0; i < argc; i++) {
                     bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
                     argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    offset += increment;
+                    if (increment > 0) {
+                        offset += increment;
+                    } else {
+                        System.out.println("i=" + i + ", offset argp[i]=" + argp[i]);
+                        long temp1 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 4 - bufStart, increment);
+                        System.out.println("  +4: " + temp1);
+                        long temp2 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 8 - bufStart, increment);
+                        System.out.println("  +8: " + temp2);
+                        long temp3 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 12 - bufStart, increment);
+                        System.out.println("  +12: " + temp3);
+                        long temp4 = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset + 16 - bufStart, increment);
+                        System.out.println("  +16: " + temp4);
+                    }
                 }
 
                 // Also read the pointers to the env strings
