@@ -186,7 +186,7 @@ public interface SolarisLibc extends CLibrary {
         public byte[] pr_clname = new byte[PRCLSZ]; // scheduling class name
         public byte[] pr_oldname = new byte[PRFNSZ]; // binary compatibility -- unused
         public int pr_onpro; // processor which last ran this lwp
-        public int pr_bindpro;// processor to which lwp is bound
+        public int pr_bindpro; // processor to which lwp is bound
         public int pr_bindpset; // processor set to which lwp is bound
         public int pr_lgrp; // home lgroup
         public long pr_last_onproc; // Timestamp of when thread last ran on a processor

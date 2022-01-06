@@ -390,4 +390,4 @@ public class SolarisOSProcess extends AbstractOSProcess {
         }
         return state;
     }
-};
+}
