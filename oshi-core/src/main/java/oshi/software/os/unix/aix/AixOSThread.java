@@ -23,15 +23,11 @@
  */
 package oshi.software.os.unix.aix;
 
-import java.util.List;
-import java.util.Map;
-
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.PsInfo;
+import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.aix.AixOSProcess.PsThreadColumns;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
  * OSThread implementation
@@ -41,6 +37,7 @@ public class AixOSThread extends AbstractOSThread {
 
     private int threadId;
     private OSProcess.State state = OSProcess.State.INVALID;
+    private long startMemoryAddress;
     private long contextSwitches;
     private long kernelTime;
     private long userTime;
@@ -48,9 +45,10 @@ public class AixOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public AixOSThread(int pid, Map<PsThreadColumns, String> threadMap) {
+    public AixOSThread(int pid, int tid) {
         super(pid);
-        updateAttributes(threadMap);
+        this.threadId = tid;
+        updateAttributes();
     }
 
     @Override
@@ -61,6 +59,11 @@ public class AixOSThread extends AbstractOSThread {
     @Override
     public OSProcess.State getState() {
         return this.state;
+    }
+
+    @Override
+    public long getStartMemoryAddress() {
+        return this.startMemoryAddress;
     }
 
     @Override
@@ -95,29 +98,15 @@ public class AixOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        List<String> threadListInfoPs = ExecutingCommand.runNative("ps -m -o THREAD -p " + getOwningProcessId());
-        // 1st row is header, 2nd row is process data.
-        if (threadListInfoPs.size() > 2) {
-            threadListInfoPs.remove(0); // header removed
-            threadListInfoPs.remove(0); // process data removed
-            String tidStr = Integer.toString(this.getThreadId());
-            for (String threadInfo : threadListInfoPs) {
-                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,
-                        threadInfo.trim(), ' ');
-                if (threadMap.containsKey(PsThreadColumns.COMMAND)
-                        && tidStr.equals(threadMap.get(PsThreadColumns.TID))) {
-                    return updateAttributes(threadMap);
-                }
-            }
+        AIXLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());
+        if (lwpsinfo == null) {
+            this.state = OSProcess.State.INVALID;
+            return false;
         }
-        this.state = OSProcess.State.INVALID;
-        return false;
-    }
-
-    private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
-        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);
-        this.state = AixOSProcess.getStateFromOutput(threadMap.get(PsThreadColumns.ST).charAt(0));
-        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);
+        this.threadId = (int) lwpsinfo.pr_lwpid; // 64 bit storage but always 32 bit
+        this.startMemoryAddress = lwpsinfo.pr_addr;
+        this.state = AixOSProcess.getStateFromOutput((char) lwpsinfo.pr_sname);
+        this.priority = lwpsinfo.pr_pri;
         return true;
     }
 }

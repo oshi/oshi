@@ -33,8 +33,8 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -45,9 +45,11 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squ
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
+import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
 import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
@@ -59,12 +61,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class AixOSProcess extends AbstractOSProcess {
-    /*
-     * Package-private for use by AIXOSThread
-     */
-    enum PsThreadColumns {
-        USER, PID, PPID, TID, ST, CP, PRI, SC, WCHAN, F, TT, BND, COMMAND;
-    }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
@@ -250,51 +246,46 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public long getAffinityMask() {
-        // Need to capture BND field from ps
-        // ps -m -o THREAD -p 12345
-        // BND field for PID is either a dash (all processors) or the processor it's
-        // bound to, do 1L << # to get mask
         long mask = 0L;
-        List<String> processAffinityInfoList = ExecutingCommand.runNative("ps -m -o THREAD -p " + getProcessID());
-        if (processAffinityInfoList.size() > 2) { // what happens when the process has not thread?
-            processAffinityInfoList.remove(0); // remove header row
-            processAffinityInfoList.remove(0); // remove process row
-            for (String processAffinityInfo : processAffinityInfoList) { // affinity information is in thread row
-                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,
-                        processAffinityInfo.trim(), ' ');
-                if (threadMap.containsKey(PsThreadColumns.COMMAND)
-                        && threadMap.get(PsThreadColumns.ST).charAt(0) != 'Z') { // only non-zombie threads
-                    String bnd = threadMap.get(PsThreadColumns.BND);
-                    if (bnd.charAt(0) == '-') { // affinity to all processors
-                        return this.affinityMask.get();
-                    } else {
-                        int affinity = ParseUtil.parseIntOrDefault(bnd, 0);
-                        mask |= 1L << affinity;
-                    }
-                }
+        // Need to capture pr_bndpro for all threads
+        // Get process files in proc
+        File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
+        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        if (numericFiles == null) {
+            return mask;
+        }
+        // Iterate files
+        for (File lwpidFile : numericFiles) {
+            int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
+            AIXLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
+            if (info != null) {
+                mask |= info.pr_bindpro;
             }
         }
+        mask &= affinityMask.get();
         return mask;
     }
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<String> threadListInfoPs = ExecutingCommand.runNative("ps -m -o THREAD -p " + getProcessID());
-        // 1st row is header, 2nd row is process data.
-        if (threadListInfoPs.size() > 2) {
-            List<OSThread> threads = new ArrayList<>();
-            threadListInfoPs.remove(0); // header removed
-            threadListInfoPs.remove(0); // process data removed
-            for (String threadInfo : threadListInfoPs) {
-                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class,
-                        threadInfo.trim(), ' ');
-                if (threadMap.containsKey(PsThreadColumns.COMMAND)) {
-                    threads.add(new AixOSThread(getProcessID(), threadMap));
-                }
-            }
+        List<OSThread> threads = new ArrayList<>();
+
+        // Get process files in proc
+        File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
+        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        if (numericFiles == null) {
             return threads;
         }
-        return Collections.emptyList();
+
+        // Iterate files
+        for (File lwpidFile : numericFiles) {
+            int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
+            OSThread thread = new AixOSThread(getProcessID(), lwpidNum);
+            if (thread.getState() != INVALID) {
+                threads.add(thread);
+            }
+        }
+        return threads;
     }
 
     @Override

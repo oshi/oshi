@@ -24,8 +24,6 @@
 package oshi.jna.platform.unix;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
@@ -93,8 +91,8 @@ public interface AixLibc extends CLibrary {
             "pr_policy", "pr_clname", "pr_onpro", "pr_bindpro" })
     class AIXLwpsInfo extends Structure {
         public long pr_lwpid; // thread id
-        public Pointer pr_addr; // internal address of thread
-        public Pointer pr_wchan; // wait addr for sleeping thread
+        public long pr_addr; // internal address of thread
+        public long pr_wchan; // wait addr for sleeping thread
         public int pr_flag; // thread flags
         public byte pr_wtype; // type of thread wait
         public byte pr_state; // numeric scheduling state
@@ -103,8 +101,8 @@ public interface AixLibc extends CLibrary {
         public int pr_pri; // priority, high value = high priority
         public int pr_policy; // scheduling policy
         public byte[] pr_clname = new byte[PRCLSZ]; // printable character representing pr_policy
-        public NativeLong pr_onpro; // processor on which thread last ran
-        public NativeLong pr_bindpro; // processor to which thread is bound
+        public int pr_onpro; // processor on which thread last ran
+        public int pr_bindpro; // processor to which thread is bound
 
         public AIXLwpsInfo() {
             super();
@@ -125,9 +123,10 @@ public interface AixLibc extends CLibrary {
     /**
      * 64-bit timestruc required for psinfo structure
      */
-    @FieldOrder({ "tv_sec", "tv_nsec" })
+    @FieldOrder({ "tv_sec", "tv_nsec", "pad" })
     class Timestruc extends Structure {
         public long tv_sec; // seconds
-        public long tv_nsec; // nanoseconds
+        public int tv_nsec; // nanoseconds
+        public int pad; // nanoseconds
     }
 }
