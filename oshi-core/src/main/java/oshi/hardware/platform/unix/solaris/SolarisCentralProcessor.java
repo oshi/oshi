@@ -33,6 +33,9 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.platform.unix.LibKstat2;
+import oshi.jna.platform.unix.LibKstat2.Kstat2Handle;
+import oshi.jna.platform.unix.LibKstat2.Kstat2MatcherList;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -253,5 +256,34 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
             intr += ParseUtil.parseLastLong(s, 0L);
         }
         return intr;
+    }
+
+    public static void main(String[] args) {
+        SolarisCentralProcessor scp = new SolarisCentralProcessor();
+        System.out.println("CPU0 Ticks via KSTAT:  " + Arrays.toString(scp.queryProcessorCpuLoadTicks()[0]));
+        try (Kstat2MatcherList matchers = new Kstat2MatcherList()) {
+            matchers.addMatcher(LibKstat2.KSTAT2_M_GLOB, "kstat:/system/cpu/*");
+            try (Kstat2Handle handle = new Kstat2Handle(matchers)) {
+
+            }
+        }
+
+        long[][] ticks = new long[scp.getLogicalProcessorCount()][TickType.values().length];
+        int cpu = -1;
+        try (KstatChain kc = KstatUtil.openChain()) {
+            for (Kstat ksp : KstatChain.lookupAll("cpu", -1, "sys")) {
+                // This is a new CPU
+                if (++cpu >= ticks.length) {
+                    // Shouldn't happen
+                    break;
+                }
+                if (KstatChain.read(ksp)) {
+                    ticks[cpu][TickType.IDLE.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_idle");
+                    ticks[cpu][TickType.SYSTEM.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_kernel");
+                    ticks[cpu][TickType.USER.getIndex()] = KstatUtil.dataLookupLong(ksp, "cpu_ticks_user");
+                }
+            }
+        }
+        System.out.println("Ticks via KSTAT2: " + Arrays.toString(ticks[0]));
     }
 }
