@@ -13,6 +13,7 @@
 [![FreeBSD CI](https://github.com/oshi/oshi/workflows/FreeBSD%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22FreeBSD+CI%22)
 [![OpenBSD CI](https://github.com/oshi/oshi/workflows/OpenBSD%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22OpenBSD+CI%22)
 [![Solaris CI](https://github.com/oshi/oshi/workflows/Solaris%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Solaris+CI%22)
+[![AIX CI](https://github.com/oshi/oshi/workflows/AIX%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22AIX+CI%22)
 [![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=bugs)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)

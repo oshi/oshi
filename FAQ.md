@@ -56,9 +56,7 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * FreeBSD 10 
 * OpenBSD 6.8
 * Solaris 11 (SunOS 5.11) 
-* AIX 7.1 (POWER4) (See Note)
-
-Note: Testing on AIX has not been conducted since March 2021. AIX users of OSHI 5.7.x and later should run tests to confirm compatibility of newer versions. Future compatibility with JNA is also at risk.  Users requiring support for AIX are requested to make testing and build resources available to OSHI and JNA developers.
+* AIX 7.1 (POWER4)
 
 How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?
 ========
