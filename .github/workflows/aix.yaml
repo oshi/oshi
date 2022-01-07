@@ -1,0 +1,38 @@
+# CI on Unix OS 
+# Separated from main CI matrix to reduce churn on failures due to infra
+name: AIX CI
+
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+
+jobs:
+  # SSH into AIX server and run test on AIX 7.1
+  # Configured to pull latest from oshi master branch
+  # To test on a PR, log into the aix server and create a new branch
+  testaix:
+    runs-on: ubuntu-latest
+    name: Test JDK 8, aix
+    steps:
+    - name: Test in AIX
+      uses: appleboy/ssh-action@master    
+      with:
+        host: gcc119.fsffrance.org
+        username: oshi
+        key: ${{ secrets.AIX_OSHI_KEY }}
+        port: 22
+        script_stop: true
+        command_timeout: 15m
+        script: |
+          cd ~/git/oshi
+          export JAVA_HOME=/usr/java8_64
+          git checkout master
+          git reset --hard HEAD~2
+          git pull upstream master
+          ./mvnw clean test -B -Djacoco.skip=true
