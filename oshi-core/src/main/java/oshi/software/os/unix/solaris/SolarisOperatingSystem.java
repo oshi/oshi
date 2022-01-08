@@ -26,11 +26,13 @@ package oshi.software.os.unix.solaris;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.defaultExpiration;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
@@ -38,6 +40,11 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.solaris.Who;
+import oshi.jna.platform.unix.Kstat2;
+import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
+import oshi.jna.platform.unix.Kstat2.Kstat2Map;
+import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
+import oshi.jna.platform.unix.Kstat2StatusException;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -48,6 +55,7 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
@@ -61,6 +69,18 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
+    private static final String VERSION;
+    private static final String BUILD_NUMBER;
+    static {
+        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
+        VERSION = split[0];
+        BUILD_NUMBER = split.length > 1 ? split[1] : "";
+    }
+    public static final boolean IS_11_4_OR_HIGHER = "11.4".compareTo(BUILD_NUMBER) <= 0;
+
+    private static final Supplier<Pair<Long, Long>> BOOT_UPTIME = Memoizer
+            .memoize(SolarisOperatingSystem::queryBootAndUptime, defaultExpiration());
+
     private static final long BOOTTIME = querySystemBootTime();
 
     @Override
@@ -70,13 +90,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
-        String version = split[0];
-        String buildNumber = null;
-        if (split.length > 1) {
-            buildNumber = split[1];
-        }
-        return new Pair<>("SunOS", new OSVersionInfo(version, "Solaris", buildNumber));
+        return new Pair<>("SunOS", new OSVersionInfo(VERSION, "Solaris", BUILD_NUMBER));
     }
 
     @Override
@@ -191,6 +205,10 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemUptime() {
+        if (IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return BOOT_UPTIME.get().getB();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup("unix", 0, "system_misc");
             if (ksp != null) {
@@ -207,6 +225,10 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
+        if (IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return BOOT_UPTIME.get().getA();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup("unix", 0, "system_misc");
             if (ksp != null && KstatChain.read(ksp)) {
@@ -214,6 +236,26 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return System.currentTimeMillis() / 1000L - querySystemUptime();
+    }
+
+    private static Pair<Long, Long> queryBootAndUptime() {
+        Kstat2MatcherList matchers = new Kstat2MatcherList();
+        try {
+            matchers.addMatcher(Kstat2.KSTAT2_M_STRING, "/misc/unix/system_misc");
+            Kstat2Handle handle = new Kstat2Handle();
+            try {
+                Kstat2Map map = handle.lookupMap("/misc/unix/system_misc");
+                return new Pair<>((long) map.getValue("boot_time"),
+                        // Snap Time is in nanoseconds; divide for seconds
+                        (long) map.getValue("snaptime") / 1_000_000_000L);
+            } catch (Kstat2StatusException e) {
+                return new Pair<>(System.currentTimeMillis(), 0L);
+            } finally {
+                handle.close();
+            }
+        } finally {
+            matchers.free();
+        }
     }
 
     @Override

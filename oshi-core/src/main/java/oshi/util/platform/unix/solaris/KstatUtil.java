@@ -56,7 +56,7 @@ public final class KstatUtil {
     // Only one thread may access the chain at any time, so we wrap this object in
     // the KstatChain class which locks the class until closed.
     private static final KstatCtl KC = KS.kstat_open();
-    private static final ReentrantLock CHAIN = new ReentrantLock();
+    public static final ReentrantLock CHAIN = new ReentrantLock();
 
     private KstatUtil() {
     }
@@ -274,5 +274,9 @@ public final class KstatUtil {
             LOG.error("Unimplemented or non-numeric kstat data type {}", data.data_type);
             return 0L;
         }
+    }
+
+    public static List<Object[]> queryKstat2(String matchers, String map, String... names) {
+        return null;
     }
 }
