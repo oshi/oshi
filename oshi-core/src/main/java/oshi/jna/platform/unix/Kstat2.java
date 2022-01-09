@@ -34,7 +34,6 @@ import com.sun.jna.ptr.PointerByReference;
 
 import oshi.jna.platform.unix.Kstat2.Kstat2NV.UNION.IntegersArr;
 import oshi.jna.platform.unix.Kstat2.Kstat2NV.UNION.StringsArr;
-import oshi.util.platform.unix.solaris.KstatUtil;
 
 /**
  * Kstat2 library. The kstat2 facility is a general-purpose mechanism for
@@ -183,7 +182,6 @@ public interface Kstat2 extends Library {
                 throw new Kstat2StatusException(ks);
             }
             this.setPointer(ref.getValue());
-            KstatUtil.CHAIN.lock();
         }
 
         /**
@@ -217,7 +215,6 @@ public interface Kstat2 extends Library {
          *         KSTAT2_S_OK is returned.
          */
         public int free() {
-            KstatUtil.CHAIN.unlock();
             return INSTANCE.kstat2_free_matcher_list(ref);
         }
     }

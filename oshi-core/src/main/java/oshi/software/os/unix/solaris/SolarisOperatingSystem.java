@@ -40,11 +40,6 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.solaris.Who;
-import oshi.jna.platform.unix.Kstat2;
-import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
-import oshi.jna.platform.unix.Kstat2.Kstat2Map;
-import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
-import oshi.jna.platform.unix.Kstat2StatusException;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -239,23 +234,13 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static Pair<Long, Long> queryBootAndUptime() {
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_STRING, "/misc/unix/system_misc");
-            Kstat2Handle handle = new Kstat2Handle();
-            try {
-                Kstat2Map map = handle.lookupMap("/misc/unix/system_misc");
-                return new Pair<>((long) map.getValue("boot_time"),
-                        // Snap Time is in nanoseconds; divide for seconds
-                        (long) map.getValue("snaptime") / 1_000_000_000L);
-            } catch (Kstat2StatusException e) {
-                return new Pair<>(System.currentTimeMillis(), 0L);
-            } finally {
-                handle.close();
-            }
-        } finally {
-            matchers.free();
-        }
+        Object[] results = KstatUtil.queryKstat2("/misc/unix/system_misc", "boot_time", "snaptime");
+
+        long boot = results[0] == null ? System.currentTimeMillis() : (long) results[0];
+        // Snap Time is in nanoseconds; divide for seconds
+        long snap = results[1] == null ? 0L : (long) results[1] / 1_000_000_000L;
+
+        return new Pair<>(boot, snap);
     }
 
     @Override

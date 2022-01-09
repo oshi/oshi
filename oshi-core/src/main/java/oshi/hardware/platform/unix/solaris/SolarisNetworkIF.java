@@ -35,6 +35,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
@@ -133,6 +134,12 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
 
     @Override
     public boolean updateAttributes() {
+        // Initialize to a sane default value
+        this.timeStamp = System.currentTimeMillis();
+        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return updateAttributes2();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup("link", -1, getName());
             if (ksp == null) { // Solaris 10 compatibility
@@ -154,5 +161,24 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
             }
         }
         return false;
+    }
+
+    private boolean updateAttributes2() {
+        Object[] results = KstatUtil.queryKstat2("kstat:/net/link/" + getName() + "/0", "obytes64", "rbytes64",
+                "opackets64", "ipackets64", "oerrors", "ierrors", "collisions", "dl_idrops", "ifspeed", "snaptime");
+        if (results[results.length - 1] == null) {
+            return false;
+        }
+        this.bytesSent = results[0] == null ? 0L : (long) results[0];
+        this.bytesRecv = results[1] == null ? 0L : (long) results[1];
+        this.packetsSent = results[2] == null ? 0L : (long) results[2];
+        this.packetsRecv = results[3] == null ? 0L : (long) results[3];
+        this.outErrors = results[4] == null ? 0L : (long) results[4];
+        this.collisions = results[5] == null ? 0L : (long) results[5];
+        this.inDrops = results[6] == null ? 0L : (long) results[6];
+        this.speed = results[7] == null ? 0L : (long) results[7];
+        // Snap time in ns; convert to ms
+        this.timeStamp = (long) results[8] / 1_000_000L;
+        return true;
     }
 }

@@ -29,18 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.Kstat2;
-import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
-import oshi.jna.platform.unix.Kstat2.Kstat2Map;
-import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
-import oshi.jna.platform.unix.Kstat2StatusException;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.ExecutingCommand;
@@ -54,7 +46,12 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 @ThreadSafe
 final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
+    private static final String KSTAT_SYSTEM_CPU = "kstat:/system/cpu/";
+    private static final String INFO = "/info";
+    private static final String SYS = "/sys";
+
+    private static final String KSTAT_PM_CPU = "kstat:/pm/cpu/";
+    private static final String PSTATE = "/pstate";
 
     private static final String CPU_INFO = "cpu_info";
 
@@ -92,34 +89,16 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     private ProcessorIdentifier queryProcessorId2(boolean cpu64bit) {
-        String cpuVendor = "";
-        String cpuName = "";
-        String cpuFamily = "";
-        String cpuModel = "";
-        String cpuStepping = "";
-        long cpuFreq = 0L;
+        Object[] results = KstatUtil.queryKstat2(KSTAT_SYSTEM_CPU + "0" + INFO, "vendor_id", "brand", "family", "model",
+                "stepping", "clock_MHz");
 
-        // Get first result
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_STRING, "kstat:/system/cpu/0/info");
-            Kstat2Handle handle = new Kstat2Handle();
-            try {
-                Kstat2Map map = handle.lookupMap("kstat:/system/cpu/0/info");
-                cpuVendor = (String) map.getValue("vendor_id");
-                cpuName = (String) map.getValue("brand");
-                cpuFamily = map.getValue("family").toString();
-                cpuModel = map.getValue("model").toString();
-                cpuStepping = map.getValue("stepping").toString();
-                cpuFreq = (long) map.getValue("clock_MHz") * 1_000_000L;
-            } finally {
-                handle.close();
-            }
-        } catch (Kstat2StatusException e) {
-            LOG.debug("Failed to get info stats on cpu0: {}", e.getMessage());
-        } finally {
-            matchers.free();
-        }
+        String cpuVendor = results[0] == null ? "" : (String) results[0];
+        String cpuName = results[1] == null ? "" : (String) results[1];
+        String cpuFamily = results[2] == null ? "" : results[2].toString();
+        String cpuModel = results[3] == null ? "" : results[3].toString();
+        String cpuStepping = results[4] == null ? "" : results[4].toString();
+        long cpuFreq = results[5] == null ? 0L : (long) results[5];
+
         String processorID = getProcessorID(cpuStepping, cpuModel, cpuFamily);
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuFreq);
@@ -155,33 +134,15 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     private List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, "kstat:/system/cpu/*/info");
-            Kstat2Handle handle = new Kstat2Handle();
-            try {
-                int cpu = 0;
-                while (cpu < Integer.MAX_VALUE) {
-                    Kstat2Map map;
-                    try {
-                        map = handle.lookupMap("kstat:/system/cpu/" + cpu + "/info");
-                        int procId = logProcs.size(); // 0-indexed
-                        long chipId = (long) map.getValue("chip_id");
-                        long coreId = (long) map.getValue("core_id");
-                        LogicalProcessor logProc = new LogicalProcessor(procId, (int) coreId, (int) chipId,
-                                numaNodeMap.getOrDefault(procId, 0));
-                        logProcs.add(logProc);
-                    } catch (Kstat2StatusException e) {
-                        // Expect error 7 when we finish iteration
-                        break;
-                    }
-                    cpu++;
-                }
-            } finally {
-                handle.close();
-            }
-        } finally {
-            matchers.free();
+
+        List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, INFO, "chip_id", "core_id");
+        for (Object[] result : results) {
+            int procId = logProcs.size();
+            long chipId = result[0] == null ? 0L : (long) result[0];
+            long coreId = result[1] == null ? 0L : (long) result[1];
+            LogicalProcessor logProc = new LogicalProcessor(procId, (int) coreId, (int) chipId,
+                    numaNodeMap.getOrDefault(procId, 0));
+            logProcs.add(logProc);
         }
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
@@ -249,25 +210,14 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     public long[] queryCurrentFreq2() {
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, -1);
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, "kstat:/system/cpu/*/info");
-            Kstat2Handle handle = new Kstat2Handle(matchers);
-            try {
-                Kstat2Map map;
-                for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-                    try {
-                        map = handle.lookupMap("kstat:/system/cpu/" + cpu + "/info");
-                        freqs[cpu] = (long) map.getValue("current_clock_Hz");
-                    } catch (Kstat2StatusException e) {
-                        LOG.debug("Failed to get current_clock_Hz on cpu {}: {}", cpu, e.getMessage());
-                    }
-                }
-            } finally {
-                handle.close();
+
+        List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, INFO, "current_clock_Hz");
+        int cpu = 0;
+        for (Object[] result : results) {
+            if (cpu > freqs.length) {
+                break;
             }
-        } finally {
-            matchers.free();
+            freqs[cpu++] = result[0] == null ? -1L : (long) result[0];
         }
         return freqs;
     }
@@ -299,29 +249,13 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     public long queryMaxFreq2() {
         long max = -1L;
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, "kstat:/pm/cpu/*/pstate");
-            Kstat2Handle handle = new Kstat2Handle(matchers);
-            try {
-                Kstat2Map map;
-                for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-                    try {
-                        map = handle.lookupMap("kstat:/pm/cpu/" + cpu + "/pstate");
-                        for (long freq : (long[]) map.getValue("supported_frequencies")) {
-                            if (freq > max) {
-                                max = freq;
-                            }
-                        }
-                    } catch (Kstat2StatusException e) {
-                        LOG.debug("Failed to get current_clock_Hz on cpu {}: {}", cpu, e.getMessage());
-                    }
+        List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_PM_CPU, PSTATE, "supported_frequencies");
+        for (Object[] result : results) {
+            for (long freq : result[0] == null ? new long[0] : (long[]) result[0]) {
+                if (freq > max) {
+                    max = freq;
                 }
-            } finally {
-                handle.close();
             }
-        } finally {
-            matchers.free();
         }
         return max;
     }
@@ -368,27 +302,16 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     private long[][] queryProcessorCpuLoadTicks2() {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, "kstat:/system/cpu/*/sys");
-            Kstat2Handle handle = new Kstat2Handle(matchers);
-            try {
-                Kstat2Map map;
-                for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-                    try {
-                        map = handle.lookupMap("kstat:/system/cpu/" + cpu + "/sys");
-                        ticks[cpu][TickType.IDLE.getIndex()] = (long) map.getValue("cpu_ticks_idle");
-                        ticks[cpu][TickType.SYSTEM.getIndex()] = (long) map.getValue("cpu_ticks_kernel");
-                        ticks[cpu][TickType.USER.getIndex()] = (long) map.getValue("cpu_ticks_user");
-                    } catch (Kstat2StatusException e) {
-                        LOG.debug("Failed to get stats on cpu {}: {}", cpu, e.getMessage());
-                    }
-                }
-            } finally {
-                handle.close();
+        List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, SYS, "cpu_ticks_idle", "cpu_ticks_kernel",
+                "cpu_ticks_user");
+        int cpu = -1;
+        for (Object[] result : results) {
+            if (++cpu > ticks.length) {
+                break;
             }
-        } finally {
-            matchers.free();
+            ticks[cpu][TickType.IDLE.getIndex()] = result[0] == null ? 0L : (long) result[0];
+            ticks[cpu][TickType.SYSTEM.getIndex()] = result[1] == null ? 0L : (long) result[1];
+            ticks[cpu][TickType.USER.getIndex()] = result[2] == null ? 0L : (long) result[2];
         }
         return ticks;
     }
@@ -434,26 +357,10 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     public long queryContextSwitches2() {
         long swtch = 0;
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, "kstat:/system/cpu/*/sys");
-            Kstat2Handle handle = new Kstat2Handle(matchers);
-            try {
-                Kstat2Map map;
-                for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-                    try {
-                        map = handle.lookupMap("kstat:/system/cpu/" + cpu + "/sys");
-                        swtch += (long) map.getValue("pswitch");
-                        swtch += (long) map.getValue("inv_swtch");
-                    } catch (Kstat2StatusException e) {
-                        LOG.debug("Failed to get context switch stats on cpu {}: {}", cpu, e.getMessage());
-                    }
-                }
-            } finally {
-                handle.close();
-            }
-        } finally {
-            matchers.free();
+        List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, SYS, "pswitch", "inv_swtch");
+        for (Object[] result : results) {
+            swtch += result[0] == null ? 0L : (long) result[0];
+            swtch += result[1] == null ? 0L : (long) result[1];
         }
         return swtch;
     }
@@ -474,25 +381,9 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     public long queryInterrupts2() {
         long intr = 0;
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
-        try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, "kstat:/system/cpu/*/sys");
-            Kstat2Handle handle = new Kstat2Handle(matchers);
-            try {
-                Kstat2Map map;
-                for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-                    try {
-                        map = handle.lookupMap("kstat:/system/cpu/" + cpu + "/sys");
-                        intr += (long) map.getValue("intr");
-                    } catch (Kstat2StatusException e) {
-                        LOG.debug("Failed to get interrupt stats on cpu {}: {}", cpu, e.getMessage());
-                    }
-                }
-            } finally {
-                handle.close();
-            }
-        } finally {
-            matchers.free();
+        List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, SYS, "intr");
+        for (Object[] result : results) {
+            intr += result[0] == null ? 0L : (long) result[0];
         }
         return intr;
     }
