@@ -423,7 +423,7 @@ public interface Kstat2 extends Library {
 
     /**
      * Allocates a new matcher list to allow matchers to be provided to the
-     * {@link #kstat2_open()} function.
+     * {@link Kstat2#kstat2_open(PointerByReference, Kstat2MatcherList)} function.
      *
      * @param matchers
      *            Receives a pointer to the allocated matcher list.
