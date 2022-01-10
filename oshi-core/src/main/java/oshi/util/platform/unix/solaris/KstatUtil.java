@@ -25,6 +25,7 @@ package oshi.util.platform.unix.solaris;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,6 +40,11 @@ import com.sun.jna.platform.unix.solaris.LibKstat.KstatCtl;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatNamed;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.Kstat2;
+import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
+import oshi.jna.platform.unix.Kstat2.Kstat2Map;
+import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
+import oshi.jna.platform.unix.Kstat2StatusException;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
 
@@ -56,7 +62,7 @@ public final class KstatUtil {
     // Only one thread may access the chain at any time, so we wrap this object in
     // the KstatChain class which locks the class until closed.
     private static final KstatCtl KC = KS.kstat_open();
-    private static final ReentrantLock CHAIN = new ReentrantLock();
+    public static final ReentrantLock CHAIN = new ReentrantLock();
 
     private KstatUtil() {
     }
@@ -274,5 +280,81 @@ public final class KstatUtil {
             LOG.error("Unimplemented or non-numeric kstat data type {}", data.data_type);
             return 0L;
         }
+    }
+
+    /**
+     * Query Kstat2 with a single map
+     *
+     * @param mapStr
+     *            The map to query
+     * @param names
+     *            Names of data to query
+     * @return An object array with the data corresponding to the names
+     */
+    public static Object[] queryKstat2(String mapStr, String... names) {
+        Object[] result = new Object[names.length];
+        Kstat2MatcherList matchers = new Kstat2MatcherList();
+        KstatUtil.CHAIN.lock();
+        try {
+            matchers.addMatcher(Kstat2.KSTAT2_M_STRING, mapStr);
+            Kstat2Handle handle = new Kstat2Handle();
+            try {
+                Kstat2Map map = handle.lookupMap(mapStr);
+                for (int i = 0; i < names.length; i++) {
+                    result[i] = map.getValue(names[i]);
+                }
+            } finally {
+                handle.close();
+            }
+        } catch (Kstat2StatusException e) {
+            LOG.debug("Failed to get stats on {} for names {}: {}", mapStr, Arrays.toString(names), e.getMessage());
+        } finally {
+            KstatUtil.CHAIN.unlock();
+            matchers.free();
+        }
+        return result;
+    }
+
+    /**
+     * Query Kstat2 iterating over maps using a wildcard indicating a 0-indexed
+     * list, such as a cpu.
+     *
+     * @param beforeStr
+     *            The part of the string before the wildcard
+     * @param afterStr
+     *            The part of the string after the wildcard
+     * @param names
+     *            Names of data to query
+     * @return A list of object arrays with the data corresponding to the names
+     */
+    public static List<Object[]> queryKstat2List(String beforeStr, String afterStr, String... names) {
+        List<Object[]> results = new ArrayList<>();
+        int s = 0;
+        Kstat2MatcherList matchers = new Kstat2MatcherList();
+        KstatUtil.CHAIN.lock();
+        try {
+            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + "*" + afterStr);
+            Kstat2Handle handle = new Kstat2Handle();
+            try {
+                for (s = 0; s < Integer.MAX_VALUE; s++) {
+                    Object[] result = new Object[names.length];
+                    Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
+                    for (int i = 0; i < names.length; i++) {
+                        result[i] = map.getValue(names[i]);
+                    }
+                    results.add(result);
+                }
+            } finally {
+                handle.close();
+            }
+        } catch (Kstat2StatusException e) {
+            // Expected to end iteration
+            LOG.debug("Failed to get stats on {}{}{} for names {}: {}", beforeStr, s, afterStr, Arrays.toString(names),
+                    e.getMessage());
+        } finally {
+            KstatUtil.CHAIN.unlock();
+            matchers.free();
+        }
+        return results;
     }
 }

@@ -26,6 +26,7 @@ package oshi.driver.unix.solaris.kstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;
@@ -47,6 +48,10 @@ public final class SystemPages {
      *         size for bytes.
      */
     public static Pair<Long, Long> queryAvailableTotal() {
+        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return queryAvailableTotal2();
+        }
         long memAvailable = 0;
         long memTotal = 0;
         // Get first result
@@ -59,5 +64,12 @@ public final class SystemPages {
             }
         }
         return new Pair<>(memAvailable, memTotal);
+    }
+
+    private static Pair<Long, Long> queryAvailableTotal2() {
+        Object[] results = KstatUtil.queryKstat2("kstat:/pages/unix/system_pages", "availrmem", "physmem");
+        long avail = results[0] == null ? 0L : (long) results[0];
+        long total = results[1] == null ? 0L : (long) results[1];
+        return new Pair<>(avail, total);
     }
 }
