@@ -81,6 +81,10 @@ public final class NetStat {
                 split = ParseUtil.whitespaces.split(s);
                 if (split.length >= 5) {
                     String state = (split.length == 6) ? split[5] : null;
+                    // Substitution if required
+                    if ("SYN_RCVD".equals(state)) {
+                        state = "SYN_RECV";
+                    }
                     String type = split[0];
                     Pair<byte[], Integer> local = parseIP(split[3]);
                     Pair<byte[], Integer> foreign = parseIP(split[4]);
