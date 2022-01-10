@@ -41,6 +41,7 @@ import oshi.driver.unix.solaris.disk.Prtvtoc;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Quintet;
@@ -106,6 +107,11 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public boolean updateAttributes() {
+        this.timeStamp = System.currentTimeMillis();
+        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return updateAttributes2();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup(null, 0, getName());
             if (ksp != null && KstatChain.read(ksp)) {
@@ -122,6 +128,40 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
             }
         }
         return false;
+    }
+
+    private boolean updateAttributes2() {
+        String fullName = getName();
+        String alpha = fullName;
+        String numeric = "";
+        for (int c = 0; c < fullName.length(); c++) {
+            if (fullName.charAt(c) >= '0' && fullName.charAt(c) <= '9') {
+                alpha = fullName.substring(0, c);
+                numeric = fullName.substring(c);
+                break;
+            }
+        }
+        // Try device style notation
+        Object[] results = KstatUtil.queryKstat2("kstat:/disk/" + alpha + "/" + getName() + "/0", "reads", "writes",
+                "nread", "nwritten", "wcnt", "rcnt", "rtime", "snaptime");
+        // If failure try io notation
+        if (results[results.length - 1] == null) {
+            results = KstatUtil.queryKstat2("kstat:/disk/" + alpha + "/" + numeric + "/io", "reads", "writes", "nread",
+                    "nwritten", "wcnt", "rcnt", "rtime", "snaptime");
+        }
+        if (results[results.length - 1] == null) {
+            return false;
+        }
+        this.reads = results[0] == null ? 0L : (long) results[0];
+        this.writes = results[1] == null ? 0L : (long) results[1];
+        this.readBytes = results[2] == null ? 0L : (long) results[2];
+        this.writeBytes = results[3] == null ? 0L : (long) results[3];
+        this.currentQueueLength = results[4] == null ? 0L : (long) results[4];
+        this.currentQueueLength += results[5] == null ? 0L : (long) results[5];
+        // rtime and snaptime are nanoseconds, convert to millis
+        this.transferTime = results[6] == null ? 0L : (long) results[6] / 1_000_000L;
+        this.timeStamp = (long) results[7] / 1_000_000L;
+        return true;
     }
 
     /**

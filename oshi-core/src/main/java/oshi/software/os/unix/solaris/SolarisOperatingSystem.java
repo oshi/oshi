@@ -26,11 +26,13 @@ package oshi.software.os.unix.solaris;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.defaultExpiration;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
@@ -48,6 +50,7 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
@@ -61,6 +64,18 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
+    private static final String VERSION;
+    private static final String BUILD_NUMBER;
+    static {
+        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
+        VERSION = split[0];
+        BUILD_NUMBER = split.length > 1 ? split[1] : "";
+    }
+    public static final boolean IS_11_4_OR_HIGHER = "11.4".compareTo(BUILD_NUMBER) <= 0;
+
+    private static final Supplier<Pair<Long, Long>> BOOT_UPTIME = Memoizer
+            .memoize(SolarisOperatingSystem::queryBootAndUptime, defaultExpiration());
+
     private static final long BOOTTIME = querySystemBootTime();
 
     @Override
@@ -70,13 +85,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
-        String version = split[0];
-        String buildNumber = null;
-        if (split.length > 1) {
-            buildNumber = split[1];
-        }
-        return new Pair<>("SunOS", new OSVersionInfo(version, "Solaris", buildNumber));
+        return new Pair<>("SunOS", new OSVersionInfo(VERSION, "Solaris", BUILD_NUMBER));
     }
 
     @Override
@@ -191,6 +200,10 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemUptime() {
+        if (IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return BOOT_UPTIME.get().getB();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup("unix", 0, "system_misc");
             if (ksp != null) {
@@ -207,6 +220,10 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
+        if (IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return BOOT_UPTIME.get().getA();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup("unix", 0, "system_misc");
             if (ksp != null && KstatChain.read(ksp)) {
@@ -214,6 +231,16 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return System.currentTimeMillis() / 1000L - querySystemUptime();
+    }
+
+    private static Pair<Long, Long> queryBootAndUptime() {
+        Object[] results = KstatUtil.queryKstat2("/misc/unix/system_misc", "boot_time", "snaptime");
+
+        long boot = results[0] == null ? System.currentTimeMillis() : (long) results[0];
+        // Snap Time is in nanoseconds; divide for seconds
+        long snap = results[1] == null ? 0L : (long) results[1] / 1_000_000_000L;
+
+        return new Pair<>(boot, snap);
     }
 
     @Override

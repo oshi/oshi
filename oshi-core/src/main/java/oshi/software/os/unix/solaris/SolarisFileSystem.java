@@ -23,12 +23,15 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.util.Memoizer.defaultExpiration;
+
 import java.io.File;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
@@ -37,9 +40,11 @@ import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
+import oshi.util.tuples.Pair;
 
 /**
  * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which
@@ -49,6 +54,9 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
  */
 @ThreadSafe
 public class SolarisFileSystem extends AbstractFileSystem {
+
+    private static final Supplier<Pair<Long, Long>> FILE_DESC = Memoizer
+            .memoize(SolarisFileSystem::queryFileDescriptors, defaultExpiration());
 
     public static final String OSHI_SOLARIS_FS_PATH_EXCLUDES = "oshi.os.solaris.filesystem.path.excludes";
     public static final String OSHI_SOLARIS_FS_PATH_INCLUDES = "oshi.os.solaris.filesystem.path.includes";
@@ -163,6 +171,10 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
+        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return FILE_DESC.get().getA();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup(null, -1, "file_cache");
             // Set values
@@ -175,6 +187,10 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     @Override
     public long getMaxFileDescriptors() {
+        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+            // Use Kstat2 implementation
+            return FILE_DESC.get().getB();
+        }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = KstatChain.lookup(null, -1, "file_cache");
             // Set values
@@ -183,5 +199,12 @@ public class SolarisFileSystem extends AbstractFileSystem {
             }
         }
         return 0L;
+    }
+
+    private static Pair<Long, Long> queryFileDescriptors() {
+        Object[] results = KstatUtil.queryKstat2("kstat:/kmem_cache/kmem_default/file_cache", "buf_inuse", "buf_max");
+        long inuse = results[0] == null ? 0L : (long) results[0];
+        long max = results[1] == null ? 0L : (long) results[1];
+        return new Pair<>(inuse, max);
     }
 }
