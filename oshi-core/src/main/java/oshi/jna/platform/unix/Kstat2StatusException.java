@@ -32,7 +32,7 @@ import com.sun.jna.Native;
 public class Kstat2StatusException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    private int kstat2Status;
+    private final int kstat2Status;
 
     /**
      * New exception from {@code kstat2_status}

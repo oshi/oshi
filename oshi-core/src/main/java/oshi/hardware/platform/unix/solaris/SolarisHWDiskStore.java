@@ -107,6 +107,7 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public boolean updateAttributes() {
+        this.timeStamp = System.currentTimeMillis();
         if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
             // Use Kstat2 implementation
             return updateAttributes2();
@@ -159,7 +160,7 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
         this.currentQueueLength += results[5] == null ? 0L : (long) results[5];
         // rtime and snaptime are nanoseconds, convert to millis
         this.transferTime = results[6] == null ? 0L : (long) results[6] / 1_000_000L;
-        this.timeStamp = results[7] == null ? 0L : (long) results[7] / 1_000_000L;
+        this.timeStamp = (long) results[7] / 1_000_000L;
         return true;
     }
 

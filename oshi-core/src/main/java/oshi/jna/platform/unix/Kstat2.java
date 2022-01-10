@@ -246,8 +246,7 @@ public interface Kstat2 extends Library {
             if (ks != KSTAT2_S_OK) {
                 throw new Kstat2StatusException(ks);
             }
-            Kstat2NV nv = new Kstat2NV(pbr.getValue());
-            return nv;
+            return new Kstat2NV(pbr.getValue());
         }
 
         /**

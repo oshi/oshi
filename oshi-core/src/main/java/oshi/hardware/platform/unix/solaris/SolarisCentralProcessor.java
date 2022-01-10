@@ -88,7 +88,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
                 cpuFreq);
     }
 
-    private ProcessorIdentifier queryProcessorId2(boolean cpu64bit) {
+    private static ProcessorIdentifier queryProcessorId2(boolean cpu64bit) {
         Object[] results = KstatUtil.queryKstat2(KSTAT_SYSTEM_CPU + "0" + INFO, "vendor_id", "brand", "family", "model",
                 "stepping", "clock_MHz");
 
@@ -132,7 +132,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         return logProcs;
     }
 
-    private List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {
+    private static List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {
         List<LogicalProcessor> logProcs = new ArrayList<>();
 
         List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, INFO, "chip_id", "core_id");
@@ -306,7 +306,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
                 "cpu_ticks_user");
         int cpu = -1;
         for (Object[] result : results) {
-            if (++cpu > ticks.length) {
+            if (++cpu >= ticks.length) {
                 break;
             }
             ticks[cpu][TickType.IDLE.getIndex()] = result[0] == null ? 0L : (long) result[0];

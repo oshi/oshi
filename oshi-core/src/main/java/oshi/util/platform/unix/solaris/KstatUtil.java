@@ -331,9 +331,9 @@ public final class KstatUtil {
         List<Object[]> results = new ArrayList<>();
         int s = 0;
         Kstat2MatcherList matchers = new Kstat2MatcherList();
-        matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + "*" + afterStr);
         KstatUtil.CHAIN.lock();
         try {
+            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + "*" + afterStr);
             Kstat2Handle handle = new Kstat2Handle();
             try {
                 for (s = 0; s < Integer.MAX_VALUE; s++) {
