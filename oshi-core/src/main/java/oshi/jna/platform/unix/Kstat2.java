@@ -92,7 +92,7 @@ public interface Kstat2 extends Library {
         /**
          * Instantiates and opens a new Kstat2Handle with no filtering. All of the
          * system's kstats will be available. Convenience method for
-         * {@link kstat2_open()} with a null matcher list.
+         * {@link #kstat2_open()} with a null matcher list.
          */
         public Kstat2Handle() {
             this(null);
@@ -100,7 +100,7 @@ public interface Kstat2 extends Library {
 
         /**
          * Instantiates and opens a new Kstat2Handle filtered with the provided matcher.
-         * Convenience method for {@link kstat2_open()}.
+         * Convenience method for {@link #kstat2_open()}.
          *
          * @param matchers
          *            Only kstats that match one or more of the provided matchers will
@@ -119,7 +119,7 @@ public interface Kstat2 extends Library {
         }
 
         /**
-         * Convenience method for {@link kstat2_update()} that synchronises the user's
+         * Convenience method for {@link #kstat2_update()} that synchronises the user's
          * view with that of the kernel. The kernel may at any point add or remove
          * kstats, causing the user's view of the available kstats to become out of
          * date.
@@ -133,7 +133,7 @@ public interface Kstat2 extends Library {
         }
 
         /**
-         * Convenience method for {@link kstat2_lookup_map()} that obtains a reference
+         * Convenience method for {@link #kstat2_lookup_map()} that obtains a reference
          * to a kstat2 map given the URI of the map.
          *
          * @param uri
@@ -150,7 +150,7 @@ public interface Kstat2 extends Library {
         }
 
         /**
-         * Convenience method for {@link kstat2_close()}. After use, the kstat handle
+         * Convenience method for {@link #kstat2_close()}. After use, the kstat handle
          * should be closed to reclaim the handles and memory that it allocated on open.
          *
          * @return Upon successful completion, returns a int value of
@@ -170,7 +170,7 @@ public interface Kstat2 extends Library {
 
         /**
          * Instantiates a new Kstat2MatcherList, allocating the necessary resources.
-         * Convenience method for {@link kstat2_alloc_matcher_list()}.
+         * Convenience method for {@link #kstat2_alloc_matcher_list()}.
          * <p>
          * It is the caller's responsibility to free this matcher list by calling
          * {@link #free()}.
@@ -185,8 +185,8 @@ public interface Kstat2 extends Library {
         }
 
         /**
-         * Convenience method for {@link kstat2_add_matcher()} that adds matchers to the
-         * provided matcher list. Each call appends the new matcher to the provided
+         * Convenience method for {@link #kstat2_add_matcher()} that adds matchers to
+         * the provided matcher list. Each call appends the new matcher to the provided
          * matcher list. Matches are on kstat URI, with the following match types
          * supported: {@link KSTAT2_M_STRING} which performs a direct {@code strcmp}
          * with the kstat URI, {@link KSTAT2_M_GLOB} which performs a glob pattern match
@@ -207,7 +207,7 @@ public interface Kstat2 extends Library {
         }
 
         /**
-         * Convenience method for {@link kstat2_free_matcher_list()} that frees the
+         * Convenience method for {@link #kstat2_free_matcher_list()} that frees the
          * resources associated with the matcher list.
          *
          * @return Upon successful completion, returns a int value of
@@ -233,8 +233,8 @@ public interface Kstat2 extends Library {
         }
 
         /**
-         * Convenience method for {@link kstat2_map_get()} that retrieves the name/value
-         * (nv) pair identified by the supplied name.
+         * Convenience method for {@link #kstat2_map_get()} that retrieves the
+         * name/value (nv) pair identified by the supplied name.
          *
          * @param name
          *            The uri of the data to retrieve.
@@ -251,8 +251,9 @@ public interface Kstat2 extends Library {
         }
 
         /**
-         * Convenience method for {@link kstat2_map_get()} that retrieves the name/value
-         * (nv) pair identified by the supplied name and returns the value as an object.
+         * Convenience method for {@link #kstat2_map_get()} that retrieves the
+         * name/value (nv) pair identified by the supplied name and returns the value as
+         * an object.
          *
          * @param name
          *            The name of the data to retrieve.
@@ -262,14 +263,14 @@ public interface Kstat2 extends Library {
          *         If the value is of type {@link KSTAT2_NVVT_INT}, a {@link long} is
          *         returned.
          *         <p>
-         *         If the value is of type {@link KSTAT2_NVVT_INTS}, a {@link long[]} is
-         *         returned.
+         *         If the value is of type {@link KSTAT2_NVVT_INTS}, an array of
+         *         {@link long} is returned.
          *         <p>
          *         If the value is of type {@link KSTAT2_NVVT_STR}, a {@link String} is
          *         returned.
          *         <p>
-         *         If the value is of type {@link KSTAT2_NVVT_STRS}, a {@link String[]}
-         *         is returned.
+         *         If the value is of type {@link KSTAT2_NVVT_STRS}, an array of
+         *         {@link String} is returned.
          *         <p>
          *         If no value exists for this property (error or invalid data
          *         {@link KSTAT2_NVF_INVAL}), returns {@code null}.
@@ -401,14 +402,21 @@ public interface Kstat2 extends Library {
      * The kstat2_close() function frees all resources that are associated with the
      * handle. It is the caller's responsibility to free any allocated matcher list
      * by calling the kstat2_free_matcher_list() function.
+     *
+     * @param handle
+     *            A reference to the handle to close.
+     * @return Upon successful completion, returns a int value of
+     *         {@link KSTAT2_S_OK}. If an error occurs a value other than
+     *         KSTAT2_S_OK is returned.
      */
     int kstat2_close(PointerByReference /* Kstat2Handle */ handle);
 
     /**
      * Allocates a new matcher list to allow matchers to be provided to the
-     * {@link kstat2_open()} function.
+     * {@link #kstat2_open()} function.
      *
      * @param matchers
+     *            Receives a pointer to the allocated matcher list.
      * @return Upon successful completion, returns a int value of
      *         {@link KSTAT2_S_OK}. If an error occurs a value other than
      *         KSTAT2_S_OK is returned.
@@ -442,6 +450,9 @@ public interface Kstat2 extends Library {
      *            The string to match.
      * @param matchers
      *            The list to which to append the matcher.
+     * @return Upon successful completion, returns a int value of
+     *         {@link KSTAT2_S_OK}. If an error occurs a value other than
+     *         KSTAT2_S_OK is returned.
      */
     int kstat2_add_matcher(int type, String match, Kstat2MatcherList matchers);
 

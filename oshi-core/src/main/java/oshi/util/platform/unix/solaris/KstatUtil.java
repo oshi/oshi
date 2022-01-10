@@ -316,7 +316,16 @@ public final class KstatUtil {
     }
 
     /**
-     * Query Kstat2 iterating over maps
+     * Query Kstat2 iterating over maps using a wildcard indicating a 0-indexed
+     * list, such as a cpu.
+     *
+     * @param beforeStr
+     *            The part of the string before the wildcard
+     * @param afterStr
+     *            The part of the string after the wildcard
+     * @param names
+     *            Names of data to query
+     * @return A list of object arrays with the data corresponding to the names
      */
     public static List<Object[]> queryKstat2List(String beforeStr, String afterStr, String... names) {
         List<Object[]> results = new ArrayList<>();
