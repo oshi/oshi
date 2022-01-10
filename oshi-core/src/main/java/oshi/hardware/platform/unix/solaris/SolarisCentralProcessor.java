@@ -212,12 +212,12 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         Arrays.fill(freqs, -1);
 
         List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, INFO, "current_clock_Hz");
-        int cpu = 0;
+        int cpu = -1;
         for (Object[] result : results) {
-            if (cpu > freqs.length) {
+            if (++cpu >= freqs.length) {
                 break;
             }
-            freqs[cpu++] = result[0] == null ? -1L : (long) result[0];
+            freqs[cpu] = result[0] == null ? -1L : (long) result[0];
         }
         return freqs;
     }
