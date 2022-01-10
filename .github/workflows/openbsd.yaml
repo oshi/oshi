@@ -35,6 +35,6 @@ jobs:
           doas git reset --hard HEAD~2
           doas git pull
           doas mvn clean
+          doas chown -R oshi:oshi .
           mvn test -B -Djacoco.skip=true
-          doas mvn test -B -Djacoco.skip=true
-          
+          doas mvn test -B -Djacoco.skip=true          
