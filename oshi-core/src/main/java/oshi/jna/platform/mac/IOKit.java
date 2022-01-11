@@ -43,19 +43,20 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
     /**
      * Holds the return value of SMC version query.
      */
-    @FieldOrder({ "major", "minor", "build", "reserved", "release" }) class SMCKeyDataVers extends Structure {
+    @FieldOrder({ "major", "minor", "build", "reserved", "release" })
+    class SMCKeyDataVers extends Structure {
         public byte major;
         public byte minor;
         public byte build;
         public byte reserved;
         public short release;
-
     }
 
     /**
      * Holds the return value of SMC pLimit query.
      */
-    @FieldOrder({ "version", "length", "cpuPLimit", "gpuPLimit", "memPLimit" }) class SMCKeyDataPLimitData extends Structure {
+    @FieldOrder({ "version", "length", "cpuPLimit", "gpuPLimit", "memPLimit" })
+    class SMCKeyDataPLimitData extends Structure {
         public short version;
         public short length;
         public int cpuPLimit;
@@ -66,7 +67,8 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
     /**
      * Holds the return value of SMC KeyInfo query.
      */
-    @FieldOrder({ "dataSize", "dataType", "dataAttributes" }) class SMCKeyDataKeyInfo extends Structure {
+    @FieldOrder({ "dataSize", "dataType", "dataAttributes" })
+    class SMCKeyDataKeyInfo extends Structure {
         public int dataSize;
         public int dataType;
         public byte dataAttributes;
@@ -75,7 +77,8 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
     /**
      * Holds the return value of SMC query.
      */
-    @FieldOrder({ "key", "vers", "pLimitData", "keyInfo", "result", "status", "data8", "data32", "bytes" }) class SMCKeyData extends Structure {
+    @FieldOrder({ "key", "vers", "pLimitData", "keyInfo", "result", "status", "data8", "data32", "bytes" })
+    class SMCKeyData extends Structure {
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -90,7 +93,8 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
     /**
      * Holds an SMC value
      */
-    @FieldOrder({ "key", "dataSize", "dataType", "bytes" }) class SMCVal extends Structure {
+    @FieldOrder({ "key", "dataSize", "dataType", "bytes" })
+    class SMCVal extends Structure {
         public byte[] key = new byte[5];
         public int dataSize;
         public byte[] dataType = new byte[5];
