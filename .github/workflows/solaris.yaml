@@ -16,7 +16,7 @@ jobs:
   # Runs current branch on Solaris 11.4 in a x64 VM
   testsolaris_x64:
     runs-on: ubuntu-latest
-    name: Test JDK 8, solaris
+    name: Test JDK 8, Solaris x64
     steps:
     - name: Test in Solaris x64
       uses: appleboy/ssh-action@master    
@@ -36,7 +36,7 @@ jobs:
   # Runs current branch on Solaris 11.3 on SPARC
   testsolaris_sparc:
     runs-on: ubuntu-latest
-    name: Test JDK 8, solaris SPARC
+    name: Test JDK 8, Solaris SPARC
     steps:
     - name: Test in Solaris SPARC
       uses: appleboy/ssh-action@master    
@@ -46,12 +46,12 @@ jobs:
         key: ${{ secrets.AIX_OSHI_KEY }}
         port: 22
         script_stop: true
-        command_timeout: 15m
+        command_timeout: 25m
         script: |
           source .profile
           cd ~/git/oshi
           git checkout master
           git reset --hard HEAD~2
           git pull
-          mvn clean test -B -Djacoco.skip=true
+          ./mvnw clean test -B -Djacoco.skip=true
                     
