@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ public final class FstatUtil {
      */
     public static String getCwd(int pid) {
         List<String> ps = ExecutingCommand.runNative("ps -axwwo cwd -p " + pid);
-        if (!ps.isEmpty()) {
+        if (ps.size() > 1) {
             return ps.get(1);
         }
         return "";
