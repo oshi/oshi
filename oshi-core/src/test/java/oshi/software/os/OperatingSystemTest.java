@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -71,7 +71,8 @@ class OperatingSystemTest {
     void setUp() {
         SystemInfo si = new SystemInfo();
         this.os = si.getOperatingSystem();
-        this.proc = os.getProcess(os.getProcessId());
+        List<OSProcess> list = os.getProcesses(ProcessFiltering.VALID_PROCESS, ProcessSorting.CPU_DESC, 1);
+        this.proc = list.get(0);
     }
 
     @Test
@@ -102,68 +103,66 @@ class OperatingSystemTest {
 
     @Test
     void testProcessStrings() {
-        assertThat("Current running process name shouldn't be empty", proc.getName(), is(not(emptyString())));
-        assertThat("Current running process path name shouldn't be empty", proc.getPath(), is(not(emptyString())));
-        assertThat("Current running process command line shouldn't be null", proc.getCommandLine(), is(notNullValue()));
-        assertThat("Current running process working directory shouldn't be null", proc.getCurrentWorkingDirectory(),
+        assertThat("Process name shouldn't be empty", proc.getName(), is(not(emptyString())));
+        assertThat("Process path name shouldn't be empty", proc.getPath(), is(not(emptyString())));
+        assertThat("Process command line shouldn't be null", proc.getCommandLine(), is(notNullValue()));
+        assertThat("Process working directory shouldn't be null", proc.getCurrentWorkingDirectory(),
                 is(notNullValue()));
-        assertThat("Current running process user name shouldn't be null", proc.getUser(), is(notNullValue()));
-        assertThat("Current running process user id shouldn't be null ", proc.getUserID(), is(notNullValue()));
-        assertThat("Current running process group shouldn't be null", proc.getGroup(), is(notNullValue()));
-        assertThat("Current running process group id shouldn't be null", proc.getGroupID(), is(notNullValue()));
+        assertThat("Process user name shouldn't be null", proc.getUser(), is(notNullValue()));
+        assertThat("Process user id shouldn't be null ", proc.getUserID(), is(notNullValue()));
+        assertThat("Process group shouldn't be null", proc.getGroup(), is(notNullValue()));
+        assertThat("Process group id shouldn't be null", proc.getGroupID(), is(notNullValue()));
     }
 
     @Test
     void testProcessStats() {
-        assertThat("Current running process state shouldn't be INVALID", proc.getState(), is(not(State.INVALID)));
-        assertThat("Current running process id should be equal to the OS current running process id", os.getProcessId(),
-                is(proc.getProcessID()));
-        assertThat("Current running process parent process id should be 0 or higher", proc.getParentProcessID(),
+        assertThat("Process state shouldn't be INVALID", proc.getState(), is(not(State.INVALID)));
+        assertThat("Process parent process id should be 0 or higher", proc.getParentProcessID(),
                 is(greaterThanOrEqualTo(0)));
-        assertThat("Current running process thread count should be greater than 0", proc.getThreadCount(),
+        assertThat("Process thread count should be greater than 0", proc.getThreadCount(),
                 is(greaterThan(0)));
         if (Platform.isAIX()) {
-            assertThat("Current running process priority should be between -20 and 255", proc.getPriority(),
+            assertThat("Process priority should be between -20 and 255", proc.getPriority(),
                     is(both(greaterThanOrEqualTo(1)).and(lessThanOrEqualTo(255))));
         } else {
-            assertThat("Current running process priority should be between -20 and 128", proc.getPriority(),
+            assertThat("Process priority should be between -20 and 128", proc.getPriority(),
                     is(both(greaterThanOrEqualTo(-20)).and(lessThanOrEqualTo(128))));
         }
-        assertThat("Current running process virtual memory size should be 0 or higher", proc.getVirtualSize(),
+        assertThat("Process virtual memory size should be 0 or higher", proc.getVirtualSize(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current running process resident set size should be 0 or higher", proc.getResidentSetSize(),
+        assertThat("Process resident set size should be 0 or higher", proc.getResidentSetSize(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current running process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime(),
+        assertThat("Process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current running process time elapsed in user mode should be 0 or higher", proc.getUserTime(),
+        assertThat("Process time elapsed in user mode should be 0 or higher", proc.getUserTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current running process uptime should be 0 or higher", proc.getUpTime(),
+        assertThat("Process uptime should be 0 or higher", proc.getUpTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current process minor faults should be 0 or higher", proc.getMinorFaults(),
+        assertThat("Process minor faults should be 0 or higher", proc.getMinorFaults(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current process major faults should be 0 or higher", proc.getMajorFaults(),
+        assertThat("Process major faults should be 0 or higher", proc.getMajorFaults(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current process context switches should be 0 or higher", proc.getContextSwitches(),
+        assertThat("Process context switches should be 0 or higher", proc.getContextSwitches(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current process cumulative cpu usage should be 0.0 or higher", proc.getProcessCpuLoadCumulative(),
+        assertThat("Process cumulative cpu usage should be 0.0 or higher", proc.getProcessCpuLoadCumulative(),
                 is(greaterThanOrEqualTo(0d)));
-        assertThat("Current process cumulative cpu usage should be the same as the current process",
+        assertThat("Process cumulative cpu usage should be the same as the current process",
                 proc.getProcessCpuLoadBetweenTicks(null),
                 is(closeTo(proc.getProcessCpuLoadCumulative(), Double.MIN_VALUE)));
         assertThat(
-                "Current process cumulative cpu usage should be the same for a previous snapshot of the same process",
+                "Process cumulative cpu usage should be the same for a previous snapshot of the same process",
                 proc.getProcessCpuLoadBetweenTicks(proc),
                 is(closeTo(proc.getProcessCpuLoadCumulative(), Double.MIN_VALUE)));
-        assertThat("Current process start time should be 0 or higher", proc.getStartTime(),
+        assertThat("Process start time should be 0 or higher", proc.getStartTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current process bytes read from disk should be 0 or higher", proc.getBytesRead(),
+        assertThat("Process bytes read from disk should be 0 or higher", proc.getBytesRead(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current process bytes written to disk should be 0 or higher", proc.getBytesWritten(),
+        assertThat("Process bytes written to disk should be 0 or higher", proc.getBytesWritten(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Process bitness can't exceed OS bitness", proc.getBitness(),
                 is(lessThanOrEqualTo(os.getBitness())));
         assertThat("Bitness must be 0, 32 or 64", proc.getBitness(), is(oneOf(0, 32, 64)));
-        assertThat("Current process open file handles should be -1 or higher", proc.getOpenFiles(),
+        assertThat("Process open file handles should be -1 or higher", proc.getOpenFiles(),
                 is(greaterThanOrEqualTo(-1L)));
     }
 
