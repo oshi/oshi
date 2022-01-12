@@ -134,9 +134,6 @@
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
-        <!-- unused, keep to simplify cherry-picks -->
-        <license-maven-plugin.version>4.2.rc1</license-maven-plugin.version>
-        <code-assert.version>0.9.15</code-assert.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>

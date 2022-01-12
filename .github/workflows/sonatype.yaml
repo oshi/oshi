@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - java11
     paths-ignore:
       - '**.md'
       - '**.yml'
