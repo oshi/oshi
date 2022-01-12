@@ -71,7 +71,11 @@ class OperatingSystemTest {
     void setUp() {
         SystemInfo si = new SystemInfo();
         this.os = si.getOperatingSystem();
-        List<OSProcess> list = os.getProcesses(ProcessFiltering.VALID_PROCESS, ProcessSorting.CPU_DESC, 1);
+        List<OSProcess> list = os.getProcesses(ProcessFiltering.VALID_PROCESS, ProcessSorting.CPU_DESC, 2);
+        // Remove idle process for Windows
+        if (Platform.isWindows()) {
+            list.remove(0);
+        }
         this.proc = list.get(0);
     }
 
@@ -119,8 +123,7 @@ class OperatingSystemTest {
         assertThat("Process state shouldn't be INVALID", proc.getState(), is(not(State.INVALID)));
         assertThat("Process parent process id should be 0 or higher", proc.getParentProcessID(),
                 is(greaterThanOrEqualTo(0)));
-        assertThat("Process thread count should be greater than 0", proc.getThreadCount(),
-                is(greaterThan(0)));
+        assertThat("Process thread count should be greater than 0", proc.getThreadCount(), is(greaterThan(0)));
         if (Platform.isAIX()) {
             assertThat("Process priority should be between -20 and 255", proc.getPriority(),
                     is(both(greaterThanOrEqualTo(1)).and(lessThanOrEqualTo(255))));
@@ -136,12 +139,9 @@ class OperatingSystemTest {
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Process time elapsed in user mode should be 0 or higher", proc.getUserTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Process uptime should be 0 or higher", proc.getUpTime(),
-                is(greaterThanOrEqualTo(0L)));
-        assertThat("Process minor faults should be 0 or higher", proc.getMinorFaults(),
-                is(greaterThanOrEqualTo(0L)));
-        assertThat("Process major faults should be 0 or higher", proc.getMajorFaults(),
-                is(greaterThanOrEqualTo(0L)));
+        assertThat("Process uptime should be 0 or higher", proc.getUpTime(), is(greaterThanOrEqualTo(0L)));
+        assertThat("Process minor faults should be 0 or higher", proc.getMinorFaults(), is(greaterThanOrEqualTo(0L)));
+        assertThat("Process major faults should be 0 or higher", proc.getMajorFaults(), is(greaterThanOrEqualTo(0L)));
         assertThat("Process context switches should be 0 or higher", proc.getContextSwitches(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Process cumulative cpu usage should be 0.0 or higher", proc.getProcessCpuLoadCumulative(),
@@ -149,12 +149,10 @@ class OperatingSystemTest {
         assertThat("Process cumulative cpu usage should be the same as the current process",
                 proc.getProcessCpuLoadBetweenTicks(null),
                 is(closeTo(proc.getProcessCpuLoadCumulative(), Double.MIN_VALUE)));
-        assertThat(
-                "Process cumulative cpu usage should be the same for a previous snapshot of the same process",
+        assertThat("Process cumulative cpu usage should be the same for a previous snapshot of the same process",
                 proc.getProcessCpuLoadBetweenTicks(proc),
                 is(closeTo(proc.getProcessCpuLoadCumulative(), Double.MIN_VALUE)));
-        assertThat("Process start time should be 0 or higher", proc.getStartTime(),
-                is(greaterThanOrEqualTo(0L)));
+        assertThat("Process start time should be 0 or higher", proc.getStartTime(), is(greaterThanOrEqualTo(0L)));
         assertThat("Process bytes read from disk should be 0 or higher", proc.getBytesRead(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Process bytes written to disk should be 0 or higher", proc.getBytesWritten(),
