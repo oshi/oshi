@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.oshi</groupId>
@@ -421,12 +424,12 @@
                         </archive>
                     </configuration>
                     <executions>
-                        <!-- ! here we override the super-pom attach-sources execution
-                            id which ! calls sources:jar goal. That goals forks the lifecycle, ! causing the
-                            generate-sources phase to be called twice for the install goal. ! Starting with
-                            Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed
+                        <!-- ! here we override the super-pom attach-sources execution 
+                            id which ! calls sources:jar goal. That goals forks the lifecycle, ! causing the 
+                            generate-sources phase to be called twice for the install goal. ! Starting with 
+                            Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed 
                             anymore. -->
-                        <!-- except that OSSRH fails with no sources with this
+                        <!-- except that OSSRH fails with no sources with this 
                             excluded <execution> <id>attach-sources</id> <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> 
                             </execution> -->
                     </executions>
@@ -452,23 +455,27 @@
                     <artifactId>license-maven-plugin</artifactId>
                     <version>${license-maven-plugin.version}</version>
                     <configuration>
-                        <header>${main.basedir}/config/MIT.txt</header>
-                        <excludes>
-                            <exclude>**/MavenWrapperDownloader.java</exclude>
-                            <exclude>mvnw</exclude>
-                            <exclude>mvnw.cmd</exclude>
-                            <exclude>.editorconfig</exclude>
-                            <exclude>.gitattributes</exclude>
-                            <exclude>**/*.PNG</exclude>
-                            <exclude>*.xml</exclude>
-                            <exclude>*.yml</exclude>
-                            <exclude>**/*.properties</exclude>
-                            <exclude>**/*.txt</exclude>
-                            <exclude>**/*.xml</exclude>
-                            <exclude>**/*.yml</exclude>
-                            <exclude>**/*.yaml</exclude>
-                            <exclude>**/cov-analysis*/**</exclude>
-                        </excludes>
+                        <licenseSets>
+                            <licenseSet>
+                                <header>${main.basedir}/config/MIT.txt</header>
+                                <excludes>
+                                    <exclude>**/MavenWrapperDownloader.java</exclude>
+                                    <exclude>mvnw</exclude>
+                                    <exclude>mvnw.cmd</exclude>
+                                    <exclude>.editorconfig</exclude>
+                                    <exclude>.gitattributes</exclude>
+                                    <exclude>**/*.PNG</exclude>
+                                    <exclude>*.xml</exclude>
+                                    <exclude>*.yml</exclude>
+                                    <exclude>**/*.properties</exclude>
+                                    <exclude>**/*.txt</exclude>
+                                    <exclude>**/*.xml</exclude>
+                                    <exclude>**/*.yml</exclude>
+                                    <exclude>**/*.yaml</exclude>
+                                    <exclude>**/cov-analysis*/**</exclude>
+                                </excludes>
+                            </licenseSet>
+                        </licenseSets>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -650,16 +657,18 @@
                         <configuration>
                             <rules>
                                 <RestrictImports>
-                                    <reason>Disallow dependencies not on module path</reason>
+                                    <reason>Disallow dependencies not on
+                                        module path</reason>
                                     <includeTestCode>true</includeTestCode>
                                     <bannedImports>
-                                        <!-- Disallow all imports except explicitly allowed -->
+                                        <!-- Disallow all imports except explicitly 
+                                            allowed -->
                                         <bannedImport>**</bannedImport>
                                     </bannedImports>
                                     <allowedImports>
                                         <!-- Allow oshi itself :-) -->
                                         <allowedImport>oshi.**</allowedImport>
-                                        <!-- Allow core Java usage  -->
+                                        <!-- Allow core Java usage -->
                                         <allowedImport>java.**</allowedImport>
                                         <!-- Allow known dependencies -->
                                         <allowedImport>com.sun.jna.**</allowedImport>
@@ -940,7 +949,7 @@
             <build>
                 <pluginManagement>
                     <plugins>
-                        <!--This plugin's configuration is used to store Eclipse
+                        <!--This plugin's configuration is used to store Eclipse 
                             m2e settings only. It has no influence on the Maven build itself. -->
                         <plugin>
                             <groupId>org.eclipse.m2e</groupId>
@@ -1062,7 +1071,7 @@
                                 <configuration>
                                     <keyname>${gpg.keyname}</keyname>
                                     <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                                    <!-- GPG 2.1 requires pinentry-mode to be set
+                                    <!-- GPG 2.1 requires pinentry-mode to be set 
                                         to loopback in order to pick up the gpg.passphrase value defined in Maven settings.xml. -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
