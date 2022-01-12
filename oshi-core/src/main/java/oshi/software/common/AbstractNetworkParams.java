@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2019-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.NetworkParams;
 import oshi.util.FileUtil;
@@ -43,32 +40,33 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class AbstractNetworkParams implements NetworkParams {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworkParams.class);
     private static final String NAMESERVER = "nameserver";
 
     @Override
     public String getDomainName() {
+        InetAddress localHost;
         try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
+            localHost = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
-            return "";
+            localHost = InetAddress.getLoopbackAddress();
         }
+        return localHost.getCanonicalHostName();
     }
 
     @Override
     public String getHostName() {
+        InetAddress localHost;
         try {
-            String hn = InetAddress.getLocalHost().getHostName();
-            int dot = hn.indexOf('.');
-            if (dot == -1) {
-                return hn;
-            }
-            return hn.substring(0, dot);
+            localHost = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
-            return "";
+            localHost = InetAddress.getLoopbackAddress();
         }
+        String hn = localHost.getHostName();
+        int dot = hn.indexOf('.');
+        if (dot == -1) {
+            return hn;
+        }
+        return hn.substring(0, dot);
     }
 
     @Override
