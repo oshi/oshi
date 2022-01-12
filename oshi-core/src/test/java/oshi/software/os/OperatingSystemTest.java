@@ -64,19 +64,18 @@ import oshi.software.os.OperatingSystem.ProcessSorting;
 @TestInstance(Lifecycle.PER_CLASS)
 class OperatingSystemTest {
 
-    private OperatingSystem os = null;
-    private OSProcess proc = null;
+    private OperatingSystem os = new SystemInfo().getOperatingSystem();
+    private OSProcess proc = os.getProcess(os.getProcessId());
 
     @BeforeAll
     void setUp() {
-        SystemInfo si = new SystemInfo();
-        this.os = si.getOperatingSystem();
-        List<OSProcess> list = os.getProcesses(ProcessFiltering.VALID_PROCESS, ProcessSorting.CPU_DESC, 2);
-        // Remove idle process for Windows
-        if (Platform.isWindows()) {
-            list.remove(0);
+        // In rare cases on procfs based systems the proc call may result in null, so
+        // we'll try a second time
+        if (this.proc == null) {
+            this.proc = os.getProcess(os.getProcessId());
         }
-        this.proc = list.get(0);
+        // Fail here rather than more confusing NPEs later
+        assertThat("Current process PID returned null", proc, is(notNullValue()));
     }
 
     @Test
@@ -107,60 +106,68 @@ class OperatingSystemTest {
 
     @Test
     void testProcessStrings() {
-        assertThat("Process name shouldn't be empty", proc.getName(), is(not(emptyString())));
-        assertThat("Process path name shouldn't be empty", proc.getPath(), is(not(emptyString())));
-        assertThat("Process command line shouldn't be null", proc.getCommandLine(), is(notNullValue()));
-        assertThat("Process working directory shouldn't be null", proc.getCurrentWorkingDirectory(),
+        assertThat("Current running process name shouldn't be empty", proc.getName(), is(not(emptyString())));
+        assertThat("Current running process path name shouldn't be empty", proc.getPath(), is(not(emptyString())));
+        assertThat("Current running process command line shouldn't be null", proc.getCommandLine(), is(notNullValue()));
+        assertThat("Current running process working directory shouldn't be null", proc.getCurrentWorkingDirectory(),
                 is(notNullValue()));
-        assertThat("Process user name shouldn't be null", proc.getUser(), is(notNullValue()));
-        assertThat("Process user id shouldn't be null ", proc.getUserID(), is(notNullValue()));
-        assertThat("Process group shouldn't be null", proc.getGroup(), is(notNullValue()));
-        assertThat("Process group id shouldn't be null", proc.getGroupID(), is(notNullValue()));
+        assertThat("Current running process user name shouldn't be null", proc.getUser(), is(notNullValue()));
+        assertThat("Current running process user id shouldn't be null ", proc.getUserID(), is(notNullValue()));
+        assertThat("Current running process group shouldn't be null", proc.getGroup(), is(notNullValue()));
+        assertThat("Current running process group id shouldn't be null", proc.getGroupID(), is(notNullValue()));
     }
 
     @Test
     void testProcessStats() {
-        assertThat("Process state shouldn't be INVALID", proc.getState(), is(not(State.INVALID)));
-        assertThat("Process parent process id should be 0 or higher", proc.getParentProcessID(),
+        assertThat("Current running process state shouldn't be INVALID", proc.getState(), is(not(State.INVALID)));
+        assertThat("Current running process id should be equal to the OS current running process id", os.getProcessId(),
+                is(proc.getProcessID()));
+        assertThat("Current running process parent process id should be 0 or higher", proc.getParentProcessID(),
                 is(greaterThanOrEqualTo(0)));
-        assertThat("Process thread count should be greater than 0", proc.getThreadCount(), is(greaterThan(0)));
+        assertThat("Current running process thread count should be greater than 0", proc.getThreadCount(),
+                is(greaterThan(0)));
         if (Platform.isAIX()) {
-            assertThat("Process priority should be between -20 and 255", proc.getPriority(),
+            assertThat("Current running process priority should be between -20 and 255", proc.getPriority(),
                     is(both(greaterThanOrEqualTo(1)).and(lessThanOrEqualTo(255))));
         } else {
-            assertThat("Process priority should be between -20 and 128", proc.getPriority(),
+            assertThat("Current running process priority should be between -20 and 128", proc.getPriority(),
                     is(both(greaterThanOrEqualTo(-20)).and(lessThanOrEqualTo(128))));
         }
-        assertThat("Process virtual memory size should be 0 or higher", proc.getVirtualSize(),
+        assertThat("Current running process virtual memory size should be 0 or higher", proc.getVirtualSize(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Process resident set size should be 0 or higher", proc.getResidentSetSize(),
+        assertThat("Current running process resident set size should be 0 or higher", proc.getResidentSetSize(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime(),
+        assertThat("Current running process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Process time elapsed in user mode should be 0 or higher", proc.getUserTime(),
+        assertThat("Current running process time elapsed in user mode should be 0 or higher", proc.getUserTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Process uptime should be 0 or higher", proc.getUpTime(), is(greaterThanOrEqualTo(0L)));
-        assertThat("Process minor faults should be 0 or higher", proc.getMinorFaults(), is(greaterThanOrEqualTo(0L)));
-        assertThat("Process major faults should be 0 or higher", proc.getMajorFaults(), is(greaterThanOrEqualTo(0L)));
-        assertThat("Process context switches should be 0 or higher", proc.getContextSwitches(),
+        assertThat("Current running process uptime should be 0 or higher", proc.getUpTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Process cumulative cpu usage should be 0.0 or higher", proc.getProcessCpuLoadCumulative(),
+        assertThat("Current process minor faults should be 0 or higher", proc.getMinorFaults(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Current process major faults should be 0 or higher", proc.getMajorFaults(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Current process context switches should be 0 or higher", proc.getContextSwitches(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Current process cumulative cpu usage should be 0.0 or higher", proc.getProcessCpuLoadCumulative(),
                 is(greaterThanOrEqualTo(0d)));
-        assertThat("Process cumulative cpu usage should be the same as the current process",
+        assertThat("Current process cumulative cpu usage should be the same as the current process",
                 proc.getProcessCpuLoadBetweenTicks(null),
                 is(closeTo(proc.getProcessCpuLoadCumulative(), Double.MIN_VALUE)));
-        assertThat("Process cumulative cpu usage should be the same for a previous snapshot of the same process",
+        assertThat(
+                "Current process cumulative cpu usage should be the same for a previous snapshot of the same process",
                 proc.getProcessCpuLoadBetweenTicks(proc),
                 is(closeTo(proc.getProcessCpuLoadCumulative(), Double.MIN_VALUE)));
-        assertThat("Process start time should be 0 or higher", proc.getStartTime(), is(greaterThanOrEqualTo(0L)));
-        assertThat("Process bytes read from disk should be 0 or higher", proc.getBytesRead(),
+        assertThat("Current process start time should be 0 or higher", proc.getStartTime(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Process bytes written to disk should be 0 or higher", proc.getBytesWritten(),
+        assertThat("Current process bytes read from disk should be 0 or higher", proc.getBytesRead(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Current process bytes written to disk should be 0 or higher", proc.getBytesWritten(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Process bitness can't exceed OS bitness", proc.getBitness(),
                 is(lessThanOrEqualTo(os.getBitness())));
         assertThat("Bitness must be 0, 32 or 64", proc.getBitness(), is(oneOf(0, 32, 64)));
-        assertThat("Process open file handles should be -1 or higher", proc.getOpenFiles(),
+        assertThat("Current process open file handles should be -1 or higher", proc.getOpenFiles(),
                 is(greaterThanOrEqualTo(-1L)));
     }
 
@@ -259,22 +266,22 @@ class OperatingSystemTest {
         int matchedChild = 0;
         int matchedDescendant = 0;
         int descendantNotLessThanChild = 0;
-        int total = 0;
-        for (Integer i : zeroChildSet) {
-            List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
-            List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
-            if (children.size() == 0) {
-                matchedChild++;
+        if (zeroChildSet.size() > 9) {
+            int total = 0;
+            for (Integer i : zeroChildSet) {
+                List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
+                List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
+                if (children.size() == 0) {
+                    matchedChild++;
+                }
+                if (descendants.size() == 0) {
+                    matchedDescendant++;
+                }
+                // This is more than enough to test
+                if (++total > 39) {
+                    break;
+                }
             }
-            if (descendants.size() == 0) {
-                matchedDescendant++;
-            }
-            // Quit if enough to test
-            if (++total > 9) {
-                break;
-            }
-        }
-        if (total > 5) {
             assertThat("Most processes with no children should not suddenly have them.", matchedChild,
                     is(greaterThan(total / 4)));
             assertThat("Most processes with no children should not suddenly have descendants.", matchedDescendant,
@@ -284,25 +291,25 @@ class OperatingSystemTest {
         matchedChild = 0;
         matchedDescendant = 0;
         descendantNotLessThanChild = 0;
-        total = 0;
-        for (Integer i : oneChildSet) {
-            List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
-            List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
-            if (children.size() == 1) {
-                matchedChild++;
+        if (oneChildSet.size() > 9) {
+            int total = 0;
+            for (Integer i : oneChildSet) {
+                List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
+                List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
+                if (children.size() == 1) {
+                    matchedChild++;
+                }
+                if (descendants.size() >= 1) {
+                    matchedDescendant++;
+                }
+                if (descendants.size() >= children.size()) {
+                    descendantNotLessThanChild++;
+                }
+                // This is more than enough to test
+                if (++total > 39) {
+                    break;
+                }
             }
-            if (descendants.size() >= 1) {
-                matchedDescendant++;
-            }
-            if (descendants.size() >= children.size()) {
-                descendantNotLessThanChild++;
-            }
-            // Quit if enough to test
-            if (++total > 9) {
-                break;
-            }
-        }
-        if (total > 5) {
             assertThat("Most processes with one child should not suddenly have zero or more than one.", matchedChild,
                     is(greaterThan(total / 4)));
             assertThat("Most processes with one child should not suddenly have zero descendants.", matchedDescendant,
@@ -314,28 +321,28 @@ class OperatingSystemTest {
         matchedChild = 0;
         matchedDescendant = 0;
         descendantNotLessThanChild = 0;
-        total = 0;
-        for (Integer i : manyChildSet) {
-            // Use a non-null sorting for test purposes
-            List<OSProcess> children = os.getChildProcesses(i, ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC,
-                    Integer.MAX_VALUE);
-            List<OSProcess> descendants = os.getDescendantProcesses(i, ProcessFiltering.ALL_PROCESSES,
-                    ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
-            if (children.size() > 1) {
-                matchedChild++;
+        if (manyChildSet.size() > 9) {
+            int total = 0;
+            for (Integer i : manyChildSet) {
+                // Use a non-null sorting for test purposes
+                List<OSProcess> children = os.getChildProcesses(i, ProcessFiltering.VALID_PROCESS,
+                        ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
+                List<OSProcess> descendants = os.getDescendantProcesses(i, ProcessFiltering.VALID_PROCESS,
+                        ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
+                if (children.size() > 1) {
+                    matchedChild++;
+                }
+                if (descendants.size() > 1) {
+                    matchedDescendant++;
+                }
+                if (descendants.size() >= children.size()) {
+                    descendantNotLessThanChild++;
+                }
+                // This is more than enough to test
+                if (++total > 39) {
+                    break;
+                }
             }
-            if (descendants.size() > 1) {
-                matchedDescendant++;
-            }
-            if (descendants.size() >= children.size()) {
-                descendantNotLessThanChild++;
-            }
-            // Quit if enough to test
-            if (++total > 9) {
-                break;
-            }
-        }
-        if (total > 5) {
             assertThat("Most processes with more than one child should not suddenly have one or less.", matchedChild,
                     is(greaterThan(total / 4)));
             assertThat("Most processes with more than one child should not suddenly have one or less descendants.",
