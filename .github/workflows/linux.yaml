@@ -37,12 +37,12 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2          
       - name: Checkstyle
-        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
+        if: contains(matrix.java, '8')
         run: ./mvnw checkstyle:check
       - name: Test with Maven
-        run: ./mvnw test -B
+        run: ./mvnw test -B -Dlicense.skip=true
       - name: Report Coverage to Coveralls
-        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
+        if: contains(matrix.java, '8')
         run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
