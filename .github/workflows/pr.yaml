@@ -35,10 +35,13 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         run: ./mvnw checkstyle:check
       - name: Test with Maven
-        run: ./mvnw test -B
+        run: ./mvnw test -B -Dlicense.skip=true
       - name: Report Coverage to Coveralls for Pull Requests
         if: contains(matrix.os, 'ubuntu')
         run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github -DpullRequest=$PR_NUMBER
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
+      - name: License
+        if: contains(matrix.os, 'ubuntu')
+        run: git fetch --unshallow && ./mvnw license:check
