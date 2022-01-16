@@ -25,9 +25,12 @@ package oshi.driver.windows;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.sun.jna.platform.win32.Kernel32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
@@ -46,6 +49,8 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public final class LogicalProcessorInformation {
+
+    private static final boolean IS_WIN10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();
 
     private LogicalProcessorInformation() {
     }
@@ -66,6 +71,8 @@ public final class LogicalProcessorInformation {
         List<GROUP_AFFINITY> cores = new ArrayList<>();
         // Used to iterate
         List<NUMA_NODE_RELATIONSHIP> numaNodes = new ArrayList<>();
+        // Map to store efficiency class of a processor core
+        Map<GROUP_AFFINITY, Integer> coreEfficiencyMap = new HashMap<>();
 
         for (int i = 0; i < procInfo.length; i++) {
             switch (procInfo[i].relationship) {
@@ -74,8 +81,12 @@ public final class LogicalProcessorInformation {
                 packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
+                PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) procInfo[i]);
                 // for Core, groupCount is always 1
-                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);
+                cores.add(core.groupMask[0]);
+                if (IS_WIN10_OR_GREATER) {
+                    coreEfficiencyMap.put(core.groupMask[0], (int) core.efficiencyClass);
+                }
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
                 numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);
@@ -114,7 +125,19 @@ public final class LogicalProcessorInformation {
                 }
             }
         }
-        return new Pair<>(logProcs, null);
+        List<PhysicalProcessor> physProcs = getPhysProcsWithEfficiency(cores, coreEfficiencyMap);
+        return new Pair<>(logProcs, physProcs);
+    }
+
+    private static List<PhysicalProcessor> getPhysProcsWithEfficiency(List<GROUP_AFFINITY> cores,
+            Map<GROUP_AFFINITY, Integer> coreEfficiencyMap) {
+        List<PhysicalProcessor> physProcs = new ArrayList<>();
+        int coreId = 0;
+        for (GROUP_AFFINITY core : cores) {
+            int efficiency = coreEfficiencyMap.getOrDefault(core, 0);
+            physProcs.add(new PhysicalProcessor(coreId++, efficiency));
+        }
+        return physProcs;
     }
 
     private static int getMatchingPackage(List<GROUP_AFFINITY[]> packages, int g, int lp) {

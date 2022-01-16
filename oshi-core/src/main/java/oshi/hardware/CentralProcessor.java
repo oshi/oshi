@@ -441,22 +441,51 @@ public interface CentralProcessor {
     @Immutable
     class PhysicalProcessor {
         private final int physicalProcessorNumber;
-
-        @Override
-        public String toString() {
-            return "LogicalProcessor [coreNumber=" + physicalProcessorNumber + "]";
-        }
+        private final int efficiency;
 
         public PhysicalProcessor(int physicalProcessorNumber) {
-            super();
+            this(physicalProcessorNumber, 0);
+        }
+
+        public PhysicalProcessor(int physicalProcessorNumber, int efficiency) {
             this.physicalProcessorNumber = physicalProcessorNumber;
+            this.efficiency = efficiency;
         }
 
         /**
+         * Gets the core id. This is also the physical processor number which
+         * corresponds to {@link LogicalProcessor#getPhysicalProcessorNumber()}.
+         *
          * @return the physicalProcessorNumber
          */
         public int getPhysicalProcessorNumber() {
             return physicalProcessorNumber;
+        }
+
+        /**
+         * Gets a platform specific measure of processor efficiency, useful for
+         * identifying performance and efficiency cores in hybrid/System on Chip (SoC)
+         * processors such as ARM's big.LITTLE architecture, Apple's M1, and Intel's
+         * P-core and E-core hybrid technology.
+         * <p>
+         * For unimplemented operating systems, returns 0.
+         * <p>
+         * On Windows 10 and higher, returns the {@code EfficiencyClass} value from the
+         * {@code PROCESSOR_RELATIONSHIP} structure. A core with a higher value for the
+         * efficiency class has intrinsically greater performance and less efficiency
+         * than a core with a lower value for the efficiency class.
+         *
+         * @return the processor efficiency, efficiency class, or similar metric
+         * @see <a href=
+         *      "https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship">PROCESSOR_RELATIONSHIP</a>
+         */
+        public int getEfficiency() {
+            return efficiency;
+        }
+
+        @Override
+        public String toString() {
+            return "LogicalProcessor [coreNumber=" + physicalProcessorNumber + ", efficiency=" + efficiency + "]";
         }
     }
 
