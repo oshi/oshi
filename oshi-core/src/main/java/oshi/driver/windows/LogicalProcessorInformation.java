@@ -38,6 +38,8 @@ import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
+import oshi.hardware.CentralProcessor.PhysicalProcessor;
+import oshi.util.tuples.Pair;
 
 /**
  * Utility to query Logical Processor Information
@@ -54,7 +56,7 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static List<LogicalProcessor> getLogicalProcessorInformationEx() {
+    public static Pair<List<LogicalProcessor>, List<PhysicalProcessor>> getLogicalProcessorInformationEx() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
@@ -112,7 +114,7 @@ public final class LogicalProcessorInformation {
                 }
             }
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     private static int getMatchingPackage(List<GROUP_AFFINITY[]> packages, int g, int lp) {
@@ -144,7 +146,7 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static List<LogicalProcessor> getLogicalProcessorInformation() {
+    public static Pair<List<LogicalProcessor>, List<PhysicalProcessor>> getLogicalProcessorInformation() {
         // Collect a list of logical processors on each physical core and
         // package.
         List<Long> packageMaskList = new ArrayList<>();
@@ -178,7 +180,7 @@ public final class LogicalProcessorInformation {
                 }
             }
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     /**

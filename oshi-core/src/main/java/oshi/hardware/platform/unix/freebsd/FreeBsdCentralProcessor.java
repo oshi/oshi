@@ -44,6 +44,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU
@@ -106,13 +107,13 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         List<LogicalProcessor> logProcs = parseTopology();
         // Force at least one processor
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     private static List<LogicalProcessor> parseTopology() {

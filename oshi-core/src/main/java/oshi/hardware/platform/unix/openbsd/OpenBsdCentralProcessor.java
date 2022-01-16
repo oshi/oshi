@@ -122,7 +122,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         // Iterate dmesg, look for lines:
         // cpu0: smt 0, core 0, package 0
         // cpu1: smt 0, core 1, package 0
@@ -146,7 +146,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         for (int i = 0; i < logicalProcessorCount; i++) {
             logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     /**

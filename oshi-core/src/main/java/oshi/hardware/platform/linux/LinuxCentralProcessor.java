@@ -51,6 +51,7 @@ import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -153,7 +154,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         // Enumerate CPU topology from sysfs
         UdevContext udev = Udev.INSTANCE.udev_new();
@@ -189,7 +190,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     @Override

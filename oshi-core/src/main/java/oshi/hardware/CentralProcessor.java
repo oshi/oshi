@@ -96,6 +96,14 @@ public interface CentralProcessor {
     List<LogicalProcessor> getLogicalProcessors();
 
     /**
+     * Returns an {@code UnmodifiableList} of the CPU's physical processors. The
+     * list will be sorted in order of increasing core ID.
+     *
+     * @return An {@code UnmodifiabeList} of physical processors.
+     */
+    List<PhysicalProcessor> getPhysicalProcessors();
+
+    /**
      * Returns the "recent cpu usage" for the whole system by counting ticks from
      * {@link #getSystemCpuLoadTicks()} between the user-provided value from a
      * previous call.
@@ -423,6 +431,32 @@ public interface CentralProcessor {
             return "LogicalProcessor [processorNumber=" + processorNumber + ", coreNumber=" + physicalProcessorNumber
                     + ", packageNumber=" + physicalPackageNumber + ", numaNode=" + numaNode + ", processorGroup="
                     + processorGroup + "]";
+        }
+    }
+
+    /**
+     * A class representing a Physical Processor (a core) providing per-core
+     * statistics that may vary, particularly in hybrid/modular processors.
+     */
+    @Immutable
+    class PhysicalProcessor {
+        private final int physicalProcessorNumber;
+
+        @Override
+        public String toString() {
+            return "LogicalProcessor [coreNumber=" + physicalProcessorNumber + "]";
+        }
+
+        public PhysicalProcessor(int physicalProcessorNumber) {
+            super();
+            this.physicalProcessorNumber = physicalProcessorNumber;
+        }
+
+        /**
+         * @return the physicalProcessorNumber
+         */
+        public int getPhysicalProcessorNumber() {
+            return physicalProcessorNumber;
         }
     }
 

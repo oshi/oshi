@@ -110,7 +110,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         this.config = PerfstatConfig.queryConfig();
 
         int physProcs = (int) config.numProcessors.max;
@@ -129,7 +129,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(proc, proc / physProcs, nodePkg == null ? 0 : nodePkg.getB(),
                     nodePkg == null ? 0 : nodePkg.getA()));
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     @Override

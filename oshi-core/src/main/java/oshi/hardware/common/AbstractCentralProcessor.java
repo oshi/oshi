@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU.
@@ -65,32 +67,41 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     // Processor info, initialized in constructor
     private final List<LogicalProcessor> logicalProcessors;
+    private final List<PhysicalProcessor> physicalProcessors;
 
     /**
      * Create a Processor
      */
     protected AbstractCentralProcessor() {
-        // Populate logical processor array.
-        this.logicalProcessors = Collections.unmodifiableList(initProcessorCounts());
+        Pair<List<LogicalProcessor>, List<PhysicalProcessor>> processorLists = initProcessorCounts();
+        // Populate logical processor lists.
+        this.logicalProcessors = Collections.unmodifiableList(processorLists.getA());
+        if (processorLists.getB() == null) {
+            Set<Integer> coreIds = this.logicalProcessors.stream().map(LogicalProcessor::getPhysicalProcessorNumber)
+                    .collect(Collectors.toSet());
+            List<PhysicalProcessor> physProcs = coreIds.stream().sorted().map(PhysicalProcessor::new)
+                    .collect(Collectors.toList());
+            this.physicalProcessors = Collections.unmodifiableList(physProcs);
+        } else {
+            this.physicalProcessors = Collections.unmodifiableList(processorLists.getB());
+        }
         // Init processor counts
-        Set<String> physProcPkgs = new HashSet<>();
         Set<Integer> physPkgs = new HashSet<>();
         for (LogicalProcessor logProc : this.logicalProcessors) {
             int pkg = logProc.getPhysicalPackageNumber();
-            physProcPkgs.add(logProc.getPhysicalProcessorNumber() + ":" + pkg);
             physPkgs.add(pkg);
         }
         this.logicalProcessorCount = this.logicalProcessors.size();
-        this.physicalProcessorCount = physProcPkgs.size();
+        this.physicalProcessorCount = this.physicalProcessors.size();
         this.physicalPackageCount = physPkgs.size();
     }
 
     /**
      * Updates logical and physical processor counts and arrays
      *
-     * @return An array of initialized Logical Processors
+     * @return An array of initialized Logical Processors and Physical Processors.
      */
-    protected abstract List<LogicalProcessor> initProcessorCounts();
+    protected abstract Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts();
 
     /**
      * Updates logical and physical processor counts and arrays
@@ -161,6 +172,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public List<LogicalProcessor> getLogicalProcessors() {
         return this.logicalProcessors;
+    }
+
+    @Override
+    public List<PhysicalProcessor> getPhysicalProcessors() {
+        return this.physicalProcessors;
     }
 
     @Override
