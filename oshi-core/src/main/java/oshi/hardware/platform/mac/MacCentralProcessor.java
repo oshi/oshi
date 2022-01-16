@@ -66,7 +66,6 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
-    private Quartet<Integer, Integer, Long, Map<Integer, String>> typeFamilyFreqCompat = queryArmCpu();
 
     private static final int ROSETTA_CPUTYPE = 0x00000007;
     private static final int ROSETTA_CPUFAMILY = 0x573b5eec;
@@ -94,11 +93,12 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             // environment report hw.cputype for x86 (0x00000007) and hw.cpufamily for an
             // Intel Westmere chip (0x573b5eec), family 6, model 44, stepping 0.
             // Test if under Rosetta and generate correct chip
+            Quartet<Integer, Integer, Long, Map<Integer, String>> armCpu = queryArmCpu();
             if (family == ROSETTA_CPUFAMILY) {
-                type = typeFamilyFreqCompat.getA();
-                family = typeFamilyFreqCompat.getB();
+                type = armCpu.getA();
+                family = armCpu.getB();
             }
-            cpuFreq = typeFamilyFreqCompat.getC();
+            cpuFreq = armCpu.getC();
             // Translate to output
             cpuFamily = String.format("0x%08x", family);
             // Processor ID is an intel concept but CPU type + family conveys same info
@@ -138,9 +138,9 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(i, coreId, i * physicalPackageCount / logicalProcessorCount));
             cores.add(coreId);
         }
-        Map<Integer, String> compatMap = typeFamilyFreqCompat.getD();
+        Map<Integer, String> compatMap = queryArmCpu().getD();
         List<PhysicalProcessor> physProcs = cores.stream().sorted().map(k -> {
-            String compat = compatMap.get(k);
+            String compat = compatMap.getOrDefault(k, "");
             int efficiency = 0; // default, for firestorm
             if (compat.toLowerCase().contains("icestorm")) {
                 efficiency = 1;
