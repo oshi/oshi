@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -122,7 +122,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         // Iterate dmesg, look for lines:
         // cpu0: smt 0, core 0, package 0
         // cpu1: smt 0, core 1, package 0
@@ -146,7 +146,24 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         for (int i = 0; i < logicalProcessorCount; i++) {
             logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));
         }
-        return logProcs;
+        Map<Integer, String> dmesg = new HashMap<>();
+        // cpu0 at mainbus0 mpidr 0: ARM Cortex-A7 r0p5
+        // but NOT: cpu0 at mainbus0: apid 0 (boot processor)
+        // cpu0: AMD GX-412TC SOC, 998.28 MHz, 16-30-01
+        // cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01
+        // cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01
+        Pattern p = Pattern.compile("cpu(\\\\d+).*: ((ARM|AMD|Intel).+)");
+        for (String s : ExecutingCommand.runNative("dmesg")) {
+            Matcher m = p.matcher(s);
+            if (m.matches()) {
+                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
+                dmesg.put(coreId, m.group(2).trim());
+            }
+        }
+        if (dmesg.isEmpty()) {
+            return new Pair<>(logProcs, null);
+        }
+        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
     }
 
     /**

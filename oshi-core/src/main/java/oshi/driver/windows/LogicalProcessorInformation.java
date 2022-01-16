@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,12 @@ package oshi.driver.windows;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.sun.jna.platform.win32.Kernel32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
@@ -35,15 +38,23 @@ import com.sun.jna.platform.win32.WinNT.NUMA_NODE_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.wmi.Win32Processor;
+import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
+import oshi.hardware.CentralProcessor.PhysicalProcessor;
+import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Utility to query Logical Processor Information
  */
 @ThreadSafe
 public final class LogicalProcessorInformation {
+
+    private static final boolean IS_WIN10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();
 
     private LogicalProcessorInformation() {
     }
@@ -54,7 +65,7 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static List<LogicalProcessor> getLogicalProcessorInformationEx() {
+    public static Pair<List<LogicalProcessor>, List<PhysicalProcessor>> getLogicalProcessorInformationEx() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
@@ -64,6 +75,8 @@ public final class LogicalProcessorInformation {
         List<GROUP_AFFINITY> cores = new ArrayList<>();
         // Used to iterate
         List<NUMA_NODE_RELATIONSHIP> numaNodes = new ArrayList<>();
+        // Map to store efficiency class of a processor core
+        Map<GROUP_AFFINITY, Integer> coreEfficiencyMap = new HashMap<>();
 
         for (int i = 0; i < procInfo.length; i++) {
             switch (procInfo[i].relationship) {
@@ -72,8 +85,12 @@ public final class LogicalProcessorInformation {
                 packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
+                PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) procInfo[i]);
                 // for Core, groupCount is always 1
-                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);
+                cores.add(core.groupMask[0]);
+                if (IS_WIN10_OR_GREATER) {
+                    coreEfficiencyMap.put(core.groupMask[0], (int) core.efficiencyClass);
+                }
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
                 numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);
@@ -95,7 +112,19 @@ public final class LogicalProcessorInformation {
         // iterate by numa node so the returned list will properly index perfcounter
         // numa/proc-per-numa indices with all numa nodes grouped together
         numaNodes.sort(Comparator.comparing(n -> n.nodeNumber));
+
+        // Fetch the processorIDs from WMI
+        Map<Integer, String> processorIdMap = new HashMap<>();
+        WmiResult<ProcessorIdProperty> processorId = Win32Processor.queryProcessorId();
+        // Results are in the same NUMA+bitmask order
+        for (int cpu = 0; cpu < processorId.getResultCount(); cpu++) {
+            processorIdMap.put(cpu, WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, cpu));
+        }
+
         List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<Integer, String> coreCpuidMap = new HashMap<>();
+        // Same CPU as the key for processorIdMap we just generated
+        int cpu = 0;
         for (NUMA_NODE_RELATIONSHIP node : numaNodes) {
             int nodeNum = node.nodeNumber;
             int group = node.groupMask.group;
@@ -106,13 +135,28 @@ public final class LogicalProcessorInformation {
             int hiBit = 63 - Long.numberOfLeadingZeros(mask);
             for (int lp = lowBit; lp <= hiBit; lp++) {
                 if ((mask & (1L << lp)) != 0) {
-                    LogicalProcessor logProc = new LogicalProcessor(lp, getMatchingCore(cores, group, lp),
-                            getMatchingPackage(packages, group, lp), nodeNum, group);
+                    int coreId = getMatchingCore(cores, group, lp);
+                    coreCpuidMap.put(coreId, processorIdMap.getOrDefault(cpu++, ""));
+                    LogicalProcessor logProc = new LogicalProcessor(lp, coreId, getMatchingPackage(packages, group, lp),
+                            nodeNum, group);
                     logProcs.add(logProc);
                 }
             }
         }
-        return logProcs;
+        List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, coreCpuidMap);
+        return new Pair<>(logProcs, physProcs);
+    }
+
+    private static List<PhysicalProcessor> getPhysProcs(List<GROUP_AFFINITY> cores,
+            Map<GROUP_AFFINITY, Integer> coreEfficiencyMap, Map<Integer, String> coreCpuidMap) {
+        List<PhysicalProcessor> physProcs = new ArrayList<>();
+        int coreId = 0;
+        for (GROUP_AFFINITY core : cores) {
+            int efficiency = coreEfficiencyMap.getOrDefault(core, 0);
+            String cpuid = coreCpuidMap.getOrDefault(coreId, "");
+            physProcs.add(new PhysicalProcessor(coreId++, efficiency, cpuid));
+        }
+        return physProcs;
     }
 
     private static int getMatchingPackage(List<GROUP_AFFINITY[]> packages, int g, int lp) {
@@ -144,7 +188,7 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static List<LogicalProcessor> getLogicalProcessorInformation() {
+    public static Pair<List<LogicalProcessor>, List<PhysicalProcessor>> getLogicalProcessorInformation() {
         // Collect a list of logical processors on each physical core and
         // package.
         List<Long> packageMaskList = new ArrayList<>();
@@ -178,7 +222,7 @@ public final class LogicalProcessorInformation {
                 }
             }
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     /**

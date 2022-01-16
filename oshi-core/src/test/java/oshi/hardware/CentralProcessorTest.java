@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -80,13 +80,12 @@ class CentralProcessorTest {
     void testFrequencies() {
         long max = p.getMaxFreq();
         long[] curr = p.getCurrentFreq();
-        assertThat(
-                "Central Processor's logical processor frequency array length should be the same as its logical processor count",
+        assertThat("Logical processor frequency array length should be the same as its logical processor count",
                 p.getLogicalProcessorCount(), is(curr.length));
         if (max >= 0) {
             for (int i = 0; i < curr.length; i++) {
-                assertThat("Central Processor's logical processor frequency should be at most it's max frequency",
-                        curr[i], is(lessThanOrEqualTo(max)));
+                assertThat("Logical processor frequency should be at most it's max frequency", curr[i],
+                        is(lessThanOrEqualTo(max)));
             }
         }
     }
@@ -105,16 +104,14 @@ class CentralProcessorTest {
         assertThat("System's load averages length for 3 elements should equal 3", p.getSystemLoadAverage(3).length,
                 is(3));
 
-        assertThat("Central Processor's cpu load between ticks should equal the logical processor count",
-                p.getLogicalProcessorCount(), is(p.getProcessorCpuLoadBetweenTicks(procTicks).length));
+        assertThat("Cpu load between ticks should equal the logical processor count", p.getLogicalProcessorCount(),
+                is(p.getProcessorCpuLoadBetweenTicks(procTicks).length));
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
-            assertThat(
-                    "Central Processor's cpu number " + cpu
-                            + "'s load between ticks should be inclusively between 0 and 1",
+            assertThat("Cpu number " + cpu + "'s load between ticks should be inclusively between 0 and 1",
                     p.getProcessorCpuLoadBetweenTicks(procTicks)[cpu],
                     is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));
             assertThat(
-                    "Central Processor's cpu number " + cpu
+                    "Cpu number " + cpu
                             + " should have the same amount of cpu-load-tick counters as there are TickType values",
                     TickType.values().length, is(p.getProcessorCpuLoadTicks()[cpu].length));
         }
@@ -122,19 +119,21 @@ class CentralProcessorTest {
 
     @Test
     void testCounts() {
-        assertThat(
-                "Central Processor's logical processor count should be at least as high as its physical processor count",
+        assertThat("Logical processor count should be at least as high as its physical processor count",
                 p.getLogicalProcessorCount(), is(greaterThanOrEqualTo(p.getPhysicalProcessorCount())));
-        assertThat("Central Processor's physical processor count should by higher than 0",
-                p.getPhysicalProcessorCount(), is(greaterThan(0)));
-        assertThat("Central Processor's physical processor count should be higher than its physical package count",
-                p.getPhysicalProcessorCount(), is(greaterThanOrEqualTo(p.getPhysicalPackageCount())));
-        assertThat("Central Processor's physical package count should be higher than 0", p.getPhysicalPackageCount(),
+        assertThat("Physical processor count should by higher than 0", p.getPhysicalProcessorCount(),
                 is(greaterThan(0)));
-        assertThat("Central Processor's context switch count should be 0 or higher", p.getContextSwitches(),
-                is(greaterThanOrEqualTo(0L)));
-        assertThat("Central Processor's interrupt count should be 0 or higher", p.getInterrupts(),
-                is(greaterThanOrEqualTo(0L)));
+        assertThat("Physical processor count should be higher than its physical package count",
+                p.getPhysicalProcessorCount(), is(greaterThanOrEqualTo(p.getPhysicalPackageCount())));
+        assertThat("Physical package count should be higher than 0", p.getPhysicalPackageCount(), is(greaterThan(0)));
+
+        assertThat("Logical processor list size should match count", p.getLogicalProcessors().size(),
+                is(p.getLogicalProcessorCount()));
+        assertThat("Physical processor list size should match count", p.getPhysicalProcessors().size(),
+                is(p.getPhysicalProcessorCount()));
+
+        assertThat("Context switch count should be 0 or higher", p.getContextSwitches(), is(greaterThanOrEqualTo(0L)));
+        assertThat("Interrupt count should be 0 or higher", p.getInterrupts(), is(greaterThanOrEqualTo(0L)));
         for (int lp = 0; lp < p.getLogicalProcessorCount(); lp++) {
             assertThat("Logical processor number is negative", p.getLogicalProcessors().get(lp).getProcessorNumber(),
                     is(greaterThanOrEqualTo(0)));

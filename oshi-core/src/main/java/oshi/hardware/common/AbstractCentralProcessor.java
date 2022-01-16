@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,16 @@ package oshi.hardware.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU.
@@ -65,32 +70,41 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     // Processor info, initialized in constructor
     private final List<LogicalProcessor> logicalProcessors;
+    private final List<PhysicalProcessor> physicalProcessors;
 
     /**
      * Create a Processor
      */
     protected AbstractCentralProcessor() {
-        // Populate logical processor array.
-        this.logicalProcessors = Collections.unmodifiableList(initProcessorCounts());
+        Pair<List<LogicalProcessor>, List<PhysicalProcessor>> processorLists = initProcessorCounts();
+        // Populate logical processor lists.
+        this.logicalProcessors = Collections.unmodifiableList(processorLists.getA());
+        if (processorLists.getB() == null) {
+            Set<Integer> coreIds = this.logicalProcessors.stream().map(LogicalProcessor::getPhysicalProcessorNumber)
+                    .collect(Collectors.toSet());
+            List<PhysicalProcessor> physProcs = coreIds.stream().sorted().map(PhysicalProcessor::new)
+                    .collect(Collectors.toList());
+            this.physicalProcessors = Collections.unmodifiableList(physProcs);
+        } else {
+            this.physicalProcessors = Collections.unmodifiableList(processorLists.getB());
+        }
         // Init processor counts
-        Set<String> physProcPkgs = new HashSet<>();
         Set<Integer> physPkgs = new HashSet<>();
         for (LogicalProcessor logProc : this.logicalProcessors) {
             int pkg = logProc.getPhysicalPackageNumber();
-            physProcPkgs.add(logProc.getPhysicalProcessorNumber() + ":" + pkg);
             physPkgs.add(pkg);
         }
         this.logicalProcessorCount = this.logicalProcessors.size();
-        this.physicalProcessorCount = physProcPkgs.size();
+        this.physicalProcessorCount = this.physicalProcessors.size();
         this.physicalPackageCount = physPkgs.size();
     }
 
     /**
      * Updates logical and physical processor counts and arrays
      *
-     * @return An array of initialized Logical Processors
+     * @return An array of initialized Logical Processors and Physical Processors.
      */
-    protected abstract List<LogicalProcessor> initProcessorCounts();
+    protected abstract Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts();
 
     /**
      * Updates logical and physical processor counts and arrays
@@ -161,6 +175,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public List<LogicalProcessor> getLogicalProcessors() {
         return this.logicalProcessors;
+    }
+
+    @Override
+    public List<PhysicalProcessor> getPhysicalProcessors() {
+        return this.physicalProcessors;
     }
 
     @Override
@@ -371,6 +390,31 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             }
         }
         return String.format("%016X", processorIdBytes);
+    }
+
+    protected List<PhysicalProcessor> createProcListFromDmesg(List<LogicalProcessor> logProcs,
+            Map<Integer, String> dmesg) {
+        // Check if multiple CPU types
+        boolean isHybrid = dmesg.values().stream().distinct().count() > 1;
+        List<PhysicalProcessor> physProcs = new ArrayList<>();
+        Set<Integer> coreIds = new HashSet<>();
+        for (LogicalProcessor logProc : logProcs) {
+            int coreId = logProc.getPhysicalProcessorNumber();
+            if (!coreIds.contains(coreId)) {
+                coreIds.add(coreId);
+                String idStr = dmesg.getOrDefault(coreId, "");
+                int efficiency = 0;
+                // ARM v8 big.LITTLE chips just use the # for efficiency class
+                // High-performance CPU (big): Cortex-A73, Cortex-A75, Cortex-A76
+                // High-efficiency CPU (LITTLE): Cortex-A53, Cortex-A55
+                if (isHybrid && idStr.startsWith("ARM Cortex")) {
+                    efficiency = ParseUtil.getFirstIntValue(idStr) >= 70 ? 1 : 0;
+                }
+                physProcs.add(new PhysicalProcessor(coreId, efficiency, idStr));
+            }
+        }
+        physProcs.sort(Comparator.comparingInt(PhysicalProcessor::getPhysicalProcessorNumber));
+        return physProcs;
     }
 
     @Override

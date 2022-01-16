@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
@@ -39,6 +41,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU
@@ -105,11 +108,11 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
             // Use Kstat2 implementation
-            return initProcessorCounts2(numaNodeMap);
+            return new Pair<>(initProcessorCounts2(numaNodeMap), null);
         }
         List<LogicalProcessor> logProcs = new ArrayList<>();
         try (KstatChain kc = KstatUtil.openChain()) {
@@ -129,7 +132,23 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        return logProcs;
+        Map<Integer, String> dmesg = new HashMap<>();
+        // Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: Intel(r) Celeron(r)
+        // CPU J3455 @ 1.50GHz
+        // but NOT: Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: x86 (chipid
+        // 0x0 GenuineIntel 506C9 family 6 model 92 step 9 clock 1500 MHz)
+        Pattern p = Pattern.compile(".* cpu(\\\\d+): ((ARM|AMD|Intel).+)");
+        for (String s : ExecutingCommand.runNative("dmesg")) {
+            Matcher m = p.matcher(s);
+            if (m.matches()) {
+                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
+                dmesg.put(coreId, m.group(2).trim());
+            }
+        }
+        if (dmesg.isEmpty()) {
+            return new Pair<>(logProcs, null);
+        }
+        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
     }
 
     private static List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {
