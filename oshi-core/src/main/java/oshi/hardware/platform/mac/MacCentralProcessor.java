@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,13 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +54,8 @@ import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quartet;
 
 /**
  * A CPU.
@@ -62,7 +66,6 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
-    private final Supplier<Triplet<Integer, Integer, Long>> typeFamilyFreq = memoize(MacCentralProcessor::queryArmCpu);
 
     private static final int ROSETTA_CPUTYPE = 0x00000007;
     private static final int ROSETTA_CPUFAMILY = 0x573b5eec;
@@ -90,11 +93,12 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             // environment report hw.cputype for x86 (0x00000007) and hw.cpufamily for an
             // Intel Westmere chip (0x573b5eec), family 6, model 44, stepping 0.
             // Test if under Rosetta and generate correct chip
+            Quartet<Integer, Integer, Long, Map<Integer, String>> armCpu = queryArmCpu();
             if (family == ROSETTA_CPUFAMILY) {
-                type = typeFamilyFreq.get().getA();
-                family = typeFamilyFreq.get().getB();
+                type = armCpu.getA();
+                family = armCpu.getB();
             }
-            cpuFreq = typeFamilyFreq.get().getC();
+            cpuFreq = armCpu.getC();
             // Translate to output
             cpuFamily = String.format("0x%08x", family);
             // Processor ID is an intel concept but CPU type + family conveys same info
@@ -123,16 +127,27 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         int physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
         int physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
+        Set<Integer> cores = new HashSet<>();
         for (int i = 0; i < logicalProcessorCount; i++) {
-            logProcs.add(new LogicalProcessor(i, i * physicalProcessorCount / logicalProcessorCount,
-                    i * physicalPackageCount / logicalProcessorCount));
+            int coreId = i * physicalProcessorCount / logicalProcessorCount;
+            logProcs.add(new LogicalProcessor(i, coreId, i * physicalPackageCount / logicalProcessorCount));
+            cores.add(coreId);
         }
-        return logProcs;
+        Map<Integer, String> compatMap = queryArmCpu().getD();
+        List<PhysicalProcessor> physProcs = cores.stream().sorted().map(k -> {
+            String compat = compatMap.getOrDefault(k, "");
+            int efficiency = 0; // default, for E-core icestorm
+            if (compat.toLowerCase().contains("firestorm")) {
+                efficiency = 1; // P-core, more performance
+            }
+            return new PhysicalProcessor(k, efficiency, compat);
+        }).collect(Collectors.toList());
+        return new Pair<>(logProcs, physProcs);
     }
 
     @Override
@@ -236,10 +251,11 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
     }
 
-    private static Triplet<Integer, Integer, Long> queryArmCpu() {
+    private static Quartet<Integer, Integer, Long, Map<Integer, String>> queryArmCpu() {
         int type = ROSETTA_CPUTYPE;
         int family = ROSETTA_CPUFAMILY;
         long freq = 0L;
+        Map<Integer, String> compatibleStrMap = new HashMap<>();
         // All CPUs are an IOPlatformDevice
         // Iterate each CPU and save frequency and "compatible" strings
         IOIterator iter = IOKitUtil.getMatchingServices("IOPlatformDevice");
@@ -247,7 +263,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             Set<String> compatibleStrSet = new HashSet<>();
             IORegistryEntry cpu = iter.next();
             while (cpu != null) {
-                if (cpu.getName().startsWith("cpu")) {
+                if (cpu.getName().toLowerCase().startsWith("cpu")) {
+                    int procId = ParseUtil.getFirstIntValue(cpu.getName());
                     // Accurate CPU vendor frequency in kHz as little-endian byte array
                     byte[] data = cpu.getByteArrayProperty("clock-frequency");
                     if (data != null) {
@@ -262,6 +279,11 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                         for (String s : new String(data, StandardCharsets.UTF_8).split("\0")) {
                             if (!s.isEmpty()) {
                                 compatibleStrSet.add(s);
+                                if (compatibleStrMap.containsKey(procId)) {
+                                    compatibleStrMap.put(procId, compatibleStrMap.get(procId) + " " + s);
+                                } else {
+                                    compatibleStrMap.put(procId, s);
+                                }
                             }
                         }
                     }
@@ -280,6 +302,6 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                 family = M1_CPUFAMILY;
             }
         }
-        return new Triplet<>(type, family, freq);
+        return new Quartet<>(type, family, freq, compatibleStrMap);
     }
 }

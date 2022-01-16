@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -94,6 +94,14 @@ public interface CentralProcessor {
      * @return An {@code UnmodifiabeList} of logical processors.
      */
     List<LogicalProcessor> getLogicalProcessors();
+
+    /**
+     * Returns an {@code UnmodifiableList} of the CPU's physical processors. The
+     * list will be sorted in order of increasing core ID.
+     *
+     * @return An {@code UnmodifiabeList} of physical processors.
+     */
+    List<PhysicalProcessor> getPhysicalProcessors();
 
     /**
      * Returns the "recent cpu usage" for the whole system by counting ticks from
@@ -423,6 +431,95 @@ public interface CentralProcessor {
             return "LogicalProcessor [processorNumber=" + processorNumber + ", coreNumber=" + physicalProcessorNumber
                     + ", packageNumber=" + physicalPackageNumber + ", numaNode=" + numaNode + ", processorGroup="
                     + processorGroup + "]";
+        }
+    }
+
+    /**
+     * A class representing a Physical Processor (a core) providing per-core
+     * statistics that may vary, particularly in hybrid/modular processors.
+     */
+    @Immutable
+    class PhysicalProcessor {
+        private final int physicalProcessorNumber;
+        private final int efficiency;
+        private final String idString;
+
+        public PhysicalProcessor(int physicalProcessorNumber) {
+            this(physicalProcessorNumber, 0, "");
+        }
+
+        public PhysicalProcessor(int physicalProcessorNumber, int efficiency, String idString) {
+            this.physicalProcessorNumber = physicalProcessorNumber;
+            this.efficiency = efficiency;
+            this.idString = idString;
+        }
+
+        /**
+         * Gets the core id. This is also the physical processor number which
+         * corresponds to {@link LogicalProcessor#getPhysicalProcessorNumber()}.
+         *
+         * @return the physicalProcessorNumber
+         */
+        public int getPhysicalProcessorNumber() {
+            return physicalProcessorNumber;
+        }
+
+        /**
+         * Gets a platform specific measure of processor performance vs. efficiency,
+         * useful for identifying cores in hybrid/System on Chip (SoC) processors such
+         * as ARM's big.LITTLE architecture, Apple's M1, and Intel's P-core and E-core
+         * hybrid technology. A core with a higher value for the efficiency class has
+         * intrinsically greater performance and less efficiency than a core with a
+         * lower value for the efficiency class.
+         *
+         * @return On Windows 10 and higher, returns the {@code EfficiencyClass} value
+         *         from the {@code PROCESSOR_RELATIONSHIP} structure.
+         *         <p>
+         *         On macOS with Apple Silicon, emulates the same relative efficiency
+         *         class values as Windows.
+         *         <p>
+         *         On Linux, returns the {@code cpu_capacity} value from sysfs. This is
+         *         an optional cpu node property representing CPU capacity expressed in
+         *         normalized DMIPS/MHz.
+         *         <p>
+         *         On OpenBSD, FreeBSD, and Solaris with ARM big.LITTLE processors,
+         *         emulates the same relative efficiency class values as Windows.
+         *         <p>
+         *         For unimplemented operating systems or architectures, returns 0.
+         * @see <a href=
+         *      "https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship">PROCESSOR_RELATIONSHIP</a>
+         * @see <a href=
+         *      "https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt">cpu-capacity</a>
+         */
+        public int getEfficiency() {
+            return efficiency;
+        }
+
+        /**
+         * Gets a platform specific identification string representing this core. This
+         * string requires user parsing to obtain meaningful information. As this is an
+         * experimental feature, users should not rely on the format.
+         *
+         * @return On Windows, returns the per-core Processor ID (CPUID).
+         *         <p>
+         *         On macOS, returns a compatibility string from the IO Registry
+         *         identifying hybrid cores.
+         *         <p>
+         *         On Linux, returns the {@code MODALIAS} value for the core's driver.
+         *         <p>
+         *         On OpenBSD, FreeBSD, and Solaris, returns a per-core CPU
+         *         identification string.
+         *         <p>
+         *         For unimplemented operating systems, returns an empty string.
+         */
+        public String getIdString() {
+            return idString;
+        }
+
+        @Override
+        public String toString() {
+            return "PhysicalProcessor [coreNumber=" + physicalProcessorNumber + ", efficiency=" + efficiency
+                    + ", idString=" + idString + "]";
         }
     }
 

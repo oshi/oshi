@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,9 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +46,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * A CPU
@@ -106,13 +109,36 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         List<LogicalProcessor> logProcs = parseTopology();
         // Force at least one processor
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        return logProcs;
+        Map<Integer, String> dmesg = new HashMap<>();
+        // cpu0: <Open Firmware CPU> on cpulist0
+        Pattern normal = Pattern.compile("cpu(\\\\d+): (.+) on .*");
+        // CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0
+        Pattern hybrid = Pattern.compile("CPU\\\\s*(\\\\d+): (.+) affinity:.*");
+        for (String s : FileUtil.readFile("/var/run/dmesg.boot")) {
+            Matcher h = hybrid.matcher(s);
+            if (h.matches()) {
+                int coreId = ParseUtil.parseIntOrDefault(h.group(1), 0);
+                // This always takes priority, overwrite if needed
+                dmesg.put(coreId, h.group(2).trim());
+            } else {
+                Matcher n = normal.matcher(s);
+                if (n.matches()) {
+                    int coreId = ParseUtil.parseIntOrDefault(n.group(1), 0);
+                    // Don't overwrite if h matched earlier
+                    dmesg.putIfAbsent(coreId, n.group(2).trim());
+                }
+            }
+        }
+        if (dmesg.isEmpty()) {
+            return new Pair<>(logProcs, null);
+        }
+        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
     }
 
     private static List<LogicalProcessor> parseTopology() {

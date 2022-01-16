@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -110,7 +110,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected List<LogicalProcessor> initProcessorCounts() {
+    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         this.config = PerfstatConfig.queryConfig();
 
         int physProcs = (int) config.numProcessors.max;
@@ -129,7 +129,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(proc, proc / physProcs, nodePkg == null ? 0 : nodePkg.getB(),
                     nodePkg == null ? 0 : nodePkg.getA()));
         }
-        return logProcs;
+        return new Pair<>(logProcs, null);
     }
 
     @Override
