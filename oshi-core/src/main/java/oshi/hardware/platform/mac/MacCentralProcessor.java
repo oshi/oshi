@@ -141,9 +141,9 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         Map<Integer, String> compatMap = queryArmCpu().getD();
         List<PhysicalProcessor> physProcs = cores.stream().sorted().map(k -> {
             String compat = compatMap.getOrDefault(k, "");
-            int efficiency = 0; // default, for firestorm
-            if (compat.toLowerCase().contains("icestorm")) {
-                efficiency = 1;
+            int efficiency = 0; // default, for E-core icestorm
+            if (compat.toLowerCase().contains("firestorm")) {
+                efficiency = 1; // P-core, more performance
             }
             return new PhysicalProcessor(k, efficiency, compat);
         }).collect(Collectors.toList());

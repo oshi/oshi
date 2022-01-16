@@ -465,24 +465,23 @@ public interface CentralProcessor {
         }
 
         /**
-         * Gets a platform specific measure of processor efficiency, useful for
-         * identifying performance and efficiency cores in hybrid/System on Chip (SoC)
-         * processors such as ARM's big.LITTLE architecture, Apple's M1, and Intel's
-         * P-core and E-core hybrid technology.
-         * <p>
-         * For unimplemented operating systems, returns 0.
+         * Gets a platform specific measure of processor performance vs. efficiency,
+         * useful for identifying cores in hybrid/System on Chip (SoC) processors such
+         * as ARM's big.LITTLE architecture, Apple's M1, and Intel's P-core and E-core
+         * hybrid technology. A core with a higher value for the efficiency class has
+         * intrinsically greater performance and less efficiency than a core with a
+         * lower value for the efficiency class.
          * <p>
          * On Windows 10 and higher, returns the {@code EfficiencyClass} value from the
-         * {@code PROCESSOR_RELATIONSHIP} structure. A core with a higher value for the
-         * efficiency class has intrinsically greater performance and less efficiency
-         * than a core with a lower value for the efficiency class.
+         * {@code PROCESSOR_RELATIONSHIP} structure.
          * <p>
-         * On macOS, attempts to emulate the same relative efficiency class values as
-         * Windows.
+         * On macOS, emulates the same relative efficiency class values as Windows.
          * <p>
          * On Linux, returns the {@code cpu_capacity} value from sysfs. This is an
          * optional cpu node property representing CPU capacity expressed in normalized
          * DMIPS/MHz.
+         * <p>
+         * For unimplemented operating systems, returns 0.
          *
          * @return the processor efficiency, efficiency class, or similar metric if
          *         available, otherwise 0
@@ -501,14 +500,14 @@ public interface CentralProcessor {
          * string requires user parsing to obtain meaningful information. As this is an
          * experimental feature, users should not rely on the format.
          * <p>
-         * For unimplemented operating systems, returns an empty string.
-         * <p>
          * On Windows, returns the per-core Processor ID (CPUID).
          * <p>
          * On macOS, returns a compatibility string from the IO Registry identifying
          * hybrid cores.
          * <p>
          * On Linux, returns the {@code MODALIAS} value for the core's driver.
+         * <p>
+         * For unimplemented operating systems, returns an empty string.
          *
          * @return the identification string
          */
@@ -518,7 +517,7 @@ public interface CentralProcessor {
 
         @Override
         public String toString() {
-            return "LogicalProcessor [coreNumber=" + physicalProcessorNumber + ", efficiency=" + efficiency
+            return "PhysicalProcessor [coreNumber=" + physicalProcessorNumber + ", efficiency=" + efficiency
                     + ", idString=" + idString + "]";
         }
     }
