@@ -442,14 +442,16 @@ public interface CentralProcessor {
     class PhysicalProcessor {
         private final int physicalProcessorNumber;
         private final int efficiency;
+        private final String idString;
 
         public PhysicalProcessor(int physicalProcessorNumber) {
-            this(physicalProcessorNumber, 0);
+            this(physicalProcessorNumber, 0, "");
         }
 
-        public PhysicalProcessor(int physicalProcessorNumber, int efficiency) {
+        public PhysicalProcessor(int physicalProcessorNumber, int efficiency, String idString) {
             this.physicalProcessorNumber = physicalProcessorNumber;
             this.efficiency = efficiency;
+            this.idString = idString;
         }
 
         /**
@@ -481,6 +483,19 @@ public interface CentralProcessor {
          */
         public int getEfficiency() {
             return efficiency;
+        }
+
+        /**
+         * Gets a patform specific identification string representing this core.
+         * <p>
+         * For unimplemented operating systems, returns an empty string.
+         * <p>
+         * On Windows, returns the per-core Processor ID (CPUID).
+         *
+         * @return the idString
+         */
+        public String getIdString() {
+            return idString;
         }
 
         @Override
