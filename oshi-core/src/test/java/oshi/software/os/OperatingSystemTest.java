@@ -278,7 +278,7 @@ class OperatingSystemTest {
                     matchedDescendant++;
                 }
                 // This is more than enough to test
-                if (++total > 39) {
+                if (++total > 19) {
                     break;
                 }
             }
@@ -291,7 +291,7 @@ class OperatingSystemTest {
         matchedChild = 0;
         matchedDescendant = 0;
         descendantNotLessThanChild = 0;
-        if (oneChildSet.size() > 9) {
+        if (oneChildSet.size() > 15) {
             int total = 0;
             for (Integer i : oneChildSet) {
                 List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
@@ -306,14 +306,14 @@ class OperatingSystemTest {
                     descendantNotLessThanChild++;
                 }
                 // This is more than enough to test
-                if (++total > 39) {
+                if (++total > 19) {
                     break;
                 }
             }
             assertThat("Most processes with one child should not suddenly have zero or more than one.", matchedChild,
-                    is(greaterThan(total / 4)));
+                    is(greaterThan(total / 5)));
             assertThat("Most processes with one child should not suddenly have zero descendants.", matchedDescendant,
-                    is(greaterThan(total / 4)));
+                    is(greaterThan(total / 5)));
             assertThat("Most processes with one child should have no more children than descendants",
                     descendantNotLessThanChild, is(greaterThan(total / 4)));
         }
@@ -339,7 +339,7 @@ class OperatingSystemTest {
                     descendantNotLessThanChild++;
                 }
                 // This is more than enough to test
-                if (++total > 39) {
+                if (++total > 19) {
                     break;
                 }
             }
