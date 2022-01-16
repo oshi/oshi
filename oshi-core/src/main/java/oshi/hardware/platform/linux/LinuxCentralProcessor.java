@@ -32,13 +32,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
 import com.sun.jna.platform.linux.Udev.UdevContext;
+import com.sun.jna.platform.linux.Udev.UdevDevice;
 import com.sun.jna.platform.linux.Udev.UdevEnumerate;
 import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
@@ -156,6 +160,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
+        Map<Integer, String> modAliasMap = new HashMap<>();
         // Enumerate CPU topology from sysfs
         UdevContext udev = Udev.INSTANCE.udev_new();
         try {
@@ -168,6 +174,16 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     int processor = ParseUtil.getFirstIntValue(syspath);
                     int coreId = FileUtil.getIntFromFile(syspath + "/topology/core_id");
                     int pkgId = FileUtil.getIntFromFile(syspath + "/topology/physical_package_id");
+                    // The cpu_capacity value may not exist, this will just store 0
+                    coreEfficiencyMap.put(coreId, FileUtil.getIntFromFile(syspath + "/cpu_capacity"));
+                    UdevDevice device = udev.deviceNewFromSyspath(syspath);
+                    if (device != null) {
+                        try {
+                            modAliasMap.put(coreId, device.getPropertyValue("MODALIAS"));
+                        } finally {
+                            device.unref();
+                        }
+                    }
                     int nodeId = 0;
                     String prefix = syspath + "/node";
                     try (Stream<Path> path = Files.list(Paths.get(syspath))) {
@@ -189,8 +205,13 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         // Failsafe
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
+            coreEfficiencyMap.put(0, 0);
         }
-        return new Pair<>(logProcs, null);
+        List<PhysicalProcessor> physProcs = coreEfficiencyMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
+                .map(e -> {
+                    return new PhysicalProcessor(e.getKey(), e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
+                }).collect(Collectors.toList());
+        return new Pair<>(logProcs, physProcs);
     }
 
     @Override

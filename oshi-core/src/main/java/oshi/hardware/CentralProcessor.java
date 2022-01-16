@@ -476,10 +476,18 @@ public interface CentralProcessor {
          * {@code PROCESSOR_RELATIONSHIP} structure. A core with a higher value for the
          * efficiency class has intrinsically greater performance and less efficiency
          * than a core with a lower value for the efficiency class.
+         * <p>
+         * On Linux, returns the {@code cpu_capacity} value from sysfs. This is an
+         * optional cpu node property representing CPU capacity expressed in normalized
+         * DMIPS/MHz.
          *
-         * @return the processor efficiency, efficiency class, or similar metric
+         * @return the processor efficiency, efficiency class, or similar metric if
+         *         available, otherwise 0
+         *
          * @see <a href=
          *      "https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship">PROCESSOR_RELATIONSHIP</a>
+         * @see <a href=
+         *      "https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt">cpu-capacity</a>
          */
         public int getEfficiency() {
             return efficiency;
@@ -491,8 +499,10 @@ public interface CentralProcessor {
          * For unimplemented operating systems, returns an empty string.
          * <p>
          * On Windows, returns the per-core Processor ID (CPUID).
+         * <p>
+         * On Linux, returns the {@code MODALIAS} value for the core's driver.
          *
-         * @return the idString
+         * @return the identification string
          */
         public String getIdString() {
             return idString;
