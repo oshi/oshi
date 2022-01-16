@@ -477,6 +477,9 @@ public interface CentralProcessor {
          * efficiency class has intrinsically greater performance and less efficiency
          * than a core with a lower value for the efficiency class.
          * <p>
+         * On macOS, attempts to emulate the same relative efficiency class values as
+         * Windows.
+         * <p>
          * On Linux, returns the {@code cpu_capacity} value from sysfs. This is an
          * optional cpu node property representing CPU capacity expressed in normalized
          * DMIPS/MHz.
@@ -494,11 +497,16 @@ public interface CentralProcessor {
         }
 
         /**
-         * Gets a patform specific identification string representing this core.
+         * Gets a platform specific identification string representing this core. This
+         * string requires user parsing to obtain meaningful information. As this is an
+         * experimental feature, users should not rely on the format.
          * <p>
          * For unimplemented operating systems, returns an empty string.
          * <p>
          * On Windows, returns the per-core Processor ID (CPUID).
+         * <p>
+         * On macOS, returns a compatibility string from the IO Registry identifying
+         * hybrid cores.
          * <p>
          * On Linux, returns the {@code MODALIAS} value for the core's driver.
          *
@@ -510,7 +518,8 @@ public interface CentralProcessor {
 
         @Override
         public String toString() {
-            return "LogicalProcessor [coreNumber=" + physicalProcessorNumber + ", efficiency=" + efficiency + "]";
+            return "LogicalProcessor [coreNumber=" + physicalProcessorNumber + ", efficiency=" + efficiency
+                    + ", idString=" + idString + "]";
         }
     }
 
