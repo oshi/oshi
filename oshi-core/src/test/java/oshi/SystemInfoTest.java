@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -185,6 +186,11 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static void printProcessor(CentralProcessor processor) {
         oshi.add(processor.toString());
+        oshi.add(" Cores:");
+        for (PhysicalProcessor p : processor.getPhysicalProcessors()) {
+            oshi.add("  " + p.getPhysicalProcessorNumber() + ": efficiency=" + p.getEfficiency() + ", id="
+                    + p.getIdString());
+        }
     }
 
     private static void printMemory(GlobalMemory memory) {
