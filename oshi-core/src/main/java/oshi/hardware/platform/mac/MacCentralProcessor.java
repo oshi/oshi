@@ -66,8 +66,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
     private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
-    private final Supplier<Quartet<Integer, Integer, Long, Map<Integer, String>>> typeFamilyFreqCompat = memoize(
-            MacCentralProcessor::queryArmCpu);
+    private Quartet<Integer, Integer, Long, Map<Integer, String>> typeFamilyFreqCompat = queryArmCpu();
 
     private static final int ROSETTA_CPUTYPE = 0x00000007;
     private static final int ROSETTA_CPUFAMILY = 0x573b5eec;
@@ -96,10 +95,10 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             // Intel Westmere chip (0x573b5eec), family 6, model 44, stepping 0.
             // Test if under Rosetta and generate correct chip
             if (family == ROSETTA_CPUFAMILY) {
-                type = typeFamilyFreqCompat.get().getA();
-                family = typeFamilyFreqCompat.get().getB();
+                type = typeFamilyFreqCompat.getA();
+                family = typeFamilyFreqCompat.getB();
             }
-            cpuFreq = typeFamilyFreqCompat.get().getC();
+            cpuFreq = typeFamilyFreqCompat.getC();
             // Translate to output
             cpuFamily = String.format("0x%08x", family);
             // Processor ID is an intel concept but CPU type + family conveys same info
@@ -139,7 +138,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(i, coreId, i * physicalPackageCount / logicalProcessorCount));
             cores.add(coreId);
         }
-        Map<Integer, String> compatMap = typeFamilyFreqCompat.get().getD();
+        Map<Integer, String> compatMap = typeFamilyFreqCompat.getD();
         List<PhysicalProcessor> physProcs = cores.stream().sorted().map(k -> {
             String compat = compatMap.get(k);
             int efficiency = 0; // default, for firestorm
