@@ -26,10 +26,13 @@ package oshi.hardware.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -387,6 +390,31 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             }
         }
         return String.format("%016X", processorIdBytes);
+    }
+
+    protected List<PhysicalProcessor> createProcListFromDmesg(List<LogicalProcessor> logProcs,
+            Map<Integer, String> dmesg) {
+        // Check if multiple CPU types
+        boolean isHybrid = dmesg.values().stream().distinct().count() > 1;
+        List<PhysicalProcessor> physProcs = new ArrayList<>();
+        Set<Integer> coreIds = new HashSet<>();
+        for (LogicalProcessor logProc : logProcs) {
+            int coreId = logProc.getPhysicalProcessorNumber();
+            if (!coreIds.contains(coreId)) {
+                coreIds.add(coreId);
+                String idStr = dmesg.getOrDefault(coreId, "");
+                int efficiency = 0;
+                // ARM v8 big.LITTLE chips just use the # for efficiency class
+                // High-performance CPU (big): Cortex-A73, Cortex-A75, Cortex-A76
+                // High-efficiency CPU (LITTLE): Cortex-A53, Cortex-A55
+                if (isHybrid && idStr.startsWith("ARM Cortex")) {
+                    efficiency = ParseUtil.getFirstIntValue(idStr) >= 70 ? 1 : 0;
+                }
+                physProcs.add(new PhysicalProcessor(coreId, efficiency, idStr));
+            }
+        }
+        physProcs.sort(Comparator.comparingInt(PhysicalProcessor::getPhysicalProcessorNumber));
+        return physProcs;
     }
 
     @Override

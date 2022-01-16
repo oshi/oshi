@@ -24,7 +24,9 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,7 +115,30 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        return new Pair<>(logProcs, null);
+        Map<Integer, String> dmesg = new HashMap<>();
+        // cpu0: <Open Firmware CPU> on cpulist0
+        Pattern normal = Pattern.compile("cpu(\\\\d+): (.+) on .*");
+        // CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0
+        Pattern hybrid = Pattern.compile("CPU\\\\s*(\\\\d+): (.+) affinity:.*");
+        for (String s : FileUtil.readFile("/var/run/dmesg.boot")) {
+            Matcher h = hybrid.matcher(s);
+            if (h.matches()) {
+                int coreId = ParseUtil.parseIntOrDefault(h.group(1), 0);
+                // This always takes priority, overwrite if needed
+                dmesg.put(coreId, h.group(2).trim());
+            } else {
+                Matcher n = normal.matcher(s);
+                if (n.matches()) {
+                    int coreId = ParseUtil.parseIntOrDefault(n.group(1), 0);
+                    // Don't overwrite if h matched earlier
+                    dmesg.putIfAbsent(coreId, n.group(2).trim());
+                }
+            }
+        }
+        if (dmesg.isEmpty()) {
+            return new Pair<>(logProcs, null);
+        }
+        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
     }
 
     private static List<LogicalProcessor> parseTopology() {

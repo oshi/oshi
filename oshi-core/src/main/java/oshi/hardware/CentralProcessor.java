@@ -471,21 +471,21 @@ public interface CentralProcessor {
          * hybrid technology. A core with a higher value for the efficiency class has
          * intrinsically greater performance and less efficiency than a core with a
          * lower value for the efficiency class.
-         * <p>
-         * On Windows 10 and higher, returns the {@code EfficiencyClass} value from the
-         * {@code PROCESSOR_RELATIONSHIP} structure.
-         * <p>
-         * On macOS, emulates the same relative efficiency class values as Windows.
-         * <p>
-         * On Linux, returns the {@code cpu_capacity} value from sysfs. This is an
-         * optional cpu node property representing CPU capacity expressed in normalized
-         * DMIPS/MHz.
-         * <p>
-         * For unimplemented operating systems, returns 0.
          *
-         * @return the processor efficiency, efficiency class, or similar metric if
-         *         available, otherwise 0
-         *
+         * @return On Windows 10 and higher, returns the {@code EfficiencyClass} value
+         *         from the {@code PROCESSOR_RELATIONSHIP} structure.
+         *         <p>
+         *         On macOS with Apple Silicon, emulates the same relative efficiency
+         *         class values as Windows.
+         *         <p>
+         *         On Linux, returns the {@code cpu_capacity} value from sysfs. This is
+         *         an optional cpu node property representing CPU capacity expressed in
+         *         normalized DMIPS/MHz.
+         *         <p>
+         *         On OpenBSD, FreeBSD, and Solaris with ARM big.LITTLE processors,
+         *         emulates the same relative efficiency class values as Windows.
+         *         <p>
+         *         For unimplemented operating systems or architectures, returns 0.
          * @see <a href=
          *      "https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship">PROCESSOR_RELATIONSHIP</a>
          * @see <a href=
@@ -499,17 +499,18 @@ public interface CentralProcessor {
          * Gets a platform specific identification string representing this core. This
          * string requires user parsing to obtain meaningful information. As this is an
          * experimental feature, users should not rely on the format.
-         * <p>
-         * On Windows, returns the per-core Processor ID (CPUID).
-         * <p>
-         * On macOS, returns a compatibility string from the IO Registry identifying
-         * hybrid cores.
-         * <p>
-         * On Linux, returns the {@code MODALIAS} value for the core's driver.
-         * <p>
-         * For unimplemented operating systems, returns an empty string.
          *
-         * @return the identification string
+         * @return On Windows, returns the per-core Processor ID (CPUID).
+         *         <p>
+         *         On macOS, returns a compatibility string from the IO Registry
+         *         identifying hybrid cores.
+         *         <p>
+         *         On Linux, returns the {@code MODALIAS} value for the core's driver.
+         *         <p>
+         *         On OpenBSD, FreeBSD, and Solaris, returns a per-core CPU
+         *         identification string.
+         *         <p>
+         *         For unimplemented operating systems, returns an empty string.
          */
         public String getIdString() {
             return idString;

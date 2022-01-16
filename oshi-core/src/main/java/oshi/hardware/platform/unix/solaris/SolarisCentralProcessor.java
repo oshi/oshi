@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 
@@ -130,7 +132,23 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        return new Pair<>(logProcs, null);
+        Map<Integer, String> dmesg = new HashMap<>();
+        // Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: Intel(r) Celeron(r)
+        // CPU J3455 @ 1.50GHz
+        // but NOT: Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: x86 (chipid
+        // 0x0 GenuineIntel 506C9 family 6 model 92 step 9 clock 1500 MHz)
+        Pattern p = Pattern.compile(".* cpu(\\\\d+): ((ARM|AMD|Intel).+)");
+        for (String s : ExecutingCommand.runNative("dmesg")) {
+            Matcher m = p.matcher(s);
+            if (m.matches()) {
+                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
+                dmesg.put(coreId, m.group(2).trim());
+            }
+        }
+        if (dmesg.isEmpty()) {
+            return new Pair<>(logProcs, null);
+        }
+        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
     }
 
     private static List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {
