@@ -61,8 +61,8 @@
         <url>https://github.com/oshi/oshi/issues</url>
     </issueManagement>
     <ciManagement>
-        <system>travis</system>
-        <url>https://travis-ci.org/oshi/oshi/</url>
+        <system>Github Actions</system>
+        <url>https://github.com/oshi/oshi/actions</url>
     </ciManagement>
     <distributionManagement>
         <site>
@@ -83,7 +83,7 @@
     </distributionManagement>
 
     <properties>
-        <copyright>2010 - 2021</copyright>
+        <copyright>2010 - 2022</copyright>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
