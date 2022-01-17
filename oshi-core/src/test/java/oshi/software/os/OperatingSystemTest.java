@@ -291,7 +291,7 @@ class OperatingSystemTest {
         matchedChild = 0;
         matchedDescendant = 0;
         descendantNotLessThanChild = 0;
-        if (oneChildSet.size() > 15) {
+        if (oneChildSet.size() > 14) {
             int total = 0;
             for (Integer i : oneChildSet) {
                 List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
@@ -329,10 +329,10 @@ class OperatingSystemTest {
                         ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
                 List<OSProcess> descendants = os.getDescendantProcesses(i, ProcessFiltering.VALID_PROCESS,
                         ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
-                if (children.size() > 1) {
+                if (children.size() > 0) {
                     matchedChild++;
                 }
-                if (descendants.size() > 1) {
+                if (descendants.size() > 0) {
                     matchedDescendant++;
                 }
                 if (descendants.size() >= children.size()) {
@@ -343,9 +343,9 @@ class OperatingSystemTest {
                     break;
                 }
             }
-            assertThat("Most processes with more than one child should not suddenly have one or less.", matchedChild,
+            assertThat("Most processes with more than one child should not suddenly have none.", matchedChild,
                     is(greaterThan(total / 4)));
-            assertThat("Most processes with more than one child should not suddenly have one or less descendants.",
+            assertThat("Most processes with more than one child should not suddenly have no descendants.",
                     matchedDescendant, is(greaterThan(total / 4)));
             assertThat("Most processes with more than one child should have no more children than descendants",
                     descendantNotLessThanChild, is(greaterThan(total / 4)));
