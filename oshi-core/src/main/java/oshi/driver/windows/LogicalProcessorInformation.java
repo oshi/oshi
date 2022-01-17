@@ -116,15 +116,13 @@ public final class LogicalProcessorInformation {
         // Fetch the processorIDs from WMI
         Map<Integer, String> processorIdMap = new HashMap<>();
         WmiResult<ProcessorIdProperty> processorId = Win32Processor.queryProcessorId();
-        // Results are in the same NUMA+bitmask order
-        for (int cpu = 0; cpu < processorId.getResultCount(); cpu++) {
-            processorIdMap.put(cpu, WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, cpu));
+        // One entry for each package/socket
+        for (int pkg = 0; pkg < processorId.getResultCount(); pkg++) {
+            processorIdMap.put(pkg, WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, pkg));
         }
 
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        Map<Integer, String> coreCpuidMap = new HashMap<>();
-        // Same CPU as the key for processorIdMap we just generated
-        int cpu = 0;
+        Map<Integer, String> pkgCpuidMap = new HashMap<>();
         for (NUMA_NODE_RELATIONSHIP node : numaNodes) {
             int nodeNum = node.nodeNumber;
             int group = node.groupMask.group;
@@ -136,14 +134,14 @@ public final class LogicalProcessorInformation {
             for (int lp = lowBit; lp <= hiBit; lp++) {
                 if ((mask & (1L << lp)) != 0) {
                     int coreId = getMatchingCore(cores, group, lp);
-                    coreCpuidMap.put(coreId, processorIdMap.getOrDefault(cpu++, ""));
-                    LogicalProcessor logProc = new LogicalProcessor(lp, coreId, getMatchingPackage(packages, group, lp),
-                            nodeNum, group);
+                    int pkgId = getMatchingPackage(packages, group, lp);
+                    pkgCpuidMap.put(coreId, processorIdMap.getOrDefault(pkgId, ""));
+                    LogicalProcessor logProc = new LogicalProcessor(lp, coreId, pkgId, nodeNum, group);
                     logProcs.add(logProc);
                 }
             }
         }
-        List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, coreCpuidMap);
+        List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, pkgCpuidMap);
         return new Pair<>(logProcs, physProcs);
     }
 
