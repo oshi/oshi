@@ -2,7 +2,9 @@
 # Separated from main CI matrix to reduce churn on failures due to infra
 name: OpenBSD CI
 
-on: 
+concurrency: openbsd_vm
+
+on:
   workflow_dispatch:
   push:
     branches:
