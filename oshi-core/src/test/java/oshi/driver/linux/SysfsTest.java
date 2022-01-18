@@ -25,150 +25,47 @@ package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.matchesRegex;
-import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import com.sun.jna.Platform;
 
-import oshi.TestConstants;
-
+@EnabledOnOs(OS.LINUX)
 class SysfsTest {
 
     @Test
     void testQuerySystemVendor() {
-        if (Platform.isLinux()) {
-            final String sysVendor = Sysfs.querySystemVendor();
-            if (sysVendor != null) {
-                assertThat("Test Sysfs querySystemVendor", sysVendor, not(emptyString()));
-            }
-        }
+        assertDoesNotThrow(Sysfs::querySystemVendor);
+        assertDoesNotThrow(Sysfs::queryProductModel);
+        assertDoesNotThrow(Sysfs::queryProductSerial);
+        assertDoesNotThrow(Sysfs::queryUUID);
+        assertDoesNotThrow(Sysfs::queryBoardVendor);
+        assertDoesNotThrow(Sysfs::queryBoardModel);
+        assertDoesNotThrow(Sysfs::queryBoardVersion);
+        assertDoesNotThrow(Sysfs::queryBoardSerial);
+        assertDoesNotThrow(Sysfs::queryBiosVendor);
+        assertDoesNotThrow(Sysfs::queryBiosDescription);
+        assertDoesNotThrow(Sysfs::queryBiosReleaseDate);
+        assertDoesNotThrow(this::queryBiosVersionEmpty);
     }
 
-    @Test
-    void testQueryProductModel() {
-        if (Platform.isLinux()) {
-            final String sysProductModel = Sysfs.queryProductModel();
-            if (sysProductModel != null) {
-                assertThat("Test Sysfs queryProductModel", sysProductModel, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryProductSerial() {
-        if (Platform.isLinux()) {
-            final String serialNumber = Sysfs.queryProductSerial();
-            if (serialNumber != null) {
-                assertThat("Test Sysfs queryProductSerial", serialNumber, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryUUID() {
-        if (Platform.isLinux()) {
-            final String uuid = Sysfs.queryUUID();
-            if (uuid != null) {
-                assertThat("Test Sysfs queryUUID", uuid, not(emptyString()));
-                assertThat("Test Sysfs queryUUID", uuid, matchesRegex(TestConstants.UUID_REGEX));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBoardVendor() {
-        if (Platform.isLinux()) {
-            final String boardVendor = Sysfs.queryBoardVendor();
-            if (boardVendor != null) {
-                assertThat("Test Sysfs queryBoardVendor", boardVendor, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBoardModel() {
-        if (Platform.isLinux()) {
-            final String boardModel = Sysfs.queryBoardModel();
-            if (boardModel != null) {
-                assertThat("Test Sysfs queryBoardModel", boardModel, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBoardVersion() {
-        if (Platform.isLinux()) {
-            final String boardVersion = Sysfs.queryBoardVersion();
-            if (boardVersion != null) {
-                assertThat("Test Sysfs queryBoardVersion", boardVersion, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBoardSerial() {
-        if (Platform.isLinux()) {
-            final String boardSerial = Sysfs.queryBoardSerial();
-            if (boardSerial != null) {
-                assertThat("Test Sysfs queryBoardSerial", boardSerial, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBiosVendor() {
-        if (Platform.isLinux()) {
-            final String biosVendor = Sysfs.queryBiosVendor();
-            if (biosVendor != null) {
-                assertThat("Test Sysfs queryBiosVendor", biosVendor, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBiosDescription() {
-        if (Platform.isLinux()) {
-            final String biosDescription = Sysfs.queryBiosDescription();
-            if (biosDescription != null) {
-                assertThat("Test Sysfs queryBiosDescription", biosDescription, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBiosVersionEmptyBiosRevision() {
-        if (Platform.isLinux()) {
-            final String biosRevision = Sysfs.queryBiosVersion("");
-            if (biosRevision != null) {
-                assertThat("Test Sysfs queryBiosVersion", biosRevision, not(emptyString()));
-            }
-        }
+    private void queryBiosVersionEmpty() {
+        Sysfs.queryBiosVersion("");
     }
 
     @Test
     void testQueryBiosVersion() {
         if (Platform.isLinux()) {
+            assertDoesNotThrow(Sysfs::querySystemVendor);
             final String biosRevisionSuffix = "biosRevision";
             final String biosRevision = Sysfs.queryBiosVersion(biosRevisionSuffix);
             if (biosRevision != null) {
-                assertThat("Test Sysfs queryBiosVersion", biosRevision, not(emptyString()));
                 assertThat("Test Sysfs queryBiosVersion with biosRevision", biosRevision,
                         containsString(biosRevisionSuffix));
             }
         }
     }
-
-    @Test
-    void testQueryBiosReleaseDate() {
-        if (Platform.isLinux()) {
-            final String biosReleaseDate = Sysfs.queryBiosReleaseDate();
-            if (biosReleaseDate != null) {
-                assertThat("Test Sysfs queryBiosReleaseDate", biosReleaseDate, not(emptyString()));
-            }
-        }
-    }
-
 }
