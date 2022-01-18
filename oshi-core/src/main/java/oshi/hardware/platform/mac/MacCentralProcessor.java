@@ -132,20 +132,21 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         int physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
         int physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
-        Set<Integer> cores = new HashSet<>();
+        Set<Integer> pkgCoreKeys = new HashSet<>();
         for (int i = 0; i < logicalProcessorCount; i++) {
             int coreId = i * physicalProcessorCount / logicalProcessorCount;
-            logProcs.add(new LogicalProcessor(i, coreId, i * physicalPackageCount / logicalProcessorCount));
-            cores.add(coreId);
+            int pkgId = i * physicalPackageCount / logicalProcessorCount;
+            logProcs.add(new LogicalProcessor(i, coreId, pkgId));
+            pkgCoreKeys.add((pkgId << 16) + coreId);
         }
         Map<Integer, String> compatMap = queryArmCpu().getD();
-        List<PhysicalProcessor> physProcs = cores.stream().sorted().map(k -> {
+        List<PhysicalProcessor> physProcs = pkgCoreKeys.stream().sorted().map(k -> {
             String compat = compatMap.getOrDefault(k, "");
             int efficiency = 0; // default, for E-core icestorm
             if (compat.toLowerCase().contains("firestorm")) {
                 efficiency = 1; // P-core, more performance
             }
-            return new PhysicalProcessor(k, efficiency, compat);
+            return new PhysicalProcessor(k >> 16, k & 0xffff, efficiency, compat);
         }).collect(Collectors.toList());
         return new Pair<>(logProcs, physProcs);
     }
