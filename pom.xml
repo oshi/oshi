@@ -141,10 +141,6 @@
         <maven-surefire-report-plugin.version>2.22.2</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>2.4</taglist-maven-plugin.version>
         <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
-        <!-- SCM -->
-        <maven-scm-plugin.version>1.12.2</maven-scm-plugin.version>
-        <maven-scm-provider-jgit.version>1.12.2</maven-scm-provider-jgit.version>
-        <jgit.version>6.0.0.202111291000-r</jgit.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
@@ -474,24 +470,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>${versions-maven-plugin.version}</version>
-                </plugin>
-                <!-- SCM -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-scm-plugin</artifactId>
-                    <version>${maven-scm-plugin.version}</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.eclipse.jgit</groupId>
-                            <artifactId>org.eclipse.jgit</artifactId>
-                            <version>${jgit.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.maven.scm</groupId>
-                            <artifactId>maven-scm-provider-jgit</artifactId>
-                            <version>${maven-scm-provider-jgit.version}</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <!-- Sonar -->
                 <plugin>
