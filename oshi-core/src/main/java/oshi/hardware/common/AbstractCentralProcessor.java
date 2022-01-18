@@ -80,10 +80,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // Populate logical processor lists.
         this.logicalProcessors = Collections.unmodifiableList(processorLists.getA());
         if (processorLists.getB() == null) {
-            Set<Integer> coreIds = this.logicalProcessors.stream().map(LogicalProcessor::getPhysicalProcessorNumber)
+            Set<Integer> pkgCoreKeys = this.logicalProcessors.stream()
+                    .map(p -> (p.getPhysicalPackageNumber() << 16) + p.getPhysicalProcessorNumber())
                     .collect(Collectors.toSet());
-            List<PhysicalProcessor> physProcs = coreIds.stream().sorted().map(PhysicalProcessor::new)
-                    .collect(Collectors.toList());
+            List<PhysicalProcessor> physProcs = pkgCoreKeys.stream().sorted()
+                    .map(k -> new PhysicalProcessor(k >> 16, k & 0xffff)).collect(Collectors.toList());
             this.physicalProcessors = Collections.unmodifiableList(physProcs);
         } else {
             this.physicalProcessors = Collections.unmodifiableList(processorLists.getB());
@@ -397,12 +398,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // Check if multiple CPU types
         boolean isHybrid = dmesg.values().stream().distinct().count() > 1;
         List<PhysicalProcessor> physProcs = new ArrayList<>();
-        Set<Integer> coreIds = new HashSet<>();
+        Set<Integer> pkgCoreKeys = new HashSet<>();
         for (LogicalProcessor logProc : logProcs) {
+            int pkgId = logProc.getPhysicalPackageNumber();
             int coreId = logProc.getPhysicalProcessorNumber();
-            if (!coreIds.contains(coreId)) {
-                coreIds.add(coreId);
-                String idStr = dmesg.getOrDefault(coreId, "");
+            int pkgCoreKey = (pkgId << 16) + coreId;
+            if (!pkgCoreKeys.contains(pkgCoreKey)) {
+                pkgCoreKeys.add(pkgCoreKey);
+                String idStr = dmesg.getOrDefault(logProc.getProcessorNumber(), "");
                 int efficiency = 0;
                 // ARM v8 big.LITTLE chips just use the # for efficiency class
                 // High-performance CPU (big): Cortex-A73, Cortex-A75, Cortex-A76
@@ -410,10 +413,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 if (isHybrid && idStr.startsWith("ARM Cortex")) {
                     efficiency = ParseUtil.getFirstIntValue(idStr) >= 70 ? 1 : 0;
                 }
-                physProcs.add(new PhysicalProcessor(coreId, efficiency, idStr));
+                physProcs.add(new PhysicalProcessor(pkgId, coreId, efficiency, idStr));
             }
         }
-        physProcs.sort(Comparator.comparingInt(PhysicalProcessor::getPhysicalProcessorNumber));
+        physProcs.sort(Comparator.comparingInt(PhysicalProcessor::getPhysicalPackageNumber)
+                .thenComparingInt(PhysicalProcessor::getPhysicalProcessorNumber));
         return physProcs;
     }
 

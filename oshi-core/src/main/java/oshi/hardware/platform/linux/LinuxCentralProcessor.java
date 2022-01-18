@@ -174,12 +174,13 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     int processor = ParseUtil.getFirstIntValue(syspath);
                     int coreId = FileUtil.getIntFromFile(syspath + "/topology/core_id");
                     int pkgId = FileUtil.getIntFromFile(syspath + "/topology/physical_package_id");
+                    int pkgCoreKey = (pkgId << 16) + coreId;
                     // The cpu_capacity value may not exist, this will just store 0
-                    coreEfficiencyMap.put(coreId, FileUtil.getIntFromFile(syspath + "/cpu_capacity"));
+                    coreEfficiencyMap.put(pkgCoreKey, FileUtil.getIntFromFile(syspath + "/cpu_capacity"));
                     UdevDevice device = udev.deviceNewFromSyspath(syspath);
                     if (device != null) {
                         try {
-                            modAliasMap.put(coreId, device.getPropertyValue("MODALIAS"));
+                            modAliasMap.put(pkgCoreKey, device.getPropertyValue("MODALIAS"));
                         } finally {
                             device.unref();
                         }
@@ -209,7 +210,9 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         List<PhysicalProcessor> physProcs = coreEfficiencyMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
                 .map(e -> {
-                    return new PhysicalProcessor(e.getKey(), e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
+                    int pkgId = e.getKey() >> 16;
+                    int coreId = e.getKey() & 0xffff;
+                    return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
                 }).collect(Collectors.toList());
         return new Pair<>(logProcs, physProcs);
     }
