@@ -440,18 +440,31 @@ public interface CentralProcessor {
      */
     @Immutable
     class PhysicalProcessor {
+        private final int physicalPackageNumber;
         private final int physicalProcessorNumber;
         private final int efficiency;
         private final String idString;
 
-        public PhysicalProcessor(int physicalProcessorNumber) {
-            this(physicalProcessorNumber, 0, "");
+        public PhysicalProcessor(int physicalPackageNumber, int physicalProcessorNumber) {
+            this(physicalPackageNumber, physicalProcessorNumber, 0, "");
         }
 
-        public PhysicalProcessor(int physicalProcessorNumber, int efficiency, String idString) {
+        public PhysicalProcessor(int physicalPackageNumber, int physicalProcessorNumber, int efficiency,
+                String idString) {
+            this.physicalPackageNumber = physicalPackageNumber;
             this.physicalProcessorNumber = physicalProcessorNumber;
             this.efficiency = efficiency;
             this.idString = idString;
+        }
+
+        /**
+         * Gets the package id. This is also the physical package number which
+         * corresponds to {@link LogicalProcessor#getPhysicalPackageNumber()}.
+         *
+         * @return the physicalProcessorNumber
+         */
+        public int getPhysicalPackageNumber() {
+            return physicalPackageNumber;
         }
 
         /**
@@ -518,8 +531,8 @@ public interface CentralProcessor {
 
         @Override
         public String toString() {
-            return "PhysicalProcessor [coreNumber=" + physicalProcessorNumber + ", efficiency=" + efficiency
-                    + ", idString=" + idString + "]";
+            return "PhysicalProcessor [package/core=" + physicalPackageNumber + "/" + physicalProcessorNumber
+                    + ", efficiency=" + efficiency + ", idString=" + idString + "]";
         }
     }
 

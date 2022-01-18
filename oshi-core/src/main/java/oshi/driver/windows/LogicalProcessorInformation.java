@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -100,9 +100,9 @@ public final class LogicalProcessorInformation {
                 break;
             }
         }
-        // Windows doesn't define core and package numbers, so we sort the lists
-        // so core and package numbers increment consistently with processor
-        // numbers/bitmasks, ordered in groups
+        // Windows doesn't define core and package numbers, so we define our own for
+        // consistent use across the API. Here we sort so core and package numbers
+        // increment consistently with processor umbers/bitmasks, ordered in groups.
         cores.sort(Comparator.comparing(c -> c.group * 64L + c.mask.longValue()));
         // if package in multiple groups will still use first group for sorting
         packages.sort(Comparator.comparing(p -> p[0].group * 64L + p[0].mask.longValue()));
@@ -122,6 +122,7 @@ public final class LogicalProcessorInformation {
         }
 
         List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<Integer, Integer> corePkgMap = new HashMap<>();
         Map<Integer, String> pkgCpuidMap = new HashMap<>();
         for (NUMA_NODE_RELATIONSHIP node : numaNodes) {
             int nodeNum = node.nodeNumber;
@@ -135,24 +136,26 @@ public final class LogicalProcessorInformation {
                 if ((mask & (1L << lp)) != 0) {
                     int coreId = getMatchingCore(cores, group, lp);
                     int pkgId = getMatchingPackage(packages, group, lp);
+                    corePkgMap.put(coreId, pkgId);
                     pkgCpuidMap.put(coreId, processorIdMap.getOrDefault(pkgId, ""));
                     LogicalProcessor logProc = new LogicalProcessor(lp, coreId, pkgId, nodeNum, group);
                     logProcs.add(logProc);
                 }
             }
         }
-        List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, pkgCpuidMap);
+        List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, corePkgMap, pkgCpuidMap);
         return new Pair<>(logProcs, physProcs);
     }
 
     private static List<PhysicalProcessor> getPhysProcs(List<GROUP_AFFINITY> cores,
-            Map<GROUP_AFFINITY, Integer> coreEfficiencyMap, Map<Integer, String> coreCpuidMap) {
+            Map<GROUP_AFFINITY, Integer> coreEfficiencyMap, Map<Integer, Integer> corePkgMap,
+            Map<Integer, String> coreCpuidMap) {
         List<PhysicalProcessor> physProcs = new ArrayList<>();
-        int coreId = 0;
-        for (GROUP_AFFINITY core : cores) {
-            int efficiency = coreEfficiencyMap.getOrDefault(core, 0);
+        for (int coreId = 0; coreId < cores.size(); coreId++) {
+            int efficiency = coreEfficiencyMap.getOrDefault(cores.get(coreId), 0);
             String cpuid = coreCpuidMap.getOrDefault(coreId, "");
-            physProcs.add(new PhysicalProcessor(coreId++, efficiency, cpuid));
+            int pkgId = corePkgMap.getOrDefault(coreId, 0);
+            physProcs.add(new PhysicalProcessor(pkgId, coreId, efficiency, cpuid));
         }
         return physProcs;
     }
