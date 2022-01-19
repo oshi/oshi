@@ -10,6 +10,7 @@
 * [#1837](https://github.com/oshi/oshi/pull/1837): Implement Kstat2 for Solaris 11.4+ - [@dbwiddis](https://github.com/dbwiddis).
 * [#1844](https://github.com/oshi/oshi/pull/1844): Update Microarchitecture table - [@dbwiddis](https://github.com/dbwiddis).
 * [#1849](https://github.com/oshi/oshi/pull/1849): Use udev for Linux cpu enumeration and frequency - [@dbwiddis](https://github.com/dbwiddis).
+* [#1859](https://github.com/oshi/oshi/pull/1859): Fix battery power usage rate on Fedora/RHEL - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.0.0 (2021-12-31)
 
