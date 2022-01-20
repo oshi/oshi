@@ -23,7 +23,7 @@ under the License.
     <link>https://github.com/oshi/oshi</link>
     <description>Operating System and Hardware Information - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2021 oshi</copyright>
+    <copyright>&#169;2010 - 2022 oshi</copyright>
     <item>
       <title>File: 450,
              Errors: 0,
@@ -649,20 +649,6 @@ under the License.
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.UtilTest.java">oshi/util/UtilTest.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.UserGroupInfo.java">oshi/driver/linux/proc/UserGroupInfo.java</a>
                 </td>
                 <td>
                   0
@@ -2720,6 +2706,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.Kstat2.java">oshi/jna/platform/unix/Kstat2.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.mac.SmcUtil.java">oshi/util/platform/mac/SmcUtil.java</a>
                 </td>
                 <td>
@@ -4316,20 +4316,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.LsofUtilTest.java">oshi/util/LsofUtilTest.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil.java">oshi/util/platform/unix/openbsd/OpenBsdSysctlUtil.java</a>
                 </td>
                 <td>
@@ -4764,6 +4750,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.UserGroupInfo.java">oshi/util/UserGroupInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.hardware.platform.mac.MacSoundCard.java">oshi/hardware/platform/mac/MacSoundCard.java</a>
                 </td>
                 <td>
@@ -4891,6 +4891,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.driver.linux.proc.DiskStatsTest.java">oshi/driver/linux/proc/DiskStatsTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.jna.platform.unix.Kstat2StatusException.java">oshi/jna/platform/unix/Kstat2StatusException.java</a>
                 </td>
                 <td>
                   0
@@ -6305,20 +6319,6 @@ under the License.
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.software.os.OSSession.java">oshi/software/os/OSSession.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/checkstyle.html#oshi.util.LsofUtil.java">oshi/util/LsofUtil.java</a>
                 </td>
                 <td>
                   0
