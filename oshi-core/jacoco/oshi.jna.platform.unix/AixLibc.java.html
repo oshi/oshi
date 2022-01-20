@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AixLibc.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">AixLibc.java</span></div><h1>AixLibc.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -24,6 +24,8 @@
 package oshi.jna.platform.unix;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
 
 /**
  * C library. This class should be considered non-API as it may be removed
@@ -31,7 +33,101 @@ import com.sun.jna.Native; // NOSONAR squid:S1191
  */
 public interface AixLibc extends CLibrary {
 
-<span class="nc" id="L34">    AixLibc INSTANCE = Native.load(&quot;c&quot;, AixLibc.class);</span>
+<span class="nc" id="L36">    AixLibc INSTANCE = Native.load(&quot;c&quot;, AixLibc.class);</span>
 
+    int PRCLSZ = 8;
+    int PRFNSZ = 16;
+    int PRARGSZ = 80;
+
+    @FieldOrder({ &quot;pr_flag&quot;, &quot;pr_flag2&quot;, &quot;pr_nlwp&quot;, &quot;pr__pad1&quot;, &quot;pr_uid&quot;, &quot;pr_euid&quot;, &quot;pr_gid&quot;, &quot;pr_egid&quot;, &quot;pr_pid&quot;,
+            &quot;pr_ppid&quot;, &quot;pr_pgid&quot;, &quot;pr_sid&quot;, &quot;pr_ttydev&quot;, &quot;pr_addr&quot;, &quot;pr_size&quot;, &quot;pr_rssize&quot;, &quot;pr_start&quot;, &quot;pr_time&quot;,
+            &quot;pr_cid&quot;, &quot;pr__pad2&quot;, &quot;pr_argc&quot;, &quot;pr_argv&quot;, &quot;pr_envp&quot;, &quot;pr_fname&quot;, &quot;pr_psargs&quot;, &quot;pr__pad&quot;, &quot;pr_lwp&quot; })
+    class AixPsInfo extends Structure {
+        public int pr_flag; // process flags from proc struct p_flag
+        public int pr_flag2; // process flags from proc struct p_flag2
+        public int pr_nlwp; // number of threads in process
+        public int pr__pad1; // reserved for future use
+        public long pr_uid; // real user id
+        public long pr_euid; // effective user id
+        public long pr_gid; // real group id
+        public long pr_egid; // effective group id
+        public long pr_pid; // unique process id
+        public long pr_ppid; // process id of parent
+        public long pr_pgid; // pid of process group leader
+        public long pr_sid; // session id
+        public long pr_ttydev; // controlling tty device
+        public long pr_addr; // internal address of proc struct
+        public long pr_size; // size of process image in KB (1024) units
+        public long pr_rssize; // resident set size in KB (1024) units
+        public Timestruc pr_start; // process start time, time since epoch
+        public Timestruc pr_time; // usr+sys cpu time for this process
+        public short pr_cid; // corral id
+        public short pr__pad2; // reserved for future use
+        public int pr_argc; // initial argument count
+        public long pr_argv; // address of initial argument vector in user process
+        public long pr_envp; // address of initial environment vector in user process
+<span class="nc" id="L69">        public byte[] pr_fname = new byte[PRFNSZ]; // last component of exec()ed pathname</span>
+<span class="nc" id="L70">        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list</span>
+<span class="nc" id="L71">        public long[] pr__pad = new long[8]; // reserved for future use</span>
+        public AIXLwpsInfo pr_lwp; // &quot;representative&quot; thread info
+
+        public AixPsInfo() {
+<span class="nc" id="L75">            super();</span>
+<span class="nc" id="L76">        }</span>
+
+        public AixPsInfo(byte[] bytes) {
+<span class="nc" id="L79">            super();</span>
+            // Truncate bytes and pad with 0 if necessary
+<span class="nc" id="L81">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L82">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+            // Write bytes to native
+<span class="nc" id="L84">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+            // Read bytes to struct
+<span class="nc" id="L86">            read();</span>
+<span class="nc" id="L87">        }</span>
+    }
+
+    @FieldOrder({ &quot;pr_lwpid&quot;, &quot;pr_addr&quot;, &quot;pr_wchan&quot;, &quot;pr_flag&quot;, &quot;pr_wtype&quot;, &quot;pr_state&quot;, &quot;pr_sname&quot;, &quot;pr_nice&quot;, &quot;pr_pri&quot;,
+            &quot;pr_policy&quot;, &quot;pr_clname&quot;, &quot;pr_onpro&quot;, &quot;pr_bindpro&quot; })
+    class AIXLwpsInfo extends Structure {
+        public long pr_lwpid; // thread id
+        public long pr_addr; // internal address of thread
+        public long pr_wchan; // wait addr for sleeping thread
+        public int pr_flag; // thread flags
+        public byte pr_wtype; // type of thread wait
+        public byte pr_state; // numeric scheduling state
+        public byte pr_sname; // printable character representing pr_state
+        public byte pr_nice; // nice for cpu usage
+        public int pr_pri; // priority, high value = high priority
+        public int pr_policy; // scheduling policy
+<span class="nc" id="L103">        public byte[] pr_clname = new byte[PRCLSZ]; // printable character representing pr_policy</span>
+        public int pr_onpro; // processor on which thread last ran
+        public int pr_bindpro; // processor to which thread is bound
+
+        public AIXLwpsInfo() {
+<span class="nc" id="L108">            super();</span>
+<span class="nc" id="L109">        }</span>
+
+        public AIXLwpsInfo(byte[] bytes) {
+<span class="nc" id="L112">            super();</span>
+            // Truncate bytes and pad with 0 if necessary
+<span class="nc" id="L114">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L115">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+            // Write bytes to native
+<span class="nc" id="L117">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+            // Read bytes to struct
+<span class="nc" id="L119">            read();</span>
+<span class="nc" id="L120">        }</span>
+    }
+
+    /**
+     * 64-bit timestruc required for psinfo structure
+     */
+    @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_nsec&quot;, &quot;pad&quot; })
+<span class="nc" id="L127">    class Timestruc extends Structure {</span>
+        public long tv_sec; // seconds
+        public int tv_nsec; // nanoseconds
+        public int pad; // nanoseconds
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

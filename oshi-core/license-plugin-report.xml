@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="FORMAT" timestamp="1641010184792">
-    <module artifactId="oshi-core" groupId="com.github.oshi" version="6.0.1"/>
+<licensePluginReport goal="FORMAT" timestamp="1642698261868">
+    <module artifactId="oshi-core" groupId="com.github.oshi" version="6.1.0"/>
     <files>
         <file path="src/main/java/oshi/PlatformEnum.java" result="NOOP"/>
         <file path="src/main/java/oshi/SystemInfo.java" result="NOOP"/>
@@ -21,7 +21,6 @@
         <file path="src/main/java/oshi/driver/linux/proc/DiskStats.java" result="NOOP"/>
         <file path="src/main/java/oshi/driver/linux/proc/ProcessStat.java" result="NOOP"/>
         <file path="src/main/java/oshi/driver/linux/proc/UpTime.java" result="NOOP"/>
-        <file path="src/main/java/oshi/driver/linux/proc/UserGroupInfo.java" result="NOOP"/>
         <file path="src/main/java/oshi/driver/linux/proc/package-info.java" result="NOOP"/>
         <file path="src/main/java/oshi/driver/mac/ThreadInfo.java" result="NOOP"/>
         <file path="src/main/java/oshi/driver/mac/Who.java" result="NOOP"/>
@@ -265,6 +264,8 @@
         <file path="src/main/java/oshi/jna/platform/unix/AixLibc.java" result="NOOP"/>
         <file path="src/main/java/oshi/jna/platform/unix/CLibrary.java" result="NOOP"/>
         <file path="src/main/java/oshi/jna/platform/unix/FreeBsdLibc.java" result="NOOP"/>
+        <file path="src/main/java/oshi/jna/platform/unix/Kstat2.java" result="NOOP"/>
+        <file path="src/main/java/oshi/jna/platform/unix/Kstat2StatusException.java" result="NOOP"/>
         <file path="src/main/java/oshi/jna/platform/unix/OpenBsdLibc.java" result="NOOP"/>
         <file path="src/main/java/oshi/jna/platform/unix/SolarisLibc.java" result="NOOP"/>
         <file path="src/main/java/oshi/jna/platform/unix/package-info.java" result="NOOP"/>
@@ -356,9 +357,9 @@
         <file path="src/main/java/oshi/util/FileUtil.java" result="NOOP"/>
         <file path="src/main/java/oshi/util/FormatUtil.java" result="NOOP"/>
         <file path="src/main/java/oshi/util/GlobalConfig.java" result="NOOP"/>
-        <file path="src/main/java/oshi/util/LsofUtil.java" result="NOOP"/>
         <file path="src/main/java/oshi/util/Memoizer.java" result="NOOP"/>
         <file path="src/main/java/oshi/util/ParseUtil.java" result="NOOP"/>
+        <file path="src/main/java/oshi/util/UserGroupInfo.java" result="NOOP"/>
         <file path="src/main/java/oshi/util/Util.java" result="NOOP"/>
         <file path="src/main/java/oshi/util/package-info.java" result="NOOP"/>
         <file path="src/main/java/oshi/util/platform/linux/ProcPath.java" result="NOOP"/>
@@ -427,7 +428,6 @@
         <file path="src/test/java/oshi/util/FormatUtilTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/FstatUtilTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/GlobalConfigTest.java" result="NOOP"/>
-        <file path="src/test/java/oshi/util/LsofUtilTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/MemoizerTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/ParseUtilTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/ProcstatUtilTest.java" result="NOOP"/>
