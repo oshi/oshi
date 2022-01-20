@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WmiQueryHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.windows</a> &gt; <span class="el_source">WmiQueryHandler.java</span></div><h1>WmiQueryHandler.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -176,11 +176,12 @@ import oshi.util.GlobalConfig;
             }
 <span class="nc" id="L177">        } catch (TimeoutException e) {</span>
 <span class="nc" id="L178">            LOG.warn(&quot;WMI query timed out after {} ms: {}&quot;, wmiTimeout, WmiUtil.queryToString(query));</span>
-<span class="nc" id="L179">        }</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (comInit) {</span>
-<span class="nc" id="L181">            unInitCOM();</span>
+        } finally {
+<span class="nc bnc" id="L180" title="All 2 branches missed.">            if (comInit) {</span>
+<span class="nc" id="L181">                unInitCOM();</span>
+            }
         }
-<span class="nc" id="L183">        return result;</span>
+<span class="nc" id="L184">        return result;</span>
     }
 
     /**
@@ -193,10 +194,10 @@ import oshi.util.GlobalConfig;
      *            a {@link com.sun.jna.platform.win32.COM.COMException} object.
      */
     protected void handleComException(WbemcliUtil.WmiQuery&lt;?&gt; query, COMException ex) {
-<span class="nc" id="L196">        LOG.warn(</span>
+<span class="nc" id="L197">        LOG.warn(</span>
                 &quot;COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was {}: {}&quot;,
-<span class="nc" id="L198">                query.getWmiClassName(), ex.getHresult().intValue(), ex.getMessage());</span>
-<span class="nc" id="L199">    }</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                query.getWmiClassName(), ex.getHresult() == null ? null : ex.getHresult().intValue(), ex.getMessage());</span>
+<span class="nc" id="L200">    }</span>
 
     /**
      * Initializes COM library and sets security to impersonate the local user
@@ -205,27 +206,27 @@ import oshi.util.GlobalConfig;
      *         otherwise
      */
     public boolean initCOM() {
-<span class="nc" id="L208">        boolean comInit = false;</span>
+<span class="nc" id="L209">        boolean comInit = false;</span>
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-<span class="nc" id="L211">        comInit = initCOM(getComThreading());</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (!comInit) {</span>
-<span class="nc" id="L213">            comInit = initCOM(switchComThreading());</span>
+<span class="nc" id="L212">        comInit = initCOM(getComThreading());</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        if (!comInit) {</span>
+<span class="nc" id="L214">            comInit = initCOM(switchComThreading());</span>
         }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
-<span class="nc bnc" id="L217" title="All 4 branches missed.">        if (comInit &amp;&amp; !isSecurityInitialized()) {</span>
-<span class="nc" id="L218">            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null,</span>
+<span class="nc bnc" id="L218" title="All 4 branches missed.">        if (comInit &amp;&amp; !isSecurityInitialized()) {</span>
+<span class="nc" id="L219">            WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeSecurity(null, -1, null, null,</span>
                     Ole32.RPC_C_AUTHN_LEVEL_DEFAULT, Ole32.RPC_C_IMP_LEVEL_IMPERSONATE, null, Ole32.EOAC_NONE, null);
             // If security already initialized we get RPC_E_TOO_LATE
             // This can be safely ignored
-<span class="nc bnc" id="L222" title="All 4 branches missed.">            if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {</span>
-<span class="nc" id="L223">                Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L224">                throw new COMException(&quot;Failed to initialize security.&quot;, hres);</span>
+<span class="nc bnc" id="L223" title="All 4 branches missed.">            if (COMUtils.FAILED(hres) &amp;&amp; hres.intValue() != WinError.RPC_E_TOO_LATE) {</span>
+<span class="nc" id="L224">                Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L225">                throw new COMException(&quot;Failed to initialize security.&quot;, hres);</span>
             }
-<span class="nc" id="L226">            securityInitialized = true;</span>
+<span class="nc" id="L227">            securityInitialized = true;</span>
         }
-<span class="nc" id="L228">        return comInit;</span>
+<span class="nc" id="L229">        return comInit;</span>
     }
 
     /**
@@ -237,19 +238,19 @@ import oshi.util.GlobalConfig;
      *         otherwise
      */
     protected boolean initCOM(int coInitThreading) {
-<span class="nc" id="L240">        WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);</span>
-<span class="nc bnc" id="L241" title="All 3 branches missed.">        switch (hres.intValue()) {</span>
+<span class="nc" id="L241">        WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);</span>
+<span class="nc bnc" id="L242" title="All 3 branches missed.">        switch (hres.intValue()) {</span>
         // Successful local initialization (S_OK) or was already initialized
         // (S_FALSE) but still needs uninit
         case COMUtils.S_OK:
         case COMUtils.S_FALSE:
-<span class="nc" id="L246">            return true;</span>
+<span class="nc" id="L247">            return true;</span>
         // COM was already initialized with a different threading model
         case WinError.RPC_E_CHANGED_MODE:
-<span class="nc" id="L249">            return false;</span>
+<span class="nc" id="L250">            return false;</span>
         // Any other results is impossible
         default:
-<span class="nc" id="L252">            throw new COMException(&quot;Failed to initialize COM library.&quot;, hres);</span>
+<span class="nc" id="L253">            throw new COMException(&quot;Failed to initialize COM library.&quot;, hres);</span>
         }
     }
 
@@ -258,8 +259,8 @@ import oshi.util.GlobalConfig;
      * call to initCOM.
      */
     public void unInitCOM() {
-<span class="nc" id="L261">        Ole32.INSTANCE.CoUninitialize();</span>
-<span class="nc" id="L262">    }</span>
+<span class="nc" id="L262">        Ole32.INSTANCE.CoUninitialize();</span>
+<span class="nc" id="L263">    }</span>
 
     /**
      * Returns the current threading model for COM initialization, as OSHI is
@@ -268,7 +269,7 @@ import oshi.util.GlobalConfig;
      * @return The current threading model
      */
     public int getComThreading() {
-<span class="nc" id="L271">        return comThreading;</span>
+<span class="nc" id="L272">        return comThreading;</span>
     }
 
     /**
@@ -278,12 +279,12 @@ import oshi.util.GlobalConfig;
      * @return The new threading model after switching
      */
     public int switchComThreading() {
-<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (comThreading == Ole32.COINIT_APARTMENTTHREADED) {</span>
-<span class="nc" id="L282">            comThreading = Ole32.COINIT_MULTITHREADED;</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">        if (comThreading == Ole32.COINIT_APARTMENTTHREADED) {</span>
+<span class="nc" id="L283">            comThreading = Ole32.COINIT_MULTITHREADED;</span>
         } else {
-<span class="nc" id="L284">            comThreading = Ole32.COINIT_APARTMENTTHREADED;</span>
+<span class="nc" id="L285">            comThreading = Ole32.COINIT_APARTMENTTHREADED;</span>
         }
-<span class="nc" id="L286">        return comThreading;</span>
+<span class="nc" id="L287">        return comThreading;</span>
     }
 
     /**
@@ -293,7 +294,7 @@ import oshi.util.GlobalConfig;
      * @return Returns the securityInitialized.
      */
     public boolean isSecurityInitialized() {
-<span class="nc" id="L296">        return securityInitialized;</span>
+<span class="nc" id="L297">        return securityInitialized;</span>
     }
 
     /**
@@ -303,7 +304,7 @@ import oshi.util.GlobalConfig;
      * @return Returns the current value of wmiTimeout.
      */
     public int getWmiTimeout() {
-<span class="nc" id="L306">        return wmiTimeout;</span>
+<span class="nc" id="L307">        return wmiTimeout;</span>
     }
 
     /**
@@ -315,7 +316,7 @@ import oshi.util.GlobalConfig;
      *            timeout as -1 (infinite).
      */
     public void setWmiTimeout(int wmiTimeout) {
-<span class="nc" id="L318">        this.wmiTimeout = wmiTimeout;</span>
-<span class="nc" id="L319">    }</span>
+<span class="nc" id="L319">        this.wmiTimeout = wmiTimeout;</span>
+<span class="nc" id="L320">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

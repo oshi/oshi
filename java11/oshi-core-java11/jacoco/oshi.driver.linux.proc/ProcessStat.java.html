@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProcessStat.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.linux.proc</a> &gt; <span class="el_source">ProcessStat.java</span></div><h1>ProcessStat.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -53,7 +54,6 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class ProcessStat {
 
-<span class="nc" id="L56">    private static final Pattern DIGITS = Pattern.compile(&quot;\\d+&quot;);</span>
 <span class="nc" id="L57">    private static final Pattern SOCKET = Pattern.compile(&quot;socket:\\[(\\d+)\\]&quot;);</span>
 
     /**
@@ -383,7 +383,7 @@ public final class ProcessStat {
     public static final int PROC_PID_STAT_LENGTH;
     static {
 <span class="nc" id="L385">        String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);</span>
-<span class="nc bnc" id="L386" title="All 4 branches missed.">        if (!stat.isEmpty() &amp;&amp; stat.contains(&quot;)&quot;)) {</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        if (stat.contains(&quot;)&quot;)) {</span>
             // add 3 to account for pid, process name in prarenthesis, and state
 <span class="nc" id="L388">            PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;</span>
         } else {
@@ -517,7 +517,7 @@ public final class ProcessStat {
 
     private static File[] listNumericFiles(String path) {
 <span class="nc" id="L519">        File directory = new File(path);</span>
-<span class="nc" id="L520">        File[] numericFiles = directory.listFiles(file -&gt; DIGITS.matcher(file.getName()).matches());</span>
+<span class="nc" id="L520">        File[] numericFiles = directory.listFiles(file -&gt; Constants.DIGITS.matcher(file.getName()).matches());</span>
 <span class="nc bnc" id="L521" title="All 2 branches missed.">        return numericFiles == null ? new File[0] : numericFiles;</span>
     }
 
@@ -555,4 +555,4 @@ public final class ProcessStat {
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

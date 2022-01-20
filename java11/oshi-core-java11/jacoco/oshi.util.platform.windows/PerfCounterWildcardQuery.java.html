@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PerfCounterWildcardQuery.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.windows</a> &gt; <span class="el_source">PerfCounterWildcardQuery.java</span></div><h1>PerfCounterWildcardQuery.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,10 +53,10 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class PerfCounterWildcardQuery {
 
-<span class="nc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);</span>
+<span class="nc" id="L56">    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);</span>
 
     // Use a thread safe set to cache failed pdh queries
-<span class="nc" id="L58">    private static final Set&lt;String&gt; failedQueryCache = ConcurrentHashMap.newKeySet();</span>
+<span class="nc" id="L59">    private static final Set&lt;String&gt; FAILED_QUERY_CACHE = ConcurrentHashMap.newKeySet();</span>
 
     private PerfCounterWildcardQuery() {
     }
@@ -82,17 +83,17 @@ public final class PerfCounterWildcardQuery {
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; Pair&lt;List&lt;String&gt;, Map&lt;T, List&lt;Long&gt;&gt;&gt; queryInstancesAndValues(
             Class&lt;T&gt; propertyEnum, String perfObject, String perfWmiClass) {
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (!failedQueryCache.contains(perfObject)) {</span>
-<span class="nc" id="L86">            Pair&lt;List&lt;String&gt;, Map&lt;T, List&lt;Long&gt;&gt;&gt; instancesAndValuesMap = queryInstancesAndValuesFromPDH(propertyEnum,</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (!FAILED_QUERY_CACHE.contains(perfObject)) {</span>
+<span class="nc" id="L87">            Pair&lt;List&lt;String&gt;, Map&lt;T, List&lt;Long&gt;&gt;&gt; instancesAndValuesMap = queryInstancesAndValuesFromPDH(propertyEnum,</span>
                     perfObject);
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (!instancesAndValuesMap.getA().isEmpty()) {</span>
-<span class="nc" id="L89">                return instancesAndValuesMap;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (!instancesAndValuesMap.getA().isEmpty()) {</span>
+<span class="nc" id="L90">                return instancesAndValuesMap;</span>
             }
             // If we are here, query failed
-<span class="nc" id="L92">            LOG.warn(&quot;Disabling further attempts to query {}.&quot;, perfObject);</span>
-<span class="nc" id="L93">            failedQueryCache.add(perfObject);</span>
+<span class="nc" id="L93">            LOG.warn(&quot;Disabling further attempts to query {}.&quot;, perfObject);</span>
+<span class="nc" id="L94">            FAILED_QUERY_CACHE.add(perfObject);</span>
         }
-<span class="nc" id="L95">        return queryInstancesAndValuesFromWMI(propertyEnum, perfWmiClass);</span>
+<span class="nc" id="L96">        return queryInstancesAndValuesFromWMI(propertyEnum, perfWmiClass);</span>
     }
 
     /**
@@ -115,58 +116,58 @@ public final class PerfCounterWildcardQuery {
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; Pair&lt;List&lt;String&gt;, Map&lt;T, List&lt;Long&gt;&gt;&gt; queryInstancesAndValuesFromPDH(
             Class&lt;T&gt; propertyEnum, String perfObject) {
-<span class="nc" id="L118">        T[] props = propertyEnum.getEnumConstants();</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (props.length &lt; 2) {</span>
-<span class="nc" id="L120">            throw new IllegalArgumentException(&quot;Enum &quot; + propertyEnum.getName()</span>
+<span class="nc" id="L119">        T[] props = propertyEnum.getEnumConstants();</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (props.length &lt; 2) {</span>
+<span class="nc" id="L121">            throw new IllegalArgumentException(&quot;Enum &quot; + propertyEnum.getName()</span>
                     + &quot; must have at least two elements, an instance filter and a counter.&quot;);
         }
-<span class="nc" id="L123">        String instanceFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()</span>
-<span class="nc" id="L124">                .toLowerCase();</span>
+<span class="nc" id="L124">        String instanceFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()</span>
+<span class="nc" id="L125">                .toLowerCase();</span>
         // If pre-Vista, localize the perfObject
-<span class="nc" id="L126">        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);</span>
+<span class="nc" id="L127">        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);</span>
 
         // Get list of instances
         final PdhEnumObjectItems objectItems;
         try {
-<span class="nc" id="L131">            objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);</span>
-<span class="nc" id="L132">        } catch (PdhException e) {</span>
-<span class="nc" id="L133">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
-<span class="nc" id="L134">        }</span>
-<span class="nc" id="L135">        List&lt;String&gt; instances = objectItems.getInstances();</span>
+<span class="nc" id="L132">            objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);</span>
+<span class="nc" id="L133">        } catch (PdhException e) {</span>
+<span class="nc" id="L134">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+<span class="nc" id="L135">        }</span>
+<span class="nc" id="L136">        List&lt;String&gt; instances = objectItems.getInstances();</span>
         // Filter out instances not matching filter
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        instances.removeIf(i -&gt; !Util.wildcardMatch(i.toLowerCase(), instanceFilter));</span>
-<span class="nc" id="L138">        EnumMap&lt;T, List&lt;Long&gt;&gt; valuesMap = new EnumMap&lt;&gt;(propertyEnum);</span>
-<span class="nc" id="L139">        try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        instances.removeIf(i -&gt; !Util.wildcardMatch(i.toLowerCase(), instanceFilter));</span>
+<span class="nc" id="L139">        EnumMap&lt;T, List&lt;Long&gt;&gt; valuesMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L140">        try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {</span>
             // Set up the query and counter handles
-<span class="nc" id="L141">            EnumMap&lt;T, List&lt;PerfCounter&gt;&gt; counterListMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L142">            EnumMap&lt;T, List&lt;PerfCounter&gt;&gt; counterListMap = new EnumMap&lt;&gt;(propertyEnum);</span>
             // Start at 1, first counter defines instance filter
-<span class="nc bnc" id="L143" title="All 2 branches missed.">            for (int i = 1; i &lt; props.length; i++) {</span>
-<span class="nc" id="L144">                T prop = props[i];</span>
-<span class="nc" id="L145">                List&lt;PerfCounter&gt; counterList = new ArrayList&lt;&gt;(instances.size());</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">                for (String instance : instances) {</span>
-<span class="nc" id="L147">                    PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,</span>
-<span class="nc" id="L148">                            ((PdhCounterWildcardProperty) prop).getCounter());</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">                    if (!pdhQueryHandler.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L150">                        return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            for (int i = 1; i &lt; props.length; i++) {</span>
+<span class="nc" id="L145">                T prop = props[i];</span>
+<span class="nc" id="L146">                List&lt;PerfCounter&gt; counterList = new ArrayList&lt;&gt;(instances.size());</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">                for (String instance : instances) {</span>
+<span class="nc" id="L148">                    PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,</span>
+<span class="nc" id="L149">                            ((PdhCounterWildcardProperty) prop).getCounter());</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                    if (!pdhQueryHandler.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L151">                        return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
                     }
-<span class="nc" id="L152">                    counterList.add(counter);</span>
-<span class="nc" id="L153">                }</span>
-<span class="nc" id="L154">                counterListMap.put(prop, counterList);</span>
+<span class="nc" id="L153">                    counterList.add(counter);</span>
+<span class="nc" id="L154">                }</span>
+<span class="nc" id="L155">                counterListMap.put(prop, counterList);</span>
             }
             // And then query. Zero timestamp means update failed
-<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (0 &lt; pdhQueryHandler.updateQuery()) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (0 &lt; pdhQueryHandler.updateQuery()) {</span>
                 // Start at 1, first counter defines instance filter
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                for (int i = 1; i &lt; props.length; i++) {</span>
-<span class="nc" id="L160">                    T prop = props[i];</span>
-<span class="nc" id="L161">                    List&lt;Long&gt; values = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">                    for (PerfCounter counter : counterListMap.get(prop)) {</span>
-<span class="nc" id="L163">                        values.add(pdhQueryHandler.queryCounter(counter));</span>
-<span class="nc" id="L164">                    }</span>
-<span class="nc" id="L165">                    valuesMap.put(prop, values);</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">                for (int i = 1; i &lt; props.length; i++) {</span>
+<span class="nc" id="L161">                    T prop = props[i];</span>
+<span class="nc" id="L162">                    List&lt;Long&gt; values = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                    for (PerfCounter counter : counterListMap.get(prop)) {</span>
+<span class="nc" id="L164">                        values.add(pdhQueryHandler.queryCounter(counter));</span>
+<span class="nc" id="L165">                    }</span>
+<span class="nc" id="L166">                    valuesMap.put(prop, values);</span>
                 }
             }
-<span class="nc" id="L168">        }</span>
-<span class="nc" id="L169">        return new Pair&lt;&gt;(instances, valuesMap);</span>
+<span class="nc" id="L169">        }</span>
+<span class="nc" id="L170">        return new Pair&lt;&gt;(instances, valuesMap);</span>
     }
 
     /**
@@ -188,42 +189,42 @@ public final class PerfCounterWildcardQuery {
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; Pair&lt;List&lt;String&gt;, Map&lt;T, List&lt;Long&gt;&gt;&gt; queryInstancesAndValuesFromWMI(
             Class&lt;T&gt; propertyEnum, String wmiClass) {
-<span class="nc" id="L191">        List&lt;String&gt; instances = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L192">        EnumMap&lt;T, List&lt;Long&gt;&gt; valuesMap = new EnumMap&lt;&gt;(propertyEnum);</span>
-<span class="nc" id="L193">        WmiQuery&lt;T&gt; query = new WmiQuery&lt;&gt;(wmiClass, propertyEnum);</span>
-<span class="nc" id="L194">        WmiResult&lt;T&gt; result = WmiQueryHandler.createInstance().queryWMI(query);</span>
-<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">            for (T prop : propertyEnum.getEnumConstants()) {</span>
+<span class="nc" id="L192">        List&lt;String&gt; instances = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L193">        EnumMap&lt;T, List&lt;Long&gt;&gt; valuesMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L194">        WmiQuery&lt;T&gt; query = new WmiQuery&lt;&gt;(wmiClass, propertyEnum);</span>
+<span class="nc" id="L195">        WmiResult&lt;T&gt; result = Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query);</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            for (T prop : propertyEnum.getEnumConstants()) {</span>
                 // First element is instance name
-<span class="nc bnc" id="L198" title="All 2 branches missed.">                if (prop.ordinal() == 0) {</span>
-<span class="nc bnc" id="L199" title="All 2 branches missed.">                    for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
-<span class="nc" id="L200">                        instances.add(WmiUtil.getString(result, prop, i));</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                if (prop.ordinal() == 0) {</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">                    for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
+<span class="nc" id="L201">                        instances.add(WmiUtil.getString(result, prop, i));</span>
                     }
                 } else {
-<span class="nc" id="L203">                    List&lt;Long&gt; values = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">                    for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
-<span class="nc bnc" id="L205" title="All 5 branches missed.">                        switch (result.getCIMType(prop)) {</span>
+<span class="nc" id="L204">                    List&lt;Long&gt; values = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                    for (int i = 0; i &lt; result.getResultCount(); i++) {</span>
+<span class="nc bnc" id="L206" title="All 5 branches missed.">                        switch (result.getCIMType(prop)) {</span>
                         case Wbemcli.CIM_UINT16:
-<span class="nc" id="L207">                            values.add(Long.valueOf(WmiUtil.getUint16(result, prop, i)));</span>
-<span class="nc" id="L208">                            break;</span>
+<span class="nc" id="L208">                            values.add((long) WmiUtil.getUint16(result, prop, i));</span>
+<span class="nc" id="L209">                            break;</span>
                         case Wbemcli.CIM_UINT32:
-<span class="nc" id="L210">                            values.add(WmiUtil.getUint32asLong(result, prop, i));</span>
-<span class="nc" id="L211">                            break;</span>
+<span class="nc" id="L211">                            values.add(WmiUtil.getUint32asLong(result, prop, i));</span>
+<span class="nc" id="L212">                            break;</span>
                         case Wbemcli.CIM_UINT64:
-<span class="nc" id="L213">                            values.add(WmiUtil.getUint64(result, prop, i));</span>
-<span class="nc" id="L214">                            break;</span>
+<span class="nc" id="L214">                            values.add(WmiUtil.getUint64(result, prop, i));</span>
+<span class="nc" id="L215">                            break;</span>
                         case Wbemcli.CIM_DATETIME:
-<span class="nc" id="L216">                            values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());</span>
-<span class="nc" id="L217">                            break;</span>
+<span class="nc" id="L217">                            values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());</span>
+<span class="nc" id="L218">                            break;</span>
                         default:
-<span class="nc" id="L219">                            throw new ClassCastException(&quot;Unimplemented CIM Type Mapping.&quot;);</span>
+<span class="nc" id="L220">                            throw new ClassCastException(&quot;Unimplemented CIM Type Mapping.&quot;);</span>
                         }
                     }
-<span class="nc" id="L222">                    valuesMap.put(prop, values);</span>
+<span class="nc" id="L223">                    valuesMap.put(prop, values);</span>
                 }
             }
         }
-<span class="nc" id="L226">        return new Pair&lt;&gt;(instances, valuesMap);</span>
+<span class="nc" id="L227">        return new Pair&lt;&gt;(instances, valuesMap);</span>
     }
 
     /**
@@ -238,4 +239,4 @@ public final class PerfCounterWildcardQuery {
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

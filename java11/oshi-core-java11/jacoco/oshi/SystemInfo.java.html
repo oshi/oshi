@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SystemInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi</a> &gt; <span class="el_source">SystemInfo.java</span></div><h1>SystemInfo.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -23,8 +23,6 @@
  */
 package oshi;
 
-import static oshi.PlatformEnum.MACOS;
-import static oshi.PlatformEnum.MACOSX;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
@@ -59,13 +57,13 @@ public class SystemInfo {
 
     // The platform isn't going to change, and making this static enables easy
     // access from outside this class
-<span class="fc" id="L62">    private static final PlatformEnum currentPlatform = PlatformEnum.getValue(Platform.getOSType());</span>
+<span class="fc" id="L60">    private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());</span>
 
     private static final String NOT_SUPPORTED = &quot;Operating system not supported: &quot;;
 
-<span class="fc" id="L66">    private final Supplier&lt;OperatingSystem&gt; os = memoize(SystemInfo::createOperatingSystem);</span>
+<span class="fc" id="L64">    private final Supplier&lt;OperatingSystem&gt; os = memoize(SystemInfo::createOperatingSystem);</span>
 
-<span class="fc" id="L68">    private final Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(SystemInfo::createHardware);</span>
+<span class="fc" id="L66">    private final Supplier&lt;HardwareAbstractionLayer&gt; hardware = memoize(SystemInfo::createHardware);</span>
 
     /**
      * Create a new instance of {@link SystemInfo}. This is the main entry point to
@@ -77,9 +75,9 @@ public class SystemInfo {
      * processing time at the cost of additional memory usage, re-use the same
      * {@link SystemInfo} object for future queries.
      */
-<span class="fc" id="L80">    public SystemInfo() {</span>
+<span class="fc" id="L78">    public SystemInfo() {</span>
         // Intentionally empty, here to enable the constructor javadoc.
-<span class="fc" id="L82">    }</span>
+<span class="fc" id="L80">    }</span>
 
     /**
      * Gets the {@link PlatformEnum} value representing this system.
@@ -87,19 +85,7 @@ public class SystemInfo {
      * @return Returns the current platform
      */
     public static PlatformEnum getCurrentPlatform() {
-<span class="fc" id="L90">        return currentPlatform;</span>
-    }
-
-    /**
-     * Gets the {@link PlatformEnum} value representing this system.
-     *
-     * @return Returns the current platform
-     * @deprecated Use {@link #getCurrentPlatform()}
-     */
-    @Deprecated
-    public static PlatformEnum getCurrentPlatformEnum() {
-<span class="nc" id="L101">        PlatformEnum platform = getCurrentPlatform();</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        return platform.equals(MACOS) ? MACOSX : platform;</span>
+<span class="fc" id="L88">        return CURRENT_PLATFORM;</span>
     }
 
     /**
@@ -109,27 +95,27 @@ public class SystemInfo {
      * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
     public OperatingSystem getOperatingSystem() {
-<span class="fc" id="L112">        return os.get();</span>
+<span class="fc" id="L98">        return os.get();</span>
     }
 
     private static OperatingSystem createOperatingSystem() {
-<span class="pc bpc" id="L116" title="7 of 8 branches missed.">        switch (currentPlatform) {</span>
+<span class="pc bpc" id="L102" title="7 of 8 branches missed.">        switch (CURRENT_PLATFORM) {</span>
         case WINDOWS:
-<span class="nc" id="L118">            return new WindowsOperatingSystem();</span>
+<span class="nc" id="L104">            return new WindowsOperatingSystem();</span>
         case LINUX:
-<span class="nc" id="L120">            return new LinuxOperatingSystem();</span>
+<span class="nc" id="L106">            return new LinuxOperatingSystem();</span>
         case MACOS:
-<span class="fc" id="L122">            return new MacOperatingSystem();</span>
+<span class="fc" id="L108">            return new MacOperatingSystem();</span>
         case SOLARIS:
-<span class="nc" id="L124">            return new SolarisOperatingSystem();</span>
+<span class="nc" id="L110">            return new SolarisOperatingSystem();</span>
         case FREEBSD:
-<span class="nc" id="L126">            return new FreeBsdOperatingSystem();</span>
+<span class="nc" id="L112">            return new FreeBsdOperatingSystem();</span>
         case AIX:
-<span class="nc" id="L128">            return new AixOperatingSystem();</span>
+<span class="nc" id="L114">            return new AixOperatingSystem();</span>
         case OPENBSD:
-<span class="nc" id="L130">            return new OpenBsdOperatingSystem();</span>
+<span class="nc" id="L116">            return new OpenBsdOperatingSystem();</span>
         default:
-<span class="nc" id="L132">            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());</span>
+<span class="nc" id="L118">            throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());</span>
         }
     }
 
@@ -140,28 +126,28 @@ public class SystemInfo {
      * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */
     public HardwareAbstractionLayer getHardware() {
-<span class="fc" id="L143">        return hardware.get();</span>
+<span class="fc" id="L129">        return hardware.get();</span>
     }
 
     private static HardwareAbstractionLayer createHardware() {
-<span class="pc bpc" id="L147" title="7 of 8 branches missed.">        switch (currentPlatform) {</span>
+<span class="pc bpc" id="L133" title="7 of 8 branches missed.">        switch (CURRENT_PLATFORM) {</span>
         case WINDOWS:
-<span class="nc" id="L149">            return new WindowsHardwareAbstractionLayer();</span>
+<span class="nc" id="L135">            return new WindowsHardwareAbstractionLayer();</span>
         case LINUX:
-<span class="nc" id="L151">            return new LinuxHardwareAbstractionLayer();</span>
+<span class="nc" id="L137">            return new LinuxHardwareAbstractionLayer();</span>
         case MACOS:
-<span class="fc" id="L153">            return new MacHardwareAbstractionLayer();</span>
+<span class="fc" id="L139">            return new MacHardwareAbstractionLayer();</span>
         case SOLARIS:
-<span class="nc" id="L155">            return new SolarisHardwareAbstractionLayer();</span>
+<span class="nc" id="L141">            return new SolarisHardwareAbstractionLayer();</span>
         case FREEBSD:
-<span class="nc" id="L157">            return new FreeBsdHardwareAbstractionLayer();</span>
+<span class="nc" id="L143">            return new FreeBsdHardwareAbstractionLayer();</span>
         case AIX:
-<span class="nc" id="L159">            return new AixHardwareAbstractionLayer();</span>
+<span class="nc" id="L145">            return new AixHardwareAbstractionLayer();</span>
         case OPENBSD:
-<span class="nc" id="L161">            return new OpenBsdHardwareAbstractionLayer();</span>
+<span class="nc" id="L147">            return new OpenBsdHardwareAbstractionLayer();</span>
         default:
-<span class="nc" id="L163">            throw new UnsupportedOperationException(NOT_SUPPORTED + currentPlatform.getName());</span>
+<span class="nc" id="L149">            throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());</span>
         }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

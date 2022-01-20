@@ -23,10 +23,10 @@ under the License.
     <link>https://github.com/oshi/oshi/oshi-core-java11</link>
     <description>oshi-core - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2010 - 2021 oshi</copyright>
+    <copyright>&#169;2010 - 2022 oshi</copyright>
     <item>
-      <title>File: 393,
-             Errors: 11894,
+      <title>File: 431,
+             Errors: 0,
              Warnings: 0,
              Infos: 0
       </title>
@@ -55,7 +55,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.software.os.NetworkParamsTest.java">oshi/software/os/NetworkParamsTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -69,7 +83,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  0
                 </td>
               </tr>
                           <tr>
@@ -83,7 +97,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  0
                 </td>
               </tr>
                           <tr>
@@ -97,7 +111,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -111,7 +125,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  0
                 </td>
               </tr>
                           <tr>
@@ -125,7 +139,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  0
                 </td>
               </tr>
                           <tr>
@@ -139,7 +153,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -153,7 +167,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -167,7 +181,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -181,7 +195,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  0
                 </td>
               </tr>
                           <tr>
@@ -195,7 +209,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  19
+                  0
                 </td>
               </tr>
                           <tr>
@@ -209,7 +223,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.MemoizerTest.java">oshi/util/MemoizerTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -223,7 +251,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  0
                 </td>
               </tr>
                           <tr>
@@ -237,7 +265,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -251,7 +279,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.windows.wmi.WMIDriversTest.java">oshi/driver/windows/wmi/WMIDriversTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -265,21 +307,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  71
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.freebsd.FreeBsdLibc.java">oshi/jna/platform/unix/freebsd/FreeBsdLibc.java</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  55
                 </td>
               </tr>
                           <tr>
@@ -293,7 +321,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -307,7 +335,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -321,7 +349,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.FileSystemUtilTest.java">oshi/util/FileSystemUtilTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -335,7 +377,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
                 </td>
               </tr>
                           <tr>
@@ -349,7 +391,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  0
                 </td>
               </tr>
                           <tr>
@@ -363,7 +405,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -377,7 +419,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  118
+                  0
                 </td>
               </tr>
                           <tr>
@@ -391,7 +433,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -405,7 +447,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  53
+                  0
                 </td>
               </tr>
                           <tr>
@@ -419,7 +461,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  39
+                  0
                 </td>
               </tr>
                           <tr>
@@ -433,7 +475,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  109
+                  0
                 </td>
               </tr>
                           <tr>
@@ -447,7 +489,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  0
                 </td>
               </tr>
                           <tr>
@@ -461,7 +503,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
                 </td>
               </tr>
                           <tr>
@@ -475,7 +517,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  49
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.ExecutingCommandTest.java">oshi/util/ExecutingCommandTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -489,7 +545,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
                 </td>
               </tr>
                           <tr>
@@ -503,7 +559,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  0
                 </td>
               </tr>
                           <tr>
@@ -517,7 +573,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -531,7 +587,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -545,7 +601,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -559,7 +615,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  0
                 </td>
               </tr>
                           <tr>
@@ -573,12 +629,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  64
+                  0
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.proc.UserGroupInfo.java">oshi/driver/linux/proc/UserGroupInfo.java</a>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.UtilTest.java">oshi/util/UtilTest.java</a>
                 </td>
                 <td>
                   0
@@ -587,7 +643,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -601,7 +657,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.software.os.OperatingSystemTest.java">oshi/software/os/OperatingSystemTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -615,7 +685,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -629,7 +699,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -643,7 +713,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  43
+                  0
                 </td>
               </tr>
                           <tr>
@@ -657,7 +727,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  79
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.SensorsTest.java">oshi/hardware/SensorsTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.ParseUtilTest.java">oshi/util/ParseUtilTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -671,7 +769,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  0
                 </td>
               </tr>
                           <tr>
@@ -685,7 +783,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
                 </td>
               </tr>
                           <tr>
@@ -699,7 +797,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  169
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.GlobalMemoryTest.java">oshi/hardware/GlobalMemoryTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -713,7 +825,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  33
+                  0
                 </td>
               </tr>
                           <tr>
@@ -727,7 +839,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -741,7 +853,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  0
                 </td>
               </tr>
                           <tr>
@@ -755,7 +867,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -769,7 +881,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -783,7 +895,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -797,7 +909,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
@@ -811,7 +923,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  126
+                  0
                 </td>
               </tr>
                           <tr>
@@ -825,7 +937,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  108
+                  0
                 </td>
               </tr>
                           <tr>
@@ -839,7 +951,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -853,7 +965,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  0
                 </td>
               </tr>
                           <tr>
@@ -867,7 +979,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -881,7 +993,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  0
                 </td>
               </tr>
                           <tr>
@@ -895,7 +1007,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -909,7 +1021,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  0
                 </td>
               </tr>
                           <tr>
@@ -923,7 +1035,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -937,7 +1049,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  138
+                  0
                 </td>
               </tr>
                           <tr>
@@ -951,7 +1063,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
                 </td>
               </tr>
                           <tr>
@@ -965,7 +1077,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  19
+                  0
                 </td>
               </tr>
                           <tr>
@@ -979,35 +1091,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.linux.filename.properties">oshi.linux.filename.properties</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.aix.AixLibc.java">oshi/jna/platform/unix/aix/AixLibc.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  4
                 </td>
               </tr>
                           <tr>
@@ -1021,7 +1105,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1035,7 +1119,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  109
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1049,7 +1133,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  76
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1063,7 +1147,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1077,7 +1161,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1091,7 +1175,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1105,7 +1189,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1119,7 +1203,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  84
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1133,7 +1217,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  46
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1147,7 +1231,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1161,7 +1245,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  85
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1175,7 +1259,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  39
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.FreeBsdLibc.java">oshi/jna/platform/unix/FreeBsdLibc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1189,7 +1287,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  85
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1203,7 +1301,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1217,7 +1315,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1231,7 +1329,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1245,7 +1343,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1259,7 +1357,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  32
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1273,7 +1371,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1287,7 +1385,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1301,7 +1399,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1315,7 +1413,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1329,7 +1427,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1343,7 +1441,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1357,7 +1455,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1371,21 +1469,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.solaris.package-info.java">oshi/jna/platform/unix/solaris/package-info.java</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
                 </td>
               </tr>
                           <tr>
@@ -1399,7 +1483,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1413,7 +1497,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  111
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1427,7 +1511,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  21
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1441,7 +1525,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  51
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1455,7 +1539,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  68
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1469,7 +1553,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1483,7 +1567,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1497,7 +1581,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1511,7 +1595,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1525,7 +1609,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  61
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1539,7 +1623,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1553,7 +1637,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  218
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1567,21 +1651,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.openbsd.package-info.java">oshi/jna/platform/unix/openbsd/package-info.java</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
                 </td>
               </tr>
                           <tr>
@@ -1595,7 +1665,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.PowerSourceTest.java">oshi/hardware/PowerSourceTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1609,7 +1693,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1623,7 +1707,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1637,7 +1721,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  59
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1651,7 +1735,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  85
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1665,7 +1749,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1679,7 +1763,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1693,7 +1777,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  45
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1707,7 +1791,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  59
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1721,7 +1805,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1735,7 +1819,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  59
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1749,7 +1833,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1763,7 +1847,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.WhoTest.java">oshi/driver/linux/WhoTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1777,7 +1875,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1791,7 +1889,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1805,7 +1903,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1819,7 +1917,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  39
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1833,7 +1931,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.DmidecodeTest.java">oshi/driver/linux/DmidecodeTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1847,7 +1959,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1861,7 +1973,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  134
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1875,7 +1987,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  62
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1889,7 +2001,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1903,7 +2015,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1917,7 +2029,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1931,7 +2043,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1945,7 +2057,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1959,7 +2071,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  92
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1973,7 +2085,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  180
+                  0
                 </td>
               </tr>
                           <tr>
@@ -1987,7 +2099,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2001,7 +2113,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2015,7 +2127,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.LshalTest.java">oshi/driver/linux/LshalTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2029,7 +2155,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  64
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2043,7 +2169,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.software.os.FileSystemTest.java">oshi/software/os/FileSystemTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2057,7 +2197,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2071,7 +2211,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2085,7 +2225,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2099,7 +2239,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  14
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2113,7 +2253,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2127,7 +2267,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2141,7 +2281,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.TestConstants.java">oshi/TestConstants.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2155,7 +2309,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2169,7 +2323,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2183,7 +2337,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2197,7 +2351,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2211,7 +2365,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  71
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2225,7 +2379,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  146
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2239,7 +2393,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2253,7 +2407,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2267,7 +2421,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2281,7 +2435,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  99
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2295,7 +2449,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2309,7 +2463,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2323,7 +2477,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2337,7 +2491,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2351,7 +2505,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2365,26 +2519,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.ParseUtil.java">oshi/util/ParseUtil.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  339
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.architecture.properties">oshi.architecture.properties</a>
                 </td>
                 <td>
                   0
@@ -2407,7 +2547,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2421,7 +2561,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  91
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2435,7 +2575,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.Kstat2.java">oshi/jna/platform/unix/Kstat2.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2449,7 +2603,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  120
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2463,7 +2617,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2477,7 +2631,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2491,7 +2645,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2505,7 +2659,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2519,7 +2673,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  26
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2533,7 +2687,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2547,7 +2701,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2561,7 +2715,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  28
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2575,7 +2729,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  42
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2589,7 +2743,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2603,7 +2757,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2617,7 +2771,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2631,7 +2785,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  49
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2645,7 +2799,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  27
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2659,7 +2813,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  125
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2673,7 +2827,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.DevicetreeTest.java">oshi/driver/linux/DevicetreeTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2687,7 +2855,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  58
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.ProcstatUtilTest.java">oshi/util/ProcstatUtilTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2701,7 +2883,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  152
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2715,7 +2897,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2729,7 +2911,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  52
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2743,7 +2925,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2757,7 +2939,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.DisplayTest.java">oshi/hardware/DisplayTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.TupleTest.java">oshi/util/TupleTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2771,7 +2981,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2785,7 +2995,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2799,7 +3009,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2813,7 +3023,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2827,7 +3037,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2841,7 +3051,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2855,7 +3065,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2869,7 +3079,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2883,7 +3093,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2897,7 +3107,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2911,7 +3121,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  45
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2925,7 +3135,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2939,7 +3149,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2953,7 +3163,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2967,7 +3177,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2981,7 +3191,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -2995,7 +3205,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3009,7 +3219,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  41
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.CentralProcessorTest.java">oshi/hardware/CentralProcessorTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3023,7 +3247,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  52
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3037,7 +3261,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  28
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3051,7 +3275,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3065,7 +3289,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  19
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3079,7 +3303,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3093,7 +3317,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3107,7 +3331,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3121,7 +3345,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.software.os.InternetProtocolStatsTest.java">oshi/software/os/InternetProtocolStatsTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.AixLibc.java">oshi/jna/platform/unix/AixLibc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3135,7 +3387,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  64
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3149,7 +3401,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.GraphicsCardTest.java">oshi/hardware/GraphicsCardTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.GlobalConfigTest.java">oshi/util/GlobalConfigTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3163,7 +3443,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3177,7 +3457,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  86
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3191,7 +3471,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3205,7 +3485,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3219,7 +3499,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3233,7 +3513,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3247,7 +3527,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.UsbDeviceTest.java">oshi/hardware/UsbDeviceTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3261,7 +3555,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.mac.WhoTest.java">oshi/driver/mac/WhoTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3275,7 +3583,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3289,7 +3597,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  37
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3303,7 +3611,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3317,7 +3625,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3331,7 +3639,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.SoundCardTest.java">oshi/hardware/SoundCardTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3345,7 +3667,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3359,7 +3681,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3373,7 +3695,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3387,7 +3709,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3401,7 +3723,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.FileUtilTest.java">oshi/util/FileUtilTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3415,7 +3751,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3429,7 +3765,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3443,7 +3779,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3457,7 +3793,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  40
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3471,7 +3807,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  54
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3485,7 +3821,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  44
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3499,7 +3835,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3513,7 +3849,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3527,7 +3863,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  19
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3541,7 +3877,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3555,7 +3891,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3569,7 +3905,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  59
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3583,7 +3919,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.NetworksTest.java">oshi/hardware/NetworksTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.SysfsTest.java">oshi/driver/linux/SysfsTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3597,7 +3961,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3611,7 +3975,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  47
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3625,7 +3989,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.EdidUtilTest.java">oshi/util/EdidUtilTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3639,7 +4017,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3653,7 +4031,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3667,7 +4045,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  24
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3681,7 +4059,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.OpenBsdLibc.java">oshi/jna/platform/unix/OpenBsdLibc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3695,7 +4087,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3709,21 +4101,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.vmmacaddr.properties">oshi.vmmacaddr.properties</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
                 </td>
               </tr>
                           <tr>
@@ -3737,7 +4115,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3751,7 +4129,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3765,7 +4143,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3779,7 +4157,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  45
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3793,7 +4171,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  51
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3807,7 +4185,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3821,7 +4199,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  115
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3835,7 +4213,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.proc.CpuInfoTest.java">oshi/driver/linux/proc/CpuInfoTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3849,7 +4241,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3863,7 +4255,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  66
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3877,7 +4269,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3891,7 +4283,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.FstatUtilTest.java">oshi/util/FstatUtilTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3905,7 +4311,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.proc.UpTimeTest.java">oshi/driver/linux/proc/UpTimeTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3919,7 +4339,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3933,7 +4353,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  23
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3947,7 +4367,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3961,7 +4381,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3975,7 +4395,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  0
                 </td>
               </tr>
                           <tr>
@@ -3989,7 +4409,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4003,7 +4423,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4017,7 +4437,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4031,7 +4451,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  63
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4045,7 +4465,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.DisksTest.java">oshi/hardware/DisksTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4059,7 +4493,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4073,7 +4507,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4087,7 +4521,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4101,7 +4535,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4115,7 +4549,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.UserGroupInfo.java">oshi/util/UserGroupInfo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4129,7 +4577,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4143,7 +4591,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  75
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4157,7 +4605,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4171,7 +4619,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4185,7 +4633,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4199,7 +4647,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  128
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4213,7 +4661,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4227,7 +4675,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4241,7 +4689,35 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.proc.DiskStatsTest.java">oshi/driver/linux/proc/DiskStatsTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.Kstat2StatusException.java">oshi/jna/platform/unix/Kstat2StatusException.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4255,21 +4731,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.aix.package-info.java">oshi/jna/platform/unix/aix/package-info.java</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  3
                 </td>
               </tr>
                           <tr>
@@ -4283,7 +4745,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4297,7 +4759,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  93
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4311,7 +4773,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4325,7 +4787,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4339,7 +4801,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  42
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4353,7 +4815,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4367,7 +4829,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4381,7 +4843,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4395,7 +4857,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  60
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4409,40 +4871,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  92
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.properties">oshi.properties</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
                 </td>
               </tr>
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.windows.registry.HkeyUserData.java">oshi/driver/windows/registry/HkeyUserData.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  23
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.macos.versions.properties">oshi.macos.versions.properties</a>
                 </td>
                 <td>
                   0
@@ -4465,7 +4899,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.SolarisLibc.java">oshi/jna/platform/unix/SolarisLibc.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4479,7 +4927,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.VirtualMemoryTest.java">oshi/hardware/VirtualMemoryTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4493,7 +4955,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4507,7 +4969,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  25
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4521,7 +4983,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  19
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4535,7 +4997,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  83
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4549,21 +5011,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.solaris.SolarisLibc.java">oshi/jna/platform/unix/solaris/SolarisLibc.java</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  54
                 </td>
               </tr>
                           <tr>
@@ -4577,7 +5025,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.mac.WindowInfoTest.java">oshi/driver/mac/WindowInfoTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4591,7 +5053,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4605,7 +5067,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  50
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4619,7 +5081,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  124
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4633,7 +5095,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  115
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4647,7 +5109,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  92
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.hardware.ComputerSystemTest.java">oshi/hardware/ComputerSystemTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4661,7 +5137,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4675,7 +5151,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4689,7 +5165,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4703,7 +5179,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4717,7 +5193,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  76
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4731,7 +5207,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  22
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4745,7 +5221,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  68
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4759,7 +5235,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  31
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4773,7 +5249,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  47
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4787,7 +5263,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  38
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4801,7 +5277,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4815,7 +5291,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4829,7 +5305,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4843,7 +5319,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  112
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4857,7 +5333,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4871,7 +5347,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4885,7 +5361,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  107
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4899,7 +5375,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  61
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4913,7 +5389,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4927,7 +5403,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4941,7 +5417,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4955,7 +5431,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  29
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4969,7 +5445,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  16
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4983,7 +5459,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  34
+                  0
                 </td>
               </tr>
                           <tr>
@@ -4997,7 +5473,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  17
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5011,7 +5487,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  35
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5025,7 +5501,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  9
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5039,7 +5515,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.FormatUtilTest.java">oshi/util/FormatUtilTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5053,7 +5543,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5067,7 +5557,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  11
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5081,7 +5571,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  7
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5095,7 +5585,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5109,7 +5599,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5123,7 +5613,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  55
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5137,7 +5627,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  18
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5151,7 +5641,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5165,12 +5655,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  6
+                  0
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.freebsd.package-info.java">oshi/jna/platform/unix/freebsd/package-info.java</a>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.platform.mac.CFUtil.java">oshi/util/platform/mac/CFUtil.java</a>
                 </td>
                 <td>
                   0
@@ -5179,7 +5669,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5193,7 +5683,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5207,7 +5697,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5221,7 +5711,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  78
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5235,7 +5725,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  58
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5249,7 +5739,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  57
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5263,7 +5753,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.windows.perfmon.PerfrmonDriversTest.java">oshi/driver/windows/perfmon/PerfrmonDriversTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5277,7 +5781,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  49
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.SystemInfoTest.java">oshi/SystemInfoTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5291,7 +5809,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  45
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.proc.CpuStatTest.java">oshi/driver/linux/proc/CpuStatTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5305,7 +5837,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  52
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5319,7 +5851,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5333,7 +5865,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5347,7 +5879,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5361,21 +5893,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  5
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.jna.platform.unix.openbsd.OpenBsdLibc.java">oshi/jna/platform/unix/openbsd/OpenBsdLibc.java</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  86
                 </td>
               </tr>
                           <tr>
@@ -5389,7 +5907,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5403,7 +5921,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  8
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5417,7 +5935,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  19
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5431,7 +5949,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  48
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.proc.UserGroupInfoTest.java">oshi/driver/linux/proc/UserGroupInfoTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5445,7 +5977,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5459,7 +5991,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5473,7 +6005,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  4
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.driver.linux.LshwTest.java">oshi/driver/linux/LshwTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5487,7 +6033,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  12
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5501,7 +6047,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  195
+                  0
                 </td>
               </tr>
                           <tr>
@@ -5515,21 +6061,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  27
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/oshi/oshi/oshi-core-java11/checkstyle.html#oshi.util.LsofUtil.java">oshi/util/LsofUtil.java</a>
-                </td>
-                <td>
                   0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  12
                 </td>
               </tr>
                           <tr>
@@ -5543,7 +6075,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  30
+                  0
                 </td>
               </tr>
                       </tbody>

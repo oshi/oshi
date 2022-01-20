@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CFUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.mac</a> &gt; <span class="el_source">CFUtil.java</span></div><h1>CFUtil.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.util.platform.mac;
+
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.Constants;
+
+/**
+ * CF String retrieving
+ */
+@ThreadSafe
+public final class CFUtil {
+
+    private CFUtil() {
+    }
+
+    /**
+     * /** Convert a pointer to a CFString into a String.
+     *
+     * @param result
+     *            Pointer to the CFString
+     * @return a CFString or &quot;unknown&quot; if it has no value
+     */
+    public static String cfPointerToString(Pointer result) {
+<span class="nc" id="L49">        return cfPointerToString(result, true);</span>
+    }
+
+    /**
+     * Convert a pointer to a CFString into a String.
+     *
+     * @param result
+     *            Pointer to the CFString
+     * @param returnUnknown
+     *            Whether to return the &quot;unknown&quot; string
+     * @return a CFString including a possible empty one if {@code returnUnknown} is
+     *         false, or &quot;unknown&quot; if it is true
+     */
+    public static String cfPointerToString(Pointer result, boolean returnUnknown) {
+<span class="nc" id="L63">        String s = &quot;&quot;;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (result != null) {</span>
+<span class="nc" id="L65">            CFStringRef cfs = new CFStringRef(result);</span>
+<span class="nc" id="L66">            s = cfs.stringValue();</span>
+        }
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (returnUnknown &amp;&amp; s.isEmpty()) {</span>
+<span class="nc" id="L69">            return Constants.UNKNOWN;</span>
+        }
+<span class="nc" id="L71">        return s;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

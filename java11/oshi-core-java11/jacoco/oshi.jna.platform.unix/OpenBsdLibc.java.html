@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OpenBsdLibc.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">OpenBsdLibc.java</span></div><h1>OpenBsdLibc.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.unix;
+
+import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.Structure.FieldOrder;
+
+/**
+ * C library. This class should be considered non-API as it may be removed
+ * if/when its code is incorporated into the JNA project.
+ */
+public interface OpenBsdLibc extends CLibrary {
+<span class="nc" id="L36">    OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);</span>
+
+    int CTL_KERN = 1; // &quot;high kernel&quot;: proc, limits
+    int CTL_VM = 1; // &quot;high kernel&quot;: proc, limits
+    int CTL_HW = 6; // generic cpu/io
+    int CTL_MACHDEP = 7; // machine dependent
+    int CTL_VFS = 10; // VFS sysctl's
+
+    int KERN_OSTYPE = 1; // string: system version
+    int KERN_OSRELEASE = 2; // string: system release
+    int KERN_OSREV = 3; // int: system revision
+    int KERN_VERSION = 4; // string: compile time info
+    int KERN_MAXVNODES = 5; // int: max vnodes
+    int KERN_MAXPROC = 6; // int: max processes
+    int KERN_ARGMAX = 8; // int: max arguments to exec
+    int KERN_CPTIME = 40; // array: cp_time
+    int KERN_CPTIME2 = 71; // array: cp_time2
+
+    int VM_UVMEXP = 4; // struct uvmexp
+
+    int HW_MACHINE = 1; // string: machine class
+    int HW_MODEL = 2; // string: specific machine model
+    int HW_PAGESIZE = 7; // int: software page size
+    int HW_CPUSPEED = 12; // get CPU frequency
+    int HW_NCPUFOUND = 21; // CPU found (includes offline)
+    int HW_SMT = 24; // enable SMT/HT/CMT
+    int HW_NCPUONLINE = 25; // number of cpus being used
+
+    int VFS_GENERIC = 0; // generic filesystem information
+    int VFS_BCACHESTAT = 3; // struct: buffer cache statistics given as next argument
+
+    /*
+     * CPU state indices
+     */
+    int CPUSTATES = 5;
+    int CP_USER = 0;
+    int CP_NICE = 1;
+    int CP_SYS = 2;
+    int CP_INTR = 3; // 4 on 6.4 and later
+    int CP_IDLE = 4; // 5 on 6.4 and later
+
+<span class="nc" id="L77">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
+<span class="nc" id="L78">    int INT_SIZE = Native.getNativeSize(int.class);</span>
+
+    /**
+     * OpenBSD Cache stats for memory
+     */
+    @FieldOrder({ &quot;numbufs&quot;, &quot;numbufpages&quot;, &quot;numdirtypages&quot;, &quot;numcleanpages&quot;, &quot;pendingwrites&quot;, &quot;pendingreads&quot;,
+            &quot;numwrites&quot;, &quot;numreads&quot;, &quot;cachehits&quot;, &quot;busymapped&quot;, &quot;dmapages&quot;, &quot;highpages&quot;, &quot;delwribufs&quot;, &quot;kvaslots&quot;,
+            &quot;kvaslots_avail&quot;, &quot;highflips&quot;, &quot;highflops&quot;, &quot;dmaflips&quot; })
+    class Bcachestats extends Structure {
+        public long numbufs; // number of buffers allocated
+        public long numbufpages; // number of pages in buffer cache
+        public long numdirtypages; // number of dirty free pages
+        public long numcleanpages; // number of clean free pages
+        public long pendingwrites; // number of pending writes
+        public long pendingreads; // number of pending reads
+        public long numwrites; // total writes started
+        public long numreads; // total reads started
+        public long cachehits; // total reads found in cache
+        public long busymapped; // number of busy and mapped buffers
+        public long dmapages; // dma reachable pages in buffer cache
+        public long highpages; // pages above dma region
+        public long delwribufs; // delayed write buffers
+        public long kvaslots; // kva slots total
+        public long kvaslots_avail; // available kva slots
+        public long highflips; // total flips to above DMA
+        public long highflops; // total failed flips to above DMA
+        public long dmaflips; // total flips from high to DMA
+
+        public Bcachestats(Pointer p) {
+<span class="nc" id="L107">            super(p);</span>
+<span class="nc" id="L108">            read();</span>
+<span class="nc" id="L109">        }</span>
+    }
+
+    /**
+     * Return type for BSD sysctl kern.boottime
+     */
+    @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
+<span class="nc" id="L116">    class Timeval extends Structure {</span>
+        public long tv_sec; // seconds
+        public long tv_usec; // microseconds
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacPowerSource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacPowerSource.java</span></div><h1>MacPowerSource.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -43,6 +43,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;
+import oshi.util.platform.mac.CFUtil;
 
 /**
  * A Power Source
@@ -50,8 +51,8 @@ import oshi.util.Constants;
 @ThreadSafe
 public final class MacPowerSource extends AbstractPowerSource {
 
-<span class="nc" id="L53">    private static final CoreFoundation CF = CoreFoundation.INSTANCE;</span>
-<span class="nc" id="L54">    private static final IOKit IO = IOKit.INSTANCE;</span>
+<span class="nc" id="L54">    private static final CoreFoundation CF = CoreFoundation.INSTANCE;</span>
+<span class="nc" id="L55">    private static final IOKit IO = IOKit.INSTANCE;</span>
 
     public MacPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
@@ -59,11 +60,11 @@ public final class MacPowerSource extends AbstractPowerSource {
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
             int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
-<span class="nc" id="L62">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
+<span class="nc" id="L63">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
                 psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
                 psManufacturer, psSerialNumber, psTemperature);
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L67">    }</span>
 
     /**
      * Gets Battery Information.
@@ -71,24 +72,24 @@ public final class MacPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static List&lt;PowerSource&gt; getPowerSources() {
-<span class="nc" id="L74">        String psDeviceName = Constants.UNKNOWN;</span>
-<span class="nc" id="L75">        double psTimeRemainingInstant = 0d;</span>
-<span class="nc" id="L76">        double psPowerUsageRate = 0d;</span>
-<span class="nc" id="L77">        double psVoltage = -1d;</span>
-<span class="nc" id="L78">        double psAmperage = 0d;</span>
-<span class="nc" id="L79">        boolean psPowerOnLine = false;</span>
-<span class="nc" id="L80">        boolean psCharging = false;</span>
-<span class="nc" id="L81">        boolean psDischarging = false;</span>
-<span class="nc" id="L82">        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;</span>
-<span class="nc" id="L83">        int psCurrentCapacity = 0;</span>
-<span class="nc" id="L84">        int psMaxCapacity = 1;</span>
-<span class="nc" id="L85">        int psDesignCapacity = 1;</span>
-<span class="nc" id="L86">        int psCycleCount = -1;</span>
-<span class="nc" id="L87">        String psChemistry = Constants.UNKNOWN;</span>
-<span class="nc" id="L88">        LocalDate psManufactureDate = null;</span>
-<span class="nc" id="L89">        String psManufacturer = Constants.UNKNOWN;</span>
-<span class="nc" id="L90">        String psSerialNumber = Constants.UNKNOWN;</span>
-<span class="nc" id="L91">        double psTemperature = 0d;</span>
+<span class="nc" id="L75">        String psDeviceName = Constants.UNKNOWN;</span>
+<span class="nc" id="L76">        double psTimeRemainingInstant = 0d;</span>
+<span class="nc" id="L77">        double psPowerUsageRate = 0d;</span>
+<span class="nc" id="L78">        double psVoltage = -1d;</span>
+<span class="nc" id="L79">        double psAmperage = 0d;</span>
+<span class="nc" id="L80">        boolean psPowerOnLine = false;</span>
+<span class="nc" id="L81">        boolean psCharging = false;</span>
+<span class="nc" id="L82">        boolean psDischarging = false;</span>
+<span class="nc" id="L83">        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;</span>
+<span class="nc" id="L84">        int psCurrentCapacity = 0;</span>
+<span class="nc" id="L85">        int psMaxCapacity = 1;</span>
+<span class="nc" id="L86">        int psDesignCapacity = 1;</span>
+<span class="nc" id="L87">        int psCycleCount = -1;</span>
+<span class="nc" id="L88">        String psChemistry = Constants.UNKNOWN;</span>
+<span class="nc" id="L89">        LocalDate psManufactureDate = null;</span>
+<span class="nc" id="L90">        String psManufacturer = Constants.UNKNOWN;</span>
+<span class="nc" id="L91">        String psSerialNumber = Constants.UNKNOWN;</span>
+<span class="nc" id="L92">        double psTemperature = 0d;</span>
 
         // Mac PowerSource information comes from two sources: the IOKit's IOPS
         // functions (which, in theory, return an array of objects but in most cases
@@ -98,132 +99,128 @@ public final class MacPowerSource extends AbstractPowerSource {
         // We start by fetching the registry information, which will be replicated
         // across all IOPS entries if there are more than one.
 
-<span class="nc" id="L101">        IORegistryEntry smartBattery = IOKitUtil.getMatchingService(&quot;AppleSmartBattery&quot;);</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (smartBattery != null) {</span>
-<span class="nc" id="L103">            String s = smartBattery.getStringProperty(&quot;DeviceName&quot;);</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (s != null) {</span>
-<span class="nc" id="L105">                psDeviceName = s;</span>
+<span class="nc" id="L102">        IORegistryEntry smartBattery = IOKitUtil.getMatchingService(&quot;AppleSmartBattery&quot;);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (smartBattery != null) {</span>
+<span class="nc" id="L104">            String s = smartBattery.getStringProperty(&quot;DeviceName&quot;);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (s != null) {</span>
+<span class="nc" id="L106">                psDeviceName = s;</span>
             }
-<span class="nc" id="L107">            s = smartBattery.getStringProperty(&quot;Manufacturer&quot;);</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (s != null) {</span>
-<span class="nc" id="L109">                psManufacturer = s;</span>
+<span class="nc" id="L108">            s = smartBattery.getStringProperty(&quot;Manufacturer&quot;);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (s != null) {</span>
+<span class="nc" id="L110">                psManufacturer = s;</span>
             }
-<span class="nc" id="L111">            s = smartBattery.getStringProperty(&quot;BatterySerialNumber&quot;);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (s != null) {</span>
-<span class="nc" id="L113">                psSerialNumber = s;</span>
+<span class="nc" id="L112">            s = smartBattery.getStringProperty(&quot;BatterySerialNumber&quot;);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (s != null) {</span>
+<span class="nc" id="L114">                psSerialNumber = s;</span>
             }
 
-<span class="nc" id="L116">            Integer temp = smartBattery.getIntegerProperty(&quot;ManufactureDate&quot;);</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L117">            Integer temp = smartBattery.getIntegerProperty(&quot;ManufactureDate&quot;);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (temp != null) {</span>
                 // Bits 0...4 =&gt; day (value 1-31; 5 bits)
                 // Bits 5...8 =&gt; month (value 1-12; 4 bits)
                 // Bits 9...15 =&gt; years since 1980 (value 0-127; 7 bits)
-<span class="nc" id="L121">                int day = temp &amp; 0x1f;</span>
-<span class="nc" id="L122">                int month = (temp &gt;&gt; 5) &amp; 0xf;</span>
-<span class="nc" id="L123">                int year80 = (temp &gt;&gt; 9) &amp; 0x7f;</span>
-<span class="nc" id="L124">                psManufactureDate = LocalDate.of(1980 + year80, month, day);</span>
+<span class="nc" id="L122">                int day = temp &amp; 0x1f;</span>
+<span class="nc" id="L123">                int month = (temp &gt;&gt; 5) &amp; 0xf;</span>
+<span class="nc" id="L124">                int year80 = (temp &gt;&gt; 9) &amp; 0x7f;</span>
+<span class="nc" id="L125">                psManufactureDate = LocalDate.of(1980 + year80, month, day);</span>
             }
 
-<span class="nc" id="L127">            temp = smartBattery.getIntegerProperty(&quot;DesignCapacity&quot;);</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L129">                psDesignCapacity = temp;</span>
+<span class="nc" id="L128">            temp = smartBattery.getIntegerProperty(&quot;DesignCapacity&quot;);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L130">                psDesignCapacity = temp;</span>
             }
-<span class="nc" id="L131">            temp = smartBattery.getIntegerProperty(&quot;MaxCapacity&quot;);</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L133">                psMaxCapacity = temp;</span>
+<span class="nc" id="L132">            temp = smartBattery.getIntegerProperty(&quot;MaxCapacity&quot;);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L134">                psMaxCapacity = temp;</span>
             }
-<span class="nc" id="L135">            temp = smartBattery.getIntegerProperty(&quot;CurrentCapacity&quot;);</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L137">                psCurrentCapacity = temp;</span>
+<span class="nc" id="L136">            temp = smartBattery.getIntegerProperty(&quot;CurrentCapacity&quot;);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L138">                psCurrentCapacity = temp;</span>
             }
-<span class="nc" id="L139">            psCapacityUnits = CapacityUnits.MAH;</span>
+<span class="nc" id="L140">            psCapacityUnits = CapacityUnits.MAH;</span>
 
-<span class="nc" id="L141">            temp = smartBattery.getIntegerProperty(&quot;TimeRemaining&quot;);</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L143">                psTimeRemainingInstant = temp * 60d;</span>
+<span class="nc" id="L142">            temp = smartBattery.getIntegerProperty(&quot;TimeRemaining&quot;);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L144">                psTimeRemainingInstant = temp * 60d;</span>
             }
-<span class="nc" id="L145">            temp = smartBattery.getIntegerProperty(&quot;CycleCount&quot;);</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L147">                psCycleCount = temp;</span>
+<span class="nc" id="L146">            temp = smartBattery.getIntegerProperty(&quot;CycleCount&quot;);</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L148">                psCycleCount = temp;</span>
             }
-<span class="nc" id="L149">            temp = smartBattery.getIntegerProperty(&quot;Temperature&quot;);</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L151">                psTemperature = temp / 100d;</span>
+<span class="nc" id="L150">            temp = smartBattery.getIntegerProperty(&quot;Temperature&quot;);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L152">                psTemperature = temp / 100d;</span>
             }
-<span class="nc" id="L153">            temp = smartBattery.getIntegerProperty(&quot;Voltage&quot;);</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L155">                psVoltage = temp / 1000d;</span>
+<span class="nc" id="L154">            temp = smartBattery.getIntegerProperty(&quot;Voltage&quot;);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L156">                psVoltage = temp / 1000d;</span>
             }
-<span class="nc" id="L157">            temp = smartBattery.getIntegerProperty(&quot;Amperage&quot;);</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (temp != null) {</span>
-<span class="nc" id="L159">                psAmperage = temp;</span>
+<span class="nc" id="L158">            temp = smartBattery.getIntegerProperty(&quot;Amperage&quot;);</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            if (temp != null) {</span>
+<span class="nc" id="L160">                psAmperage = temp;</span>
             }
-<span class="nc" id="L161">            psPowerUsageRate = psVoltage * psAmperage;</span>
+<span class="nc" id="L162">            psPowerUsageRate = psVoltage * psAmperage;</span>
 
-<span class="nc" id="L163">            Boolean bool = smartBattery.getBooleanProperty(&quot;ExternalConnected&quot;);</span>
-<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (bool != null) {</span>
-<span class="nc" id="L165">                psPowerOnLine = bool;</span>
+<span class="nc" id="L164">            Boolean bool = smartBattery.getBooleanProperty(&quot;ExternalConnected&quot;);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (bool != null) {</span>
+<span class="nc" id="L166">                psPowerOnLine = bool;</span>
             }
-<span class="nc" id="L167">            bool = smartBattery.getBooleanProperty(&quot;IsCharging&quot;);</span>
-<span class="nc bnc" id="L168" title="All 2 branches missed.">            if (bool != null) {</span>
-<span class="nc" id="L169">                psCharging = bool;</span>
+<span class="nc" id="L168">            bool = smartBattery.getBooleanProperty(&quot;IsCharging&quot;);</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (bool != null) {</span>
+<span class="nc" id="L170">                psCharging = bool;</span>
             }
-<span class="nc bnc" id="L171" title="All 2 branches missed.">            psDischarging = !psCharging;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            psDischarging = !psCharging;</span>
 
-<span class="nc" id="L173">            smartBattery.release();</span>
+<span class="nc" id="L174">            smartBattery.release();</span>
         }
 
         // Get the blob containing current power source state
-<span class="nc" id="L177">        CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();</span>
-<span class="nc" id="L178">        CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);</span>
-<span class="nc" id="L179">        int powerSourcesCount = powerSourcesList.getCount();</span>
+<span class="nc" id="L178">        CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();</span>
+<span class="nc" id="L179">        CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);</span>
+<span class="nc" id="L180">        int powerSourcesCount = powerSourcesList.getCount();</span>
 
         // Get time remaining
         // -1 = unknown, -2 = unlimited
-<span class="nc" id="L183">        double psTimeRemainingEstimated = IO.IOPSGetTimeRemainingEstimate();</span>
+<span class="nc" id="L184">        double psTimeRemainingEstimated = IO.IOPSGetTimeRemainingEstimate();</span>
 
-<span class="nc" id="L185">        CFStringRef nameKey = CFStringRef.createCFString(&quot;Name&quot;);</span>
-<span class="nc" id="L186">        CFStringRef isPresentKey = CFStringRef.createCFString(&quot;Is Present&quot;);</span>
-<span class="nc" id="L187">        CFStringRef currentCapacityKey = CFStringRef.createCFString(&quot;Current Capacity&quot;);</span>
-<span class="nc" id="L188">        CFStringRef maxCapacityKey = CFStringRef.createCFString(&quot;Max Capacity&quot;);</span>
+<span class="nc" id="L186">        CFStringRef nameKey = CFStringRef.createCFString(&quot;Name&quot;);</span>
+<span class="nc" id="L187">        CFStringRef isPresentKey = CFStringRef.createCFString(&quot;Is Present&quot;);</span>
+<span class="nc" id="L188">        CFStringRef currentCapacityKey = CFStringRef.createCFString(&quot;Current Capacity&quot;);</span>
+<span class="nc" id="L189">        CFStringRef maxCapacityKey = CFStringRef.createCFString(&quot;Max Capacity&quot;);</span>
         // For each power source, output various info
-<span class="nc" id="L190">        List&lt;PowerSource&gt; psList = new ArrayList&lt;&gt;(powerSourcesCount);</span>
-<span class="nc bnc" id="L191" title="All 2 branches missed.">        for (int ps = 0; ps &lt; powerSourcesCount; ps++) {</span>
+<span class="nc" id="L191">        List&lt;PowerSource&gt; psList = new ArrayList&lt;&gt;(powerSourcesCount);</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        for (int ps = 0; ps &lt; powerSourcesCount; ps++) {</span>
             // Get the dictionary for that Power Source
-<span class="nc" id="L193">            Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(ps);</span>
-<span class="nc" id="L194">            CFTypeRef powerSource = new CFTypeRef();</span>
-<span class="nc" id="L195">            powerSource.setPointer(pwrSrcPtr);</span>
-<span class="nc" id="L196">            CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);</span>
+<span class="nc" id="L194">            Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(ps);</span>
+<span class="nc" id="L195">            CFTypeRef powerSource = new CFTypeRef();</span>
+<span class="nc" id="L196">            powerSource.setPointer(pwrSrcPtr);</span>
+<span class="nc" id="L197">            CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);</span>
 
             // Get values from dictionary (See IOPSKeys.h)
             // Skip if not present
-<span class="nc" id="L200">            Pointer result = dictionary.getValue(isPresentKey);</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">            if (result != null) {</span>
-<span class="nc" id="L202">                CFBooleanRef isPresentRef = new CFBooleanRef(result);</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (0 != CF.CFBooleanGetValue(isPresentRef)) {</span>
+<span class="nc" id="L201">            Pointer result = dictionary.getValue(isPresentKey);</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            if (result != null) {</span>
+<span class="nc" id="L203">                CFBooleanRef isPresentRef = new CFBooleanRef(result);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                if (0 != CF.CFBooleanGetValue(isPresentRef)) {</span>
                     // Get name
-<span class="nc" id="L205">                    result = dictionary.getValue(nameKey);</span>
-<span class="nc" id="L206">                    CFStringRef cfName = new CFStringRef(result);</span>
-<span class="nc" id="L207">                    String psName = cfName.stringValue();</span>
-<span class="nc bnc" id="L208" title="All 2 branches missed.">                    if (psName == null) {</span>
-<span class="nc" id="L209">                        psName = Constants.UNKNOWN;</span>
-                    }
+<span class="nc" id="L206">                    result = dictionary.getValue(nameKey);</span>
+<span class="nc" id="L207">                    String psName = CFUtil.cfPointerToString(result);</span>
                     // Remaining Capacity = current / max
-<span class="nc" id="L212">                    double currentCapacity = 0d;</span>
-<span class="nc bnc" id="L213" title="All 2 branches missed.">                    if (dictionary.getValueIfPresent(currentCapacityKey, null)) {</span>
-<span class="nc" id="L214">                        result = dictionary.getValue(currentCapacityKey);</span>
-<span class="nc" id="L215">                        CFNumberRef cap = new CFNumberRef(result);</span>
-<span class="nc" id="L216">                        currentCapacity = cap.intValue();</span>
+<span class="nc" id="L209">                    double currentCapacity = 0d;</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                    if (dictionary.getValueIfPresent(currentCapacityKey, null)) {</span>
+<span class="nc" id="L211">                        result = dictionary.getValue(currentCapacityKey);</span>
+<span class="nc" id="L212">                        CFNumberRef cap = new CFNumberRef(result);</span>
+<span class="nc" id="L213">                        currentCapacity = cap.intValue();</span>
                     }
-<span class="nc" id="L218">                    double maxCapacity = 1d;</span>
-<span class="nc bnc" id="L219" title="All 2 branches missed.">                    if (dictionary.getValueIfPresent(maxCapacityKey, null)) {</span>
-<span class="nc" id="L220">                        result = dictionary.getValue(maxCapacityKey);</span>
-<span class="nc" id="L221">                        CFNumberRef cap = new CFNumberRef(result);</span>
-<span class="nc" id="L222">                        maxCapacity = cap.intValue();</span>
+<span class="nc" id="L215">                    double maxCapacity = 1d;</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                    if (dictionary.getValueIfPresent(maxCapacityKey, null)) {</span>
+<span class="nc" id="L217">                        result = dictionary.getValue(maxCapacityKey);</span>
+<span class="nc" id="L218">                        CFNumberRef cap = new CFNumberRef(result);</span>
+<span class="nc" id="L219">                        maxCapacity = cap.intValue();</span>
                     }
-<span class="nc" id="L224">                    double psRemainingCapacityPercent = Math.min(1d, currentCapacity / maxCapacity);</span>
+<span class="nc" id="L221">                    double psRemainingCapacityPercent = Math.min(1d, currentCapacity / maxCapacity);</span>
                     // Add to list
-<span class="nc" id="L226">                    psList.add(new MacPowerSource(psName, psDeviceName, psRemainingCapacityPercent,</span>
+<span class="nc" id="L223">                    psList.add(new MacPowerSource(psName, psDeviceName, psRemainingCapacityPercent,</span>
                             psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage,
                             psPowerOnLine, psCharging, psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity,
                             psDesignCapacity, psCycleCount, psChemistry, psManufactureDate, psManufacturer,
@@ -231,15 +228,15 @@ public final class MacPowerSource extends AbstractPowerSource {
                 }
             }
         }
-<span class="nc" id="L234">        isPresentKey.release();</span>
-<span class="nc" id="L235">        nameKey.release();</span>
-<span class="nc" id="L236">        currentCapacityKey.release();</span>
-<span class="nc" id="L237">        maxCapacityKey.release();</span>
+<span class="nc" id="L231">        isPresentKey.release();</span>
+<span class="nc" id="L232">        nameKey.release();</span>
+<span class="nc" id="L233">        currentCapacityKey.release();</span>
+<span class="nc" id="L234">        maxCapacityKey.release();</span>
         // Release the blob
-<span class="nc" id="L239">        powerSourcesList.release();</span>
-<span class="nc" id="L240">        powerSourcesInfo.release();</span>
+<span class="nc" id="L236">        powerSourcesList.release();</span>
+<span class="nc" id="L237">        powerSourcesInfo.release();</span>
 
-<span class="nc" id="L242">        return psList;</span>
+<span class="nc" id="L239">        return psList;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

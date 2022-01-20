@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolarisNetworkIF.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisNetworkIF.java</span></div><h1>SolarisNetworkIF.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -35,6 +35,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
@@ -44,7 +45,7 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 @ThreadSafe
 public final class SolarisNetworkIF extends AbstractNetworkIF {
 
-<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(SolarisNetworkIF.class);</span>
+<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(SolarisNetworkIF.class);</span>
 
     private long bytesRecv;
     private long bytesSent;
@@ -58,9 +59,9 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
     private long timeStamp;
 
     public SolarisNetworkIF(NetworkInterface netint) throws InstantiationException {
-<span class="nc" id="L61">        super(netint);</span>
-<span class="nc" id="L62">        updateAttributes();</span>
-<span class="nc" id="L63">    }</span>
+<span class="nc" id="L62">        super(netint);</span>
+<span class="nc" id="L63">        updateAttributes();</span>
+<span class="nc" id="L64">    }</span>
 
     /**
      * Gets all network interfaces on this machine
@@ -70,90 +71,115 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List&lt;NetworkIF&gt; getNetworks(boolean includeLocalInterfaces) {
-<span class="nc" id="L73">        List&lt;NetworkIF&gt; ifList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {</span>
+<span class="nc" id="L74">        List&lt;NetworkIF&gt; ifList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {</span>
             try {
-<span class="nc" id="L76">                ifList.add(new SolarisNetworkIF(ni));</span>
-<span class="nc" id="L77">            } catch (InstantiationException e) {</span>
-<span class="nc" id="L78">                LOG.debug(&quot;Network Interface Instantiation failed: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L79">            }</span>
-<span class="nc" id="L80">        }</span>
-<span class="nc" id="L81">        return ifList;</span>
+<span class="nc" id="L77">                ifList.add(new SolarisNetworkIF(ni));</span>
+<span class="nc" id="L78">            } catch (InstantiationException e) {</span>
+<span class="nc" id="L79">                LOG.debug(&quot;Network Interface Instantiation failed: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L80">            }</span>
+<span class="nc" id="L81">        }</span>
+<span class="nc" id="L82">        return ifList;</span>
     }
 
     @Override
     public long getBytesRecv() {
-<span class="nc" id="L86">        return this.bytesRecv;</span>
+<span class="nc" id="L87">        return this.bytesRecv;</span>
     }
 
     @Override
     public long getBytesSent() {
-<span class="nc" id="L91">        return this.bytesSent;</span>
+<span class="nc" id="L92">        return this.bytesSent;</span>
     }
 
     @Override
     public long getPacketsRecv() {
-<span class="nc" id="L96">        return this.packetsRecv;</span>
+<span class="nc" id="L97">        return this.packetsRecv;</span>
     }
 
     @Override
     public long getPacketsSent() {
-<span class="nc" id="L101">        return this.packetsSent;</span>
+<span class="nc" id="L102">        return this.packetsSent;</span>
     }
 
     @Override
     public long getInErrors() {
-<span class="nc" id="L106">        return this.inErrors;</span>
+<span class="nc" id="L107">        return this.inErrors;</span>
     }
 
     @Override
     public long getOutErrors() {
-<span class="nc" id="L111">        return this.outErrors;</span>
+<span class="nc" id="L112">        return this.outErrors;</span>
     }
 
     @Override
     public long getInDrops() {
-<span class="nc" id="L116">        return this.inDrops;</span>
+<span class="nc" id="L117">        return this.inDrops;</span>
     }
 
     @Override
     public long getCollisions() {
-<span class="nc" id="L121">        return this.collisions;</span>
+<span class="nc" id="L122">        return this.collisions;</span>
     }
 
     @Override
     public long getSpeed() {
-<span class="nc" id="L126">        return this.speed;</span>
+<span class="nc" id="L127">        return this.speed;</span>
     }
 
     @Override
     public long getTimeStamp() {
-<span class="nc" id="L131">        return this.timeStamp;</span>
+<span class="nc" id="L132">        return this.timeStamp;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L136">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L137">            Kstat ksp = KstatChain.lookup(&quot;link&quot;, -1, getName());</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (ksp == null) { // Solaris 10 compatibility</span>
-<span class="nc" id="L139">                ksp = KstatChain.lookup(null, -1, getName());</span>
+        // Initialize to a sane default value
+<span class="nc" id="L138">        this.timeStamp = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {</span>
+            // Use Kstat2 implementation
+<span class="nc" id="L141">            return updateAttributes2();</span>
+        }
+<span class="nc" id="L143">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L144">            Kstat ksp = KstatChain.lookup(&quot;link&quot;, -1, getName());</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (ksp == null) { // Solaris 10 compatibility</span>
+<span class="nc" id="L146">                ksp = KstatChain.lookup(null, -1, getName());</span>
             }
-<span class="nc bnc" id="L141" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
-<span class="nc" id="L142">                this.bytesSent = KstatUtil.dataLookupLong(ksp, &quot;obytes64&quot;);</span>
-<span class="nc" id="L143">                this.bytesRecv = KstatUtil.dataLookupLong(ksp, &quot;rbytes64&quot;);</span>
-<span class="nc" id="L144">                this.packetsSent = KstatUtil.dataLookupLong(ksp, &quot;opackets64&quot;);</span>
-<span class="nc" id="L145">                this.packetsRecv = KstatUtil.dataLookupLong(ksp, &quot;ipackets64&quot;);</span>
-<span class="nc" id="L146">                this.outErrors = KstatUtil.dataLookupLong(ksp, &quot;oerrors&quot;);</span>
-<span class="nc" id="L147">                this.inErrors = KstatUtil.dataLookupLong(ksp, &quot;ierrors&quot;);</span>
-<span class="nc" id="L148">                this.collisions = KstatUtil.dataLookupLong(ksp, &quot;collisions&quot;);</span>
-<span class="nc" id="L149">                this.inDrops = KstatUtil.dataLookupLong(ksp, &quot;dl_idrops&quot;);</span>
-<span class="nc" id="L150">                this.speed = KstatUtil.dataLookupLong(ksp, &quot;ifspeed&quot;);</span>
+<span class="nc bnc" id="L148" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
+<span class="nc" id="L149">                this.bytesSent = KstatUtil.dataLookupLong(ksp, &quot;obytes64&quot;);</span>
+<span class="nc" id="L150">                this.bytesRecv = KstatUtil.dataLookupLong(ksp, &quot;rbytes64&quot;);</span>
+<span class="nc" id="L151">                this.packetsSent = KstatUtil.dataLookupLong(ksp, &quot;opackets64&quot;);</span>
+<span class="nc" id="L152">                this.packetsRecv = KstatUtil.dataLookupLong(ksp, &quot;ipackets64&quot;);</span>
+<span class="nc" id="L153">                this.outErrors = KstatUtil.dataLookupLong(ksp, &quot;oerrors&quot;);</span>
+<span class="nc" id="L154">                this.inErrors = KstatUtil.dataLookupLong(ksp, &quot;ierrors&quot;);</span>
+<span class="nc" id="L155">                this.collisions = KstatUtil.dataLookupLong(ksp, &quot;collisions&quot;);</span>
+<span class="nc" id="L156">                this.inDrops = KstatUtil.dataLookupLong(ksp, &quot;dl_idrops&quot;);</span>
+<span class="nc" id="L157">                this.speed = KstatUtil.dataLookupLong(ksp, &quot;ifspeed&quot;);</span>
                 // Snap time in ns; convert to ms
-<span class="nc" id="L152">                this.timeStamp = ksp.ks_snaptime / 1_000_000L;</span>
-<span class="nc" id="L153">                return true;</span>
+<span class="nc" id="L159">                this.timeStamp = ksp.ks_snaptime / 1_000_000L;</span>
+<span class="nc" id="L160">                return true;</span>
             }
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        }</span>
-<span class="nc" id="L156">        return false;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        }</span>
+<span class="nc" id="L163">        return false;</span>
+    }
+
+    private boolean updateAttributes2() {
+<span class="nc" id="L167">        Object[] results = KstatUtil.queryKstat2(&quot;kstat:/net/link/&quot; + getName() + &quot;/0&quot;, &quot;obytes64&quot;, &quot;rbytes64&quot;,</span>
+                &quot;opackets64&quot;, &quot;ipackets64&quot;, &quot;oerrors&quot;, &quot;ierrors&quot;, &quot;collisions&quot;, &quot;dl_idrops&quot;, &quot;ifspeed&quot;, &quot;snaptime&quot;);
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (results[results.length - 1] == null) {</span>
+<span class="nc" id="L170">            return false;</span>
+        }
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        this.bytesSent = results[0] == null ? 0L : (long) results[0];</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        this.bytesRecv = results[1] == null ? 0L : (long) results[1];</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        this.packetsSent = results[2] == null ? 0L : (long) results[2];</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        this.packetsRecv = results[3] == null ? 0L : (long) results[3];</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        this.outErrors = results[4] == null ? 0L : (long) results[4];</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        this.collisions = results[5] == null ? 0L : (long) results[5];</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        this.inDrops = results[6] == null ? 0L : (long) results[6];</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        this.speed = results[7] == null ? 0L : (long) results[7];</span>
+        // Snap time in ns; convert to ms
+<span class="nc" id="L181">        this.timeStamp = (long) results[8] / 1_000_000L;</span>
+<span class="nc" id="L182">        return true;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

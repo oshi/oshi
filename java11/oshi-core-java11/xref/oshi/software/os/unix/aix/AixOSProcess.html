@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2021-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -41,367 +41,370 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.defaultExpiration;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; <em class="jxr_comment">// NOSONAR squid:S1191</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.aix.PsInfo;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.aix.perfstat.PerfstatCpu;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.unix.aix.AixOperatingSystem.PsKeywords;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.util.LsofUtil;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> * OSProcess implementation</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AixOSProcess" href="../../../../../oshi/software/os/unix/aix/AixOSProcess.html#AixOSProcess">AixOSProcess</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSProcess" href="../../../../../oshi/software/common/AbstractOSProcess.html#AbstractOSProcess">AbstractOSProcess</a> {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_comment">     * Package-private for use by AIXOSThread</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      enum PsThreadColumns {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          USER, PID, PPID, TID, ST, CP, PRI, SC, WCHAN, F, TT, BND, COMMAND;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;Integer&gt; bitness = memoize(<strong class="jxr_keyword">this</strong>::queryBitness);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;String&gt; commandLine = memoize(<strong class="jxr_keyword">this</strong>::queryCommandLine);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; cmdEnv = memoize(<strong class="jxr_keyword">this</strong>::queryCommandlineEnvironment);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Long&gt; affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> String name;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> String path = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> String commandLineBackup;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> String user;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> String userID;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> String group;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> String groupID;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> State state = State.INVALID;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> parentProcessID;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> threadCount;
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> priority;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> virtualSize;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> residentSetSize;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> kernelTime;
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> userTime;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> startTime;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> upTime;
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesRead;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesWritten;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> majorFaults;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_comment">// Memoized copy from OperatingSystem</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;perfstat_process_t[]&gt; procCpu;
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <a name="AixOSProcess" href="../../../../../oshi/software/os/unix/aix/AixOSProcess.html#AixOSProcess">AixOSProcess</a>(<strong class="jxr_keyword">int</strong> pid, Map&lt;PsKeywords, String&gt; psMap, Map&lt;Integer, Pair&lt;Long, Long&gt;&gt; cpuMap,
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>              Supplier&lt;perfstat_process_t[]&gt; procCpu) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">super</strong>(pid);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">this</strong>.procCpu = procCpu;
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         updateAttributes(psMap, cpuMap);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     @Override
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <strong class="jxr_keyword">public</strong> String getName() {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.name;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> java.io.File;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Path;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Paths;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Stream;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; <em class="jxr_comment">// NOSONAR squid:S1191</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.aix.PsInfo;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.aix.perfstat.PerfstatCpu;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.AixLibc.AixPsInfo;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> oshi.util.UserGroupInfo;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment"> * OSProcess implementation</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AixOSProcess" href="../../../../../oshi/software/os/unix/aix/AixOSProcess.html#AixOSProcess">AixOSProcess</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSProcess" href="../../../../../oshi/software/common/AbstractOSProcess.html#AbstractOSProcess">AbstractOSProcess</a> {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(AixOSProcess.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;Integer&gt; bitness = memoize(<strong class="jxr_keyword">this</strong>::queryBitness);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;AixPsInfo&gt; psinfo = memoize(<strong class="jxr_keyword">this</strong>::queryPsInfo, defaultExpiration());
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;String&gt; commandLine = memoize(<strong class="jxr_keyword">this</strong>::queryCommandLine);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; cmdEnv = memoize(<strong class="jxr_keyword">this</strong>::queryCommandlineEnvironment);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Long&gt; affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> String name;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">private</strong> String path = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">private</strong> String commandLineBackup;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> String user;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> String userID;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">private</strong> String group;
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">private</strong> String groupID;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">private</strong> State state = State.INVALID;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> parentProcessID;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> threadCount;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> priority;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> virtualSize;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> residentSetSize;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> kernelTime;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> userTime;
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> startTime;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> upTime;
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesRead;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesWritten;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <em class="jxr_comment">// Memoized copy from OperatingSystem</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">private</strong> Supplier&lt;perfstat_process_t[]&gt; procCpu;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">public</strong> <a name="AixOSProcess" href="../../../../../oshi/software/os/unix/aix/AixOSProcess.html#AixOSProcess">AixOSProcess</a>(<strong class="jxr_keyword">int</strong> pid, Pair&lt;Long, Long&gt; userSysCpuTime, Supplier&lt;perfstat_process_t[]&gt; procCpu) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">super</strong>(pid);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">this</strong>.procCpu = procCpu;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         updateAttributes(userSysCpuTime);
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Override
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">public</strong> String getPath() {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.path;
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
-<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     @Override
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">public</strong> String getCommandLine() {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.commandLine.get();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">private</strong> String queryCommandLine() {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         String cl = String.join(<span class="jxr_string">" "</span>, getArguments());
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">return</strong> cl.isEmpty() ? <strong class="jxr_keyword">this</strong>.commandLineBackup : cl;
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     @Override
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">public</strong> List&lt;String&gt; getArguments() {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">return</strong> cmdEnv.get().getA();
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     @Override
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getEnvironmentVariables() {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">return</strong> cmdEnv.get().getB();
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">private</strong> Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt; queryCommandlineEnvironment() {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">return</strong> PsInfo.queryArgsEnv(getProcessID());
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> AixPsInfo queryPsInfo() {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">return</strong> PsInfo.queryPsInfo(<strong class="jxr_keyword">this</strong>.getProcessID());
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     @Override
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">public</strong> String getName() {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.name;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     @Override
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">public</strong> String getPath() {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.path;
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     @Override
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">public</strong> String getCommandLine() {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.commandLine.get();
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">private</strong> String queryCommandLine() {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         String cl = String.join(<span class="jxr_string">" "</span>, getArguments());
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">return</strong> cl.isEmpty() ? <strong class="jxr_keyword">this</strong>.commandLineBackup : cl;
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     @Override
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> List&lt;String&gt; getArguments() {
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">return</strong> cmdEnv.get().getA();
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> 
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     @Override
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">public</strong> String getCurrentWorkingDirectory() {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">return</strong> LsofUtil.getCwd(getProcessID());
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getEnvironmentVariables() {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">return</strong> cmdEnv.get().getB();
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     @Override
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">public</strong> String getUser() {
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.user;
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     @Override
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">public</strong> String getUserID() {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.userID;
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     @Override
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">public</strong> String getGroup() {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.group;
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     @Override
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">public</strong> String getGroupID() {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.groupID;
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> 
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     @Override
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">public</strong> State getState() {
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.state;
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     @Override
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getParentProcessID() {
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.parentProcessID;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     @Override
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.threadCount;
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     @Override
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPriority() {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.priority;
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     }
-<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     @Override
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getVirtualSize() {
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.virtualSize;
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     @Override
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getResidentSetSize() {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.residentSetSize;
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     @Override
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getKernelTime() {
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.kernelTime;
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     }
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     @Override
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getUserTime() {
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.userTime;
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     }
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>     @Override
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getUpTime() {
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.upTime;
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     }
-<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     @Override
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getStartTime() {
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.startTime;
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     }
-<a class="jxr_linenumber" name="L212" href="#L212">212</a> 
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     @Override
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getBytesRead() {
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bytesRead;
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     @Override
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getBytesWritten() {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bytesWritten;
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>     }
-<a class="jxr_linenumber" name="L222" href="#L222">222</a> 
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     @Override
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFiles() {
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">return</strong> LsofUtil.getOpenFiles(getProcessID());
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     }
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     @Override
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getBitness() {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bitness.get();
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>     }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> queryBitness() {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         List&lt;String&gt; pflags = ExecutingCommand.runNative(<span class="jxr_string">"pflags "</span> + getProcessID());
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">for</strong> (String line : pflags) {
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>             <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"data model"</span>)) {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>                 <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"LP32"</span>)) {
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>                     <strong class="jxr_keyword">return</strong> 32;
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"LP64"</span>)) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>                     <strong class="jxr_keyword">return</strong> 64;
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>                 }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             }
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         }
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     }
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> 
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     @Override
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAffinityMask() {
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <em class="jxr_comment">// Need to capture BND field from ps</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <em class="jxr_comment">// ps -m -o THREAD -p 12345</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <em class="jxr_comment">// BND field for PID is either a dash (all processors) or the processor it's</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <em class="jxr_comment">// bound to, do 1L &lt;&lt; # to get mask</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">long</strong> mask = 0L;
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         List&lt;String&gt; processAffinityInfoList = ExecutingCommand.runNative(<span class="jxr_string">"ps -m -o THREAD -p "</span> + getProcessID());
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">if</strong> (processAffinityInfoList.size() &gt; 2) { <em class="jxr_comment">// what happens when the process has not thread?</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>             processAffinityInfoList.remove(0); <em class="jxr_comment">// remove header row</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             processAffinityInfoList.remove(0); <em class="jxr_comment">// remove process row</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>             <strong class="jxr_keyword">for</strong> (String processAffinityInfo : processAffinityInfoList) { <em class="jxr_comment">// affinity information is in thread row</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                 Map&lt;PsThreadColumns, String&gt; threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.<strong class="jxr_keyword">class</strong>,
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                         processAffinityInfo.trim(), ' ');
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 <strong class="jxr_keyword">if</strong> (threadMap.containsKey(PsThreadColumns.COMMAND)
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                         &amp;&amp; threadMap.get(PsThreadColumns.ST).charAt(0) != 'Z') { <em class="jxr_comment">// only non-zombie threads</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                     String bnd = threadMap.get(PsThreadColumns.BND);
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                     <strong class="jxr_keyword">if</strong> (bnd.charAt(0) == '-') { <em class="jxr_comment">// affinity to all processors</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.affinityMask.get();
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>                         <strong class="jxr_keyword">int</strong> affinity = ParseUtil.parseIntOrDefault(bnd, 0);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>                         mask |= 1L &lt;&lt; affinity;
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>                     }
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 }
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             }
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         }
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">return</strong> mask;
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     }
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> 
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>     @Override
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>     <strong class="jxr_keyword">public</strong> List&lt;OSThread&gt; getThreadDetails() {
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         List&lt;String&gt; threadListInfoPs = ExecutingCommand.runNative(<span class="jxr_string">"ps -m -o THREAD -p "</span> + getProcessID());
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <em class="jxr_comment">// 1st row is header, 2nd row is process data.</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">if</strong> (threadListInfoPs.size() &gt; 2) {
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>             List&lt;OSThread&gt; threads = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             threadListInfoPs.remove(0); <em class="jxr_comment">// header removed</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             threadListInfoPs.remove(0); <em class="jxr_comment">// process data removed</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>             <strong class="jxr_keyword">for</strong> (String threadInfo : threadListInfoPs) {
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 Map&lt;PsThreadColumns, String&gt; threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.<strong class="jxr_keyword">class</strong>,
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>                         threadInfo.trim(), ' ');
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 <strong class="jxr_keyword">if</strong> (threadMap.containsKey(PsThreadColumns.COMMAND)) {
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>                     threads.add(<strong class="jxr_keyword">new</strong> <a name="AixOSThread" href="../../../../../oshi/software/os/unix/aix/AixOSThread.html#AixOSThread">AixOSThread</a>(getProcessID(), threadMap));
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>                 }
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>             }
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>             <strong class="jxr_keyword">return</strong> threads;
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         }
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>     }
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> 
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     @Override
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMajorFaults() {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.majorFaults;
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>     }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a> 
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>     @Override
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>         perfstat_process_t[] perfstat = procCpu.get();
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         List&lt;String&gt; procList = <a name="ExecutingCommand" href="../../../../../oshi/util/ExecutingCommand.html#ExecutingCommand">ExecutingCommand</a>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>                 .runNative(<span class="jxr_string">"ps -o "</span> + AixOperatingSystem.PS_COMMAND_ARGS + <span class="jxr_string">" -p "</span> + getProcessID());
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <em class="jxr_comment">// Parse array to map of user/system times</em>
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         Map&lt;Integer, Pair&lt;Long, Long&gt;&gt; cpuMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">for</strong> (perfstat_process_t stat : perfstat) {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>             cpuMap.put((<strong class="jxr_keyword">int</strong>) stat.pid, <strong class="jxr_keyword">new</strong> Pair&lt;&gt;((<strong class="jxr_keyword">long</strong>) stat.ucpu_time, (<strong class="jxr_keyword">long</strong>) stat.scpu_time));
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         }
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">if</strong> (procList.size() &gt; 1) {
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>             Map&lt;PsKeywords, String&gt; psMap = ParseUtil.stringToEnumMap(PsKeywords.<strong class="jxr_keyword">class</strong>, procList.get(1).trim(), ' ');
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>             <em class="jxr_comment">// Check if last (thus all) value populated</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>             <strong class="jxr_keyword">if</strong> (psMap.containsKey(PsKeywords.ARGS)) {
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 <strong class="jxr_keyword">return</strong> updateAttributes(psMap, cpuMap);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>             }
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         }
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">this</strong>.state = State.INVALID;
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>     }
-<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes(Map&lt;PsKeywords, String&gt; psMap, Map&lt;Integer, Pair&lt;Long, Long&gt;&gt; cpuMap) {
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">this</strong>.state = getStateFromOutput(psMap.get(PsKeywords.ST).charAt(0));
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">this</strong>.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">this</strong>.user = psMap.get(PsKeywords.USER);
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <strong class="jxr_keyword">this</strong>.userID = psMap.get(PsKeywords.UID);
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <strong class="jxr_keyword">this</strong>.group = psMap.get(PsKeywords.GROUP);
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">this</strong>.groupID = psMap.get(PsKeywords.GID);
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">this</strong>.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.THCOUNT), 0);
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">this</strong>.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <em class="jxr_comment">// These are in KB, multiply</em>
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">this</strong>.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSIZE), 0) &lt;&lt; 10;
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">this</strong>.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSSIZE), 0) &lt;&lt; 10;
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <strong class="jxr_keyword">long</strong> elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>         <strong class="jxr_keyword">if</strong> (cpuMap.containsKey(getProcessID())) {
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>             Pair&lt;Long, Long&gt; userSystem = cpuMap.get(getProcessID());
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>             <strong class="jxr_keyword">this</strong>.userTime = userSystem.getA();
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>             <strong class="jxr_keyword">this</strong>.kernelTime = userSystem.getB();
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>             <strong class="jxr_keyword">this</strong>.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>             <strong class="jxr_keyword">this</strong>.kernelTime = 0L;
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         }
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <em class="jxr_comment">// Avoid divide by zero for processes up less than a second</em>
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">this</strong>.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">this</strong>.upTime &lt; <strong class="jxr_keyword">this</strong>.userTime + <strong class="jxr_keyword">this</strong>.kernelTime) {
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>             <strong class="jxr_keyword">this</strong>.upTime += 500L;
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         }
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">this</strong>.startTime = now - <strong class="jxr_keyword">this</strong>.upTime;
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">this</strong>.name = psMap.get(PsKeywords.COMM);
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">this</strong>.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.PAGEIN), 0L);
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <strong class="jxr_keyword">this</strong>.commandLineBackup = psMap.get(PsKeywords.ARGS);
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">this</strong>.path = ParseUtil.whitespaces.split(<strong class="jxr_keyword">this</strong>.commandLineBackup)[0];
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>     }
-<a class="jxr_linenumber" name="L356" href="#L356">356</a> 
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>     <em class="jxr_javadoccomment">/***</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * Returns Enum STATE for the state value obtained from status string of</em>
-<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     * thread/process.</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * @param stateValue</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     *            state value from the status string</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * @return The state</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">static</strong> State getStateFromOutput(<strong class="jxr_keyword">char</strong> stateValue) {
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>         State state;
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">switch</strong> (stateValue) {
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">case</strong> 'O':
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>             state = INVALID;
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <strong class="jxr_keyword">case</strong> 'R':
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">case</strong> 'A':
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>             state = RUNNING;
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <strong class="jxr_keyword">case</strong> 'I':
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>             state = WAITING;
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">private</strong> Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt; queryCommandlineEnvironment() {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">return</strong> PsInfo.queryArgsEnv(getProcessID(), psinfo.get());
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     @Override
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">public</strong> String getCurrentWorkingDirectory() {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             String cwdLink = <span class="jxr_string">"/proc"</span> + getProcessID() + <span class="jxr_string">"/cwd"</span>;
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>             String cwd = <strong class="jxr_keyword">new</strong> File(cwdLink).getCanonicalPath();
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             <strong class="jxr_keyword">if</strong> (!cwd.equals(cwdLink)) {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                 <strong class="jxr_keyword">return</strong> cwd;
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             }
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             LOG.trace(<span class="jxr_string">"Couldn't find cwd for pid {}: {}"</span>, getProcessID(), e.getMessage());
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     @Override
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">public</strong> String getUser() {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.user;
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     @Override
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">public</strong> String getUserID() {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.userID;
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     @Override
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">public</strong> String getGroup() {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.group;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     @Override
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> String getGroupID() {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.groupID;
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     @Override
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> State getState() {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.state;
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     @Override
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getParentProcessID() {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.parentProcessID;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     @Override
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getThreadCount() {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.threadCount;
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     @Override
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPriority() {
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.priority;
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     }
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>     @Override
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getVirtualSize() {
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.virtualSize;
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     }
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     @Override
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getResidentSetSize() {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.residentSetSize;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     }
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     @Override
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getKernelTime() {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.kernelTime;
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     @Override
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getUserTime() {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.userTime;
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     @Override
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getUpTime() {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.upTime;
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     @Override
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getStartTime() {
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.startTime;
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     @Override
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getBytesRead() {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bytesRead;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     }
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     @Override
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getBytesWritten() {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bytesWritten;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     }
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     @Override
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFiles() {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; fd = Files.list(Paths.get(<span class="jxr_string">"/proc/"</span> + getProcessID() + <span class="jxr_string">"/fd"</span>))) {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">return</strong> fd.count();
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         }
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>     }
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> 
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     @Override
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getBitness() {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bitness.get();
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> queryBitness() {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         List&lt;String&gt; pflags = ExecutingCommand.runNative(<span class="jxr_string">"pflags "</span> + getProcessID());
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">for</strong> (String line : pflags) {
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>             <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"data model"</span>)) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                 <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"LP32"</span>)) {
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                     <strong class="jxr_keyword">return</strong> 32;
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"LP64"</span>)) {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>                     <strong class="jxr_keyword">return</strong> 64;
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         }
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     @Override
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAffinityMask() {
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">long</strong> mask = 0L;
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <em class="jxr_comment">// Need to capture pr_bndpro for all threads</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <em class="jxr_comment">// Get process files in proc</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         File directory = <strong class="jxr_keyword">new</strong> File(String.format(<span class="jxr_string">"/proc/%d/lwp"</span>, getProcessID()));
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         File[] numericFiles = directory.listFiles(file -&gt; Constants.DIGITS.matcher(file.getName()).matches());
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">if</strong> (numericFiles == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             <strong class="jxr_keyword">return</strong> mask;
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <em class="jxr_comment">// Iterate files</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">for</strong> (File lwpidFile : numericFiles) {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>             <strong class="jxr_keyword">int</strong> lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             AIXLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">if</strong> (info != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 mask |= info.pr_bindpro;
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>             }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         mask &amp;= affinityMask.get();
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">return</strong> mask;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     }
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     @Override
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">public</strong> List&lt;OSThread&gt; getThreadDetails() {
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         List&lt;OSThread&gt; threads = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <em class="jxr_comment">// Get process files in proc</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         File directory = <strong class="jxr_keyword">new</strong> File(String.format(<span class="jxr_string">"/proc/%d/lwp"</span>, getProcessID()));
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         File[] numericFiles = directory.listFiles(file -&gt; Constants.DIGITS.matcher(file.getName()).matches());
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">if</strong> (numericFiles == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             <strong class="jxr_keyword">return</strong> threads;
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         }
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> 
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <em class="jxr_comment">// Iterate files</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <strong class="jxr_keyword">for</strong> (File lwpidFile : numericFiles) {
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>             <strong class="jxr_keyword">int</strong> lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>             <a name="OSThread" href="../../../../../oshi/software/os/OSThread.html#OSThread">OSThread</a> thread = <strong class="jxr_keyword">new</strong> <a name="AixOSThread" href="../../../../../oshi/software/os/unix/aix/AixOSThread.html#AixOSThread">AixOSThread</a>(getProcessID(), lwpidNum);
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>             <strong class="jxr_keyword">if</strong> (thread.getState() != INVALID) {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>                 threads.add(thread);
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>             }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         }
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">return</strong> threads;
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     @Override
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         perfstat_process_t[] perfstat = procCpu.get();
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">for</strong> (perfstat_process_t stat : perfstat) {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>             <strong class="jxr_keyword">int</strong> statpid = (<strong class="jxr_keyword">int</strong>) stat.pid;
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>             <strong class="jxr_keyword">if</strong> (statpid == getProcessID()) {
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>                 <strong class="jxr_keyword">return</strong> updateAttributes(<strong class="jxr_keyword">new</strong> Pair&lt;&gt;((<strong class="jxr_keyword">long</strong>) stat.ucpu_time, (<strong class="jxr_keyword">long</strong>) stat.scpu_time));
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>             }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">this</strong>.state = State.INVALID;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>     }
+<a class="jxr_linenumber" name="L325" href="#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes(Pair&lt;Long, Long&gt; userSysCpuTime) {
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         AixPsInfo info = psinfo.get();
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <strong class="jxr_keyword">if</strong> (info == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>             <strong class="jxr_keyword">this</strong>.state = INVALID;
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         }
+<a class="jxr_linenumber" name="L332" href="#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">this</strong>.state = getStateFromOutput((<strong class="jxr_keyword">char</strong>) info.pr_lwp.pr_sname);
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <strong class="jxr_keyword">this</strong>.parentProcessID = (<strong class="jxr_keyword">int</strong>) info.pr_ppid;
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         <strong class="jxr_keyword">this</strong>.userID = Long.toString(info.pr_euid);
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <strong class="jxr_keyword">this</strong>.user = UserGroupInfo.getUser(<strong class="jxr_keyword">this</strong>.userID);
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">this</strong>.groupID = Long.toString(info.pr_egid);
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">this</strong>.group = UserGroupInfo.getGroupName(<strong class="jxr_keyword">this</strong>.groupID);
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">this</strong>.threadCount = info.pr_nlwp;
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         <strong class="jxr_keyword">this</strong>.priority = info.pr_lwp.pr_pri;
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         <em class="jxr_comment">// These are in KB, multiply</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <strong class="jxr_keyword">this</strong>.virtualSize = info.pr_size * 1024;
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <strong class="jxr_keyword">this</strong>.residentSetSize = info.pr_rssize * 1024;
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">this</strong>.startTime = info.pr_start.tv_sec * 1000L + info.pr_start.tv_nsec / 1_000_000L;
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <em class="jxr_comment">// Avoid divide by zero for processes up less than a millisecond</em>
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">long</strong> elapsedTime = now - <strong class="jxr_keyword">this</strong>.startTime;
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <strong class="jxr_keyword">this</strong>.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">this</strong>.userTime = userSysCpuTime.getA();
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">this</strong>.kernelTime = userSysCpuTime.getB();
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">this</strong>.commandLineBackup = Native.toString(info.pr_psargs);
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <strong class="jxr_keyword">this</strong>.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">this</strong>.name = <strong class="jxr_keyword">this</strong>.path.substring(<strong class="jxr_keyword">this</strong>.path.lastIndexOf('/') + 1);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.name.isEmpty()) {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>             <strong class="jxr_keyword">this</strong>.name = Native.toString(info.pr_fname);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     }
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> 
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <em class="jxr_javadoccomment">/***</em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * Returns Enum STATE for the state value obtained from status string of</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     * thread/process.</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     * @param stateValue</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">     *            state value from the status string</em>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">     * @return The state</em>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>     <strong class="jxr_keyword">static</strong> State getStateFromOutput(<strong class="jxr_keyword">char</strong> stateValue) {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         State state;
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">switch</strong> (stateValue) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <strong class="jxr_keyword">case</strong> 'O':
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>             state = INVALID;
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <strong class="jxr_keyword">case</strong> 'R':
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <strong class="jxr_keyword">case</strong> 'A':
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>             state = RUNNING;
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">case</strong> 'S':
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">case</strong> 'W':
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>             state = SLEEPING;
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         <strong class="jxr_keyword">case</strong> 'Z':
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>             state = ZOMBIE;
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">case</strong> 'I':
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>             state = WAITING;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <strong class="jxr_keyword">case</strong> 'S':
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         <strong class="jxr_keyword">case</strong> 'W':
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>             state = SLEEPING;
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <strong class="jxr_keyword">case</strong> 'T':
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>             state = STOPPED;
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <strong class="jxr_keyword">case</strong> 'Z':
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>             state = ZOMBIE;
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>             state = OTHER;
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <strong class="jxr_keyword">case</strong> 'T':
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             state = STOPPED;
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         }
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">return</strong> state;
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> }
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>             state = OTHER;
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <strong class="jxr_keyword">return</strong> state;
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>     }
+<a class="jxr_linenumber" name="L397" href="#L397">397</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>

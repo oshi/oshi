@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogicalProcessorInformation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows</a> &gt; <span class="el_source">LogicalProcessorInformation.java</span></div><h1>LogicalProcessorInformation.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2010 - 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -25,9 +25,12 @@ package oshi.driver.windows;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.sun.jna.platform.win32.Kernel32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
@@ -35,15 +38,23 @@ import com.sun.jna.platform.win32.WinNT.NUMA_NODE_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.wmi.Win32Processor;
+import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
+import oshi.hardware.CentralProcessor.PhysicalProcessor;
+import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Utility to query Logical Processor Information
  */
 @ThreadSafe
 public final class LogicalProcessorInformation {
+
+<span class="nc" id="L57">    private static final boolean IS_WIN10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();</span>
 
     private LogicalProcessorInformation() {
     }
@@ -54,30 +65,36 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static List&lt;LogicalProcessor&gt; getLogicalProcessorInformationEx() {
+    public static Pair&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;&gt; getLogicalProcessorInformationEx() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
-<span class="nc" id="L60">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util</span>
-<span class="nc" id="L61">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);</span>
+<span class="nc" id="L71">        SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util</span>
+<span class="nc" id="L72">                .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);</span>
         // Used to cross-reference a processor to package pr core
-<span class="nc" id="L63">        List&lt;GROUP_AFFINITY[]&gt; packages = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L64">        List&lt;GROUP_AFFINITY&gt; cores = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L74">        List&lt;GROUP_AFFINITY[]&gt; packages = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L75">        List&lt;GROUP_AFFINITY&gt; cores = new ArrayList&lt;&gt;();</span>
         // Used to iterate
-<span class="nc" id="L66">        List&lt;NUMA_NODE_RELATIONSHIP&gt; numaNodes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L77">        List&lt;NUMA_NODE_RELATIONSHIP&gt; numaNodes = new ArrayList&lt;&gt;();</span>
+        // Map to store efficiency class of a processor core
+<span class="nc" id="L79">        Map&lt;GROUP_AFFINITY, Integer&gt; coreEfficiencyMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        for (int i = 0; i &lt; procInfo.length; i++) {</span>
-<span class="nc bnc" id="L69" title="All 4 branches missed.">            switch (procInfo[i].relationship) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (int i = 0; i &lt; procInfo.length; i++) {</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">            switch (procInfo[i].relationship) {</span>
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
                 // could assign a package to more than one processor group
-<span class="nc" id="L72">                packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);</span>
-<span class="nc" id="L73">                break;</span>
+<span class="nc" id="L85">                packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);</span>
+<span class="nc" id="L86">                break;</span>
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
+<span class="nc" id="L88">                PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) procInfo[i]);</span>
                 // for Core, groupCount is always 1
-<span class="nc" id="L76">                cores.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask[0]);</span>
-<span class="nc" id="L77">                break;</span>
+<span class="nc" id="L90">                cores.add(core.groupMask[0]);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                if (IS_WIN10_OR_GREATER) {</span>
+<span class="nc" id="L92">                    coreEfficiencyMap.put(core.groupMask[0], (int) core.efficiencyClass);</span>
+                }
+                break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-<span class="nc" id="L79">                numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);</span>
-<span class="nc" id="L80">                break;</span>
+<span class="nc" id="L96">                numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);</span>
+<span class="nc" id="L97">                break;</span>
             default:
                 // Ignore Group and Cache info
                 break;
@@ -86,53 +103,78 @@ public final class LogicalProcessorInformation {
         // Windows doesn't define core and package numbers, so we sort the lists
         // so core and package numbers increment consistently with processor
         // numbers/bitmasks, ordered in groups
-<span class="nc" id="L89">        cores.sort(Comparator.comparing(c -&gt; c.group * 64L + c.mask.longValue()));</span>
+<span class="nc" id="L106">        cores.sort(Comparator.comparing(c -&gt; c.group * 64L + c.mask.longValue()));</span>
         // if package in multiple groups will still use first group for sorting
-<span class="nc" id="L91">        packages.sort(Comparator.comparing(p -&gt; p[0].group * 64L + p[0].mask.longValue()));</span>
+<span class="nc" id="L108">        packages.sort(Comparator.comparing(p -&gt; p[0].group * 64L + p[0].mask.longValue()));</span>
 
         // Iterate Logical Processors and use bitmasks to match packages, cores,
         // and NUMA nodes. Perfmon instances are numa node + processor number, so we
         // iterate by numa node so the returned list will properly index perfcounter
         // numa/proc-per-numa indices with all numa nodes grouped together
-<span class="nc" id="L97">        numaNodes.sort(Comparator.comparing(n -&gt; n.nodeNumber));</span>
-<span class="nc" id="L98">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (NUMA_NODE_RELATIONSHIP node : numaNodes) {</span>
-<span class="nc" id="L100">            int nodeNum = node.nodeNumber;</span>
-<span class="nc" id="L101">            int group = node.groupMask.group;</span>
-<span class="nc" id="L102">            long mask = node.groupMask.mask.longValue();</span>
+<span class="nc" id="L114">        numaNodes.sort(Comparator.comparing(n -&gt; n.nodeNumber));</span>
+
+        // Fetch the processorIDs from WMI
+<span class="nc" id="L117">        Map&lt;Integer, String&gt; processorIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L118">        WmiResult&lt;ProcessorIdProperty&gt; processorId = Win32Processor.queryProcessorId();</span>
+        // One entry for each package/socket
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        for (int pkg = 0; pkg &lt; processorId.getResultCount(); pkg++) {</span>
+<span class="nc" id="L121">            processorIdMap.put(pkg, WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, pkg));</span>
+        }
+
+<span class="nc" id="L124">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L125">        Map&lt;Integer, String&gt; pkgCpuidMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        for (NUMA_NODE_RELATIONSHIP node : numaNodes) {</span>
+<span class="nc" id="L127">            int nodeNum = node.nodeNumber;</span>
+<span class="nc" id="L128">            int group = node.groupMask.group;</span>
+<span class="nc" id="L129">            long mask = node.groupMask.mask.longValue();</span>
             // Processor numbers are uniquely identified by processor group and processor
             // number on that group, which matches the bitmask.
-<span class="nc" id="L105">            int lowBit = Long.numberOfTrailingZeros(mask);</span>
-<span class="nc" id="L106">            int hiBit = 63 - Long.numberOfLeadingZeros(mask);</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (int lp = lowBit; lp &lt;= hiBit; lp++) {</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">                if ((mask &amp; (1L &lt;&lt; lp)) != 0) {</span>
-<span class="nc" id="L109">                    LogicalProcessor logProc = new LogicalProcessor(lp, getMatchingCore(cores, group, lp),</span>
-<span class="nc" id="L110">                            getMatchingPackage(packages, group, lp), nodeNum, group);</span>
-<span class="nc" id="L111">                    logProcs.add(logProc);</span>
+<span class="nc" id="L132">            int lowBit = Long.numberOfTrailingZeros(mask);</span>
+<span class="nc" id="L133">            int hiBit = 63 - Long.numberOfLeadingZeros(mask);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            for (int lp = lowBit; lp &lt;= hiBit; lp++) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                if ((mask &amp; (1L &lt;&lt; lp)) != 0) {</span>
+<span class="nc" id="L136">                    int coreId = getMatchingCore(cores, group, lp);</span>
+<span class="nc" id="L137">                    int pkgId = getMatchingPackage(packages, group, lp);</span>
+<span class="nc" id="L138">                    pkgCpuidMap.put(coreId, processorIdMap.getOrDefault(pkgId, &quot;&quot;));</span>
+<span class="nc" id="L139">                    LogicalProcessor logProc = new LogicalProcessor(lp, coreId, pkgId, nodeNum, group);</span>
+<span class="nc" id="L140">                    logProcs.add(logProc);</span>
                 }
             }
-<span class="nc" id="L114">        }</span>
-<span class="nc" id="L115">        return logProcs;</span>
+<span class="nc" id="L143">        }</span>
+<span class="nc" id="L144">        List&lt;PhysicalProcessor&gt; physProcs = getPhysProcs(cores, coreEfficiencyMap, pkgCpuidMap);</span>
+<span class="nc" id="L145">        return new Pair&lt;&gt;(logProcs, physProcs);</span>
+    }
+
+    private static List&lt;PhysicalProcessor&gt; getPhysProcs(List&lt;GROUP_AFFINITY&gt; cores,
+            Map&lt;GROUP_AFFINITY, Integer&gt; coreEfficiencyMap, Map&lt;Integer, String&gt; coreCpuidMap) {
+<span class="nc" id="L150">        List&lt;PhysicalProcessor&gt; physProcs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L151">        int coreId = 0;</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        for (GROUP_AFFINITY core : cores) {</span>
+<span class="nc" id="L153">            int efficiency = coreEfficiencyMap.getOrDefault(core, 0);</span>
+<span class="nc" id="L154">            String cpuid = coreCpuidMap.getOrDefault(coreId, &quot;&quot;);</span>
+<span class="nc" id="L155">            physProcs.add(new PhysicalProcessor(coreId++, efficiency, cpuid));</span>
+<span class="nc" id="L156">        }</span>
+<span class="nc" id="L157">        return physProcs;</span>
     }
 
     private static int getMatchingPackage(List&lt;GROUP_AFFINITY[]&gt; packages, int g, int lp) {
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        for (int i = 0; i &lt; packages.size(); i++) {</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            for (int j = 0; j &lt; packages.get(i).length; j++) {</span>
-<span class="nc bnc" id="L121" title="All 4 branches missed.">                if ((packages.get(i)[j].mask.longValue() &amp; (1L &lt;&lt; lp)) != 0 &amp;&amp; packages.get(i)[j].group == g) {</span>
-<span class="nc" id="L122">                    return i;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        for (int i = 0; i &lt; packages.size(); i++) {</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            for (int j = 0; j &lt; packages.get(i).length; j++) {</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">                if ((packages.get(i)[j].mask.longValue() &amp; (1L &lt;&lt; lp)) != 0 &amp;&amp; packages.get(i)[j].group == g) {</span>
+<span class="nc" id="L164">                    return i;</span>
                 }
             }
         }
-<span class="nc" id="L126">        return 0;</span>
+<span class="nc" id="L168">        return 0;</span>
     }
 
     private static int getMatchingCore(List&lt;GROUP_AFFINITY&gt; cores, int g, int lp) {
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (int j = 0; j &lt; cores.size(); j++) {</span>
-<span class="nc bnc" id="L131" title="All 4 branches missed.">            if ((cores.get(j).mask.longValue() &amp; (1L &lt;&lt; lp)) != 0 &amp;&amp; cores.get(j).group == g) {</span>
-<span class="nc" id="L132">                return j;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (int j = 0; j &lt; cores.size(); j++) {</span>
+<span class="nc bnc" id="L173" title="All 4 branches missed.">            if ((cores.get(j).mask.longValue() &amp; (1L &lt;&lt; lp)) != 0 &amp;&amp; cores.get(j).group == g) {</span>
+<span class="nc" id="L174">                return j;</span>
             }
         }
-<span class="nc" id="L135">        return 0;</span>
+<span class="nc" id="L177">        return 0;</span>
     }
 
     /*
@@ -144,41 +186,41 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static List&lt;LogicalProcessor&gt; getLogicalProcessorInformation() {
+    public static Pair&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;&gt; getLogicalProcessorInformation() {
         // Collect a list of logical processors on each physical core and
         // package.
-<span class="nc" id="L150">        List&lt;Long&gt; packageMaskList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L151">        List&lt;Long&gt; coreMaskList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L152">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {</span>
-<span class="nc" id="L155">                packageMaskList.add(proc.processorMask.longValue());</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">            } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
-<span class="nc" id="L157">                coreMaskList.add(proc.processorMask.longValue());</span>
+<span class="nc" id="L192">        List&lt;Long&gt; packageMaskList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L193">        List&lt;Long&gt; coreMaskList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L194">        WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION proc : processors) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage) {</span>
+<span class="nc" id="L197">                packageMaskList.add(proc.processorMask.longValue());</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">            } else if (proc.relationship == WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore) {</span>
+<span class="nc" id="L199">                coreMaskList.add(proc.processorMask.longValue());</span>
             }
         }
         // Sort the list (natural ordering) so core and package numbers
         // increment as expected.
-<span class="nc" id="L162">        coreMaskList.sort(null);</span>
-<span class="nc" id="L163">        packageMaskList.sort(null);</span>
+<span class="nc" id="L204">        coreMaskList.sort(null);</span>
+<span class="nc" id="L205">        packageMaskList.sort(null);</span>
 
         // Assign logical processors to cores and packages
-<span class="nc" id="L166">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (int core = 0; core &lt; coreMaskList.size(); core++) {</span>
-<span class="nc" id="L168">            long coreMask = coreMaskList.get(core);</span>
+<span class="nc" id="L208">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">        for (int core = 0; core &lt; coreMaskList.size(); core++) {</span>
+<span class="nc" id="L210">            long coreMask = coreMaskList.get(core);</span>
             // Lowest and Highest set bits, indexing from 0
-<span class="nc" id="L170">            int lowBit = Long.numberOfTrailingZeros(coreMask);</span>
-<span class="nc" id="L171">            int hiBit = 63 - Long.numberOfLeadingZeros(coreMask);</span>
+<span class="nc" id="L212">            int lowBit = Long.numberOfTrailingZeros(coreMask);</span>
+<span class="nc" id="L213">            int hiBit = 63 - Long.numberOfLeadingZeros(coreMask);</span>
             // Create logical processors for this core
-<span class="nc bnc" id="L173" title="All 2 branches missed.">            for (int i = lowBit; i &lt;= hiBit; i++) {</span>
-<span class="nc bnc" id="L174" title="All 2 branches missed.">                if ((coreMask &amp; (1L &lt;&lt; i)) != 0) {</span>
-<span class="nc" id="L175">                    LogicalProcessor logProc = new LogicalProcessor(i, core,</span>
-<span class="nc" id="L176">                            LogicalProcessorInformation.getBitMatchingPackageNumber(packageMaskList, i));</span>
-<span class="nc" id="L177">                    logProcs.add(logProc);</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">            for (int i = lowBit; i &lt;= hiBit; i++) {</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                if ((coreMask &amp; (1L &lt;&lt; i)) != 0) {</span>
+<span class="nc" id="L217">                    LogicalProcessor logProc = new LogicalProcessor(i, core,</span>
+<span class="nc" id="L218">                            LogicalProcessorInformation.getBitMatchingPackageNumber(packageMaskList, i));</span>
+<span class="nc" id="L219">                    logProcs.add(logProc);</span>
                 }
             }
         }
-<span class="nc" id="L181">        return logProcs;</span>
+<span class="nc" id="L223">        return new Pair&lt;&gt;(logProcs, null);</span>
     }
 
     /**
@@ -191,12 +233,12 @@ public final class LogicalProcessorInformation {
      * @return The index of the list which matched the bit
      */
     private static int getBitMatchingPackageNumber(List&lt;Long&gt; packageMaskList, int logProc) {
-<span class="nc bnc" id="L194" title="All 2 branches missed.">        for (int i = 0; i &lt; packageMaskList.size(); i++) {</span>
-<span class="nc bnc" id="L195" title="All 2 branches missed.">            if ((packageMaskList.get(i).longValue() &amp; (1L &lt;&lt; logProc)) != 0) {</span>
-<span class="nc" id="L196">                return i;</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        for (int i = 0; i &lt; packageMaskList.size(); i++) {</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">            if ((packageMaskList.get(i).longValue() &amp; (1L &lt;&lt; logProc)) != 0) {</span>
+<span class="nc" id="L238">                return i;</span>
             }
         }
-<span class="nc" id="L199">        return 0;</span>
+<span class="nc" id="L241">        return 0;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

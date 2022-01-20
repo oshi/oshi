@@ -31,10 +31,6 @@ oshi.hardware.platform.windows
 oshi.jna.platform.linux
 oshi.jna.platform.mac
 oshi.jna.platform.unix
-oshi.jna.platform.unix.aix
-oshi.jna.platform.unix.freebsd
-oshi.jna.platform.unix.openbsd
-oshi.jna.platform.unix.solaris
 oshi.jna.platform.windows
 oshi.software.common
 oshi.software.os
