@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2010 - 2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -39,7 +39,7 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer; <em class="jxr_comment">// NOSONAR squid:S1191</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
@@ -86,7 +86,7 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                      Pointer pNetIf = ifArray.getValueAtIndex(i);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                      SCNetworkInterfaceRef scNetIf = <strong class="jxr_keyword">new</strong> SCNetworkInterfaceRef(pNetIf);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>                      CFStringRef cfName = SystemConfiguration.INSTANCE.SCNetworkInterfaceGetBSDName(scNetIf);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      <strong class="jxr_keyword">if</strong> (name.equals(cfName.stringValue())) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      <strong class="jxr_keyword">if</strong> (cfName != <strong class="jxr_keyword">null</strong> &amp;&amp; name.equals(cfName.stringValue())) {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>                          CFStringRef cfDisplayName = SystemConfiguration.INSTANCE
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                                  .SCNetworkInterfaceGetLocalizedDisplayName(scNetIf);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                          <strong class="jxr_keyword">return</strong> cfDisplayName.stringValue();
@@ -213,6 +213,6 @@
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2021 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
 </body>
 </html>
