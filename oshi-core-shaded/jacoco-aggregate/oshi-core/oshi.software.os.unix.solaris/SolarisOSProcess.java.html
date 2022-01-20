@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisOSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.solaris</a> &gt; <span class="el_source">SolarisOSProcess.java</span></div><h1>SolarisOSProcess.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -23,31 +23,42 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.software.os.OSProcess.State.RUNNING;
 import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfo;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
+import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem.PrstatKeywords;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem.PsKeywords;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.LsofUtil;
 import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
 
 /**
@@ -55,28 +66,23 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class SolarisOSProcess extends AbstractOSProcess {
-    /*
-     * Package-private for use by SolarisOSThread
-     */
-<span class="nc" id="L61">    enum PsThreadColumns {</span>
-<span class="nc" id="L62">        LWP, S, ETIME, TIME, ADDR, PRI;</span>
-    }
 
-<span class="nc" id="L65">    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)</span>
-<span class="nc" id="L66">            .map(String::toLowerCase).collect(Collectors.joining(&quot;,&quot;));</span>
+<span class="nc" id="L70">    private static final Logger LOG = LoggerFactory.getLogger(SolarisOSProcess.class);</span>
 
-<span class="nc" id="L68">    private Supplier&lt;Integer&gt; bitness = memoize(this::queryBitness);</span>
-<span class="nc" id="L69">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
-<span class="nc" id="L70">    private Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; cmdEnv = memoize(this::queryCommandlineEnvironment);</span>
+<span class="nc" id="L72">    private Supplier&lt;Integer&gt; bitness = memoize(this::queryBitness);</span>
+<span class="nc" id="L73">    private Supplier&lt;SolarisPsInfo&gt; psinfo = memoize(this::queryPsInfo, defaultExpiration());</span>
+<span class="nc" id="L74">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
+<span class="nc" id="L75">    private Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; cmdEnv = memoize(this::queryCommandlineEnvironment);</span>
+<span class="nc" id="L76">    private Supplier&lt;SolarisPrUsage&gt; prusage = memoize(this::queryPrUsage, defaultExpiration());</span>
 
     private String name;
-<span class="nc" id="L73">    private String path = &quot;&quot;;</span>
+<span class="nc" id="L79">    private String path = &quot;&quot;;</span>
     private String commandLineBackup;
     private String user;
     private String userID;
     private String group;
     private String groupID;
-<span class="nc" id="L79">    private State state = State.INVALID;</span>
+<span class="nc" id="L85">    private State state = State.INVALID;</span>
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -88,282 +94,289 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long upTime;
     private long bytesRead;
     private long bytesWritten;
-<span class="nc" id="L91">    private long contextSwitches = 0; // default</span>
+    private long minorFaults;
+    private long majorFaults;
+<span class="nc" id="L99">    private long contextSwitches = 0; // default</span>
 
-    public SolarisOSProcess(int pid, Map&lt;PsKeywords, String&gt; psMap, Map&lt;PrstatKeywords, String&gt; prstatMap) {
-<span class="nc" id="L94">        super(pid);</span>
-<span class="nc" id="L95">        updateAttributes(psMap, prstatMap);</span>
-<span class="nc" id="L96">    }</span>
+    public SolarisOSProcess(int pid) {
+<span class="nc" id="L102">        super(pid);</span>
+<span class="nc" id="L103">        updateAttributes();</span>
+<span class="nc" id="L104">    }</span>
+
+    private SolarisPsInfo queryPsInfo() {
+<span class="nc" id="L107">        return PsInfo.queryPsInfo(this.getProcessID());</span>
+    }
+
+    private SolarisPrUsage queryPrUsage() {
+<span class="nc" id="L111">        return PsInfo.queryPrUsage(this.getProcessID());</span>
+    }
 
     @Override
     public String getName() {
-<span class="nc" id="L100">        return this.name;</span>
+<span class="nc" id="L116">        return this.name;</span>
     }
 
     @Override
     public String getPath() {
-<span class="nc" id="L105">        return this.path;</span>
+<span class="nc" id="L121">        return this.path;</span>
     }
 
     @Override
     public String getCommandLine() {
-<span class="nc" id="L110">        return this.commandLine.get();</span>
+<span class="nc" id="L126">        return this.commandLine.get();</span>
     }
 
     private String queryCommandLine() {
-<span class="nc" id="L114">        String cl = String.join(&quot; &quot;, getArguments());</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        return cl.isEmpty() ? this.commandLineBackup : cl;</span>
+<span class="nc" id="L130">        String cl = String.join(&quot; &quot;, getArguments());</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        return cl.isEmpty() ? this.commandLineBackup : cl;</span>
     }
 
     @Override
     public List&lt;String&gt; getArguments() {
-<span class="nc" id="L120">        return cmdEnv.get().getA();</span>
+<span class="nc" id="L136">        return cmdEnv.get().getA();</span>
     }
 
     @Override
     public Map&lt;String, String&gt; getEnvironmentVariables() {
-<span class="nc" id="L125">        return cmdEnv.get().getB();</span>
+<span class="nc" id="L141">        return cmdEnv.get().getB();</span>
     }
 
     private Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt; queryCommandlineEnvironment() {
-<span class="nc" id="L129">        return PsInfo.queryArgsEnv(getProcessID());</span>
+<span class="nc" id="L145">        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get());</span>
     }
 
     @Override
     public String getCurrentWorkingDirectory() {
-<span class="nc" id="L134">        return LsofUtil.getCwd(getProcessID());</span>
+        try {
+<span class="nc" id="L151">            String cwdLink = &quot;/proc&quot; + getProcessID() + &quot;/cwd&quot;;</span>
+<span class="nc" id="L152">            String cwd = new File(cwdLink).getCanonicalPath();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (!cwd.equals(cwdLink)) {</span>
+<span class="nc" id="L154">                return cwd;</span>
+            }
+<span class="nc" id="L156">        } catch (IOException e) {</span>
+<span class="nc" id="L157">            LOG.trace(&quot;Couldn't find cwd for pid {}: {}&quot;, getProcessID(), e.getMessage());</span>
+<span class="nc" id="L158">        }</span>
+<span class="nc" id="L159">        return &quot;&quot;;</span>
     }
 
     @Override
     public String getUser() {
-<span class="nc" id="L139">        return this.user;</span>
+<span class="nc" id="L164">        return this.user;</span>
     }
 
     @Override
     public String getUserID() {
-<span class="nc" id="L144">        return this.userID;</span>
+<span class="nc" id="L169">        return this.userID;</span>
     }
 
     @Override
     public String getGroup() {
-<span class="nc" id="L149">        return this.group;</span>
+<span class="nc" id="L174">        return this.group;</span>
     }
 
     @Override
     public String getGroupID() {
-<span class="nc" id="L154">        return this.groupID;</span>
+<span class="nc" id="L179">        return this.groupID;</span>
     }
 
     @Override
     public State getState() {
-<span class="nc" id="L159">        return this.state;</span>
+<span class="nc" id="L184">        return this.state;</span>
     }
 
     @Override
     public int getParentProcessID() {
-<span class="nc" id="L164">        return this.parentProcessID;</span>
+<span class="nc" id="L189">        return this.parentProcessID;</span>
     }
 
     @Override
     public int getThreadCount() {
-<span class="nc" id="L169">        return this.threadCount;</span>
+<span class="nc" id="L194">        return this.threadCount;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L174">        return this.priority;</span>
+<span class="nc" id="L199">        return this.priority;</span>
     }
 
     @Override
     public long getVirtualSize() {
-<span class="nc" id="L179">        return this.virtualSize;</span>
+<span class="nc" id="L204">        return this.virtualSize;</span>
     }
 
     @Override
     public long getResidentSetSize() {
-<span class="nc" id="L184">        return this.residentSetSize;</span>
+<span class="nc" id="L209">        return this.residentSetSize;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L189">        return this.kernelTime;</span>
+<span class="nc" id="L214">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L194">        return this.userTime;</span>
+<span class="nc" id="L219">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L199">        return this.upTime;</span>
+<span class="nc" id="L224">        return this.upTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L204">        return this.startTime;</span>
+<span class="nc" id="L229">        return this.startTime;</span>
     }
 
     @Override
     public long getBytesRead() {
-<span class="nc" id="L209">        return this.bytesRead;</span>
+<span class="nc" id="L234">        return this.bytesRead;</span>
     }
 
     @Override
     public long getBytesWritten() {
-<span class="nc" id="L214">        return this.bytesWritten;</span>
+<span class="nc" id="L239">        return this.bytesWritten;</span>
+    }
+
+    @Override
+    public long getMinorFaults() {
+<span class="nc" id="L244">        return this.minorFaults;</span>
+    }
+
+    @Override
+    public long getMajorFaults() {
+<span class="nc" id="L249">        return this.majorFaults;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L219">        return this.contextSwitches;</span>
+<span class="nc" id="L254">        return this.contextSwitches;</span>
     }
 
     @Override
     public long getOpenFiles() {
-<span class="nc" id="L224">        return LsofUtil.getOpenFiles(getProcessID());</span>
+<span class="nc" id="L259">        try (Stream&lt;Path&gt; fd = Files.list(Paths.get(&quot;/proc/&quot; + getProcessID() + &quot;/fd&quot;))) {</span>
+<span class="nc" id="L260">            return fd.count();</span>
+<span class="nc" id="L261">        } catch (IOException e) {</span>
+<span class="nc" id="L262">            return 0L;</span>
+        }
     }
 
     @Override
     public int getBitness() {
-<span class="nc" id="L229">        return this.bitness.get();</span>
+<span class="nc" id="L268">        return this.bitness.get();</span>
     }
 
     private int queryBitness() {
-<span class="nc" id="L233">        List&lt;String&gt; pflags = ExecutingCommand.runNative(&quot;pflags &quot; + getProcessID());</span>
-<span class="nc bnc" id="L234" title="All 2 branches missed.">        for (String line : pflags) {</span>
-<span class="nc bnc" id="L235" title="All 2 branches missed.">            if (line.contains(&quot;data model&quot;)) {</span>
-<span class="nc bnc" id="L236" title="All 2 branches missed.">                if (line.contains(&quot;LP32&quot;)) {</span>
-<span class="nc" id="L237">                    return 32;</span>
-<span class="nc bnc" id="L238" title="All 2 branches missed.">                } else if (line.contains(&quot;LP64&quot;)) {</span>
-<span class="nc" id="L239">                    return 64;</span>
+<span class="nc" id="L272">        List&lt;String&gt; pflags = ExecutingCommand.runNative(&quot;pflags &quot; + getProcessID());</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        for (String line : pflags) {</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">            if (line.contains(&quot;data model&quot;)) {</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                if (line.contains(&quot;LP32&quot;)) {</span>
+<span class="nc" id="L276">                    return 32;</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">                } else if (line.contains(&quot;LP64&quot;)) {</span>
+<span class="nc" id="L278">                    return 64;</span>
                 }
             }
-<span class="nc" id="L242">        }</span>
-<span class="nc" id="L243">        return 0;</span>
+<span class="nc" id="L281">        }</span>
+<span class="nc" id="L282">        return 0;</span>
     }
 
     @Override
     public long getAffinityMask() {
-<span class="nc" id="L248">        long bitMask = 0L;</span>
-<span class="nc" id="L249">        String cpuset = ExecutingCommand.getFirstAnswer(&quot;pbind -q &quot; + getProcessID());</span>
+<span class="nc" id="L287">        long bitMask = 0L;</span>
+<span class="nc" id="L288">        String cpuset = ExecutingCommand.getFirstAnswer(&quot;pbind -q &quot; + getProcessID());</span>
         // Sample output:
         // &lt;empty string if no binding&gt;
         // pid 101048 strongly bound to processor(s) 0 1 2 3.
-<span class="nc bnc" id="L253" title="All 2 branches missed.">        if (cpuset.isEmpty()) {</span>
-<span class="nc" id="L254">            List&lt;String&gt; allProcs = ExecutingCommand.runNative(&quot;psrinfo&quot;);</span>
-<span class="nc bnc" id="L255" title="All 2 branches missed.">            for (String proc : allProcs) {</span>
-<span class="nc" id="L256">                String[] split = ParseUtil.whitespaces.split(proc);</span>
-<span class="nc" id="L257">                int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);</span>
-<span class="nc bnc" id="L258" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
-<span class="nc" id="L259">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (cpuset.isEmpty()) {</span>
+<span class="nc" id="L293">            List&lt;String&gt; allProcs = ExecutingCommand.runNative(&quot;psrinfo&quot;);</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">            for (String proc : allProcs) {</span>
+<span class="nc" id="L295">                String[] split = ParseUtil.whitespaces.split(proc);</span>
+<span class="nc" id="L296">                int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
+<span class="nc" id="L298">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
                 }
-<span class="nc" id="L261">            }</span>
-<span class="nc" id="L262">            return bitMask;</span>
-<span class="nc bnc" id="L263" title="All 4 branches missed.">        } else if (cpuset.endsWith(&quot;.&quot;) &amp;&amp; cpuset.contains(&quot;strongly bound to processor(s)&quot;)) {</span>
-<span class="nc" id="L264">            String parse = cpuset.substring(0, cpuset.length() - 1);</span>
-<span class="nc" id="L265">            String[] split = ParseUtil.whitespaces.split(parse);</span>
-<span class="nc bnc" id="L266" title="All 2 branches missed.">            for (int i = split.length - 1; i &gt;= 0; i--) {</span>
-<span class="nc" id="L267">                int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);</span>
-<span class="nc bnc" id="L268" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
-<span class="nc" id="L269">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
+<span class="nc" id="L300">            }</span>
+<span class="nc" id="L301">            return bitMask;</span>
+<span class="nc bnc" id="L302" title="All 4 branches missed.">        } else if (cpuset.endsWith(&quot;.&quot;) &amp;&amp; cpuset.contains(&quot;strongly bound to processor(s)&quot;)) {</span>
+<span class="nc" id="L303">            String parse = cpuset.substring(0, cpuset.length() - 1);</span>
+<span class="nc" id="L304">            String[] split = ParseUtil.whitespaces.split(parse);</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">            for (int i = split.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L306">                int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
+<span class="nc" id="L308">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
                 } else {
                     // Once we run into the word processor(s) we're done
                     break;
                 }
             }
         }
-<span class="nc" id="L276">        return bitMask;</span>
+<span class="nc" id="L315">        return bitMask;</span>
     }
 
     @Override
     public List&lt;OSThread&gt; getThreadDetails() {
-<span class="nc" id="L281">        List&lt;OSThread&gt; threads = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L282">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -o &quot; + PS_THREAD_COLUMNS + &quot; -p &quot; + getProcessID());</span>
-<span class="nc bnc" id="L283" title="All 2 branches missed.">        if (threadList.size() &gt; 1) {</span>
-            // Get a map by lwpid of prstat output
-<span class="nc" id="L285">            List&lt;String&gt; prstatList = ExecutingCommand.runNative(&quot;prstat -L -v -p &quot; + getProcessID() + &quot; 1 1&quot;);</span>
-<span class="nc" id="L286">            Map&lt;String, String&gt; prstatRowMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L287" title="All 2 branches missed.">            for (String s : prstatList) {</span>
-<span class="nc" id="L288">                String row = s.trim();</span>
-                // Last element is PROCESS/LWPID
-<span class="nc" id="L290">                int idx = row.lastIndexOf('/');</span>
-<span class="nc bnc" id="L291" title="All 2 branches missed.">                if (idx &gt; 0) {</span>
-<span class="nc" id="L292">                    prstatRowMap.put(row.substring(idx + 1), row);</span>
-                }
-<span class="nc" id="L294">            }</span>
-            // remove header row and iterate thread list
-<span class="nc" id="L296">            threadList.remove(0);</span>
-<span class="nc bnc" id="L297" title="All 2 branches missed.">            for (String thread : threadList) {</span>
-<span class="nc" id="L298">                Map&lt;PsThreadColumns, String&gt; psMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),</span>
-                        ' ');
-                // Check if last (thus all) value populated
-<span class="nc bnc" id="L301" title="All 2 branches missed.">                if (psMap.containsKey(PsThreadColumns.PRI)) {</span>
-<span class="nc" id="L302">                    String lwpStr = psMap.get(PsThreadColumns.LWP);</span>
-<span class="nc" id="L303">                    Map&lt;PrstatKeywords, String&gt; prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class,</span>
-<span class="nc" id="L304">                            prstatRowMap.getOrDefault(lwpStr, &quot;&quot;), ' ');</span>
-<span class="nc" id="L305">                    threads.add(new SolarisOSThread(getProcessID(), psMap, prstatMap));</span>
-                }
-<span class="nc" id="L307">            }</span>
+<span class="nc" id="L320">        List&lt;OSThread&gt; threads = new ArrayList&lt;&gt;();</span>
+
+        // Get process files in proc
+<span class="nc" id="L323">        File directory = new File(String.format(&quot;/proc/%d/lwp&quot;, getProcessID()));</span>
+<span class="nc" id="L324">        File[] numericFiles = directory.listFiles(file -&gt; Constants.DIGITS.matcher(file.getName()).matches());</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">        if (numericFiles == null) {</span>
+<span class="nc" id="L326">            return threads;</span>
         }
-<span class="nc" id="L309">        return threads;</span>
+
+        // Iterate files
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        for (File lwpidFile : numericFiles) {</span>
+<span class="nc" id="L331">            int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);</span>
+<span class="nc" id="L332">            OSThread thread = new SolarisOSThread(getProcessID(), lwpidNum);</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">            if (thread.getState() != INVALID) {</span>
+<span class="nc" id="L334">                threads.add(thread);</span>
+            }
+        }
+<span class="nc" id="L337">        return threads;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L314">        int pid = getProcessID();</span>
-<span class="nc" id="L315">        List&lt;String&gt; procList = ExecutingCommand</span>
-<span class="nc" id="L316">                .runNative(&quot;ps -o &quot; + SolarisOperatingSystem.PS_COMMAND_ARGS + &quot; -p &quot; + pid);</span>
-<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (procList.size() &gt; 1) {</span>
-<span class="nc" id="L318">            Map&lt;PsKeywords, String&gt; psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');</span>
-            // Check if last (thus all) value populated
-<span class="nc bnc" id="L320" title="All 2 branches missed.">            if (psMap.containsKey(PsKeywords.ARGS)) {</span>
-<span class="nc" id="L321">                String pidStr = psMap.get(PsKeywords.PID);</span>
-<span class="nc" id="L322">                List&lt;String&gt; prstatList = ExecutingCommand.runNative(&quot;prstat -v -p &quot; + pidStr + &quot; 1 1&quot;);</span>
-<span class="nc" id="L323">                String prstatRow = &quot;&quot;;</span>
-<span class="nc bnc" id="L324" title="All 2 branches missed.">                for (String s : prstatList) {</span>
-<span class="nc" id="L325">                    String row = s.trim();</span>
-<span class="nc bnc" id="L326" title="All 2 branches missed.">                    if (row.startsWith(pidStr + &quot; &quot;)) {</span>
-<span class="nc" id="L327">                        prstatRow = row;</span>
-<span class="nc" id="L328">                        break;</span>
-                    }
-<span class="nc" id="L330">                }</span>
-<span class="nc" id="L331">                Map&lt;PrstatKeywords, String&gt; prstatMap = ParseUtil.stringToEnumMap(PrstatKeywords.class, prstatRow, ' ');</span>
-<span class="nc" id="L332">                return updateAttributes(psMap, prstatMap);</span>
-            }
+<span class="nc" id="L342">        SolarisPsInfo info = psinfo.get();</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (info == null) {</span>
+<span class="nc" id="L344">            this.state = INVALID;</span>
+<span class="nc" id="L345">            return false;</span>
         }
-<span class="nc" id="L335">        this.state = State.INVALID;</span>
-<span class="nc" id="L336">        return false;</span>
-    }
-
-    private boolean updateAttributes(Map&lt;PsKeywords, String&gt; psMap, Map&lt;PrstatKeywords, String&gt; prstatMap) {
-<span class="nc" id="L340">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L341">        this.state = getStateFromOutput(psMap.get(PsKeywords.S).charAt(0));</span>
-<span class="nc" id="L342">        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);</span>
-<span class="nc" id="L343">        this.user = psMap.get(PsKeywords.USER);</span>
-<span class="nc" id="L344">        this.userID = psMap.get(PsKeywords.UID);</span>
-<span class="nc" id="L345">        this.group = psMap.get(PsKeywords.GROUP);</span>
-<span class="nc" id="L346">        this.groupID = psMap.get(PsKeywords.GID);</span>
-<span class="nc" id="L347">        this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.NLWP), 0);</span>
-<span class="nc" id="L348">        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);</span>
+<span class="nc" id="L347">        SolarisPrUsage usage = prusage.get();</span>
+<span class="nc" id="L348">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L349">        this.state = getStateFromOutput((char) info.pr_lwp.pr_sname);</span>
+<span class="nc" id="L350">        this.parentProcessID = info.pr_ppid;</span>
+<span class="nc" id="L351">        this.userID = Integer.toString(info.pr_euid);</span>
+<span class="nc" id="L352">        this.user = UserGroupInfo.getUser(this.userID);</span>
+<span class="nc" id="L353">        this.groupID = Integer.toString(info.pr_egid);</span>
+<span class="nc" id="L354">        this.group = UserGroupInfo.getGroupName(this.groupID);</span>
+<span class="nc" id="L355">        this.threadCount = info.pr_nlwp;</span>
+<span class="nc" id="L356">        this.priority = info.pr_lwp.pr_pri;</span>
         // These are in KB, multiply
-<span class="nc" id="L350">        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;</span>
-<span class="nc" id="L351">        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;</span>
-        // Avoid divide by zero for processes up less than a second
-<span class="nc" id="L353">        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);</span>
-<span class="nc bnc" id="L354" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
-<span class="nc" id="L355">        this.startTime = now - this.upTime;</span>
-<span class="nc" id="L356">        this.kernelTime = 0L;</span>
-<span class="nc" id="L357">        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);</span>
-<span class="nc" id="L358">        this.path = psMap.get(PsKeywords.COMM);</span>
-<span class="nc" id="L359">        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);</span>
-<span class="nc" id="L360">        this.commandLineBackup = psMap.get(PsKeywords.ARGS);</span>
-<span class="nc bnc" id="L361" title="All 2 branches missed.">        if (prstatMap.containsKey(PrstatKeywords.ICX)) {</span>
-<span class="nc" id="L362">            long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.ICX), 0L);</span>
-<span class="nc" id="L363">            long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(prstatMap.get(PrstatKeywords.VCX), 0L);</span>
-<span class="nc" id="L364">            this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
+<span class="nc" id="L358">        this.virtualSize = info.pr_size.longValue() * 1024;</span>
+<span class="nc" id="L359">        this.residentSetSize = info.pr_rssize.longValue() * 1024;</span>
+<span class="nc" id="L360">        this.startTime = info.pr_start.tv_sec.longValue() * 1000L + info.pr_start.tv_nsec.longValue() / 1_000_000L;</span>
+        // Avoid divide by zero for processes up less than a millisecond
+<span class="nc" id="L362">        long elapsedTime = now - this.startTime;</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
+<span class="nc" id="L364">        this.kernelTime = 0L;</span>
+<span class="nc" id="L365">        this.userTime = info.pr_time.tv_sec.longValue() * 1000L + info.pr_time.tv_nsec.longValue() / 1_000_000L;</span>
+        // 80 character truncation but enough for path and name (usually)
+<span class="nc" id="L367">        this.commandLineBackup = Native.toString(info.pr_psargs);</span>
+<span class="nc" id="L368">        this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];</span>
+<span class="nc" id="L369">        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">        if (usage != null) {</span>
+<span class="nc" id="L371">            this.userTime = usage.pr_utime.tv_sec.longValue() * 1000L + usage.pr_utime.tv_nsec.longValue() / 1_000_000L;</span>
+<span class="nc" id="L372">            this.kernelTime = usage.pr_stime.tv_sec.longValue() * 1000L</span>
+<span class="nc" id="L373">                    + usage.pr_stime.tv_nsec.longValue() / 1_000_000L;</span>
+<span class="nc" id="L374">            this.bytesRead = usage.pr_ioch.longValue();</span>
+<span class="nc" id="L375">            this.majorFaults = usage.pr_majf.longValue();</span>
+<span class="nc" id="L376">            this.minorFaults = usage.pr_minf.longValue();</span>
+<span class="nc" id="L377">            this.contextSwitches = usage.pr_ictx.longValue() + usage.pr_vctx.longValue();</span>
         }
-<span class="nc" id="L366">        return true;</span>
+<span class="nc" id="L379">        return true;</span>
     }
 
     /***
@@ -376,28 +389,28 @@ public class SolarisOSProcess extends AbstractOSProcess {
      */
     static State getStateFromOutput(char stateValue) {
         State state;
-<span class="nc bnc" id="L379" title="All 6 branches missed.">        switch (stateValue) {</span>
+<span class="nc bnc" id="L392" title="All 6 branches missed.">        switch (stateValue) {</span>
         case 'O':
-<span class="nc" id="L381">            state = RUNNING;</span>
-<span class="nc" id="L382">            break;</span>
+<span class="nc" id="L394">            state = RUNNING;</span>
+<span class="nc" id="L395">            break;</span>
         case 'S':
-<span class="nc" id="L384">            state = SLEEPING;</span>
-<span class="nc" id="L385">            break;</span>
+<span class="nc" id="L397">            state = SLEEPING;</span>
+<span class="nc" id="L398">            break;</span>
         case 'R':
         case 'W':
-<span class="nc" id="L388">            state = WAITING;</span>
-<span class="nc" id="L389">            break;</span>
+<span class="nc" id="L401">            state = WAITING;</span>
+<span class="nc" id="L402">            break;</span>
         case 'Z':
-<span class="nc" id="L391">            state = ZOMBIE;</span>
-<span class="nc" id="L392">            break;</span>
+<span class="nc" id="L404">            state = ZOMBIE;</span>
+<span class="nc" id="L405">            break;</span>
         case 'T':
-<span class="nc" id="L394">            state = STOPPED;</span>
-<span class="nc" id="L395">            break;</span>
+<span class="nc" id="L407">            state = STOPPED;</span>
+<span class="nc" id="L408">            break;</span>
         default:
-<span class="nc" id="L397">            state = OTHER;</span>
+<span class="nc" id="L410">            state = OTHER;</span>
             break;
         }
-<span class="nc" id="L400">        return state;</span>
+<span class="nc" id="L413">        return state;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

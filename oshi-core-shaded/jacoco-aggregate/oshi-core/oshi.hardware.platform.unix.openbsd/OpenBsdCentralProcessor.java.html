@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OpenBsdCentralProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.openbsd</a> &gt; <span class="el_source">OpenBsdCentralProcessor.java</span></div><h1>OpenBsdCentralProcessor.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -122,7 +122,7 @@ import oshi.util.tuples.Triplet;
     }
 
     @Override
-    protected List&lt;LogicalProcessor&gt; initProcessorCounts() {
+    protected Pair&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;&gt; initProcessorCounts() {
         // Iterate dmesg, look for lines:
         // cpu0: smt 0, core 0, package 0
         // cpu1: smt 0, core 1, package 0
@@ -146,7 +146,24 @@ import oshi.util.tuples.Triplet;
 <span class="nc bnc" id="L146" title="All 2 branches missed.">        for (int i = 0; i &lt; logicalProcessorCount; i++) {</span>
 <span class="nc" id="L147">            logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));</span>
         }
-<span class="nc" id="L149">        return logProcs;</span>
+<span class="nc" id="L149">        Map&lt;Integer, String&gt; dmesg = new HashMap&lt;&gt;();</span>
+        // cpu0 at mainbus0 mpidr 0: ARM Cortex-A7 r0p5
+        // but NOT: cpu0 at mainbus0: apid 0 (boot processor)
+        // cpu0: AMD GX-412TC SOC, 998.28 MHz, 16-30-01
+        // cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01
+        // cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01
+<span class="nc" id="L155">        Pattern p = Pattern.compile(&quot;cpu(\\\\d+).*: ((ARM|AMD|Intel).+)&quot;);</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;dmesg&quot;)) {</span>
+<span class="nc" id="L157">            Matcher m = p.matcher(s);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (m.matches()) {</span>
+<span class="nc" id="L159">                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);</span>
+<span class="nc" id="L160">                dmesg.put(coreId, m.group(2).trim());</span>
+            }
+<span class="nc" id="L162">        }</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (dmesg.isEmpty()) {</span>
+<span class="nc" id="L164">            return new Pair&lt;&gt;(logProcs, null);</span>
+        }
+<span class="nc" id="L166">        return new Pair&lt;&gt;(logProcs, createProcListFromDmesg(logProcs, dmesg));</span>
     }
 
     /**
@@ -156,7 +173,7 @@ import oshi.util.tuples.Triplet;
      */
     @Override
     protected long queryContextSwitches() {
-<span class="nc" id="L159">        return vmStats.get().getA();</span>
+<span class="nc" id="L176">        return vmStats.get().getA();</span>
     }
 
     /**
@@ -166,21 +183,21 @@ import oshi.util.tuples.Triplet;
      */
     @Override
     protected long queryInterrupts() {
-<span class="nc" id="L169">        return vmStats.get().getB();</span>
+<span class="nc" id="L186">        return vmStats.get().getB();</span>
     }
 
     private static Pair&lt;Long, Long&gt; queryVmStats() {
-<span class="nc" id="L173">        long contextSwitches = 0L;</span>
-<span class="nc" id="L174">        long interrupts = 0L;</span>
-<span class="nc" id="L175">        List&lt;String&gt; vmstat = ExecutingCommand.runNative(&quot;vmstat -s&quot;);</span>
-<span class="nc bnc" id="L176" title="All 2 branches missed.">        for (String line : vmstat) {</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">            if (line.endsWith(&quot;cpu context switches&quot;)) {</span>
-<span class="nc" id="L178">                contextSwitches = ParseUtil.getFirstIntValue(line);</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">            } else if (line.endsWith(&quot;interrupts&quot;)) {</span>
-<span class="nc" id="L180">                interrupts = ParseUtil.getFirstIntValue(line);</span>
+<span class="nc" id="L190">        long contextSwitches = 0L;</span>
+<span class="nc" id="L191">        long interrupts = 0L;</span>
+<span class="nc" id="L192">        List&lt;String&gt; vmstat = ExecutingCommand.runNative(&quot;vmstat -s&quot;);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (String line : vmstat) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (line.endsWith(&quot;cpu context switches&quot;)) {</span>
+<span class="nc" id="L195">                contextSwitches = ParseUtil.getFirstIntValue(line);</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            } else if (line.endsWith(&quot;interrupts&quot;)) {</span>
+<span class="nc" id="L197">                interrupts = ParseUtil.getFirstIntValue(line);</span>
             }
-<span class="nc" id="L182">        }</span>
-<span class="nc" id="L183">        return new Pair&lt;&gt;(contextSwitches, interrupts);</span>
+<span class="nc" id="L199">        }</span>
+<span class="nc" id="L200">        return new Pair&lt;&gt;(contextSwitches, interrupts);</span>
     }
 
     /**
@@ -190,22 +207,22 @@ import oshi.util.tuples.Triplet;
      */
     @Override
     protected long[] querySystemCpuLoadTicks() {
-<span class="nc" id="L193">        long[] ticks = new long[TickType.values().length];</span>
-<span class="nc" id="L194">        int[] mib = new int[2];</span>
-<span class="nc" id="L195">        mib[0] = CTL_KERN;</span>
-<span class="nc" id="L196">        mib[1] = KERN_CPTIME;</span>
-<span class="nc" id="L197">        Memory m = OpenBsdSysctlUtil.sysctl(mib);</span>
+<span class="nc" id="L210">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L211">        int[] mib = new int[2];</span>
+<span class="nc" id="L212">        mib[0] = CTL_KERN;</span>
+<span class="nc" id="L213">        mib[1] = KERN_CPTIME;</span>
+<span class="nc" id="L214">        Memory m = OpenBsdSysctlUtil.sysctl(mib);</span>
         // array of 5 or 6 native longs
-<span class="nc" id="L199">        long[] cpuTicks = cpTimeToTicks(m, false);</span>
-<span class="nc bnc" id="L200" title="All 2 branches missed.">        if (cpuTicks.length &gt;= 5) {</span>
-<span class="nc" id="L201">            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
-<span class="nc" id="L202">            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
-<span class="nc" id="L203">            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">            int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
-<span class="nc" id="L205">            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
-<span class="nc" id="L206">            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
+<span class="nc" id="L216">        long[] cpuTicks = cpTimeToTicks(m, false);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (cpuTicks.length &gt;= 5) {</span>
+<span class="nc" id="L218">            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
+<span class="nc" id="L219">            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
+<span class="nc" id="L220">            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
+<span class="nc" id="L222">            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
+<span class="nc" id="L223">            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
         }
-<span class="nc" id="L208">        return ticks;</span>
+<span class="nc" id="L225">        return ticks;</span>
     }
 
     /**
@@ -215,25 +232,25 @@ import oshi.util.tuples.Triplet;
      */
     @Override
     protected long[][] queryProcessorCpuLoadTicks() {
-<span class="nc" id="L218">        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];</span>
-<span class="nc" id="L219">        int[] mib = new int[3];</span>
-<span class="nc" id="L220">        mib[0] = CTL_KERN;</span>
-<span class="nc" id="L221">        mib[1] = KERN_CPTIME2;</span>
-<span class="nc bnc" id="L222" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {</span>
-<span class="nc" id="L223">            mib[2] = cpu;</span>
-<span class="nc" id="L224">            Memory m = OpenBsdSysctlUtil.sysctl(mib);</span>
+<span class="nc" id="L235">        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];</span>
+<span class="nc" id="L236">        int[] mib = new int[3];</span>
+<span class="nc" id="L237">        mib[0] = CTL_KERN;</span>
+<span class="nc" id="L238">        mib[1] = KERN_CPTIME2;</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {</span>
+<span class="nc" id="L240">            mib[2] = cpu;</span>
+<span class="nc" id="L241">            Memory m = OpenBsdSysctlUtil.sysctl(mib);</span>
             // array of 5 or 6 longs
-<span class="nc" id="L226">            long[] cpuTicks = cpTimeToTicks(m, true);</span>
-<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (cpuTicks.length &gt;= 5) {</span>
-<span class="nc" id="L228">                ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
-<span class="nc" id="L229">                ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
-<span class="nc" id="L230">                ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">                int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
-<span class="nc" id="L232">                ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
-<span class="nc" id="L233">                ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
+<span class="nc" id="L243">            long[] cpuTicks = cpTimeToTicks(m, true);</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (cpuTicks.length &gt;= 5) {</span>
+<span class="nc" id="L245">                ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
+<span class="nc" id="L246">                ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
+<span class="nc" id="L247">                ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">                int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
+<span class="nc" id="L249">                ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
+<span class="nc" id="L250">                ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
             }
         }
-<span class="nc" id="L236">        return ticks;</span>
+<span class="nc" id="L253">        return ticks;</span>
     }
 
     /**
@@ -252,16 +269,16 @@ import oshi.util.tuples.Triplet;
      * @return The array
      */
     private static long[] cpTimeToTicks(Memory m, boolean force64bit) {
-<span class="nc bnc" id="L255" title="All 2 branches missed.">        long longBytes = force64bit ? 8L : Native.LONG_SIZE;</span>
-<span class="nc bnc" id="L256" title="All 2 branches missed.">        int arraySize = m == null ? 0 : (int) (m.size() / longBytes);</span>
-<span class="nc bnc" id="L257" title="All 4 branches missed.">        if (force64bit &amp;&amp; m != null) {</span>
-<span class="nc" id="L258">            return m.getLongArray(0, arraySize);</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        long longBytes = force64bit ? 8L : Native.LONG_SIZE;</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        int arraySize = m == null ? 0 : (int) (m.size() / longBytes);</span>
+<span class="nc bnc" id="L274" title="All 4 branches missed.">        if (force64bit &amp;&amp; m != null) {</span>
+<span class="nc" id="L275">            return m.getLongArray(0, arraySize);</span>
         }
-<span class="nc" id="L260">        long[] ticks = new long[arraySize];</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">        for (int i = 0; i &lt; arraySize; i++) {</span>
-<span class="nc" id="L262">            ticks[i] = m.getNativeLong(i * longBytes).longValue();</span>
+<span class="nc" id="L277">        long[] ticks = new long[arraySize];</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        for (int i = 0; i &lt; arraySize; i++) {</span>
+<span class="nc" id="L279">            ticks[i] = m.getNativeLong(i * longBytes).longValue();</span>
         }
-<span class="nc" id="L264">        return ticks;</span>
+<span class="nc" id="L281">        return ticks;</span>
     }
 
     /**
@@ -286,15 +303,15 @@ import oshi.util.tuples.Triplet;
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L289" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L290">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L306" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L307">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L292">        double[] average = new double[nelem];</span>
-<span class="nc" id="L293">        int retval = OpenBsdLibc.INSTANCE.getloadavg(average, nelem);</span>
-<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
-<span class="nc" id="L295">            Arrays.fill(average, -1d);</span>
+<span class="nc" id="L309">        double[] average = new double[nelem];</span>
+<span class="nc" id="L310">        int retval = OpenBsdLibc.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc" id="L312">            Arrays.fill(average, -1d);</span>
         }
-<span class="nc" id="L297">        return average;</span>
+<span class="nc" id="L314">        return average;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisLibc.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-core-shaded</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">SolarisLibc.java</span></div><h1>SolarisLibc.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2022-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -25,6 +25,7 @@ package oshi.jna.platform.unix;
 
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
@@ -34,43 +35,48 @@ import com.sun.jna.Structure.FieldOrder;
  */
 public interface SolarisLibc extends CLibrary {
 
-<span class="nc" id="L37">    SolarisLibc INSTANCE = Native.load(&quot;c&quot;, SolarisLibc.class);</span>
+<span class="nc" id="L38">    SolarisLibc INSTANCE = Native.load(&quot;c&quot;, SolarisLibc.class);</span>
 
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 32;
     int UTX_IDSIZE = 4;
     int UTX_HOSTSIZE = 257;
 
+    int PRCLSZ = 8;
+    int PRFNSZ = 16;
+    int PRLNSZ = 32;
+    int PRARGSZ = 80;
+
     /**
      * Connection info
      */
     @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_session&quot;, &quot;ut_syslen&quot;, &quot;ut_host&quot; })
-<span class="nc" id="L48">    class SolarisUtmpx extends Structure {</span>
-<span class="nc" id="L49">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
-<span class="nc" id="L50">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
-<span class="nc" id="L51">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
+<span class="nc" id="L54">    class SolarisUtmpx extends Structure {</span>
+<span class="nc" id="L55">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
+<span class="nc" id="L56">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
+<span class="nc" id="L57">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
         public int ut_pid; // process id
         public short ut_type; // type of entry
         public Timeval ut_tv; // time entry was made
         public int ut_session; // session ID, used for windowing
         public short ut_syslen; // significant length of ut_host including terminating null
-<span class="nc" id="L57">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L63">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
     }
 
     /**
      * Part of utmpx structure
      */
     @FieldOrder({ &quot;e_termination&quot;, &quot;e_exit&quot; })
-<span class="nc" id="L64">    class Exit_status extends Structure {</span>
+<span class="nc" id="L70">    class Exit_status extends Structure {</span>
         public short e_termination; // Process termination status
         public short e_exit; // Process exit status
     }
 
     /**
-     * 64-bit timeval required for utmpx structure
+     * 32/64-bit timeval required for utmpx structure
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L73">    class Timeval extends Structure {</span>
+<span class="nc" id="L79">    class Timeval extends Structure {</span>
         public NativeLong tv_sec; // seconds
         public NativeLong tv_usec; // microseconds
     }
@@ -85,5 +91,185 @@ public interface SolarisLibc extends CLibrary {
      *         includes the &quot;record not found&quot; case)
      */
     SolarisUtmpx getutxent();
+
+    /**
+     * Structure for psinfo file
+     */
+    @FieldOrder({ &quot;pr_flag&quot;, &quot;pr_nlwp&quot;, &quot;pr_pid&quot;, &quot;pr_ppid&quot;, &quot;pr_pgid&quot;, &quot;pr_sid&quot;, &quot;pr_uid&quot;, &quot;pr_euid&quot;, &quot;pr_gid&quot;,
+            &quot;pr_egid&quot;, &quot;pr_addr&quot;, &quot;pr_size&quot;, &quot;pr_rssize&quot;, &quot;pr_rssizepriv&quot;, &quot;pr_ttydev&quot;, &quot;pr_pctcpu&quot;, &quot;pr_pctmem&quot;,
+            &quot;pr_start&quot;, &quot;pr_time&quot;, &quot;pr_ctime&quot;, &quot;pr_fname&quot;, &quot;pr_psargs&quot;, &quot;pr_wstat&quot;, &quot;pr_argc&quot;, &quot;pr_argv&quot;, &quot;pr_envp&quot;,
+            &quot;pr_dmodel&quot;, &quot;pr_pad2&quot;, &quot;pr_taskid&quot;, &quot;pr_projid&quot;, &quot;pr_nzomb&quot;, &quot;pr_poolid&quot;, &quot;pr_zoneid&quot;, &quot;pr_contract&quot;,
+            &quot;pr_filler&quot;, &quot;pr_lwp&quot; })
+    class SolarisPsInfo extends Structure {
+        public int pr_flag; // process flags (DEPRECATED; do not use)
+        public int pr_nlwp; // number of active lwps in the process
+        public int pr_pid; // unique process id
+        public int pr_ppid; // process id of parent
+        public int pr_pgid; // pid of process group leader
+        public int pr_sid; // session id
+        public int pr_uid; // real user id
+        public int pr_euid; // effective user id
+        public int pr_gid; // real group id
+        public int pr_egid; // effective group id
+        public Pointer pr_addr; // address of process
+        public size_t pr_size; // size of process image in Kbytes
+        public size_t pr_rssize; // resident set size in Kbytes
+        public size_t pr_rssizepriv; // resident set size of private mappings
+        public NativeLong pr_ttydev; // controlling tty device (or PRNODEV)
+        // The following percent numbers are 16-bit binary
+        // fractions [0 .. 1] with the binary point to the
+        // right of the high-order bit (1.0 == 0x8000)
+        public short pr_pctcpu; // % of recent cpu time used by all lwps
+        public short pr_pctmem; // % of system memory used by process
+        public Timestruc pr_start; // process start time, from the epoch
+        public Timestruc pr_time; // usr+sys cpu time for this process
+        public Timestruc pr_ctime; // usr+sys cpu time for reaped children
+<span class="nc" id="L127">        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file</span>
+<span class="nc" id="L128">        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list</span>
+        public int pr_wstat; // if zombie, the wait() status
+        public int pr_argc; // initial argument count
+        public Pointer pr_argv; // address of initial argument vector
+        public Pointer pr_envp; // address of initial environment vector
+        public byte pr_dmodel; // data model of the process
+<span class="nc" id="L134">        public byte[] pr_pad2 = new byte[3];</span>
+        public int pr_taskid; // task id
+        public int pr_projid; // project id
+        public int pr_nzomb; // number of zombie lwps in the process
+        public int pr_poolid; // pool id
+        public int pr_zoneid; // zone id
+        public int pr_contract; // process contract id
+<span class="nc" id="L141">        public int[] pr_filler = new int[1]; // reserved for future use</span>
+        public SolarisLwpsInfo pr_lwp; // information for representative lwp
+
+        public SolarisPsInfo() {
+<span class="nc" id="L145">            super();</span>
+<span class="nc" id="L146">        }</span>
+
+        public SolarisPsInfo(byte[] bytes) {
+<span class="nc" id="L149">            super();</span>
+            // Truncate bytes and pad with 0 if necessary
+<span class="nc" id="L151">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L152">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+            // Write bytes to native
+<span class="nc" id="L154">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+            // Read bytes to struct
+<span class="nc" id="L156">            read();</span>
+<span class="nc" id="L157">        }</span>
+    }
+
+    /**
+     * Nested Structure for psinfo file
+     */
+    @FieldOrder({ &quot;pr_flag&quot;, &quot;pr_lwpid&quot;, &quot;pr_addr&quot;, &quot;pr_wchan&quot;, &quot;pr_stype&quot;, &quot;pr_state&quot;, &quot;pr_sname&quot;, &quot;pr_nice&quot;,
+            &quot;pr_syscall&quot;, &quot;pr_oldpri&quot;, &quot;pr_cpu&quot;, &quot;pr_pri&quot;, &quot;pr_pctcpu&quot;, &quot;pr_pad&quot;, &quot;pr_start&quot;, &quot;pr_time&quot;, &quot;pr_clname&quot;,
+            &quot;pr_oldname&quot;, &quot;pr_onpro&quot;, &quot;pr_bindpro&quot;, &quot;pr_bindpset&quot;, &quot;pr_lgrp&quot;, &quot;pr_last_onproc&quot;, &quot;pr_name&quot; })
+    class SolarisLwpsInfo extends Structure {
+        public int pr_flag; // lwp flags (DEPRECATED; do not use)
+        public int pr_lwpid; // lwp id
+        public Pointer pr_addr; // DEPRECATED was internal address of lwp
+        public Pointer pr_wchan; // DEPRECATED was wait addr for sleeping lwp
+        public byte pr_stype; // synchronization event type
+        public byte pr_state; // numeric lwp state
+        public byte pr_sname; // printable character for pr_state
+        public byte pr_nice; // nice for cpu usage
+        public short pr_syscall; // system call number (if in syscall)
+        public byte pr_oldpri; // pre-SVR4, low value is high priority
+        public byte pr_cpu; // pre-SVR4, cpu usage for scheduling
+        public int pr_pri; // priority, high value = high priority
+        // The following percent numbers are 16-bit binary
+        // fractions [0 .. 1] with the binary point to the
+        // right of the high-order bit (1.0 == 0x8000)
+        public short pr_pctcpu; // % of recent cpu time used by this lwp
+        public short pr_pad;
+        public Timestruc pr_start; // lwp start time, from the epoch
+        public Timestruc pr_time; // cpu time for this lwp
+<span class="nc" id="L186">        public byte[] pr_clname = new byte[PRCLSZ]; // scheduling class name</span>
+<span class="nc" id="L187">        public byte[] pr_oldname = new byte[PRFNSZ]; // binary compatibility -- unused</span>
+        public int pr_onpro; // processor which last ran this lwp
+        public int pr_bindpro; // processor to which lwp is bound
+        public int pr_bindpset; // processor set to which lwp is bound
+        public int pr_lgrp; // home lgroup
+        public long pr_last_onproc; // Timestamp of when thread last ran on a processor
+<span class="nc" id="L193">        public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp</span>
+
+        public SolarisLwpsInfo() {
+<span class="nc" id="L196">            super();</span>
+<span class="nc" id="L197">        }</span>
+
+        public SolarisLwpsInfo(byte[] bytes) {
+<span class="nc" id="L200">            super();</span>
+            // Truncate bytes and pad with 0 if necessary
+<span class="nc" id="L202">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L203">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+            // Write bytes to native
+<span class="nc" id="L205">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+            // Read bytes to struct
+<span class="nc" id="L207">            read();</span>
+<span class="nc" id="L208">        }</span>
+    }
+
+    /**
+     * Structure for usage file
+     */
+    @FieldOrder({ &quot;pr_lwpid&quot;, &quot;pr_count&quot;, &quot;pr_tstamp&quot;, &quot;pr_create&quot;, &quot;pr_term&quot;, &quot;pr_rtime&quot;, &quot;pr_utime&quot;, &quot;pr_stime&quot;,
+            &quot;pr_ttime&quot;, &quot;pr_tftime&quot;, &quot;pr_dftime&quot;, &quot;pr_kftime&quot;, &quot;pr_ltime&quot;, &quot;pr_slptime&quot;, &quot;pr_wtime&quot;, &quot;pr_stoptime&quot;,
+            &quot;filltime&quot;, &quot;pr_minf&quot;, &quot;pr_majf&quot;, &quot;pr_nswap&quot;, &quot;pr_inblk&quot;, &quot;pr_oublk&quot;, &quot;pr_msnd&quot;, &quot;pr_mrcv&quot;, &quot;pr_sigs&quot;,
+            &quot;pr_vctx&quot;, &quot;pr_ictx&quot;, &quot;pr_sysc&quot;, &quot;pr_ioch&quot;, &quot;filler&quot; })
+    class SolarisPrUsage extends Structure {
+        public int pr_lwpid; // lwp id. 0: process or defunct
+        public int pr_count; // number of contributing lwps
+        public Timestruc pr_tstamp; // current time stamp
+        public Timestruc pr_create; // process/lwp creation time stamp
+        public Timestruc pr_term; // process/lwp termination time stamp
+        public Timestruc pr_rtime; // total lwp real (elapsed) time
+        public Timestruc pr_utime; // user level cpu time
+        public Timestruc pr_stime; // system call cpu time
+        public Timestruc pr_ttime; // other system trap cpu time
+        public Timestruc pr_tftime; // text page fault sleep time
+        public Timestruc pr_dftime; // data page fault sleep time
+        public Timestruc pr_kftime; // kernel page fault sleep time
+        public Timestruc pr_ltime; // user lock wait sleep time
+        public Timestruc pr_slptime; // all other sleep time
+        public Timestruc pr_wtime; // wait-cpu (latency) time
+        public Timestruc pr_stoptime; // stopped time
+<span class="nc" id="L235">        public Timestruc[] filltime = new Timestruc[6]; // filler for future expansion</span>
+        public NativeLong pr_minf; // minor page faults
+        public NativeLong pr_majf; // major page faults
+        public NativeLong pr_nswap; // swaps
+        public NativeLong pr_inblk; // input blocks
+        public NativeLong pr_oublk; // output blocks
+        public NativeLong pr_msnd; // messages sent
+        public NativeLong pr_mrcv; // messages received
+        public NativeLong pr_sigs; // signals received
+        public NativeLong pr_vctx; // voluntary context switches
+        public NativeLong pr_ictx; // involuntary context switches
+        public NativeLong pr_sysc; // system calls
+        public NativeLong pr_ioch; // chars read and written
+<span class="nc" id="L248">        public NativeLong[] filler = new NativeLong[10]; // filler for future expansion</span>
+
+        public SolarisPrUsage() {
+<span class="nc" id="L251">            super();</span>
+<span class="nc" id="L252">        }</span>
+
+        public SolarisPrUsage(byte[] bytes) {
+<span class="nc" id="L255">            super();</span>
+            // Truncate bytes and pad with 0 if necessary
+<span class="nc" id="L257">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L258">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+            // Write bytes to native
+<span class="nc" id="L260">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+            // Read bytes to struct
+<span class="nc" id="L262">            read();</span>
+<span class="nc" id="L263">        }</span>
+    }
+
+    /**
+     * 32/64-bit timestruc required for psinfo and lwpsinfo structures
+     */
+    @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_nsec&quot; })
+<span class="nc" id="L270">    class Timestruc extends Structure {</span>
+        public NativeLong tv_sec; // seconds
+        public NativeLong tv_nsec; // nanoseconds
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
