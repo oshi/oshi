@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="FORMAT" timestamp="1641009112497">
-    <module artifactId="oshi-demo" groupId="com.github.oshi" version="6.0.1"/>
+<licensePluginReport goal="FORMAT" timestamp="1642701622794">
+    <module artifactId="oshi-demo" groupId="com.github.oshi" version="6.1.0"/>
     <files>
         <file path="src/main/java/oshi/demo/ComputerID.java" result="NOOP"/>
         <file path="src/main/java/oshi/demo/DetectVM.java" result="NOOP"/>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Kstat2StatusException.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">Kstat2StatusException.java</span></div><h1>Kstat2StatusException.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.unix;
+
+import com.sun.jna.Native;
+
+/**
+ * Exception encapsulating {@code Kstat2} Error Return Values, defined as
+ * {@code kstat2_status} values in {@code kstat2.h}
+ */
+public class Kstat2StatusException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
+    private final int kstat2Status;
+
+    /**
+     * New exception from {@code kstat2_status}
+     *
+     * @param ks
+     *            The return value
+     */
+    public Kstat2StatusException(int ks) {
+<span class="nc" id="L44">        this(ks, formatMessage(ks));</span>
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * New exception from {@code kstat2_status} with specified message
+     *
+     * @param ks
+     *            The return value
+     * @param msg
+     *            The exception message
+     */
+    protected Kstat2StatusException(int ks, String msg) {
+<span class="nc" id="L56">        super(msg);</span>
+<span class="nc" id="L57">        this.kstat2Status = ks;</span>
+<span class="nc" id="L58">    }</span>
+
+    /**
+     * @return the Kstat2Status code
+     */
+    public int getKstat2Status() {
+<span class="nc" id="L64">        return kstat2Status;</span>
+    }
+
+    private static String formatMessage(int ks) {
+<span class="nc" id="L68">        String status = Kstat2.INSTANCE.kstat2_status_string(ks);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (ks == Kstat2.KSTAT2_S_SYS_FAIL) {</span>
+<span class="nc" id="L70">            status += &quot; (errno=&quot; + Native.getLastError() + &quot;)&quot;;</span>
+        }
+<span class="nc" id="L72">        return &quot;Kstat2Status error code &quot; + ks + &quot;: &quot; + status;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
