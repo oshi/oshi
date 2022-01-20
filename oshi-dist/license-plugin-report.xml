@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="FORMAT" timestamp="1641009248551">
-    <module artifactId="oshi-dist" groupId="com.github.oshi" version="6.0.1"/>
+<licensePluginReport goal="FORMAT" timestamp="1642704790519">
+    <module artifactId="oshi-dist" groupId="com.github.oshi" version="6.1.0"/>
     <files/>
 </licensePluginReport>
