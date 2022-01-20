@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -87,6 +87,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final long USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"),
             100L);
 
+    /**
+     * OS Name for manufacturer
+     */
+    private static final String OS_NAME = ExecutingCommand.getFirstAnswer("uname -o");
+
     // Package private for access from LinuxOSProcess
     static final long BOOTTIME;
     static {
@@ -101,6 +106,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // PPID is 4th numeric value in proc pid stat; subtract 1 for 0-index
     private static final int[] PPID_INDEX = { 3 };
 
+
     /**
      * <p>
      * Constructor for LinuxOperatingSystem.
@@ -112,7 +118,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public String queryManufacturer() {
-        return "GNU/Linux";
+        return OS_NAME;
     }
 
     @Override
