@@ -1,4 +1,8 @@
-# 6.1.0 (in progress)
+# 6.1.1 (in progress)
+
+* Your contribution here!
+
+# 6.1.0 (2022-01-20)
 
 ##### New Features
 * [#1851](https://github.com/oshi/oshi/pull/1851),
