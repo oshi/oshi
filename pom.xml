@@ -90,8 +90,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <signature.artifact>java18</signature.artifact>
-        <signature.version>1.0</signature.version>
         <!-- Base directory, overwrite in submodules -->
         <main.basedir>${project.basedir}</main.basedir>
         <!-- Dependency versions -->
@@ -150,7 +148,6 @@
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
-        <animal-sniffer-maven-plugin.version>1.20</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>6.5.3</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>9.2.1</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
@@ -556,18 +553,6 @@
                     <version>${wagon-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>${animal-sniffer-maven-plugin.version}</version>
-                    <configuration>
-                        <signature>
-                            <groupId>org.codehaus.mojo.signature</groupId>
-                            <artifactId>${signature.artifact}</artifactId>
-                            <version>${signature.version}</version>
-                        </signature>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
@@ -689,19 +674,6 @@
                                 </RestrictImports>
                             </rules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>test-sniffer</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -902,21 +874,6 @@
                 <maven.compiler.testSource>11</maven.compiler.testSource>
                 <maven.compiler.testTarget>11</maven.compiler.testTarget>
             </properties>
-            <build>
-                <plugins>
-                    <!-- animal-sniffer doesn't work past JDK8 -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>animal-sniffer-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>test-sniffer</id>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>checks</id>
@@ -1126,6 +1083,54 @@
                                         <arg>loopback</arg>
                                     </gpgArguments>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <!-- Animal Sniffer for jdk 8 -->
+                <animal-sniffer-maven-plugin.version>1.20</animal-sniffer-maven-plugin.version>
+
+                <!-- Signature Settings -->
+                <signature.artifact>java18</signature.artifact>
+                <signature.version>1.0</signature.version>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>animal-sniffer-maven-plugin</artifactId>
+                            <version>${animal-sniffer-maven-plugin.version}</version>
+                            <configuration>
+                                <signature>
+                                    <groupId>org.codehaus.mojo.signature</groupId>
+                                    <artifactId>${signature.artifact}</artifactId>
+                                    <version>${signature.version}</version>
+                                </signature>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>animal-sniffer-maven-plugin</artifactId>
+                        <version>${animal-sniffer-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>test-sniffer</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>test</phase>
                             </execution>
                         </executions>
                     </plugin>
