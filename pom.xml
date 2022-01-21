@@ -497,6 +497,47 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>taglist-maven-plugin</artifactId>
                     <version>${taglist-maven-plugin.version}</version>
+                    <configuration>
+                        <tagListOptions>
+                            <tagClasses>
+                                <tagClass>
+                                    <displayName>FIXME Work</displayName>
+                                    <tags>
+                                        <tag>
+                                            <matchString>fixme</matchString>
+                                            <matchType>ignoreCase</matchType>
+                                        </tag>
+                                        <tag>
+                                            <matchString>@fixme</matchString>
+                                            <matchType>ignoreCase</matchType>
+                                        </tag>
+                                    </tags>
+                                </tagClass>
+                                <tagClass>
+                                    <displayName>Todo Work</displayName>
+                                    <tags>
+                                        <tag>
+                                            <matchString>todo</matchString>
+                                            <matchType>ignoreCase</matchType>
+                                        </tag>
+                                        <tag>
+                                            <matchString>@todo</matchString>
+                                            <matchType>ignoreCase</matchType>
+                                        </tag>
+                                    </tags>
+                                </tagClass>
+                                <tagClass>
+                                    <displayName>Deprecated Work</displayName>
+                                    <tags>
+                                        <tag>
+                                            <matchString>@deprecated</matchString>
+                                            <matchType>ignoreCase</matchType>
+                                        </tag>
+                                    </tags>
+                                </tagClass>
+                           </tagClasses>
+                        </tagListOptions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
