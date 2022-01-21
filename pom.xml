@@ -58,7 +58,7 @@
         <url>https://github.com/oshi/oshi/issues</url>
     </issueManagement>
     <ciManagement>
-        <system>Github Actions</system>
+        <system>Github</system>
         <url>https://github.com/oshi/oshi/actions</url>
     </ciManagement>
     <distributionManagement>
