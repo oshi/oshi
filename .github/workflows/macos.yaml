@@ -12,13 +12,13 @@ on:
       - '**.yaml'
     
 jobs:
-  # Runs current branch on Windows, Linux, macOS with multiple JDKs
+  # Runs full project on JDK 8
   testmatrix:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
-        java: [8, 11, 17, 18-ea]
+        java: [8]
         os: [macos-latest, macos-11]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
@@ -38,5 +38,33 @@ jobs:
           restore-keys: ${{ runner.os }}-m2          
       - name: Test with Maven
         run: ./mvnw test -B  -Dlicense.skip=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # Runs modular build on multiple JDKs
+  testmatrix11:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # Baseline support, Current LTS, Current GA, Current EA
+        java: [11, 17, 18-ea]
+        os: [macos-latest, macos-11]
+      fail-fast: false
+    name: JDK ${{ matrix.java }}, ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-11-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-11-m2          
+      - name: Test with Maven
+        run: ./mvnw11 test -B  -Dlicense.skip=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -42,9 +42,7 @@
 
     <modules>
         <module>oshi-core</module>
-        <module>oshi-core-shaded</module>
-        <module>oshi-demo</module>
-        <module>oshi-dist</module>
+        <!-- other modules added by default profile -->
     </modules>
 
     <scm>
@@ -95,6 +93,8 @@
         <!-- Base directory, overwrite in submodules -->
         <main.basedir>${project.basedir}</main.basedir>
         <!-- Dependency versions -->
+        <!-- Users of the Spring Boot Starter Parent should include this property in their POM -->
+        <jna.version>5.10.0</jna.version>
         <slf4j.version>1.7.33</slf4j.version>
         <junit.version>5.8.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -417,14 +417,11 @@
                         </archive>
                     </configuration>
                     <executions>
-                        <!-- ! here we override the super-pom attach-sources execution 
-                            id which ! calls sources:jar goal. That goals forks the lifecycle, ! causing the 
-                            generate-sources phase to be called twice for the install goal. ! Starting with 
-                            Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed 
-                            anymore. -->
-                        <!-- except that OSSRH fails with no sources with this 
-                            excluded <execution> <id>attach-sources</id> <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> 
-                            </execution> -->
+                        <!-- ! here we override the super-pom attach-sources execution id which ! calls sources:jar goal. 
+                            That goals forks the lifecycle, ! causing the generate-sources phase to be called twice for the install goal. ! Starting 
+                            with Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed anymore. -->
+                        <!-- except that OSSRH fails with no sources with this excluded <execution> <id>attach-sources</id> 
+                            <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> </execution> -->
                     </executions>
                 </plugin>
                 <!-- External Tools -->
@@ -455,8 +452,10 @@
                                     <exclude>**/MavenWrapperDownloader.java</exclude>
                                     <exclude>mvnw</exclude>
                                     <exclude>mvnw.cmd</exclude>
+                                    <exclude>mvnw11</exclude>
                                     <exclude>.editorconfig</exclude>
                                     <exclude>.gitattributes</exclude>
+                                    <exclude>**/module-info.*</exclude>
                                     <exclude>**/*.PNG</exclude>
                                     <exclude>*.xml</exclude>
                                     <exclude>*.yml</exclude>
@@ -636,8 +635,7 @@
                                         module path</reason>
                                     <includeTestCode>true</includeTestCode>
                                     <bannedImports>
-                                        <!-- Disallow all imports except explicitly 
-                                            allowed -->
+                                        <!-- Disallow all imports except explicitly allowed -->
                                         <bannedImport>**</bannedImport>
                                     </bannedImports>
                                     <allowedImports>
@@ -825,6 +823,43 @@
     </reporting>
 
     <profiles>
+        <!-- Default module configuration for java8 build -->
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>oshi-core-shaded</module>
+                <module>oshi-demo</module>
+                <module>oshi-dist</module>
+            </modules>
+        </profile>
+        <!-- Custom configuration for Java11 build -->
+        <profile>
+            <id>java11</id>
+            <properties>
+                <maven.compiler.source>11</maven.compiler.source>
+                <maven.compiler.target>11</maven.compiler.target>
+                <maven.compiler.testSource>11</maven.compiler.testSource>
+                <maven.compiler.testTarget>11</maven.compiler.testTarget>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- animal-sniffer doesn't work past JDK8 -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>animal-sniffer-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>test-sniffer</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>checks</id>
             <build>
@@ -880,7 +915,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
@@ -924,8 +958,8 @@
             <build>
                 <pluginManagement>
                     <plugins>
-                        <!--This plugin's configuration is used to store Eclipse 
-                            m2e settings only. It has no influence on the Maven build itself. -->
+                        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on 
+                            the Maven build itself. -->
                         <plugin>
                             <groupId>org.eclipse.m2e</groupId>
                             <artifactId>lifecycle-mapping</artifactId>
@@ -1046,8 +1080,8 @@
                                 <configuration>
                                     <keyname>${gpg.keyname}</keyname>
                                     <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                                    <!-- GPG 2.1 requires pinentry-mode to be set 
-                                        to loopback in order to pick up the gpg.passphrase value defined in Maven settings.xml. -->
+                                    <!-- GPG 2.1 requires pinentry-mode to be set to loopback in order to pick up the gpg.passphrase 
+                                        value defined in Maven settings.xml. -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
