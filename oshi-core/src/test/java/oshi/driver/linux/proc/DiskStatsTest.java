@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,21 +30,20 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Platform;
-
+@EnabledOnOs(OS.LINUX)
 class DiskStatsTest {
 
     @Test
     void testGetDiskStats() {
-        if (Platform.isLinux()) {
-            Map<String, Map<DiskStats.IoStat, Long>> map = DiskStats.getDiskStats();
-            assertNotNull(map, "DiskStats should not be null");
+        Map<String, Map<DiskStats.IoStat, Long>> map = DiskStats.getDiskStats();
+        assertNotNull(map, "DiskStats should not be null");
 
-            map.forEach((key, value) -> {
-                assertNotNull(value, "Entry should not have a null map!");
-                assertInstanceOf(EnumMap.class, value, "Value should be enum map!");
-            });
-        }
+        map.forEach((key, value) -> {
+            assertNotNull(value, "Entry should not have a null map!");
+            assertInstanceOf(EnumMap.class, value, "Value should be enum map!");
+        });
     }
 }

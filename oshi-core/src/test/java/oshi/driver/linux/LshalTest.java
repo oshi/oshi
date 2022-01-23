@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,36 +24,22 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.matchesRegex;
-import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
-
-import com.sun.jna.Platform;
 
 import oshi.TestConstants;
 
 class LshalTest {
 
     @Test
-    void testQuerySerialNumber() {
-        if (Platform.isLinux()) {
-            final String serialNumber = Lshal.querySerialNumber();
-            if (serialNumber != null) {
-                assertThat("Test Lshal querySerialNumber", serialNumber, not(emptyString()));
-            }
-        }
-    }
+    void testQueries() {
+        assertDoesNotThrow(Lshal::querySerialNumber);
 
-    @Test
-    void testQueryUUID() {
-        if (Platform.isLinux()) {
-            final String uuid = Lshal.queryUUID();
-            if (uuid != null) {
-                assertThat("Test Lshal queryUUID", uuid, not(emptyString()));
-                assertThat("Test Lshal queryUUID format", uuid, matchesRegex(TestConstants.UUID_REGEX));
-            }
+        final String uuid = Lshal.queryUUID();
+        if (uuid != null) {
+            assertThat("Test Lshal queryUUID format", uuid, matchesRegex(TestConstants.UUID_REGEX));
         }
     }
 
