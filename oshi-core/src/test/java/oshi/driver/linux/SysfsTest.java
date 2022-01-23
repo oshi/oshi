@@ -31,13 +31,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Platform;
-
 @EnabledOnOs(OS.LINUX)
 class SysfsTest {
 
     @Test
-    void testQuerySystemVendor() {
+    void testQueries() {
         assertDoesNotThrow(Sysfs::querySystemVendor);
         assertDoesNotThrow(Sysfs::queryProductModel);
         assertDoesNotThrow(Sysfs::queryProductSerial);
@@ -49,23 +47,16 @@ class SysfsTest {
         assertDoesNotThrow(Sysfs::queryBiosVendor);
         assertDoesNotThrow(Sysfs::queryBiosDescription);
         assertDoesNotThrow(Sysfs::queryBiosReleaseDate);
-        assertDoesNotThrow(this::queryBiosVersionEmpty);
-    }
-
-    private void queryBiosVersionEmpty() {
-        Sysfs.queryBiosVersion("");
     }
 
     @Test
     void testQueryBiosVersion() {
-        if (Platform.isLinux()) {
-            assertDoesNotThrow(Sysfs::querySystemVendor);
-            final String biosRevisionSuffix = "biosRevision";
-            final String biosRevision = Sysfs.queryBiosVersion(biosRevisionSuffix);
-            if (biosRevision != null) {
-                assertThat("Test Sysfs queryBiosVersion with biosRevision", biosRevision,
-                        containsString(biosRevisionSuffix));
-            }
+        Sysfs.queryBiosVersion("");
+        final String biosRevisionSuffix = "biosRevision";
+        final String biosRevision = Sysfs.queryBiosVersion(biosRevisionSuffix);
+        if (biosRevision != null) {
+            assertThat("Test Sysfs queryBiosVersion with biosRevision", biosRevision,
+                    containsString(biosRevisionSuffix));
         }
     }
 }

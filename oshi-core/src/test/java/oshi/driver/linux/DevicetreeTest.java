@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +23,17 @@
  */
 package oshi.driver.linux;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Platform;
-
+@EnabledOnOs(OS.LINUX)
 class DevicetreeTest {
 
     @Test
     void testQueryModel() {
-        if (Platform.isLinux()) {
-            String queryModel = Devicetree.queryModel();
-            if (queryModel != null) {
-                assertThat("queryModel format", queryModel, not(containsString("Machine: ")));
-            }
-        }
+        assertDoesNotThrow(Devicetree::queryModel);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,18 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.linux.proc;
+package oshi.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
-import oshi.util.ExecutingCommand;
-import oshi.util.UserGroupInfo;
-
+@DisabledOnOs(OS.WINDOWS)
 class UserGroupInfoTest {
 
     @Test
@@ -43,7 +44,7 @@ class UserGroupInfoTest {
             String uid = split[2];
             String userName = split[0];
             if (!checkedUid.contains(uid)) {
-                assertEquals(UserGroupInfo.getUser(uid), userName, "Incorrect result for USER_ID_MAP");
+                assertThat("Incorrect result for USER_ID_MAP", UserGroupInfo.getUser(uid), is(userName));
                 checkedUid.add(uid);
             }
         });
@@ -57,7 +58,7 @@ class UserGroupInfoTest {
             String gid = split[2];
             String groupName = split[0];
             if (!checkedGid.contains(gid)) {
-                assertEquals(UserGroupInfo.getGroupName(gid), groupName, "Incorrect result for GROUPS_ID_MAP");
+                assertThat("Incorrect result for GROUPS_ID_MAP", UserGroupInfo.getGroupName(gid), is(groupName));
                 checkedGid.add(gid);
             }
         });

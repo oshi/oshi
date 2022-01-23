@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,51 +25,28 @@ package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.matchesRegex;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Platform;
+import oshi.TestConstants;
 
+@EnabledOnOs(OS.LINUX)
 class LshwTest {
 
     @Test
-    void testQueryModel() {
-        if (Platform.isLinux()) {
-            String model = Lshw.queryModel();
-            if (model != null) {
-                assertThat("Test Lshw queryModel", model, not(emptyString()));
-            }
+    void testQueries() {
+        assertDoesNotThrow(Lshw::queryModel);
+        assertDoesNotThrow(Lshw::querySerialNumber);
+        String uuid = Lshw.queryUUID();
+        if (uuid != null) {
+            assertThat("Test Lshw queryUUID", uuid, matchesRegex(TestConstants.UUID_REGEX));
         }
-    }
-
-    @Test
-    void testQuerySerialNumber() {
-        if (Platform.isLinux()) {
-            String serialNumber = Lshw.querySerialNumber();
-            if (serialNumber != null) {
-                assertThat("Test Lshw querySerialNumber", serialNumber, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryUUID() {
-        if (Platform.isLinux()) {
-            String uuid = Lshw.queryUUID();
-            if (uuid != null) {
-                assertThat("Test Lshw queryUUID", uuid, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryCpuCapacity() {
-        if (Platform.isLinux()) {
-            assertThat("Test Lshw queryCpuCapacity", Lshw.queryCpuCapacity(), anyOf(greaterThan(0L), equalTo(-1L)));
-        }
+        assertThat("Test Lshw queryCpuCapacity", Lshw.queryCpuCapacity(), anyOf(greaterThan(0L), equalTo(-1L)));
     }
 }
