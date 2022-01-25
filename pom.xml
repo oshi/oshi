@@ -829,7 +829,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>oshi-core-shaded</module>
                 <module>oshi-demo</module>
                 <module>oshi-dist</module>
             </modules>
