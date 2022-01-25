@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Test in FreeBSD
         id: test-freebsd
-        uses: vmactions/freebsd-vm@v0.1.5
+        uses: vmactions/freebsd-vm@v0.1.6
         with:
           usesh: true
           prepare: |
