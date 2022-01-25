@@ -16,13 +16,13 @@ Code in the platform-specific `oshi.jna.*` packages is intended to be temporary 
 
 Does OSHI support Open Service Gateway initiative (OSGi) modules?
 ========
-OSHI publishes a shaded JAR in the `oshi-core-shaded` artifact built using `maven-shade-plugin` and `maven-bundle-plugin` with manifest updates using `mvn-bnd-plugin`. Submit an issue if the configuration of these plugins needs to be adjusted to support your project.
+OSHI adds OSGi manifest entries using `maven-source-plugin` and `mvn-bnd-plugin`. Submit an issue if the configuration of these plugins needs to be adjusted to support your project.
 
 Does OSHI support Java Module System (JPMS) modules?
 ========
 OSHI publishes an `oshi-core-java11` artifact with a full module descriptor (and only modular dependencies), which will allow the existing API to be placed on the module path. This artifact shares the same API as `oshi-core`.
 
-The `oshi-core` artifact includes `Automatic-Module-Name` of `com.github.oshi` in its manifest.  Due to plans to continue to support JDK 8 for many years, there is no plan to otherwise make `oshi-core` modular.
+The `oshi-core` artifact includes `Automatic-Module-Name` of `com.github.oshi` in its manifest.  However, Java Module System users are encouraged to use the `oshi-core-java11` artifact to take full advantage of modularization.
 
 More fine grained modularization is being considered in a possible future major API rewrite targeting JDK 21 compatibility and leveraging features from Project Panama (JEP-370, JEP-383, and JEP-389). If you have a specific use case that would benefit from modularization, submit an issue to discuss it.
 

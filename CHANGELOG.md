@@ -1,6 +1,6 @@
 # 6.1.1 (in progress)
 
-* Your contribution here!
+* [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.1.0 (2022-01-20)
 
