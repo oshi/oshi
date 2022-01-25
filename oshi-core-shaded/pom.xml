@@ -22,7 +22,6 @@
 
     <properties>
         <main.basedir>${project.parent.basedir}</main.basedir>
-        <automatic.module.name>com.github.oshi.shaded</automatic.module.name>
     </properties>
 
     <dependencies>
@@ -76,7 +75,6 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <sourcepath>../oshi-core/src/main/java</sourcepath>
                             <includeDependencySources>true</includeDependencySources>
                             <dependencySourceIncludes>
                                 <!-- include ONLY dependencies I control -->
