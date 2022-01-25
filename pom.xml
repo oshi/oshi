@@ -42,9 +42,7 @@
 
     <modules>
         <module>oshi-core</module>
-        <module>oshi-core-shaded</module>
-        <module>oshi-demo</module>
-        <module>oshi-dist</module>
+        <!-- other modules added by default profile -->
     </modules>
 
     <scm>
@@ -95,6 +93,8 @@
         <!-- Base directory, overwrite in submodules -->
         <main.basedir>${project.basedir}</main.basedir>
         <!-- Dependency versions -->
+        <!-- Users of the Spring Boot Starter Parent should include this property in their POM -->
+        <jna.version>5.10.0</jna.version>
         <slf4j.version>1.7.33</slf4j.version>
         <junit.version>5.8.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -451,8 +451,10 @@
                                     <exclude>**/MavenWrapperDownloader.java</exclude>
                                     <exclude>mvnw</exclude>
                                     <exclude>mvnw.cmd</exclude>
+                                    <exclude>mvnw11</exclude>
                                     <exclude>.editorconfig</exclude>
                                     <exclude>.gitattributes</exclude>
+                                    <exclude>**/module-info.*</exclude>
                                     <exclude>**/*.PNG</exclude>
                                     <exclude>*.xml</exclude>
                                     <exclude>*.yml</exclude>
@@ -820,6 +822,43 @@
     </reporting>
 
     <profiles>
+        <!-- Default module configuration for java8 build -->
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>oshi-core-shaded</module>
+                <module>oshi-demo</module>
+                <module>oshi-dist</module>
+            </modules>
+        </profile>
+        <!-- Custom configuration for Java11 build -->
+        <profile>
+            <id>java11</id>
+            <properties>
+                <maven.compiler.source>11</maven.compiler.source>
+                <maven.compiler.target>11</maven.compiler.target>
+                <maven.compiler.testSource>11</maven.compiler.testSource>
+                <maven.compiler.testTarget>11</maven.compiler.testTarget>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- animal-sniffer doesn't work past JDK8 -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>animal-sniffer-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>test-sniffer</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>checks</id>
             <build>
@@ -875,7 +914,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>

@@ -13,7 +13,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # macos-11.0 unreliable for now
         os: [ubuntu-latest, macos-latest, windows-latest]
         java: [8]
       fail-fast: false
@@ -30,18 +29,32 @@ jobs:
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2          
+          restore-keys: ${{ runner.os }}-m2
       - name: Checkstyle
         if: contains(matrix.os, 'ubuntu')
         run: ./mvnw checkstyle:check
       - name: Test with Maven
         run: ./mvnw test -B -D"license.skip=true"
-      - name: Report Coverage to Coveralls for Pull Requests
-        if: contains(matrix.os, 'ubuntu')
-        run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github -DpullRequest=$PR_NUMBER
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.number }}
-      - name: License
-        if: contains(matrix.os, 'ubuntu')
-        run: git fetch --unshallow && ./mvnw license:check
+  test11:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        java: [11]
+      fail-fast: false
+    name: Test Modular build on JDK ${{ matrix.java }}, ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'zulu'
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-11-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-11-m2
+      - name: Test with Maven
+        run: ./mvnw11 test -B -D"license.skip=true"
