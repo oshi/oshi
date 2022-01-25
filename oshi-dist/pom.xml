@@ -20,7 +20,6 @@
 
     <properties>
         <main.basedir>${project.parent.basedir}</main.basedir>
-        <automatic.module.name>com.github.oshi.dist</automatic.module.name>
     </properties>
 
     <!-- NOTE: These dependency declarations are only required to sort this project 

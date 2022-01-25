@@ -120,12 +120,12 @@
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
         <bnd-maven-plugin.version>6.1.0</bnd-maven-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
-        <junit-platform-maven-plugin.version>1.1.5</junit-platform-maven-plugin.version>
+        <junit-platform-maven-plugin.version>1.1.6</junit-platform-maven-plugin.version>
         <!-- reporting plugins -->
         <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
         <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
         <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
-        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
         <!-- tools -->
         <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
@@ -294,7 +294,7 @@
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                 <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                             </manifest>
-                            <manifestEntries>
+                            <manifestEntries combine.children="append">
                                 <Build-Time>${maven.build.timestamp}</Build-Time>
                                 <Copyright>${copyright}</Copyright>
                                 <Git-Revision>${git.commit.id}</Git-Revision>
@@ -303,7 +303,6 @@
                                 <Os-Version>${os.version}</Os-Version>
                                 <X-Compile-Source-JDK>${maven.compiler.source}</X-Compile-Source-JDK>
                                 <X-Compile-Target-JDK>${maven.compiler.target}</X-Compile-Target-JDK>
-                                <Automatic-Module-Name>${automatic.module.name}</Automatic-Module-Name>
                             </manifestEntries>
                         </archive>
                     </configuration>
@@ -417,9 +416,9 @@
                         </archive>
                     </configuration>
                     <executions>
-                        <!-- ! here we override the super-pom attach-sources execution id which ! calls sources:jar goal. 
-                            That goals forks the lifecycle, ! causing the generate-sources phase to be called twice for the install goal. ! Starting 
-                            with Maven 3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) ! this is not needed anymore. -->
+                        <!-- Here we override the super-pom attach-sources execution id which calls sources:jar goal. That 
+                            goals forks the lifecycle, causing the generate-sources phase to be called twice for the install goal. Starting with Maven 
+                            3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) this is not needed anymore. -->
                         <!-- except that OSSRH fails with no sources with this excluded <execution> <id>attach-sources</id> 
                             <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> </execution> -->
                     </executions>

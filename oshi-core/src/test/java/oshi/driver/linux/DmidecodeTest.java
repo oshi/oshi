@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,50 +24,23 @@
 package oshi.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.matchesRegex;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
 
-import com.sun.jna.Platform;
-
-import oshi.util.tuples.Pair;
+import oshi.TestConstants;
 
 class DmidecodeTest {
 
     @Test
-    void testQuerySerialNumber() {
-        if (Platform.isLinux()) {
-            String serialNumber = Dmidecode.querySerialNumber();
-            if (serialNumber != null) {
-                assertThat("Test Dmidecode querySerialNumber", serialNumber, not(emptyString()));
-            }
-        }
-    }
+    void testQueries() {
+        assertDoesNotThrow(Dmidecode::querySerialNumber);
+        assertDoesNotThrow(Dmidecode::queryBiosNameRev);
 
-    @Test
-    void testQueryUUID() {
-        if (Platform.isLinux()) {
-            String uuid = Dmidecode.queryUUID();
-            if (uuid != null) {
-                assertThat("Test Dmidecode queryUUID", uuid, not(emptyString()));
-            }
-        }
-    }
-
-    @Test
-    void testQueryBiosNameRev() {
-        if (Platform.isLinux()) {
-            Pair<String, String> biosNameRev = Dmidecode.queryBiosNameRev();
-            String biosName = biosNameRev.getA();
-            String revision = biosNameRev.getB();
-            if (biosName != null) {
-                assertThat("Test Dmidecode queryBiosNameRev biosName", biosName, containsString(" "));
-            }
-            if (revision != null) {
-                assertThat("Test Dmidecode queryBiosNameRev revision", revision, not(emptyString()));
-            }
+        final String uuid = Dmidecode.queryUUID();
+        if (uuid != null) {
+            assertThat("Test Lshal queryUUID format", uuid, matchesRegex(TestConstants.UUID_REGEX));
         }
     }
 }
