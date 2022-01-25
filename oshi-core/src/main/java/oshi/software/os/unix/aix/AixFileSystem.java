@@ -145,7 +145,7 @@ public class AixFileSystem extends AbstractFileSystem {
                     continue;
                 }
                 File f = new File(path);
-                if (!f.exists()) {
+                if (!f.exists() || f.getTotalSpace() < 0) {
                     continue;
                 }
                 long totalSpace = f.getTotalSpace();
