@@ -70,19 +70,23 @@ Consider one or more of the following steps to resolve the conflict:
    - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
    - If you must use version 2.2 or earlier, override the `jna.version` property to the latest JNA version.
 
+Why does OSHI's System CPU usage differ from the Windows Task Manager?
+========
+CPU usage is generally calculated as (active time / active+idle time). From a pure chronological standpoint of "time spent processing tasks" the values calculated in OSHI represent a consistent measure of overall CPU utilization.  It is impossible to exceed 100% with this metric, and the values presented for Windows are consistent with other operating systems.
+
+The Windows Task Manager displays performance using "Processor Utility". Modern CPUs can change frequencies to boost performance or save energy and the Task Manager accounts for these differences.  Processor Utility is documented as "the amount of work a processor is completing, as a percentage of the amount of work the processor could complete if it were running at its nominal performance and never idle. On some processors, Processor Utility may exceed 100%."  (In reality, the Task Manger caps the value at 100%.)
+
+In general, under heavy load, the Task Manager will show a higher percentage than OSHI, but under mostly idle load (when individual cores may reduce frequencies) the Task Manager will show a lower percentage than OSHI.
+
 Why does OSHI's Process CPU usage differ from the Windows Task Manager?
 ========
 CPU usage is generally calculated as (active time / active+idle time). On a multi-processor system, the "idle" time can be accrued on each/any of the logical processors.
 
-For System and per-Processor CPU ticks, the total number of "idle" ticks is available for this calculation, so they should match all operating system displays, and CPU usage will never exceed 100%.
+For System and per-Processor CPU ticks, the total number of "idle" ticks is available for this calculation, and CPU usage will never exceed 100%.
 
-For per-Process CPU ticks, there is no "idle" counter available, so the calculation ends up being (active time / up time). It is possible
-for a multi-threaded process to accrue more active clock time than elapsed clock time, and result in CPU usage over 100%
+For per-Process CPU ticks, there is no "idle" counter available, so the calculation ends up being (active time / up time). It is possible for a multi-threaded process to accrue more active clock time than elapsed clock time, and result in CPU usage over 100%
 (e.g., on a 4-processor system it could in theory reach 400%). This interpretation matches the value displayed in `ps` or `top` on
-Unix-based operating systems. However, Windows scales process CPU usage to the system, so that the sum of all Process CPU percentages
-can never exceed 100% (ignoring roundoff errors). On a 4-processor system, a single-threaded process maximizing usage of one logical
-processor will show (on Windows) as 25% usage. OSHI's calculation for Process CPU load will report the Unix-based calculation in this
-class, which would be closer to 100%.
+Unix-based operating systems. However, Windows scales process CPU usage to the system, so that the sum of all Process CPU percentages can never exceed 100% (ignoring roundoff errors). On a 4-processor system, a single-threaded process maximizing usage of one logical processor will show (on Windows) as 25% usage. OSHI's calculation for Process CPU load will report the Unix-based calculation in this class, which would be closer to 100%.
 
 If you want per-Process CPU load to match the Windows Task Manager display, you should divide OSHI's calculation by the number of logical processors.  This is an entirely cosmetic preference.
 
