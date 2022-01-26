@@ -17,7 +17,6 @@ sed -i.bak -e 's/oshi-parent/oshi-parent-java11/g' oshi-core/pom.xml
 sed -i.bak -e 's/oshi-core/oshi-core-java11/g' oshi-core/pom.xml
 
 echo "Updating modular dependencies in POM files..."
-sed -i.bak -e 's/${slf4j.version}/2.0.0-alpha6/g' oshi-core/pom.xml
 sed -i.bak -e 's/>jna</>jna-jpms</g' oshi-core/pom.xml
 sed -i.bak -e 's/>jna-platform</>jna-platform-jpms</g' oshi-core/pom.xml
 rm pom.xml.bak
@@ -25,6 +24,7 @@ rm oshi-core/pom.xml.bak
 
 #
 # Run commands above this line when preparing for a full release
+# and then commit the changes
 #
 
 echo "Running maven with java11 profile and arguments: \"$@\""
@@ -37,7 +37,6 @@ rm oshi-core/src/test/java/module-info.test
 sed -i.bak -e 's/oshi-parent-java11/oshi-parent/g' pom.xml 
 sed -i.bak -e 's/oshi-parent-java11/oshi-parent/g' oshi-core/pom.xml
 sed -i.bak -e 's/oshi-core-java11/oshi-core/g' oshi-core/pom.xml
-sed -i.bak -e 's/2.0.0-alpha6/${slf4j.version}/g' oshi-core/pom.xml
 sed -i.bak -e 's/jna-jpms/jna/g' oshi-core/pom.xml
 sed -i.bak -e 's/jna-platform-jpms/jna-platform/g' oshi-core/pom.xml
 rm pom.xml.bak
