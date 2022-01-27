@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.util.Map;
 import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.GlobalConfig;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
@@ -53,6 +54,13 @@ public final class ProcessorInformation {
 
     private static final boolean IS_WIN7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
+    public static final String OSHI_OS_WINDOWS_CPU_UTILITY = "oshi.os.windows.cpu.utility";
+    public static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
+            && GlobalConfig.get(OSHI_OS_WINDOWS_CPU_UTILITY, false);
+    private static final Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> INITIAL_CAPACITY_TICKS = USE_CPU_UTILITY
+            ? queryProcessorCapacityCounters()
+            : null;
+
     /**
      * Processor performance counters
      */
@@ -69,6 +77,34 @@ public final class ProcessorInformation {
         private final String counter;
 
         ProcessorTickCountProperty(String counter) {
+            this.counter = counter;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    /**
+     * Processor performance counters including utility counters
+     */
+    public enum ProcessorCapacityTickCountProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),
+        // Remaining elements define counters
+        PERCENTDPCTIME("% DPC Time"), //
+        PERCENTINTERRUPTTIME("% Interrupt Time"), //
+        PERCENTPRIVILEGEDTIME("% Privileged Time"), //
+        PERCENTPROCESSORTIME("% Processor Time"), //
+        PERCENTPRIVILEGEDUTILITY("% Privileged Utility"), //
+        PERCENTPROCESSORUTILITY("% Processor Utility"), //
+        PERCENTPROCESSORUTILITY_BASE("% Processor Utility_Base"), //
+        PERCENTUSERTIME("% User Time");
+
+        private final String counter;
+
+        ProcessorCapacityTickCountProperty(String counter) {
             this.counter = counter;
         }
 
@@ -137,6 +173,28 @@ public final class ProcessorInformation {
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL)
                 : PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class, PROCESSOR,
                         WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL);
+    }
+
+    /**
+     * Returns processor capacity performance counters.
+     *
+     * @return Performance Counters for processor capacity.
+     */
+    public static Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> queryProcessorCapacityCounters() {
+        if (!USE_CPU_UTILITY) {
+            return null;
+        }
+        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorCapacityTickCountProperty.class,
+                PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
+    }
+
+    /**
+     * Returns initial processor capacity performance counters.
+     *
+     * @return initial Performance Counters for processor capacity.
+     */
+    public static Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> queryInitialProcessorCapacityCounters() {
+        return INITIAL_CAPACITY_TICKS;
     }
 
     /**

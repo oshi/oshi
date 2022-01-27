@@ -70,11 +70,28 @@ Consider one or more of the following steps to resolve the conflict:
    - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
    - If you must use version 2.2 or earlier, override the `jna.version` property to the latest JNA version.
 
+Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?
+========
+CPU usage is generally calculated as (active time / active+idle time).
+
+For System and per-Processor CPU ticks calculations, the total number of "idle" ticks is available for this calculation, which matches operating system displays on Windows 7 and earlier, and Unix-based operating systems, and CPU usage will never exceed 100%.
+
+Starting with Windows 8, a change was made to the way that Task Manager and Performance Monitor report CPU utilization. 
+The values in Task Manager now correspond to the `Processor Information\% Processor Utility` and `Processor Information\% Privileged Utility` performance counters, not to the `Processor Information\% Processor Time` and `Processor Information\% Privileged Time` counters as in Windows 7.
+
+This fundamentally changes the Task Manager's meaning of "CPU Usage". Windows documentation for `% Processor Time` states:
+> % Processor Time is the percentage of elapsed time that the processor spends to execute a non-Idle thread... This counter is the primary indicator of processor activity, and displays the average percentage of busy time observed during the sample interval. 
+
+The documentation for `% Processor Utility` now used by the Task Manager displays a different metric:
+> Processor Utility is the amount of work a processor is completing, as a percentage of the amount of work the processor could complete if it were running at its nominal performance and never idle. On some processors, Processor Utility may exceed 100%.
+
+Features which change CPU frequency such as Intel Speed Step, Intel Turbo Boost, AMD Precision Boost, and others, can cause this value to exceed 100% on both individual processors and the entire system. While a "work completed" metric has some benefits as a performance measure, the Task Manager caps the value at 100%, which means the Task Manager shows "the amount of work a processor is completing compared to its nominal performance, except if it's over 100% we won't tell you how much extra work it's doing."
+
+If you desire OSHI's output to match the Task Manager, you may optionally enable this setting in the configuration file, or by calling `GlobalConfig.set(ProcessorInformation.USE_CPU_CAPACITY, true);` shortly after startup (at least before the first instantiation of the Central Processor class). Note that OSHI will not cap its CPU Usage calculation at 100%, giving you more information than the Windows Task Manager if the "work completed" metric is important to you.
+
 Why does OSHI's Process CPU usage differ from the Windows Task Manager?
 ========
 CPU usage is generally calculated as (active time / active+idle time). On a multi-processor system, the "idle" time can be accrued on each/any of the logical processors.
-
-For System and per-Processor CPU ticks, the total number of "idle" ticks is available for this calculation, so they should match all operating system displays, and CPU usage will never exceed 100%.
 
 For per-Process CPU ticks, there is no "idle" counter available, so the calculation ends up being (active time / up time). It is possible
 for a multi-threaded process to accrue more active clock time than elapsed clock time, and result in CPU usage over 100%

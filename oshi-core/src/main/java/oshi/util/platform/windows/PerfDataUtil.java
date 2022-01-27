@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2019-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,14 +64,22 @@ public final class PerfDataUtil {
      */
     @Immutable
     public static class PerfCounter {
-        private String object;
-        private String instance;
-        private String counter;
+        private final String object;
+        private final String instance;
+        private final String counter;
+        private final boolean baseCounter;
 
         public PerfCounter(String objectName, String instanceName, String counterName) {
             this.object = objectName;
             this.instance = instanceName;
-            this.counter = counterName;
+            int baseIdx = counterName.indexOf("_Base");
+            if (baseIdx > 0) {
+                this.counter = counterName.substring(0, baseIdx);
+                this.baseCounter = true;
+            } else {
+                this.counter = counterName;
+                this.baseCounter = false;
+            }
         }
 
         /**
@@ -93,6 +101,13 @@ public final class PerfDataUtil {
          */
         public String getCounter() {
             return counter;
+        }
+
+        /**
+         * @return Returns whether the counter is a base counter
+         */
+        public boolean isBaseCounter() {
+            return baseCounter;
         }
 
         /**
@@ -206,6 +221,26 @@ public final class PerfDataUtil {
             return ret;
         }
         return counterValue.FirstValue;
+    }
+
+    /**
+     * Get value of pdh counter's second value (base counters)
+     *
+     * @param counter
+     *            The counter to get the value of
+     * @return long value of the counter's second value, or negative value
+     *         representing an error code
+     */
+    public static long querySecondCounter(WinNT.HANDLEByReference counter) {
+        PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
+        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
+        if (ret != WinError.ERROR_SUCCESS) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+            }
+            return ret;
+        }
+        return counterValue.SecondValue;
     }
 
     /**

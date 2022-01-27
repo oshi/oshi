@@ -45,6 +45,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.LogicalProcessorInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
+import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorCapacityTickCountProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.windows.perfmon.SystemInformation;
@@ -69,6 +70,54 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
+
+    // Stores first set of ticks for cpu adjustment
+    private long[] systicks = null;
+    private long[] idleticks = null;
+    private long[] elapsedticks = null;
+    private long[] privticks = null;
+    private long[] procticks = null;
+    private long[] baseticks = null;
+
+    WindowsCentralProcessor() {
+        super();
+        if (ProcessorInformation.USE_CPU_UTILITY) {
+            Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> initialTicks = ProcessorInformation
+                    .queryInitialProcessorCapacityCounters();
+            List<String> instances = initialTicks.getA();
+            Map<ProcessorCapacityTickCountProperty, List<Long>> valueMap = initialTicks.getB();
+            List<Long> systemList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDTIME);
+            List<Long> userList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTUSERTIME);
+            // % Processor Time is actually Idle time
+            List<Long> idleList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORTIME);
+            // Utility ticks, if configured
+            List<Long> systemUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
+            List<Long> processorUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY);
+            List<Long> processorUtilityBase = valueMap
+                    .get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
+            int ncpu = getLogicalProcessorCount();
+            systicks = new long[ncpu];
+            idleticks = new long[ncpu];
+            elapsedticks = new long[ncpu];
+            privticks = new long[ncpu];
+            procticks = new long[ncpu];
+            baseticks = new long[ncpu];
+
+            for (int p = 0; p < instances.size(); p++) {
+                int cpu = instances.get(p).contains(",")
+                        ? numaNodeProcToLogicalProcMap.getOrDefault(instances.get(p), 0)
+                        : ParseUtil.parseIntOrDefault(instances.get(p), 0);
+                if (cpu < ncpu) {
+                    systicks[cpu] = systemList.get(p);
+                    idleticks[cpu] = idleList.get(p);
+                    elapsedticks[cpu] = userList.get(p) + idleticks[cpu] + systicks[cpu];
+                    privticks[cpu] = systemUtility.get(p);
+                    procticks[cpu] = processorUtility.get(p);
+                    baseticks[cpu] = processorUtilityBase.get(p);
+                }
+            }
+        }
+    }
 
     /**
      * Initializes Class variables
@@ -277,26 +326,54 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformation
-                .queryProcessorCounters();
-        List<String> instances = instanceValuePair.getA();
-        Map<ProcessorTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
-        List<Long> systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
-        List<Long> userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
-        List<Long> irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
-        List<Long> softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);
-        // % Processor Time is actually Idle time
-        List<Long> idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
+        List<String> instances;
+        List<Long> systemList;
+        List<Long> userList;
+        List<Long> irqList;
+        List<Long> softIrqList;
+        List<Long> idleList;
+        List<Long> systemUtility = null;
+        List<Long> processorUtility = null;
+        List<Long> processorUtilityBase = null;
+        if (ProcessorInformation.USE_CPU_UTILITY) {
+            Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformation
+                    .queryProcessorCapacityCounters();
+            instances = instanceValuePair.getA();
+            Map<ProcessorCapacityTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
+            systemList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDTIME);
+            userList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTUSERTIME);
+            irqList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTINTERRUPTTIME);
+            softIrqList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTDPCTIME);
+            // % Processor Time is actually Idle time
+            idleList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORTIME);
+            // Utility ticks, if configured
+            systemUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
+            processorUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY);
+            processorUtilityBase = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
+        } else {
+            Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformation
+                    .queryProcessorCounters();
+            instances = instanceValuePair.getA();
+            Map<ProcessorTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
+            systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
+            userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
+            irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
+            softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);
+            // % Processor Time is actually Idle time
+            idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
+        }
 
-        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
+        int ncpu = getLogicalProcessorCount();
+        long[][] ticks = new long[ncpu][TickType.values().length];
         if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null
-                || idleList == null) {
+                || idleList == null || (ProcessorInformation.USE_CPU_UTILITY
+                        && (systemUtility == null || processorUtility == null || processorUtilityBase == null))) {
             return ticks;
         }
         for (int p = 0; p < instances.size(); p++) {
             int cpu = instances.get(p).contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(instances.get(p), 0)
                     : ParseUtil.parseIntOrDefault(instances.get(p), 0);
-            if (cpu >= getLogicalProcessorCount()) {
+            if (cpu >= ncpu) {
                 continue;
             }
             ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);
@@ -305,8 +382,43 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);
             ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);
 
-            // Additional decrement to avoid double counting in the
-            // total array
+            // If users want Task Manager output we have to do some math to get there
+            if (ProcessorInformation.USE_CPU_UTILITY) {
+                // We'll be matching up percentage of elapsed total (base counter)
+                // System currently includes IRQ and SOFTIRQ.
+                long elapsedTime = ticks[cpu][TickType.SYSTEM.getIndex()] + ticks[cpu][TickType.USER.getIndex()]
+                        + ticks[cpu][TickType.IDLE.getIndex()];
+
+                // We have two new capacity numbers, processor (all but idle) and system
+                // (included in processor). To further complicate matters, these are in percent
+                // units so must be divided by 100.
+
+                // Calculate Utility CPU usage since init
+                long deltaBase = processorUtilityBase.get(cpu) - baseticks[cpu];
+
+                if (deltaBase > 0) {
+                    long deltaProc = processorUtility.get(cpu) - procticks[cpu];
+                    long deltaSys = systemUtility.get(cpu) - privticks[cpu]; // subset of proc
+                    double idlePercent = 1d - deltaProc / (100d * deltaBase);
+                    double sysPercent = deltaSys / (100d * deltaBase);
+
+                    // Apply to elapsed ticks
+                    long deltaT = elapsedTime - elapsedticks[cpu];
+                    long newIdle = idleticks[cpu] + Math.round(deltaT * idlePercent);
+                    long newSystem = systicks[cpu] + Math.round(deltaT * sysPercent);
+
+                    // Adjust idle to new, saving the delta
+                    long delta = newIdle - ticks[cpu][TickType.IDLE.getIndex()];
+                    ticks[cpu][TickType.IDLE.getIndex()] = newIdle;
+                    // Do the same for system
+                    delta += newSystem - ticks[cpu][TickType.SYSTEM.getIndex()];
+                    ticks[cpu][TickType.SYSTEM.getIndex()] = newSystem;
+                    // Subtract delta from user
+                    ticks[cpu][TickType.USER.getIndex()] -= delta;
+                }
+            }
+
+            // Decrement IRQ to avoid double counting in the total array
             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
 
