@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-    xmlns="http://maven.apache.org/DECORATION/1.8.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    name="${project.name}"
+<project xmlns="http://maven.apache.org/DECORATION/1.8.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="${project.name}"
     xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd">
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
-        <version>1.7</version>
+        <version>${maven-fluido-skin.version}</version>
     </skin>
     <custom>
         <fluidoSkin>
@@ -17,21 +15,13 @@
     </custom>
     <body>
         <links>
-            <item
-                name="oshi"
-                href="http://github.com/oshi/oshi" />
+            <item name="oshi" href="http://github.com/oshi/oshi" />
         </links>
         <menu name="User guide">
-            <item
-                href="README.html"
-                name="README" />
+            <item href="README.html" name="README" />
         </menu>
         <menu ref="reports" />
-        <menu
-            ref="parent"
-            inherit="top" />
-        <menu
-            ref="modules"
-            inherit="top" />
+        <menu ref="parent" inherit="top" />
+        <menu ref="modules" inherit="top" />
     </body>
 </project>
