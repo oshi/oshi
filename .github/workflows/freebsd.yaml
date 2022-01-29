@@ -31,4 +31,3 @@ jobs:
             pkg install -y openjdk8
           run: |
             ./mvnw test -B -Djacoco.skip=true -Dlicense.skip=true
-          

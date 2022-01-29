@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
-      CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}      
+      CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
