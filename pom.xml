@@ -44,7 +44,7 @@
 
     <modules>
         <module>oshi-core</module>
-        <!-- other modules added by default profile -->
+        <!-- other modules added by jdk8 profile -->
     </modules>
 
     <scm>
@@ -854,17 +854,6 @@
     </reporting>
 
     <profiles>
-        <!-- Default module configuration for java8 build -->
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>oshi-demo</module>
-                <module>oshi-dist</module>
-            </modules>
-        </profile>
         <!-- Custom configuration for Java11 build -->
         <profile>
             <id>java11</id>
@@ -1094,6 +1083,10 @@
             <activation>
                 <jdk>1.8</jdk>
             </activation>
+            <modules>
+                <module>oshi-demo</module>
+                <module>oshi-dist</module>
+            </modules>
             <properties>
                 <!-- Animal Sniffer for jdk 8 -->
                 <animal-sniffer-maven-plugin.version>1.20</animal-sniffer-maven-plugin.version>
