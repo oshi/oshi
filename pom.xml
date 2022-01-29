@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.oshi</groupId>
@@ -8,7 +9,8 @@
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
-    <description>A JNA-based (native) operating system information library for Java that aims to provide a cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
+    <description>A JNA-based (native) operating system information library for Java that aims to provide a
+        cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
     <url>https://github.com/oshi/oshi</url>
     <inceptionYear>2010</inceptionYear>
     <organization>
@@ -48,8 +50,8 @@
     <scm>
         <connection>scm:git:git@github.com:oshi/oshi.git</connection>
         <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
-        <url>https://github.com/oshi/oshi.git</url>
         <tag>HEAD</tag>
+        <url>https://github.com/oshi/oshi.git</url>
     </scm>
     <issueManagement>
         <system>Github</system>
@@ -60,21 +62,21 @@
         <url>https://github.com/oshi/oshi/actions</url>
     </ciManagement>
     <distributionManagement>
-        <site>
-            <id>gh-pages</id>
-            <name>OSHI GitHub Pages</name>
-            <url>github:ssh://oshi.github.io/oshi/</url>
-        </site>
-        <snapshotRepository>
-            <id>ossrh-snapshot</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
             <id>ossrh</id>
             <name>Nexus Release Repository</name>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+        <snapshotRepository>
+            <id>ossrh-snapshot</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <site>
+            <id>gh-pages</id>
+            <name>OSHI GitHub Pages</name>
+            <url>github:ssh://oshi.github.io/oshi/</url>
+        </site>
     </distributionManagement>
 
     <properties>
@@ -111,7 +113,8 @@
         <maven-site-plugin.version>3.10.0</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <!-- maven-site-plugin dependencies -->
-        <wagon-git.version>2.0.3</wagon-git.version><!-- https://github.com/trajano/wagon-git/issues/18 -->
+        <wagon-git.version>2.0.3</wagon-git.version>
+        <!-- https://github.com/trajano/wagon-git/issues/18 -->
         <wagon-ssh.version>3.5.1</wagon-ssh.version>
         <maven-fluido-skin.version>1.10.0</maven-fluido-skin.version>
         <!-- build plugins -->
@@ -135,9 +138,8 @@
         <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
-        <tidy-maven-plugin.version>1.1.0</tidy-maven-plugin.version>
         <license-maven-plugin.version>4.2.rc2</license-maven-plugin.version>
-        <code-assert.version>0.9.15</code-assert.version>
+        <sortpom-plugin.version>3.0.1</sortpom-plugin.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
@@ -266,7 +268,8 @@
                     <groupId>de.sormuras.junit</groupId>
                     <artifactId>junit-platform-maven-plugin</artifactId>
                     <version>${junit-platform-maven-plugin.version}</version>
-                    <extensions>true</extensions> <!-- Replace surefire in 'test' phase. -->
+                    <extensions>true</extensions>
+                    <!-- Replace surefire in 'test' phase. -->
                     <configuration>
                         <timeout>3600</timeout>
                         <isolation>NONE</isolation>
@@ -313,11 +316,9 @@
                     <artifactId>bnd-maven-plugin</artifactId>
                     <version>${bnd-maven-plugin.version}</version>
                     <configuration>
-                        <bnd><![CDATA[
-						Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
+                        <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
 						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
-						-snapshot: SNAPSHOT
-					]]></bnd>
+						-snapshot: SNAPSHOT]]></bnd>
                     </configuration>
                 </plugin>
                 <!-- Reporting plugins -->
@@ -433,11 +434,6 @@
                     <groupId>org.eluder.coveralls</groupId>
                     <artifactId>coveralls-maven-plugin</artifactId>
                     <version>${coveralls-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>tidy-maven-plugin</artifactId>
-                    <version>${tidy-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>com.mycila</groupId>
@@ -609,24 +605,24 @@
                     </execution>
                     <execution>
                         <id>enforce-clean</id>
-                        <phase>pre-clean</phase>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
+                        <phase>pre-clean</phase>
                     </execution>
                     <execution>
                         <id>enforce-site</id>
-                        <phase>pre-site</phase>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
+                        <phase>pre-site</phase>
                     </execution>
                     <execution>
                         <id>ban-transitive-imports</id>
-                        <phase>process-sources</phase>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
+                        <phase>process-sources</phase>
                         <configuration>
                             <rules>
                                 <RestrictImports>
@@ -662,10 +658,10 @@
                 <executions>
                     <execution>
                         <id>test-sniffer</id>
-                        <phase>test</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
+                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -674,16 +670,53 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
                         <goals>
                             <goal>format</goal>
                         </goals>
+                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>
-            <plugin><!-- Code Coverage -->
+            <plugin>
+                <groupId>com.github.ekryd.sortpom</groupId>
+                <artifactId>sortpom-maven-plugin</artifactId>
+                <version>${sortpom-plugin.version}</version>
+                <configuration>
+                    <createBackupFile>false</createBackupFile>
+                    <lineSeparator>\n</lineSeparator>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <sortDependencies>scope</sortDependencies>
+                    <nrOfIndentSpace>4</nrOfIndentSpace>
+                    <expandEmptyElements>false</expandEmptyElements>
+                    <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+                    <indentSchemaLocation>true</indentSchemaLocation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>sort</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- Code Coverage -->
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/driver/**</exclude>
+                        <exclude>**/common/**</exclude>
+                        <exclude>**/Abstract*</exclude>
+                        <exclude>**/platform/**</exclude>
+                        <exclude>**/linux/**</exclude>
+                        <exclude>**/mac/**</exclude>
+                        <exclude>**/windows/**</exclude>
+                        <exclude>**/unix/**</exclude>
+                        <exclude>**/demo/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <!-- Prepare execution with Surefire -->
                     <execution>
@@ -698,25 +731,12 @@
                     <!-- Generate report after tests are run -->
                     <execution>
                         <id>post-unit-test</id>
-                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <phase>test</phase>
                     </execution>
                 </executions>
-                <configuration>
-                    <excludes>
-                        <exclude>**/driver/**</exclude>
-                        <exclude>**/common/**</exclude>
-                        <exclude>**/Abstract*</exclude>
-                        <exclude>**/platform/**</exclude>
-                        <exclude>**/linux/**</exclude>
-                        <exclude>**/mac/**</exclude>
-                        <exclude>**/windows/**</exclude>
-                        <exclude>**/unix/**</exclude>
-                        <exclude>**/demo/**</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -880,10 +900,10 @@
                         <artifactId>sonar-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>sonar</goal>
                                 </goals>
+                                <phase>verify</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -1013,25 +1033,6 @@
             </build>
         </profile>
         <profile>
-            <id>sort</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>tidy-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>pom</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>release</id>
             <build>
                 <plugins>
@@ -1071,10 +1072,10 @@
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <phase>verify</phase>
                                 <configuration>
                                     <keyname>${gpg.keyname}</keyname>
                                     <passphraseServerId>${gpg.keyname}</passphraseServerId>
