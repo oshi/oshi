@@ -535,7 +535,7 @@
                                         </tag>
                                     </tags>
                                 </tagClass>
-                           </tagClasses>
+                            </tagClasses>
                         </tagListOptions>
                     </configuration>
                 </plugin>
