@@ -7,10 +7,6 @@
 # Ensures pom uploaded has correct dependency versions
 # Cleans up changes when complete
 
-echo "Copying module descriptor to source directory..."
-cp config/module-info.java oshi-core/src/main/java/module-info.java
-cp config/module-info.test oshi-core/src/test/java/module-info.test
-
 echo "Updating artifactId in POM files..."
 sed -i.bak -e 's/oshi-parent/oshi-parent-java11/g' pom.xml
 sed -i.bak -e 's/oshi-parent/oshi-parent-java11/g' oshi-core/pom.xml
@@ -32,8 +28,6 @@ echo "> ./mvnw \"$@\" -P java11"
 ./mvnw "$@" -P java11
 
 echo "Cleaning up..."
-rm oshi-core/src/main/java/module-info.java
-rm oshi-core/src/test/java/module-info.test
 sed -i.bak -e 's/oshi-parent-java11/oshi-parent/g' pom.xml 
 sed -i.bak -e 's/oshi-parent-java11/oshi-parent/g' oshi-core/pom.xml
 sed -i.bak -e 's/oshi-core-java11/oshi-core/g' oshi-core/pom.xml
