@@ -224,7 +224,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 - oldTicks[TickType.IDLE.getIndex()] - oldTicks[TickType.IOWAIT.getIndex()];
         LOG.trace("Total ticks: {}  Idle ticks: {}", total, idle);
 
-        return total > 0 && idle >= 0 ? (double) (total - idle) / total : 0d;
+        return total > 0 ? (double) (total - idle) / total : 0d;
     }
 
     @Override

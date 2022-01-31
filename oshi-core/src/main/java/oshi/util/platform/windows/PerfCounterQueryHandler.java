@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -144,7 +144,8 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
             }
             return 0;
         }
-        long value = PerfDataUtil.queryCounter(counterHandleMap.get(counter));
+        long value = counter.isBaseCounter() ? PerfDataUtil.querySecondCounter(counterHandleMap.get(counter))
+                : PerfDataUtil.queryCounter(counterHandleMap.get(counter));
         if (value < 0) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Error querying counter {}: {}", counter.getCounterPath(),
