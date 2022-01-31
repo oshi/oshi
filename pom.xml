@@ -45,7 +45,8 @@
     <modules>
         <module>oshi-core</module>
         <module>oshi-core-java11</module>
-        <!-- other modules added by default profile -->
+        <module>oshi-demo</module>
+        <module>oshi-dist</module>
     </modules>
 
     <scm>
@@ -883,42 +884,6 @@
     </reporting>
 
     <profiles>
-        <!-- Default module configuration for java8 build -->
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>oshi-demo</module>
-                <module>oshi-dist</module>
-            </modules>
-        </profile>
-        <!-- Custom configuration for Java11 build -->
-        <profile>
-            <id>java11</id>
-            <properties>
-                <maven.compiler.source>11</maven.compiler.source>
-                <maven.compiler.target>11</maven.compiler.target>
-                <maven.compiler.testSource>11</maven.compiler.testSource>
-                <maven.compiler.testTarget>11</maven.compiler.testTarget>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- animal-sniffer doesn't work past JDK8 -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>animal-sniffer-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>test-sniffer</id>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>checks</id>
             <build>
