@@ -33,6 +33,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-core-java11</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>oshi-demo</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -62,4 +67,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
