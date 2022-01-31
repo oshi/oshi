@@ -85,10 +85,10 @@
     <properties>
         <copyright>2010 - 2022</copyright>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.testSource>1.8</maven.compiler.testSource>
-        <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.testSource>8</maven.compiler.testSource>
+        <maven.compiler.testTarget>8</maven.compiler.testTarget>
         <maven.min-version>3.3.9</maven.min-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
@@ -559,18 +559,6 @@
                     <version>${wagon-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>${animal-sniffer-maven-plugin.version}</version>
-                    <configuration>
-                        <signature>
-                            <groupId>org.codehaus.mojo.signature</groupId>
-                            <artifactId>${signature.artifact}</artifactId>
-                            <version>${signature.version}</version>
-                        </signature>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
@@ -692,19 +680,6 @@
                                 </RestrictImports>
                             </rules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>test-sniffer</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <phase>test</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -885,6 +860,49 @@
     </reporting>
 
     <profiles>
+        <profile>
+            <!-- Restrict the API to be compatible with Java 8 -->
+            <id>jdk8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>animal-sniffer-maven-plugin</artifactId>
+                        <version>${animal-sniffer-maven-plugin.version}</version>
+                        <configuration>
+                            <signature>
+                                <groupId>org.codehaus.mojo.signature</groupId>
+                                <artifactId>java18</artifactId>
+                                <version>1.0</version>
+                            </signature>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>test-sniffer</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- Restrict the API to be compatible with Java 8 -->
+            <id>jdk9</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
+                <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
+            </properties>
+        </profile>
         <profile>
             <!-- Only include java11 module on Java 11+ -->
             <id>java11</id>

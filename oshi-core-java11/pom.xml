@@ -83,6 +83,7 @@
     <build>
         <plugins>
             <plugin>
+                <!-- Copy oshi-core sources and resources -->
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>
                 <executions>
@@ -153,6 +154,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <!-- Clean up the sources and resources copied over from oshi-core -->
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${maven-clean-plugin.version}</version>
                 <executions>
@@ -195,16 +197,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>test-sniffer</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
+                <!-- All files look new to the plugin so it tries to give them a new header. Skip this. -->
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <executions>
