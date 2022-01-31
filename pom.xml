@@ -137,7 +137,7 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <bind-api.version>2.3.3</bind-api.version>
+        <bind-api.version>3.0.1</bind-api.version>
         <license-maven-plugin.version>4.2.rc2</license-maven-plugin.version>
         <sortpom-plugin.version>3.0.1</sortpom-plugin.version>
         <!-- report only -->
