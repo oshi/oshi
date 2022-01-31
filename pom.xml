@@ -44,6 +44,7 @@
 
     <modules>
         <module>oshi-core</module>
+        <module>oshi-core-java11</module>
         <!-- other modules added by default profile -->
     </modules>
 
