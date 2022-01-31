@@ -1,8 +1,5 @@
 Releasing OSHI
 =====================
-### Required JDK
-
-* To perform a full release including the modular artifact you must have `JAVA_HOME` pointing to JDK 11 or higher.
 
 ### Credentials
 
@@ -28,7 +25,9 @@ manually deployed using `mvn clean deploy`
     * Move "Your contribution here." to a new empty "Next" section
     * Commit changes as a "prep for x.x release"
 
-### Release Non-Modular Artifacts
+### Release
+
+* To perform a full release including the modular artifact you must have `JAVA_HOME` pointing to JDK 11 or higher.
 
 See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-a-release-deployment-with-the-maven-release-plugin) for a summary of the below steps
 * `mvn clean deploy`
