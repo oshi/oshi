@@ -25,12 +25,17 @@
         <main.basedir>${project.parent.basedir}</main.basedir>
     </properties>
 
-    <!-- NOTE: These dependency declarations are only required to sort this project 
-        to the end of the line in the multimodule build. -->
+    <!-- NOTE: These dependency declarations are only required to sort this project to the end of the line in the multimodule 
+        build. -->
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>oshi-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-core-java11</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -64,22 +69,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <!-- Only include java11 module on Java 11+ -->
-            <id>java11</id>
-            <activation>
-                <jdk>[11,)</jdk>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>oshi-core-java11</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 
 </project>

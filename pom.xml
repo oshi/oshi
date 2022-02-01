@@ -47,7 +47,6 @@
     <modules>
         <module>oshi-core</module>
         <module>oshi-demo</module>
-        <module>oshi-dist</module>
     </modules>
 
     <scm>
@@ -93,8 +92,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <signature.artifact>java18</signature.artifact>
-        <signature.version>1.0</signature.version>
         <!-- Base directory, overwrite in submodules -->
         <main.basedir>${project.basedir}</main.basedir>
         <!-- Dependency versions -->
@@ -861,13 +858,13 @@
 
     <profiles>
         <profile>
-            <!-- Restrict the API to be compatible with Java 8 -->
             <id>jdk8</id>
             <activation>
                 <jdk>1.8</jdk>
             </activation>
             <build>
                 <plugins>
+                    <!-- Restrict the API to be compatible with Java 8 -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -893,25 +890,20 @@
             </build>
         </profile>
         <profile>
-            <!-- Restrict the API to be compatible with Java 8 -->
-            <id>jdk9</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <properties>
-                <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
-                <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
-            </properties>
-        </profile>
-        <profile>
-            <!-- Only include java11 module on Java 11+ -->
             <id>java11</id>
             <activation>
                 <jdk>[11,)</jdk>
             </activation>
+            <!-- Only include java11 and dist modules on Java 11+ -->
             <modules>
                 <module>oshi-core-java11</module>
+                <module>oshi-dist</module>
             </modules>
+            <!-- Restrict the API to be compatible with Java 8 -->
+            <properties>
+                <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
+                <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
+            </properties>
         </profile>
         <profile>
             <id>checks</id>
