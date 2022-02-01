@@ -163,7 +163,7 @@
                         <goals>
                             <goal>clean</goal>
                         </goals>
-                        <phase>test</phase>
+                        <phase>process-classes</phase>
                         <configuration>
                             <excludeDefaultDirectories>true</excludeDefaultDirectories>
                             <filesets>
@@ -176,9 +176,22 @@
                                 <fileset>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <include>**/*</include>
+                                        <include>**</include>
                                     </includes>
                                 </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cleanup-copied-test-resources</id>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <!-- change to process-test-classes after FileUtilTest doesn't rely on source files -->
+                        <phase>test</phase>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
                                 <fileset>
                                     <directory>src/test/java/oshi</directory>
                                     <includes>
@@ -188,7 +201,7 @@
                                 <fileset>
                                     <directory>src/test/resources</directory>
                                     <includes>
-                                        <include>**/*</include>
+                                        <include>**</include>
                                     </includes>
                                 </fileset>
                             </filesets>
