@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,8 +57,8 @@ class FileUtilTest {
                 // If we're in main project directory get path to oshi-core
                 root = core.getCanonicalPath();
             } else {
-                // Assume we must be in oshi-core
-                root = new File(".").getCanonicalPath();
+                // Assume we must be in module root
+                root = new File("../oshi-core").getCanonicalPath();
             }
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e.getMessage());

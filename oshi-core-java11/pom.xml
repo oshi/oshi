@@ -81,14 +81,24 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>../oshi-core/src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>../oshi-core/src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
-                <!-- Copy oshi-core sources and resources -->
+                <!-- Copy oshi-core sources -->
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>copy-source</id>
+                        <id>copy-sources</id>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -104,23 +114,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-resource</id>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <overwrite>false</overwrite>
-                            <outputDirectory>${basedir}/src/main/resources</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>../oshi-core/src/main/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-test-source</id>
+                        <id>copy-test-sources</id>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -135,31 +129,15 @@
                             </resources>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-test-resource</id>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <phase>generate-test-resources</phase>
-                        <configuration>
-                            <overwrite>false</overwrite>
-                            <outputDirectory>${basedir}/src/test/resources</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>../oshi-core/src/test/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
-                <!-- Clean up the sources and resources copied over from oshi-core -->
+                <!-- Clean up the sources copied over from oshi-core -->
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${maven-clean-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>cleanup-copied-resources</id>
+                        <id>cleanup-copied-sources</id>
                         <goals>
                             <goal>clean</goal>
                         </goals>
@@ -173,33 +151,20 @@
                                         <include>**</include>
                                     </includes>
                                 </fileset>
-                                <fileset>
-                                    <directory>src/main/resources</directory>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </fileset>
                             </filesets>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>cleanup-copied-test-resources</id>
+                        <id>cleanup-copied-test-sources</id>
                         <goals>
                             <goal>clean</goal>
                         </goals>
-                        <!-- change to process-test-classes after FileUtilTest doesn't rely on source files -->
-                        <phase>test</phase>
+                        <phase>process-test-classes</phase>
                         <configuration>
                             <excludeDefaultDirectories>true</excludeDefaultDirectories>
                             <filesets>
                                 <fileset>
                                     <directory>src/test/java/oshi</directory>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </fileset>
-                                <fileset>
-                                    <directory>src/test/resources</directory>
                                     <includes>
                                         <include>**</include>
                                     </includes>
