@@ -39,7 +39,10 @@ jobs:
       - name: Checkstyle
         if: contains(matrix.java, '8')
         run: ./mvnw checkstyle:check
-      - name: Test with Maven and report Coverage to Coveralls
+      - name: Test with Maven
+        run: ./mvnw test -B -Dlicense.skip=true
+      - name: Report Coverage to Coveralls
+        if: contains(matrix.java, '8')
         run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
