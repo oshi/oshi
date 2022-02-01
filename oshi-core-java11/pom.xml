@@ -93,94 +93,33 @@
         </testResources>
         <plugins>
             <plugin>
-                <!-- Copy oshi-core sources -->
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin.version}</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>copy-sources</id>
+                        <id>add-sources</id>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>add-source</goal>
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <overwrite>false</overwrite>
-                            <outputDirectory>${basedir}/src/main/java</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>../oshi-core/src/main/java</directory>
-                                </resource>
-                            </resources>
+                            <sources>
+                                <source>../oshi-core/src/main/java</source>
+                            </sources>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-test-sources</id>
+                        <id>add-test-sources</id>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>add-test-source</goal>
                         </goals>
                         <phase>generate-test-sources</phase>
                         <configuration>
-                            <overwrite>false</overwrite>
-                            <outputDirectory>${basedir}/src/test/java</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>../oshi-core/src/test/java</directory>
-                                </resource>
-                            </resources>
+                            <sources>
+                                <source>../oshi-core/src/test/java</source>
+                            </sources>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <!-- Clean up the sources copied over from oshi-core -->
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>${maven-clean-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>cleanup-copied-sources</id>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                        <configuration>
-                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                            <filesets>
-                                <fileset>
-                                    <directory>src/main/java/oshi</directory>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </fileset>
-                            </filesets>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>cleanup-copied-test-sources</id>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <phase>process-test-classes</phase>
-                        <configuration>
-                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                            <filesets>
-                                <fileset>
-                                    <directory>src/test/java/oshi</directory>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </fileset>
-                            </filesets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <!-- All files look new to the plugin so it tries to give them a new header. Skip this. -->
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
