@@ -25,18 +25,24 @@ package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -45,55 +51,37 @@ import org.junit.jupiter.api.Test;
  */
 class FileUtilTest {
 
-    /*
-     * File sources
-     */
-    private static final String PROJECTROOT;
-    static {
-        String root;
-        try {
-            File core = new File("oshi-core");
-            if (core.exists()) {
-                // If we're in main project directory get path to oshi-core
-                root = core.getCanonicalPath();
-            } else {
-                // Assume we must be in module root
-                root = new File("../oshi-core").getCanonicalPath();
-            }
-        } catch (IOException e) {
-            throw new ExceptionInInitializerError(e.getMessage());
-        }
-        PROJECTROOT = root;
-    }
-    private static final String THISCLASS = PROJECTROOT + "/src/test/java/oshi/util/FileUtilTest.java";
-    private static final String INT_FILE = PROJECTROOT + "/src/test/resources/test.integer.txt";
-    private static final String STRING_FILE = PROJECTROOT + "/src/test/resources/test.string.txt";
-    private static final String PROCIO_FILE = PROJECTROOT + "/src/test/resources/test.procio.txt";
-    private static final String NO_FILE = PROJECTROOT + "/does/not/exist";
-
     /**
      * Test read file.
      */
     @Test
     void testReadFile() {
-        // Try file not found
-        assertThat("no file", FileUtil.readFile(NO_FILE), is(empty()));
-        // Try this file
-        List<String> thisFile = FileUtil.readFile(THISCLASS);
-        // Comment ONE line
-        int lineOne = 0;
-        // Comment TWO line
-        int lineTwo = 0;
-        for (int i = 0; i < thisFile.size(); i++) {
-            String line = thisFile.get(i);
-            if (lineOne == 0 && line.contains("Comment ONE line")) {
-                lineOne = i;
-            } else if (lineTwo == 0 && line.contains("Comment TWO line")) {
-                lineTwo = i;
-                break;
-            }
+        // Write to a temp file
+        Path multilineFile = null;
+        try {
+            multilineFile = Files.createTempFile("oshitest.multiline", null);
+            String s = "Line 1\nLine 2\nThe third line\nLine 4\nLine 5\n";
+            Files.write(multilineFile, s.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            fail("IO Exception creating or writing to temporary multiline file.");
         }
-        assertThat("Comment line difference", lineTwo - lineOne, is(2));
+
+        // Try the new temp file
+        List<String> tempFileStrings = FileUtil.readFile(multilineFile.toString());
+        assertThat("Temp file line one mismatch", tempFileStrings.get(0), is("Line 1"));
+        List<String> matchingLines = tempFileStrings.stream().filter(s -> s.startsWith("Line "))
+                .collect(Collectors.toList());
+        assertThat("Matching lines mismatch", matchingLines.size(), is(4));
+
+        // Delete the temp file
+        try {
+            Files.deleteIfExists(multilineFile);
+        } catch (IOException e) {
+            fail("IO Exception deleting temporary multiline file.");
+        }
+
+        // Try file not found on deleted file
+        assertThat("Deleted file should return empty", FileUtil.readFile(multilineFile.toString()), is(empty()));
     }
 
     /**
@@ -101,25 +89,56 @@ class FileUtilTest {
      */
     @Test
     void testGetFromFile() {
-        assertThat("unsigned long from int", FileUtil.getUnsignedLongFromFile(INT_FILE), is(123L));
-        assertThat("unsigned long from string", FileUtil.getUnsignedLongFromFile(STRING_FILE), is(0L));
-        assertThat("unsigned long from invalid", FileUtil.getUnsignedLongFromFile(NO_FILE), is(0L));
+        // Write to temp file
+        Path integerFile = null;
+        try {
+            integerFile = Files.createTempFile("oshitest.int", null);
+            Files.write(integerFile, "123\n".getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            fail("IO Exception creating or writing to temporary integer file.");
+        }
+        assertThat("unsigned long from int", FileUtil.getUnsignedLongFromFile(integerFile.toString()), is(123L));
+        assertThat("long from int", FileUtil.getLongFromFile(integerFile.toString()), is(123L));
+        assertThat("int from int", FileUtil.getIntFromFile(integerFile.toString()), is(123));
+        assertThat("string from int", FileUtil.getStringFromFile(integerFile.toString()), is("123"));
 
-        assertThat("long from int", FileUtil.getLongFromFile(INT_FILE), is(123L));
-        assertThat("long from string", FileUtil.getLongFromFile(STRING_FILE), is(0L));
-        assertThat("long from invalid", FileUtil.getLongFromFile(NO_FILE), is(0L));
+        // Delete the temp file
+        try {
+            Files.deleteIfExists(integerFile);
+        } catch (IOException e) {
+            fail("IO Exception deleting temporary integer file.");
+        }
 
-        assertThat("int from int", FileUtil.getIntFromFile(INT_FILE), is(123));
-        assertThat("int from string", FileUtil.getIntFromFile(STRING_FILE), is(0));
-        assertThat("int from invalid", FileUtil.getIntFromFile(NO_FILE), is(0));
+        // Write to temp file
+        Path stringFile = null;
+        try {
+            stringFile = Files.createTempFile("oshitest.str", null);
+            Files.write(stringFile, "foo bar\n".getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            fail("IO Exception creating or writing to temporary string file.");
+        }
 
-        assertThat("string from int", FileUtil.getStringFromFile(INT_FILE), is("123"));
-        assertThat("string from invalid ", FileUtil.getStringFromFile(NO_FILE), is(emptyString()));
+        assertThat("unsigned long from string", FileUtil.getUnsignedLongFromFile(stringFile.toString()), is(0L));
+        assertThat("long from string", FileUtil.getLongFromFile(stringFile.toString()), is(0L));
+        assertThat("int from string", FileUtil.getIntFromFile(stringFile.toString()), is(0));
+        assertThat("string from string", FileUtil.getStringFromFile(stringFile.toString()), is("foo bar"));
+        // Delete the temp file
+        try {
+            Files.deleteIfExists(stringFile);
+        } catch (IOException e) {
+            fail("IO Exception deleting temporary string file.");
+        }
+
+        // Try file not found on deleted file
+        assertThat("unsigned long from invalid", FileUtil.getUnsignedLongFromFile(stringFile.toString()), is(0L));
+        assertThat("long from invalid", FileUtil.getLongFromFile(stringFile.toString()), is(0L));
+        assertThat("int from invalid", FileUtil.getIntFromFile(stringFile.toString()), is(0));
+        assertThat("string from invalid ", FileUtil.getStringFromFile(stringFile.toString()), is(emptyString()));
     }
 
     @Test
     void testReadProcIo() {
-        Map<String, String> expected = new HashMap<>();
+        Map<String, String> expected = new LinkedHashMap<>();
         expected.put("rchar", "124788352");
         expected.put("wchar", "124802481");
         expected.put("syscr", "135");
@@ -127,11 +146,34 @@ class FileUtilTest {
         expected.put("read_bytes", "40304640");
         expected.put("write_bytes", "124780544");
         expected.put("cancelled_write_bytes", "42");
-        Map<String, String> actual = FileUtil.getKeyValueMapFromFile(PROCIO_FILE, ":");
+        // Write this to a temp file
+        Path procIoFile = null;
+        try {
+            procIoFile = Files.createTempFile("oshitest.procio", null);
+            for (Entry<String, String> e : expected.entrySet()) {
+                String s = e.getKey() + ": " + e.getValue() + "\n";
+                Files.write(procIoFile, s.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+            }
+        } catch (IOException e) {
+            fail("IO Exception creating or writing to temporary procIo file.");
+        }
+        // Read into map
+        Map<String, String> actual = FileUtil.getKeyValueMapFromFile(procIoFile.toString(), ":");
         assertThat("procio size", actual, is(aMapWithSize(expected.size())));
         for (Entry<String, String> entry : expected.entrySet()) {
             assertThat("procio entry", actual, hasEntry(entry.getKey(), entry.getValue()));
         }
+
+        // Cleanup
+        try {
+            Files.deleteIfExists(procIoFile);
+        } catch (IOException e) {
+            fail("IO Exception deleting temporary procIo file.");
+        }
+
+        // Test deleted file
+        actual = FileUtil.getKeyValueMapFromFile(procIoFile.toString(), ":");
+        assertThat("procio size", actual, anEmptyMap());
     }
 
     @Test
