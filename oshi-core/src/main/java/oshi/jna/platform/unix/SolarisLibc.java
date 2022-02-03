@@ -50,15 +50,18 @@ public interface SolarisLibc extends CLibrary {
     /**
      * Connection info
      */
-    @FieldOrder({ "ut_user", "ut_id", "ut_line", "ut_pid", "ut_type", "ut_tv", "ut_session", "ut_syslen", "ut_host" })
+    @FieldOrder({ "ut_user", "ut_id", "ut_line", "ut_pid", "ut_type", "ut_exit", "ut_tv", "ut_session", "pad",
+            "ut_syslen", "ut_host" })
     class SolarisUtmpx extends Structure {
         public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name
         public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)
         public byte[] ut_line = new byte[UTX_LINESIZE]; // device name
         public int ut_pid; // process id
         public short ut_type; // type of entry
+        public Exit_status ut_exit; // process termination/exit status
         public Timeval ut_tv; // time entry was made
         public int ut_session; // session ID, used for windowing
+        public int[] pad = new int[5]; // reserved for future use
         public short ut_syslen; // significant length of ut_host including terminating null
         public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name
     }
