@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,18 +42,6 @@ public final class Fsstat {
     private Fsstat() {
     }
 
-    public static int queryFsstat(Statfs[] buf, int bufsize, int flags) {
-        return SystemB.INSTANCE.getfsstat64(buf, bufsize, flags);
-    }
-
-    public static Statfs[] getFileSystems(int numfs) {
-        // Create array to hold results
-        Statfs[] fs = new Statfs[numfs];
-        // Write file system data to array
-        queryFsstat(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
-        return fs;
-    }
-
     /**
      * Query fsstat to map partitions to mount points
      *
@@ -74,4 +62,17 @@ public final class Fsstat {
         }
         return mountPointMap;
     }
+
+    private static Statfs[] getFileSystems(int numfs) {
+        // Create array to hold results
+        Statfs[] fs = new Statfs[numfs];
+        // Write file system data to array
+        queryFsstat(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+        return fs;
+    }
+
+    private static int queryFsstat(Statfs[] buf, int bufsize, int flags) {
+        return SystemB.INSTANCE.getfsstat64(buf, bufsize, flags);
+    }
+
 }
