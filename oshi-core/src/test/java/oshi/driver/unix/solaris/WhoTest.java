@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.mac;
+package oshi.driver.unix.solaris;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.condition.OS;
 
 import oshi.software.os.OSSession;
 
-@EnabledOnOs(OS.MAC)
+@EnabledOnOs(OS.SOLARIS)
 class WhoTest {
     @Test
     void testQueryUtxent() {

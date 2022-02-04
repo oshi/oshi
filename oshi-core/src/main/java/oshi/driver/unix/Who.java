@@ -37,6 +37,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.jna.Platform;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSSession;
 import oshi.util.Constants;
@@ -71,10 +73,14 @@ public final class Who {
      */
     public static synchronized List<OSSession> queryWho() {
         List<OSSession> whoList = new ArrayList<>();
-        boolean useUnix = false;
-        for (String s : ExecutingCommand.runNative("who")) {
-            if (useUnix || !matchLinux(whoList, s)) {
-                useUnix = matchUnix(whoList, s);
+        List<String> who = ExecutingCommand.runNative("who");
+        for (String s : who) {
+            boolean matched = false;
+            if (Platform.isLinux()) {
+                matched = matchLinux(whoList, s);
+            }
+            if (!matched) {
+                matchUnix(whoList, s);
             }
         }
         return whoList;
