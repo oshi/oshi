@@ -140,6 +140,7 @@
         <bind-api.version>2.3.3</bind-api.version>
         <license-maven-plugin.version>4.2.rc2</license-maven-plugin.version>
         <sortpom-plugin.version>3.0.1</sortpom-plugin.version>
+        <spotless-plugin.version>2.20.1</spotless-plugin.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
@@ -737,6 +738,39 @@
                             <goal>sort</goal>
                         </goals>
                         <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless-plugin.version}</version>
+                <configuration>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>*.java</include>
+                            </includes>
+                            <trimTrailingWhitespace />
+                            <endWithNewline />
+                            <indent>
+                                <spaces>true</spaces>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
+                    <java>
+                        <eclipse>
+                            <file>${main.basedir}/config/OSHIJavaFormatConventions.xml</file>
+                        </eclipse>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>
