@@ -30,8 +30,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -45,12 +43,7 @@ class WhoTest {
     @Test
     void testQueryUtxent() {
         if (Platform.isFreeBSD()) {
-            List<OSSession> sessions = Who.queryUtxent();
-            if (sessions.isEmpty()) {
-                sessions = Who.queryUtxent();
-            }
-            assertThat("Should have at least one session", sessions.size(), is(greaterThan(0)));
-            for (OSSession session : sessions) {
+            for (OSSession session : Who.queryUtxent()) {
                 assertThat("Session login time should be greater than 0", session.getLoginTime(), is(greaterThan(0L)));
                 assertThat("Session login time should be less than current time", session.getLoginTime(),
                         is(lessThan(System.currentTimeMillis())));
