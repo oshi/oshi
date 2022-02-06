@@ -11,10 +11,10 @@
         <version>6.1.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>oshi-core</artifactId>
+    <artifactId>oshi-core-java11</artifactId>
     <packaging>jar</packaging>
 
-    <name>oshi-core</name>
+    <name>oshi-core-java11</name>
 
     <scm>
         <connection>scm:git:git@github.com:oshi/oshi.git</connection>
@@ -25,6 +25,10 @@
 
     <properties>
         <main.basedir>${project.parent.basedir}</main.basedir>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.testSource>11</maven.compiler.testSource>
+        <maven.compiler.testTarget>11</maven.compiler.testTarget>
     </properties>
 
     <dependencyManagement>
@@ -32,12 +36,12 @@
             <!-- Due to critical nature of OSHI jna usage, set to dependency management to help influence usage -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna</artifactId>
+                <artifactId>jna-jpms</artifactId>
                 <version>${jna.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna-platform</artifactId>
+                <artifactId>jna-platform-jpms</artifactId>
                 <version>${jna.version}</version>
             </dependency>
         </dependencies>
@@ -45,11 +49,11 @@
     <dependencies>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
+            <artifactId>jna-jpms</artifactId>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
+            <artifactId>jna-platform-jpms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -77,17 +81,46 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>../oshi-core/src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>../oshi-core/src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.github.oshi</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-sources</id>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sources>
+                                <source>../oshi-core/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-sources</id>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <sources>
+                                <source>../oshi-core/src/test/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

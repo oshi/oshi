@@ -17,8 +17,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # Baseline support
-        java: [8]
+        # Baseline support, Current LTS, Current GA, Current EA
+        java: [8, 11, 17, 18-ea]
         os: [ubuntu-latest]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
@@ -37,34 +37,12 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Checkstyle
+        if: contains(matrix.java, '8')
         run: ./mvnw checkstyle:check
-      - name: Test with Maven and report Coverage to Coveralls
+      - name: Test with Maven
+        run: ./mvnw test -B -Dlicense.skip=true
+      - name: Report Coverage to Coveralls
+        if: contains(matrix.java, '8')
         run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # Runs modular build on multiple JDKs
-  testmatrix11:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        # Current LTS, Current GA, Current EA
-        java: [11, 17, 18-ea]
-        os: [ubuntu-latest]
-      fail-fast: false
-    name: Modular build on JDK ${{ matrix.java }}, ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'zulu'
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-11-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-11-m2
-      - name: Test with Maven
-        run: ./mvnw11 test -B -Dlicense.skip=true

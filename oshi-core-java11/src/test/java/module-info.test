@@ -13,6 +13,16 @@
 --add-opens
   com.github.oshi/oshi.driver.mac=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.driver.mac.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac.net=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.freebsd=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.solaris=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.driver.windows.perfmon=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.windows.wmi=org.junit.platform.commons

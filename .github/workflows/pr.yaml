@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        java: [8]
+        java: [8,11]
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
     steps:
@@ -31,30 +31,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Checkstyle
-        if: contains(matrix.os, 'ubuntu')
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
         run: ./mvnw checkstyle:check
       - name: Test with Maven
         run: ./mvnw test -B -D"license.skip=true"
-  test11:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        java: [11]
-      fail-fast: false
-    name: Test Modular build on JDK ${{ matrix.java }}, ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'zulu'
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-11-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-11-m2
-      - name: Test with Maven
-        run: ./mvnw11 test -B -D"license.skip=true"

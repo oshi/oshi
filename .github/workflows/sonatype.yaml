@@ -25,5 +25,3 @@ jobs:
           distribution: 'zulu'
       - name: Deploy to Sonatype
         run: ./mvnw deploy -Djacoco.skip=true -Dlicense.skip=true -DskipTests -B --settings ./.mvn/settings.xml
-      - name: Deploy java11 artifacts to Sonatype
-        run: ./mvnw11 clean deploy -Djacoco.skip=true -Dlicense.skip=true -DskipTests -B --settings ./.mvn/settings.xml
