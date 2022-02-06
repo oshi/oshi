@@ -5,6 +5,8 @@
 
 ##### Bug fixes / Improvements
 * [#1869](https://github.com/oshi/oshi/pull/1869): Ignore mount headers on AIX filesystem - [@dbwiddis](https://github.com/dbwiddis).
+* [#1889](https://github.com/oshi/oshi/pull/1889): Improved calculation of AIX disk reads and writes - [@siddhantdixit](https://github.com/siddhantdixit).
+* [#1898](https://github.com/oshi/oshi/pull/1898): Fix Solaris Utmpx struture mapping - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Artifact Removal
 * [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).

@@ -106,7 +106,6 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     // PPID is 4th numeric value in proc pid stat; subtract 1 for 0-index
     private static final int[] PPID_INDEX = { 3 };
 
-
     /**
      * <p>
      * Constructor for LinuxOperatingSystem.

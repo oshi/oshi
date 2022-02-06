@@ -63,17 +63,14 @@ public final class Who {
             while ((ut = LIBC.getutxent()) != null) {
                 if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
                     String user = Native.toString(ut.ut_user, StandardCharsets.US_ASCII);
-                    if (!"LOGIN".equals(user)) {
-                        String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);
-                        String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
-                        long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
-                        // Sanity check. If errors, default to who command line
-                        if (user.isEmpty() || device.isEmpty() || loginTime < 0
-                                || loginTime > System.currentTimeMillis()) {
-                            return oshi.driver.unix.Who.queryWho();
-                        }
-                        whoList.add(new OSSession(user, device, loginTime, host));
+                    String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);
+                    String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
+                    long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
+                    // Sanity check. If errors, default to who command line
+                    if (user.isEmpty() || device.isEmpty() || loginTime < 0 || loginTime > System.currentTimeMillis()) {
+                        return oshi.driver.unix.Who.queryWho();
                     }
+                    whoList.add(new OSSession(user, device, loginTime, host));
                 }
             }
         } finally {

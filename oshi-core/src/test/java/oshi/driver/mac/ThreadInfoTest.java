@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,35 +24,20 @@
 package oshi.driver.mac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.not;
-
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import oshi.software.os.OSSession;
+import oshi.SystemInfo;
 
 @EnabledOnOs(OS.MAC)
-class WhoTest {
+class ThreadInfoTest {
     @Test
-    void testQueryUtxent() {
-        List<OSSession> sessions = Who.queryUtxent();
-        if (sessions.isEmpty()) {
-            sessions = Who.queryUtxent();
-        }
-        assertThat("Should have at least one session", sessions.size(), is(greaterThan(0)));
-        for (OSSession session : sessions) {
-            assertThat("Session login time should be greater than 0", session.getLoginTime(), is(greaterThan(0L)));
-            assertThat("Session login time should be less than current time", session.getLoginTime(),
-                    is(lessThan(System.currentTimeMillis())));
-            assertThat("User should be non-empty", session.getUserName(), is(not(emptyOrNullString())));
-            assertThat("Devices should be non-empty", session.getTerminalDevice(), is(not(emptyOrNullString())));
-        }
+    void testQueryTaskThreads() {
+        int pid = new SystemInfo().getOperatingSystem().getProcessId();
+        assertThat("Processes should have at least one thread.", ThreadInfo.queryTaskThreads(pid).size(),
+                greaterThan(0));
     }
 }
