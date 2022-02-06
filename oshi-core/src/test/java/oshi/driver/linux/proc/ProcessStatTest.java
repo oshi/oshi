@@ -26,6 +26,7 @@ package oshi.driver.linux.proc;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -88,11 +89,13 @@ class ProcessStatTest {
 
     private boolean testGetPidStatM(int pid) {
         Map<PidStatM, Long> statM = ProcessStat.getPidStatM(pid);
+        assertNotNull(statM);
         return !statM.isEmpty();
     }
 
     private boolean testGetPidStats(int pid) {
         Triplet<String, Character, Map<PidStat, Long>> stats = ProcessStat.getPidStats(pid);
+        assertNotNull(stats);
         State procState = ProcessStat.getState(stats.getB());
         return stats.getA().length() > 0 // at least one process should have nonempty name
                 // At least one process should be running or sleeping
