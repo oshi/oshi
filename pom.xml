@@ -140,6 +140,7 @@
         <bind-api.version>2.3.3</bind-api.version>
         <license-maven-plugin.version>4.2.rc2</license-maven-plugin.version>
         <sortpom-plugin.version>3.0.1</sortpom-plugin.version>
+        <spotless-plugin.version>2.20.1</spotless-plugin.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
@@ -317,8 +318,8 @@
                     <version>${bnd-maven-plugin.version}</version>
                     <configuration>
                         <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
-						Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
-						-snapshot: SNAPSHOT]]></bnd>
+                        Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+                        -snapshot: SNAPSHOT]]></bnd>
                     </configuration>
                 </plugin>
                 <!-- Reporting plugins -->
@@ -416,10 +417,10 @@
                         </archive>
                     </configuration>
                     <executions>
-                        <!-- Here we override the super-pom attach-sources execution id which calls sources:jar goal. That 
-                            goals forks the lifecycle, causing the generate-sources phase to be called twice for the install goal. Starting with Maven 
+                        <!-- Here we override the super-pom attach-sources execution id which calls sources:jar goal. That
+                            goals forks the lifecycle, causing the generate-sources phase to be called twice for the install goal. Starting with Maven
                             3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) this is not needed anymore. -->
-                        <!-- except that OSSRH fails with no sources with this excluded <execution> <id>attach-sources</id> 
+                        <!-- except that OSSRH fails with no sources with this excluded <execution> <id>attach-sources</id>
                             <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> </execution> -->
                     </executions>
                 </plugin>
@@ -741,6 +742,51 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless-plugin.version}</version>
+                <configuration>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>*.yml</include>
+                                <include>*.yaml</include>
+                            </includes>
+                            <trimTrailingWhitespace />
+                            <endWithNewline />
+                            <indent>
+                                <spaces>true</spaces>
+                                <spacesPerTab>2</spacesPerTab>
+                            </indent>
+                        </format>
+                        <format>
+                            <includes>
+                                <include>*.xml</include>
+                            </includes>
+                            <trimTrailingWhitespace />
+                            <endWithNewline />
+                            <indent>
+                                <spaces>true</spaces>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
+                    <java>
+                        <eclipse>
+                            <file>${main.basedir}/config/OSHIJavaFormatConventions.xml</file>
+                        </eclipse>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <!-- Code Coverage -->
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -1016,7 +1062,7 @@
             <build>
                 <pluginManagement>
                     <plugins>
-                        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on 
+                        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on
                             the Maven build itself. -->
                         <plugin>
                             <groupId>org.eclipse.m2e</groupId>
@@ -1119,7 +1165,7 @@
                                 <configuration>
                                     <keyname>${gpg.keyname}</keyname>
                                     <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                                    <!-- GPG 2.1 requires pinentry-mode to be set to loopback in order to pick up the gpg.passphrase 
+                                    <!-- GPG 2.1 requires pinentry-mode to be set to loopback in order to pick up the gpg.passphrase
                                         value defined in Maven settings.xml. -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>

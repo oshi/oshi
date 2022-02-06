@@ -23,7 +23,7 @@
         <main.basedir>${project.parent.basedir}</main.basedir>
     </properties>
 
-    <!-- NOTE: These dependency declarations are only required to sort this project 
+    <!-- NOTE: These dependency declarations are only required to sort this project
         to the end of the line in the multimodule build. -->
     <dependencies>
         <dependency>
