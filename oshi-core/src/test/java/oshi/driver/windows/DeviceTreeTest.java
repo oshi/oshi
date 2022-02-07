@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -52,11 +53,12 @@ class DeviceTreeTest {
         Set<Integer> rootSet = tree.getA();
         assertThat("Tree root set must not be empty", rootSet, is(not(empty())));
         Map<Integer, Integer> parentMap = tree.getB();
-        Set<Integer> branchSet = parentMap.keySet();
+        Set<Integer> branchSet = parentMap.keySet().stream().collect(Collectors.toSet());
         branchSet.retainAll(rootSet); // intersection
         assertThat("Branches cannot match root", branchSet, is(empty()));
-        Set<Integer> nodeSet = parentMap.keySet();
+        Set<Integer> nodeSet = parentMap.keySet().stream().collect(Collectors.toSet());
         nodeSet.addAll(rootSet); // union
+
         assertTrue(nodeSet.containsAll(tree.getC().keySet()), "Name map should only have nodes as keys");
         assertTrue(nodeSet.containsAll(tree.getD().keySet()), "Device Id should only have nodes as keys");
         assertTrue(nodeSet.containsAll(tree.getE().keySet()), "Manufacturer map should only have nodes as keys");

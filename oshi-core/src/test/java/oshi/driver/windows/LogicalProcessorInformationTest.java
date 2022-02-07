@@ -24,7 +24,11 @@
 package oshi.driver.windows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
 
@@ -42,8 +46,8 @@ class LogicalProcessorInformationTest {
     void testGetLogicalProcessorInformation() {
         Pair<List<LogicalProcessor>, List<PhysicalProcessor>> info = LogicalProcessorInformation
                 .getLogicalProcessorInformation();
-        assertThat("Must be more Logical Processors than Physical Ones", info.getA().size(),
-                greaterThanOrEqualTo(info.getB().size()));
+        assertThat("Logical Processor list must not be empty", info.getA(), is(not(empty())));
+        assertThat("Physical Processor list is null", info.getB(), is(nullValue()));
     }
 
     @Test
