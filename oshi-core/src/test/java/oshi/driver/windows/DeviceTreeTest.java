@@ -21,45 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.driver.windows.registry;
+package oshi.driver.windows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import com.sun.jna.platform.win32.Guid.GUID;
+
+import oshi.util.tuples.Quintet;
+
 @EnabledOnOs(OS.WINDOWS)
-class RegistryDriversTest {
+class DeviceTreeTest {
+    private static final GUID GUID_DEVINTERFACE_USB_HOST_CONTROLLER = new GUID(
+            "{3ABF6F2D-71C4-462A-8A92-1E6861E6AF27}");
 
     @Test
-    void testProcessPerformanceData() {
-        assertThat("Process map should not be empty", ProcessPerformanceData.buildProcessMapFromRegistry(null),
-                is(not(anEmptyMap())));
-    }
-
-    @Test
-    void testThreadPerformanceData() {
-        assertThat("Thread map should not be empty", ThreadPerformanceData.buildThreadMapFromRegistry(null),
-                is(not(anEmptyMap())));
-    }
-
-    @Test
-    void testSessionWtsData() {
-        assertThat("Sessions list from registry should not be empty", HkeyUserData.queryUserSessions(),
-                is(not(empty())));
-        assertDoesNotThrow(SessionWtsData::queryUserSessions);
-        assertDoesNotThrow(NetSessionData::queryUserSessions);
-    }
-
-    @Test
-    void testProcessWtsData() {
-        assertThat("Process WTS map should not be empty", ProcessWtsData.queryProcessWtsMap(null),
-                is(not(anEmptyMap())));
+    void testQueryDeviceTree() {
+        Quintet<Set<Integer>, Map<Integer, Integer>, Map<Integer, String>, Map<Integer, String>, Map<Integer, String>> tree = DeviceTree
+                .queryDeviceTree(GUID_DEVINTERFACE_USB_HOST_CONTROLLER);
+        Set<Integer> rootSet = tree.getA();
+        assertThat("Tree root set must not be empty", rootSet, is(not(empty())));
+        Map<Integer, Integer> parentMap = tree.getB();
+        Set<Integer> branchSet = parentMap.keySet();
+        branchSet.retainAll(rootSet); // intersection
+        assertThat("Branches cannot match root", branchSet, is(empty()));
+        Set<Integer> nodeSet = parentMap.keySet();
+        nodeSet.addAll(rootSet); // union
+        assertTrue(nodeSet.containsAll(tree.getC().keySet()), "Name map should only have nodes as keys");
+        assertTrue(nodeSet.containsAll(tree.getD().keySet()), "Device Id should only have nodes as keys");
+        assertTrue(nodeSet.containsAll(tree.getE().keySet()), "Manufacturer map should only have nodes as keys");
     }
 }
