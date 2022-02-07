@@ -43,13 +43,12 @@ import oshi.util.tuples.Quintet;
 
 @EnabledOnOs(OS.WINDOWS)
 class DeviceTreeTest {
-    private static final GUID GUID_DEVINTERFACE_USB_HOST_CONTROLLER = new GUID(
-            "{3ABF6F2D-71C4-462A-8A92-1E6861E6AF27}");
+    private static final GUID GUID_DEVINTERFACE_NET = new GUID("{CAC88484-7515-4C03-82E6-71A87ABAC361}");
 
     @Test
     void testQueryDeviceTree() {
         Quintet<Set<Integer>, Map<Integer, Integer>, Map<Integer, String>, Map<Integer, String>, Map<Integer, String>> tree = DeviceTree
-                .queryDeviceTree(GUID_DEVINTERFACE_USB_HOST_CONTROLLER);
+                .queryDeviceTree(GUID_DEVINTERFACE_NET);
         Set<Integer> rootSet = tree.getA();
         assertThat("Tree root set must not be empty", rootSet, is(not(empty())));
         Map<Integer, Integer> parentMap = tree.getB();
