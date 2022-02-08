@@ -29,16 +29,16 @@ Current Development (SNAPSHOT) downloads
 Documentation
 -------------
 * [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs)
-* [FAQ](https://github.com/oshi/oshi/blob/master/Documentation/FAQ.md)
+* [FAQ](https://github.com/oshi/oshi/src/site/markdown/FAQ.md)
 * [Change Log](https://github.com/oshi/oshi/blob/master/CHANGELOG.md)
-* [Performance Considerations](https://github.com/oshi/oshi/blob/master/Documentation/PERFORMANCE.md)
-* [Major Version Breaking Changes](https://github.com/oshi/oshi/blob/master/Documentation/UPGRADING.md)
-* [Sample Output](https://github.com/oshi/oshi/blob/master/Documentation/OUTPUT.md)
-* [Applications and Projects using OSHI](https://github.com/oshi/oshi/blob/master/Documentation/PROJECTS.md)
+* [Performance Considerations](https://github.com/oshi/oshi/src/site/markdown/Performance.md)
+* [Major Version Breaking Changes](https://github.com/oshi/oshi/src/site/markdown/Upgrading.md)
+* [Sample Output](https://github.com/oshi/oshi/src/site/markdown/SampleOutput.md)
+* [Applications and Projects using OSHI](https://github.com/oshi/oshi/src/site/markdown/Projects.md)
 
 Usage
 -----
-1. Include OSHI and its dependencies ([JNA](https://github.com/java-native-access/jna) and [SLF4J](http://www.slf4j.org/)) on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. 
+1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle. 
 2. Create a new instance of `SystemInfo`
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
@@ -135,8 +135,8 @@ but we would love for *you* to help by:
 
 Contributing to OSHI
 --------------------
-* [How to Contribute](https://github.com/oshi/oshi/blob/master/Documentation/CONTRIBUTING.md)
-* [How to Release](https://github.com/oshi/oshi/blob/master/Documentation/RELEASING.md)
+* [How to Contribute](https://github.com/oshi/oshi/src/site/markdown/Contributing.md)
+* [How to Release](https://github.com/oshi/oshi/src/site/markdown/Releasing.md)
 
 Acknowledgements
 ----------------
