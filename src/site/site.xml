@@ -18,7 +18,11 @@
             <item name="oshi" href="http://github.com/oshi/oshi" />
         </links>
         <menu name="User guide">
-            <item href="README.html" name="README" />
+            <item href="README.html" name="Overview" />
+            <item href="FAQ.html" name="Frequently Asked Questions" />
+            <item href="Performance.html" name="Performance Considerations" />
+            <item href="Upgrading.html" name="Major Version Breaking Changes" />
+            <item href="SampleOutput.html" name="Sample Output" />
         </menu>
         <menu ref="reports" />
         <menu ref="parent" inherit="top" />
