@@ -29,12 +29,12 @@ Current Development (SNAPSHOT) downloads
 Documentation
 -------------
 * [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs)
-* [FAQ](https://github.com/oshi/oshi/src/site/markdown/FAQ.md)
-* [Change Log](https://github.com/oshi/oshi/blob/master/CHANGELOG.md)
-* [Performance Considerations](https://github.com/oshi/oshi/src/site/markdown/Performance.md)
-* [Major Version Breaking Changes](https://github.com/oshi/oshi/src/site/markdown/Upgrading.md)
-* [Sample Output](https://github.com/oshi/oshi/src/site/markdown/SampleOutput.md)
-* [Applications and Projects using OSHI](https://github.com/oshi/oshi/src/site/markdown/Projects.md)
+* [FAQ](src/site/markdown/FAQ.md)
+* [Change Log](CHANGELOG.md)
+* [Performance Considerations](src/site/markdown/Performance.md)
+* [Major Version Breaking Changes](src/site/markdown/Upgrading.md)
+* [Sample Output](src/site/markdown/SampleOutput.md)
+* [Applications and Projects using OSHI](src/site/markdown/Projects.md)
 
 Usage
 -----
@@ -135,8 +135,8 @@ but we would love for *you* to help by:
 
 Contributing to OSHI
 --------------------
-* [How to Contribute](https://github.com/oshi/oshi/src/site/markdown/Contributing.md)
-* [How to Release](https://github.com/oshi/oshi/src/site/markdown/Releasing.md)
+* [How to Contribute](src/site/markdown/Contributing.md)
+* [How to Release](src/site/markdown/Releasing.md)
 
 Acknowledgements
 ----------------
