@@ -20,11 +20,9 @@
         <menu name="User guide">
             <item href="README.html" name="Overview" />
             <item href="FAQ.html" name="Frequently Asked Questions" />
-            <item href="Upgrading.html" name="Major Version Breaking Changes" />
             <item href="Performance.html" name="Performance Considerations" />
+            <item href="Upgrading.html" name="Major Version Breaking Changes" />
             <item href="SampleOutput.html" name="Sample Output" />
-            <item href="Contributing.html" name="How to Contribute" />
-            <item href="Releasing.html" name="Instructions to Release" />
         </menu>
         <menu ref="reports" />
         <menu ref="parent" inherit="top" />
