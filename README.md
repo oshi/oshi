@@ -34,7 +34,7 @@ Documentation
 * [Performance Considerations](src/site/markdown/Performance.md)
 * [Major Version Breaking Changes](src/site/markdown/Upgrading.md)
 * [Sample Output](src/site/markdown/SampleOutput.md)
-* [Applications and Projects using OSHI](src/site/markdown/Projects.md)
+* [Applications and Projects using OSHI](src/site/resources/Projects.md)
 
 Usage
 -----
