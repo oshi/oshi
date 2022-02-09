@@ -131,9 +131,6 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
                         this.writes = approximateReads;
                     }
                 }
-                this.writes = Math.round(stat.xfers * stat.wblks / (double) blks);
-                this.reads -= this.writes;
-
                 this.readBytes = stat.rblks * stat.bsize;
                 this.writeBytes = stat.wblks * stat.bsize;
                 this.currentQueueLength = stat.qdepth;
