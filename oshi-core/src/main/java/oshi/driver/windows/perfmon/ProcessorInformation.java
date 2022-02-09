@@ -54,9 +54,8 @@ public final class ProcessorInformation {
 
     private static final boolean IS_WIN7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
-    public static final String OSHI_OS_WINDOWS_CPU_UTILITY = "oshi.os.windows.cpu.utility";
     public static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
-            && GlobalConfig.get(OSHI_OS_WINDOWS_CPU_UTILITY, false);
+            && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
     private static final Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> INITIAL_CAPACITY_TICKS = USE_CPU_UTILITY
             ? queryProcessorCapacityCounters()
             : null;

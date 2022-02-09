@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,8 +46,7 @@ import oshi.util.tuples.Triplet;
 public final class ProcessPerformanceData {
 
     private static final String PROCESS = "Process";
-    public static final String WIN_HKEY_PERFDATA = "oshi.os.windows.hkeyperfdata";
-    private static final boolean PERFDATA = GlobalConfig.get(WIN_HKEY_PERFDATA, true);
+    private static final boolean PERFDATA = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true);
 
     private ProcessPerformanceData() {
     }

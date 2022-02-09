@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,8 +52,7 @@ import oshi.util.tuples.Pair;
  */
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
-    public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
-    protected static final boolean USE_WHO_COMMAND = GlobalConfig.get(OSHI_OS_UNIX_WHOCOMMAND, false);
+    protected static final boolean USE_WHO_COMMAND = GlobalConfig.get(GlobalConfig.OSHI_OS_UNIX_WHOCOMMAND, false);
 
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
     private final Supplier<Pair<String, OSVersionInfo>> familyVersionInfo = memoize(this::queryFamilyVersionInfo);

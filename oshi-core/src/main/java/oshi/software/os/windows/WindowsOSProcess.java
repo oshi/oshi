@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,12 +85,11 @@ public class WindowsOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSProcess.class);
 
-    // Config param to enable cache
-    public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
-    private static final boolean USE_BATCH_COMMANDLINE = GlobalConfig.get(OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false);
+    private static final boolean USE_BATCH_COMMANDLINE = GlobalConfig
+            .get(GlobalConfig.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false);
 
     private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
-            .get(WindowsOperatingSystem.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
+            .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();

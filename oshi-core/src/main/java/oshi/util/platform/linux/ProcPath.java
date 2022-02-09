@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,11 +73,11 @@ public final class ProcPath {
     }
 
     private static String queryProcConfig() {
-        String procPath = GlobalConfig.get("oshi.util.proc.path", "/proc");
+        String procPath = GlobalConfig.get(GlobalConfig.OSHI_UTIL_PROC_PATH, "/proc");
         // Ensure prefix begins with path separator, but doesn't end with one
         procPath = '/' + procPath.replaceAll("/$|^/", "");
         if (!new File(procPath).exists()) {
-            throw new GlobalConfig.PropertyException("oshi.util.proc.path", "The path does not exist");
+            throw new GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_PROC_PATH, "The path does not exist");
         }
         return procPath;
     }
