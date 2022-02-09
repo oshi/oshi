@@ -68,7 +68,7 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public synchronized long getReads() {
-            return reads;
+        return reads;
     }
 
     @Override
@@ -78,7 +78,7 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public synchronized long getWrites() {
-            return writes;
+        return writes;
     }
 
     @Override

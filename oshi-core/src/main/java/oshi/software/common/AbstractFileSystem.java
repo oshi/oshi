@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,18 +37,15 @@ import oshi.util.GlobalConfig;
 @ThreadSafe
 public abstract class AbstractFileSystem implements FileSystem {
 
-    public static final String OSHI_NETWORK_FILESYSTEM_TYPES = "oshi.network.filesystem.types";
-    public static final String OSHI_PSEUDO_FILESYSTEM_TYPES = "oshi.pseudo.filesystem.types";
-
     /**
      * FileSystem types which are network-based and should be excluded from
      * local-only lists
      */
     protected static final List<String> NETWORK_FS_TYPES = Arrays
-            .asList(GlobalConfig.get(OSHI_NETWORK_FILESYSTEM_TYPES, "").split(","));
+            .asList(GlobalConfig.get(GlobalConfig.OSHI_NETWORK_FILESYSTEM_TYPES, "").split(","));
 
     protected static final List<String> PSEUDO_FS_TYPES = Arrays
-            .asList(GlobalConfig.get(OSHI_PSEUDO_FILESYSTEM_TYPES, "").split(","));
+            .asList(GlobalConfig.get(GlobalConfig.OSHI_PSEUDO_FILESYSTEM_TYPES, "").split(","));
 
     @Override
     public List<OSFileStore> getFileStores() {

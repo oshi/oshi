@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,11 +51,11 @@ public class WmiQueryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);
 
-    private static int globalTimeout = GlobalConfig.get("oshi.util.wmi.timeout", -1);
+    private static int globalTimeout = GlobalConfig.get(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT, -1);
 
     static {
         if (globalTimeout == 0 || globalTimeout < -1) {
-            throw new GlobalConfig.PropertyException("oshi.util.wmi.timeout");
+            throw new GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT);
         }
     }
 

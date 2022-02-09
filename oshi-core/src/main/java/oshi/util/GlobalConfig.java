@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2019-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,21 @@ public final class GlobalConfig {
     private static final String OSHI_PROPERTIES = "oshi.properties";
 
     private static final Properties CONFIG = FileUtil.readPropertiesFromFilename(OSHI_PROPERTIES);
+
+    public static final String OSHI_UTIL_MEMOIZER_EXPIRATION = "oshi.util.memoizer.expiration";
+    public static final String OSHI_UTIL_WMI_TIMEOUT = "oshi.util.wmi.timeout";
+    public static final String OSHI_UTIL_PROC_PATH = "oshi.util.proc.path";
+
+    public static final String OSHI_PSEUDO_FILESYSTEM_TYPES = "oshi.pseudo.filesystem.types";
+    public static final String OSHI_NETWORK_FILESYSTEM_TYPES = "oshi.network.filesystem.types";
+
+    public static final String OSHI_OS_WINDOWS_EVENTLOG = "oshi.os.windows.eventlog";
+    public static final String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = "oshi.os.windows.procstate.suspended";
+    public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
+    public static final String OSHI_OS_WINDOWS_HKEYPERFDATA = "oshi.os.windows.hkeyperfdata";
+    public static final String OSHI_OS_WINDOWS_CPU_UTILITY = "oshi.os.windows.cpu.utility";
+
+    public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
 
     private GlobalConfig() {
     }
