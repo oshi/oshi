@@ -29,6 +29,9 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -39,14 +42,18 @@ class RegistryDriversTest {
 
     @Test
     void testProcessPerformanceData() {
-        assertThat("Process map should not be empty", ProcessPerformanceData.buildProcessMapFromRegistry(null),
-                is(not(anEmptyMap())));
+        Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap = ProcessPerformanceData
+                .buildProcessMapFromRegistry(null);
+        assertNotNull(processMap);
+        assertThat("Process map should not be empty", processMap, is(not(anEmptyMap())));
     }
 
     @Test
     void testThreadPerformanceData() {
-        assertThat("Thread map should not be empty", ThreadPerformanceData.buildThreadMapFromRegistry(null),
-                is(not(anEmptyMap())));
+        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap = ThreadPerformanceData
+                .buildThreadMapFromRegistry(null);
+        assertNotNull(threadMap);
+        assertThat("Thread map should not be empty", threadMap, is(not(anEmptyMap())));
     }
 
     @Test

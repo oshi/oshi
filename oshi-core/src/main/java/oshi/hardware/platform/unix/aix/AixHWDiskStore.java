@@ -67,37 +67,37 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
     }
 
     @Override
-    public long getReads() {
-        return reads;
+    public synchronized long getReads() {
+            return reads;
     }
 
     @Override
-    public long getReadBytes() {
+    public synchronized long getReadBytes() {
         return readBytes;
     }
 
     @Override
-    public long getWrites() {
-        return writes;
+    public synchronized long getWrites() {
+            return writes;
     }
 
     @Override
-    public long getWriteBytes() {
+    public synchronized long getWriteBytes() {
         return writeBytes;
     }
 
     @Override
-    public long getCurrentQueueLength() {
+    public synchronized long getCurrentQueueLength() {
         return currentQueueLength;
     }
 
     @Override
-    public long getTransferTime() {
+    public synchronized long getTransferTime() {
         return transferTime;
     }
 
     @Override
-    public long getTimeStamp() {
+    public synchronized long getTimeStamp() {
         return timeStamp;
     }
 
@@ -107,11 +107,8 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
     }
 
     @Override
-    public boolean updateAttributes() {
-        return synchronizedUpdateAttributes();
-    }
-
-    private synchronized boolean synchronizedUpdateAttributes() {
+    public synchronized boolean updateAttributes() {
+        long now = System.currentTimeMillis();
         for (perfstat_disk_t stat : diskStats.get()) {
             String name = Native.toString(stat.name);
             if (name.equals(this.getName())) {
@@ -128,13 +125,14 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
                         this.reads = approximateReads;
                     }
                     if (approximateWrites > this.writes) {
-                        this.writes = approximateReads;
+                        this.writes = approximateWrites;
                     }
                 }
                 this.readBytes = stat.rblks * stat.bsize;
                 this.writeBytes = stat.wblks * stat.bsize;
                 this.currentQueueLength = stat.qdepth;
                 this.transferTime = stat.time;
+                this.timeStamp = now;
                 return true;
             }
         }
