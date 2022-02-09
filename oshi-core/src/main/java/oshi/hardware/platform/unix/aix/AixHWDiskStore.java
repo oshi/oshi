@@ -108,16 +108,32 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public boolean updateAttributes() {
+        return synchronizedUpdateAttributes();
+    }
+
+    private synchronized boolean synchronizedUpdateAttributes() {
         for (perfstat_disk_t stat : diskStats.get()) {
             String name = Native.toString(stat.name);
             if (name.equals(this.getName())) {
                 // we only have total transfers so estimate read/write ratio from blocks
                 long blks = stat.rblks + stat.wblks;
-                this.reads = stat.xfers;
-                if (blks > 0L) {
-                    this.writes = Math.round(stat.xfers * stat.wblks / (double) blks);
-                    this.reads -= this.writes;
+                if (blks == 0L) {
+                    this.reads = stat.xfers;
+                    this.writes = 0L;
+                } else {
+                    long approximateReads = Math.round(stat.xfers * stat.rblks / (double) blks);
+                    long approximateWrites = stat.xfers - approximateReads;
+                    // Enforce monotonic increase
+                    if (approximateReads > this.reads) {
+                        this.reads = approximateReads;
+                    }
+                    if (approximateWrites > this.writes) {
+                        this.writes = approximateReads;
+                    }
                 }
+                this.writes = Math.round(stat.xfers * stat.wblks / (double) blks);
+                this.reads -= this.writes;
+
                 this.readBytes = stat.rblks * stat.bsize;
                 this.writeBytes = stat.wblks * stat.bsize;
                 this.currentQueueLength = stat.qdepth;
