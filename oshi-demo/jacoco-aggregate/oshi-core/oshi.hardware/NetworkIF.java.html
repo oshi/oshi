@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>NetworkIF.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">NetworkIF.java</span></div><h1>NetworkIF.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -84,7 +84,7 @@ public interface NetworkIF {
      *         empty string.
      */
     default String getIfAlias() {
-<span class="fc" id="L87">        return &quot;&quot;;</span>
+<span class="nc" id="L87">        return &quot;&quot;;</span>
     }
 
     /**
@@ -95,7 +95,7 @@ public interface NetworkIF {
      * @return The current operational state of the interface.
      */
     default IfOperStatus getIfOperStatus() {
-<span class="fc" id="L98">        return IfOperStatus.UNKNOWN;</span>
+<span class="nc" id="L98">        return IfOperStatus.UNKNOWN;</span>
     }
 
     /**
@@ -190,7 +190,7 @@ public interface NetworkIF {
      * @return the ndisPhysicalMediumType
      */
     default int getNdisPhysicalMediumType() {
-<span class="fc" id="L193">        return 0;</span>
+<span class="nc" id="L193">        return 0;</span>
     }
 
     /**
@@ -355,42 +355,42 @@ public interface NetworkIF {
      * &lt;p&gt;
      * As described in RFC 2863.
      */
-<span class="fc" id="L358">    enum IfOperStatus {</span>
+<span class="nc" id="L358">    enum IfOperStatus {</span>
         /**
          * Up and operational. Ready to pass packets.
          */
-<span class="fc" id="L362">        UP(1),</span>
+<span class="nc" id="L362">        UP(1),</span>
         /**
          * Down and not operational. Not ready to pass packets.
          */
-<span class="fc" id="L366">        DOWN(2),</span>
+<span class="nc" id="L366">        DOWN(2),</span>
         /**
          * In some test mode.
          */
-<span class="fc" id="L370">        TESTING(3),</span>
+<span class="nc" id="L370">        TESTING(3),</span>
         /**
          * The interface status is unknown.
          */
-<span class="fc" id="L374">        UNKNOWN(4),</span>
+<span class="nc" id="L374">        UNKNOWN(4),</span>
         /**
          * The interface is not up, but is in a pending state, waiting for some external
          * event.
          */
-<span class="fc" id="L379">        DORMANT(5),</span>
+<span class="nc" id="L379">        DORMANT(5),</span>
         /**
          * Some component is missing
          */
-<span class="fc" id="L383">        NOT_PRESENT(6),</span>
+<span class="nc" id="L383">        NOT_PRESENT(6),</span>
         /**
          * Down due to state of lower-layer interface(s).
          */
-<span class="fc" id="L387">        LOWER_LAYER_DOWN(7);</span>
+<span class="nc" id="L387">        LOWER_LAYER_DOWN(7);</span>
 
         private final int value;
 
-<span class="fc" id="L391">        IfOperStatus(int value) {</span>
-<span class="fc" id="L392">            this.value = value;</span>
-<span class="fc" id="L393">        }</span>
+<span class="nc" id="L391">        IfOperStatus(int value) {</span>
+<span class="nc" id="L392">            this.value = value;</span>
+<span class="nc" id="L393">        }</span>
 
         /**
          * @return the integer value specified in RFC 2863 for this operational status.

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSProcess.java</span></div><h1>OSProcess.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -426,45 +426,45 @@ public interface OSProcess {
     /**
      * Process and Thread Execution States
      */
-<span class="fc" id="L429">    enum State {</span>
+<span class="nc" id="L429">    enum State {</span>
         /**
          * Intermediate state in process creation
          */
-<span class="fc" id="L433">        NEW,</span>
+<span class="nc" id="L433">        NEW,</span>
         /**
          * Actively executing process
          */
-<span class="fc" id="L437">        RUNNING,</span>
+<span class="nc" id="L437">        RUNNING,</span>
         /**
          * Interruptible sleep state
          */
-<span class="fc" id="L441">        SLEEPING,</span>
+<span class="nc" id="L441">        SLEEPING,</span>
         /**
          * Blocked, uninterruptible sleep state
          */
-<span class="fc" id="L445">        WAITING,</span>
+<span class="nc" id="L445">        WAITING,</span>
         /**
          * Intermediate state in process termination
          */
-<span class="fc" id="L449">        ZOMBIE,</span>
+<span class="nc" id="L449">        ZOMBIE,</span>
         /**
          * Stopped by the user, such as for debugging
          */
-<span class="fc" id="L453">        STOPPED,</span>
+<span class="nc" id="L453">        STOPPED,</span>
         /**
          * Other or unknown states not defined
          */
-<span class="fc" id="L457">        OTHER,</span>
+<span class="nc" id="L457">        OTHER,</span>
         /**
          * The state resulting if the process fails to update statistics, probably due
          * to termination.
          */
-<span class="fc" id="L462">        INVALID,</span>
+<span class="nc" id="L462">        INVALID,</span>
         /**
          * Special case of waiting if the process has been intentionally suspended
          * (Windows only)
          */
-<span class="fc" id="L467">        SUSPENDED</span>
+<span class="nc" id="L467">        SUSPENDED</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

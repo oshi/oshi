@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AixFileSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.aix</a> &gt; <span class="el_source">AixFileSystem.java</span></div><h1>AixFileSystem.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -145,46 +145,49 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L145">                    continue;</span>
                 }
 <span class="nc" id="L147">                File f = new File(path);</span>
-<span class="nc" id="L148">                long totalSpace = f.getTotalSpace();</span>
-<span class="nc" id="L149">                long usableSpace = f.getUsableSpace();</span>
-<span class="nc" id="L150">                long freeSpace = f.getFreeSpace();</span>
+<span class="nc bnc" id="L148" title="All 4 branches missed.">                if (!f.exists() || f.getTotalSpace() &lt; 0) {</span>
+<span class="nc" id="L149">                    continue;</span>
+                }
+<span class="nc" id="L151">                long totalSpace = f.getTotalSpace();</span>
+<span class="nc" id="L152">                long usableSpace = f.getUsableSpace();</span>
+<span class="nc" id="L153">                long freeSpace = f.getFreeSpace();</span>
 
                 String description;
-<span class="nc bnc" id="L153" title="All 4 branches missed.">                if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
-<span class="nc" id="L154">                    description = &quot;Local Disk&quot;;</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">                } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
-<span class="nc" id="L156">                    description = &quot;Ram Disk&quot;;</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">                } else if (NETWORK_FS_TYPES.contains(type)) {</span>
-<span class="nc" id="L158">                    description = &quot;Network Disk&quot;;</span>
+<span class="nc bnc" id="L156" title="All 4 branches missed.">                if (volume.startsWith(&quot;/dev&quot;) || path.equals(&quot;/&quot;)) {</span>
+<span class="nc" id="L157">                    description = &quot;Local Disk&quot;;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                } else if (volume.equals(&quot;tmpfs&quot;)) {</span>
+<span class="nc" id="L159">                    description = &quot;Ram Disk&quot;;</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">                } else if (NETWORK_FS_TYPES.contains(type)) {</span>
+<span class="nc" id="L161">                    description = &quot;Network Disk&quot;;</span>
                 } else {
-<span class="nc" id="L160">                    description = &quot;Mount Point&quot;;</span>
+<span class="nc" id="L163">                    description = &quot;Mount Point&quot;;</span>
                 }
 
-<span class="nc" id="L163">                fsList.add(new AixOSFileStore(name, volume, name, path, options, &quot;&quot;, &quot;&quot;, description, type, freeSpace,</span>
-<span class="nc" id="L164">                        usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),</span>
-<span class="nc" id="L165">                        inodeTotalMap.getOrDefault(volume, 0L)));</span>
+<span class="nc" id="L166">                fsList.add(new AixOSFileStore(name, volume, name, path, options, &quot;&quot;, &quot;&quot;, description, type, freeSpace,</span>
+<span class="nc" id="L167">                        usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),</span>
+<span class="nc" id="L168">                        inodeTotalMap.getOrDefault(volume, 0L)));</span>
             }
-<span class="nc" id="L167">        }</span>
-<span class="nc" id="L168">        return fsList;</span>
+<span class="nc" id="L170">        }</span>
+<span class="nc" id="L171">        return fsList;</span>
     }
 
     @Override
     public long getOpenFileDescriptors() {
-<span class="nc" id="L173">        boolean header = false;</span>
-<span class="nc" id="L174">        long openfiles = 0L;</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">        for (String f : ExecutingCommand.runNative(&quot;lsof -nl&quot;)) {</span>
-<span class="nc bnc" id="L176" title="All 2 branches missed.">            if (!header) {</span>
-<span class="nc" id="L177">                header = f.startsWith(&quot;COMMAND&quot;);</span>
+<span class="nc" id="L176">        boolean header = false;</span>
+<span class="nc" id="L177">        long openfiles = 0L;</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        for (String f : ExecutingCommand.runNative(&quot;lsof -nl&quot;)) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            if (!header) {</span>
+<span class="nc" id="L180">                header = f.startsWith(&quot;COMMAND&quot;);</span>
             } else {
-<span class="nc" id="L179">                openfiles++;</span>
+<span class="nc" id="L182">                openfiles++;</span>
             }
-<span class="nc" id="L181">        }</span>
-<span class="nc" id="L182">        return openfiles;</span>
+<span class="nc" id="L184">        }</span>
+<span class="nc" id="L185">        return openfiles;</span>
     }
 
     @Override
     public long getMaxFileDescriptors() {
-<span class="nc" id="L187">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;ulimit -n&quot;), 0L);</span>
+<span class="nc" id="L190">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;ulimit -n&quot;), 0L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

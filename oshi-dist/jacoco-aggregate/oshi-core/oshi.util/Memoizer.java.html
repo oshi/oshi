@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Memoizer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">Memoizer.java</span></div><h1>Memoizer.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -36,14 +36,14 @@ import oshi.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class Memoizer {
 
-<span class="fc" id="L39">    private static final Supplier&lt;Long&gt; DEFAULT_EXPIRATION_NANOS = memoize(Memoizer::queryExpirationConfig,</span>
-<span class="fc" id="L40">            TimeUnit.MINUTES.toNanos(1));</span>
+<span class="nc" id="L39">    private static final Supplier&lt;Long&gt; DEFAULT_EXPIRATION_NANOS = memoize(Memoizer::queryExpirationConfig,</span>
+<span class="nc" id="L40">            TimeUnit.MINUTES.toNanos(1));</span>
 
     private Memoizer() {
     }
 
     private static long queryExpirationConfig() {
-<span class="fc" id="L46">        return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get(&quot;oshi.util.memoizer.expiration&quot;, 300));</span>
+<span class="nc" id="L46">        return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get(&quot;oshi.util.memoizer.expiration&quot;, 300));</span>
     }
 
     /**
@@ -54,7 +54,7 @@ public final class Memoizer {
      * @return The number of nanoseconds to keep memoized values before refreshing
      */
     public static long defaultExpiration() {
-<span class="fc" id="L57">        return DEFAULT_EXPIRATION_NANOS.get();</span>
+<span class="nc" id="L57">        return DEFAULT_EXPIRATION_NANOS.get();</span>
     }
 
     /**
@@ -72,27 +72,27 @@ public final class Memoizer {
      */
     public static &lt;T&gt; Supplier&lt;T&gt; memoize(Supplier&lt;T&gt; original, long ttlNanos) {
         // Adapted from Guava's ExpiringMemoizingSupplier
-<span class="fc" id="L75">        return new Supplier&lt;T&gt;() {</span>
-<span class="fc" id="L76">            final Supplier&lt;T&gt; delegate = original;</span>
+<span class="nc" id="L75">        return new Supplier&lt;T&gt;() {</span>
+<span class="nc" id="L76">            final Supplier&lt;T&gt; delegate = original;</span>
             volatile T value; // NOSONAR squid:S3077
             volatile long expirationNanos;
 
             @Override
             public T get() {
-<span class="fc" id="L82">                long nanos = expirationNanos;</span>
-<span class="fc" id="L83">                long now = System.nanoTime();</span>
-<span class="fc bfc" id="L84" title="All 6 branches covered.">                if (nanos == 0 || (ttlNanos &gt;= 0 &amp;&amp; now - nanos &gt;= 0)) {</span>
-<span class="fc" id="L85">                    synchronized (this) {</span>
-<span class="fc bfc" id="L86" title="All 2 branches covered.">                        if (nanos == expirationNanos) { // recheck for lost race</span>
-<span class="fc" id="L87">                            T t = delegate.get();</span>
-<span class="fc" id="L88">                            value = t;</span>
-<span class="fc" id="L89">                            nanos = now + ttlNanos;</span>
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">                            expirationNanos = (nanos == 0) ? 1 : nanos;</span>
-<span class="fc" id="L91">                            return t;</span>
+<span class="nc" id="L82">                long nanos = expirationNanos;</span>
+<span class="nc" id="L83">                long now = System.nanoTime();</span>
+<span class="nc bnc" id="L84" title="All 6 branches missed.">                if (nanos == 0 || (ttlNanos &gt;= 0 &amp;&amp; now - nanos &gt;= 0)) {</span>
+<span class="nc" id="L85">                    synchronized (this) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                        if (nanos == expirationNanos) { // recheck for lost race</span>
+<span class="nc" id="L87">                            T t = delegate.get();</span>
+<span class="nc" id="L88">                            value = t;</span>
+<span class="nc" id="L89">                            nanos = now + ttlNanos;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                            expirationNanos = (nanos == 0) ? 1 : nanos;</span>
+<span class="nc" id="L91">                            return t;</span>
                         }
-<span class="fc" id="L93">                    }</span>
+<span class="nc" id="L93">                    }</span>
                 }
-<span class="fc" id="L95">                return value;</span>
+<span class="nc" id="L95">                return value;</span>
             }
         };
     }
@@ -107,7 +107,7 @@ public final class Memoizer {
      * @return A memoized version of the supplier
      */
     public static &lt;T&gt; Supplier&lt;T&gt; memoize(Supplier&lt;T&gt; original) {
-<span class="fc" id="L110">        return memoize(original, -1L);</span>
+<span class="nc" id="L110">        return memoize(original, -1L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

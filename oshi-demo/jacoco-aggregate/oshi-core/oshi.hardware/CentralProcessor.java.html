@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>CentralProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">CentralProcessor.java</span></div><h1>CentralProcessor.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -257,57 +257,57 @@ public interface CentralProcessor {
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and
      * {@link #getProcessorCpuLoadTicks()} arrays.
      */
-<span class="fc" id="L260">    enum TickType {</span>
+<span class="nc" id="L260">    enum TickType {</span>
         /**
          * CPU utilization that occurred while executing at the user level
          * (application).
          */
-<span class="fc" id="L265">        USER(0),</span>
+<span class="nc" id="L265">        USER(0),</span>
         /**
          * CPU utilization that occurred while executing at the user level with nice
          * priority.
          */
-<span class="fc" id="L270">        NICE(1),</span>
+<span class="nc" id="L270">        NICE(1),</span>
         /**
          * CPU utilization that occurred while executing at the system level (kernel).
          */
-<span class="fc" id="L274">        SYSTEM(2),</span>
+<span class="nc" id="L274">        SYSTEM(2),</span>
         /**
          * Time that the CPU or CPUs were idle and the system did not have an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L279">        IDLE(3),</span>
+<span class="nc" id="L279">        IDLE(3),</span>
         /**
          * Time that the CPU or CPUs were idle during which the system had an
          * outstanding disk I/O request.
          */
-<span class="fc" id="L284">        IOWAIT(4),</span>
+<span class="nc" id="L284">        IOWAIT(4),</span>
         /**
          * Time that the CPU used to service hardware IRQs
          */
-<span class="fc" id="L288">        IRQ(5),</span>
+<span class="nc" id="L288">        IRQ(5),</span>
         /**
          * Time that the CPU used to service soft IRQs
          */
-<span class="fc" id="L292">        SOFTIRQ(6),</span>
+<span class="nc" id="L292">        SOFTIRQ(6),</span>
         /**
          * Time which the hypervisor dedicated for other guests in the system. Only
          * supported on Linux and AIX
          */
-<span class="fc" id="L297">        STEAL(7);</span>
+<span class="nc" id="L297">        STEAL(7);</span>
 
         private final int index;
 
-<span class="fc" id="L301">        TickType(int value) {</span>
-<span class="fc" id="L302">            this.index = value;</span>
-<span class="fc" id="L303">        }</span>
+<span class="nc" id="L301">        TickType(int value) {</span>
+<span class="nc" id="L302">            this.index = value;</span>
+<span class="nc" id="L303">        }</span>
 
         /**
          * @return The integer index of this ENUM in the processor tick arrays, which
          *         matches the output of Linux /proc/cpuinfo
          */
         public int getIndex() {
-<span class="fc" id="L310">            return index;</span>
+<span class="nc" id="L310">            return index;</span>
         }
     }
 
@@ -333,8 +333,8 @@ public interface CentralProcessor {
          *            the package/socket number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
-<span class="fc" id="L336">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);</span>
-<span class="fc" id="L337">        }</span>
+<span class="nc" id="L336">            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);</span>
+<span class="nc" id="L337">        }</span>
 
         /**
          * @param processorNumber
@@ -364,13 +364,13 @@ public interface CentralProcessor {
          *            the Processor Group number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
-<span class="fc" id="L367">                int numaNode, int processorGroup) {</span>
-<span class="fc" id="L368">            this.processorNumber = processorNumber;</span>
-<span class="fc" id="L369">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
-<span class="fc" id="L370">            this.physicalPackageNumber = physicalPackageNumber;</span>
-<span class="fc" id="L371">            this.numaNode = numaNode;</span>
-<span class="fc" id="L372">            this.processorGroup = processorGroup;</span>
-<span class="fc" id="L373">        }</span>
+<span class="nc" id="L367">                int numaNode, int processorGroup) {</span>
+<span class="nc" id="L368">            this.processorNumber = processorNumber;</span>
+<span class="nc" id="L369">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
+<span class="nc" id="L370">            this.physicalPackageNumber = physicalPackageNumber;</span>
+<span class="nc" id="L371">            this.numaNode = numaNode;</span>
+<span class="nc" id="L372">            this.processorGroup = processorGroup;</span>
+<span class="nc" id="L373">        }</span>
 
         /**
          * The Logical Processor number as seen by the Operating System. Used for
@@ -379,7 +379,7 @@ public interface CentralProcessor {
          * @return the processorNumber
          */
         public int getProcessorNumber() {
-<span class="fc" id="L382">            return processorNumber;</span>
+<span class="nc" id="L382">            return processorNumber;</span>
         }
 
         /**
@@ -401,7 +401,7 @@ public interface CentralProcessor {
          * @return the physicalPackageNumber
          */
         public int getPhysicalPackageNumber() {
-<span class="fc" id="L404">            return physicalPackageNumber;</span>
+<span class="nc" id="L404">            return physicalPackageNumber;</span>
         }
 
         /**
@@ -412,7 +412,7 @@ public interface CentralProcessor {
          * @return the NUMA Node number
          */
         public int getNumaNode() {
-<span class="fc" id="L415">            return numaNode;</span>
+<span class="nc" id="L415">            return numaNode;</span>
         }
 
         /**
@@ -423,7 +423,7 @@ public interface CentralProcessor {
          * @return the processorGroup
          */
         public int getProcessorGroup() {
-<span class="fc" id="L426">            return processorGroup;</span>
+<span class="nc" id="L426">            return processorGroup;</span>
         }
 
         @Override
@@ -450,12 +450,12 @@ public interface CentralProcessor {
 <span class="nc" id="L450">        }</span>
 
         public PhysicalProcessor(int physicalPackageNumber, int physicalProcessorNumber, int efficiency,
-<span class="fc" id="L453">                String idString) {</span>
-<span class="fc" id="L454">            this.physicalPackageNumber = physicalPackageNumber;</span>
-<span class="fc" id="L455">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
-<span class="fc" id="L456">            this.efficiency = efficiency;</span>
-<span class="fc" id="L457">            this.idString = idString;</span>
-<span class="fc" id="L458">        }</span>
+<span class="nc" id="L453">                String idString) {</span>
+<span class="nc" id="L454">            this.physicalPackageNumber = physicalPackageNumber;</span>
+<span class="nc" id="L455">            this.physicalProcessorNumber = physicalProcessorNumber;</span>
+<span class="nc" id="L456">            this.efficiency = efficiency;</span>
+<span class="nc" id="L457">            this.idString = idString;</span>
+<span class="nc" id="L458">        }</span>
 
         /**
          * Gets the package id. This is also the physical package number which
@@ -474,7 +474,7 @@ public interface CentralProcessor {
          * @return the physicalProcessorNumber
          */
         public int getPhysicalProcessorNumber() {
-<span class="fc" id="L477">            return physicalProcessorNumber;</span>
+<span class="nc" id="L477">            return physicalProcessorNumber;</span>
         }
 
         /**
@@ -505,7 +505,7 @@ public interface CentralProcessor {
          *      &quot;https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt&quot;&gt;cpu-capacity&lt;/a&gt;
          */
         public int getEfficiency() {
-<span class="fc" id="L508">            return efficiency;</span>
+<span class="nc" id="L508">            return efficiency;</span>
         }
 
         /**
@@ -526,7 +526,7 @@ public interface CentralProcessor {
          *         For unimplemented operating systems, returns an empty string.
          */
         public String getIdString() {
-<span class="fc" id="L529">            return idString;</span>
+<span class="nc" id="L529">            return idString;</span>
         }
 
         @Override
@@ -555,7 +555,7 @@ public interface CentralProcessor {
         private final boolean cpu64bit;
         private final long cpuVendorFreq;
 
-<span class="fc" id="L558">        private final Supplier&lt;String&gt; microArchictecture = memoize(this::queryMicroarchitecture);</span>
+<span class="nc" id="L558">        private final Supplier&lt;String&gt; microArchictecture = memoize(this::queryMicroarchitecture);</span>
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit) {
@@ -563,29 +563,29 @@ public interface CentralProcessor {
 <span class="nc" id="L563">        }</span>
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
-<span class="fc" id="L566">                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {</span>
-<span class="fc" id="L567">            this.cpuVendor = cpuVendor;</span>
-<span class="fc" id="L568">            this.cpuName = cpuName;</span>
-<span class="fc" id="L569">            this.cpuFamily = cpuFamily;</span>
-<span class="fc" id="L570">            this.cpuModel = cpuModel;</span>
-<span class="fc" id="L571">            this.cpuStepping = cpuStepping;</span>
-<span class="fc" id="L572">            this.processorID = processorID;</span>
-<span class="fc" id="L573">            this.cpu64bit = cpu64bit;</span>
+<span class="nc" id="L566">                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {</span>
+<span class="nc" id="L567">            this.cpuVendor = cpuVendor;</span>
+<span class="nc" id="L568">            this.cpuName = cpuName;</span>
+<span class="nc" id="L569">            this.cpuFamily = cpuFamily;</span>
+<span class="nc" id="L570">            this.cpuModel = cpuModel;</span>
+<span class="nc" id="L571">            this.cpuStepping = cpuStepping;</span>
+<span class="nc" id="L572">            this.processorID = processorID;</span>
+<span class="nc" id="L573">            this.cpu64bit = cpu64bit;</span>
 
             // Build Identifier
-<span class="fc" id="L576">            StringBuilder sb = new StringBuilder();</span>
-<span class="pc bpc" id="L577" title="1 of 2 branches missed.">            if (cpuVendor.contentEquals(&quot;GenuineIntel&quot;)) {</span>
-<span class="pc bpc" id="L578" title="1 of 2 branches missed.">                sb.append(cpu64bit ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
+<span class="nc" id="L576">            StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L577" title="All 2 branches missed.">            if (cpuVendor.contentEquals(&quot;GenuineIntel&quot;)) {</span>
+<span class="nc bnc" id="L578" title="All 2 branches missed.">                sb.append(cpu64bit ? &quot;Intel64&quot; : &quot;x86&quot;);</span>
             } else {
 <span class="nc" id="L580">                sb.append(cpuVendor);</span>
             }
-<span class="fc" id="L582">            sb.append(&quot; Family &quot;).append(cpuFamily);</span>
-<span class="fc" id="L583">            sb.append(&quot; Model &quot;).append(cpuModel);</span>
-<span class="fc" id="L584">            sb.append(&quot; Stepping &quot;).append(cpuStepping);</span>
-<span class="fc" id="L585">            this.cpuIdentifier = sb.toString();</span>
+<span class="nc" id="L582">            sb.append(&quot; Family &quot;).append(cpuFamily);</span>
+<span class="nc" id="L583">            sb.append(&quot; Model &quot;).append(cpuModel);</span>
+<span class="nc" id="L584">            sb.append(&quot; Stepping &quot;).append(cpuStepping);</span>
+<span class="nc" id="L585">            this.cpuIdentifier = sb.toString();</span>
 
-<span class="pc bpc" id="L587" title="1 of 2 branches missed.">            if (vendorFreq &gt; 0) {</span>
-<span class="fc" id="L588">                this.cpuVendorFreq = vendorFreq;</span>
+<span class="nc bnc" id="L587" title="All 2 branches missed.">            if (vendorFreq &gt; 0) {</span>
+<span class="nc" id="L588">                this.cpuVendorFreq = vendorFreq;</span>
             } else {
                 // Parse Freq from name string
 <span class="nc" id="L591">                Pattern pattern = Pattern.compile(&quot;@ (.*)$&quot;);</span>
@@ -597,7 +597,7 @@ public interface CentralProcessor {
 <span class="nc" id="L597">                    this.cpuVendorFreq = -1L;</span>
                 }
             }
-<span class="fc" id="L600">        }</span>
+<span class="nc" id="L600">        }</span>
 
         /**
          * Processor vendor.
@@ -605,7 +605,7 @@ public interface CentralProcessor {
          * @return vendor string.
          */
         public String getVendor() {
-<span class="fc" id="L608">            return cpuVendor;</span>
+<span class="nc" id="L608">            return cpuVendor;</span>
         }
 
         /**
@@ -614,7 +614,7 @@ public interface CentralProcessor {
          * @return Processor name.
          */
         public String getName() {
-<span class="fc" id="L617">            return cpuName;</span>
+<span class="nc" id="L617">            return cpuName;</span>
         }
 
         /**
@@ -624,7 +624,7 @@ public interface CentralProcessor {
          * @return the family
          */
         public String getFamily() {
-<span class="fc" id="L627">            return cpuFamily;</span>
+<span class="nc" id="L627">            return cpuFamily;</span>
         }
 
         /**
@@ -634,7 +634,7 @@ public interface CentralProcessor {
          * @return the model
          */
         public String getModel() {
-<span class="fc" id="L637">            return cpuModel;</span>
+<span class="nc" id="L637">            return cpuModel;</span>
         }
 
         /**
@@ -644,7 +644,7 @@ public interface CentralProcessor {
          * @return the stepping
          */
         public String getStepping() {
-<span class="fc" id="L647">            return cpuStepping;</span>
+<span class="nc" id="L647">            return cpuStepping;</span>
         }
 
         /**
@@ -669,7 +669,7 @@ public interface CentralProcessor {
          * @return A string representing the Processor ID
          */
         public String getProcessorID() {
-<span class="fc" id="L672">            return processorID;</span>
+<span class="nc" id="L672">            return processorID;</span>
         }
 
         /**
@@ -679,7 +679,7 @@ public interface CentralProcessor {
          * @return Processor identifier.
          */
         public String getIdentifier() {
-<span class="fc" id="L682">            return cpuIdentifier;</span>
+<span class="nc" id="L682">            return cpuIdentifier;</span>
         }
 
         /**
@@ -698,7 +698,7 @@ public interface CentralProcessor {
          * @return Processor frequency or -1 if unknown.
          */
         public long getVendorFreq() {
-<span class="fc" id="L701">            return cpuVendorFreq;</span>
+<span class="nc" id="L701">            return cpuVendorFreq;</span>
         }
 
         /**
@@ -708,53 +708,53 @@ public interface CentralProcessor {
          *         {@link Constants#UNKNOWN} otherwise.
          */
         public String getMicroarchitecture() {
-<span class="fc" id="L711">            return microArchictecture.get();</span>
+<span class="nc" id="L711">            return microArchictecture.get();</span>
         }
 
         private String queryMicroarchitecture() {
-<span class="fc" id="L715">            String arch = null;</span>
-<span class="fc" id="L716">            Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);</span>
+<span class="nc" id="L715">            String arch = null;</span>
+<span class="nc" id="L716">            Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);</span>
             // Intel is default, no prefix
-<span class="fc" id="L718">            StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L718">            StringBuilder sb = new StringBuilder();</span>
             // AMD and ARM properties have prefix
-<span class="fc" id="L720">            String ucVendor = this.cpuVendor.toUpperCase();</span>
-<span class="pc bpc" id="L721" title="1 of 2 branches missed.">            if (ucVendor.contains(&quot;AMD&quot;)) {</span>
+<span class="nc" id="L720">            String ucVendor = this.cpuVendor.toUpperCase();</span>
+<span class="nc bnc" id="L721" title="All 2 branches missed.">            if (ucVendor.contains(&quot;AMD&quot;)) {</span>
 <span class="nc" id="L722">                sb.append(&quot;amd.&quot;);</span>
-<span class="pc bpc" id="L723" title="1 of 2 branches missed.">            } else if (ucVendor.contains(&quot;ARM&quot;)) {</span>
+<span class="nc bnc" id="L723" title="All 2 branches missed.">            } else if (ucVendor.contains(&quot;ARM&quot;)) {</span>
 <span class="nc" id="L724">                sb.append(&quot;arm.&quot;);</span>
-<span class="pc bpc" id="L725" title="1 of 2 branches missed.">            } else if (ucVendor.contains(&quot;IBM&quot;)) {</span>
+<span class="nc bnc" id="L725" title="All 2 branches missed.">            } else if (ucVendor.contains(&quot;IBM&quot;)) {</span>
                 // Directly parse the name to POWER#
 <span class="nc" id="L727">                int powerIdx = this.cpuName.indexOf(&quot;_POWER&quot;);</span>
 <span class="nc bnc" id="L728" title="All 2 branches missed.">                if (powerIdx &gt; 0) {</span>
 <span class="nc" id="L729">                    arch = this.cpuName.substring(powerIdx + 1);</span>
                 }
-<span class="pc bpc" id="L731" title="1 of 2 branches missed.">            } else if (ucVendor.contains(&quot;APPLE&quot;)) {</span>
+<span class="nc bnc" id="L731" title="All 2 branches missed.">            } else if (ucVendor.contains(&quot;APPLE&quot;)) {</span>
 <span class="nc" id="L732">                sb.append(&quot;apple.&quot;);</span>
             }
-<span class="pc bpc" id="L734" title="2 of 4 branches missed.">            if (Util.isBlank(arch) &amp;&amp; !sb.toString().equals(&quot;arm.&quot;)) {</span>
+<span class="nc bnc" id="L734" title="All 4 branches missed.">            if (Util.isBlank(arch) &amp;&amp; !sb.toString().equals(&quot;arm.&quot;)) {</span>
                 // Append family
-<span class="fc" id="L736">                sb.append(this.cpuFamily);</span>
-<span class="fc" id="L737">                arch = archProps.getProperty(sb.toString());</span>
+<span class="nc" id="L736">                sb.append(this.cpuFamily);</span>
+<span class="nc" id="L737">                arch = archProps.getProperty(sb.toString());</span>
             }
 
-<span class="pc bpc" id="L740" title="1 of 2 branches missed.">            if (Util.isBlank(arch)) {</span>
+<span class="nc bnc" id="L740" title="All 2 branches missed.">            if (Util.isBlank(arch)) {</span>
                 // Append model
-<span class="fc" id="L742">                sb.append('.').append(this.cpuModel);</span>
-<span class="fc" id="L743">                arch = archProps.getProperty(sb.toString());</span>
+<span class="nc" id="L742">                sb.append('.').append(this.cpuModel);</span>
+<span class="nc" id="L743">                arch = archProps.getProperty(sb.toString());</span>
             }
 
-<span class="pc bpc" id="L746" title="1 of 2 branches missed.">            if (Util.isBlank(arch)) {</span>
+<span class="nc bnc" id="L746" title="All 2 branches missed.">            if (Util.isBlank(arch)) {</span>
                 // Append stepping
-<span class="fc" id="L748">                sb.append('.').append(this.cpuStepping);</span>
-<span class="fc" id="L749">                arch = archProps.getProperty(sb.toString());</span>
+<span class="nc" id="L748">                sb.append('.').append(this.cpuStepping);</span>
+<span class="nc" id="L749">                arch = archProps.getProperty(sb.toString());</span>
             }
 
-<span class="pc bpc" id="L752" title="1 of 2 branches missed.">            return Util.isBlank(arch) ? Constants.UNKNOWN : arch;</span>
+<span class="nc bnc" id="L752" title="All 2 branches missed.">            return Util.isBlank(arch) ? Constants.UNKNOWN : arch;</span>
         }
 
         @Override
         public String toString() {
-<span class="fc" id="L757">            return getIdentifier();</span>
+<span class="nc" id="L757">            return getIdentifier();</span>
         }
     }
 }

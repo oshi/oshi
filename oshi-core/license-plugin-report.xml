@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="FORMAT" timestamp="1642698261868">
-    <module artifactId="oshi-core" groupId="com.github.oshi" version="6.1.0"/>
+<licensePluginReport goal="FORMAT" timestamp="1644395030521">
+    <module artifactId="oshi-core" groupId="com.github.oshi" version="6.1.1-SNAPSHOT"/>
     <files>
         <file path="src/main/java/oshi/PlatformEnum.java" result="NOOP"/>
         <file path="src/main/java/oshi/SystemInfo.java" result="NOOP"/>
@@ -399,11 +399,21 @@
         <file path="src/test/java/oshi/driver/linux/proc/CpuInfoTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/linux/proc/CpuStatTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/linux/proc/DiskStatsTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/linux/proc/ProcessStatTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/linux/proc/UpTimeTest.java" result="NOOP"/>
-        <file path="src/test/java/oshi/driver/linux/proc/UserGroupInfoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/mac/ThreadInfoTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/mac/WhoTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/mac/WindowInfoTest.java" result="NOOP"/>
-        <file path="src/test/java/oshi/driver/windows/perfmon/PerfrmonDriversTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/mac/disk/FsstatTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/mac/net/NetstatTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/WhoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/freebsd/WhoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/solaris/WhoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/windows/DeviceTreeTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/windows/EnumWindowsTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/windows/LogicalProcessorInformationTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/windows/perfmon/PerfmonDriversTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/windows/registry/RegistryDriversTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/windows/wmi/WMIDriversTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/hardware/CentralProcessorTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/hardware/ComputerSystemTest.java" result="NOOP"/>
@@ -432,6 +442,7 @@
         <file path="src/test/java/oshi/util/ParseUtilTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/ProcstatUtilTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/TupleTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/util/UserGroupInfoTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/util/UtilTest.java" result="NOOP"/>
     </files>
 </licensePluginReport>

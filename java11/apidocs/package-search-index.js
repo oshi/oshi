@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"com.github.oshi","l":"oshi"},{"m":"com.github.oshi","l":"oshi.hardware"},{"m":"com.github.oshi","l":"oshi.software.os"},{"m":"com.github.oshi","l":"oshi.util"}];updateSearchResults();

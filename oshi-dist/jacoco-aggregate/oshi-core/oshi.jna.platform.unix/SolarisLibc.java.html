@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisLibc.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">SolarisLibc.java</span></div><h1>SolarisLibc.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -50,24 +50,27 @@ public interface SolarisLibc extends CLibrary {
     /**
      * Connection info
      */
-    @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_session&quot;, &quot;ut_syslen&quot;, &quot;ut_host&quot; })
-<span class="nc" id="L54">    class SolarisUtmpx extends Structure {</span>
-<span class="nc" id="L55">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
-<span class="nc" id="L56">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
-<span class="nc" id="L57">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
+    @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_exit&quot;, &quot;ut_tv&quot;, &quot;ut_session&quot;, &quot;pad&quot;,
+            &quot;ut_syslen&quot;, &quot;ut_host&quot; })
+<span class="nc" id="L55">    class SolarisUtmpx extends Structure {</span>
+<span class="nc" id="L56">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
+<span class="nc" id="L57">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
+<span class="nc" id="L58">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
         public int ut_pid; // process id
         public short ut_type; // type of entry
+        public Exit_status ut_exit; // process termination/exit status
         public Timeval ut_tv; // time entry was made
         public int ut_session; // session ID, used for windowing
+<span class="nc" id="L64">        public int[] pad = new int[5]; // reserved for future use</span>
         public short ut_syslen; // significant length of ut_host including terminating null
-<span class="nc" id="L63">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L66">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
     }
 
     /**
      * Part of utmpx structure
      */
     @FieldOrder({ &quot;e_termination&quot;, &quot;e_exit&quot; })
-<span class="nc" id="L70">    class Exit_status extends Structure {</span>
+<span class="nc" id="L73">    class Exit_status extends Structure {</span>
         public short e_termination; // Process termination status
         public short e_exit; // Process exit status
     }
@@ -76,7 +79,7 @@ public interface SolarisLibc extends CLibrary {
      * 32/64-bit timeval required for utmpx structure
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L79">    class Timeval extends Structure {</span>
+<span class="nc" id="L82">    class Timeval extends Structure {</span>
         public NativeLong tv_sec; // seconds
         public NativeLong tv_usec; // microseconds
     }
@@ -124,37 +127,37 @@ public interface SolarisLibc extends CLibrary {
         public Timestruc pr_start; // process start time, from the epoch
         public Timestruc pr_time; // usr+sys cpu time for this process
         public Timestruc pr_ctime; // usr+sys cpu time for reaped children
-<span class="nc" id="L127">        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file</span>
-<span class="nc" id="L128">        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list</span>
+<span class="nc" id="L130">        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file</span>
+<span class="nc" id="L131">        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list</span>
         public int pr_wstat; // if zombie, the wait() status
         public int pr_argc; // initial argument count
         public Pointer pr_argv; // address of initial argument vector
         public Pointer pr_envp; // address of initial environment vector
         public byte pr_dmodel; // data model of the process
-<span class="nc" id="L134">        public byte[] pr_pad2 = new byte[3];</span>
+<span class="nc" id="L137">        public byte[] pr_pad2 = new byte[3];</span>
         public int pr_taskid; // task id
         public int pr_projid; // project id
         public int pr_nzomb; // number of zombie lwps in the process
         public int pr_poolid; // pool id
         public int pr_zoneid; // zone id
         public int pr_contract; // process contract id
-<span class="nc" id="L141">        public int[] pr_filler = new int[1]; // reserved for future use</span>
+<span class="nc" id="L144">        public int[] pr_filler = new int[1]; // reserved for future use</span>
         public SolarisLwpsInfo pr_lwp; // information for representative lwp
 
         public SolarisPsInfo() {
-<span class="nc" id="L145">            super();</span>
-<span class="nc" id="L146">        }</span>
+<span class="nc" id="L148">            super();</span>
+<span class="nc" id="L149">        }</span>
 
         public SolarisPsInfo(byte[] bytes) {
-<span class="nc" id="L149">            super();</span>
+<span class="nc" id="L152">            super();</span>
             // Truncate bytes and pad with 0 if necessary
-<span class="nc" id="L151">            byte[] structBytes = new byte[size()];</span>
-<span class="nc" id="L152">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+<span class="nc" id="L154">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L155">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
             // Write bytes to native
-<span class="nc" id="L154">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+<span class="nc" id="L157">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
             // Read bytes to struct
-<span class="nc" id="L156">            read();</span>
-<span class="nc" id="L157">        }</span>
+<span class="nc" id="L159">            read();</span>
+<span class="nc" id="L160">        }</span>
     }
 
     /**
@@ -183,29 +186,29 @@ public interface SolarisLibc extends CLibrary {
         public short pr_pad;
         public Timestruc pr_start; // lwp start time, from the epoch
         public Timestruc pr_time; // cpu time for this lwp
-<span class="nc" id="L186">        public byte[] pr_clname = new byte[PRCLSZ]; // scheduling class name</span>
-<span class="nc" id="L187">        public byte[] pr_oldname = new byte[PRFNSZ]; // binary compatibility -- unused</span>
+<span class="nc" id="L189">        public byte[] pr_clname = new byte[PRCLSZ]; // scheduling class name</span>
+<span class="nc" id="L190">        public byte[] pr_oldname = new byte[PRFNSZ]; // binary compatibility -- unused</span>
         public int pr_onpro; // processor which last ran this lwp
         public int pr_bindpro; // processor to which lwp is bound
         public int pr_bindpset; // processor set to which lwp is bound
         public int pr_lgrp; // home lgroup
         public long pr_last_onproc; // Timestamp of when thread last ran on a processor
-<span class="nc" id="L193">        public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp</span>
+<span class="nc" id="L196">        public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp</span>
 
         public SolarisLwpsInfo() {
-<span class="nc" id="L196">            super();</span>
-<span class="nc" id="L197">        }</span>
+<span class="nc" id="L199">            super();</span>
+<span class="nc" id="L200">        }</span>
 
         public SolarisLwpsInfo(byte[] bytes) {
-<span class="nc" id="L200">            super();</span>
+<span class="nc" id="L203">            super();</span>
             // Truncate bytes and pad with 0 if necessary
-<span class="nc" id="L202">            byte[] structBytes = new byte[size()];</span>
-<span class="nc" id="L203">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+<span class="nc" id="L205">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L206">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
             // Write bytes to native
-<span class="nc" id="L205">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+<span class="nc" id="L208">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
             // Read bytes to struct
-<span class="nc" id="L207">            read();</span>
-<span class="nc" id="L208">        }</span>
+<span class="nc" id="L210">            read();</span>
+<span class="nc" id="L211">        }</span>
     }
 
     /**
@@ -232,7 +235,7 @@ public interface SolarisLibc extends CLibrary {
         public Timestruc pr_slptime; // all other sleep time
         public Timestruc pr_wtime; // wait-cpu (latency) time
         public Timestruc pr_stoptime; // stopped time
-<span class="nc" id="L235">        public Timestruc[] filltime = new Timestruc[6]; // filler for future expansion</span>
+<span class="nc" id="L238">        public Timestruc[] filltime = new Timestruc[6]; // filler for future expansion</span>
         public NativeLong pr_minf; // minor page faults
         public NativeLong pr_majf; // major page faults
         public NativeLong pr_nswap; // swaps
@@ -245,29 +248,29 @@ public interface SolarisLibc extends CLibrary {
         public NativeLong pr_ictx; // involuntary context switches
         public NativeLong pr_sysc; // system calls
         public NativeLong pr_ioch; // chars read and written
-<span class="nc" id="L248">        public NativeLong[] filler = new NativeLong[10]; // filler for future expansion</span>
+<span class="nc" id="L251">        public NativeLong[] filler = new NativeLong[10]; // filler for future expansion</span>
 
         public SolarisPrUsage() {
-<span class="nc" id="L251">            super();</span>
-<span class="nc" id="L252">        }</span>
+<span class="nc" id="L254">            super();</span>
+<span class="nc" id="L255">        }</span>
 
         public SolarisPrUsage(byte[] bytes) {
-<span class="nc" id="L255">            super();</span>
+<span class="nc" id="L258">            super();</span>
             // Truncate bytes and pad with 0 if necessary
-<span class="nc" id="L257">            byte[] structBytes = new byte[size()];</span>
-<span class="nc" id="L258">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
+<span class="nc" id="L260">            byte[] structBytes = new byte[size()];</span>
+<span class="nc" id="L261">            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);</span>
             // Write bytes to native
-<span class="nc" id="L260">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
+<span class="nc" id="L263">            this.getPointer().write(0, structBytes, 0, structBytes.length);</span>
             // Read bytes to struct
-<span class="nc" id="L262">            read();</span>
-<span class="nc" id="L263">        }</span>
+<span class="nc" id="L265">            read();</span>
+<span class="nc" id="L266">        }</span>
     }
 
     /**
      * 32/64-bit timestruc required for psinfo and lwpsinfo structures
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_nsec&quot; })
-<span class="nc" id="L270">    class Timestruc extends Structure {</span>
+<span class="nc" id="L273">    class Timestruc extends Structure {</span>
         public NativeLong tv_sec; // seconds
         public NativeLong tv_nsec; // nanoseconds
     }

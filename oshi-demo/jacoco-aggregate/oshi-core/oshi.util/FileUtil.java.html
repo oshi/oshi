@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FileUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FileUtil.java</span></div><h1>FileUtil.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -51,7 +51,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class FileUtil {
 
-<span class="fc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
+<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
 
     private static final String READING_LOG = &quot;Reading file {}&quot;;
     private static final String READ_LOG = &quot;Read {}&quot;;
@@ -69,7 +69,7 @@ public final class FileUtil {
      *         list if file could not be read or is empty
      */
     public static List&lt;String&gt; readFile(String filename) {
-<span class="fc" id="L72">        return readFile(filename, true);</span>
+<span class="nc" id="L72">        return readFile(filename, true);</span>
     }
 
     /**
@@ -84,12 +84,12 @@ public final class FileUtil {
      *         list if file could not be read or is empty
      */
     public static List&lt;String&gt; readFile(String filename, boolean reportError) {
-<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (new File(filename).canRead()) {</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (new File(filename).canRead()) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
 <span class="nc" id="L89">                LOG.debug(READING_LOG, filename);</span>
             }
             try {
-<span class="fc" id="L92">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L92">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
 <span class="nc" id="L93">            } catch (IOException e) {</span>
 <span class="nc bnc" id="L94" title="All 2 branches missed.">                if (reportError) {</span>
 <span class="nc" id="L95">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
@@ -97,10 +97,10 @@ public final class FileUtil {
 <span class="nc" id="L97">                    LOG.debug(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
                 }
 <span class="nc" id="L99">            }</span>
-<span class="fc bfc" id="L100" title="All 2 branches covered.">        } else if (reportError) {</span>
-<span class="fc" id="L101">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        } else if (reportError) {</span>
+<span class="nc" id="L101">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
         }
-<span class="fc" id="L103">        return new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L103">        return new ArrayList&lt;&gt;();</span>
     }
 
     /**
@@ -154,17 +154,17 @@ public final class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
-<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
 <span class="nc" id="L158">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="fc" id="L160">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L162" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L160">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
 <span class="nc" id="L163">                LOG.trace(READ_LOG, read.get(0));</span>
             }
-<span class="fc" id="L165">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
+<span class="nc" id="L165">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="fc" id="L167">        return 0L;</span>
+<span class="nc" id="L167">        return 0L;</span>
     }
 
     /**
@@ -176,17 +176,17 @@ public final class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getUnsignedLongFromFile(String filename) {
-<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
 <span class="nc" id="L180">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="fc" id="L182">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L183" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L184" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L182">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
 <span class="nc" id="L185">                LOG.trace(READ_LOG, read.get(0));</span>
             }
-<span class="fc" id="L187">            return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);</span>
+<span class="nc" id="L187">            return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="fc" id="L189">        return 0L;</span>
+<span class="nc" id="L189">        return 0L;</span>
     }
 
     /**
@@ -198,21 +198,21 @@ public final class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
-<span class="pc bpc" id="L201" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
 <span class="nc" id="L202">            LOG.debug(READING_LOG, filename);</span>
         }
         try {
-<span class="fc" id="L205">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L206" title="All 2 branches covered.">            if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L207" title="1 of 2 branches missed.">                if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L205">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">                if (LOG.isTraceEnabled()) {</span>
 <span class="nc" id="L208">                    LOG.trace(READ_LOG, read.get(0));</span>
                 }
-<span class="fc" id="L210">                return Integer.parseInt(read.get(0));</span>
+<span class="nc" id="L210">                return Integer.parseInt(read.get(0));</span>
             }
-<span class="fc" id="L212">        } catch (NumberFormatException ex) {</span>
-<span class="fc" id="L213">            LOG.warn(&quot;Unable to read value from {}. {}&quot;, filename, ex.getMessage());</span>
-<span class="fc" id="L214">        }</span>
-<span class="fc" id="L215">        return 0;</span>
+<span class="nc" id="L212">        } catch (NumberFormatException ex) {</span>
+<span class="nc" id="L213">            LOG.warn(&quot;Unable to read value from {}. {}&quot;, filename, ex.getMessage());</span>
+<span class="nc" id="L214">        }</span>
+<span class="nc" id="L215">        return 0;</span>
     }
 
     /**
@@ -224,17 +224,17 @@ public final class FileUtil {
      * @return The value contained in the file, if any; otherwise empty string
      */
     public static String getStringFromFile(String filename) {
-<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
 <span class="nc" id="L228">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="fc" id="L230">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L231" title="All 2 branches covered.">        if (!read.isEmpty()) {</span>
-<span class="pc bpc" id="L232" title="1 of 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L230">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
 <span class="nc" id="L233">                LOG.trace(READ_LOG, read.get(0));</span>
             }
-<span class="fc" id="L235">            return read.get(0);</span>
+<span class="nc" id="L235">            return read.get(0);</span>
         }
-<span class="fc" id="L237">        return &quot;&quot;;</span>
+<span class="nc" id="L237">        return &quot;&quot;;</span>
     }
 
     /**
@@ -253,18 +253,18 @@ public final class FileUtil {
      *         map is returned.
      */
     public static Map&lt;String, String&gt; getKeyValueMapFromFile(String filename, String separator) {
-<span class="fc" id="L256">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
-<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L256">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
 <span class="nc" id="L258">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="fc" id="L260">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
-<span class="fc bfc" id="L261" title="All 2 branches covered.">        for (String line : lines) {</span>
-<span class="fc" id="L262">            String[] parts = line.split(separator);</span>
-<span class="pc bpc" id="L263" title="1 of 2 branches missed.">            if (parts.length == 2) {</span>
-<span class="fc" id="L264">                map.put(parts[0], parts[1].trim());</span>
+<span class="nc" id="L260">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L262">            String[] parts = line.split(separator);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            if (parts.length == 2) {</span>
+<span class="nc" id="L264">                map.put(parts[0], parts[1].trim());</span>
             }
-<span class="fc" id="L266">        }</span>
-<span class="fc" id="L267">        return map;</span>
+<span class="nc" id="L266">        }</span>
+<span class="nc" id="L267">        return map;</span>
     }
 
     /**
@@ -276,43 +276,43 @@ public final class FileUtil {
      * @return A {@link Properties} object containing the properties.
      */
     public static Properties readPropertiesFromFilename(String propsFilename) {
-<span class="fc" id="L279">        Properties archProps = new Properties();</span>
+<span class="nc" id="L279">        Properties archProps = new Properties();</span>
         // Load the configuration file from at least one of multiple possible
         // ClassLoaders, evaluated in order, eliminating duplicates
-<span class="fc" id="L282">        for (ClassLoader loader : Stream.of(Thread.currentThread().getContextClassLoader(),</span>
-<span class="fc" id="L283">                ClassLoader.getSystemClassLoader(), FileUtil.class.getClassLoader())</span>
-<span class="fc bfc" id="L284" title="All 2 branches covered.">                .collect(Collectors.toCollection(LinkedHashSet::new))) {</span>
-<span class="fc bfc" id="L285" title="All 2 branches covered.">            if (readPropertiesFromClassLoader(propsFilename, archProps, loader)) {</span>
-<span class="fc" id="L286">                return archProps;</span>
+<span class="nc" id="L282">        for (ClassLoader loader : Stream.of(Thread.currentThread().getContextClassLoader(),</span>
+<span class="nc" id="L283">                ClassLoader.getSystemClassLoader(), FileUtil.class.getClassLoader())</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">                .collect(Collectors.toCollection(LinkedHashSet::new))) {</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">            if (readPropertiesFromClassLoader(propsFilename, archProps, loader)) {</span>
+<span class="nc" id="L286">                return archProps;</span>
             }
-<span class="fc" id="L288">        }</span>
-<span class="fc" id="L289">        LOG.warn(&quot;Failed to load default configuration&quot;);</span>
-<span class="fc" id="L290">        return archProps;</span>
+<span class="nc" id="L288">        }</span>
+<span class="nc" id="L289">        LOG.warn(&quot;Failed to load default configuration&quot;);</span>
+<span class="nc" id="L290">        return archProps;</span>
     }
 
     private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps,
             ClassLoader loader) {
-<span class="pc bpc" id="L295" title="1 of 2 branches missed.">        if (loader == null) {</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">        if (loader == null) {</span>
 <span class="nc" id="L296">            return false;</span>
         }
         // Load the configuration file from the classLoader
         try {
-<span class="fc" id="L300">            List&lt;URL&gt; resources = Collections.list(loader.getResources(propsFilename));</span>
-<span class="fc bfc" id="L301" title="All 2 branches covered.">            if (resources.isEmpty()) {</span>
-<span class="fc" id="L302">                LOG.debug(&quot;No {} file found from ClassLoader {}&quot;, propsFilename, loader);</span>
-<span class="fc" id="L303">                return false;</span>
+<span class="nc" id="L300">            List&lt;URL&gt; resources = Collections.list(loader.getResources(propsFilename));</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">            if (resources.isEmpty()) {</span>
+<span class="nc" id="L302">                LOG.debug(&quot;No {} file found from ClassLoader {}&quot;, propsFilename, loader);</span>
+<span class="nc" id="L303">                return false;</span>
             }
-<span class="pc bpc" id="L305" title="1 of 2 branches missed.">            if (resources.size() &gt; 1) {</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">            if (resources.size() &gt; 1) {</span>
 <span class="nc" id="L306">                LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath&quot;, propsFilename);</span>
 <span class="nc" id="L307">                return true;</span>
             }
 
-<span class="fc" id="L310">            try (InputStream in = resources.get(0).openStream()) {</span>
-<span class="pc bpc" id="L311" title="1 of 2 branches missed.">                if (in != null) {</span>
-<span class="fc" id="L312">                    archProps.load(in);</span>
+<span class="nc" id="L310">            try (InputStream in = resources.get(0).openStream()) {</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">                if (in != null) {</span>
+<span class="nc" id="L312">                    archProps.load(in);</span>
                 }
             }
-<span class="fc" id="L315">            return true;</span>
+<span class="nc" id="L315">            return true;</span>
 <span class="nc" id="L316">        } catch (IOException e) {</span>
 <span class="nc" id="L317">            return false;</span>
         }

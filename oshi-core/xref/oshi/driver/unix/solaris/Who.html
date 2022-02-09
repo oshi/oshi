@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -71,26 +71,23 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">while</strong> ((ut = LIBC.getutxent()) != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <strong class="jxr_keyword">if</strong> (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                      String user = Native.toString(ut.ut_user, StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                      <strong class="jxr_keyword">if</strong> (!<span class="jxr_string">"LOGIN"</span>.equals(user)) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                          String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                          String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                          <strong class="jxr_keyword">long</strong> loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                          <em class="jxr_comment">// Sanity check. If errors, default to who command line</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          <strong class="jxr_keyword">if</strong> (user.isEmpty() || device.isEmpty() || loginTime &lt; 0
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                                  || loginTime &gt; System.currentTimeMillis()) {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                              <strong class="jxr_keyword">return</strong> oshi.driver.unix.Who.queryWho();
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                          whoList.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(user, device, loginTime, host));
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <em class="jxr_comment">// Close</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              LIBC.endutxent();
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">return</strong> whoList;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                      String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      <strong class="jxr_keyword">long</strong> loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      <em class="jxr_comment">// Sanity check. If errors, default to who command line</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      <strong class="jxr_keyword">if</strong> (user.isEmpty() || device.isEmpty() || loginTime &lt; 0 || loginTime &gt; System.currentTimeMillis()) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          <strong class="jxr_keyword">return</strong> oshi.driver.unix.Who.queryWho();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      whoList.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(user, device, loginTime, host));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <em class="jxr_comment">// Close</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              LIBC.endutxent();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">return</strong> whoList;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

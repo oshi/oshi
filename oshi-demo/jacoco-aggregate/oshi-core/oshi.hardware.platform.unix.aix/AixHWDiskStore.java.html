@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AixHWDiskStore.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.aix</a> &gt; <span class="el_source">AixHWDiskStore.java</span></div><h1>AixHWDiskStore.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -108,24 +108,40 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public boolean updateAttributes() {
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (perfstat_disk_t stat : diskStats.get()) {</span>
-<span class="nc" id="L112">            String name = Native.toString(stat.name);</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (name.equals(this.getName())) {</span>
+<span class="nc" id="L111">        return synchronizedUpdateAttributes();</span>
+    }
+
+    private synchronized boolean synchronizedUpdateAttributes() {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        for (perfstat_disk_t stat : diskStats.get()) {</span>
+<span class="nc" id="L116">            String name = Native.toString(stat.name);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (name.equals(this.getName())) {</span>
                 // we only have total transfers so estimate read/write ratio from blocks
-<span class="nc" id="L115">                long blks = stat.rblks + stat.wblks;</span>
-<span class="nc" id="L116">                this.reads = stat.xfers;</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">                if (blks &gt; 0L) {</span>
-<span class="nc" id="L118">                    this.writes = stat.xfers * stat.wblks / blks;</span>
-<span class="nc" id="L119">                    this.reads -= this.writes;</span>
+<span class="nc" id="L119">                long blks = stat.rblks + stat.wblks;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                if (blks == 0L) {</span>
+<span class="nc" id="L121">                    this.reads = stat.xfers;</span>
+<span class="nc" id="L122">                    this.writes = 0L;</span>
+                } else {
+<span class="nc" id="L124">                    long approximateReads = Math.round(stat.xfers * stat.rblks / (double) blks);</span>
+<span class="nc" id="L125">                    long approximateWrites = stat.xfers - approximateReads;</span>
+                    // Enforce monotonic increase
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                    if (approximateReads &gt; this.reads) {</span>
+<span class="nc" id="L128">                        this.reads = approximateReads;</span>
+                    }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                    if (approximateWrites &gt; this.writes) {</span>
+<span class="nc" id="L131">                        this.writes = approximateReads;</span>
+                    }
                 }
-<span class="nc" id="L121">                this.readBytes = stat.rblks * stat.bsize;</span>
-<span class="nc" id="L122">                this.writeBytes = stat.wblks * stat.bsize;</span>
-<span class="nc" id="L123">                this.currentQueueLength = stat.qdepth;</span>
-<span class="nc" id="L124">                this.transferTime = stat.time;</span>
-<span class="nc" id="L125">                return true;</span>
+<span class="nc" id="L134">                this.writes = Math.round(stat.xfers * stat.wblks / (double) blks);</span>
+<span class="nc" id="L135">                this.reads -= this.writes;</span>
+
+<span class="nc" id="L137">                this.readBytes = stat.rblks * stat.bsize;</span>
+<span class="nc" id="L138">                this.writeBytes = stat.wblks * stat.bsize;</span>
+<span class="nc" id="L139">                this.currentQueueLength = stat.qdepth;</span>
+<span class="nc" id="L140">                this.transferTime = stat.time;</span>
+<span class="nc" id="L141">                return true;</span>
             }
         }
-<span class="nc" id="L128">        return false;</span>
+<span class="nc" id="L144">        return false;</span>
     }
 
     /**
@@ -137,30 +153,30 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
      * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List&lt;HWDiskStore&gt; getDisks(Supplier&lt;perfstat_disk_t[]&gt; diskStats) {
-<span class="nc" id="L140">        Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap = Ls.queryDeviceMajorMinor();</span>
-<span class="nc" id="L141">        List&lt;AixHWDiskStore&gt; storeList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        for (perfstat_disk_t disk : diskStats.get()) {</span>
-<span class="nc" id="L143">            String storeName = Native.toString(disk.name);</span>
-<span class="nc" id="L144">            Pair&lt;String, String&gt; ms = Lscfg.queryModelSerial(storeName);</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">            String model = ms.getA() == null ? Native.toString(disk.description) : ms.getA();</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();</span>
-<span class="nc" id="L147">            storeList.add(createStore(storeName, model, serial, disk.size &lt;&lt; 20, diskStats, majMinMap));</span>
+<span class="nc" id="L156">        Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap = Ls.queryDeviceMajorMinor();</span>
+<span class="nc" id="L157">        List&lt;AixHWDiskStore&gt; storeList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        for (perfstat_disk_t disk : diskStats.get()) {</span>
+<span class="nc" id="L159">            String storeName = Native.toString(disk.name);</span>
+<span class="nc" id="L160">            Pair&lt;String, String&gt; ms = Lscfg.queryModelSerial(storeName);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            String model = ms.getA() == null ? Native.toString(disk.description) : ms.getA();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();</span>
+<span class="nc" id="L163">            storeList.add(createStore(storeName, model, serial, disk.size &lt;&lt; 20, diskStats, majMinMap));</span>
         }
-<span class="nc" id="L149">        return storeList.stream()</span>
-<span class="nc" id="L150">                .sorted(Comparator.comparingInt(</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">                        s -&gt; s.getPartitions().isEmpty() ? Integer.MAX_VALUE : s.getPartitions().get(0).getMajor()))</span>
-<span class="nc" id="L152">                .collect(Collectors.toList());</span>
+<span class="nc" id="L165">        return storeList.stream()</span>
+<span class="nc" id="L166">                .sorted(Comparator.comparingInt(</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                        s -&gt; s.getPartitions().isEmpty() ? Integer.MAX_VALUE : s.getPartitions().get(0).getMajor()))</span>
+<span class="nc" id="L168">                .collect(Collectors.toList());</span>
     }
 
     private static AixHWDiskStore createStore(String diskName, String model, String serial, long size,
             Supplier&lt;perfstat_disk_t[]&gt; diskStats, Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap) {
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,</span>
                 diskStats);
-<span class="nc" id="L159">        store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName, majMinMap).stream()</span>
-<span class="nc" id="L160">                .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))</span>
-<span class="nc" id="L161">                .collect(Collectors.toList()));</span>
-<span class="nc" id="L162">        store.updateAttributes();</span>
-<span class="nc" id="L163">        return store;</span>
+<span class="nc" id="L175">        store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName, majMinMap).stream()</span>
+<span class="nc" id="L176">                .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))</span>
+<span class="nc" id="L177">                .collect(Collectors.toList()));</span>
+<span class="nc" id="L178">        store.updateAttributes();</span>
+<span class="nc" id="L179">        return store;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -116,61 +116,77 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Override
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">for</strong> (perfstat_disk_t stat : diskStats.get()) {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>             String name = Native.toString(stat.name);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">if</strong> (name.equals(<strong class="jxr_keyword">this</strong>.getName())) {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <em class="jxr_comment">// we only have total transfers so estimate read/write ratio from blocks</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 <strong class="jxr_keyword">long</strong> blks = stat.rblks + stat.wblks;
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <strong class="jxr_keyword">this</strong>.reads = stat.xfers;
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 <strong class="jxr_keyword">if</strong> (blks &gt; 0L) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                     <strong class="jxr_keyword">this</strong>.writes = stat.xfers * stat.wblks / blks;
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                     <strong class="jxr_keyword">this</strong>.reads -= <strong class="jxr_keyword">this</strong>.writes;
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 }
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 <strong class="jxr_keyword">this</strong>.readBytes = stat.rblks * stat.bsize;
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 <strong class="jxr_keyword">this</strong>.writeBytes = stat.wblks * stat.bsize;
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 <strong class="jxr_keyword">this</strong>.currentQueueLength = stat.qdepth;
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 <strong class="jxr_keyword">this</strong>.transferTime = stat.time;
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>             }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         }
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * Gets the disks on this machine</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * @param diskStats</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     *            Memoized supplier of disk statistics</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * @return a list of {@link HWDiskStore} objects representing the disks</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks(Supplier&lt;perfstat_disk_t[]&gt; diskStats) {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap = Ls.queryDeviceMajorMinor();
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         List&lt;AixHWDiskStore&gt; storeList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">for</strong> (perfstat_disk_t disk : diskStats.get()) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>             String storeName = Native.toString(disk.name);
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>             Pair&lt;String, String&gt; ms = Lscfg.queryModelSerial(storeName);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>             String model = ms.getA() == <strong class="jxr_keyword">null</strong> ? Native.toString(disk.description) : ms.getA();
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             String serial = ms.getB() == <strong class="jxr_keyword">null</strong> ? Constants.UNKNOWN : ms.getB();
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             storeList.add(createStore(storeName, model, serial, disk.size &lt;&lt; 20, diskStats, majMinMap));
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">return</strong> storeList.stream()
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 .sorted(Comparator.comparingInt(
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                         s -&gt; s.getPartitions().isEmpty() ? Integer.MAX_VALUE : s.getPartitions().get(0).getMajor()))
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                 .collect(Collectors.toList());
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="AixHWDiskStore" href="../../../../../oshi/hardware/platform/unix/aix/AixHWDiskStore.html#AixHWDiskStore">AixHWDiskStore</a> createStore(String diskName, String model, String serial, <strong class="jxr_keyword">long</strong> size,
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             Supplier&lt;perfstat_disk_t[]&gt; diskStats, Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap) {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <a name="AixHWDiskStore" href="../../../../../oshi/hardware/platform/unix/aix/AixHWDiskStore.html#AixHWDiskStore">AixHWDiskStore</a> store = <strong class="jxr_keyword">new</strong> <a name="AixHWDiskStore" href="../../../../../oshi/hardware/platform/unix/aix/AixHWDiskStore.html#AixHWDiskStore">AixHWDiskStore</a>(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 diskStats);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName, majMinMap).stream()
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 .collect(Collectors.toList()));
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         store.updateAttributes();
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">return</strong> store;
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">return</strong> synchronizedUpdateAttributes();
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> synchronizedUpdateAttributes() {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">for</strong> (perfstat_disk_t stat : diskStats.get()) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             String name = Native.toString(stat.name);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">if</strong> (name.equals(<strong class="jxr_keyword">this</strong>.getName())) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 <em class="jxr_comment">// we only have total transfers so estimate read/write ratio from blocks</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                 <strong class="jxr_keyword">long</strong> blks = stat.rblks + stat.wblks;
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 <strong class="jxr_keyword">if</strong> (blks == 0L) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                     <strong class="jxr_keyword">this</strong>.reads = stat.xfers;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                     <strong class="jxr_keyword">this</strong>.writes = 0L;
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     <strong class="jxr_keyword">long</strong> approximateReads = Math.round(stat.xfers * stat.rblks / (<strong class="jxr_keyword">double</strong>) blks);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                     <strong class="jxr_keyword">long</strong> approximateWrites = stat.xfers - approximateReads;
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                     <em class="jxr_comment">// Enforce monotonic increase</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     <strong class="jxr_keyword">if</strong> (approximateReads &gt; <strong class="jxr_keyword">this</strong>.reads) {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                         <strong class="jxr_keyword">this</strong>.reads = approximateReads;
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                     }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                     <strong class="jxr_keyword">if</strong> (approximateWrites &gt; <strong class="jxr_keyword">this</strong>.writes) {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                         <strong class="jxr_keyword">this</strong>.writes = approximateReads;
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                     }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <strong class="jxr_keyword">this</strong>.writes = Math.round(stat.xfers * stat.wblks / (<strong class="jxr_keyword">double</strong>) blks);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 <strong class="jxr_keyword">this</strong>.reads -= <strong class="jxr_keyword">this</strong>.writes;
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 <strong class="jxr_keyword">this</strong>.readBytes = stat.rblks * stat.bsize;
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">this</strong>.writeBytes = stat.wblks * stat.bsize;
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 <strong class="jxr_keyword">this</strong>.currentQueueLength = stat.qdepth;
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 <strong class="jxr_keyword">this</strong>.transferTime = stat.time;
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         }
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * Gets the disks on this machine</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * @param diskStats</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     *            Memoized supplier of disk statistics</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * @return a list of {@link HWDiskStore} objects representing the disks</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWDiskStore&gt; getDisks(Supplier&lt;perfstat_disk_t[]&gt; diskStats) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap = Ls.queryDeviceMajorMinor();
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         List&lt;AixHWDiskStore&gt; storeList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">for</strong> (perfstat_disk_t disk : diskStats.get()) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             String storeName = Native.toString(disk.name);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             Pair&lt;String, String&gt; ms = Lscfg.queryModelSerial(storeName);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             String model = ms.getA() == <strong class="jxr_keyword">null</strong> ? Native.toString(disk.description) : ms.getA();
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             String serial = ms.getB() == <strong class="jxr_keyword">null</strong> ? Constants.UNKNOWN : ms.getB();
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             storeList.add(createStore(storeName, model, serial, disk.size &lt;&lt; 20, diskStats, majMinMap));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         }
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">return</strong> storeList.stream()
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                 .sorted(Comparator.comparingInt(
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                         s -&gt; s.getPartitions().isEmpty() ? Integer.MAX_VALUE : s.getPartitions().get(0).getMajor()))
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>                 .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="AixHWDiskStore" href="../../../../../oshi/hardware/platform/unix/aix/AixHWDiskStore.html#AixHWDiskStore">AixHWDiskStore</a> createStore(String diskName, String model, String serial, <strong class="jxr_keyword">long</strong> size,
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             Supplier&lt;perfstat_disk_t[]&gt; diskStats, Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap) {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <a name="AixHWDiskStore" href="../../../../../oshi/hardware/platform/unix/aix/AixHWDiskStore.html#AixHWDiskStore">AixHWDiskStore</a> store = <strong class="jxr_keyword">new</strong> <a name="AixHWDiskStore" href="../../../../../oshi/hardware/platform/unix/aix/AixHWDiskStore.html#AixHWDiskStore">AixHWDiskStore</a>(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 diskStats);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName, majMinMap).stream()
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                 .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                 .collect(Collectors.toList()));
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         store.updateAttributes();
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">return</strong> store;
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
