@@ -37,22 +37,19 @@ import oshi.util.GlobalConfig;
 @ThreadSafe
 <span class="nc" id="L38">public abstract class AbstractFileSystem implements FileSystem {</span>
 
-    public static final String OSHI_NETWORK_FILESYSTEM_TYPES = &quot;oshi.network.filesystem.types&quot;;
-    public static final String OSHI_PSEUDO_FILESYSTEM_TYPES = &quot;oshi.pseudo.filesystem.types&quot;;
-
     /**
      * FileSystem types which are network-based and should be excluded from
      * local-only lists
      */
-<span class="nc" id="L47">    protected static final List&lt;String&gt; NETWORK_FS_TYPES = Arrays</span>
-<span class="nc" id="L48">            .asList(GlobalConfig.get(OSHI_NETWORK_FILESYSTEM_TYPES, &quot;&quot;).split(&quot;,&quot;));</span>
+<span class="nc" id="L44">    protected static final List&lt;String&gt; NETWORK_FS_TYPES = Arrays</span>
+<span class="nc" id="L45">            .asList(GlobalConfig.get(GlobalConfig.OSHI_NETWORK_FILESYSTEM_TYPES, &quot;&quot;).split(&quot;,&quot;));</span>
 
-<span class="nc" id="L50">    protected static final List&lt;String&gt; PSEUDO_FS_TYPES = Arrays</span>
-<span class="nc" id="L51">            .asList(GlobalConfig.get(OSHI_PSEUDO_FILESYSTEM_TYPES, &quot;&quot;).split(&quot;,&quot;));</span>
+<span class="nc" id="L47">    protected static final List&lt;String&gt; PSEUDO_FS_TYPES = Arrays</span>
+<span class="nc" id="L48">            .asList(GlobalConfig.get(GlobalConfig.OSHI_PSEUDO_FILESYSTEM_TYPES, &quot;&quot;).split(&quot;,&quot;));</span>
 
     @Override
     public List&lt;OSFileStore&gt; getFileStores() {
-<span class="nc" id="L55">        return getFileStores(false);</span>
+<span class="nc" id="L52">        return getFileStores(false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

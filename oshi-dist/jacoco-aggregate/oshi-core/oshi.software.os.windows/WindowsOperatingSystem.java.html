@@ -103,8 +103,8 @@ import oshi.util.tuples.Pair;
 
 <span class="nc" id="L104">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);</span>
 
-    public static final String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = &quot;oshi.os.windows.procstate.suspended&quot;;
-<span class="nc" id="L107">    private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig.get(OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);</span>
+<span class="nc" id="L106">    private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig</span>
+<span class="nc" id="L107">            .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);</span>
 
 <span class="nc" id="L109">    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();</span>
 
@@ -511,7 +511,7 @@ import oshi.util.tuples.Pair;
     }
 
     private static String querySystemLog() {
-<span class="nc" id="L514">        String systemLog = GlobalConfig.get(&quot;oshi.os.windows.eventlog&quot;, &quot;System&quot;);</span>
+<span class="nc" id="L514">        String systemLog = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_EVENTLOG, &quot;System&quot;);</span>
 <span class="nc bnc" id="L515" title="All 2 branches missed.">        if (systemLog.isEmpty()) {</span>
             // Use faster boot time approximation
 <span class="nc" id="L517">            return null;</span>

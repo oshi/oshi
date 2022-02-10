@@ -111,8 +111,8 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> 
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = <span class="jxr_string">"oshi.os.windows.procstate.suspended"</span>;
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_PROCSTATE_SUSPENDED = GlobalConfig.get(OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_PROCSTATE_SUSPENDED = <a name="GlobalConfig" href="../../../../oshi/util/GlobalConfig.html#GlobalConfig">GlobalConfig</a>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> 
@@ -519,7 +519,7 @@
 <a class="jxr_linenumber" name="L511" href="#L511">511</a>     }
 <a class="jxr_linenumber" name="L512" href="#L512">512</a> 
 <a class="jxr_linenumber" name="L513" href="#L513">513</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySystemLog() {
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>         String systemLog = GlobalConfig.get(<span class="jxr_string">"oshi.os.windows.eventlog"</span>, <span class="jxr_string">"System"</span>);
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>         String systemLog = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_EVENTLOG, <span class="jxr_string">"System"</span>);
 <a class="jxr_linenumber" name="L515" href="#L515">515</a>         <strong class="jxr_keyword">if</strong> (systemLog.isEmpty()) {
 <a class="jxr_linenumber" name="L516" href="#L516">516</a>             <em class="jxr_comment">// Use faster boot time approximation</em>
 <a class="jxr_linenumber" name="L517" href="#L517">517</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;

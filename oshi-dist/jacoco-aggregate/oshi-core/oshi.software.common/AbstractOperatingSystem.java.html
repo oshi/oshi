@@ -52,45 +52,44 @@ import oshi.util.tuples.Pair;
  */
 <span class="nc" id="L53">public abstract class AbstractOperatingSystem implements OperatingSystem {</span>
 
-    public static final String OSHI_OS_UNIX_WHOCOMMAND = &quot;oshi.os.unix.whoCommand&quot;;
-<span class="nc" id="L56">    protected static final boolean USE_WHO_COMMAND = GlobalConfig.get(OSHI_OS_UNIX_WHOCOMMAND, false);</span>
+<span class="nc" id="L55">    protected static final boolean USE_WHO_COMMAND = GlobalConfig.get(GlobalConfig.OSHI_OS_UNIX_WHOCOMMAND, false);</span>
 
-<span class="nc" id="L58">    private final Supplier&lt;String&gt; manufacturer = memoize(this::queryManufacturer);</span>
-<span class="nc" id="L59">    private final Supplier&lt;Pair&lt;String, OSVersionInfo&gt;&gt; familyVersionInfo = memoize(this::queryFamilyVersionInfo);</span>
-<span class="nc" id="L60">    private final Supplier&lt;Integer&gt; bitness = memoize(this::queryPlatformBitness);</span>
+<span class="nc" id="L57">    private final Supplier&lt;String&gt; manufacturer = memoize(this::queryManufacturer);</span>
+<span class="nc" id="L58">    private final Supplier&lt;Pair&lt;String, OSVersionInfo&gt;&gt; familyVersionInfo = memoize(this::queryFamilyVersionInfo);</span>
+<span class="nc" id="L59">    private final Supplier&lt;Integer&gt; bitness = memoize(this::queryPlatformBitness);</span>
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L64">        return manufacturer.get();</span>
+<span class="nc" id="L63">        return manufacturer.get();</span>
     }
 
     protected abstract String queryManufacturer();
 
     @Override
     public String getFamily() {
-<span class="nc" id="L71">        return familyVersionInfo.get().getA();</span>
+<span class="nc" id="L70">        return familyVersionInfo.get().getA();</span>
     }
 
     @Override
     public OSVersionInfo getVersionInfo() {
-<span class="nc" id="L76">        return familyVersionInfo.get().getB();</span>
+<span class="nc" id="L75">        return familyVersionInfo.get().getB();</span>
     }
 
     protected abstract Pair&lt;String, OSVersionInfo&gt; queryFamilyVersionInfo();
 
     @Override
     public int getBitness() {
-<span class="nc" id="L83">        return bitness.get();</span>
+<span class="nc" id="L82">        return bitness.get();</span>
     }
 
     private int queryPlatformBitness() {
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (Platform.is64Bit()) {</span>
-<span class="nc" id="L88">            return 64;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (Platform.is64Bit()) {</span>
+<span class="nc" id="L87">            return 64;</span>
         }
         // Initialize based on JVM Bitness. Individual OS implementations will test
         // if 32-bit JVM running on 64-bit OS
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        int jvmBitness = System.getProperty(&quot;os.arch&quot;).contains(&quot;64&quot;) ? 64 : 32;</span>
-<span class="nc" id="L93">        return queryBitness(jvmBitness);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        int jvmBitness = System.getProperty(&quot;os.arch&quot;).contains(&quot;64&quot;) ? 64 : 32;</span>
+<span class="nc" id="L92">        return queryBitness(jvmBitness);</span>
     }
 
     /**
@@ -104,9 +103,9 @@ import oshi.util.tuples.Pair;
 
     @Override
     public List&lt;OSProcess&gt; getProcesses(Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort, int limit) {
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        return queryAllProcesses().stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
-<span class="nc bnc" id="L108" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
-<span class="nc" id="L109">                .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        return queryAllProcesses().stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
+<span class="nc bnc" id="L107" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
+<span class="nc" id="L108">                .collect(Collectors.toList());</span>
     }
 
     protected abstract List&lt;OSProcess&gt; queryAllProcesses();
@@ -115,16 +114,16 @@ import oshi.util.tuples.Pair;
     public List&lt;OSProcess&gt; getChildProcesses(int parentPid, Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort,
             int limit) {
         // Get this pid and its children
-<span class="nc" id="L118">        List&lt;OSProcess&gt; childProcs = queryChildProcesses(parentPid);</span>
+<span class="nc" id="L117">        List&lt;OSProcess&gt; childProcs = queryChildProcesses(parentPid);</span>
         // Extract the parent from the list
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        OSProcess parent = childProcs.stream().filter(p -&gt; p.getParentProcessID() == parentPid).findAny().orElse(null);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        OSProcess parent = childProcs.stream().filter(p -&gt; p.getParentProcessID() == parentPid).findAny().orElse(null);</span>
         // Get the parent's start time
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
         // Get children after parent
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        return queryChildProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
-<span class="nc bnc" id="L125" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
-<span class="nc bnc" id="L126" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
-<span class="nc" id="L127">                .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        return queryChildProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
+<span class="nc bnc" id="L124" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
+<span class="nc bnc" id="L125" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
+<span class="nc" id="L126">                .collect(Collectors.toList());</span>
     }
 
     protected abstract List&lt;OSProcess&gt; queryChildProcesses(int parentPid);
@@ -133,17 +132,17 @@ import oshi.util.tuples.Pair;
     public List&lt;OSProcess&gt; getDescendantProcesses(int parentPid, Predicate&lt;OSProcess&gt; filter,
             Comparator&lt;OSProcess&gt; sort, int limit) {
         // Get this pid and its descendants
-<span class="nc" id="L136">        List&lt;OSProcess&gt; descendantProcs = queryDescendantProcesses(parentPid);</span>
+<span class="nc" id="L135">        List&lt;OSProcess&gt; descendantProcs = queryDescendantProcesses(parentPid);</span>
         // Extract the parent from the list
-<span class="nc bnc" id="L138" title="All 2 branches missed.">        OSProcess parent = descendantProcs.stream().filter(p -&gt; p.getParentProcessID() == parentPid).findAny()</span>
-<span class="nc" id="L139">                .orElse(null);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        OSProcess parent = descendantProcs.stream().filter(p -&gt; p.getParentProcessID() == parentPid).findAny()</span>
+<span class="nc" id="L138">                .orElse(null);</span>
         // Get the parent's start time
-<span class="nc bnc" id="L141" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
         // Get descendants after parent
-<span class="nc bnc" id="L143" title="All 2 branches missed.">        return queryDescendantProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
-<span class="nc bnc" id="L144" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
-<span class="nc bnc" id="L145" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
-<span class="nc" id="L146">                .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        return queryDescendantProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
+<span class="nc bnc" id="L143" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
+<span class="nc" id="L145">                .collect(Collectors.toList());</span>
     }
 
     protected abstract List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid);
@@ -164,9 +163,9 @@ import oshi.util.tuples.Pair;
      */
     protected static Set&lt;Integer&gt; getChildrenOrDescendants(Collection&lt;OSProcess&gt; allProcs, int parentPid,
             boolean allDescendants) {
-<span class="nc" id="L167">        Map&lt;Integer, Integer&gt; parentPidMap = allProcs.stream()</span>
-<span class="nc" id="L168">                .collect(Collectors.toMap(OSProcess::getProcessID, OSProcess::getParentProcessID));</span>
-<span class="nc" id="L169">        return getChildrenOrDescendants(parentPidMap, parentPid, allDescendants);</span>
+<span class="nc" id="L166">        Map&lt;Integer, Integer&gt; parentPidMap = allProcs.stream()</span>
+<span class="nc" id="L167">                .collect(Collectors.toMap(OSProcess::getProcessID, OSProcess::getParentProcessID));</span>
+<span class="nc" id="L168">        return getChildrenOrDescendants(parentPidMap, parentPid, allDescendants);</span>
     }
 
     /**
@@ -186,34 +185,34 @@ import oshi.util.tuples.Pair;
     protected static Set&lt;Integer&gt; getChildrenOrDescendants(Map&lt;Integer, Integer&gt; parentPidMap, int parentPid,
             boolean allDescendants) {
         // Set to hold results
-<span class="nc" id="L189">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L190">        descendantPids.add(parentPid);</span>
+<span class="nc" id="L188">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L189">        descendantPids.add(parentPid);</span>
         // Queue for BFS algorithm
-<span class="nc" id="L192">        Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();</span>
-<span class="nc" id="L193">        queue.add(parentPid);</span>
+<span class="nc" id="L191">        Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();</span>
+<span class="nc" id="L192">        queue.add(parentPid);</span>
         // Add children, repeating if recursive
         do {
-<span class="nc bnc" id="L196" title="All 2 branches missed.">            for (int pid : getChildren(parentPidMap, queue.poll())) {</span>
-<span class="nc bnc" id="L197" title="All 2 branches missed.">                if (!descendantPids.contains(pid)) {</span>
-<span class="nc" id="L198">                    descendantPids.add(pid);</span>
-<span class="nc" id="L199">                    queue.add(pid);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">            for (int pid : getChildren(parentPidMap, queue.poll())) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">                if (!descendantPids.contains(pid)) {</span>
+<span class="nc" id="L197">                    descendantPids.add(pid);</span>
+<span class="nc" id="L198">                    queue.add(pid);</span>
                 }
-<span class="nc" id="L201">            }</span>
-<span class="nc bnc" id="L202" title="All 4 branches missed.">        } while (allDescendants &amp;&amp; !queue.isEmpty());</span>
-<span class="nc" id="L203">        return descendantPids;</span>
+<span class="nc" id="L200">            }</span>
+<span class="nc bnc" id="L201" title="All 4 branches missed.">        } while (allDescendants &amp;&amp; !queue.isEmpty());</span>
+<span class="nc" id="L202">        return descendantPids;</span>
     }
 
     private static Set&lt;Integer&gt; getChildren(Map&lt;Integer, Integer&gt; parentPidMap, int parentPid) {
-<span class="nc" id="L207">        return parentPidMap.entrySet().stream()</span>
-<span class="nc bnc" id="L208" title="All 4 branches missed.">                .filter(e -&gt; e.getValue().equals(parentPid) &amp;&amp; !e.getKey().equals(parentPid)).map(Entry::getKey)</span>
-<span class="nc" id="L209">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L206">        return parentPidMap.entrySet().stream()</span>
+<span class="nc bnc" id="L207" title="All 4 branches missed.">                .filter(e -&gt; e.getValue().equals(parentPid) &amp;&amp; !e.getKey().equals(parentPid)).map(Entry::getKey)</span>
+<span class="nc" id="L208">                .collect(Collectors.toSet());</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L214">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L215">        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());</span>
-<span class="nc" id="L216">        return sb.toString();</span>
+<span class="nc" id="L213">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L214">        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());</span>
+<span class="nc" id="L215">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

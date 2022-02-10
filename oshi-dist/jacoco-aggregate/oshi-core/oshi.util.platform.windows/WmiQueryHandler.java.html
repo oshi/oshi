@@ -51,11 +51,11 @@ import oshi.util.GlobalConfig;
 
 <span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);</span>
 
-<span class="nc" id="L54">    private static int globalTimeout = GlobalConfig.get(&quot;oshi.util.wmi.timeout&quot;, -1);</span>
+<span class="nc" id="L54">    private static int globalTimeout = GlobalConfig.get(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT, -1);</span>
 
     static {
 <span class="nc bnc" id="L57" title="All 4 branches missed.">        if (globalTimeout == 0 || globalTimeout &lt; -1) {</span>
-<span class="nc" id="L58">            throw new GlobalConfig.PropertyException(&quot;oshi.util.wmi.timeout&quot;);</span>
+<span class="nc" id="L58">            throw new GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT);</span>
         }
     }
 

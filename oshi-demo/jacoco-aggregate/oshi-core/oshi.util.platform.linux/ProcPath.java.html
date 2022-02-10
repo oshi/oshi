@@ -73,11 +73,11 @@ public final class ProcPath {
     }
 
     private static String queryProcConfig() {
-<span class="nc" id="L76">        String procPath = GlobalConfig.get(&quot;oshi.util.proc.path&quot;, &quot;/proc&quot;);</span>
+<span class="nc" id="L76">        String procPath = GlobalConfig.get(GlobalConfig.OSHI_UTIL_PROC_PATH, &quot;/proc&quot;);</span>
         // Ensure prefix begins with path separator, but doesn't end with one
 <span class="nc" id="L78">        procPath = '/' + procPath.replaceAll(&quot;/$|^/&quot;, &quot;&quot;);</span>
 <span class="nc bnc" id="L79" title="All 2 branches missed.">        if (!new File(procPath).exists()) {</span>
-<span class="nc" id="L80">            throw new GlobalConfig.PropertyException(&quot;oshi.util.proc.path&quot;, &quot;The path does not exist&quot;);</span>
+<span class="nc" id="L80">            throw new GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_PROC_PATH, &quot;The path does not exist&quot;);</span>
         }
 <span class="nc" id="L82">        return procPath;</span>
     }
