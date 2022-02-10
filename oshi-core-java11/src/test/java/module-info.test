@@ -23,6 +23,8 @@
 --add-opens
   com.github.oshi/oshi.driver.unix.solaris=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.driver.unix.solaris.kstat=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.driver.windows=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.windows.perfmon=org.junit.platform.commons
