@@ -19,6 +19,8 @@
 --add-opens
   com.github.oshi/oshi.driver.unix=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.driver.unix.aix.perfstat=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.driver.unix.freebsd=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.unix.solaris=org.junit.platform.commons
@@ -38,6 +40,4 @@
 --add-modules 
   org.hamcrest
 --add-reads
-  com.github.oshi=org.hamcrest
---add-reads
-  com.github.oshi=org.junit.jupiter.api
+  com.github.oshi=org.junit.jupiter.api,org.hamcrest
