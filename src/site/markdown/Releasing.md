@@ -19,10 +19,10 @@ manually deployed using `mvn clean deploy`
 * Review [SonarQube](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent) for any bugs.
 * Choose an appropriate [version number](https://semver.org/) for the release
     * Proactively change version numbers in the download links on [README.md](README.md).
-    * Copy [README.md](README.md) to [src/site/markdown/README.md](src/site/markdown/README.md)
+    * Copy `README.md` to `src/site/markdown/README.md`
         * HTML-escape `&`, `<`, and `>` in any links in the site version
         * Edit markdown URLS from `src/site/markdown/` to same-directory links
-    * Change "Next" or in-progress version in [CHANGELOG.md](CHANGELOG.md) to this new version.
+    * Change "Next" or in-progress version in `CHANGELOG.md` to this new version.
     * Move "Your contribution here." to a new empty "Next" section
     * Commit changes as a "prep for x.x release"
 

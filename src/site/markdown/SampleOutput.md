@@ -1,22 +1,34 @@
+# Sample Output from OSHI
+
 OSHI provides output directly via Java methods for each of its interfaces.
 By periodically polling dynamic information (e.g., every second), users can calculate and track changes.
+
+### SystemInfoTest
 
 You can see more examples and run the [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java)
 and see the full output for your system by cloning the project and building it with [Maven](https://maven.apache.org/index.html).
 
-In addition, the `oshi-demo` project includes an [OshiGui](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/OshiGui.java) class implementing a basic Swing GUI offering suggestions for potential visualizations using OSHI in a UI, monitoring, or alerting application, as shown below.  For a more advanced GUI based on this approach, see the [MooInfo project](https://github.com/rememberber/MooInfo).
+### oshi-demo
+
+In addition, the `oshi-demo` module includes an [OshiGui](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/OshiGui.java) class implementing a basic Swing GUI offering suggestions for potential visualizations using OSHI in a UI, monitoring, or alerting application, as shown below.  For a more advanced GUI based on this approach, see the [MooInfo project](https://github.com/rememberber/MooInfo).
+
+## Output
 
 General information about the operating system and computer system hardware:
+
 ![Operating System and Hardware](https://raw.githubusercontent.com/oshi/oshi/master/src/site/resources/images/OSHW.PNG)
 
 By measuring ticks (user, nice, system, idle, iowait, and irq) between time intervals, percent usage can be calculated.
 Per-processor information is also provided.
+
 ![CPU Usage](https://raw.githubusercontent.com/oshi/oshi/master/src/site/resources/images/CPU.PNG)
 
 Process information including CPU and memory per process is available.
+
 ![Process Statistics](https://raw.githubusercontent.com/oshi/oshi/master/src/site/resources/images/Procs.PNG)
 
 Memory and swapfile information is available.
+
 ![Memory Statistics](https://raw.githubusercontent.com/oshi/oshi/master/src/site/resources/images/Memory.PNG)
 
 Statistics for the system battery are provided:
