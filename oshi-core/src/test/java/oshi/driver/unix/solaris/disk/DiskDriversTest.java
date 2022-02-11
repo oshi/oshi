@@ -38,6 +38,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.HWPartition;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.tuples.Quintet;
 
 @EnabledOnOs(OS.SOLARIS)
@@ -53,9 +54,12 @@ class DiskDriversTest {
 
         // If lshal not installed, this may be empty
         Map<String, Integer> majorMap = Lshal.queryDiskToMajorMap();
-        for (Entry<String, Integer> entry : majorMap.entrySet()) {
-            List<HWPartition> partList = Prtvtoc.queryPartitions(entry.getKey(), entry.getValue());
-            assertThat("Partition List should not be empty", partList.size(), greaterThan(0));
+        // For partitions, requires root permissions
+        if (new SolarisOperatingSystem().isElevated()) {
+            for (Entry<String, Integer> entry : majorMap.entrySet()) {
+                List<HWPartition> partList = Prtvtoc.queryPartitions(entry.getKey(), entry.getValue());
+                assertThat("Partition List should not be empty", partList.size(), greaterThan(0));
+            }
         }
     }
 }
