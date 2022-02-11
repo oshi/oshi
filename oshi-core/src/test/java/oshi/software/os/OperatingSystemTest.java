@@ -417,8 +417,11 @@ class OperatingSystemTest {
             }
         }
         // Should be at least one of each
-        assertThat("There should be at least 1 stopped service", stopped, is(greaterThan(0)));
-        assertThat("There should be at least 1 running service", running, is(greaterThan(0)));
+        // macOS CI typically has none, though
+        if (!Platform.isMac()) {
+            assertThat("There should be at least 1 stopped service", stopped, is(greaterThan(0)));
+            assertThat("There should be at least 1 running service", running, is(greaterThan(0)));
+        }
     }
 
     /**
