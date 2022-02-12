@@ -24,7 +24,7 @@
 package oshi.driver.unix.openbsd.disk;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,10 +55,10 @@ class DisklabelTest {
                 if (new OpenBsdOperatingSystem().isElevated()) {
                     assertThat("Disk label is not null", diskdata.getA(), not(nullValue()));
                     assertThat("Disk duid is not null", diskdata.getB(), not(nullValue()));
-                    assertThat("Disk size is nonzero", diskdata.getC().longValue(), greaterThan(0L));
-                }
-                for (HWPartition part : diskdata.getD()) {
-                    assertTrue(part.getName().startsWith(diskName), "Partition name should start with disk name");
+                    assertThat("Disk size is nonnegative", diskdata.getC().longValue(), greaterThanOrEqualTo(0L));
+                    for (HWPartition part : diskdata.getD()) {
+                        assertTrue(part.getIdentification().startsWith(diskName), "Partition ID starts with disk");
+                    }
                 }
             }
         }

@@ -49,7 +49,7 @@ class PsInfoTest {
     void testQueryPsInfo() {
         int pid = new SystemInfo().getOperatingSystem().getProcessId();
         AixPsInfo psinfo = PsInfo.queryPsInfo(pid);
-        assertThat("Process ID in structure should match PID", psinfo.pr_pid, is(pid));
+        assertThat("Process ID in structure should match PID", psinfo.pr_pid, is((long) pid));
 
         Triplet<Integer, Long, Long> addrs = PsInfo.queryArgsEnvAddrs(pid, psinfo);
         assertNotNull(addrs);
@@ -62,7 +62,7 @@ class PsInfoTest {
         for (File lwpidFile : numericFiles) {
             int tid = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
             AIXLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(pid, tid);
-            assertThat("Thread ID in structure should match TID", lwpsinfo.pr_lwpid, is(tid));
+            assertThat("Thread ID in structure should match TID", lwpsinfo.pr_lwpid, is((long) tid));
         }
     }
 }
