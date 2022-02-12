@@ -460,6 +460,7 @@
                                     <exclude>**/*.yml</exclude>
                                     <exclude>**/*.yaml</exclude>
                                     <exclude>**/cov-analysis*/**</exclude>
+                                    <exclude>**/target/**</exclude>
                                 </excludes>
                             </licenseSet>
                         </licenseSets>
