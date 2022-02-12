@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -109,6 +109,14 @@ public final class Lscfg {
         String model = null;
         String serial = null;
         for (String s : ExecutingCommand.runNative("lscfg -vl " + device)) {
+            // Default model to description at end of first line
+            if (model == null && s.contains(device)) {
+                String locDesc = s.split(device)[1].trim();
+                int idx = locDesc.indexOf(' ');
+                if (idx > 0) {
+                    model = locDesc.substring(idx).trim();
+                }
+            }
             if (s.contains(modelMarker)) {
                 model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());
             } else if (s.contains(serialMarker)) {
