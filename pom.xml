@@ -376,6 +376,8 @@
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <releaseProfiles>release</releaseProfiles>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <!-- override default site-deploy goal -->
+                        <goals>deploy</goals>
                     </configuration>
                 </plugin>
                 <plugin>
