@@ -1,22 +1,13 @@
-# 6.1.1 (in progress)
+# 6.1.2 (in progress)
 
-##### New Features
-* [#1886](https://github.com/oshi/oshi/pull/1886): Implement Processor Capacity to optionallymatch Windows Task Manager CPU usage - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
 
-##### Bug fixes / Improvements
-* [#1869](https://github.com/oshi/oshi/pull/1869): Ignore mount headers on AIX filesystem - [@dbwiddis](https://github.com/dbwiddis).
-* [#1889](https://github.com/oshi/oshi/pull/1889): Improved calculation of AIX disk reads and writes - [@siddhantdixit](https://github.com/siddhantdixit).
-* [#1898](https://github.com/oshi/oshi/pull/1898): Fix Solaris Utmpx struture mapping - [@dbwiddis](https://github.com/dbwiddis).
-* [#1909](https://github.com/oshi/oshi/pull/1909): Move configuration string constants to GlobalConfig - [@dbwiddis](https://github.com/dbwiddis).
-
-##### Artifact Removal
-* [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).
-
-# 6.1.0 (2022-01-20)
+# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13)
 
 ##### New Features
 * [#1851](https://github.com/oshi/oshi/pull/1851),
   [#1858](https://github.com/oshi/oshi/pull/1858): Add PhysicalProcessor class to expose hybrid processor topology - [@dbwiddis](https://github.com/dbwiddis).
+* [#1886](https://github.com/oshi/oshi/pull/1886): Implement Processor Capacity to optionally match Windows Task Manager CPU usage - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#1831](https://github.com/oshi/oshi/pull/1831): Improve Solaris and AIX process listing using procfs - [@dbwiddis](https://github.com/dbwiddis).
@@ -25,6 +16,13 @@
 * [#1844](https://github.com/oshi/oshi/pull/1844): Update Microarchitecture table - [@dbwiddis](https://github.com/dbwiddis).
 * [#1849](https://github.com/oshi/oshi/pull/1849): Use udev for Linux cpu enumeration and frequency - [@dbwiddis](https://github.com/dbwiddis).
 * [#1859](https://github.com/oshi/oshi/pull/1859): Fix battery power usage rate on Fedora/RHEL - [@dbwiddis](https://github.com/dbwiddis).
+* [#1869](https://github.com/oshi/oshi/pull/1869): Ignore mount headers on AIX filesystem - [@dbwiddis](https://github.com/dbwiddis).
+* [#1889](https://github.com/oshi/oshi/pull/1889): Improved calculation of AIX disk reads and writes - [@siddhantdixit](https://github.com/siddhantdixit).
+* [#1898](https://github.com/oshi/oshi/pull/1898): Fix Solaris Utmpx structure mapping - [@dbwiddis](https://github.com/dbwiddis).
+* [#1909](https://github.com/oshi/oshi/pull/1909): Move configuration string constants to GlobalConfig - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Artifact Removal
+* [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.0.0 (2021-12-31)
 

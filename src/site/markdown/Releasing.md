@@ -22,8 +22,8 @@ manually deployed using `mvn clean deploy`
     * Copy `README.md` to `src/site/markdown/README.md`
         * HTML-escape `&`, `<`, and `>` in any links in the site version
         * Edit markdown URLS from `src/site/markdown/` to same-directory links
-    * Change "Next" or in-progress version in `CHANGELOG.md` to this new version.
-    * Move "Your contribution here." to a new empty "Next" section
+    * Change release dates and in-progress versions in `CHANGELOG.md`
+    * Move "Your contribution here" to a new empty "In Progress" section
     * Commit changes as a "prep for x.x release"
 
 ### Release
@@ -45,7 +45,11 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
     * This pushes the release to the [OSSRH](https://oss.sonatype.org/) staging repository
     * This also pushes to [gh_pages](https://oshi.github.io/oshi)
 * Log on to [Nexus](https://oss.sonatype.org/) and [release the deployment from OSSRH to the Central Repository](https://central.sonatype.org/pages/releasing-the-deployment.html).
-	
+
+* Release the site; this can be done anytime after `release:prepare`:
+    * Create/reset/rebase your local `site` branch to the just-released tag
+    * Push your local `site` branch upstream
+
 * Add a title and release notes [to the tag](https://github.com/oshi/oshi/tags) on GitHub and publish the release to make it current.
 
 ### Ongoing Maintenance
