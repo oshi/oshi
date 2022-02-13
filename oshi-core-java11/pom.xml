@@ -24,7 +24,7 @@
     </scm>
 
     <properties>
-        <main.basedir>${project.parent.basedir}</main.basedir>
+        <oshi.core.basedir>${main.basedir}/oshi-core</oshi.core.basedir>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.testSource>11</maven.compiler.testSource>
@@ -83,12 +83,12 @@
     <build>
         <resources>
             <resource>
-                <directory>../oshi-core/src/main/resources</directory>
+                <directory>${oshi.core.basedir}/src/main/resources</directory>
             </resource>
         </resources>
         <testResources>
             <testResource>
-                <directory>../oshi-core/src/test/resources</directory>
+                <directory>${oshi.core.basedir}/src/test/resources</directory>
             </testResource>
         </testResources>
         <plugins>
@@ -104,7 +104,7 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <sources>
-                                <source>../oshi-core/src/main/java</source>
+                                <source>${oshi.core.basedir}/src/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -116,24 +116,20 @@
                         <phase>generate-test-sources</phase>
                         <configuration>
                             <sources>
-                                <source>../oshi-core/src/test/java</source>
+                                <source>${oshi.core.basedir}/src/test/java</source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
-    </build>
-    <reporting>
-        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <sourcepath>../oshi-core/src/main/java</sourcepath>
+                    <source>11</source>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>
-    </reporting>
+    </build>
 </project>

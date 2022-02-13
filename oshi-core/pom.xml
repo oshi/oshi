@@ -23,10 +23,6 @@
         <url>https://github.com/oshi/oshi.git</url>
     </scm>
 
-    <properties>
-        <main.basedir>${project.parent.basedir}</main.basedir>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <!-- Due to critical nature of OSHI jna usage, set to dependency management to help influence usage -->

@@ -24,7 +24,6 @@
     </scm>
 
     <properties>
-        <main.basedir>${project.parent.basedir}</main.basedir>
         <jackson.version>2.13.1</jackson.version>
         <jfreechart.version>1.5.3</jfreechart.version>
     </properties>

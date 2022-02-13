@@ -21,12 +21,8 @@
         <url>https://github.com/oshi/oshi.git</url>
     </scm>
 
-    <properties>
-        <main.basedir>${project.parent.basedir}</main.basedir>
-    </properties>
-
-    <!-- NOTE: These dependency declarations are only required to sort this project
-        to the end of the line in the multimodule build. -->
+    <!-- NOTE: These dependency declarations are only required to sort this project to the end of the line in the multimodule
+        build. -->
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
