@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-parent</artifactId>
-    <version>6.1.1</version>
+    <version>6.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
@@ -52,7 +51,7 @@
     <scm>
         <connection>scm:git:git@github.com:oshi/oshi.git</connection>
         <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
-        <tag>oshi-parent-6.1.1</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/oshi/oshi.git</url>
     </scm>
     <issueManagement>
