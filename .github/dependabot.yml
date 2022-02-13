@@ -13,7 +13,10 @@ updates:
       versions:
       - "< 2.0.5"
       - ">= 2.0.4.a"
-      
+    - dependency-name: jakarta.xml.bind:jakarta.xml.bind-api
+      versions:
+      - ">=3.0.0"
+
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: github-actions
     directory: "/"
