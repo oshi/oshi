@@ -9,10 +9,6 @@ updates:
     schedule:
       interval: daily
     ignore:
-    - dependency-name: net.trajano.wagon:wagon-git
-      versions:
-      - "< 2.0.5"
-      - ">= 2.0.4.a"
     - dependency-name: jakarta.xml.bind:jakarta.xml.bind-api
       versions:
       - ">=3.0.0"
@@ -22,4 +18,3 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      
