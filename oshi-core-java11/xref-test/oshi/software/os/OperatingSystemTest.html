@@ -425,52 +425,55 @@
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>             }
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>         }
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>         <em class="jxr_comment">// Should be at least one of each</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         assertThat(<span class="jxr_string">"There should be at least 1 stopped service"</span>, stopped, is(greaterThan(0)));
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         assertThat(<span class="jxr_string">"There should be at least 1 running service"</span>, running, is(greaterThan(0)));
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>     }
-<a class="jxr_linenumber" name="L423" href="#L423">423</a> 
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     * Tests sessions getter</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>     @Test
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <strong class="jxr_keyword">void</strong> testGetSessions() {
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">for</strong> (OSSession sess : os.getSessions()) {
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             assertThat(<span class="jxr_string">"Logged in user's name for the session shouldn't be empty"</span>, sess.getUserName(),
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>                     is(not(emptyString())));
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             assertThat(<span class="jxr_string">"Sessions' terminal device name shouldn't be empty"</span>, sess.getTerminalDevice(),
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>                     is(not(emptyString())));
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>             <em class="jxr_comment">// Login time</em>
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>             assertThat(
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>                     String.format(<span class="jxr_string">"Logon time should be before now: %d &lt; %d%n%s"</span>, sess.getLoginTime(),
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>                             System.currentTimeMillis(), sess),
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>                     sess.getLoginTime(), is(lessThanOrEqualTo(System.currentTimeMillis())));
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>             assertThat(<span class="jxr_string">"Session host shouldn't be null"</span>, sess.getHost(), is(notNullValue()));
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         }
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     }
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">     * Test get desktop windows</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>     @Test
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>     <strong class="jxr_keyword">void</strong> testGetDesktopWindows() {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         List&lt;OSDesktopWindow&gt; allWindows = os.getDesktopWindows(false);
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>         List&lt;OSDesktopWindow&gt; visibleWindows = os.getDesktopWindows(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         assertThat(<span class="jxr_string">"Visible should be a subset of all windows"</span>, visibleWindows.size(),
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>                 is(lessThanOrEqualTo(allWindows.size())));
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         Set&lt;Long&gt; windowIds = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">for</strong> (OSDesktopWindow dw : visibleWindows) {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>             assertThat(<span class="jxr_string">"Visible window should be visible"</span>, dw.isVisible(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>             assertThat(<span class="jxr_string">"Height should be nononegative"</span>, dw.getLocAndSize().height, is(greaterThanOrEqualTo(0)));
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>             assertThat(<span class="jxr_string">"Width should be nononegative"</span>, dw.getLocAndSize().width, is(greaterThanOrEqualTo(0)));
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>             windowIds.add(dw.getWindowId());
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         }
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         assertThat(<span class="jxr_string">"Window IDs should be unique"</span>, windowIds.size(), is(visibleWindows.size()));
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>     }
-<a class="jxr_linenumber" name="L465" href="#L465">465</a> }
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <em class="jxr_comment">// macOS CI typically has none, though</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <strong class="jxr_keyword">if</strong> (!Platform.isMac()) {
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>             assertThat(<span class="jxr_string">"There should be at least 1 stopped service"</span>, stopped, is(greaterThan(0)));
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>             assertThat(<span class="jxr_string">"There should be at least 1 running service"</span>, running, is(greaterThan(0)));
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         }
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     }
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * Tests sessions getter</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     @Test
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">void</strong> testGetSessions() {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <strong class="jxr_keyword">for</strong> (OSSession sess : os.getSessions()) {
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             assertThat(<span class="jxr_string">"Logged in user's name for the session shouldn't be empty"</span>, sess.getUserName(),
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>                     is(not(emptyString())));
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             assertThat(<span class="jxr_string">"Sessions' terminal device name shouldn't be empty"</span>, sess.getTerminalDevice(),
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>                     is(not(emptyString())));
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>             <em class="jxr_comment">// Login time</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>             assertThat(
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>                     String.format(<span class="jxr_string">"Logon time should be before now: %d &lt; %d%n%s"</span>, sess.getLoginTime(),
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>                             System.currentTimeMillis(), sess),
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>                     sess.getLoginTime(), is(lessThanOrEqualTo(System.currentTimeMillis())));
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>             assertThat(<span class="jxr_string">"Session host shouldn't be null"</span>, sess.getHost(), is(notNullValue()));
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>         }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>     }
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> 
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">     * Test get desktop windows</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     @Test
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <strong class="jxr_keyword">void</strong> testGetDesktopWindows() {
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         List&lt;OSDesktopWindow&gt; allWindows = os.getDesktopWindows(false);
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         List&lt;OSDesktopWindow&gt; visibleWindows = os.getDesktopWindows(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         assertThat(<span class="jxr_string">"Visible should be a subset of all windows"</span>, visibleWindows.size(),
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>                 is(lessThanOrEqualTo(allWindows.size())));
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         Set&lt;Long&gt; windowIds = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         <strong class="jxr_keyword">for</strong> (OSDesktopWindow dw : visibleWindows) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>             assertThat(<span class="jxr_string">"Visible window should be visible"</span>, dw.isVisible(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>             assertThat(<span class="jxr_string">"Height should be nononegative"</span>, dw.getLocAndSize().height, is(greaterThanOrEqualTo(0)));
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>             assertThat(<span class="jxr_string">"Width should be nononegative"</span>, dw.getLocAndSize().width, is(greaterThanOrEqualTo(0)));
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>             windowIds.add(dw.getWindowId());
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         assertThat(<span class="jxr_string">"Window IDs should be unique"</span>, windowIds.size(), is(visibleWindows.size()));
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
+<a class="jxr_linenumber" name="L468" href="#L468">468</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

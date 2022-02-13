@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<licensePluginReport goal="FORMAT" timestamp="1644515658596">
+<licensePluginReport goal="FORMAT" timestamp="1644772840850">
     <module artifactId="oshi-core" groupId="com.github.oshi" version="6.1.1-SNAPSHOT"/>
     <files>
         <file path="src/main/java/oshi/PlatformEnum.java" result="NOOP"/>
@@ -410,9 +410,17 @@
         <file path="src/test/java/oshi/driver/unix/WhoTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/unix/XrandrTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/unix/XwinInfoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/aix/LsDevicesTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/aix/LssradTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/aix/PsInfoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/aix/UptimeAndBootTimeTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/aix/perfstat/PerfstatTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/unix/freebsd/WhoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/freebsd/disk/DiskDriversTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/openbsd/disk/DisklabelTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/unix/solaris/PsInfoTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/unix/solaris/WhoTest.java" result="NOOP"/>
+        <file path="src/test/java/oshi/driver/unix/solaris/disk/DiskDriversTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/unix/solaris/kstat/SystemPagesTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/windows/DeviceTreeTest.java" result="NOOP"/>
         <file path="src/test/java/oshi/driver/windows/EnumWindowsTest.java" result="NOOP"/>

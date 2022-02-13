@@ -42,8 +42,9 @@ public final class Uptime {
 
     // sample format:
     // 18:36pm up 10 days 8:11, 2 users, load average: 3.14, 2.74, 2.41
-<span class="nc" id="L45">    private static final Pattern UPTIME_FORMAT_AIX = Pattern</span>
-<span class="nc" id="L46">            .compile(&quot;.*\\sup\\s+((\\d+)\\s+days?,?\\s+)?\\b((\\d+):)?(\\d+)(\\s+min(utes?)?)?,\\s+\\d+\\s+user.+&quot;);</span>
+
+<span class="nc" id="L46">    private static final Pattern UPTIME_FORMAT_AIX = Pattern</span>
+<span class="nc" id="L47">            .compile(&quot;.*\\sup\\s+((\\d+)\\s+days?,?\\s+)?\\b((\\d+):)?(\\d+)(\\s+min(utes?)?)?,\\s+\\d+\\s+user.+&quot;); // NOSONAR:squid:S5843</span>
 
     private Uptime() {
     }
@@ -54,19 +55,19 @@ public final class Uptime {
      * @return Up time in milliseconds
      */
     public static long queryUpTime() {
-<span class="nc" id="L57">        long uptime = 0L;</span>
-<span class="nc" id="L58">        String s = ExecutingCommand.getFirstAnswer(&quot;/usr/bin/uptime&quot;);</span>
-<span class="nc" id="L59">        Matcher m = UPTIME_FORMAT_AIX.matcher(s);</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (m.matches()) {</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (m.group(2) != null) {</span>
-<span class="nc" id="L62">                uptime += ParseUtil.parseLongOrDefault(m.group(2), 0L) * DAY_MS;</span>
+<span class="nc" id="L58">        long uptime = 0L;</span>
+<span class="nc" id="L59">        String s = ExecutingCommand.getFirstAnswer(&quot;/usr/bin/uptime&quot;);</span>
+<span class="nc" id="L60">        Matcher m = UPTIME_FORMAT_AIX.matcher(s);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (m.group(2) != null) {</span>
+<span class="nc" id="L63">                uptime += ParseUtil.parseLongOrDefault(m.group(2), 0L) * DAY_MS;</span>
             }
-<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (m.group(4) != null) {</span>
-<span class="nc" id="L65">                uptime += ParseUtil.parseLongOrDefault(m.group(4), 0L) * HOUR_MS;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (m.group(4) != null) {</span>
+<span class="nc" id="L66">                uptime += ParseUtil.parseLongOrDefault(m.group(4), 0L) * HOUR_MS;</span>
             }
-<span class="nc" id="L67">            uptime += ParseUtil.parseLongOrDefault(m.group(5), 0L) * MINUTE_MS;</span>
+<span class="nc" id="L68">            uptime += ParseUtil.parseLongOrDefault(m.group(5), 0L) * MINUTE_MS;</span>
         }
-<span class="nc" id="L69">        return uptime;</span>
+<span class="nc" id="L70">        return uptime;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

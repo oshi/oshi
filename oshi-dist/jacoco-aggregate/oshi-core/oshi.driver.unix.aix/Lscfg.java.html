@@ -109,13 +109,21 @@ public final class Lscfg {
 <span class="nc" id="L109">        String model = null;</span>
 <span class="nc" id="L110">        String serial = null;</span>
 <span class="nc bnc" id="L111" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;lscfg -vl &quot; + device)) {</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (s.contains(modelMarker)) {</span>
-<span class="nc" id="L113">                model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            } else if (s.contains(serialMarker)) {</span>
-<span class="nc" id="L115">                serial = ParseUtil.removeLeadingDots(s.split(serialMarker)[1].trim());</span>
+            // Default model to description at end of first line
+<span class="nc bnc" id="L113" title="All 4 branches missed.">            if (model == null &amp;&amp; s.contains(device)) {</span>
+<span class="nc" id="L114">                String locDesc = s.split(device)[1].trim();</span>
+<span class="nc" id="L115">                int idx = locDesc.indexOf(' ');</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (idx &gt; 0) {</span>
+<span class="nc" id="L117">                    model = locDesc.substring(idx).trim();</span>
+                }
             }
-<span class="nc" id="L117">        }</span>
-<span class="nc" id="L118">        return new Pair&lt;&gt;(model, serial);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (s.contains(modelMarker)) {</span>
+<span class="nc" id="L121">                model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            } else if (s.contains(serialMarker)) {</span>
+<span class="nc" id="L123">                serial = ParseUtil.removeLeadingDots(s.split(serialMarker)[1].trim());</span>
+            }
+<span class="nc" id="L125">        }</span>
+<span class="nc" id="L126">        return new Pair&lt;&gt;(model, serial);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
