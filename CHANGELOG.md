@@ -1,8 +1,8 @@
-# 6.1.2 (in progress)
+# 6.1.3 (in progress)
 
 * Your contribution here
 
-# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13)
+# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14)
 
 ##### New Features
 * [#1851](https://github.com/oshi/oshi/pull/1851),
@@ -20,6 +20,7 @@
 * [#1889](https://github.com/oshi/oshi/pull/1889): Improved calculation of AIX disk reads and writes - [@siddhantdixit](https://github.com/siddhantdixit).
 * [#1898](https://github.com/oshi/oshi/pull/1898): Fix Solaris Utmpx structure mapping - [@dbwiddis](https://github.com/dbwiddis).
 * [#1909](https://github.com/oshi/oshi/pull/1909): Move configuration string constants to GlobalConfig - [@dbwiddis](https://github.com/dbwiddis).
+* [#1933](https://github.com/oshi/oshi/pull/1933): Remove malformed DOCTYPE tags in 6.1.1 release POM files - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Artifact Removal
 * [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).
