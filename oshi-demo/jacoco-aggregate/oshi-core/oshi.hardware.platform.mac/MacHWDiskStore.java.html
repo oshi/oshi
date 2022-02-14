@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacHWDiskStore.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacHWDiskStore.java</span></div><h1>MacHWDiskStore.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -268,9 +268,9 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
 <span class="nc" id="L268">                                Integer bsdMajor = sdService.getIntegerProperty(&quot;BSD Major&quot;);</span>
 <span class="nc" id="L269">                                Integer bsdMinor = sdService.getIntegerProperty(&quot;BSD Minor&quot;);</span>
 <span class="nc" id="L270">                                String uuid = sdService.getStringProperty(&quot;UUID&quot;);</span>
-<span class="nc" id="L271">                                partitions.add(new HWPartition(partBsdName, name, type,</span>
-<span class="nc bnc" id="L272" title="All 4 branches missed.">                                        uuid == null ? Constants.UNKNOWN : uuid, size == null ? 0L : size,</span>
-<span class="nc bnc" id="L273" title="All 4 branches missed.">                                        bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));</span>
+<span class="nc bnc" id="L271" title="All 4 branches missed.">                                partitions.add(new HWPartition(partBsdName, name, type,</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">                                        uuid == null ? Constants.UNKNOWN : uuid, size == null ? 0L : size,</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                                        bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));</span>
                                 // iterate
 <span class="nc" id="L275">                                sdService.release();</span>
 <span class="nc" id="L276">                                sdService = IOKit.INSTANCE.IOIteratorNext(serviceIterator);</span>

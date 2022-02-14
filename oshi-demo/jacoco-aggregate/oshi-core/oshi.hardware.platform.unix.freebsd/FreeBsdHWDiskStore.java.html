@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdHWDiskStore.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdHWDiskStore.java</span></div><h1>FreeBsdHWDiskStore.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -153,7 +153,7 @@ public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
 <span class="nc bnc" id="L153" title="All 4 branches missed.">            if (split.length &gt; 6 &amp;&amp; devices.contains(split[0])) {</span>
 <span class="nc" id="L154">                Triplet&lt;String, String, Long&gt; storeInfo = diskInfoMap.get(split[0]);</span>
 <span class="nc bnc" id="L155" title="All 2 branches missed.">                FreeBsdHWDiskStore store = (storeInfo == null)</span>
-<span class="nc" id="L156">                        ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)</span>
+                        ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
 <span class="nc" id="L157">                        : new FreeBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());</span>
 <span class="nc" id="L158">                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);</span>
 <span class="nc" id="L159">                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);</span>
