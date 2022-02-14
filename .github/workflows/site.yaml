@@ -19,7 +19,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 11
+          java-version: 8
           distribution: 'zulu'
       - uses: webfactory/ssh-agent@master
         with:

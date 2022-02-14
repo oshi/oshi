@@ -453,7 +453,6 @@
                                     <exclude>**/*.yml</exclude>
                                     <exclude>**/*.yaml</exclude>
                                     <exclude>**/cov-analysis*/**</exclude>
-                                    <exclude>**/checkout/**</exclude>
                                 </excludes>
                             </licenseSet>
                         </licenseSets>
@@ -721,18 +720,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>com.github.ekryd.sortpom</groupId>
                 <artifactId>sortpom-maven-plugin</artifactId>
                 <version>${sortpom-plugin.version}</version>
@@ -744,7 +731,6 @@
                     <nrOfIndentSpace>4</nrOfIndentSpace>
                     <expandEmptyElements>false</expandEmptyElements>
                     <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
-                    <indentSchemaLocation>true</indentSchemaLocation>
                 </configuration>
                 <executions>
                     <execution>
