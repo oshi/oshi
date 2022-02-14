@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        java: [8,11]
+        java: [8, 11]
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
     steps:
@@ -33,5 +33,8 @@ jobs:
       - name: Checkstyle
         if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
         run: ./mvnw checkstyle:check
+      - name: Checkstyle
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
+        run: git fetch --unshallow && ./mvnw license:check
       - name: Test with Maven
         run: ./mvnw test -B -D"license.skip=true"

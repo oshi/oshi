@@ -37,6 +37,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Test with Maven
-        run: ./mvnw test -B  -Dlicense.skip=true
+        run: ./mvnw test -B -Dlicense.skip=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
