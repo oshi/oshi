@@ -1149,6 +1149,14 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Skip license plugin during release as maven release is now shallow cloned -->
+                    <plugin>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
