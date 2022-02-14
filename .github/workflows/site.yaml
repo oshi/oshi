@@ -12,7 +12,7 @@ on:
       
 jobs:
   build:
-    if: github.repository_owner == 'oshi' && ! contains(toJSON(github.event.head_commit.message), '[maven-release-plugin]')
+    if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
