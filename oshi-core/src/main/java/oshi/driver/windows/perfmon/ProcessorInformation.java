@@ -56,8 +56,8 @@ public final class ProcessorInformation {
 
     public static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
-    private static final Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> INITIAL_CAPACITY_TICKS = USE_CPU_UTILITY
-            ? queryProcessorCapacityCounters()
+    private static final Map<ProcessorCapacityTickCountProperty, List<Long>> INITIAL_CAPACITY_TICKS = USE_CPU_UTILITY
+            ? queryProcessorCapacityCounters().getB()
             : null;
 
     /**
@@ -96,6 +96,7 @@ public final class ProcessorInformation {
         PERCENTINTERRUPTTIME("% Interrupt Time"), //
         PERCENTPRIVILEGEDTIME("% Privileged Time"), //
         PERCENTPROCESSORTIME("% Processor Time"), //
+        PERCENTPROCESSORTIME_BASE("% Processor Time_Base"), //
         PERCENTPRIVILEGEDUTILITY("% Privileged Utility"), //
         PERCENTPROCESSORUTILITY("% Processor Utility"), //
         PERCENTPROCESSORUTILITY_BASE("% Processor Utility_Base"), //
@@ -192,7 +193,7 @@ public final class ProcessorInformation {
      *
      * @return initial Performance Counters for processor capacity.
      */
-    public static Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> queryInitialProcessorCapacityCounters() {
+    public static Map<ProcessorCapacityTickCountProperty, List<Long>> queryInitialProcessorCapacityCounters() {
         return INITIAL_CAPACITY_TICKS;
     }
 
