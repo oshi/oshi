@@ -315,7 +315,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             softIrqList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTDPCTIME);
             // % Processor Time is actually Idle time
             idleList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORTIME);
-            baseList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORTIME_BASE);
+            baseList = valueMap.get(ProcessorCapacityTickCountProperty.TIMESTAMP_SYS100NS);
             // Utility ticks, if configured
             systemUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
             processorUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY);
@@ -324,7 +324,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                     .queryInitialProcessorCapacityCounters();
             initSystemList = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDTIME);
             initUserList = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTUSERTIME);
-            initBase = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORTIME_BASE);
+            initBase = initialMap.get(ProcessorCapacityTickCountProperty.TIMESTAMP_SYS100NS);
             // Utility ticks, if configured
             initSystemUtility = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
             initProcessorUtility = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY);
