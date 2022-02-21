@@ -74,8 +74,8 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     WindowsCentralProcessor() {
         super();
         if (ProcessorInformation.USE_CPU_UTILITY) {
-            // Force initial query for later use
-            ProcessorInformation.queryInitialProcessorCapacityCounters();
+            // This instance field call will also cause first ticks to be stored
+            LOG.debug("Using CPU Utility counters to match Task Manager output.");
         }
     }
 
@@ -286,12 +286,14 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
+        // These are used in all cases
         List<String> instances;
         List<Long> systemList;
         List<Long> userList;
         List<Long> irqList;
         List<Long> softIrqList;
         List<Long> idleList;
+        // These are only used with USE_CPU_UTILITY
         List<Long> baseList = null;
         List<Long> systemUtility = null;
         List<Long> processorUtility = null;
@@ -343,8 +345,11 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         int ncpu = getLogicalProcessorCount();
         long[][] ticks = new long[ncpu][TickType.values().length];
         if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null
-                || idleList == null || (ProcessorInformation.USE_CPU_UTILITY
-                        && (systemUtility == null || processorUtility == null || processorUtilityBase == null))) {
+                || idleList == null
+                || (ProcessorInformation.USE_CPU_UTILITY && (baseList == null || systemUtility == null
+                        || processorUtility == null || processorUtilityBase == null || initSystemList == null
+                        || initUserList == null || initBase == null || initSystemUtility == null
+                        || initProcessorUtility == null || initProcessorUtilityBase == null))) {
             return ticks;
         }
         for (int p = 0; p < instances.size(); p++) {
@@ -361,7 +366,6 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
 
             // If users want Task Manager output we have to do some math to get there
             if (ProcessorInformation.USE_CPU_UTILITY) {
-
                 // We have two new capacity numbers, processor (all but idle) and system
                 // (included in processor). To further complicate matters, these are in percent
                 // units so must be divided by 100.
