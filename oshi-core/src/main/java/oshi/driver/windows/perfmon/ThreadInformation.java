@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,9 @@
  */
 package oshi.driver.windows.perfmon;
 
+import static oshi.driver.windows.perfmon.PerfmonConstants.THREAD;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL;
+
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +40,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public final class ThreadInformation {
-
-    private static final String THREAD = "Thread";
-    private static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD = "Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \"%_Total\"";
 
     /**
      * Thread performance counters
@@ -81,6 +81,6 @@ public final class ThreadInformation {
      */
     public static Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> queryThreadCounters() {
         return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,
-                WIN32_PERF_RAW_DATA_PERF_PROC_THREAD);
+                WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 }

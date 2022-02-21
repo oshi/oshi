@@ -26,6 +26,24 @@ package oshi.driver.windows.perfmon;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.is;
+import static oshi.driver.windows.perfmon.PerfmonConstants.MEMORY;
+import static oshi.driver.windows.perfmon.PerfmonConstants.PAGING_FILE;
+import static oshi.driver.windows.perfmon.PerfmonConstants.PHYSICAL_DISK;
+import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESS;
+import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESSOR;
+import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION;
+import static oshi.driver.windows.perfmon.PerfmonConstants.SYSTEM;
+import static oshi.driver.windows.perfmon.PerfmonConstants.THREAD;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_MEMORY;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL;
 
 import java.util.List;
 import java.util.Map;
@@ -54,36 +72,6 @@ import oshi.util.tuples.Pair;
 
 @EnabledOnOs(OS.WINDOWS)
 class PerfmonDriversTest {
-
-    private static final String MEMORY = "Memory";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_MEMORY = "Win32_PerfRawData_PerfOS_Memory";
-
-    private static final String PAGING_FILE = "Paging File";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE = "Win32_PerfRawData_PerfOS_PagingFile";
-
-    private static final String PHYSICAL_DISK = "PhysicalDisk";
-    private static final String WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL = "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE Name!=\"_Total\"";
-
-    private static final String WIN32_PERFPROC_PROCESS = "Win32_PerfRawData_PerfProc_Process";
-    private static final String PROCESS = "Process";
-    private static final String WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
-            + " WHERE NOT Name LIKE \"%_Total\"";
-
-    private static final String PROCESSOR = "Processor";
-    private static final String PROCESSOR_INFORMATION = "Processor Information";
-
-    // For Win7+ ... NAME field includes NUMA nodes
-    private static final String WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE \"%_Total\"";
-
-    // For Vista- ... Older systems just have processor #
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL = "Win32_PerfRawData_PerfOS_Processor WHERE Name!=\"_Total\"";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL = "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"";
-
-    private static final String SYSTEM = "System";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
-
-    private static final String THREAD = "Thread";
-    private static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD = "Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \"%_Total\"";
 
     @Test
     void testQueryPageSwaps() {
@@ -184,8 +172,8 @@ class PerfmonDriversTest {
     void testQueryThreadCounters() {
         testWildcardCounters("PDH ThreadCounters",
                 PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ThreadPerformanceProperty.class, THREAD));
-        testWildcardCounters("WMI ThreadCounters", PerfCounterWildcardQuery
-                .queryInstancesAndValuesFromWMI(ThreadPerformanceProperty.class, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD));
+        testWildcardCounters("WMI ThreadCounters", PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(
+                ThreadPerformanceProperty.class, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL));
     }
 
     private <T extends PdhCounterWildcardProperty> void testWildcardCounters(String s,

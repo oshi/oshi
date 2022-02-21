@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,9 @@
  */
 package oshi.driver.windows.perfmon;
 
+import static oshi.driver.windows.perfmon.PerfmonConstants.PHYSICAL_DISK;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL;
+
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +40,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public final class PhysicalDisk {
-
-    private static final String PHYSICAL_DISK = "PhysicalDisk";
-    private static final String WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL = "Win32_PerfRawData_PerfDisk_PhysicalDisk WHERE Name!=\"_Total\"";
 
     /**
      * Physical Disk performance counters.

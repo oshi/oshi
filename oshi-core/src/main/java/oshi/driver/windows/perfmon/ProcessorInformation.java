@@ -23,6 +23,12 @@
  */
 package oshi.driver.windows.perfmon;
 
+import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESSOR;
+import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,16 +48,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public final class ProcessorInformation {
-
-    private static final String PROCESSOR = "Processor";
-    private static final String PROCESSOR_INFORMATION = "Processor Information";
-
-    // For Win7+ ... NAME field includes NUMA nodes
-    private static final String WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE \"%_Total\"";
-
-    // For Vista- ... Older systems just have processor #
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL = "Win32_PerfRawData_PerfOS_Processor WHERE Name!=\"_Total\"";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL = "Win32_PerfRawData_PerfOS_Processor WHERE Name=\"_Total\"";
 
     private static final boolean IS_WIN7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 

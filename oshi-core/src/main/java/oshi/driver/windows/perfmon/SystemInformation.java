@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,9 @@
  */
 package oshi.driver.windows.perfmon;
 
+import static oshi.driver.windows.perfmon.PerfmonConstants.SYSTEM;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM;
+
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -34,9 +37,6 @@ import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
  */
 @ThreadSafe
 public final class SystemInformation {
-
-    private static final String SYSTEM = "System";
-    private static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
 
     /**
      * Context switch property
