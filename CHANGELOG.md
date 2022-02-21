@@ -1,6 +1,7 @@
 # 6.1.3 (in progress)
 
-* Your contribution here
+* [#1937](https://github.com/oshi/oshi/pull/1937),
+* [#1939](https://github.com/oshi/oshi/pull/1939): Make Processor Capacity calculations robust to edge cases - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14)
 
