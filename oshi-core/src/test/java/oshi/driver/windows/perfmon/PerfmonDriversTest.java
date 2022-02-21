@@ -42,6 +42,7 @@ import oshi.driver.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
 import oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
+import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorCapacityTickCountProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
@@ -139,6 +140,12 @@ class PerfmonDriversTest {
                     .queryInstancesAndValuesFromPDH(ProcessorTickCountProperty.class, PROCESSOR_INFORMATION));
             testWildcardCounters("WMI ProcessorCounters",
                     PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorTickCountProperty.class,
+                            WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
+
+            testWildcardCounters("PDH ProcessorCapacityCounters", PerfCounterWildcardQuery
+                    .queryInstancesAndValuesFromPDH(ProcessorCapacityTickCountProperty.class, PROCESSOR_INFORMATION));
+            testWildcardCounters("WMI ProcessorCapacityCounters",
+                    PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorCapacityTickCountProperty.class,
                             WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
         }
     }

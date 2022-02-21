@@ -23,6 +23,7 @@
  */
 package oshi.driver.windows.perfmon;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public final class ProcessorInformation {
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
     private static final Map<ProcessorCapacityTickCountProperty, List<Long>> INITIAL_CAPACITY_TICKS = USE_CPU_UTILITY
             ? queryProcessorCapacityCounters().getB()
-            : null;
+            : Collections.emptyMap();
 
     /**
      * Processor performance counters
@@ -181,9 +182,6 @@ public final class ProcessorInformation {
      * @return Performance Counters for processor capacity.
      */
     public static Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> queryProcessorCapacityCounters() {
-        if (!USE_CPU_UTILITY) {
-            return null;
-        }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorCapacityTickCountProperty.class,
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
