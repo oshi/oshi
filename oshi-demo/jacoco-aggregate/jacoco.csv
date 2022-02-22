@@ -61,13 +61,14 @@ oshi-demo/oshi-core,oshi.software.os.mac,MacInternetProtocolStats,763,0,58,0,145
 oshi-demo/oshi-core,oshi.software.os.mac,MacFileSystem,470,0,56,0,102,0,36,0,8,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,MemoryInformation.PageSwapProperty,45,0,0,0,9,0,4,0,4,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessInformation,10,0,0,0,2,0,2,0,2,0
+oshi-demo/oshi-core,oshi.driver.windows.perfmon,PerfmonConstants,6,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessorInformation.InterruptsProperty,33,0,0,0,8,0,4,0,4,0
-oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessorInformation.ProcessorCapacityTickCountProperty,114,0,0,0,14,0,3,0,3,0
+oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessorInformation.ProcessorCapacityTickCountProperty,125,0,0,0,15,0,3,0,3,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,PagingFile.PagingPercentProperty,33,0,0,0,8,0,4,0,4,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessorInformation.ProcessorFrequencyProperty,37,0,0,0,7,0,3,0,3,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,SystemInformation,5,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,ThreadInformation,5,0,0,0,1,0,1,0,1,0
-oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessorInformation,52,0,10,0,13,0,11,0,6,0
+oshi-demo/oshi-core,oshi.driver.windows.perfmon,ProcessorInformation,50,0,8,0,12,0,10,0,6,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,MemoryInformation,5,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,PhysicalDisk,5,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,PagingFile,5,0,0,0,1,0,1,0,1,0
@@ -258,7 +259,7 @@ oshi-demo/oshi-core,oshi.hardware.platform.unix,UnixDisplay,12,0,0,0,3,0,2,0,2,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix,UnixBaseboard,27,0,0,0,10,0,5,0,5,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix,BsdNetworkIF,155,0,4,0,36,0,16,0,14,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsFirmware,116,0,12,0,24,0,13,0,7,0
-oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,1138,0,92,0,205,0,59,0,13,0
+oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsCentralProcessor,1010,0,100,0,185,0,63,0,13,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsBaseboard,96,0,10,0,19,0,11,0,6,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsUsbDevice,268,0,26,0,59,0,20,0,7,0
 oshi-demo/oshi-core,oshi.hardware.platform.windows,WindowsGlobalMemory,324,0,61,0,96,0,66,0,11,0
