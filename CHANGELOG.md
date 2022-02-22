@@ -1,9 +1,8 @@
-# 6.1.3 (in progress)
+# 6.1.4 (in progress)
 
-* [#1937](https://github.com/oshi/oshi/pull/1937),
-  [#1939](https://github.com/oshi/oshi/pull/1939): Make Processor Capacity calculations robust to edge cases - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
 
-# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14)
+# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22)
 
 ##### New Features
 * [#1851](https://github.com/oshi/oshi/pull/1851),
@@ -22,6 +21,8 @@
 * [#1898](https://github.com/oshi/oshi/pull/1898): Fix Solaris Utmpx structure mapping - [@dbwiddis](https://github.com/dbwiddis).
 * [#1909](https://github.com/oshi/oshi/pull/1909): Move configuration string constants to GlobalConfig - [@dbwiddis](https://github.com/dbwiddis).
 * [#1933](https://github.com/oshi/oshi/pull/1933): Remove malformed DOCTYPE tags in 6.1.1 release POM files - [@dbwiddis](https://github.com/dbwiddis).
+* [#1937](https://github.com/oshi/oshi/pull/1937),
+  [#1939](https://github.com/oshi/oshi/pull/1939): Make Processor Capacity calculations robust to edge cases - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Artifact Removal
 * [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).
