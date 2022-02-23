@@ -150,12 +150,7 @@ public interface SolarisLibc extends CLibrary {
 
         public SolarisPsInfo(byte[] bytes) {
             super();
-            // Truncate bytes and pad with 0 if necessary
-            byte[] structBytes = new byte[size()];
-            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);
-            // Write bytes to native
-            this.getPointer().write(0, structBytes, 0, structBytes.length);
-            // Read bytes to struct
+            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
             read();
         }
     }
@@ -201,12 +196,7 @@ public interface SolarisLibc extends CLibrary {
 
         public SolarisLwpsInfo(byte[] bytes) {
             super();
-            // Truncate bytes and pad with 0 if necessary
-            byte[] structBytes = new byte[size()];
-            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);
-            // Write bytes to native
-            this.getPointer().write(0, structBytes, 0, structBytes.length);
-            // Read bytes to struct
+            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
             read();
         }
     }
@@ -256,12 +246,7 @@ public interface SolarisLibc extends CLibrary {
 
         public SolarisPrUsage(byte[] bytes) {
             super();
-            // Truncate bytes and pad with 0 if necessary
-            byte[] structBytes = new byte[size()];
-            System.arraycopy(bytes, 0, structBytes, 0, structBytes.length);
-            // Write bytes to native
-            this.getPointer().write(0, structBytes, 0, structBytes.length);
-            // Read bytes to struct
+            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
             read();
         }
     }
