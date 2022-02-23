@@ -71,8 +71,8 @@ public final class KstatUtil {
      * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
      * one thread may actively use this object at any time.
      * <p>
-     * Instantiating this object is accomplished using the
-     * {@link KstatUtil#openChain} method. It locks and updates the chain and is the
+     * The chain is created once using the {@link KstatUtil#openChain} method.
+     * Instantiating this object (after locking) updates the chain and is the
      * equivalent of calling {@link LibKstat#kstat_open}. The control object should
      * be closed with {@link #close}, the equivalent of calling
      * {@link LibKstat#kstat_close}
@@ -80,7 +80,6 @@ public final class KstatUtil {
     public static final class KstatChain implements AutoCloseable {
 
         private KstatChain() {
-            CHAIN.lock();
             update();
         }
 
@@ -186,12 +185,13 @@ public final class KstatUtil {
     }
 
     /**
-     * Create a copy of the Kstat chain and lock it for use by this object.
+     * Lock the Kstat chain for use by this object until it's closed.
      *
      * @return A locked copy of the chain. It should be unlocked/released when you
      *         are done with it with {@link KstatChain#close()}.
      */
     public static KstatChain openChain() {
+        CHAIN.lock();
         return new KstatChain();
     }
 
