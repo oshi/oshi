@@ -123,6 +123,36 @@ public final class FileUtil {
     }
 
     /**
+     * Read an entire file at one time. Intended primarily for Linux /proc
+     * filesystem to avoid recalculating file contents on iterative reads.
+     *
+     * @param filename
+     *            The file to read
+     * @param reportError
+     *            Whether to log errors reading the file
+     * @return A byte array representing the file
+     */
+    public static byte[] readAllBytes(String filename, boolean reportError) {
+        if (new File(filename).canRead()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(READING_LOG, filename);
+            }
+            try {
+                return Files.readAllBytes(Paths.get(filename));
+            } catch (IOException e) {
+                if (reportError) {
+                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                } else {
+                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
+                }
+            }
+        } else if (reportError) {
+            LOG.warn("File not found or not readable: {}", filename);
+        }
+        return new byte[0];
+    }
+
+    /**
      * Read an entire file at one time. Intended for unix /proc binary files to
      * avoid reading file contents on iterative reads.
      *
@@ -250,36 +280,6 @@ public final class FileUtil {
             return Native.POINTER_SIZE == 4 ? new Pointer(buff.getInt()) : new Pointer(buff.getLong());
         }
         return Pointer.NULL;
-    }
-
-    /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
-     *
-     * @param filename
-     *            The file to read
-     * @param reportError
-     *            Whether to log errors reading the file
-     * @return A byte array representing the file
-     */
-    public static byte[] readAllBytes(String filename, boolean reportError) {
-        if (new File(filename).canRead()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(READING_LOG, filename);
-            }
-            try {
-                return Files.readAllBytes(Paths.get(filename));
-            } catch (IOException e) {
-                if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
-                } else {
-                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
-                }
-            }
-        } else if (reportError) {
-            LOG.warn("File not found or not readable: {}", filename);
-        }
-        return new byte[0];
     }
 
     /**
