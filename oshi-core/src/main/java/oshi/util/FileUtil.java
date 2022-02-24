@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,6 +44,8 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -113,6 +117,51 @@ public final class FileUtil {
      */
     public static byte[] readAllBytes(String filename) {
         return readAllBytes(filename, true);
+    }
+
+    /**
+     * Read an entire file at one time. Intended for unix /proc binary files to
+     * avoid reading file contents on iterative reads.
+     *
+     *
+     * @param filename
+     *            The file to read
+     * @param endiannessOffset
+     *            A byte to check for endianness.
+     *            <p>
+     *            This method assumes the value of the this byte can be used to
+     *            detect endianness, so choose an offset in bytes that should
+     *            contain a small positive integer; if this byte is nonzero the
+     *            buffer is Little Endian, otherwise it is Big Endian.
+     * @return A bytebuffer representing the file if read was successful; null
+     *         otherwise
+     */
+    public static ByteBuffer readAllBytesAsBuffer(String filename, int endiannessOffset) {
+        byte[] bytes = readAllBytes(filename, false);
+        if (bytes.length <= endiannessOffset) {
+            return null;
+        }
+        ByteBuffer buff = ByteBuffer.allocate(bytes.length);
+        buff.order(bytes[endiannessOffset] == 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+        for (byte b : bytes) {
+            buff.put(b);
+        }
+        buff.flip();
+        return buff;
+    }
+
+    /**
+     * Reads a NativeLong value from a ByteBuffer as an int.
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next value
+     */
+    public static long readNativeLongFromBuffer(ByteBuffer buff) {
+        if (buff.position() <= buff.limit() - Native.LONG_SIZE) {
+            return Native.LONG_SIZE == 4 ? buff.getInt() : buff.getLong();
+        }
+        return 0L;
     }
 
     /**
