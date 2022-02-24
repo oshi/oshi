@@ -1,5 +1,7 @@
 # 6.1.4 (in progress)
 
+##### Bug fixes / Improvements
+* [#1944](https://github.com/oshi/oshi/pull/1944): Get page size, hz, and feature bits from Linux aux vector - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22)
