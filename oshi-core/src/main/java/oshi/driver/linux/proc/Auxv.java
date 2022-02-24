@@ -48,6 +48,13 @@ public final class Auxv {
     public static final int AT_HWCAP = 16; // arch dependent hints at CPU capabilities
     public static final int AT_CLKTCK = 17; // frequency at which times() increments
 
+    /**
+     * Retrieve the auxiliary vector for the current process
+     *
+     * @return A map of auxiliary vector keys to their respective values
+     * @see <a href=
+     *      "https://github.com/torvalds/linux/blob/v3.19/include/uapi/linux/auxvec.h">auxvec.h</a>
+     */
     public static Map<Integer, Long> queryAuxv() {
         byte[] auxv = FileUtil.readAllBytes(ProcPath.AUXV);
         if (auxv.length > 0) {
