@@ -70,12 +70,4 @@ public final class Auxv {
         }
         return Collections.emptyMap();
     }
-
-    public static void main(String[] args) {
-        Map<Integer, Long> auxvMap = queryAuxv();
-        System.out.println("Page size: " + auxvMap.get(AT_PAGESZ));
-        System.out.println("Clock tck: " + auxvMap.get(AT_CLKTCK));
-        System.out.format("Cpu bits:  %8x%n", auxvMap.get(AT_HWCAP));
-    }
-
 }
