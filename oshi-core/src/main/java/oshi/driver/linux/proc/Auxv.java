@@ -24,12 +24,8 @@
 package oshi.driver.linux.proc;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.sun.jna.Native; // NOSONAR squid:S1191
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
@@ -56,25 +52,16 @@ public final class Auxv {
      *      "https://github.com/torvalds/linux/blob/v3.19/include/uapi/linux/auxvec.h">auxvec.h</a>
      */
     public static Map<Integer, Long> queryAuxv() {
-        byte[] auxv = FileUtil.readAllBytes(ProcPath.AUXV);
-        if (auxv.length > 0) {
-            ByteBuffer buff = ByteBuffer.allocate(auxv.length);
-            buff.order(auxv[0] > 0 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-            for (byte b : auxv) {
-                buff.put(b);
+        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(ProcPath.AUXV);
+        Map<Integer, Long> auxvMap = new HashMap<>();
+        int key;
+        do {
+            key = FileUtil.readNativeLongFromBuffer(buff).intValue();
+            if (key > 0) {
+                auxvMap.put(key, FileUtil.readNativeLongFromBuffer(buff).longValue());
             }
-            buff.flip();
+        } while (key > 0);
+        return auxvMap;
 
-            int key = 0;
-            Map<Integer, Long> auxvMap = new HashMap<>();
-            while (buff.position() <= buff.limit() - 2 * Native.LONG_SIZE) {
-                key = Native.LONG_SIZE == 4 ? buff.getInt() : (int) buff.getLong();
-                if (key > 0) {
-                    auxvMap.put(key, Native.LONG_SIZE == 4 ? buff.getInt() : buff.getLong());
-                }
-            }
-            return auxvMap;
-        }
-        return Collections.emptyMap();
     }
 }

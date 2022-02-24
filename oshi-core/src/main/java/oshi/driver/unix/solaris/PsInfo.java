@@ -23,10 +23,6 @@
  */
 package oshi.driver.unix.solaris;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +43,7 @@ import oshi.jna.platform.unix.SolarisLibc.SolarisLwpsInfo;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
@@ -74,12 +71,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested process
      */
     public static SolarisPsInfo queryPsInfo(int pid) {
-        Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
-        try {
-            return new SolarisPsInfo(Files.readAllBytes(path));
-        } catch (IOException e) {
-            return null;
-        }
+        return new SolarisPsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/psinfo", pid)));
     }
 
     /**
@@ -92,12 +84,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested thread
      */
     public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
-        Path path = Paths.get(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid));
-        try {
-            return new SolarisLwpsInfo(Files.readAllBytes(path));
-        } catch (IOException e) {
-            return null;
-        }
+        return new SolarisLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
     }
 
     /**
@@ -108,12 +95,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested process
      */
     public static SolarisPrUsage queryPrUsage(int pid) {
-        Path path = Paths.get(String.format("/proc/%d/usage", pid));
-        try {
-            return new SolarisPrUsage(Files.readAllBytes(path));
-        } catch (IOException e) {
-            return null;
-        }
+        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/usage", pid)));
     }
 
     /**
@@ -126,12 +108,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested thread
      */
     public static SolarisPrUsage queryPrUsage(int pid, int tid) {
-        Path path = Paths.get(String.format("/proc/%d/lwp/%d/usage", pid, tid));
-        try {
-            return new SolarisPrUsage(Files.readAllBytes(path));
-        } catch (IOException e) {
-            return null;
-        }
+        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/lwp/%d/usage", pid, tid)));
     }
 
     /**

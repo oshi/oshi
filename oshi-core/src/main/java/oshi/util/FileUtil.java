@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,6 +44,11 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -143,6 +150,136 @@ public final class FileUtil {
             LOG.warn("File not found or not readable: {}", filename);
         }
         return new byte[0];
+    }
+
+    /**
+     * Read an entire file at one time. Intended for unix /proc binary files to
+     * avoid reading file contents on iterative reads.
+     *
+     *
+     * @param filename
+     *            The file to read
+     * @return A bytebuffer representing the file if read was successful; null
+     *         otherwise
+     */
+    public static ByteBuffer readAllBytesAsBuffer(String filename) {
+        byte[] bytes = readAllBytes(filename, false);
+        ByteBuffer buff = ByteBuffer.allocate(bytes.length);
+        buff.order(ByteOrder.nativeOrder());
+        for (byte b : bytes) {
+            buff.put(b);
+        }
+        buff.flip();
+        return buff;
+    }
+
+    /**
+     * Reads a byte value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next byte value
+     */
+    public static byte readByteFromBuffer(ByteBuffer buff) {
+        if (buff.position() < buff.limit()) {
+            return buff.get();
+        }
+        return 0;
+    }
+
+    /**
+     * Reads a short value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next short value
+     */
+    public static short readShortFromBuffer(ByteBuffer buff) {
+        if (buff.position() <= buff.limit() - 2) {
+            return buff.getShort();
+        }
+        return 0;
+    }
+
+    /**
+     * Reads an int value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next int value
+     */
+    public static int readIntFromBuffer(ByteBuffer buff) {
+        if (buff.position() <= buff.limit() - 4) {
+            return buff.getInt();
+        }
+        return 0;
+    }
+
+    /**
+     * Reads a long value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next long value
+     */
+    public static long readLongFromBuffer(ByteBuffer buff) {
+        if (buff.position() <= buff.limit() - 8) {
+            return buff.getLong();
+        }
+        return 0L;
+    }
+
+    /**
+     * Reads a NativeLong value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next value
+     */
+    public static NativeLong readNativeLongFromBuffer(ByteBuffer buff) {
+        return new NativeLong(Native.LONG_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));
+    }
+
+    /**
+     * Reads a size_t value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next value
+     */
+    public static size_t readSizeTFromBuffer(ByteBuffer buff) {
+        return new size_t(Native.SIZE_T_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));
+    }
+
+    /**
+     * Reads a byte array value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @param size
+     *            The number of bytes to read
+     * @return The next values
+     */
+    public static byte[] readByteArrayFromBuffer(ByteBuffer buff, int size) {
+        byte[] bytes = new byte[size];
+        if (buff.position() <= buff.limit() - size) {
+            buff.get(bytes);
+        }
+        return bytes;
+    }
+
+    /**
+     * Reads a Pointer value from a ByteBuffer
+     *
+     * @param buff
+     *            The bytebuffer to read from
+     * @return The next value
+     */
+    public static Pointer readPointerFromBuffer(ByteBuffer buff) {
+        if (buff.position() <= buff.limit() - Native.POINTER_SIZE) {
+            return Native.POINTER_SIZE == 4 ? new Pointer(buff.getInt()) : new Pointer(buff.getLong());
+        }
+        return Pointer.NULL;
     }
 
     /**

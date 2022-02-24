@@ -53,7 +53,7 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squ
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
-import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -279,7 +279,7 @@ public class AixOSProcess extends AbstractOSProcess {
         // Iterate files
         for (File lwpidFile : numericFiles) {
             int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
-            AIXLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
+            AixLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
             if (info != null) {
                 mask |= info.pr_bindpro;
             }
