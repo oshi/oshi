@@ -24,7 +24,6 @@
 package oshi.driver.linux.proc;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,18 +52,16 @@ public final class Auxv {
      *      "https://github.com/torvalds/linux/blob/v3.19/include/uapi/linux/auxvec.h">auxvec.h</a>
      */
     public static Map<Integer, Long> queryAuxv() {
-        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(ProcPath.AUXV, 0);
-        if (buff != null) {
-            Map<Integer, Long> auxvMap = new HashMap<>();
-            long key;
-            do {
-                key = FileUtil.readNativeLongFromBuffer(buff);
-                if (key > 0) {
-                    auxvMap.put((int) key, FileUtil.readNativeLongFromBuffer(buff));
-                }
-            } while (key > 0);
-            return auxvMap;
-        }
-        return Collections.emptyMap();
+        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(ProcPath.AUXV);
+        Map<Integer, Long> auxvMap = new HashMap<>();
+        int key;
+        do {
+            key = FileUtil.readNativeLongFromBuffer(buff).intValue();
+            if (key > 0) {
+                auxvMap.put(key, FileUtil.readNativeLongFromBuffer(buff).longValue());
+            }
+        } while (key > 0);
+        return auxvMap;
+
     }
 }

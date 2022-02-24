@@ -23,11 +23,15 @@
  */
 package oshi.jna.platform.unix;
 
+import java.nio.ByteBuffer;
+
 import com.sun.jna.Native; // NOSONAR squid:S1191
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+
+import oshi.util.FileUtil;
 
 /**
  * C library. This class should be considered non-API as it may be removed
@@ -98,12 +102,7 @@ public interface SolarisLibc extends CLibrary {
     /**
      * Structure for psinfo file
      */
-    @FieldOrder({ "pr_flag", "pr_nlwp", "pr_pid", "pr_ppid", "pr_pgid", "pr_sid", "pr_uid", "pr_euid", "pr_gid",
-            "pr_egid", "pr_addr", "pr_size", "pr_rssize", "pr_rssizepriv", "pr_ttydev", "pr_pctcpu", "pr_pctmem",
-            "pr_start", "pr_time", "pr_ctime", "pr_fname", "pr_psargs", "pr_wstat", "pr_argc", "pr_argv", "pr_envp",
-            "pr_dmodel", "pr_pad2", "pr_taskid", "pr_projid", "pr_nzomb", "pr_poolid", "pr_zoneid", "pr_contract",
-            "pr_filler", "pr_lwp" })
-    class SolarisPsInfo extends Structure {
+    class SolarisPsInfo {
         public int pr_flag; // process flags (DEPRECATED; do not use)
         public int pr_nlwp; // number of active lwps in the process
         public int pr_pid; // unique process id
@@ -127,41 +126,67 @@ public interface SolarisLibc extends CLibrary {
         public Timestruc pr_start; // process start time, from the epoch
         public Timestruc pr_time; // usr+sys cpu time for this process
         public Timestruc pr_ctime; // usr+sys cpu time for reaped children
-        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file
-        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list
+        public byte[] pr_fname; // name of exec'ed file
+        public byte[] pr_psargs; // initial characters of arg list
         public int pr_wstat; // if zombie, the wait() status
         public int pr_argc; // initial argument count
         public Pointer pr_argv; // address of initial argument vector
         public Pointer pr_envp; // address of initial environment vector
         public byte pr_dmodel; // data model of the process
-        public byte[] pr_pad2 = new byte[3];
+        public byte[] pr_pad2; // 3 bytes
         public int pr_taskid; // task id
         public int pr_projid; // project id
         public int pr_nzomb; // number of zombie lwps in the process
         public int pr_poolid; // pool id
         public int pr_zoneid; // zone id
         public int pr_contract; // process contract id
-        public int[] pr_filler = new int[1]; // reserved for future use
+        public int pr_filler; // 4 bytes reserved for future use
         public SolarisLwpsInfo pr_lwp; // information for representative lwp
 
-        public SolarisPsInfo() {
-            super();
-        }
-
-        public SolarisPsInfo(byte[] bytes) {
-            super();
-            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
-            read();
+        public SolarisPsInfo(ByteBuffer buff) {
+            this.pr_flag = FileUtil.readIntFromBuffer(buff);
+            this.pr_nlwp = FileUtil.readIntFromBuffer(buff);
+            this.pr_pid = FileUtil.readIntFromBuffer(buff);
+            this.pr_ppid = FileUtil.readIntFromBuffer(buff);
+            this.pr_pgid = FileUtil.readIntFromBuffer(buff);
+            this.pr_sid = FileUtil.readIntFromBuffer(buff);
+            this.pr_uid = FileUtil.readIntFromBuffer(buff);
+            this.pr_euid = FileUtil.readIntFromBuffer(buff);
+            this.pr_gid = FileUtil.readIntFromBuffer(buff);
+            this.pr_egid = FileUtil.readIntFromBuffer(buff);
+            this.pr_addr = FileUtil.readPointerFromBuffer(buff);
+            this.pr_size = FileUtil.readSizeTFromBuffer(buff);
+            this.pr_rssize = FileUtil.readSizeTFromBuffer(buff);
+            this.pr_rssizepriv = FileUtil.readSizeTFromBuffer(buff);
+            this.pr_ttydev = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);
+            this.pr_pctmem = FileUtil.readShortFromBuffer(buff);
+            this.pr_start = new Timestruc(buff);
+            this.pr_time = new Timestruc(buff);
+            this.pr_ctime = new Timestruc(buff);
+            this.pr_fname = FileUtil.readByteArrayFromBuffer(buff, PRFNSZ);
+            this.pr_psargs = FileUtil.readByteArrayFromBuffer(buff, PRARGSZ);
+            this.pr_wstat = FileUtil.readIntFromBuffer(buff);
+            this.pr_argc = FileUtil.readIntFromBuffer(buff);
+            this.pr_argv = FileUtil.readPointerFromBuffer(buff);
+            this.pr_envp = FileUtil.readPointerFromBuffer(buff);
+            this.pr_dmodel = FileUtil.readByteFromBuffer(buff);
+            this.pr_pad2 = FileUtil.readByteArrayFromBuffer(buff, 3);
+            this.pr_taskid = FileUtil.readIntFromBuffer(buff);
+            this.pr_projid = FileUtil.readIntFromBuffer(buff);
+            this.pr_nzomb = FileUtil.readIntFromBuffer(buff);
+            this.pr_poolid = FileUtil.readIntFromBuffer(buff);
+            this.pr_zoneid = FileUtil.readIntFromBuffer(buff);
+            this.pr_contract = FileUtil.readIntFromBuffer(buff);
+            this.pr_filler = FileUtil.readIntFromBuffer(buff);
+            this.pr_lwp = new SolarisLwpsInfo(buff);
         }
     }
 
     /**
      * Nested Structure for psinfo file
      */
-    @FieldOrder({ "pr_flag", "pr_lwpid", "pr_addr", "pr_wchan", "pr_stype", "pr_state", "pr_sname", "pr_nice",
-            "pr_syscall", "pr_oldpri", "pr_cpu", "pr_pri", "pr_pctcpu", "pr_pad", "pr_start", "pr_time", "pr_clname",
-            "pr_oldname", "pr_onpro", "pr_bindpro", "pr_bindpset", "pr_lgrp", "pr_last_onproc", "pr_name" })
-    class SolarisLwpsInfo extends Structure {
+    class SolarisLwpsInfo {
         public int pr_flag; // lwp flags (DEPRECATED; do not use)
         public int pr_lwpid; // lwp id
         public Pointer pr_addr; // DEPRECATED was internal address of lwp
@@ -190,25 +215,38 @@ public interface SolarisLibc extends CLibrary {
         public long pr_last_onproc; // Timestamp of when thread last ran on a processor
         public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp
 
-        public SolarisLwpsInfo() {
-            super();
-        }
-
-        public SolarisLwpsInfo(byte[] bytes) {
-            super();
-            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
-            read();
+        public SolarisLwpsInfo(ByteBuffer buff) {
+            this.pr_flag = FileUtil.readIntFromBuffer(buff);
+            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);
+            this.pr_addr = FileUtil.readPointerFromBuffer(buff);
+            this.pr_wchan = FileUtil.readPointerFromBuffer(buff);
+            this.pr_stype = FileUtil.readByteFromBuffer(buff);
+            this.pr_state = FileUtil.readByteFromBuffer(buff);
+            this.pr_sname = FileUtil.readByteFromBuffer(buff);
+            this.pr_nice = FileUtil.readByteFromBuffer(buff);
+            this.pr_syscall = FileUtil.readShortFromBuffer(buff);
+            this.pr_oldpri = FileUtil.readByteFromBuffer(buff);
+            this.pr_cpu = FileUtil.readByteFromBuffer(buff);
+            this.pr_pri = FileUtil.readIntFromBuffer(buff);
+            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);
+            this.pr_pad = FileUtil.readShortFromBuffer(buff);
+            this.pr_start = new Timestruc(buff);
+            this.pr_time = new Timestruc(buff);
+            this.pr_clname = FileUtil.readByteArrayFromBuffer(buff, PRCLSZ);
+            this.pr_oldname = FileUtil.readByteArrayFromBuffer(buff, PRFNSZ);
+            this.pr_onpro = FileUtil.readIntFromBuffer(buff);
+            this.pr_bindpro = FileUtil.readIntFromBuffer(buff);
+            this.pr_bindpset = FileUtil.readIntFromBuffer(buff);
+            this.pr_lgrp = FileUtil.readIntFromBuffer(buff);
+            this.pr_last_onproc = FileUtil.readLongFromBuffer(buff);
+            this.pr_name = FileUtil.readByteArrayFromBuffer(buff, PRLNSZ);
         }
     }
 
     /**
      * Structure for usage file
      */
-    @FieldOrder({ "pr_lwpid", "pr_count", "pr_tstamp", "pr_create", "pr_term", "pr_rtime", "pr_utime", "pr_stime",
-            "pr_ttime", "pr_tftime", "pr_dftime", "pr_kftime", "pr_ltime", "pr_slptime", "pr_wtime", "pr_stoptime",
-            "filltime", "pr_minf", "pr_majf", "pr_nswap", "pr_inblk", "pr_oublk", "pr_msnd", "pr_mrcv", "pr_sigs",
-            "pr_vctx", "pr_ictx", "pr_sysc", "pr_ioch", "filler" })
-    class SolarisPrUsage extends Structure {
+    class SolarisPrUsage {
         public int pr_lwpid; // lwp id. 0: process or defunct
         public int pr_count; // number of contributing lwps
         public Timestruc pr_tstamp; // current time stamp
@@ -240,23 +278,54 @@ public interface SolarisLibc extends CLibrary {
         public NativeLong pr_ioch; // chars read and written
         public NativeLong[] filler = new NativeLong[10]; // filler for future expansion
 
-        public SolarisPrUsage() {
-            super();
-        }
-
-        public SolarisPrUsage(byte[] bytes) {
-            super();
-            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
-            read();
+        public SolarisPrUsage(ByteBuffer buff) {
+            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);
+            this.pr_count = FileUtil.readIntFromBuffer(buff);
+            this.pr_tstamp = new Timestruc(buff);
+            this.pr_create = new Timestruc(buff);
+            this.pr_term = new Timestruc(buff);
+            this.pr_rtime = new Timestruc(buff);
+            this.pr_utime = new Timestruc(buff);
+            this.pr_stime = new Timestruc(buff);
+            this.pr_ttime = new Timestruc(buff);
+            this.pr_tftime = new Timestruc(buff);
+            this.pr_dftime = new Timestruc(buff);
+            this.pr_kftime = new Timestruc(buff);
+            this.pr_ltime = new Timestruc(buff);
+            this.pr_slptime = new Timestruc(buff);
+            this.pr_wtime = new Timestruc(buff);
+            this.pr_stoptime = new Timestruc(buff);
+            for (int i = 0; i < filltime.length; i++) {
+                this.filltime[i] = new Timestruc(buff);
+            }
+            this.pr_minf = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_majf = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_nswap = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_inblk = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_oublk = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_msnd = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_mrcv = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_sigs = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_vctx = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_ictx = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_sysc = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_ioch = FileUtil.readNativeLongFromBuffer(buff);
+            for (int i = 0; i < filler.length; i++) {
+                this.filler[i] = FileUtil.readNativeLongFromBuffer(buff);
+            }
         }
     }
 
     /**
      * 32/64-bit timestruc required for psinfo and lwpsinfo structures
      */
-    @FieldOrder({ "tv_sec", "tv_nsec" })
-    class Timestruc extends Structure {
+    class Timestruc {
         public NativeLong tv_sec; // seconds
         public NativeLong tv_nsec; // nanoseconds
+
+        public Timestruc(ByteBuffer buff) {
+            this.tv_sec = FileUtil.readNativeLongFromBuffer(buff);
+            this.tv_nsec = FileUtil.readNativeLongFromBuffer(buff);
+        }
     }
 }
