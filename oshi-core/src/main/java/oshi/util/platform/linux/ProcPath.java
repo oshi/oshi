@@ -44,6 +44,7 @@ public final class ProcPath {
     public static final String PROC = queryProcConfig();
 
     public static final String ASOUND = PROC + "/asound/";
+    public static final String AUXV = PROC + "/self/auxv";
     public static final String CPUINFO = PROC + "/cpuinfo";
     public static final String DISKSTATS = PROC + "/diskstats";
     public static final String MEMINFO = PROC + "/meminfo";

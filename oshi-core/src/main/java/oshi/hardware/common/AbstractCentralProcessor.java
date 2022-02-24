@@ -40,7 +40,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Platform; // NOSONAR squid:S1191
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.proc.Auxv;
 import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
@@ -294,100 +297,108 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         processorIdBytes |= (familyL & 0x0f) << 8;
         processorIdBytes |= (familyL & 0xf0) << 20;
         // 13:12 – Processor Type, assume 0
-        for (String flag : flags) {
-            switch (flag) { // NOSONAR squid:S1479
-            case "fpu":
-                processorIdBytes |= 1L << 32;
-                break;
-            case "vme":
-                processorIdBytes |= 1L << 33;
-                break;
-            case "de":
-                processorIdBytes |= 1L << 34;
-                break;
-            case "pse":
-                processorIdBytes |= 1L << 35;
-                break;
-            case "tsc":
-                processorIdBytes |= 1L << 36;
-                break;
-            case "msr":
-                processorIdBytes |= 1L << 37;
-                break;
-            case "pae":
-                processorIdBytes |= 1L << 38;
-                break;
-            case "mce":
-                processorIdBytes |= 1L << 39;
-                break;
-            case "cx8":
-                processorIdBytes |= 1L << 40;
-                break;
-            case "apic":
-                processorIdBytes |= 1L << 41;
-                break;
-            case "sep":
-                processorIdBytes |= 1L << 43;
-                break;
-            case "mtrr":
-                processorIdBytes |= 1L << 44;
-                break;
-            case "pge":
-                processorIdBytes |= 1L << 45;
-                break;
-            case "mca":
-                processorIdBytes |= 1L << 46;
-                break;
-            case "cmov":
-                processorIdBytes |= 1L << 47;
-                break;
-            case "pat":
-                processorIdBytes |= 1L << 48;
-                break;
-            case "pse-36":
-                processorIdBytes |= 1L << 49;
-                break;
-            case "psn":
-                processorIdBytes |= 1L << 50;
-                break;
-            case "clfsh":
-                processorIdBytes |= 1L << 51;
-                break;
-            case "ds":
-                processorIdBytes |= 1L << 53;
-                break;
-            case "acpi":
-                processorIdBytes |= 1L << 54;
-                break;
-            case "mmx":
-                processorIdBytes |= 1L << 55;
-                break;
-            case "fxsr":
-                processorIdBytes |= 1L << 56;
-                break;
-            case "sse":
-                processorIdBytes |= 1L << 57;
-                break;
-            case "sse2":
-                processorIdBytes |= 1L << 58;
-                break;
-            case "ss":
-                processorIdBytes |= 1L << 59;
-                break;
-            case "htt":
-                processorIdBytes |= 1L << 60;
-                break;
-            case "tm":
-                processorIdBytes |= 1L << 61;
-                break;
-            case "ia64":
-                processorIdBytes |= 1L << 62;
-                break;
-            case "pbe":
-                processorIdBytes |= 1L << 63;
-                break;
-            default:
-                break;
+        long hwcap = 0L;
+        if (Platform.isLinux()) {
+            hwcap = Auxv.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
+        }
+        if (hwcap > 0) {
+            processorIdBytes |= hwcap << 32;
+        } else {
+            for (String flag : flags) {
+                switch (flag) { // NOSONAR squid:S1479
+                case "fpu":
+                    processorIdBytes |= 1L << 32;
+                    break;
+                case "vme":
+                    processorIdBytes |= 1L << 33;
+                    break;
+                case "de":
+                    processorIdBytes |= 1L << 34;
+                    break;
+                case "pse":
+                    processorIdBytes |= 1L << 35;
+                    break;
+                case "tsc":
+                    processorIdBytes |= 1L << 36;
+                    break;
+                case "msr":
+                    processorIdBytes |= 1L << 37;
+                    break;
+                case "pae":
+                    processorIdBytes |= 1L << 38;
+                    break;
+                case "mce":
+                    processorIdBytes |= 1L << 39;
+                    break;
+                case "cx8":
+                    processorIdBytes |= 1L << 40;
+                    break;
+                case "apic":
+                    processorIdBytes |= 1L << 41;
+                    break;
+                case "sep":
+                    processorIdBytes |= 1L << 43;
+                    break;
+                case "mtrr":
+                    processorIdBytes |= 1L << 44;
+                    break;
+                case "pge":
+                    processorIdBytes |= 1L << 45;
+                    break;
+                case "mca":
+                    processorIdBytes |= 1L << 46;
+                    break;
+                case "cmov":
+                    processorIdBytes |= 1L << 47;
+                    break;
+                case "pat":
+                    processorIdBytes |= 1L << 48;
+                    break;
+                case "pse-36":
+                    processorIdBytes |= 1L << 49;
+                    break;
+                case "psn":
+                    processorIdBytes |= 1L << 50;
+                    break;
+                case "clfsh":
+                    processorIdBytes |= 1L << 51;
+                    break;
+                case "ds":
+                    processorIdBytes |= 1L << 53;
+                    break;
+                case "acpi":
+                    processorIdBytes |= 1L << 54;
+                    break;
+                case "mmx":
+                    processorIdBytes |= 1L << 55;
+                    break;
+                case "fxsr":
+                    processorIdBytes |= 1L << 56;
+                    break;
+                case "sse":
+                    processorIdBytes |= 1L << 57;
+                    break;
+                case "sse2":
+                    processorIdBytes |= 1L << 58;
+                    break;
+                case "ss":
+                    processorIdBytes |= 1L << 59;
+                    break;
+                case "htt":
+                    processorIdBytes |= 1L << 60;
+                    break;
+                case "tm":
+                    processorIdBytes |= 1L << 61;
+                    break;
+                case "ia64":
+                    processorIdBytes |= 1L << 62;
+                    break;
+                case "pbe":
+                    processorIdBytes |= 1L << 63;
+                    break;
+                default:
+                    break;
+                }
             }
         }
         return String.format("%016X", processorIdBytes);

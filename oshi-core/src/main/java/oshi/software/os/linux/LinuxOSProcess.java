@@ -23,7 +23,6 @@
  */
 package oshi.software.os.linux;
 
-import static oshi.hardware.platform.linux.LinuxGlobalMemory.PAGE_SIZE;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.util.Memoizer.memoize;
 
@@ -356,7 +355,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.threadCount = (int) statArray[ProcPidStat.THREAD_COUNT.ordinal()];
         this.priority = (int) statArray[ProcPidStat.PRIORITY.ordinal()];
         this.virtualSize = statArray[ProcPidStat.VSZ.ordinal()];
-        this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * PAGE_SIZE;
+        this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * LinuxOperatingSystem.getPageSize();
         this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
