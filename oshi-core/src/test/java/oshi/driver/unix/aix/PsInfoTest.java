@@ -36,7 +36,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.SystemInfo;
-import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
@@ -61,7 +61,7 @@ class PsInfoTest {
         assertNotNull(numericFiles);
         for (File lwpidFile : numericFiles) {
             int tid = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
-            AIXLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(pid, tid);
+            AixLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(pid, tid);
             assertThat("Thread ID in structure should match TID", lwpsinfo.pr_lwpid, is((long) tid));
         }
     }

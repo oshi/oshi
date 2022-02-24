@@ -23,9 +23,11 @@
  */
 package oshi.jna.platform.unix;
 
+import java.nio.ByteBuffer;
+
 import com.sun.jna.Native; // NOSONAR squid:S1191
-import com.sun.jna.Structure;
-import com.sun.jna.Structure.FieldOrder;
+
+import oshi.util.FileUtil;
 
 /**
  * C library. This class should be considered non-API as it may be removed
@@ -39,10 +41,7 @@ public interface AixLibc extends CLibrary {
     int PRFNSZ = 16;
     int PRARGSZ = 80;
 
-    @FieldOrder({ "pr_flag", "pr_flag2", "pr_nlwp", "pr__pad1", "pr_uid", "pr_euid", "pr_gid", "pr_egid", "pr_pid",
-            "pr_ppid", "pr_pgid", "pr_sid", "pr_ttydev", "pr_addr", "pr_size", "pr_rssize", "pr_start", "pr_time",
-            "pr_cid", "pr__pad2", "pr_argc", "pr_argv", "pr_envp", "pr_fname", "pr_psargs", "pr__pad", "pr_lwp" })
-    class AixPsInfo extends Structure {
+    class AixPsInfo {
         public int pr_flag; // process flags from proc struct p_flag
         public int pr_flag2; // process flags from proc struct p_flag2
         public int pr_nlwp; // number of threads in process
@@ -66,25 +65,46 @@ public interface AixLibc extends CLibrary {
         public int pr_argc; // initial argument count
         public long pr_argv; // address of initial argument vector in user process
         public long pr_envp; // address of initial environment vector in user process
-        public byte[] pr_fname = new byte[PRFNSZ]; // last component of exec()ed pathname
-        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list
+        public byte[] pr_fname; // last component of exec()ed pathname
+        public byte[] pr_psargs; // initial characters of arg list
         public long[] pr__pad = new long[8]; // reserved for future use
-        public AIXLwpsInfo pr_lwp; // "representative" thread info
+        public AixLwpsInfo pr_lwp; // "representative" thread info
 
-        public AixPsInfo() {
-            super();
+        public AixPsInfo(ByteBuffer buff) {
+            this.pr_flag = FileUtil.readIntFromBuffer(buff);
+            this.pr_flag2 = FileUtil.readIntFromBuffer(buff);
+            this.pr_nlwp = FileUtil.readIntFromBuffer(buff);
+            this.pr__pad1 = FileUtil.readIntFromBuffer(buff);
+            this.pr_uid = FileUtil.readIntFromBuffer(buff);
+            this.pr_euid = FileUtil.readIntFromBuffer(buff);
+            this.pr_gid = FileUtil.readIntFromBuffer(buff);
+            this.pr_egid = FileUtil.readIntFromBuffer(buff);
+            this.pr_pid = FileUtil.readIntFromBuffer(buff);
+            this.pr_ppid = FileUtil.readIntFromBuffer(buff);
+            this.pr_pgid = FileUtil.readIntFromBuffer(buff);
+            this.pr_sid = FileUtil.readIntFromBuffer(buff);
+            this.pr_ttydev = FileUtil.readIntFromBuffer(buff);
+            this.pr_addr = FileUtil.readIntFromBuffer(buff);
+            this.pr_size = FileUtil.readIntFromBuffer(buff);
+            this.pr_rssize = FileUtil.readIntFromBuffer(buff);
+            this.pr_start = new Timestruc(buff);
+            this.pr_time = new Timestruc(buff);
+            this.pr_cid = FileUtil.readShortFromBuffer(buff);
+            this.pr__pad2 = FileUtil.readShortFromBuffer(buff);
+            this.pr_argc = FileUtil.readIntFromBuffer(buff);
+            this.pr_argv = FileUtil.readLongFromBuffer(buff);
+            this.pr_envp = FileUtil.readLongFromBuffer(buff);
+            this.pr_fname = FileUtil.readByteArrayFromBuffer(buff, PRFNSZ);
+            this.pr_psargs = FileUtil.readByteArrayFromBuffer(buff, PRARGSZ);
+            for (int i = 0; i < pr__pad.length; i++) {
+                this.pr__pad[i] = FileUtil.readLongFromBuffer(buff);
+            }
+            this.pr_lwp = new AixLwpsInfo(buff);
         }
 
-        public AixPsInfo(byte[] bytes) {
-            super();
-            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
-            read();
-        }
     }
 
-    @FieldOrder({ "pr_lwpid", "pr_addr", "pr_wchan", "pr_flag", "pr_wtype", "pr_state", "pr_sname", "pr_nice", "pr_pri",
-            "pr_policy", "pr_clname", "pr_onpro", "pr_bindpro" })
-    class AIXLwpsInfo extends Structure {
+    class AixLwpsInfo {
         public long pr_lwpid; // thread id
         public long pr_addr; // internal address of thread
         public long pr_wchan; // wait addr for sleeping thread
@@ -95,28 +115,39 @@ public interface AixLibc extends CLibrary {
         public byte pr_nice; // nice for cpu usage
         public int pr_pri; // priority, high value = high priority
         public int pr_policy; // scheduling policy
-        public byte[] pr_clname = new byte[PRCLSZ]; // printable character representing pr_policy
+        public byte[] pr_clname; // printable character representing pr_policy
         public int pr_onpro; // processor on which thread last ran
         public int pr_bindpro; // processor to which thread is bound
 
-        public AIXLwpsInfo() {
-            super();
-        }
-
-        public AIXLwpsInfo(byte[] bytes) {
-            super();
-            this.getPointer().write(0, bytes, 0, Math.min(bytes.length, size()));
-            read();
+        public AixLwpsInfo(ByteBuffer buff) {
+            this.pr_lwpid = FileUtil.readLongFromBuffer(buff);
+            this.pr_addr = FileUtil.readLongFromBuffer(buff);
+            this.pr_wchan = FileUtil.readLongFromBuffer(buff);
+            this.pr_flag = FileUtil.readIntFromBuffer(buff);
+            this.pr_wtype = FileUtil.readByteFromBuffer(buff);
+            this.pr_state = FileUtil.readByteFromBuffer(buff);
+            this.pr_sname = FileUtil.readByteFromBuffer(buff);
+            this.pr_nice = FileUtil.readByteFromBuffer(buff);
+            this.pr_pri = FileUtil.readIntFromBuffer(buff);
+            this.pr_policy = FileUtil.readIntFromBuffer(buff);
+            this.pr_clname = FileUtil.readByteArrayFromBuffer(buff, PRCLSZ);
+            this.pr_onpro = FileUtil.readIntFromBuffer(buff);
+            this.pr_bindpro = FileUtil.readIntFromBuffer(buff);
         }
     }
 
     /**
      * 64-bit timestruc required for psinfo structure
      */
-    @FieldOrder({ "tv_sec", "tv_nsec", "pad" })
-    class Timestruc extends Structure {
+    class Timestruc {
         public long tv_sec; // seconds
         public int tv_nsec; // nanoseconds
         public int pad; // nanoseconds
+
+        public Timestruc(ByteBuffer buff) {
+            this.tv_sec = FileUtil.readLongFromBuffer(buff);
+            this.tv_nsec = FileUtil.readIntFromBuffer(buff);
+            this.pad = FileUtil.readIntFromBuffer(buff);
+        }
     }
 }

@@ -25,7 +25,7 @@ package oshi.software.os.unix.aix;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
-import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 
@@ -98,7 +98,7 @@ public class AixOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        AIXLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());
+        AixLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());
         if (lwpsinfo == null) {
             this.state = OSProcess.State.INVALID;
             return false;

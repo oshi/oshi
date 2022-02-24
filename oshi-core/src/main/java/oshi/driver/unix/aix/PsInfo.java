@@ -42,8 +42,9 @@ import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.AixLibc;
-import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.jna.platform.unix.AixLibc.AixPsInfo;
+import oshi.util.FileUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -71,12 +72,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested process
      */
     public static AixPsInfo queryPsInfo(int pid) {
-        Path path = Paths.get(String.format("/proc/%d/psinfo", pid));
-        try {
-            return new AixPsInfo(Files.readAllBytes(path));
-        } catch (IOException e) {
-            return null;
-        }
+        return new AixPsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/psinfo", pid)));
     }
 
     /**
@@ -88,13 +84,8 @@ public final class PsInfo {
      *            The thread ID (lwpid)
      * @return A structure containing information for the requested thread
      */
-    public static AIXLwpsInfo queryLwpsInfo(int pid, int tid) {
-        Path path = Paths.get(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid));
-        try {
-            return new AIXLwpsInfo(Files.readAllBytes(path));
-        } catch (IOException e) {
-            return null;
-        }
+    public static AixLwpsInfo queryLwpsInfo(int pid, int tid) {
+        return new AixLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
     }
 
     /**
