@@ -231,6 +231,17 @@ class FileUtilTest {
         assertThat("SizeT from buffer should match", FileUtil.readSizeTFromBuffer(buff).longValue(), is(11L));
         assertArrayEquals(arr, FileUtil.readByteArrayFromBuffer(buff, arr.length),
                 "Byte array from buffer should match");
+        // Test reads past end of file
+        assertThat("Long from buffer at limit should be 0", FileUtil.readLongFromBuffer(buff), is(0L));
+        assertThat("Int from buffer at limit should be 0", FileUtil.readIntFromBuffer(buff), is(0));
+        assertThat("Short from buffer at limit should be 0", FileUtil.readShortFromBuffer(buff), is((short) 0));
+        assertThat("Byte from buffer at limit should be 0", FileUtil.readByteFromBuffer(buff), is((byte) 0));
+        assertThat("NativeLong from buffer at limit should be 0", FileUtil.readNativeLongFromBuffer(buff).longValue(),
+                is(0L));
+        assertThat("SizeT from buffer at limit should be 0", FileUtil.readSizeTFromBuffer(buff).longValue(), is(0L));
+        byte[] arr0 = new byte[] { 0, 0, 0 };
+        assertArrayEquals(arr0, FileUtil.readByteArrayFromBuffer(buff, arr0.length),
+                "Byte array from buffer at limit should be all 0s");
 
         // Cleanup
         try {
