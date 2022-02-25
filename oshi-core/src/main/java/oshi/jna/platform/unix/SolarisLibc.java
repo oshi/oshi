@@ -161,6 +161,10 @@ public interface SolarisLibc extends CLibrary {
             this.pr_ttydev = FileUtil.readNativeLongFromBuffer(buff);
             this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);
             this.pr_pctmem = FileUtil.readShortFromBuffer(buff);
+            // Force 8 byte alignment
+            if (Native.LONG_SIZE > 4) {
+                FileUtil.readIntFromBuffer(buff);
+            }
             this.pr_start = new Timestruc(buff);
             this.pr_time = new Timestruc(buff);
             this.pr_ctime = new Timestruc(buff);
