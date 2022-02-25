@@ -30,9 +30,12 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,6 +48,8 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+
+import com.sun.jna.Native;
 
 /**
  * Tests FileUtil
@@ -182,5 +187,56 @@ class FileUtilTest {
         assertThat("simplelogger properties", props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"), is("INFO"));
         props = FileUtil.readPropertiesFromFilename("this.file.does.not.exist");
         assertThat("invalid file", props.stringPropertyNames(), is(empty()));
+    }
+
+    @Test
+    void testReadBinaryFile() {
+        ByteBuffer buff = ByteBuffer.allocate(18 + Native.LONG_SIZE + Native.SIZE_T_SIZE);
+        buff.order(ByteOrder.nativeOrder());
+        buff.putLong(123L);
+        buff.putInt(45);
+        buff.putShort((short) 67);
+        buff.put((byte) 89);
+        if (Native.LONG_SIZE > 4) {
+            buff.putLong(10L);
+        } else {
+            buff.putInt(10);
+        }
+        if (Native.SIZE_T_SIZE > 4) {
+            buff.putLong(11L);
+        } else {
+            buff.putInt(11);
+        }
+        byte[] arr = new byte[] { 1, 2, 3 };
+        buff.put(arr);
+
+        // Write to temp file
+        Path binaryFile = null;
+        try {
+            binaryFile = Files.createTempFile("oshitest.binary", null);
+            Files.write(binaryFile, buff.array());
+        } catch (IOException e) {
+            fail("IO Exception creating or writing to temporary binary file.");
+        }
+
+        // Read from file
+        buff = FileUtil.readAllBytesAsBuffer(binaryFile.toString());
+        assertThat("Buffer size should match bytes written", buff.limit(),
+                is(18 + Native.LONG_SIZE + Native.SIZE_T_SIZE));
+        assertThat("Long from buffer should match", FileUtil.readLongFromBuffer(buff), is(123L));
+        assertThat("Int from buffer should match", FileUtil.readIntFromBuffer(buff), is(45));
+        assertThat("Short from buffer should match", FileUtil.readShortFromBuffer(buff), is((short) 67));
+        assertThat("Byte from buffer should match", FileUtil.readByteFromBuffer(buff), is((byte) 89));
+        assertThat("NativeLong from buffer should match", FileUtil.readNativeLongFromBuffer(buff).longValue(), is(10L));
+        assertThat("SizeT from buffer should match", FileUtil.readSizeTFromBuffer(buff).longValue(), is(11L));
+        assertArrayEquals(arr, FileUtil.readByteArrayFromBuffer(buff, arr.length),
+                "Byte array from buffer should match");
+
+        // Cleanup
+        try {
+            Files.deleteIfExists(binaryFile);
+        } catch (IOException e) {
+            fail("IO Exception deleting temporary procIo file.");
+        }
     }
 }
