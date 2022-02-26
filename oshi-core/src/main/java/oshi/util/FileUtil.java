@@ -256,16 +256,13 @@ public final class FileUtil {
      *
      * @param buff
      *            The bytebuffer to read from
-     * @param size
-     *            The number of bytes to read
-     * @return The next values
+     * @param array
+     *            The array into which to read the data
      */
-    public static byte[] readByteArrayFromBuffer(ByteBuffer buff, int size) {
-        byte[] bytes = new byte[size];
-        if (buff.position() <= buff.limit() - size) {
-            buff.get(bytes);
+    public static void readByteArrayFromBuffer(ByteBuffer buff, byte[] array) {
+        if (buff.position() <= buff.limit() - array.length) {
+            buff.get(array);
         }
-        return bytes;
     }
 
     /**

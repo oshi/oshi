@@ -126,14 +126,14 @@ public interface SolarisLibc extends CLibrary {
         public Timestruc pr_start; // process start time, from the epoch
         public Timestruc pr_time; // usr+sys cpu time for this process
         public Timestruc pr_ctime; // usr+sys cpu time for reaped children
-        public byte[] pr_fname; // name of exec'ed file
-        public byte[] pr_psargs; // initial characters of arg list
+        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file
+        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list
         public int pr_wstat; // if zombie, the wait() status
         public int pr_argc; // initial argument count
         public Pointer pr_argv; // address of initial argument vector
         public Pointer pr_envp; // address of initial environment vector
         public byte pr_dmodel; // data model of the process
-        public byte[] pr_pad2; // 3 bytes
+        public byte[] pr_pad2 = new byte[3];
         public int pr_taskid; // task id
         public int pr_projid; // project id
         public int pr_nzomb; // number of zombie lwps in the process
@@ -168,14 +168,14 @@ public interface SolarisLibc extends CLibrary {
             this.pr_start = new Timestruc(buff);
             this.pr_time = new Timestruc(buff);
             this.pr_ctime = new Timestruc(buff);
-            this.pr_fname = FileUtil.readByteArrayFromBuffer(buff, PRFNSZ);
-            this.pr_psargs = FileUtil.readByteArrayFromBuffer(buff, PRARGSZ);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_fname);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_psargs);
             this.pr_wstat = FileUtil.readIntFromBuffer(buff);
             this.pr_argc = FileUtil.readIntFromBuffer(buff);
             this.pr_argv = FileUtil.readPointerFromBuffer(buff);
             this.pr_envp = FileUtil.readPointerFromBuffer(buff);
             this.pr_dmodel = FileUtil.readByteFromBuffer(buff);
-            this.pr_pad2 = FileUtil.readByteArrayFromBuffer(buff, 3);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_pad2);
             this.pr_taskid = FileUtil.readIntFromBuffer(buff);
             this.pr_projid = FileUtil.readIntFromBuffer(buff);
             this.pr_nzomb = FileUtil.readIntFromBuffer(buff);
@@ -236,14 +236,14 @@ public interface SolarisLibc extends CLibrary {
             this.pr_pad = FileUtil.readShortFromBuffer(buff);
             this.pr_start = new Timestruc(buff);
             this.pr_time = new Timestruc(buff);
-            this.pr_clname = FileUtil.readByteArrayFromBuffer(buff, PRCLSZ);
-            this.pr_oldname = FileUtil.readByteArrayFromBuffer(buff, PRFNSZ);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_clname);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_oldname);
             this.pr_onpro = FileUtil.readIntFromBuffer(buff);
             this.pr_bindpro = FileUtil.readIntFromBuffer(buff);
             this.pr_bindpset = FileUtil.readIntFromBuffer(buff);
             this.pr_lgrp = FileUtil.readIntFromBuffer(buff);
             this.pr_last_onproc = FileUtil.readLongFromBuffer(buff);
-            this.pr_name = FileUtil.readByteArrayFromBuffer(buff, PRLNSZ);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_name);
         }
     }
 

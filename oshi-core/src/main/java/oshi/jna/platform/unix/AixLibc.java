@@ -65,8 +65,8 @@ public interface AixLibc extends CLibrary {
         public int pr_argc; // initial argument count
         public long pr_argv; // address of initial argument vector in user process
         public long pr_envp; // address of initial environment vector in user process
-        public byte[] pr_fname; // last component of exec()ed pathname
-        public byte[] pr_psargs; // initial characters of arg list
+        public byte[] pr_fname = new byte[PRFNSZ]; // last component of exec()ed pathname
+        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list
         public long[] pr__pad = new long[8]; // reserved for future use
         public AixLwpsInfo pr_lwp; // "representative" thread info
 
@@ -94,8 +94,8 @@ public interface AixLibc extends CLibrary {
             this.pr_argc = FileUtil.readIntFromBuffer(buff);
             this.pr_argv = FileUtil.readLongFromBuffer(buff);
             this.pr_envp = FileUtil.readLongFromBuffer(buff);
-            this.pr_fname = FileUtil.readByteArrayFromBuffer(buff, PRFNSZ);
-            this.pr_psargs = FileUtil.readByteArrayFromBuffer(buff, PRARGSZ);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_fname);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_psargs);
             for (int i = 0; i < pr__pad.length; i++) {
                 this.pr__pad[i] = FileUtil.readLongFromBuffer(buff);
             }
@@ -115,7 +115,7 @@ public interface AixLibc extends CLibrary {
         public byte pr_nice; // nice for cpu usage
         public int pr_pri; // priority, high value = high priority
         public int pr_policy; // scheduling policy
-        public byte[] pr_clname; // printable character representing pr_policy
+        public byte[] pr_clname = new byte[PRCLSZ]; // printable character representing pr_policy
         public int pr_onpro; // processor on which thread last ran
         public int pr_bindpro; // processor to which thread is bound
 
@@ -130,7 +130,7 @@ public interface AixLibc extends CLibrary {
             this.pr_nice = FileUtil.readByteFromBuffer(buff);
             this.pr_pri = FileUtil.readIntFromBuffer(buff);
             this.pr_policy = FileUtil.readIntFromBuffer(buff);
-            this.pr_clname = FileUtil.readByteArrayFromBuffer(buff, PRCLSZ);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_clname);
             this.pr_onpro = FileUtil.readIntFromBuffer(buff);
             this.pr_bindpro = FileUtil.readIntFromBuffer(buff);
         }
