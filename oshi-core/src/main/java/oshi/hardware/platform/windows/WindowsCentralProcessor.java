@@ -370,19 +370,30 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 // (included in processor). To further complicate matters, these are in percent
                 // units so must be divided by 100.
 
-                // Calculate Utility CPU usage since init
+                // We will work almost exclusively with deltas (as the performance counters do)
+                // to be robust to integer rollover of the counters
+
+                // Start with elapsed utility base.
                 long deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
-
                 if (deltaBase > 0) {
-                    long deltaSys = systemUtility.get(cpu) - initSystemUtility.get(cpu);
-                    double sysPercent = deltaSys / (double) deltaBase; // subset of proc
-                    long deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);
-                    double userPercent = deltaProc / (double) deltaBase - sysPercent;
-
-                    // Apply to elapsed ticks
+                    // Get (approximate) elapsed time in 100NS
+                    // deltaT does not precisely line up with clock ticks for utility
                     long deltaT = baseList.get(cpu) - initBase.get(cpu);
-                    long newUser = initUserList.get(cpu) + Math.round(deltaT * userPercent / 100d);
-                    long newSystem = initSystemList.get(cpu) + Math.round(deltaT * sysPercent / 100d);
+
+                    // The ratio of elapsed clock to elapsed utility base is an integer constant.
+                    // We can calculate a conversion factor to ensure a consistent application of
+                    // the correction. Since Utility is in percent, this is actually 100x the true
+                    // multiplier but is at the level where the integer calculation is precise
+                    long multiplier = Math.round((double) deltaT / deltaBase);
+
+                    // Get utility delta
+                    long deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);
+                    long deltaSys = systemUtility.get(cpu) - initSystemUtility.get(cpu);
+
+                    // Calculate new target ticks
+                    // Correct for the 100x multiplier at the end
+                    long newUser = initUserList.get(cpu) + multiplier * (deltaProc - deltaSys) / 100;
+                    long newSystem = initSystemList.get(cpu) + multiplier * deltaSys / 100;
 
                     // Adjust user to new, saving the delta
                     long delta = newUser - ticks[cpu][TickType.USER.getIndex()];
@@ -395,7 +406,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 }
             }
 
-            // Decrement IRQ to avoid double counting in the total array
+            // Decrement IRQ from system to avoid double counting in the total array
             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
 
