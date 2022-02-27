@@ -95,6 +95,9 @@ Note that the base counter required for this calculation rolls over approximatel
 reasonably short ("minutes" or less) polling intervals. If your application remains idle for over an hour before polling for
 CPU usage, instantiating a new SystemInfo object before collecting ticks will mitigate these problems.
 
+Note that the base counter required for this calculation rolls over approximately every two hours. If your application remains
+idle for over an hour after instantiating the CentralProcessor object before polling for CPU usage, internal calculations may fail. Instantiating a new SystemInfo object before collecting ticks will mitigate these problems.
+
 ## Why does OSHI's Process CPU usage differ from the Windows Task Manager?
 
 CPU usage is generally calculated as (active time / active+idle time). On a multi-processor system, the "idle" time can be accrued on each/any of the logical processors.
