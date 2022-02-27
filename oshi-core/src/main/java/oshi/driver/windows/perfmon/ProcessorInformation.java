@@ -35,7 +35,6 @@ import java.util.Map;
 import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:s1191
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.GlobalConfig;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
@@ -49,9 +48,6 @@ import oshi.util.tuples.Pair;
 public final class ProcessorInformation {
 
     private static final boolean IS_WIN7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
-
-    public static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
-            && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
 
     /**
      * Processor performance counters
@@ -81,7 +77,7 @@ public final class ProcessorInformation {
     /**
      * Processor performance counters including utility counters
      */
-    public enum ProcessorCapacityTickCountProperty implements PdhCounterWildcardProperty {
+    public enum ProcessorUtilityTickCountProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
         NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),
         // Remaining elements define counters
@@ -99,7 +95,7 @@ public final class ProcessorInformation {
 
         private final String counter;
 
-        ProcessorCapacityTickCountProperty(String counter) {
+        ProcessorUtilityTickCountProperty(String counter) {
             this.counter = counter;
         }
 
@@ -175,8 +171,8 @@ public final class ProcessorInformation {
      *
      * @return Performance Counters for processor capacity.
      */
-    public static Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> queryProcessorCapacityCounters() {
-        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorCapacityTickCountProperty.class,
+    public static Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>> queryProcessorCapacityCounters() {
+        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorUtilityTickCountProperty.class,
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 
