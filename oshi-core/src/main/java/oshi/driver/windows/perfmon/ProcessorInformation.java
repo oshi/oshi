@@ -29,7 +29,6 @@ import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_C
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -53,9 +52,6 @@ public final class ProcessorInformation {
 
     public static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
-    private static final Map<ProcessorCapacityTickCountProperty, List<Long>> INITIAL_CAPACITY_TICKS = USE_CPU_UTILITY
-            ? queryProcessorCapacityCounters().getB()
-            : Collections.emptyMap();
 
     /**
      * Processor performance counters
@@ -182,15 +178,6 @@ public final class ProcessorInformation {
     public static Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> queryProcessorCapacityCounters() {
         return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorCapacityTickCountProperty.class,
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
-    }
-
-    /**
-     * Returns initial processor capacity performance counters.
-     *
-     * @return initial Performance Counters for processor capacity.
-     */
-    public static Map<ProcessorCapacityTickCountProperty, List<Long>> queryInitialProcessorCapacityCounters() {
-        return INITIAL_CAPACITY_TICKS;
     }
 
     /**

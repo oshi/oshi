@@ -4,6 +4,7 @@
 * [#1944](https://github.com/oshi/oshi/pull/1944): Get page size, hz, and feature bits from Linux aux vector - [@dbwiddis](https://github.com/dbwiddis).
 * [#1945](https://github.com/oshi/oshi/pull/1945): Refactor all binary file reading to use ByteBuffers - [@dbwiddis](https://github.com/dbwiddis).
 * [#1949](https://github.com/oshi/oshi/pull/1949): Refine Processor Utility calculations for more precision - [@dbwiddis](https://github.com/dbwiddis).
+* [#1950](https://github.com/oshi/oshi/pull/1950): Handle Processor Utility 32-bit counter rollover - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22)
