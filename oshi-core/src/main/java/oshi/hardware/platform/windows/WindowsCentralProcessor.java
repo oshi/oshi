@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 package oshi.hardware.platform.windows;
+
+import static oshi.driver.windows.perfmon.ProcessorInformation.USE_CPU_UTILITY;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,12 +73,13 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
 
+    // Used for Processor Capacity counter manipulation
+    private Map<ProcessorCapacityTickCountProperty, List<Long>> initialCapacityCounters = USE_CPU_UTILITY
+            ? ProcessorInformation.queryProcessorCapacityCounters().getB()
+            : null;
+
     WindowsCentralProcessor() {
         super();
-        if (ProcessorInformation.USE_CPU_UTILITY) {
-            // This instance field call will also cause first ticks to be stored
-            LOG.debug("Using CPU Utility counters to match Task Manager output.");
-        }
     }
 
     /**
@@ -304,7 +307,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         List<Long> initSystemUtility = null;
         List<Long> initProcessorUtility = null;
         List<Long> initProcessorUtilityBase = null;
-        if (ProcessorInformation.USE_CPU_UTILITY) {
+        if (USE_CPU_UTILITY) {
             Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformation
                     .queryProcessorCapacityCounters();
             instances = instanceValuePair.getA();
@@ -320,15 +323,17 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             systemUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
             processorUtility = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY);
             processorUtilityBase = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
-            Map<ProcessorCapacityTickCountProperty, List<Long>> initialMap = ProcessorInformation
-                    .queryInitialProcessorCapacityCounters();
-            initSystemList = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDTIME);
-            initUserList = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTUSERTIME);
-            initBase = initialMap.get(ProcessorCapacityTickCountProperty.TIMESTAMP_SYS100NS);
+
+            initSystemList = initialCapacityCounters.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDTIME);
+            initUserList = initialCapacityCounters.get(ProcessorCapacityTickCountProperty.PERCENTUSERTIME);
+            initBase = initialCapacityCounters.get(ProcessorCapacityTickCountProperty.TIMESTAMP_SYS100NS);
             // Utility ticks, if configured
-            initSystemUtility = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
-            initProcessorUtility = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY);
-            initProcessorUtilityBase = initialMap.get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
+            initSystemUtility = initialCapacityCounters
+                    .get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
+            initProcessorUtility = initialCapacityCounters
+                    .get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY);
+            initProcessorUtilityBase = initialCapacityCounters
+                    .get(ProcessorCapacityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
         } else {
             Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformation
                     .queryProcessorCounters();
@@ -346,10 +351,10 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[ncpu][TickType.values().length];
         if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null
                 || idleList == null
-                || (ProcessorInformation.USE_CPU_UTILITY && (baseList == null || systemUtility == null
-                        || processorUtility == null || processorUtilityBase == null || initSystemList == null
-                        || initUserList == null || initBase == null || initSystemUtility == null
-                        || initProcessorUtility == null || initProcessorUtilityBase == null))) {
+                || (USE_CPU_UTILITY && (baseList == null || systemUtility == null || processorUtility == null
+                        || processorUtilityBase == null || initSystemList == null || initUserList == null
+                        || initBase == null || initSystemUtility == null || initProcessorUtility == null
+                        || initProcessorUtilityBase == null))) {
             return ticks;
         }
         for (int p = 0; p < instances.size(); p++) {
@@ -365,21 +370,31 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);
 
             // If users want Task Manager output we have to do some math to get there
-            if (ProcessorInformation.USE_CPU_UTILITY) {
+            if (USE_CPU_UTILITY) {
                 // We have two new capacity numbers, processor (all but idle) and system
                 // (included in processor). To further complicate matters, these are in percent
                 // units so must be divided by 100.
 
-                // We will work almost exclusively with deltas (as the performance counters do)
-                // to be robust to integer rollover of the counters
-
-                // Start with elapsed utility base.
+                // Get elapsed utility base.
                 long deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
-                if (deltaBase > 0) {
-                    // Get (approximate) elapsed time in 100NS
-                    // deltaT does not precisely line up with clock ticks for utility
-                    long deltaT = baseList.get(cpu) - initBase.get(cpu);
+                // Get elapsed time in 100NS
+                long deltaT = baseList.get(cpu) - initBase.get(cpu);
 
+                // Base counter wraps approximately every 115 minutes
+                // Perform some sanity checks to detect this
+                // Use double-checked locking pattern for performance and thread safety
+                if (deltaBase < 0 // If deltaBase is negative it has wrapped
+                        || deltaT / deltaBase > 64) { // DeltaT / deltaBase should be close to 16
+                    synchronized (initProcessorUtilityBase) {
+                        if (deltaBase < 0 || deltaT / deltaBase > 64) {
+                            initProcessorUtilityBase.set(cpu, initProcessorUtilityBase.get(cpu) - (1L << 32));
+                            // recalculate deltaBase
+                            deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
+                        }
+                    }
+                }
+
+                if (deltaBase > 0) {
                     // The ratio of elapsed clock to elapsed utility base is an integer constant.
                     // We can calculate a conversion factor to ensure a consistent application of
                     // the correction. Since Utility is in percent, this is actually 100x the true
