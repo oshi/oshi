@@ -24,11 +24,14 @@
 package oshi.hardware.platform.windows;
 
 import static oshi.driver.windows.perfmon.ProcessorInformation.USE_CPU_UTILITY;
+import static oshi.util.Memoizer.memoize;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,14 +76,17 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
 
-    // Used for Processor Capacity counter manipulation
-    private Map<ProcessorCapacityTickCountProperty, List<Long>> initialCapacityCounters = USE_CPU_UTILITY
-            ? ProcessorInformation.queryProcessorCapacityCounters().getB()
+    // This tick query is memoized to enforce a minimum elapsed time for determining
+    // the capacity base multiplier
+    private final Supplier<Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>>> processorCapacityCounters = USE_CPU_UTILITY
+            ? memoize(WindowsCentralProcessor::queryProcessorCapacityCounters, TimeUnit.MILLISECONDS.toNanos(500L))
             : null;
-
-    WindowsCentralProcessor() {
-        super();
-    }
+    // Store the initial query and start the memoizer expiration
+    private Map<ProcessorCapacityTickCountProperty, List<Long>> initialCapacityCounters = USE_CPU_UTILITY
+            ? processorCapacityCounters.get().getB()
+            : null;
+    // Lazily initialized
+    private Long capacityBaseMultiplier = null;
 
     /**
      * Initializes Class variables
@@ -308,8 +314,8 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         List<Long> initProcessorUtility = null;
         List<Long> initProcessorUtilityBase = null;
         if (USE_CPU_UTILITY) {
-            Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformation
-                    .queryProcessorCapacityCounters();
+            Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> instanceValuePair = processorCapacityCounters
+                    .get();
             instances = instanceValuePair.getA();
             Map<ProcessorCapacityTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
             systemList = valueMap.get(ProcessorCapacityTickCountProperty.PERCENTPRIVILEGEDTIME);
@@ -375,31 +381,21 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 // (included in processor). To further complicate matters, these are in percent
                 // units so must be divided by 100.
 
-                // Get elapsed utility base.
-                long deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
+                // The 100NS elapsed time counter is a constant multiple of the capacity base
+                // counter. By enforcing a memoized pause we'll either have zero elapsed time or
+                // sufficient delay to determine this offset reliably once and not have to
+                // recalculate it
+
                 // Get elapsed time in 100NS
                 long deltaT = baseList.get(cpu) - initBase.get(cpu);
-
-                // Base counter wraps approximately every 115 minutes
-                // Perform some sanity checks to detect this
-                // Use double-checked locking pattern for performance and thread safety
-                if (deltaBase < 0 // If deltaBase is negative it has wrapped
-                        || deltaT / deltaBase > 64) { // DeltaT / deltaBase should be close to 16
-                    synchronized (initProcessorUtilityBase) {
-                        if (deltaBase < 0 || deltaT / deltaBase > 64) {
-                            initProcessorUtilityBase.set(cpu, initProcessorUtilityBase.get(cpu) - (1L << 32));
-                            // recalculate deltaBase
-                            deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
-                        }
-                    }
-                }
-
-                if (deltaBase > 0) {
+                if (deltaT > 0) {
+                    // Get elapsed utility base
+                    long deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
                     // The ratio of elapsed clock to elapsed utility base is an integer constant.
                     // We can calculate a conversion factor to ensure a consistent application of
                     // the correction. Since Utility is in percent, this is actually 100x the true
                     // multiplier but is at the level where the integer calculation is precise
-                    long multiplier = Math.round((double) deltaT / deltaBase);
+                    long multiplier = lazilyCalculateMultiplier(deltaBase, deltaT);
 
                     // Get utility delta
                     long deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);
@@ -435,6 +431,31 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         }
         // Skipping nice and IOWait, they'll stay 0
         return ticks;
+    }
+
+    /**
+     * Lazily calculate the capacity tick multiplier once.
+     *
+     * @param deltaBase
+     *            The difference in base ticks.
+     * @param deltaT
+     *            The difference in elapsed 100NS time
+     * @return The ratio of elapsed time to base ticks
+     */
+    private synchronized long lazilyCalculateMultiplier(long deltaBase, long deltaT) {
+        if (capacityBaseMultiplier == null) {
+            if (deltaBase <= 0) {
+                // Base counter wraps approximately every 115 minutes
+                // If deltaBase is nonpositive assume it has wrapped
+                deltaBase += 1L << 32;
+            }
+            capacityBaseMultiplier = Math.round((double) deltaT / deltaBase);
+        }
+        return capacityBaseMultiplier;
+    }
+
+    private static Pair<List<String>, Map<ProcessorCapacityTickCountProperty, List<Long>>> queryProcessorCapacityCounters() {
+        return ProcessorInformation.queryProcessorCapacityCounters();
     }
 
     @Override
