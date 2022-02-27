@@ -91,12 +91,7 @@ Features which change CPU frequency such as Intel Speed Step, Intel Turbo Boost,
 
 If you desire OSHI's output to match the Task Manager, you may optionally enable this setting in the configuration file, or by calling `GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, true);` shortly after startup (at least before the first instantiation of the Central Processor class). Note that OSHI will not cap its CPU Usage calculation at 100%, giving you more information than the Windows Task Manager if the "work completed" metric is important to you.
 
-Note that the base counter required for this calculation rolls over approximately every two hours. OSHI's code is robust for
-reasonably short ("minutes" or less) polling intervals. If your application remains idle for over an hour before polling for
-CPU usage, instantiating a new SystemInfo object before collecting ticks will mitigate these problems.
-
-Note that the base counter required for this calculation rolls over approximately every two hours. If your application remains
-idle for over an hour after instantiating the CentralProcessor object before polling for CPU usage, internal calculations may fail. Instantiating a new SystemInfo object before collecting ticks will mitigate these problems.
+For this calculation to produce meaningful data, the ticks used to calculate usage must have come from the same instance of CentralProcessor. Also, the first polling interval must be less than 7 minutes to properly initialize values.
 
 ## Why does OSHI's Process CPU usage differ from the Windows Task Manager?
 
