@@ -26,7 +26,7 @@
     <!-- Include license -->
     <files>
         <file>
-            <source>${project.basedir}/../LICENSE.txt</source>
+            <source>${project.basedir}/../LICENSE</source>
             <outputDirectory />
             <destName>license.txt</destName>
         </file>
