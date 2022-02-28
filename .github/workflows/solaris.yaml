@@ -17,6 +17,7 @@ on:
 jobs:
   # Runs current branch on Solaris 11.4 in a x64 VM
   testsolaris_x64:
+    if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     name: Test JDK 8, Solaris x64
     steps:
@@ -37,6 +38,7 @@ jobs:
           mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
   # Runs current branch on Solaris 11.3 on SPARC
   testsolaris_sparc:
+    if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     name: Test JDK 8, Solaris SPARC
     steps:

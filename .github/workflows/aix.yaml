@@ -19,6 +19,7 @@ jobs:
   # Configured to pull latest from oshi master branch
   # To test on a PR, log into the aix server and create a new branch
   testaix:
+    if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     name: Test JDK 8, aix
     steps:
