@@ -461,7 +461,13 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             if (deltaBase <= 0) {
                 deltaBase += 1L << 32;
             }
-            utilityBaseMultiplier = Math.round((double) deltaT / deltaBase);
+            long multiplier = Math.round((double) deltaT / deltaBase);
+            // If not enough time has elapsed, return the value this one time but don't
+            // persist. 5000 ms = 50 million 100NS ticks
+            if (deltaT < 50_000_000L) {
+                return multiplier;
+            }
+            utilityBaseMultiplier = multiplier;
         }
         return utilityBaseMultiplier;
     }
