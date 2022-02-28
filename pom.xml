@@ -18,7 +18,7 @@
     </organization>
     <licenses>
         <license>
-            <name>MIT License</name>
+            <name>SPDX-License-Identifier: MIT</name>
             <url>https://opensource.org/licenses/MIT</url>
             <distribution>repo</distribution>
         </license>
