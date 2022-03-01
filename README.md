@@ -28,7 +28,7 @@ Current Development (SNAPSHOT) downloads
 
 Documentation
 -------------
-* [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs)
+* [API](https://oshi.github.io/oshi/oshi-core-java11/apidocs/) (javadocs)
 * [FAQ](src/site/markdown/FAQ.md)
 * [Change Log](CHANGELOG.md)
 * [Performance Considerations](src/site/markdown/Performance.md)
