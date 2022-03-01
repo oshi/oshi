@@ -1,3 +1,6 @@
+/**
+ * This module provides access to the OSHI API and utility functions.
+ */
 module com.github.oshi {
     // API
     exports oshi;
