@@ -25,7 +25,7 @@ package oshi.software.os.unix.aix;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
-import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 
@@ -98,7 +98,7 @@ public class AixOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L101">        AIXLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());</span>
+<span class="nc" id="L101">        AixLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());</span>
 <span class="nc bnc" id="L102" title="All 2 branches missed.">        if (lwpsinfo == null) {</span>
 <span class="nc" id="L103">            this.state = OSProcess.State.INVALID;</span>
 <span class="nc" id="L104">            return false;</span>

@@ -88,8 +88,8 @@ public final class NetStat {
 <span class="nc" id="L88">                    String type = split[0];</span>
 <span class="nc" id="L89">                    Pair&lt;byte[], Integer&gt; local = parseIP(split[3]);</span>
 <span class="nc" id="L90">                    Pair&lt;byte[], Integer&gt; foreign = parseIP(split[4]);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">                    connections.add(new IPConnection(type, local.getA(), local.getB(), foreign.getA(), foreign.getB(),</span>
-<span class="nc" id="L92">                            state == null ? TcpState.NONE : TcpState.valueOf(state),</span>
+<span class="nc" id="L91">                    connections.add(new IPConnection(type, local.getA(), local.getB(), foreign.getA(), foreign.getB(),</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                            state == null ? TcpState.NONE : TcpState.valueOf(state),</span>
 <span class="nc" id="L93">                            ParseUtil.parseIntOrDefault(split[2], 0), ParseUtil.parseIntOrDefault(split[1], 0), -1));</span>
                 }
             }

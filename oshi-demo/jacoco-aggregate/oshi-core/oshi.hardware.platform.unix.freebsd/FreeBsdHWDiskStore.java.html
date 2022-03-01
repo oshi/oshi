@@ -153,7 +153,7 @@ public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
 <span class="nc bnc" id="L153" title="All 4 branches missed.">            if (split.length &gt; 6 &amp;&amp; devices.contains(split[0])) {</span>
 <span class="nc" id="L154">                Triplet&lt;String, String, Long&gt; storeInfo = diskInfoMap.get(split[0]);</span>
 <span class="nc bnc" id="L155" title="All 2 branches missed.">                FreeBsdHWDiskStore store = (storeInfo == null)</span>
-                        ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
+<span class="nc" id="L156">                        ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)</span>
 <span class="nc" id="L157">                        : new FreeBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());</span>
 <span class="nc" id="L158">                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);</span>
 <span class="nc" id="L159">                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);</span>

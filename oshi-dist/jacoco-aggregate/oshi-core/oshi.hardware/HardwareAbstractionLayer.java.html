@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>HardwareAbstractionLayer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">HardwareAbstractionLayer.java</span></div><h1>HardwareAbstractionLayer.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware;
+
+import java.util.Collections;
+import java.util.List;
+
+import oshi.annotation.concurrent.ThreadSafe;
+
+/**
+ * A hardware abstraction layer. Provides access to hardware items such as
+ * processors, memory, battery, and disks.
+ */
+@ThreadSafe
+public interface HardwareAbstractionLayer {
+
+    /**
+     * Instantiates a {@link oshi.hardware.ComputerSystem} object. This represents
+     * the physical hardware, including components such as BIOS/Firmware and a
+     * motherboard, logic board, etc.
+     *
+     * @return a {@link oshi.hardware.ComputerSystem} object.
+     */
+    ComputerSystem getComputerSystem();
+
+    /**
+     * Instantiates a {@link oshi.hardware.CentralProcessor} object. This represents
+     * one or more Logical CPUs.
+     *
+     * @return A {@link oshi.hardware.CentralProcessor} object.
+     */
+    CentralProcessor getProcessor();
+
+    /**
+     * Instantiates a {@link oshi.hardware.GlobalMemory} object.
+     *
+     * @return A memory object.
+     */
+    GlobalMemory getMemory();
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.PowerSource} objects,
+     * representing batteries, etc.
+     *
+     * @return A list of PowerSource objects or an empty list if none are present.
+     */
+    List&lt;PowerSource&gt; getPowerSources();
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.HWDiskStore} objects,
+     * representing physical hard disks or other similar storage devices.
+     *
+     * @return A list of HWDiskStore objects or an empty list if none are present.
+     */
+    List&lt;HWDiskStore&gt; getDiskStores();
+
+    /**
+     * Instantiates a list of {@link LogicalVolumeGroup} objects, representing a
+     * storage pool or group of devices, partitions, volumes, or other
+     * implementation specific means of file storage.
+     * &lt;p&gt;
+     * If not yet implemented or if logical volume groups do not exist, returns an
+     * empty list.
+     * &lt;p&gt;
+     * Currently implemented for Linux (LVM2), macOS (Core Storage), and Windows
+     * (Storage Spaces).
+     *
+     * @return A list of {@link LogicalVolumeGroup} objects or an empty list if none
+     *         are present.
+     */
+    default List&lt;LogicalVolumeGroup&gt; getLogicalVolumeGroups() {
+<span class="nc" id="L93">        return Collections.emptyList();</span>
+    }
+
+    /**
+     * Gets a list of non-local {@link NetworkIF} objects, representing a network
+     * interface. The list excludes local interfaces.
+     *
+     * @return A list of {@link NetworkIF} objects representing the interfaces
+     */
+    List&lt;NetworkIF&gt; getNetworkIFs();
+
+    /**
+     * Gets a list {@link NetworkIF} objects, representing a network interface.
+     *
+     * @param includeLocalInterfaces
+     *            whether to include local interfaces (loopback or no hardware
+     *            address) in the result
+     * @return A list of {@link NetworkIF} objects representing the interfaces
+     */
+    List&lt;NetworkIF&gt; getNetworkIFs(boolean includeLocalInterfaces);
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.Display} objects, representing
+     * monitors or other video output devices.
+     *
+     * @return A list of Display objects or an empty list if none are present.
+     */
+    List&lt;Display&gt; getDisplays();
+
+    /**
+     * Instantiates a {@link oshi.hardware.Sensors} object, representing CPU
+     * temperature and fan speed.
+     *
+     * @return A Sensors object
+     */
+    Sensors getSensors();
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing
+     * devices connected via a usb port (including internal devices).
+     * &lt;p&gt;
+     * If the value of {@code tree} is true, the top level devices returned from
+     * this method are the USB Controllers; connected hubs and devices in its device
+     * tree share that controller's bandwidth. If the value of {@code tree} is
+     * false, USB devices (not controllers) are listed in a single flat list.
+     *
+     * @param tree
+     *            If {@code true}, returns devices connected to the existing device,
+     *            accessible via {@link UsbDevice#getConnectedDevices()}. If
+     *            {@code false} returns devices as a flat list with no connected
+     *            device information.
+     * @return A list of UsbDevice objects representing (optionally) the USB
+     *         Controllers and devices connected to them, or an empty list if none
+     *         are present
+     */
+    List&lt;UsbDevice&gt; getUsbDevices(boolean tree);
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.SoundCard} objects, representing
+     * the Sound cards.
+     *
+     * @return A list of SoundCard objects or an empty list if none are present.
+     */
+    List&lt;SoundCard&gt; getSoundCards();
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.GraphicsCard} objects,
+     * representing the Graphics cards.
+     *
+     * @return A list of objects or an empty list if none are present.
+     */
+    List&lt;GraphicsCard&gt; getGraphicsCards();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

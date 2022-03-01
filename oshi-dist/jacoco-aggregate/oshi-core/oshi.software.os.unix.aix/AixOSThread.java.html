@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AixOSThread.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.aix</a> &gt; <span class="el_source">AixOSThread.java</span></div><h1>AixOSThread.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os.unix.aix;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.aix.PsInfo;
+import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
+import oshi.software.common.AbstractOSThread;
+import oshi.software.os.OSProcess;
+
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
+public class AixOSThread extends AbstractOSThread {
+
+    private int threadId;
+<span class="nc" id="L39">    private OSProcess.State state = OSProcess.State.INVALID;</span>
+    private long startMemoryAddress;
+    private long contextSwitches;
+    private long kernelTime;
+    private long userTime;
+    private long startTime;
+    private long upTime;
+    private int priority;
+
+    public AixOSThread(int pid, int tid) {
+<span class="nc" id="L49">        super(pid);</span>
+<span class="nc" id="L50">        this.threadId = tid;</span>
+<span class="nc" id="L51">        updateAttributes();</span>
+<span class="nc" id="L52">    }</span>
+
+    @Override
+    public int getThreadId() {
+<span class="nc" id="L56">        return this.threadId;</span>
+    }
+
+    @Override
+    public OSProcess.State getState() {
+<span class="nc" id="L61">        return this.state;</span>
+    }
+
+    @Override
+    public long getStartMemoryAddress() {
+<span class="nc" id="L66">        return this.startMemoryAddress;</span>
+    }
+
+    @Override
+    public long getContextSwitches() {
+<span class="nc" id="L71">        return this.contextSwitches;</span>
+    }
+
+    @Override
+    public long getKernelTime() {
+<span class="nc" id="L76">        return this.kernelTime;</span>
+    }
+
+    @Override
+    public long getUserTime() {
+<span class="nc" id="L81">        return this.userTime;</span>
+    }
+
+    @Override
+    public long getUpTime() {
+<span class="nc" id="L86">        return this.upTime;</span>
+    }
+
+    @Override
+    public long getStartTime() {
+<span class="nc" id="L91">        return this.startTime;</span>
+    }
+
+    @Override
+    public int getPriority() {
+<span class="nc" id="L96">        return this.priority;</span>
+    }
+
+    @Override
+    public boolean updateAttributes() {
+<span class="nc" id="L101">        AixLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (lwpsinfo == null) {</span>
+<span class="nc" id="L103">            this.state = OSProcess.State.INVALID;</span>
+<span class="nc" id="L104">            return false;</span>
+        }
+<span class="nc" id="L106">        this.threadId = (int) lwpsinfo.pr_lwpid; // 64 bit storage but always 32 bit</span>
+<span class="nc" id="L107">        this.startMemoryAddress = lwpsinfo.pr_addr;</span>
+<span class="nc" id="L108">        this.state = AixOSProcess.getStateFromOutput((char) lwpsinfo.pr_sname);</span>
+<span class="nc" id="L109">        this.priority = lwpsinfo.pr_pri;</span>
+<span class="nc" id="L110">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

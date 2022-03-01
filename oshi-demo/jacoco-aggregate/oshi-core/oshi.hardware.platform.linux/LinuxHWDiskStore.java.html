@@ -190,8 +190,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
 <span class="nc bnc" id="L190" title="All 2 branches missed.">                                    if (devnode.startsWith(&quot;/dev/dm&quot;)) {</span>
 <span class="nc" id="L191">                                        devModel = LOGICAL_VOLUME_GROUP;</span>
 <span class="nc" id="L192">                                        devSerial = device.getPropertyValue(DM_UUID);</span>
-<span class="nc bnc" id="L193" title="All 2 branches missed.">                                        store = new LinuxHWDiskStore(devnode, devModel,</span>
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+<span class="nc" id="L193">                                        store = new LinuxHWDiskStore(devnode, devModel,</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);</span>
 <span class="nc" id="L195">                                        String vgName = device.getPropertyValue(DM_VG_NAME);</span>
 <span class="nc" id="L196">                                        String lvName = device.getPropertyValue(DM_LV_NAME);</span>
 <span class="nc" id="L197">                                        store.partitionList.add(new HWPartition(</span>
@@ -206,9 +206,9 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
 <span class="nc" id="L206">                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),</span>
 <span class="nc" id="L207">                                                getMountPointOfDmDevice(vgName, lvName)));</span>
 <span class="nc" id="L208">                                    } else {</span>
-<span class="nc bnc" id="L209" title="All 4 branches missed.">                                        store = new LinuxHWDiskStore(devnode,</span>
-                                                devModel == null ? Constants.UNKNOWN : devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+<span class="nc" id="L209">                                        store = new LinuxHWDiskStore(devnode,</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                                                devModel == null ? Constants.UNKNOWN : devModel,</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);</span>
                                     }
 <span class="nc bnc" id="L213" title="All 2 branches missed.">                                    if (storeToUpdate == null) {</span>
                                         // If getting all stores, add to the list with stats

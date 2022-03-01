@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdInternetProtocolStats.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.freebsd</a> &gt; <span class="el_source">FreeBsdInternetProtocolStats.java</span></div><h1>FreeBsdInternetProtocolStats.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os.unix.freebsd;
+
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
+import java.util.function.Supplier;
+
+import com.sun.jna.Memory; // NOSONAR squid:S1191
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.NetStat;
+import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
+import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
+import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.util.ParseUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+import oshi.util.tuples.Pair;
+
+/**
+ * Internet Protocol Stats implementation
+ */
+@ThreadSafe
+<span class="nc" id="L46">public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats {</span>
+
+<span class="nc" id="L48">    private Supplier&lt;Pair&lt;Long, Long&gt;&gt; establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());</span>
+<span class="nc" id="L49">    private Supplier&lt;BsdTcpstat&gt; tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());</span>
+<span class="nc" id="L50">    private Supplier&lt;BsdUdpstat&gt; udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());</span>
+
+    @Override
+    public TcpStats getTCPv4Stats() {
+<span class="nc" id="L54">        BsdTcpstat tcp = tcpstat.get();</span>
+<span class="nc" id="L55">        return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),</span>
+<span class="nc" id="L56">                ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),</span>
+<span class="nc" id="L57">                ParseUtil.unsignedIntToLong(tcp.tcps_drops), ParseUtil.unsignedIntToLong(tcp.tcps_sndpack),</span>
+<span class="nc" id="L58">                ParseUtil.unsignedIntToLong(tcp.tcps_rcvpack), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),</span>
+<span class="nc" id="L59">                ParseUtil.unsignedIntToLong(</span>
+                        tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
+                0L);
+    }
+
+    @Override
+    public UdpStats getUDPv4Stats() {
+<span class="nc" id="L66">        BsdUdpstat stat = udpstat.get();</span>
+<span class="nc" id="L67">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),</span>
+<span class="nc" id="L68">                ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),</span>
+<span class="nc" id="L69">                ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));</span>
+    }
+
+    @Override
+    public UdpStats getUDPv6Stats() {
+<span class="nc" id="L74">        BsdUdpstat stat = udpstat.get();</span>
+<span class="nc" id="L75">        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),</span>
+<span class="nc" id="L76">                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);</span>
+    }
+
+    private static BsdTcpstat queryTcpstat() {
+<span class="nc" id="L80">        BsdTcpstat ft = new BsdTcpstat();</span>
+<span class="nc" id="L81">        Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;);</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 128) {</span>
+<span class="nc" id="L83">            ft.tcps_connattempt = m.getInt(0);</span>
+<span class="nc" id="L84">            ft.tcps_accepts = m.getInt(4);</span>
+<span class="nc" id="L85">            ft.tcps_drops = m.getInt(12);</span>
+<span class="nc" id="L86">            ft.tcps_conndrops = m.getInt(16);</span>
+<span class="nc" id="L87">            ft.tcps_sndpack = m.getInt(64);</span>
+<span class="nc" id="L88">            ft.tcps_sndrexmitpack = m.getInt(72);</span>
+<span class="nc" id="L89">            ft.tcps_rcvpack = m.getInt(104);</span>
+<span class="nc" id="L90">            ft.tcps_rcvbadsum = m.getInt(112);</span>
+<span class="nc" id="L91">            ft.tcps_rcvbadoff = m.getInt(116);</span>
+<span class="nc" id="L92">            ft.tcps_rcvmemdrop = m.getInt(120);</span>
+<span class="nc" id="L93">            ft.tcps_rcvshort = m.getInt(124);</span>
+        }
+<span class="nc" id="L95">        return ft;</span>
+    }
+
+    private static BsdUdpstat queryUdpstat() {
+<span class="nc" id="L99">        BsdUdpstat ut = new BsdUdpstat();</span>
+<span class="nc" id="L100">        Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;);</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 1644) {</span>
+<span class="nc" id="L102">            ut.udps_ipackets = m.getInt(0);</span>
+<span class="nc" id="L103">            ut.udps_hdrops = m.getInt(4);</span>
+<span class="nc" id="L104">            ut.udps_badsum = m.getInt(8);</span>
+<span class="nc" id="L105">            ut.udps_badlen = m.getInt(12);</span>
+<span class="nc" id="L106">            ut.udps_opackets = m.getInt(36);</span>
+<span class="nc" id="L107">            ut.udps_noportmcast = m.getInt(48);</span>
+<span class="nc" id="L108">            ut.udps_rcv6_swcsum = m.getInt(64);</span>
+<span class="nc" id="L109">            ut.udps_snd6_swcsum = m.getInt(80);</span>
+        }
+<span class="nc" id="L111">        return ut;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

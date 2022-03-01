@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>GeomPartList.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.unix.freebsd.disk</a> &gt; <span class="el_source">GeomPartList.java</span></div><h1>GeomPartList.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.unix.freebsd.disk;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.HWPartition;
+import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
+
+/**
+ * Utility to query geom part list
+ */
+@ThreadSafe
+public final class GeomPartList {
+
+    private static final String GEOM_PART_LIST = &quot;geom part list&quot;;
+    private static final String STAT_FILESIZE = &quot;stat -f %i /dev/&quot;;
+
+    private GeomPartList() {
+    }
+
+    /**
+     * Queries partition data using geom, mount, and stat commands
+     *
+     * @return A map with disk name as the key and a List of partitions as the value
+     */
+    public static Map&lt;String, List&lt;HWPartition&gt;&gt; queryPartitions() {
+<span class="nc" id="L57">        Map&lt;String, String&gt; mountMap = Mount.queryPartitionToMountMap();</span>
+        // Map of device name to partitions, to be returned
+<span class="nc" id="L59">        Map&lt;String, List&lt;HWPartition&gt;&gt; partitionMap = new HashMap&lt;&gt;();</span>
+        // The Disk Store associated with a partition, key to the map
+<span class="nc" id="L61">        String diskName = null;</span>
+        // List to hold partitions, will be added as value to the map
+<span class="nc" id="L63">        List&lt;HWPartition&gt; partList = new ArrayList&lt;&gt;();</span>
+        // Parameters needed for constructor.
+<span class="nc" id="L65">        String partName = null; // Non-null identifies a valid partition</span>
+<span class="nc" id="L66">        String identification = Constants.UNKNOWN;</span>
+<span class="nc" id="L67">        String type = Constants.UNKNOWN;</span>
+<span class="nc" id="L68">        String uuid = Constants.UNKNOWN;</span>
+<span class="nc" id="L69">        long size = 0;</span>
+<span class="nc" id="L70">        String mountPoint = &quot;&quot;;</span>
+
+<span class="nc" id="L72">        List&lt;String&gt; geom = ExecutingCommand.runNative(GEOM_PART_LIST);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (String line : geom) {</span>
+<span class="nc" id="L74">            line = line.trim();</span>
+            // Marks the DiskStore device for a partition.
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (line.startsWith(&quot;Geom name:&quot;)) {</span>
+                // Save any previous partition list in the map
+<span class="nc bnc" id="L78" title="All 4 branches missed.">                if (diskName != null &amp;&amp; !partList.isEmpty()) {</span>
+                    // Store map (old diskName)
+<span class="nc" id="L80">                    partitionMap.put(diskName, partList);</span>
+                    // Reset the list
+<span class="nc" id="L82">                    partList = new ArrayList&lt;&gt;();</span>
+                }
+                // Now use new diskName
+<span class="nc" id="L85">                diskName = line.substring(line.lastIndexOf(' ') + 1);</span>
+            }
+            // If we don't have a valid store, don't bother parsing anything
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (diskName != null) {</span>
+                // Marks the beginning of partition data
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                if (line.contains(&quot;Name:&quot;)) {</span>
+                    // Add the current partition to the list, if any
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                    if (partName != null) {</span>
+                        // FreeBSD Major # is 0.
+                        // Minor # is filesize of /dev entry.
+<span class="nc" id="L95">                        int minor = ParseUtil</span>
+<span class="nc" id="L96">                                .parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);</span>
+<span class="nc" id="L97">                        partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));</span>
+<span class="nc" id="L98">                        partName = null;</span>
+<span class="nc" id="L99">                        identification = Constants.UNKNOWN;</span>
+<span class="nc" id="L100">                        type = Constants.UNKNOWN;</span>
+<span class="nc" id="L101">                        uuid = Constants.UNKNOWN;</span>
+<span class="nc" id="L102">                        size = 0;</span>
+                    }
+                    // Verify new entry is a partition
+                    // (will happen in 'providers' section)
+<span class="nc" id="L106">                    String part = line.substring(line.lastIndexOf(' ') + 1);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                    if (part.startsWith(diskName)) {</span>
+<span class="nc" id="L108">                        partName = part;</span>
+<span class="nc" id="L109">                        identification = part;</span>
+<span class="nc" id="L110">                        mountPoint = mountMap.getOrDefault(part, &quot;&quot;);</span>
+                    }
+                }
+                // If we don't have a valid partition, don't parse anything until we do.
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (partName != null) {</span>
+<span class="nc" id="L115">                    String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                    if (split.length &gt;= 2) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                        if (line.startsWith(&quot;Mediasize:&quot;)) {</span>
+<span class="nc" id="L118">                            size = ParseUtil.parseLongOrDefault(split[1], 0L);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                        } else if (line.startsWith(&quot;rawuuid:&quot;)) {</span>
+<span class="nc" id="L120">                            uuid = split[1];</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                        } else if (line.startsWith(&quot;type:&quot;)) {</span>
+<span class="nc" id="L122">                            type = split[1];</span>
+                        }
+                    }
+                }
+            }
+<span class="nc" id="L127">        }</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (diskName != null) {</span>
+            // Process last partition
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (partName != null) {</span>
+<span class="nc" id="L131">                int minor = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);</span>
+<span class="nc" id="L132">                partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));</span>
+            }
+            // Process last diskstore
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (!partList.isEmpty()) {</span>
+<span class="nc" id="L136">                partList = partList.stream().sorted(Comparator.comparing(HWPartition::getName))</span>
+<span class="nc" id="L137">                        .collect(Collectors.toList());</span>
+<span class="nc" id="L138">                partitionMap.put(diskName, partList);</span>
+            }
+        }
+<span class="nc" id="L141">        return partitionMap;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

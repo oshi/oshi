@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSDesktopWindow.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSDesktopWindow.java</span></div><h1>OSDesktopWindow.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os;
+
+import java.awt.Rectangle;
+
+import com.sun.jna.platform.win32.WinDef.HWND; // NOSONAR squid:s1191
+
+import oshi.annotation.concurrent.Immutable;
+
+/**
+ * This class encapsulates information about a window on the operating system's
+ * GUI desktop
+ */
+@Immutable
+public class OSDesktopWindow {
+    private final long windowId;
+    private final String title;
+    private final String command;
+    private final Rectangle locAndSize;
+    private final long owningProcessId;
+    private final int order;
+    private final boolean visible;
+
+    public OSDesktopWindow(long windowId, String title, String command, Rectangle locAndSize, long owningProcessId,
+            int order, boolean visible) {
+<span class="nc" id="L48">        super();</span>
+<span class="nc" id="L49">        this.windowId = windowId;</span>
+<span class="nc" id="L50">        this.title = title;</span>
+<span class="nc" id="L51">        this.command = command;</span>
+<span class="nc" id="L52">        this.locAndSize = locAndSize;</span>
+<span class="nc" id="L53">        this.owningProcessId = owningProcessId;</span>
+<span class="nc" id="L54">        this.order = order;</span>
+<span class="nc" id="L55">        this.visible = visible;</span>
+<span class="nc" id="L56">    }</span>
+
+    /**
+     * Gets the operating system's handle, window ID, or other unique identifier for
+     * this window.
+     * &lt;p&gt;
+     * On Winodws, this can be converted to a {@link HWND} using
+     * {@code new HWND(new Pointer(windowId))}. On macOS, this is the Core Graphics
+     * Window ID. On Unix-like systems, this is the X11 Window ID.
+     *
+     * @return the windowId
+     */
+    public long getWindowId() {
+<span class="nc" id="L69">        return windowId;</span>
+    }
+
+    /**
+     * Gets the Window title, if any.
+     *
+     * @return the title, which may be an empty string if the window has no title.
+     */
+    public String getTitle() {
+<span class="nc" id="L78">        return title;</span>
+    }
+
+    /**
+     * Gets the command name (possibly the full file path) of the window's
+     * executable program, if known.
+     *
+     * @return the command
+     */
+    public String getCommand() {
+<span class="nc" id="L88">        return command;</span>
+    }
+
+    /**
+     * Gets a {@link Rectangle} representing the window's location and size.
+     *
+     * @return the location and size
+     */
+    public Rectangle getLocAndSize() {
+<span class="nc" id="L97">        return locAndSize;</span>
+    }
+
+    /**
+     * Gets the process ID of the process which owns this window, if known.
+     *
+     * @return the owningProcessId
+     */
+    public long getOwningProcessId() {
+<span class="nc" id="L106">        return owningProcessId;</span>
+    }
+
+    /**
+     * Makes a best effort to get the order in which this window appears on the
+     * desktop. Higher values are more in the foreground.
+     * &lt;p&gt;
+     * On Windows, this represents the Z Order of the window, and is not guaranteed
+     * to be atomic, as it could be impacted by race conditions.
+     * &lt;p&gt;
+     * On macOS this is the window layer. Note that multiple windows may share the
+     * same layer.
+     * &lt;p&gt;
+     * On X11 this represents the stacking order of the windows.
+     *
+     * @return a best effort identification of the window's Z order relative to
+     *         other windows
+     */
+    public int getOrder() {
+<span class="nc" id="L125">        return order;</span>
+    }
+
+    /**
+     * Makes a best effort to report whether the window is visible to the user. A
+     * &quot;visible&quot; window may be completely transparent.
+     *
+     * @return {@code true} if the window is visible to users or if visibility can
+     *         not be determined, {@code false} otherwise.
+     */
+    public boolean isVisible() {
+<span class="nc" id="L136">        return visible;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L141">        return &quot;OSDesktopWindow [windowId=&quot; + windowId + &quot;, title=&quot; + title + &quot;, command=&quot; + command + &quot;, locAndSize=&quot;</span>
+<span class="nc" id="L142">                + locAndSize.toString() + &quot;, owningProcessId=&quot; + owningProcessId + &quot;, order=&quot; + order + &quot;, visible=&quot;</span>
+                + visible + &quot;]&quot;;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -61,7 +61,7 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.aix.PsInfo;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.aix.perfstat.PerfstatCpu;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.AixLibc.AixPsInfo;
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
@@ -287,7 +287,7 @@
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>         <em class="jxr_comment">// Iterate files</em>
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">for</strong> (File lwpidFile : numericFiles) {
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>             <strong class="jxr_keyword">int</strong> lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             AIXLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             AixLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">if</strong> (info != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>                 mask |= info.pr_bindpro;
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>             }

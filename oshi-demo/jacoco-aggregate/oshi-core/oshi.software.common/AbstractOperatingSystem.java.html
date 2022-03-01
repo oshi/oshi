@@ -103,8 +103,8 @@ import oshi.util.tuples.Pair;
 
     @Override
     public List&lt;OSProcess&gt; getProcesses(Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort, int limit) {
-<span class="nc bnc" id="L106" title="All 4 branches missed.">        return queryAllProcesses().stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        return queryAllProcesses().stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
+<span class="nc bnc" id="L107" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
 <span class="nc" id="L108">                .collect(Collectors.toList());</span>
     }
 
@@ -121,8 +121,8 @@ import oshi.util.tuples.Pair;
 <span class="nc bnc" id="L121" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
         // Get children after parent
 <span class="nc bnc" id="L123" title="All 2 branches missed.">        return queryChildProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
-<span class="nc bnc" id="L124" title="All 6 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
+<span class="nc bnc" id="L124" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
+<span class="nc bnc" id="L125" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
 <span class="nc" id="L126">                .collect(Collectors.toList());</span>
     }
 
@@ -140,8 +140,8 @@ import oshi.util.tuples.Pair;
 <span class="nc bnc" id="L140" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
         // Get descendants after parent
 <span class="nc bnc" id="L142" title="All 2 branches missed.">        return queryDescendantProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
-<span class="nc bnc" id="L143" title="All 6 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
+<span class="nc bnc" id="L143" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
 <span class="nc" id="L145">                .collect(Collectors.toList());</span>
     }
 

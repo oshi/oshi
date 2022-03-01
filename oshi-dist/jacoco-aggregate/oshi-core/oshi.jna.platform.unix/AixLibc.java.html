@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AixLibc.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">AixLibc.java</span></div><h1>AixLibc.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna.platform.unix;
+
+import java.nio.ByteBuffer;
+
+import com.sun.jna.Native; // NOSONAR squid:S1191
+
+import oshi.util.FileUtil;
+
+/**
+ * C library. This class should be considered non-API as it may be removed
+ * if/when its code is incorporated into the JNA project.
+ */
+public interface AixLibc extends CLibrary {
+
+<span class="nc" id="L38">    AixLibc INSTANCE = Native.load(&quot;c&quot;, AixLibc.class);</span>
+
+    int PRCLSZ = 8;
+    int PRFNSZ = 16;
+    int PRARGSZ = 80;
+
+    class AixPsInfo {
+        public int pr_flag; // process flags from proc struct p_flag
+        public int pr_flag2; // process flags from proc struct p_flag2
+        public int pr_nlwp; // number of threads in process
+        public int pr__pad1; // reserved for future use
+        public long pr_uid; // real user id
+        public long pr_euid; // effective user id
+        public long pr_gid; // real group id
+        public long pr_egid; // effective group id
+        public long pr_pid; // unique process id
+        public long pr_ppid; // process id of parent
+        public long pr_pgid; // pid of process group leader
+        public long pr_sid; // session id
+        public long pr_ttydev; // controlling tty device
+        public long pr_addr; // internal address of proc struct
+        public long pr_size; // size of process image in KB (1024) units
+        public long pr_rssize; // resident set size in KB (1024) units
+        public Timestruc pr_start; // process start time, time since epoch
+        public Timestruc pr_time; // usr+sys cpu time for this process
+        public short pr_cid; // corral id
+        public short pr__pad2; // reserved for future use
+        public int pr_argc; // initial argument count
+        public long pr_argv; // address of initial argument vector in user process
+        public long pr_envp; // address of initial environment vector in user process
+<span class="nc" id="L68">        public byte[] pr_fname = new byte[PRFNSZ]; // last component of exec()ed pathname</span>
+<span class="nc" id="L69">        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list</span>
+<span class="nc" id="L70">        public long[] pr__pad = new long[8]; // reserved for future use</span>
+        public AixLwpsInfo pr_lwp; // &quot;representative&quot; thread info
+
+<span class="nc" id="L73">        public AixPsInfo(ByteBuffer buff) {</span>
+<span class="nc" id="L74">            this.pr_flag = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L75">            this.pr_flag2 = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L76">            this.pr_nlwp = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L77">            this.pr__pad1 = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L78">            this.pr_uid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L79">            this.pr_euid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L80">            this.pr_gid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L81">            this.pr_egid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L82">            this.pr_pid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L83">            this.pr_ppid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L84">            this.pr_pgid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L85">            this.pr_sid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L86">            this.pr_ttydev = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L87">            this.pr_addr = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L88">            this.pr_size = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L89">            this.pr_rssize = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L90">            this.pr_start = new Timestruc(buff);</span>
+<span class="nc" id="L91">            this.pr_time = new Timestruc(buff);</span>
+<span class="nc" id="L92">            this.pr_cid = FileUtil.readShortFromBuffer(buff);</span>
+<span class="nc" id="L93">            this.pr__pad2 = FileUtil.readShortFromBuffer(buff);</span>
+<span class="nc" id="L94">            this.pr_argc = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L95">            this.pr_argv = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L96">            this.pr_envp = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L97">            FileUtil.readByteArrayFromBuffer(buff, this.pr_fname);</span>
+<span class="nc" id="L98">            FileUtil.readByteArrayFromBuffer(buff, this.pr_psargs);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            for (int i = 0; i &lt; pr__pad.length; i++) {</span>
+<span class="nc" id="L100">                this.pr__pad[i] = FileUtil.readLongFromBuffer(buff);</span>
+            }
+<span class="nc" id="L102">            this.pr_lwp = new AixLwpsInfo(buff);</span>
+<span class="nc" id="L103">        }</span>
+
+    }
+
+    class AixLwpsInfo {
+        public long pr_lwpid; // thread id
+        public long pr_addr; // internal address of thread
+        public long pr_wchan; // wait addr for sleeping thread
+        public int pr_flag; // thread flags
+        public byte pr_wtype; // type of thread wait
+        public byte pr_state; // numeric scheduling state
+        public byte pr_sname; // printable character representing pr_state
+        public byte pr_nice; // nice for cpu usage
+        public int pr_pri; // priority, high value = high priority
+        public int pr_policy; // scheduling policy
+<span class="nc" id="L118">        public byte[] pr_clname = new byte[PRCLSZ]; // printable character representing pr_policy</span>
+        public int pr_onpro; // processor on which thread last ran
+        public int pr_bindpro; // processor to which thread is bound
+
+<span class="nc" id="L122">        public AixLwpsInfo(ByteBuffer buff) {</span>
+<span class="nc" id="L123">            this.pr_lwpid = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L124">            this.pr_addr = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L125">            this.pr_wchan = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L126">            this.pr_flag = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L127">            this.pr_wtype = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L128">            this.pr_state = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L129">            this.pr_sname = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L130">            this.pr_nice = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L131">            this.pr_pri = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L132">            this.pr_policy = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L133">            FileUtil.readByteArrayFromBuffer(buff, this.pr_clname);</span>
+<span class="nc" id="L134">            this.pr_onpro = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L135">            this.pr_bindpro = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L136">        }</span>
+    }
+
+    /**
+     * 64-bit timestruc required for psinfo structure
+     */
+    class Timestruc {
+        public long tv_sec; // seconds
+        public int tv_nsec; // nanoseconds
+        public int pad; // nanoseconds
+
+<span class="nc" id="L147">        public Timestruc(ByteBuffer buff) {</span>
+<span class="nc" id="L148">            this.tv_sec = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L149">            this.tv_nsec = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L150">            this.pad = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L151">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

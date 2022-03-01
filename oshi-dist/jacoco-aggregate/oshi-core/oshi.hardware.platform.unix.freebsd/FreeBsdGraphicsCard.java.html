@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdGraphicsCard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdGraphicsCard.java</span></div><h1>FreeBsdGraphicsCard.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.unix.freebsd;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.GraphicsCard;
+import oshi.hardware.common.AbstractGraphicsCard;
+import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
+
+/**
+ * Graphics Card info obtained from pciconf
+ */
+@Immutable
+final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
+
+    private static final String PCI_CLASS_DISPLAY = &quot;0x03&quot;;
+
+    /**
+     * Constructor for FreeBsdGraphicsCard
+     *
+     * @param name
+     *            The name
+     * @param deviceId
+     *            The device ID
+     * @param vendor
+     *            The vendor
+     * @param versionInfo
+     *            The version info
+     * @param vram
+     *            The VRAM
+     */
+    FreeBsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+<span class="nc" id="L60">        super(name, deviceId, vendor, versionInfo, vram);</span>
+<span class="nc" id="L61">    }</span>
+
+    /**
+     * public method used by
+     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
+     * graphics cards.
+     *
+     * @return List of
+     *         {@link oshi.hardware.platform.unix.freebsd.FreeBsdGraphicsCard}
+     *         objects.
+     */
+    public static List&lt;GraphicsCard&gt; getGraphicsCards() {
+<span class="nc" id="L73">        List&lt;GraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
+        // Enumerate all devices and add if required
+<span class="nc" id="L75">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;pciconf -lv&quot;);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
+<span class="nc" id="L77">            return Collections.emptyList();</span>
+        }
+<span class="nc" id="L79">        String name = Constants.UNKNOWN;</span>
+<span class="nc" id="L80">        String vendorId = Constants.UNKNOWN;</span>
+<span class="nc" id="L81">        String productId = Constants.UNKNOWN;</span>
+<span class="nc" id="L82">        String classCode = &quot;&quot;;</span>
+<span class="nc" id="L83">        String versionInfo = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (String line : devices) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (line.contains(&quot;class=0x&quot;)) {</span>
+                // Identifies start of a new device. Save previous if it's a graphics card
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                    cardList.add(new FreeBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                            productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                            vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+                }
+                // Parse this line
+<span class="nc" id="L94">                String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                for (String s : split) {</span>
+<span class="nc" id="L96">                    String[] keyVal = s.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">                    if (keyVal.length &gt; 1) {</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">                        if (keyVal[0].equals(&quot;class&quot;) &amp;&amp; keyVal[1].length() &gt;= 4) {</span>
+                            // class=0x030000
+<span class="nc" id="L100">                            classCode = keyVal[1].substring(0, 4);</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">                        } else if (keyVal[0].equals(&quot;chip&quot;) &amp;&amp; keyVal[1].length() &gt;= 10) {</span>
+                            // chip=0x3ea08086
+<span class="nc" id="L103">                            productId = keyVal[1].substring(0, 6);</span>
+<span class="nc" id="L104">                            vendorId = &quot;0x&quot; + keyVal[1].substring(6, 10);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                        } else if (keyVal[0].contains(&quot;rev&quot;)) {</span>
+                            // rev=0x00
+<span class="nc" id="L107">                            versionInfo = s;</span>
+                        }
+                    }
+                }
+                // Reset name
+<span class="nc" id="L112">                name = Constants.UNKNOWN;</span>
+<span class="nc" id="L113">            } else {</span>
+<span class="nc" id="L114">                String[] split = line.trim().split(&quot;=&quot;, 2);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                if (split.length == 2) {</span>
+<span class="nc" id="L116">                    String key = split[0].trim();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                    if (key.equals(&quot;vendor&quot;)) {</span>
+<span class="nc" id="L118">                        vendorId = ParseUtil.getSingleQuoteStringValue(line)</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                                + (vendorId.equals(Constants.UNKNOWN) ? &quot;&quot; : &quot; (&quot; + vendorId + &quot;)&quot;);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                    } else if (key.equals(&quot;device&quot;)) {</span>
+<span class="nc" id="L121">                        name = ParseUtil.getSingleQuoteStringValue(line);</span>
+                    }
+                }
+            }
+<span class="nc" id="L125">        }</span>
+        // In case we reached end before saving
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (PCI_CLASS_DISPLAY.equals(classCode)) {</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            cardList.add(new FreeBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                    productId.isEmpty() ? Constants.UNKNOWN : productId,</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                    vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                    versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+        }
+<span class="nc" id="L133">        return cardList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

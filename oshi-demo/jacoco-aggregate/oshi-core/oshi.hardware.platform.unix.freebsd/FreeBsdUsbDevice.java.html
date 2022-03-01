@@ -130,7 +130,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
 <span class="nc" id="L130">                        String serial = ParseUtil.getSingleQuoteStringValue(line);</span>
 <span class="nc" id="L131">                        serialMap.put(key,</span>
 <span class="nc bnc" id="L132" title="All 2 branches missed.">                                serial.startsWith(&quot;0x&quot;) ? ParseUtil.hexStringToString(serial.replace(&quot;0x&quot;, &quot;&quot;))</span>
-                                        : serial);
+<span class="nc" id="L133">                                        : serial);</span>
 <span class="nc bnc" id="L134" title="All 2 branches missed.">                    } else if (line.contains(&quot;.vendor_id =&quot;)) {</span>
 <span class="nc" id="L135">                        vendorIdMap.put(key, String.format(&quot;%04x&quot;, ParseUtil.getFirstIntValue(line)));</span>
 <span class="nc bnc" id="L136" title="All 2 branches missed.">                    } else if (line.contains(&quot;.product_id =&quot;)) {</span>

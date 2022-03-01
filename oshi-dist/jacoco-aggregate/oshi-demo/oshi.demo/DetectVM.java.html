@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>DetectVM.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo</a> &gt; <span class="el_source">DetectVM.java</span></div><h1>DetectVM.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.demo;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import oshi.SystemInfo;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
+import oshi.util.FileUtil;
+
+/**
+ * Uses OSHI to attempt to identify whether the user is on a Virtual Machine
+ */
+<span class="nc" id="L39">public class DetectVM {</span>
+
+    private static final String OSHI_VM_MAC_ADDR_PROPERTIES = &quot;oshi.vmmacaddr.properties&quot;;
+<span class="nc" id="L42">    private static final Properties vmMacAddressProps = FileUtil</span>
+<span class="nc" id="L43">            .readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);</span>
+
+    // Constant for CPU vendor string
+<span class="nc" id="L46">    private static final Map&lt;String, String&gt; vmVendor = new HashMap&lt;&gt;();</span>
+    static {
+<span class="nc" id="L48">        vmVendor.put(&quot;bhyve bhyve&quot;, &quot;bhyve&quot;);</span>
+<span class="nc" id="L49">        vmVendor.put(&quot;KVMKVMKVM&quot;, &quot;KVM&quot;);</span>
+<span class="nc" id="L50">        vmVendor.put(&quot;TCGTCGTCGTCG&quot;, &quot;QEMU&quot;);</span>
+<span class="nc" id="L51">        vmVendor.put(&quot;Microsoft Hv&quot;, &quot;Microsoft Hyper-V or Windows Virtual PC&quot;);</span>
+<span class="nc" id="L52">        vmVendor.put(&quot;lrpepyh vr&quot;, &quot;Parallels&quot;);// (endianness mismatch of &quot;prl hyperv &quot;)</span>
+<span class="nc" id="L53">        vmVendor.put(&quot;VMwareVMware&quot;, &quot;VMware&quot;);</span>
+<span class="nc" id="L54">        vmVendor.put(&quot;XenVMMXenVMM&quot;, &quot;Xen HVM&quot;);</span>
+<span class="nc" id="L55">        vmVendor.put(&quot;ACRNACRNACRN&quot;, &quot;Project ACRN&quot;);</span>
+<span class="nc" id="L56">        vmVendor.put(&quot;QNXQVMBSQG&quot;, &quot;QNX Hypervisor&quot;);</span>
+    }
+
+<span class="nc" id="L59">    private static final String[] vmModelArray = new String[] { &quot;Linux KVM&quot;, &quot;Linux lguest&quot;, &quot;OpenVZ&quot;, &quot;Qemu&quot;,</span>
+            &quot;Microsoft Virtual PC&quot;, &quot;VMWare&quot;, &quot;linux-vserver&quot;, &quot;Xen&quot;, &quot;FreeBSD Jail&quot;, &quot;VirtualBox&quot;, &quot;Parallels&quot;,
+            &quot;Linux Containers&quot;, &quot;LXC&quot; };
+
+    /**
+     * The main method, executing the {@link #identifyVM} method.
+     *
+     * @param args
+     *            Arguments, ignored.
+     */
+    public static void main(String[] args) {
+<span class="nc" id="L70">        String vmString = identifyVM();</span>
+
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (vmString.isEmpty()) {</span>
+<span class="nc" id="L73">            System.out.println(&quot;You do not appear to be on a Virtual Machine.&quot;);</span>
+        } else {
+<span class="nc" id="L75">            System.out.println(&quot;You appear to be on a VM: &quot; + vmString);</span>
+        }
+<span class="nc" id="L77">    }</span>
+
+    /**
+     * The function attempts to identify which Virtual Machine (VM) based on common
+     * VM signatures in MAC address and computer model.
+     *
+     * @return A string indicating the machine's virtualization info if it can be
+     *         determined, or an emptry string otherwise.
+     */
+    public static String identifyVM() {
+<span class="nc" id="L87">        SystemInfo si = new SystemInfo();</span>
+<span class="nc" id="L88">        HardwareAbstractionLayer hw = si.getHardware();</span>
+        // Check CPU Vendor
+<span class="nc" id="L90">        String vendor = hw.getProcessor().getProcessorIdentifier().getVendor().trim();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (vmVendor.containsKey(vendor)) {</span>
+<span class="nc" id="L92">            return vmVendor.get(vendor);</span>
+        }
+
+        // Try well known MAC addresses
+<span class="nc" id="L96">        List&lt;NetworkIF&gt; nifs = hw.getNetworkIFs();</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (NetworkIF nif : nifs) {</span>
+<span class="nc" id="L98">            String mac = nif.getMacaddr().toUpperCase();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            String oui = mac.length() &gt; 7 ? mac.substring(0, 8) : mac;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (vmMacAddressProps.containsKey(oui)) {</span>
+<span class="nc" id="L101">                return vmMacAddressProps.getProperty(oui);</span>
+            }
+<span class="nc" id="L103">        }</span>
+
+        // Try well known models
+<span class="nc" id="L106">        String model = hw.getComputerSystem().getModel();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (String vm : vmModelArray) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (model.contains(vm)) {</span>
+<span class="nc" id="L109">                return vm;</span>
+            }
+        }
+<span class="nc" id="L112">        String manufacturer = hw.getComputerSystem().getManufacturer();</span>
+<span class="nc bnc" id="L113" title="All 4 branches missed.">        if (&quot;Microsoft Corporation&quot;.equals(manufacturer) &amp;&amp; &quot;Virtual Machine&quot;.equals(model)) {</span>
+<span class="nc" id="L114">            return &quot;Microsoft Hyper-V&quot;;</span>
+        }
+
+        // Couldn't find VM, return empty string
+<span class="nc" id="L118">        return &quot;&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -58,7 +58,7 @@ public final class PerfCounterQuery {
 
     // For XP, use a map to cache localization strings
 <span class="nc bnc" id="L60" title="All 2 branches missed.">    private static final ConcurrentHashMap&lt;String, String&gt; LOCALIZE_CACHE = IS_VISTA_OR_GREATER ? null</span>
-            : new ConcurrentHashMap&lt;&gt;();
+<span class="nc" id="L61">            : new ConcurrentHashMap&lt;&gt;();</span>
 
     /*
      * Multiple classes use these constants
@@ -143,7 +143,7 @@ public final class PerfCounterQuery {
 <span class="nc" id="L143">                    valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));</span>
                 }
             }
-        }
+<span class="nc" id="L146">        }</span>
 <span class="nc" id="L147">        return valueMap;</span>
     }
 

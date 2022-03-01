@@ -163,8 +163,8 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L163">            Map&lt;PsKeywords, String&gt; psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');</span>
             // Check if last (thus all) value populated
 <span class="nc bnc" id="L165" title="All 2 branches missed.">            if (psMap.containsKey(PsKeywords.ARGS)) {</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">                procs.add(new FreeBsdOSProcess(</span>
-<span class="nc" id="L167">                        pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap));</span>
+<span class="nc" id="L166">                procs.add(new FreeBsdOSProcess(</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                        pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap));</span>
             }
 <span class="nc" id="L169">        }</span>
 <span class="nc" id="L170">        return procs;</span>

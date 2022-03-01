@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OpenBsdGraphicsCard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.openbsd</a> &gt; <span class="el_source">OpenBsdGraphicsCard.java</span></div><h1>OpenBsdGraphicsCard.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.unix.openbsd;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import oshi.annotation.concurrent.Immutable;
+import oshi.hardware.GraphicsCard;
+import oshi.hardware.common.AbstractGraphicsCard;
+import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
+
+/**
+ * Graphics Card info obtained from pciconf
+ */
+@Immutable
+final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
+
+    private static final String PCI_CLASS_DISPLAY = &quot;Class: 03 Display&quot;;
+<span class="nc" id="L45">    private static final Pattern PCI_DUMP_HEADER = Pattern.compile(&quot; \\d+:\\d+:\\d+: (.+)&quot;);</span>
+
+    /**
+     * Constructor for OpenBsdGraphicsCard
+     *
+     * @param name
+     *            The name
+     * @param deviceId
+     *            The device ID
+     * @param vendor
+     *            The vendor
+     * @param versionInfo
+     *            The version info
+     * @param vram
+     *            The VRAM
+     */
+    OpenBsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+<span class="nc" id="L62">        super(name, deviceId, vendor, versionInfo, vram);</span>
+<span class="nc" id="L63">    }</span>
+
+    /**
+     * public method used by
+     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
+     * graphics cards.
+     *
+     * @return List of
+     *         {@link oshi.hardware.platform.unix.freebsd.OpenBsdGraphicsCard}
+     *         objects.
+     */
+    public static List&lt;GraphicsCard&gt; getGraphicsCards() {
+<span class="nc" id="L75">        List&lt;GraphicsCard&gt; cardList = new ArrayList&lt;&gt;();</span>
+        // Enumerate all devices and add if required
+<span class="nc" id="L77">        List&lt;String&gt; devices = ExecutingCommand.runNative(&quot;pcidump -v&quot;);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (devices.isEmpty()) {</span>
+<span class="nc" id="L79">            return Collections.emptyList();</span>
+        }
+<span class="nc" id="L81">        String name = &quot;&quot;;</span>
+<span class="nc" id="L82">        String vendorId = &quot;&quot;;</span>
+<span class="nc" id="L83">        String productId = &quot;&quot;;</span>
+<span class="nc" id="L84">        boolean classCodeFound = false;</span>
+<span class="nc" id="L85">        String versionInfo = &quot;&quot;;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (String line : devices) {</span>
+<span class="nc" id="L87">            Matcher m = PCI_DUMP_HEADER.matcher(line);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (m.matches()) {</span>
+                // Identifies start of a new device. Save previous if it's a graphics card
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                if (classCodeFound) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                    cardList.add(new OpenBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L92" title="All 4 branches missed.">                            productId.isEmpty() ? &quot;0x0000&quot; : productId, vendorId.isEmpty() ? &quot;0x0000&quot; : vendorId,</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                            versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+                }
+                // Device name is the captured pattern
+<span class="nc" id="L96">                name = m.group(1);</span>
+                // Reset values
+<span class="nc" id="L98">                vendorId = &quot;&quot;;</span>
+<span class="nc" id="L99">                productId = &quot;&quot;;</span>
+<span class="nc" id="L100">                classCodeFound = false;</span>
+<span class="nc" id="L101">                versionInfo = &quot;&quot;;</span>
+            } else {
+                int idx;
+                // Look for:
+                // 0x0000: Vendor ID: 1ab8, Product ID: 4005
+                // 0x0008: Class: 03 Display, Subclass: 00 VGA
+                // ....... Interface: 00, Revision: 00
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (!classCodeFound) {</span>
+<span class="nc" id="L109">                    idx = line.indexOf(&quot;Vendor ID: &quot;);</span>
+<span class="nc bnc" id="L110" title="All 4 branches missed.">                    if (idx &gt;= 0 &amp;&amp; line.length() &gt;= idx + 15) {</span>
+<span class="nc" id="L111">                        vendorId = &quot;0x&quot; + line.substring(idx + 11, idx + 15);</span>
+                    }
+<span class="nc" id="L113">                    idx = line.indexOf(&quot;Product ID: &quot;);</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">                    if (idx &gt;= 0 &amp;&amp; line.length() &gt;= idx + 16) {</span>
+<span class="nc" id="L115">                        productId = &quot;0x&quot; + line.substring(idx + 12, idx + 16);</span>
+                    }
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                    if (line.contains(PCI_CLASS_DISPLAY)) {</span>
+<span class="nc" id="L118">                        classCodeFound = true;</span>
+                    }
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                } else if (versionInfo.isEmpty()) {</span>
+<span class="nc" id="L121">                    idx = line.indexOf(&quot;Revision: &quot;);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                    if (idx &gt;= 0) {</span>
+<span class="nc" id="L123">                        versionInfo = line.substring(idx);</span>
+                    }
+                }
+            }
+<span class="nc" id="L127">        }</span>
+        // In case we reached end before saving
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (classCodeFound) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            cardList.add(new OpenBsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">                    productId.isEmpty() ? &quot;0x0000&quot; : productId, vendorId.isEmpty() ? &quot;0x0000&quot; : vendorId,</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                    versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));</span>
+        }
+<span class="nc" id="L134">        return cardList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -64,9 +64,9 @@ public final class WindowInfo {
      *         representing the desktop windows.
      */
     public static List&lt;OSDesktopWindow&gt; queryDesktopWindows(boolean visibleOnly) {
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        CFArrayRef windowInfo = CoreGraphics.INSTANCE.CGWindowListCopyWindowInfo(</span>
-                visibleOnly ? kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements
-                        : kCGWindowListOptionAll,
+<span class="nc" id="L67">        CFArrayRef windowInfo = CoreGraphics.INSTANCE.CGWindowListCopyWindowInfo(</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                visibleOnly ? kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements</span>
+<span class="nc" id="L69">                        : kCGWindowListOptionAll,</span>
                 kCGNullWindowID);
 <span class="nc" id="L71">        int numWindows = windowInfo.getCount();</span>
         // Prepare a list to return

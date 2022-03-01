@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsPowerSource.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsPowerSource.java</span></div><h1>WindowsPowerSource.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware.platform.windows;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+
+import com.sun.jna.Memory; // NOSONAR
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
+import com.sun.jna.platform.win32.Guid.GUID;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
+import com.sun.jna.platform.win32.SetupApi;
+import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.win32.W32APITypeMapper;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.PowerSource;
+import oshi.hardware.common.AbstractPowerSource;
+import oshi.jna.platform.windows.PowrProf;
+import oshi.jna.platform.windows.PowrProf.BATTERY_INFORMATION;
+import oshi.jna.platform.windows.PowrProf.BATTERY_MANUFACTURE_DATE;
+import oshi.jna.platform.windows.PowrProf.BATTERY_QUERY_INFORMATION;
+import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
+import oshi.util.Constants;
+
+/**
+ * A Power Source
+ */
+@ThreadSafe
+public final class WindowsPowerSource extends AbstractPowerSource {
+
+<span class="nc" id="L62">    private static final GUID GUID_DEVCLASS_BATTERY = GUID.fromString(&quot;{72631E54-78A4-11D0-BCF7-00AA00B7B32A}&quot;);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">    private static final int CHAR_WIDTH = W32APITypeMapper.DEFAULT == W32APITypeMapper.UNICODE ? 2 : 1;</span>
+<span class="nc" id="L64">    private static final boolean X64 = Platform.is64Bit();</span>
+
+    private static final int BATTERY_SYSTEM_BATTERY = 0x80000000;
+    private static final int BATTERY_IS_SHORT_TERM = 0x20000000;
+    private static final int BATTERY_POWER_ON_LINE = 0x00000001;
+    private static final int BATTERY_DISCHARGING = 0x00000002;
+    private static final int BATTERY_CHARGING = 0x00000004;
+    private static final int BATTERY_CAPACITY_RELATIVE = 0x40000000;
+
+    private static final int IOCTL_BATTERY_QUERY_TAG = 0x294040;
+    private static final int IOCTL_BATTERY_QUERY_STATUS = 0x29404c;
+    private static final int IOCTL_BATTERY_QUERY_INFORMATION = 0x294044;
+
+    public WindowsPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
+            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
+            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
+            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            String psSerialNumber, double psTemperature) {
+<span class="nc" id="L83">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
+                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
+<span class="nc" id="L87">    }</span>
+
+    /**
+     * Gets Battery Information.
+     *
+     * @return A list of PowerSource objects representing batteries, etc.
+     */
+    public static List&lt;PowerSource&gt; getPowerSources() {
+<span class="nc" id="L95">        return Arrays.asList(getPowerSource(&quot;System Battery&quot;));</span>
+    }
+
+    private static WindowsPowerSource getPowerSource(String name) {
+<span class="nc" id="L99">        String psName = name;</span>
+<span class="nc" id="L100">        String psDeviceName = Constants.UNKNOWN;</span>
+<span class="nc" id="L101">        double psRemainingCapacityPercent = 1d;</span>
+<span class="nc" id="L102">        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited</span>
+<span class="nc" id="L103">        double psTimeRemainingInstant = 0d;</span>
+<span class="nc" id="L104">        int psPowerUsageRate = 0;</span>
+<span class="nc" id="L105">        double psVoltage = -1d;</span>
+<span class="nc" id="L106">        double psAmperage = 0d;</span>
+<span class="nc" id="L107">        boolean psPowerOnLine = false;</span>
+<span class="nc" id="L108">        boolean psCharging = false;</span>
+<span class="nc" id="L109">        boolean psDischarging = false;</span>
+<span class="nc" id="L110">        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;</span>
+<span class="nc" id="L111">        int psCurrentCapacity = 0;</span>
+<span class="nc" id="L112">        int psMaxCapacity = 1;</span>
+<span class="nc" id="L113">        int psDesignCapacity = 1;</span>
+<span class="nc" id="L114">        int psCycleCount = -1;</span>
+<span class="nc" id="L115">        String psChemistry = Constants.UNKNOWN;</span>
+<span class="nc" id="L116">        LocalDate psManufactureDate = null;</span>
+<span class="nc" id="L117">        String psManufacturer = Constants.UNKNOWN;</span>
+<span class="nc" id="L118">        String psSerialNumber = Constants.UNKNOWN;</span>
+<span class="nc" id="L119">        double psTemperature = 0d;</span>
+
+        // windows PowerSource information comes from two sources: the PowrProf's
+        // CallNTPowerInformation function which returns information for a single
+        // object, and DeviceIoControl with each battery's (if more than one) handle
+        // (which, in theory, return an array of objects but in most cases should return
+        // one).
+        //
+        // We start by fetching the PowrProf information, which will be replicated
+        // across all IOCTL entries if there are more than one.
+
+<span class="nc" id="L130">        int size = new SystemBatteryState().size();</span>
+<span class="nc" id="L131">        Memory mem = new Memory(size);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, null, 0, mem,</span>
+                size)) {
+<span class="nc" id="L134">            SystemBatteryState batteryState = new SystemBatteryState(mem);</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (batteryState.batteryPresent &gt; 0) {</span>
+<span class="nc bnc" id="L136" title="All 6 branches missed.">                if (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {</span>
+<span class="nc" id="L137">                    psTimeRemainingEstimated = batteryState.estimatedTime;</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                } else if (batteryState.charging &gt; 0) {</span>
+<span class="nc" id="L139">                    psTimeRemainingEstimated = -2d;</span>
+                }
+<span class="nc" id="L141">                psMaxCapacity = batteryState.maxCapacity;</span>
+<span class="nc" id="L142">                psCurrentCapacity = batteryState.remainingCapacity;</span>
+<span class="nc" id="L143">                psRemainingCapacityPercent = Math.min(1d, (double) psCurrentCapacity / psMaxCapacity);</span>
+<span class="nc" id="L144">                psPowerUsageRate = batteryState.rate;</span>
+            }
+        }
+
+        // Enumerate batteries and ask each one for information
+        // Ported from:
+        // https://docs.microsoft.com/en-us/windows/win32/power/enumerating-battery-devices
+
+<span class="nc" id="L152">        HANDLE hdev = SetupApi.INSTANCE.SetupDiGetClassDevs(GUID_DEVCLASS_BATTERY, null, null,</span>
+                SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (!WinBase.INVALID_HANDLE_VALUE.equals(hdev)) {</span>
+<span class="nc" id="L155">            boolean batteryFound = false;</span>
+            // Limit search to 100 batteries max
+<span class="nc bnc" id="L157" title="All 4 branches missed.">            for (int idev = 0; !batteryFound &amp;&amp; idev &lt; 100; idev++) {</span>
+<span class="nc" id="L158">                SP_DEVICE_INTERFACE_DATA did = new SP_DEVICE_INTERFACE_DATA();</span>
+<span class="nc" id="L159">                did.cbSize = did.size();</span>
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                if (SetupApi.INSTANCE.SetupDiEnumDeviceInterfaces(hdev, null, GUID_DEVCLASS_BATTERY, idev, did)) {</span>
+<span class="nc" id="L162">                    IntByReference requiredSize = new IntByReference(0);</span>
+<span class="nc" id="L163">                    SetupApi.INSTANCE.SetupDiGetDeviceInterfaceDetail(hdev, did, null, 0, requiredSize, null);</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">                    if (WinError.ERROR_INSUFFICIENT_BUFFER == Kernel32.INSTANCE.GetLastError()) {</span>
+                        // PSP_DEVICE_INTERFACE_DETAIL_DATA: int size + TCHAR array
+<span class="nc" id="L166">                        Memory pdidd = new Memory(requiredSize.getValue());</span>
+                        // pdidd-&gt;cbSize is defined as sizeof(*pdidd)
+                        // On 64 bit, cbSize is 8. On 32-bit it's 5 or 6 based on char size
+                        // This must be set properly for the method to work but is otherwise ignored
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                        pdidd.setInt(0, Integer.BYTES + (X64 ? 4 : CHAR_WIDTH));</span>
+                        // Regardless of this setting the string portion starts after one byte
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                        if (SetupApi.INSTANCE.SetupDiGetDeviceInterfaceDetail(hdev, did, pdidd, (int) pdidd.size(),</span>
+                                requiredSize, null)) {
+                            // Enumerated a battery. Ask it for information.
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                            String devicePath = CHAR_WIDTH &gt; 1 ? pdidd.getWideString(Integer.BYTES)</span>
+<span class="nc" id="L176">                                    : pdidd.getString(Integer.BYTES);</span>
+<span class="nc" id="L177">                            HANDLE hBattery = Kernel32.INSTANCE.CreateFile(devicePath, // pdidd-&gt;DevicePath</span>
+                                    WinNT.GENERIC_READ | WinNT.GENERIC_WRITE,
+                                    WinNT.FILE_SHARE_READ | WinNT.FILE_SHARE_WRITE, null, WinNT.OPEN_EXISTING,
+                                    WinNT.FILE_ATTRIBUTE_NORMAL, null);
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                            if (!WinBase.INVALID_HANDLE_VALUE.equals(hBattery)) {</span>
+                                // Ask the battery for its tag.
+<span class="nc" id="L183">                                BATTERY_QUERY_INFORMATION bqi = new PowrProf.BATTERY_QUERY_INFORMATION();</span>
+<span class="nc" id="L184">                                IntByReference dwWait = new IntByReference(0);</span>
+<span class="nc" id="L185">                                IntByReference dwTag = new IntByReference();</span>
+<span class="nc" id="L186">                                IntByReference dwOut = new IntByReference();</span>
+
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                                if (Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_TAG,</span>
+<span class="nc" id="L189">                                        dwWait.getPointer(), Integer.BYTES, dwTag.getPointer(), Integer.BYTES, dwOut,</span>
+                                        null)) {
+<span class="nc" id="L191">                                    bqi.BatteryTag = dwTag.getValue();</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">                                    if (bqi.BatteryTag &gt; 0) {</span>
+                                        // With the tag, you can query the battery info.
+<span class="nc" id="L194">                                        bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryInformation</span>
+<span class="nc" id="L195">                                                .ordinal();</span>
+<span class="nc" id="L196">                                        bqi.write();</span>
+<span class="nc" id="L197">                                        BATTERY_INFORMATION bi = new BATTERY_INFORMATION();</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">                                        if (Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,</span>
+<span class="nc" id="L199">                                                bqi.getPointer(), bqi.size(), bi.getPointer(), bi.size(), dwOut,</span>
+                                                null)) {
+                                            // Only non-UPS system batteries count
+<span class="nc" id="L202">                                            bi.read();</span>
+<span class="nc bnc" id="L203" title="All 4 branches missed.">                                            if (0 != (bi.Capabilities &amp; BATTERY_SYSTEM_BATTERY)</span>
+                                                    &amp;&amp; 0 == (bi.Capabilities &amp; BATTERY_IS_SHORT_TERM)) {
+                                                // Capabilities flags non-mWh units
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                                                if (0 == (bi.Capabilities &amp; BATTERY_CAPACITY_RELATIVE)) {</span>
+<span class="nc" id="L207">                                                    psCapacityUnits = CapacityUnits.MWH;</span>
+                                                }
+<span class="nc" id="L209">                                                psChemistry = Native.toString(bi.Chemistry, StandardCharsets.US_ASCII);</span>
+<span class="nc" id="L210">                                                psDesignCapacity = bi.DesignedCapacity;</span>
+<span class="nc" id="L211">                                                psMaxCapacity = bi.FullChargedCapacity;</span>
+<span class="nc" id="L212">                                                psCycleCount = bi.CycleCount;</span>
+
+                                                // Query the battery status.
+<span class="nc" id="L215">                                                PowrProf.BATTERY_WAIT_STATUS bws = new PowrProf.BATTERY_WAIT_STATUS();</span>
+<span class="nc" id="L216">                                                bws.BatteryTag = bqi.BatteryTag;</span>
+<span class="nc" id="L217">                                                bws.write();</span>
+<span class="nc" id="L218">                                                PowrProf.BATTERY_STATUS bs = new PowrProf.BATTERY_STATUS();</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                                                if (Kernel32.INSTANCE.DeviceIoControl(hBattery,</span>
+<span class="nc" id="L220">                                                        IOCTL_BATTERY_QUERY_STATUS, bws.getPointer(), bws.size(),</span>
+<span class="nc" id="L221">                                                        bs.getPointer(), bs.size(), dwOut, null)) {</span>
+<span class="nc" id="L222">                                                    bs.read();</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">                                                    if (0 != (bs.PowerState &amp; BATTERY_POWER_ON_LINE)) {</span>
+<span class="nc" id="L224">                                                        psPowerOnLine = true;</span>
+                                                    }
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                                                    if (0 != (bs.PowerState &amp; BATTERY_DISCHARGING)) {</span>
+<span class="nc" id="L227">                                                        psDischarging = true;</span>
+                                                    }
+<span class="nc bnc" id="L229" title="All 2 branches missed.">                                                    if (0 != (bs.PowerState &amp; BATTERY_CHARGING)) {</span>
+<span class="nc" id="L230">                                                        psCharging = true;</span>
+                                                    }
+<span class="nc" id="L232">                                                    psCurrentCapacity = bs.Capacity;</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                                                    psVoltage = bs.Voltage &gt; 0 ? bs.Voltage / 1000d : bs.Voltage;</span>
+<span class="nc" id="L234">                                                    psPowerUsageRate = bs.Rate;</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">                                                    if (psVoltage &gt; 0) {</span>
+<span class="nc" id="L236">                                                        psAmperage = psPowerUsageRate / psVoltage;</span>
+                                                    }
+                                                }
+                                            }
+
+<span class="nc" id="L241">                                            psDeviceName = batteryQueryString(hBattery, dwTag.getValue(),</span>
+                                                    PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryDeviceName
+<span class="nc" id="L243">                                                            .ordinal());</span>
+<span class="nc" id="L244">                                            psManufacturer = batteryQueryString(hBattery, dwTag.getValue(),</span>
+                                                    PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureName
+<span class="nc" id="L246">                                                            .ordinal());</span>
+<span class="nc" id="L247">                                            psSerialNumber = batteryQueryString(hBattery, dwTag.getValue(),</span>
+                                                    PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatterySerialNumber
+<span class="nc" id="L249">                                                            .ordinal());</span>
+
+<span class="nc" id="L251">                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureDate</span>
+<span class="nc" id="L252">                                                    .ordinal();</span>
+<span class="nc" id="L253">                                            bqi.write();</span>
+<span class="nc" id="L254">                                            BATTERY_MANUFACTURE_DATE bmd = new BATTERY_MANUFACTURE_DATE();</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,</span>
+<span class="nc" id="L256">                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),</span>
+<span class="nc" id="L257">                                                    bmd.getPointer(), bmd.size(), dwOut, null)) {</span>
+<span class="nc" id="L258">                                                bmd.read();</span>
+                                                // If failed, returns -1 for each field
+<span class="nc bnc" id="L260" title="All 6 branches missed.">                                                if (bmd.Year &gt; 1900 &amp;&amp; bmd.Month &gt; 0 &amp;&amp; bmd.Day &gt; 0) {</span>
+<span class="nc" id="L261">                                                    psManufactureDate = LocalDate.of(bmd.Year, bmd.Month, bmd.Day);</span>
+                                                }
+                                            }
+
+<span class="nc" id="L265">                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryTemperature</span>
+<span class="nc" id="L266">                                                    .ordinal();</span>
+<span class="nc" id="L267">                                            bqi.write();</span>
+<span class="nc" id="L268">                                            IntByReference tempK = new IntByReference(); // 1/10 degree K</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,</span>
+<span class="nc" id="L270">                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),</span>
+<span class="nc" id="L271">                                                    tempK.getPointer(), Integer.BYTES, dwOut, null)) {</span>
+<span class="nc" id="L272">                                                psTemperature = tempK.getValue() / 10d - 273.15;</span>
+                                            }
+
+                                            // Put last because we change the AtRate field
+<span class="nc" id="L276">                                            bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime</span>
+<span class="nc" id="L277">                                                    .ordinal();</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                                            if (psPowerUsageRate != 0) {</span>
+<span class="nc" id="L279">                                                bqi.AtRate = psPowerUsageRate;</span>
+                                            }
+<span class="nc" id="L281">                                            bqi.write();</span>
+<span class="nc" id="L282">                                            IntByReference tr = new IntByReference();</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,</span>
+<span class="nc" id="L284">                                                    IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),</span>
+<span class="nc" id="L285">                                                    tr.getPointer(), Integer.BYTES, dwOut, null)) {</span>
+<span class="nc" id="L286">                                                psTimeRemainingInstant = tr.getValue();</span>
+                                            }
+                                            // Fallback
+<span class="nc bnc" id="L289" title="All 4 branches missed.">                                            if (psTimeRemainingInstant &lt; 0 &amp;&amp; psPowerUsageRate != 0) {</span>
+<span class="nc" id="L290">                                                psTimeRemainingInstant = (psMaxCapacity - psCurrentCapacity) * 3600d</span>
+                                                        / psPowerUsageRate;
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                                                if (psTimeRemainingInstant &lt; 0) {</span>
+<span class="nc" id="L293">                                                    psTimeRemainingInstant *= -1;</span>
+                                                }
+                                            }
+                                            // Exit loop
+<span class="nc" id="L297">                                            batteryFound = true;</span>
+                                        }
+                                    }
+                                }
+<span class="nc" id="L301">                                Kernel32.INSTANCE.CloseHandle(hBattery);</span>
+                            }
+                        }
+                    }
+<span class="nc bnc" id="L305" title="All 2 branches missed.">                } else if (WinError.ERROR_NO_MORE_ITEMS == Kernel32.INSTANCE.GetLastError()) {</span>
+<span class="nc" id="L306">                    break; // Enumeration failed - perhaps we're out of items</span>
+                }
+            }
+<span class="nc" id="L309">            SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hdev);</span>
+        }
+
+<span class="nc" id="L312">        return new WindowsPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,</span>
+                psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
+                psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
+                psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+    }
+
+    private static String batteryQueryString(HANDLE hBattery, int tag, int infoLevel) {
+<span class="nc" id="L319">        BATTERY_QUERY_INFORMATION bqi = new PowrProf.BATTERY_QUERY_INFORMATION();</span>
+<span class="nc" id="L320">        bqi.BatteryTag = tag;</span>
+<span class="nc" id="L321">        bqi.InformationLevel = infoLevel;</span>
+<span class="nc" id="L322">        bqi.write();</span>
+<span class="nc" id="L323">        IntByReference dwOut = new IntByReference();</span>
+<span class="nc" id="L324">        boolean ret = false;</span>
+<span class="nc" id="L325">        long bufSize = 0;</span>
+        Memory nameBuf;
+        do {
+            // First increment is probably enough
+<span class="nc" id="L329">            bufSize += 256;</span>
+<span class="nc" id="L330">            nameBuf = new Memory(bufSize);</span>
+<span class="nc" id="L331">            ret = Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),</span>
+<span class="nc" id="L332">                    bqi.size(), nameBuf, (int) nameBuf.size(), dwOut, null);</span>
+<span class="nc bnc" id="L333" title="All 4 branches missed.">        } while (!ret &amp;&amp; bufSize &lt; 4096);</span>
+<span class="nc bnc" id="L334" title="All 2 branches missed.">        return CHAR_WIDTH &gt; 1 ? nameBuf.getWideString(0) : nameBuf.getString(0);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

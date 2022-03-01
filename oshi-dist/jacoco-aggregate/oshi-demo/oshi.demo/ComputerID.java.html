@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ComputerID.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo</a> &gt; <span class="el_source">ComputerID.java</span></div><h1>ComputerID.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.demo;
+
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.ComputerSystem;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
+import oshi.util.Constants;
+
+/**
+ * Attempts to create a unique computer identifier. Note that serial numbers
+ * won't work on Linux without user cooperation.
+ */
+<span class="nc" id="L37">public class ComputerID {</span>
+    /**
+     * &lt;p&gt;
+     * main.
+     * &lt;/p&gt;
+     *
+     * @param args
+     *            an array of {@link java.lang.String} objects.
+     */
+    public static void main(String[] args) {
+<span class="nc" id="L47">        String unknownHash = String.format(&quot;%08x&quot;, Constants.UNKNOWN.hashCode());</span>
+
+<span class="nc" id="L49">        System.out.println(&quot;Here's a unique (?) id for your computer.&quot;);</span>
+<span class="nc" id="L50">        System.out.println(getComputerIdentifier());</span>
+<span class="nc" id="L51">        System.out.println(&quot;If any field is &quot; + unknownHash</span>
+                + &quot; then I couldn't find a serial number or uuid, and running as sudo might change this.&quot;);
+<span class="nc" id="L53">    }</span>
+
+    /**
+     * Generates a Computer Identifier, which may be part of a strategy to construct
+     * a licence key. (The identifier may not be unique as in one case hashcode
+     * could be same for multiple values, and the result may differ based on whether
+     * the program is running with sudo/root permission.) The identifier string is
+     * based upon the processor serial number, vendor, processor identifier, and
+     * total processor count.
+     *
+     * @return A string containing four hyphen-delimited fields representing the
+     *         processor; the first 3 are 32-bit hexadecimal values and the last one
+     *         is an integer value.
+     */
+    public static String getComputerIdentifier() {
+<span class="nc" id="L68">        SystemInfo systemInfo = new SystemInfo();</span>
+<span class="nc" id="L69">        OperatingSystem operatingSystem = systemInfo.getOperatingSystem();</span>
+<span class="nc" id="L70">        HardwareAbstractionLayer hardwareAbstractionLayer = systemInfo.getHardware();</span>
+<span class="nc" id="L71">        CentralProcessor centralProcessor = hardwareAbstractionLayer.getProcessor();</span>
+<span class="nc" id="L72">        ComputerSystem computerSystem = hardwareAbstractionLayer.getComputerSystem();</span>
+
+<span class="nc" id="L74">        String vendor = operatingSystem.getManufacturer();</span>
+<span class="nc" id="L75">        String processorSerialNumber = computerSystem.getSerialNumber();</span>
+<span class="nc" id="L76">        String uuid = computerSystem.getHardwareUUID();</span>
+<span class="nc" id="L77">        String processorIdentifier = centralProcessor.getProcessorIdentifier().getIdentifier();</span>
+<span class="nc" id="L78">        int processors = centralProcessor.getLogicalProcessorCount();</span>
+
+<span class="nc" id="L80">        String delimiter = &quot;-&quot;;</span>
+
+<span class="nc" id="L82">        return String.format(&quot;%08x&quot;, vendor.hashCode()) + delimiter</span>
+<span class="nc" id="L83">                + String.format(&quot;%08x&quot;, processorSerialNumber.hashCode()) + delimiter</span>
+<span class="nc" id="L84">                + String.format(&quot;%08x&quot;, uuid.hashCode()) + delimiter</span>
+<span class="nc" id="L85">                + String.format(&quot;%08x&quot;, processorIdentifier.hashCode()) + delimiter + processors;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

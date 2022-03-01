@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>HWPartition.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">HWPartition.java</span></div><h1>HWPartition.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.hardware;
+
+import oshi.annotation.concurrent.Immutable;
+import oshi.util.FormatUtil;
+
+/**
+ * A region on a hard disk or other secondary storage, so that an operating
+ * system can manage information in each region separately. A partition appears
+ * in the operating system as a distinct &quot;logical&quot; disk that uses part of the
+ * actual disk.
+ */
+@Immutable
+public class HWPartition {
+
+    private final String identification;
+    private final String name;
+    private final String type;
+    private final String uuid;
+    private final long size;
+    private final int major;
+    private final int minor;
+    private final String mountPoint;
+
+    /**
+     * Creates a new HWPartition
+     *
+     * @param identification
+     *            The unique partition id
+     * @param name
+     *            Friendly name of the partition
+     * @param type
+     *            Type or description of the partition
+     * @param uuid
+     *            UUID
+     * @param size
+     *            Size in bytes
+     * @param major
+     *            Device ID (Major)
+     * @param minor
+     *            Device ID (Minor)
+     * @param mountPoint
+     *            Where the partition is mounted
+     */
+    public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
+<span class="nc" id="L68">            String mountPoint) {</span>
+<span class="nc" id="L69">        this.identification = identification;</span>
+<span class="nc" id="L70">        this.name = name;</span>
+<span class="nc" id="L71">        this.type = type;</span>
+<span class="nc" id="L72">        this.uuid = uuid;</span>
+<span class="nc" id="L73">        this.size = size;</span>
+<span class="nc" id="L74">        this.major = major;</span>
+<span class="nc" id="L75">        this.minor = minor;</span>
+<span class="nc" id="L76">        this.mountPoint = mountPoint;</span>
+<span class="nc" id="L77">    }</span>
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;identification&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the identification.
+     */
+    public String getIdentification() {
+<span class="nc" id="L87">        return this.identification;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;name&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the name.
+     */
+    public String getName() {
+<span class="nc" id="L98">        return this.name;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;type&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the type.
+     */
+    public String getType() {
+<span class="nc" id="L109">        return this.type;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;uuid&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the uuid.
+     */
+    public String getUuid() {
+<span class="nc" id="L120">        return this.uuid;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;size&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the size in bytes.
+     */
+    public long getSize() {
+<span class="nc" id="L131">        return this.size;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;major&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the major device ID.
+     */
+    public int getMajor() {
+<span class="nc" id="L142">        return this.major;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;minor&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the minor device ID.
+     */
+    public int getMinor() {
+<span class="nc" id="L153">        return this.minor;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Getter for the field &lt;code&gt;mountPoint&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @return Returns the mount point.
+     */
+    public String getMountPoint() {
+<span class="nc" id="L164">        return this.mountPoint;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L169">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L170">        sb.append(getIdentification()).append(&quot;: &quot;);</span>
+<span class="nc" id="L171">        sb.append(getName()).append(&quot; &quot;);</span>
+<span class="nc" id="L172">        sb.append(&quot;(&quot;).append(getType()).append(&quot;) &quot;);</span>
+<span class="nc" id="L173">        sb.append(&quot;Maj:Min=&quot;).append(getMajor()).append(&quot;:&quot;).append(getMinor()).append(&quot;, &quot;);</span>
+<span class="nc" id="L174">        sb.append(&quot;size: &quot;).append(FormatUtil.formatBytesDecimal(getSize()));</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        sb.append(getMountPoint().isEmpty() ? &quot;&quot; : &quot; @ &quot; + getMountPoint());</span>
+<span class="nc" id="L176">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorCapacityTickCountProperty;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
@@ -139,9 +139,9 @@
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                             WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> 
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>             testWildcardCounters(<span class="jxr_string">"PDH ProcessorCapacityCounters"</span>, PerfCounterWildcardQuery
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     .queryInstancesAndValuesFromPDH(ProcessorCapacityTickCountProperty.<strong class="jxr_keyword">class</strong>, PROCESSOR_INFORMATION));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     .queryInstancesAndValuesFromPDH(ProcessorUtilityTickCountProperty.<strong class="jxr_keyword">class</strong>, PROCESSOR_INFORMATION));
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>             testWildcardCounters(<span class="jxr_string">"WMI ProcessorCapacityCounters"</span>,
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                     PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorCapacityTickCountProperty.<strong class="jxr_keyword">class</strong>,
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                     PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorUtilityTickCountProperty.<strong class="jxr_keyword">class</strong>,
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                             WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>     }

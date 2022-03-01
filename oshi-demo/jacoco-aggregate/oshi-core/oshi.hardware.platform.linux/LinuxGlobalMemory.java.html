@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxGlobalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxGlobalMemory.java</span></div><h1>LinuxGlobalMemory.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.util.ExecutingCommand;
+import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -44,31 +44,30 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 <span class="nc" id="L45">public final class LinuxGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L47">    public static final long PAGE_SIZE = ParseUtil</span>
-<span class="nc" id="L48">            .parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf PAGE_SIZE&quot;), 4096L);</span>
+<span class="nc" id="L47">    private static final long PAGE_SIZE = LinuxOperatingSystem.getPageSize();</span>
 
-<span class="nc" id="L50">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; availTotal = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());</span>
+<span class="nc" id="L49">    private final Supplier&lt;Pair&lt;Long, Long&gt;&gt; availTotal = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());</span>
 
-<span class="nc" id="L52">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L51">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L56">        return availTotal.get().getA();</span>
+<span class="nc" id="L55">        return availTotal.get().getA();</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L61">        return availTotal.get().getB();</span>
+<span class="nc" id="L60">        return availTotal.get().getB();</span>
     }
 
     @Override
     public long getPageSize() {
-<span class="nc" id="L66">        return PAGE_SIZE;</span>
+<span class="nc" id="L65">        return PAGE_SIZE;</span>
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L71">        return vm.get();</span>
+<span class="nc" id="L70">        return vm.get();</span>
     }
 
     /**
@@ -86,50 +85,50 @@ import oshi.util.tuples.Pair;
      * @return A pair containing available and total memory in bytes
      */
     private static Pair&lt;Long, Long&gt; readMemInfo() {
-<span class="nc" id="L89">        long memFree = 0L;</span>
-<span class="nc" id="L90">        long activeFile = 0L;</span>
-<span class="nc" id="L91">        long inactiveFile = 0L;</span>
-<span class="nc" id="L92">        long sReclaimable = 0L;</span>
+<span class="nc" id="L88">        long memFree = 0L;</span>
+<span class="nc" id="L89">        long activeFile = 0L;</span>
+<span class="nc" id="L90">        long inactiveFile = 0L;</span>
+<span class="nc" id="L91">        long sReclaimable = 0L;</span>
 
-<span class="nc" id="L94">        long memTotal = 0L;</span>
+<span class="nc" id="L93">        long memTotal = 0L;</span>
         long memAvailable;
 
-<span class="nc" id="L97">        List&lt;String&gt; procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        for (String checkLine : procMemInfo) {</span>
-<span class="nc" id="L99">            String[] memorySplit = ParseUtil.whitespaces.split(checkLine, 2);</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (memorySplit.length &gt; 1) {</span>
-<span class="nc bnc" id="L101" title="All 7 branches missed.">                switch (memorySplit[0]) {</span>
+<span class="nc" id="L96">        List&lt;String&gt; procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (String checkLine : procMemInfo) {</span>
+<span class="nc" id="L98">            String[] memorySplit = ParseUtil.whitespaces.split(checkLine, 2);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (memorySplit.length &gt; 1) {</span>
+<span class="nc bnc" id="L100" title="All 7 branches missed.">                switch (memorySplit[0]) {</span>
                 case &quot;MemTotal:&quot;:
-<span class="nc" id="L103">                    memTotal = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
-<span class="nc" id="L104">                    break;</span>
+<span class="nc" id="L102">                    memTotal = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
+<span class="nc" id="L103">                    break;</span>
                 case &quot;MemAvailable:&quot;:
-<span class="nc" id="L106">                    memAvailable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
+<span class="nc" id="L105">                    memAvailable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
                     // We're done!
-<span class="nc" id="L108">                    return new Pair&lt;&gt;(memAvailable, memTotal);</span>
+<span class="nc" id="L107">                    return new Pair&lt;&gt;(memAvailable, memTotal);</span>
                 case &quot;MemFree:&quot;:
-<span class="nc" id="L110">                    memFree = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
-<span class="nc" id="L111">                    break;</span>
+<span class="nc" id="L109">                    memFree = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
+<span class="nc" id="L110">                    break;</span>
                 case &quot;Active(file):&quot;:
-<span class="nc" id="L113">                    activeFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
-<span class="nc" id="L114">                    break;</span>
+<span class="nc" id="L112">                    activeFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
+<span class="nc" id="L113">                    break;</span>
                 case &quot;Inactive(file):&quot;:
-<span class="nc" id="L116">                    inactiveFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
-<span class="nc" id="L117">                    break;</span>
+<span class="nc" id="L115">                    inactiveFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
+<span class="nc" id="L116">                    break;</span>
                 case &quot;SReclaimable:&quot;:
-<span class="nc" id="L119">                    sReclaimable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
-<span class="nc" id="L120">                    break;</span>
+<span class="nc" id="L118">                    sReclaimable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);</span>
+<span class="nc" id="L119">                    break;</span>
                 default:
                     // do nothing with other lines
                     break;
                 }
             }
-<span class="nc" id="L126">        }</span>
+<span class="nc" id="L125">        }</span>
         // We didn't find MemAvailable so we estimate from other fields
-<span class="nc" id="L128">        return new Pair&lt;&gt;(memFree + activeFile + inactiveFile + sReclaimable, memTotal);</span>
+<span class="nc" id="L127">        return new Pair&lt;&gt;(memFree + activeFile + inactiveFile + sReclaimable, memTotal);</span>
     }
 
     private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L132">        return new LinuxVirtualMemory(this);</span>
+<span class="nc" id="L131">        return new LinuxVirtualMemory(this);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

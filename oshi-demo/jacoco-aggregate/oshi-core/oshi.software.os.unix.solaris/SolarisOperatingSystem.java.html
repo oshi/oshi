@@ -210,7 +210,7 @@ import oshi.util.tuples.Pair;
                 // Snap Time is in nanoseconds; divide for seconds
 <span class="nc" id="L211">                return ksp.ks_snaptime / 1_000_000_000L;</span>
             }
-        }
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        }</span>
 <span class="nc" id="L214">        return 0L;</span>
     }
 
@@ -229,7 +229,7 @@ import oshi.util.tuples.Pair;
 <span class="nc bnc" id="L229" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
 <span class="nc" id="L230">                return KstatUtil.dataLookupLong(ksp, &quot;boot_time&quot;);</span>
             }
-        }
+<span class="nc bnc" id="L232" title="All 2 branches missed.">        }</span>
 <span class="nc" id="L233">        return System.currentTimeMillis() / 1000L - querySystemUptime();</span>
     }
 

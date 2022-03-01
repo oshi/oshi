@@ -53,7 +53,7 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t; // NOSONAR squ
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
-import oshi.jna.platform.unix.AixLibc.AIXLwpsInfo;
+import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -279,7 +279,7 @@ public class AixOSProcess extends AbstractOSProcess {
         // Iterate files
 <span class="nc bnc" id="L280" title="All 2 branches missed.">        for (File lwpidFile : numericFiles) {</span>
 <span class="nc" id="L281">            int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);</span>
-<span class="nc" id="L282">            AIXLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);</span>
+<span class="nc" id="L282">            AixLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);</span>
 <span class="nc bnc" id="L283" title="All 2 branches missed.">            if (info != null) {</span>
 <span class="nc" id="L284">                mask |= info.pr_bindpro;</span>
             }

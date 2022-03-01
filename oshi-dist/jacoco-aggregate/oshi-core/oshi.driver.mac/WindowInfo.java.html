@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.mac</a> &gt; <span class="el_source">WindowInfo.java</span></div><h1>WindowInfo.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.mac;
+
+import static oshi.jna.platform.mac.CoreGraphics.kCGNullWindowID;
+import static oshi.jna.platform.mac.CoreGraphics.kCGWindowListExcludeDesktopElements;
+import static oshi.jna.platform.mac.CoreGraphics.kCGWindowListOptionAll;
+import static oshi.jna.platform.mac.CoreGraphics.kCGWindowListOptionOnScreenOnly;
+
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFBooleanRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.mac.CoreGraphics;
+import oshi.jna.platform.mac.CoreGraphics.CGRect;
+import oshi.software.os.OSDesktopWindow;
+import oshi.util.FormatUtil;
+import oshi.util.platform.mac.CFUtil;
+
+/**
+ * Utility to query desktop windows
+ */
+@ThreadSafe
+public final class WindowInfo {
+
+    private WindowInfo() {
+    }
+
+    /**
+     * Gets windows on the operating system's GUI desktop.
+     *
+     * @param visibleOnly
+     *            Whether to restrict the list to only windows visible to the user.
+     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects
+     *         representing the desktop windows.
+     */
+    public static List&lt;OSDesktopWindow&gt; queryDesktopWindows(boolean visibleOnly) {
+<span class="nc" id="L67">        CFArrayRef windowInfo = CoreGraphics.INSTANCE.CGWindowListCopyWindowInfo(</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                visibleOnly ? kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements</span>
+<span class="nc" id="L69">                        : kCGWindowListOptionAll,</span>
+                kCGNullWindowID);
+<span class="nc" id="L71">        int numWindows = windowInfo.getCount();</span>
+        // Prepare a list to return
+<span class="nc" id="L73">        List&lt;OSDesktopWindow&gt; windowList = new ArrayList&lt;&gt;();</span>
+        // Set up keys for dictionary lookup
+<span class="nc" id="L75">        CFStringRef kCGWindowIsOnscreen = CFStringRef.createCFString(&quot;kCGWindowIsOnscreen&quot;);</span>
+<span class="nc" id="L76">        CFStringRef kCGWindowNumber = CFStringRef.createCFString(&quot;kCGWindowNumber&quot;);</span>
+<span class="nc" id="L77">        CFStringRef kCGWindowOwnerPID = CFStringRef.createCFString(&quot;kCGWindowOwnerPID&quot;);</span>
+<span class="nc" id="L78">        CFStringRef kCGWindowLayer = CFStringRef.createCFString(&quot;kCGWindowLayer&quot;);</span>
+<span class="nc" id="L79">        CFStringRef kCGWindowBounds = CFStringRef.createCFString(&quot;kCGWindowBounds&quot;);</span>
+<span class="nc" id="L80">        CFStringRef kCGWindowName = CFStringRef.createCFString(&quot;kCGWindowName&quot;);</span>
+<span class="nc" id="L81">        CFStringRef kCGWindowOwnerName = CFStringRef.createCFString(&quot;kCGWindowOwnerName&quot;);</span>
+        try {
+            // Populate the list
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            for (int i = 0; i &lt; numWindows; i++) {</span>
+                // For each array element, get the dictionary
+<span class="nc" id="L86">                Pointer result = windowInfo.getValueAtIndex(i);</span>
+<span class="nc" id="L87">                CFDictionaryRef windowRef = new CFDictionaryRef(result);</span>
+                // Now get information from the dictionary.
+<span class="nc" id="L89">                result = windowRef.getValue(kCGWindowIsOnscreen); // Optional key, check for null</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">                boolean visible = result == null || new CFBooleanRef(result).booleanValue();</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">                if (!visibleOnly || visible) {</span>
+<span class="nc" id="L92">                    result = windowRef.getValue(kCGWindowNumber); // kCFNumberSInt64Type</span>
+<span class="nc" id="L93">                    long windowNumber = new CFNumberRef(result).longValue();</span>
+
+<span class="nc" id="L95">                    result = windowRef.getValue(kCGWindowOwnerPID); // kCFNumberSInt64Type</span>
+<span class="nc" id="L96">                    long windowOwnerPID = new CFNumberRef(result).longValue();</span>
+
+<span class="nc" id="L98">                    result = windowRef.getValue(kCGWindowLayer); // kCFNumberIntType</span>
+<span class="nc" id="L99">                    int windowLayer = new CFNumberRef(result).intValue();</span>
+
+<span class="nc" id="L101">                    result = windowRef.getValue(kCGWindowBounds);</span>
+<span class="nc" id="L102">                    CGRect rect = new CGRect();</span>
+<span class="nc" id="L103">                    CoreGraphics.INSTANCE.CGRectMakeWithDictionaryRepresentation(new CFDictionaryRef(result), rect);</span>
+<span class="nc" id="L104">                    Rectangle windowBounds = new Rectangle(FormatUtil.roundToInt(rect.origin.x),</span>
+<span class="nc" id="L105">                            FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),</span>
+<span class="nc" id="L106">                            FormatUtil.roundToInt(rect.size.height));</span>
+
+                    // Note: the Quartz name returned by this field is rarely used
+<span class="nc" id="L109">                    result = windowRef.getValue(kCGWindowName); // Optional key, check for null</span>
+<span class="nc" id="L110">                    String windowName = CFUtil.cfPointerToString(result, false);</span>
+                    // This is the program running the window, use as name if name blank or add in
+                    // parenthesis
+<span class="nc" id="L113">                    result = windowRef.getValue(kCGWindowOwnerName); // Optional key, check for null</span>
+<span class="nc" id="L114">                    String windowOwnerName = CFUtil.cfPointerToString(result, false);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                    if (windowName.isEmpty()) {</span>
+<span class="nc" id="L116">                        windowName = windowOwnerName;</span>
+                    } else {
+<span class="nc" id="L118">                        windowName = windowName + &quot;(&quot; + windowOwnerName + &quot;)&quot;;</span>
+                    }
+
+<span class="nc" id="L121">                    windowList.add(new OSDesktopWindow(windowNumber, windowName, windowOwnerName, windowBounds,</span>
+                            windowOwnerPID, windowLayer, visible));
+                }
+            }
+        } finally {
+            // CF references from &quot;Copy&quot; or &quot;Create&quot; must be released
+<span class="nc" id="L127">            kCGWindowIsOnscreen.release();</span>
+<span class="nc" id="L128">            kCGWindowNumber.release();</span>
+<span class="nc" id="L129">            kCGWindowOwnerPID.release();</span>
+<span class="nc" id="L130">            kCGWindowLayer.release();</span>
+<span class="nc" id="L131">            kCGWindowBounds.release();</span>
+<span class="nc" id="L132">            kCGWindowName.release();</span>
+<span class="nc" id="L133">            kCGWindowOwnerName.release();</span>
+<span class="nc" id="L134">            windowInfo.release();</span>
+        }
+
+<span class="nc" id="L137">        return windowList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

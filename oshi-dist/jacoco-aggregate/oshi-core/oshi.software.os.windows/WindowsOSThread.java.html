@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsOSThread.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsOSThread.java</span></div><h1>WindowsOSThread.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.software.os.windows;
+
+import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSProcess.State.NEW;
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.SUSPENDED;
+import static oshi.software.os.OSProcess.State.WAITING;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.registry.ThreadPerformanceData.PerfCounterBlock;
+import oshi.software.common.AbstractOSThread;
+import oshi.software.os.OSProcess.State;
+
+/**
+ * OSThread implementation
+ */
+@ThreadSafe
+public class WindowsOSThread extends AbstractOSThread {
+
+    private final int threadId;
+    private String name;
+    private State state;
+    private long startMemoryAddress;
+    private long contextSwitches;
+    private long kernelTime;
+    private long userTime;
+    private long startTime;
+    private long upTime;
+    private int priority;
+
+    public WindowsOSThread(int pid, int tid, String procName, PerfCounterBlock pcb) {
+<span class="nc" id="L63">        super(pid);</span>
+<span class="nc" id="L64">        this.threadId = tid;</span>
+<span class="nc" id="L65">        updateAttributes(procName, pcb);</span>
+<span class="nc" id="L66">    }</span>
+
+    @Override
+    public int getThreadId() {
+<span class="nc" id="L70">        return threadId;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L75">        return name;</span>
+    }
+
+    @Override
+    public State getState() {
+<span class="nc" id="L80">        return state;</span>
+    }
+
+    @Override
+    public long getStartMemoryAddress() {
+<span class="nc" id="L85">        return startMemoryAddress;</span>
+    }
+
+    @Override
+    public long getContextSwitches() {
+<span class="nc" id="L90">        return contextSwitches;</span>
+    }
+
+    @Override
+    public long getKernelTime() {
+<span class="nc" id="L95">        return kernelTime;</span>
+    }
+
+    @Override
+    public long getUserTime() {
+<span class="nc" id="L100">        return userTime;</span>
+    }
+
+    @Override
+    public long getStartTime() {
+<span class="nc" id="L105">        return startTime;</span>
+    }
+
+    @Override
+    public long getUpTime() {
+<span class="nc" id="L110">        return upTime;</span>
+    }
+
+    @Override
+    public int getPriority() {
+<span class="nc" id="L115">        return this.priority;</span>
+    }
+
+    @Override
+    public boolean updateAttributes() {
+<span class="nc" id="L120">        Set&lt;Integer&gt; pids = Collections.singleton(getOwningProcessId());</span>
+        // Get data from the registry if possible
+<span class="nc" id="L122">        Map&lt;Integer, ThreadPerformanceData.PerfCounterBlock&gt; threads = ThreadPerformanceData</span>
+<span class="nc" id="L123">                .buildThreadMapFromRegistry(pids);</span>
+        // otherwise performance counters with WMI backup
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (threads == null) {</span>
+<span class="nc" id="L126">            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids);</span>
+        }
+<span class="nc" id="L128">        return updateAttributes(this.name.split(&quot;/&quot;)[0], threads.get(getThreadId()));</span>
+    }
+
+    private boolean updateAttributes(String procName, PerfCounterBlock pcb) {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (pcb == null) {</span>
+<span class="nc" id="L133">            this.state = INVALID;</span>
+<span class="nc" id="L134">            return false;</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">        } else if (pcb.getName().contains(&quot;/&quot;) || procName.isEmpty()) {</span>
+<span class="nc" id="L136">            name = pcb.getName();</span>
+        } else {
+<span class="nc" id="L138">            this.name = procName + &quot;/&quot; + pcb.getName();</span>
+        }
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (pcb.getThreadWaitReason() == 5) {</span>
+<span class="nc" id="L141">            state = SUSPENDED;</span>
+        } else {
+<span class="nc bnc" id="L143" title="All 6 branches missed.">            switch (pcb.getThreadState()) {</span>
+            case 0:
+<span class="nc" id="L145">                state = NEW;</span>
+<span class="nc" id="L146">                break;</span>
+            case 2:
+            case 3:
+<span class="nc" id="L149">                state = RUNNING;</span>
+<span class="nc" id="L150">                break;</span>
+            case 4:
+<span class="nc" id="L152">                state = STOPPED;</span>
+<span class="nc" id="L153">                break;</span>
+            case 5:
+<span class="nc" id="L155">                state = SLEEPING;</span>
+<span class="nc" id="L156">                break;</span>
+            case 1:
+            case 6:
+<span class="nc" id="L159">                state = WAITING;</span>
+<span class="nc" id="L160">                break;</span>
+            case 7:
+            default:
+<span class="nc" id="L163">                state = OTHER;</span>
+            }
+        }
+<span class="nc" id="L166">        startMemoryAddress = pcb.getStartAddress();</span>
+<span class="nc" id="L167">        contextSwitches = pcb.getContextSwitches();</span>
+<span class="nc" id="L168">        kernelTime = pcb.getKernelTime();</span>
+<span class="nc" id="L169">        userTime = pcb.getUserTime();</span>
+<span class="nc" id="L170">        startTime = pcb.getStartTime();</span>
+<span class="nc" id="L171">        upTime = System.currentTimeMillis() - pcb.getStartTime();</span>
+<span class="nc" id="L172">        priority = pcb.getPriority();</span>
+<span class="nc" id="L173">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

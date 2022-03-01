@@ -126,8 +126,8 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L126">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L127" title="All 2 branches missed.">        for (int proc = 0; proc &lt; lcpus; proc++) {</span>
 <span class="nc" id="L128">            Pair&lt;Integer, Integer&gt; nodePkg = nodePkgMap.get(proc);</span>
-<span class="nc bnc" id="L129" title="All 4 branches missed.">            logProcs.add(new LogicalProcessor(proc, proc / physProcs, nodePkg == null ? 0 : nodePkg.getB(),</span>
-<span class="nc" id="L130">                    nodePkg == null ? 0 : nodePkg.getA()));</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            logProcs.add(new LogicalProcessor(proc, proc / physProcs, nodePkg == null ? 0 : nodePkg.getB(),</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                    nodePkg == null ? 0 : nodePkg.getA()));</span>
         }
 <span class="nc" id="L132">        return new Pair&lt;&gt;(logProcs, null);</span>
     }

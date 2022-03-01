@@ -71,8 +71,8 @@ public final class KstatUtil {
      * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
      * one thread may actively use this object at any time.
      * &lt;p&gt;
-     * Instantiating this object is accomplished using the
-     * {@link KstatUtil#openChain} method. It locks and updates the chain and is the
+     * The chain is created once using the {@link KstatUtil#openChain} method.
+     * Instantiating this object (after locking) updates the chain and is the
      * equivalent of calling {@link LibKstat#kstat_open}. The control object should
      * be closed with {@link #close}, the equivalent of calling
      * {@link LibKstat#kstat_close}
@@ -80,9 +80,8 @@ public final class KstatUtil {
     public static final class KstatChain implements AutoCloseable {
 
 <span class="nc" id="L82">        private KstatChain() {</span>
-<span class="nc" id="L83">            CHAIN.lock();</span>
-<span class="nc" id="L84">            update();</span>
-<span class="nc" id="L85">        }</span>
+<span class="nc" id="L83">            update();</span>
+<span class="nc" id="L84">        }</span>
 
         /**
          * Convenience method for {@link LibKstat#kstat_read} which gets data from the
@@ -98,19 +97,19 @@ public final class KstatUtil {
          * @return {@code true} if successful; {@code false} otherwise
          */
         public static boolean read(Kstat ksp) {
-<span class="nc" id="L101">            int retry = 0;</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">            while (0 &gt; KS.kstat_read(KC, ksp, null)) {</span>
-<span class="nc bnc" id="L103" title="All 4 branches missed.">                if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">                    if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L105">                        LOG.debug(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
-<span class="nc" id="L106">                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
-<span class="nc" id="L107">                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));</span>
+<span class="nc" id="L100">            int retry = 0;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            while (0 &gt; KS.kstat_read(KC, ksp, null)) {</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">                if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                    if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L104">                        LOG.debug(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
+<span class="nc" id="L105">                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
+<span class="nc" id="L106">                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));</span>
                     }
-<span class="nc" id="L109">                    return false;</span>
+<span class="nc" id="L108">                    return false;</span>
                 }
-<span class="nc" id="L111">                Util.sleep(8 &lt;&lt; retry);</span>
+<span class="nc" id="L110">                Util.sleep(8 &lt;&lt; retry);</span>
             }
-<span class="nc" id="L113">            return true;</span>
+<span class="nc" id="L112">            return true;</span>
         }
 
         /**
@@ -130,7 +129,7 @@ public final class KstatUtil {
          *         {@code null}
          */
         public static Kstat lookup(String module, int instance, String name) {
-<span class="nc" id="L133">            return KS.kstat_lookup(KC, module, instance, name);</span>
+<span class="nc" id="L132">            return KS.kstat_lookup(KC, module, instance, name);</span>
         }
 
         /**
@@ -151,15 +150,15 @@ public final class KstatUtil {
          *         list otherwise
          */
         public static List&lt;Kstat&gt; lookupAll(String module, int instance, String name) {
-<span class="nc" id="L154">            List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">            for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {</span>
-<span class="nc bnc" id="L156" title="All 10 branches missed.">                if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))</span>
+<span class="nc" id="L153">            List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            for (Kstat ksp = KS.kstat_lookup(KC, module, instance, name); ksp != null; ksp = ksp.next()) {</span>
+<span class="nc bnc" id="L155" title="All 10 branches missed.">                if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))</span>
                         &amp;&amp; (instance &lt; 0 || instance == ksp.ks_instance)
-<span class="nc bnc" id="L158" title="All 2 branches missed.">                        &amp;&amp; (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {</span>
-<span class="nc" id="L159">                    kstats.add(ksp);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                        &amp;&amp; (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {</span>
+<span class="nc" id="L158">                    kstats.add(ksp);</span>
                 }
             }
-<span class="nc" id="L162">            return kstats;</span>
+<span class="nc" id="L161">            return kstats;</span>
         }
 
         /**
@@ -173,7 +172,7 @@ public final class KstatUtil {
          *         failure.
          */
         public static int update() {
-<span class="nc" id="L176">            return KS.kstat_chain_update(KC);</span>
+<span class="nc" id="L175">            return KS.kstat_chain_update(KC);</span>
         }
 
         /**
@@ -181,17 +180,18 @@ public final class KstatUtil {
          */
         @Override
         public void close() {
-<span class="nc" id="L184">            CHAIN.unlock();</span>
-<span class="nc" id="L185">        }</span>
+<span class="nc" id="L183">            CHAIN.unlock();</span>
+<span class="nc" id="L184">        }</span>
     }
 
     /**
-     * Create a copy of the Kstat chain and lock it for use by this object.
+     * Lock the Kstat chain for use by this object until it's closed.
      *
      * @return A locked copy of the chain. It should be unlocked/released when you
      *         are done with it with {@link KstatChain#close()}.
      */
     public static KstatChain openChain() {
+<span class="nc" id="L194">        CHAIN.lock();</span>
 <span class="nc" id="L195">        return new KstatChain();</span>
     }
 
