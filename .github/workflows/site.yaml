@@ -19,7 +19,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 11
+          java-version: 17
           distribution: 'zulu'
       - uses: webfactory/ssh-agent@master
         with:
@@ -31,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2  
       - name: Build site
-        run: ./mvnw site site:stage -DskipTests -Dlicense.skip=true
+        run: ./mvnw site site:stage -DskipTests -Dlicense.skip=true -Dmaven.javadoc.skippedModules=oshi-core-java11,oshi-dist
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
