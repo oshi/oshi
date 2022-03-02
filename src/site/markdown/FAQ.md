@@ -107,6 +107,16 @@ class, which would be closer to 100%.
 
 If you want per-Process CPU load to match the Windows Task Manager display, you should divide OSHI's calculation by the number of logical processors.  This is an entirely cosmetic preference.
 
+## Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?
+
+The initial call to some Windows Management Instrumentation (WMI) queries sometimes trigger RPC-related negotiation delays and timeouts described
+[here](https://docs.microsoft.com/en-us/windows/win32/services/services-and-rpc-tcp). OSHI attempts to use performance counters in preference
+to WMI whenever possible, but includes the WMI queries as a backup. There are several potential causes of these delays, which seem to occur more
+often on corporate-managed machines. If you are experiencing these delays:
+1. Investigate whether your English (page 009) performance counters are corrupt. [Rebuild them](https://docs.microsoft.com/en-us/troubleshoot/windows-server/performance/rebuild-performance-counter-library-values) if necessary.
+2. You can configure RPC and shorten the timeout by altering registry values under `HKLM\SYSTEM\CurrentControlSet\Control`.
+The `SCMApiConnectionParam` value (defaults to 21000 ms) can be reduced to shorten the delay.
+
 ## How is OSHI different from SIGAR?
 
 Both OSHI and Hyperic's [SIGAR](https://github.com/hyperic/sigar) (System Information Gatherer and Reporter)
