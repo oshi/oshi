@@ -35,6 +35,6 @@ jobs:
         run: ./mvnw checkstyle:check
       - name: Checkstyle
         if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '8')
-        run: git fetch --unshallow && ./mvnw license:check
+        run: git fetch --unshallow && ./mvnw license:check -D"license.git.copyrightLastYearMaxCommitsLookup=100000"
       - name: Test with Maven
         run: ./mvnw test -B -D"license.skip=true"
