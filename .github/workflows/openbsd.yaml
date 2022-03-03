@@ -1,4 +1,4 @@
-# CI on Unix OS 
+# CI on Unix OS
 # Separated from main CI matrix to reduce churn on failures due to infra
 name: OpenBSD CI
 
@@ -14,7 +14,7 @@ on:
       - '**.yml'
       - '**.yaml'
 
-jobs:   
+jobs:
   # SSH into OpenBSD server and run test on OpenBSD 6.8 32-bit
   # Configured to pull latest from oshi master branch
   # To test on a PR, log into the openbsd server and create a new branch
@@ -24,7 +24,7 @@ jobs:
     name: Test JDK 8, openbsd
     steps:
     - name: Test in OpenBSD
-      uses: appleboy/ssh-action@master    
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.OPENBSD_OSHI_DOMAIN }}
         username: oshi
@@ -40,4 +40,4 @@ jobs:
           doas mvn clean
           doas chown -R oshi:oshi .
           mvn test -B -Djacoco.skip=true -Dlicense.skip=true
-          doas mvn test -B -Djacoco.skip=true -Dlicense.skip=true     
+          doas mvn test -B -Djacoco.skip=true -Dlicense.skip=true

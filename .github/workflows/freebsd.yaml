@@ -1,8 +1,8 @@
-# CI on Unix OS 
+# CI on Unix OS
 # Separated from main CI matrix to reduce churn on failures due to infra
 name: FreeBSD CI
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches:

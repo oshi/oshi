@@ -9,7 +9,7 @@ CPU usage calculation precision depends on the relation of the polling interval 
 
 ## Is the API backwards compatible between versions?
 
-The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible with the same major version. Differences between major versions can be found in the [Upgrading.md](Upgrading.md) document.  
+The interfaces and classes in `oshi.hardware` and `oshi.software.os` are considered the OSHI API and are guaranteed to be compatible with the same major version. Differences between major versions can be found in the [Upgrading.md](Upgrading.md) document.
 
 Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may,
 rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
@@ -55,9 +55,9 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
 * macOS version 10.6 (Snow Leopard) and higher.
 * Linux (Most major distributions) Kernel 2.6 and higher
-* FreeBSD 10 
+* FreeBSD 10
 * OpenBSD 6.8
-* Solaris 11 (SunOS 5.11) 
+* Solaris 11 (SunOS 5.11)
 * AIX 7.1 (POWER4)
 
 ## How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?
@@ -66,7 +66,7 @@ OSHI uses the latest version of JNA, which may conflict with other dependencies 
 If you experience a `NoClassDefFoundError` or `NoSuchMethodError` issues with JNA artifacts, you likely have
 an older version of either `jna` or `jna-platform` in your classpath from a transitive dependency on another project.
 Consider one or more of the following steps to resolve the conflict:
- - Listing OSHI earlier (or first) in your dependency list 
+ - Listing OSHI earlier (or first) in your dependency list
  - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` as dependencies.
  - If you are using the Spring Boot Starter Parent version 2.2 and earlier that includes JNA as a dependency:
    - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
@@ -78,11 +78,11 @@ CPU usage is generally calculated as (active time / active+idle time).
 
 For System and per-Processor CPU ticks calculations, the total number of "idle" ticks is available for this calculation, which matches operating system displays on Windows 7 and earlier, and Unix-based operating systems, and CPU usage will never exceed 100%.
 
-Starting with Windows 8, a change was made to the way that Task Manager and Performance Monitor report CPU utilization. 
+Starting with Windows 8, a change was made to the way that Task Manager and Performance Monitor report CPU utilization.
 The values in Task Manager now correspond to the `Processor Information\% Processor Utility` and `Processor Information\% Privileged Utility` performance counters, not to the `Processor Information\% Processor Time` and `Processor Information\% Privileged Time` counters as in Windows 7.
 
 This fundamentally changes the Task Manager's meaning of "CPU Usage". Windows documentation for `% Processor Time` states:
-> % Processor Time is the percentage of elapsed time that the processor spends to execute a non-Idle thread... This counter is the primary indicator of processor activity, and displays the average percentage of busy time observed during the sample interval. 
+> % Processor Time is the percentage of elapsed time that the processor spends to execute a non-Idle thread... This counter is the primary indicator of processor activity, and displays the average percentage of busy time observed during the sample interval.
 
 The documentation for `% Processor Utility` now used by the Task Manager displays a different metric:
 > Processor Utility is the amount of work a processor is completing, as a percentage of the amount of work the processor could complete if it were running at its nominal performance and never idle. On some processors, Processor Utility may exceed 100%.
@@ -134,7 +134,7 @@ their HQ product. Hyperic's products were later acquired by VMWare, which has tr
 products and have completely abandoned SIGAR. The [last release](https://github.com/hyperic/sigar/releases/tag/sigar-1.6.4)
 was in 2010 and the [last source commit](https://github.com/hyperic/sigar/commit/7a6aefc7fb315fc92445edcb902a787a6f0ddbd9)
 was in 2015. [Multiple independent forks](https://github.com/hyperic/sigar/issues/95) by existing users attempt
-to fix specific bugs/incompatibilities but none has emerged as a maintained/released fork.  In contrast, OSHI's 
+to fix specific bugs/incompatibilities but none has emerged as a maintained/released fork.  In contrast, OSHI's
 development has been entirely done by open source volunteers, and it is under active development as of 2021.
  - **Support** SIGAR is completely unsupported by its authors, and there is no organized community support.
 OSHI is supported actively to fix bugs, respond to questions, and implement new features.
@@ -150,12 +150,12 @@ meanings.
 
 OSHI works with native `AArch64` support when JNA is version 5.7.0 or later.
 
-OSHI works using virtual x86 hardware under Rosetta if you are executing an x86-based JVM. 
+OSHI works using virtual x86 hardware under Rosetta if you are executing an x86-based JVM.
 
 ## Does OSHI work on Raspberry Pi hardware?
 
-Yes, most of the Linux code works here and other Pi-specific code has been implemented but has seen 
-limited testing.  As the developers do not have a Pi to test on, users reporting issues should be 
+Yes, most of the Linux code works here and other Pi-specific code has been implemented but has seen
+limited testing.  As the developers do not have a Pi to test on, users reporting issues should be
 prepared to help test solutions.
 
 ## Will you implement ... ?

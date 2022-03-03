@@ -3,7 +3,7 @@
 
 ## CPU/memory trade-offs
 
-OSHI avoids aching large amount of information, leaving caching to the user.  Limited use of caching is employed in many classes using Memoized suppliers in instance fields, thus avoiding repeated operating system calls.  
+OSHI avoids aching large amount of information, leaving caching to the user.  Limited use of caching is employed in many classes using Memoized suppliers in instance fields, thus avoiding repeated operating system calls.
 
 Users with memory constraints can ensure the existing cached information is disposed of by using a new instance of `SystemInfo` and the subordinate classes when collecting data.
 
@@ -16,7 +16,7 @@ Many of the individual objects returned by lists, such as `OSProcess`, `NetworkI
 On Windows, process command lines are only available in WMI and require a significant WMI overhead unless OSHI is running with elevated
 permissions or the process is owned by the same user.
 
-By default, command lines are not pre-fetched in `OSProcess` objects, and are populated by a single query for each process, assuming command line queries will be done ad-hoc by a user. 
+By default, command lines are not pre-fetched in `OSProcess` objects, and are populated by a single query for each process, assuming command line queries will be done ad-hoc by a user.
 
 If your application requires updating more than a few command lines owned by other users, CPU performance can be significantly improved by fetching and caching the entire list of command line results. This must be enabled in the configuration file, or by calling `GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, true);` shortly after startup (at least before the first command line query).
 

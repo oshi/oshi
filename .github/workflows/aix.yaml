@@ -1,10 +1,10 @@
-# CI on Unix OS 
+# CI on Unix OS
 # Separated from main CI matrix to reduce churn on failures due to infra
 name: AIX CI
 
 concurrency: aix_gcc119
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches:
@@ -24,7 +24,7 @@ jobs:
     name: Test JDK 8, aix
     steps:
     - name: Test in AIX
-      uses: appleboy/ssh-action@master    
+      uses: appleboy/ssh-action@master
       with:
         host: gcc119.fsffrance.org
         username: oshi

@@ -471,8 +471,9 @@
                         <formats>
                             <format>
                                 <includes>
-                                    <include>*.yml</include>
-                                    <include>*.yaml</include>
+                                    <include>**/*.md</include>
+                                    <include>**/*.yml</include>
+                                    <include>**/*.yaml</include>
                                 </includes>
                                 <trimTrailingWhitespace />
                                 <endWithNewline />
@@ -483,7 +484,7 @@
                             </format>
                             <format>
                                 <includes>
-                                    <include>*.xml</include>
+                                    <include>**/*.xml</include>
                                 </includes>
                                 <trimTrailingWhitespace />
                                 <endWithNewline />
