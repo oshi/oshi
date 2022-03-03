@@ -7,9 +7,9 @@ OSHI is [first-timers-only](https://www.firsttimersonly.com/) friendly.  If you'
 
 ### Install git and maven
 
-If not installed, install `git`.  
+If not installed, install `git`.
 
-You may either install maven or replace the below `mvn` calls with the maven wrapper, just typing `./mvnw` instead. 
+You may either install maven or replace the below `mvn` calls with the maven wrapper, just typing `./mvnw` instead.
 
 ### Fork the Project
 
@@ -53,7 +53,7 @@ Make sure that `mvn test` completes without errors.
 
 ### Update Changelog
 
-The Changelog lets users know whether they should update to the latest version.  Editing the changelog is optional for minor bug fixes that are not user-facing, but should be added for new features.  
+The Changelog lets users know whether they should update to the latest version.  Editing the changelog is optional for minor bug fixes that are not user-facing, but should be added for new features.
 
 Add a line to [CHANGELOG](CHANGELOG.md) under *Next Release*. Make it look like every other line, including your name and link to your Github account. A typical entry looks as follows.
 
@@ -111,7 +111,7 @@ git push origin my-feature-branch -f
 
 ### Update CHANGELOG Again
 
-If you didn't guess right on the PR number, update the [CHANGELOG](CHANGELOG.md) with the pull request number. 
+If you didn't guess right on the PR number, update the [CHANGELOG](CHANGELOG.md) with the pull request number.
 
 You may amend your previous commit and force push the changes, or just submit a changelog commit.
 
@@ -122,7 +122,7 @@ git push origin my-feature-branch -f
 
 ### Check on Your Pull Request
 
-Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI. 
+Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI.
 Everything should look green, otherwise read the Travis log to identify failed tests or compile erros.
 Fix issues and amend your commit as described above.
 

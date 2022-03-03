@@ -1,7 +1,7 @@
 # Full CI matrix on all pushes to master branch
 name: Linux CI
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches:
@@ -10,7 +10,7 @@ on:
       - '**.md'
       - '**.yml'
       - '**.yaml'
-    
+
 jobs:
   # Runs full project on JDK 8
   testmatrix:

@@ -3,7 +3,7 @@ Releasing OSHI
 
 ### Credentials
 
-* Put your [repository credentials in your Maven settings.xml file](https://central.sonatype.org/pages/apache-maven.html#distribution-management-and-authentication) for both snapshot and staging repositories in [pom.xml](pom.xml). 
+* Put your [repository credentials in your Maven settings.xml file](https://central.sonatype.org/pages/apache-maven.html#distribution-management-and-authentication) for both snapshot and staging repositories in [pom.xml](pom.xml).
 * Put your [gpg certificate credentials in the settings.xml file](https://central.sonatype.org/pages/apache-maven.html#gpg-signed-components)
 
 ### Snapshots
@@ -14,7 +14,7 @@ manually deployed using `mvn clean deploy`
 
 ### Prepare
 
-* Make sure tests pass on all configured CI operating systems. 
+* Make sure tests pass on all configured CI operating systems.
 * Manually run tests on any non-CI-covered OS using `mvn clean test`.
 * Review [SonarQube](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent) for any bugs.
 * Choose an appropriate [version number](https://semver.org/) for the release
@@ -41,7 +41,7 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
     * This will ask for the version being released, removing -SNAPSHOT
     * This will suggest the next version, increment appropriately
 * `mvn release:perform`
-    * Takes a few minutes. 
+    * Takes a few minutes.
     * This pushes the release to the [OSSRH](https://oss.sonatype.org/) staging repository
     * This also pushes to [gh_pages](https://oshi.github.io/oshi)
 * Log on to [Nexus](https://oss.sonatype.org/) and [release the deployment from OSSRH to the Central Repository](https://central.sonatype.org/pages/releasing-the-deployment.html).

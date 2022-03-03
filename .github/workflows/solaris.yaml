@@ -1,10 +1,10 @@
-# CI on Unix OS 
+# CI on Unix OS
 # Separated from main CI matrix to reduce churn on failures due to infra
 name: Solaris CI
 
 concurrency: solaris_gcc211
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches:
@@ -22,7 +22,7 @@ jobs:
     name: Test JDK 8, Solaris x64
     steps:
     - name: Test in Solaris x64
-      uses: appleboy/ssh-action@master    
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SOLARIS_OSHI_DOMAIN }}
         username: oshi
@@ -43,7 +43,7 @@ jobs:
     name: Test JDK 8, Solaris SPARC
     steps:
     - name: Test in Solaris SPARC
-      uses: appleboy/ssh-action@master    
+      uses: appleboy/ssh-action@master
       with:
         host: gcc211.fsffrance.org
         username: oshi
