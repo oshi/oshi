@@ -1,9 +1,10 @@
 # 6.1.5 (in progress)
 
 ##### Bug fixes / Improvements
-* [#1960](https://github.com/oshi/oshi/pull/19560): Improve kstat chain locking - [@dbwiddis](https://github.com/dbwiddis).
+* [#1960](https://github.com/oshi/oshi/pull/1960),
+  [#1962](https://github.com/oshi/oshi/pull/1962): Improve kstat chain locking - [@dbwiddis](https://github.com/dbwiddis).
 
-# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.43 (2022-03-01)
+# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01)
 
 ##### New Features
 * [#1851](https://github.com/oshi/oshi/pull/1851),
