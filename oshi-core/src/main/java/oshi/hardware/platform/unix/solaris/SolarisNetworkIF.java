@@ -141,11 +141,11 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
             return updateAttributes2();
         }
         try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = KstatChain.lookup("link", -1, getName());
+            Kstat ksp = kc.lookup("link", -1, getName());
             if (ksp == null) { // Solaris 10 compatibility
-                ksp = KstatChain.lookup(null, -1, getName());
+                ksp = kc.lookup(null, -1, getName());
             }
-            if (ksp != null && KstatChain.read(ksp)) {
+            if (ksp != null && kc.read(ksp)) {
                 this.bytesSent = KstatUtil.dataLookupLong(ksp, "obytes64");
                 this.bytesRecv = KstatUtil.dataLookupLong(ksp, "rbytes64");
                 this.packetsSent = KstatUtil.dataLookupLong(ksp, "opackets64");

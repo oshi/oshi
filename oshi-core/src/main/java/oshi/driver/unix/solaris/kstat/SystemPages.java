@@ -56,9 +56,9 @@ public final class SystemPages {
         long memTotal = 0;
         // Get first result
         try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = KstatChain.lookup(null, -1, "system_pages");
+            Kstat ksp = kc.lookup(null, -1, "system_pages");
             // Set values
-            if (ksp != null && KstatChain.read(ksp)) {
+            if (ksp != null && kc.read(ksp)) {
                 memAvailable = KstatUtil.dataLookupLong(ksp, "availrmem"); // not a typo
                 memTotal = KstatUtil.dataLookupLong(ksp, "physmem");
             }
