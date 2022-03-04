@@ -45,6 +45,7 @@ import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
 import oshi.jna.platform.unix.Kstat2.Kstat2Map;
 import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
 import oshi.jna.platform.unix.Kstat2StatusException;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
 
@@ -58,6 +59,14 @@ public final class KstatUtil {
 
     // Only one thread may access the chain at any time, so we wrap this object in
     // the KstatChain class which locks the class until closed.
+    private static final KstatCtl KC;
+    static {
+        if (!SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+            KC = LibKstat.INSTANCE.kstat_open();
+        } else {
+            KC = null;
+        }
+    }
     public static final ReentrantLock CHAIN = new ReentrantLock();
 
     private KstatUtil() {
@@ -67,16 +76,20 @@ public final class KstatUtil {
      * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
      * one thread may actively use this object at any time.
      * <p>
-     * The chain is created once using the {@link KstatUtil#openChain} method.
-     * Instantiating this object opens the chain calling
-     * {@link LibKstat#kstat_open}. The control object should be closed with
-     * {@link #close}, the equivalent of calling {@link LibKstat#kstat_close}
+     * The chain is created once calling {@link LibKstat#kstat_open} and then this
+     * object is instantiated using the {@link KstatUtil#openChain} method.
+     * Instantiating this object updates the chain using
+     * {@link LibKstat#kstat_chain_update}. The control object should be closed with
+     * {@link #close}, which releases the lock and allows another instance to be
+     * instantiated.
      */
     public static final class KstatChain implements AutoCloseable {
 
-        private KstatCtl kstatCtl = LibKstat.INSTANCE.kstat_open();
+        private final KstatCtl kstatCtl;
 
-        private KstatChain() {
+        private KstatChain(KstatCtl kc) {
+            kstatCtl = kc;
+            update();
         }
 
         /**
@@ -159,11 +172,24 @@ public final class KstatUtil {
         }
 
         /**
-         * Close the chain and release the lock on the chain.
+         * Convenience method for {@link LibKstat#kstat_chain_update}. Brings this kstat
+         * header chain in sync with that of the kernel.
+         * <p>
+         * This function compares the kernel's current kstat chain ID(KCID), which is
+         * incremented every time the kstat chain changes, to this object's KCID.
+         *
+         * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on
+         *         failure.
+         */
+        public int update() {
+            return LibKstat.INSTANCE.kstat_chain_update(kstatCtl);
+        }
+
+        /**
+         * Release the lock on the chain.
          */
         @Override
         public void close() {
-            LibKstat.INSTANCE.kstat_close(kstatCtl);
             CHAIN.unlock();
         }
     }
@@ -176,7 +202,7 @@ public final class KstatUtil {
      */
     public static KstatChain openChain() {
         CHAIN.lock();
-        return new KstatChain();
+        return new KstatChain(KC);
     }
 
     /**
