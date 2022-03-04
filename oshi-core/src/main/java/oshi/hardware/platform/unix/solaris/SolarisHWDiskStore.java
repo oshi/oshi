@@ -113,8 +113,8 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
             return updateAttributes2();
         }
         try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = KstatChain.lookup(null, 0, getName());
-            if (ksp != null && KstatChain.read(ksp)) {
+            Kstat ksp = kc.lookup(null, 0, getName());
+            if (ksp != null && kc.read(ksp)) {
                 KstatIO data = new KstatIO(ksp.ks_data);
                 this.reads = data.reads;
                 this.writes = data.writes;

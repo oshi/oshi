@@ -205,7 +205,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             return BOOT_UPTIME.get().getB();
         }
         try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = KstatChain.lookup("unix", 0, "system_misc");
+            Kstat ksp = kc.lookup("unix", 0, "system_misc");
             if (ksp != null) {
                 // Snap Time is in nanoseconds; divide for seconds
                 return ksp.ks_snaptime / 1_000_000_000L;
@@ -225,8 +225,8 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             return BOOT_UPTIME.get().getA();
         }
         try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = KstatChain.lookup("unix", 0, "system_misc");
-            if (ksp != null && KstatChain.read(ksp)) {
+            Kstat ksp = kc.lookup("unix", 0, "system_misc");
+            if (ksp != null && kc.read(ksp)) {
                 return KstatUtil.dataLookupLong(ksp, "boot_time");
             }
         }
