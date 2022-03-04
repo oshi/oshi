@@ -74,11 +74,9 @@ public final class KstatUtil {
      */
     public static final class KstatChain implements AutoCloseable {
 
-        private KstatCtl kstatCtl = null;
+        private KstatCtl kstatCtl = LibKstat.INSTANCE.kstat_open();
 
         private KstatChain() {
-            CHAIN.lock();
-            kstatCtl = LibKstat.INSTANCE.kstat_open();
         }
 
         /**
@@ -177,6 +175,7 @@ public final class KstatUtil {
      *         are done with it with {@link KstatChain#close()}.
      */
     public static KstatChain openChain() {
+        CHAIN.lock();
         return new KstatChain();
     }
 
