@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
@@ -39,13 +40,13 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatCtl;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatNamed;
 
+import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.Kstat2;
 import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
 import oshi.jna.platform.unix.Kstat2.Kstat2Map;
 import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
 import oshi.jna.platform.unix.Kstat2StatusException;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
 
@@ -57,17 +58,11 @@ public final class KstatUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);
 
+    private static final Lock CHAIN = new ReentrantLock();
     // Only one thread may access the chain at any time, so we wrap this object in
-    // the KstatChain class which locks the class until closed.
-    private static final KstatCtl KC;
-    static {
-        if (!SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
-            KC = LibKstat.INSTANCE.kstat_open();
-        } else {
-            KC = null;
-        }
-    }
-    public static final ReentrantLock CHAIN = new ReentrantLock();
+    // the KstatChain class locked until the lock is released on auto-close.
+    @GuardedBy("CHAIN")
+    private static KstatCtl kstatCtl = null;
 
     private KstatUtil() {
     }
@@ -85,10 +80,7 @@ public final class KstatUtil {
      */
     public static final class KstatChain implements AutoCloseable {
 
-        private final KstatCtl kstatCtl;
-
-        private KstatChain(KstatCtl kc) {
-            kstatCtl = kc;
+        private KstatChain() {
             update();
         }
 
@@ -105,6 +97,7 @@ public final class KstatUtil {
          *            The kstat from which to retrieve data
          * @return {@code true} if successful; {@code false} otherwise
          */
+        @GuardedBy("CHAIN")
         public boolean read(Kstat ksp) {
             int retry = 0;
             while (0 > LibKstat.INSTANCE.kstat_read(kstatCtl, ksp, null)) {
@@ -137,6 +130,7 @@ public final class KstatUtil {
          * @return The first match of the requested Kstat structure if found, or
          *         {@code null}
          */
+        @GuardedBy("CHAIN")
         public Kstat lookup(String module, int instance, String name) {
             return LibKstat.INSTANCE.kstat_lookup(kstatCtl, module, instance, name);
         }
@@ -158,6 +152,7 @@ public final class KstatUtil {
          * @return All matches of the requested Kstat structure if found, or an empty
          *         list otherwise
          */
+        @GuardedBy("CHAIN")
         public List<Kstat> lookupAll(String module, int instance, String name) {
             List<Kstat> kstats = new ArrayList<>();
             for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kstatCtl, module, instance, name); ksp != null; ksp = ksp
@@ -181,8 +176,17 @@ public final class KstatUtil {
          * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on
          *         failure.
          */
+        @GuardedBy("CHAIN")
         public int update() {
+            conditionallyOpenKstatControl();
             return LibKstat.INSTANCE.kstat_chain_update(kstatCtl);
+        }
+
+        @GuardedBy("CHAIN")
+        private static synchronized void conditionallyOpenKstatControl() {
+            if (kstatCtl == null) {
+                kstatCtl = LibKstat.INSTANCE.kstat_open();
+            }
         }
 
         /**
@@ -202,7 +206,7 @@ public final class KstatUtil {
      */
     public static KstatChain openChain() {
         CHAIN.lock();
-        return new KstatChain(KC);
+        return new KstatChain();
     }
 
     /**
