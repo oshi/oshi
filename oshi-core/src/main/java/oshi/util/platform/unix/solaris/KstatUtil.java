@@ -80,7 +80,10 @@ public final class KstatUtil {
      */
     public static final class KstatChain implements AutoCloseable {
 
-        private KstatChain() {
+        private final KstatCtl localCtlRef;
+
+        private KstatChain(KstatCtl ctl) {
+            this.localCtlRef = ctl;
             update();
         }
 
@@ -100,7 +103,7 @@ public final class KstatUtil {
         @GuardedBy("CHAIN")
         public boolean read(Kstat ksp) {
             int retry = 0;
-            while (0 > LibKstat.INSTANCE.kstat_read(kstatCtl, ksp, null)) {
+            while (0 > LibKstat.INSTANCE.kstat_read(localCtlRef, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Failed to read kstat {}:{}:{}",
@@ -132,7 +135,7 @@ public final class KstatUtil {
          */
         @GuardedBy("CHAIN")
         public Kstat lookup(String module, int instance, String name) {
-            return LibKstat.INSTANCE.kstat_lookup(kstatCtl, module, instance, name);
+            return LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name);
         }
 
         /**
@@ -155,7 +158,7 @@ public final class KstatUtil {
         @GuardedBy("CHAIN")
         public List<Kstat> lookupAll(String module, int instance, String name) {
             List<Kstat> kstats = new ArrayList<>();
-            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(kstatCtl, module, instance, name); ksp != null; ksp = ksp
+            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name); ksp != null; ksp = ksp
                     .next()) {
                 if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))
                         && (instance < 0 || instance == ksp.ks_instance)
@@ -178,15 +181,7 @@ public final class KstatUtil {
          */
         @GuardedBy("CHAIN")
         public int update() {
-            conditionallyOpenKstatControl();
-            return LibKstat.INSTANCE.kstat_chain_update(kstatCtl);
-        }
-
-        @GuardedBy("CHAIN")
-        private static synchronized void conditionallyOpenKstatControl() {
-            if (kstatCtl == null) {
-                kstatCtl = LibKstat.INSTANCE.kstat_open();
-            }
+            return LibKstat.INSTANCE.kstat_chain_update(localCtlRef);
         }
 
         /**
@@ -204,9 +199,12 @@ public final class KstatUtil {
      * @return A locked copy of the chain. It should be unlocked/released when you
      *         are done with it with {@link KstatChain#close()}.
      */
-    public static KstatChain openChain() {
+    public static synchronized KstatChain openChain() {
         CHAIN.lock();
-        return new KstatChain();
+        if (kstatCtl == null) {
+            kstatCtl = LibKstat.INSTANCE.kstat_open();
+        }
+        return new KstatChain(kstatCtl);
     }
 
     /**
