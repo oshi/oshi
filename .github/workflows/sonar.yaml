@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Analyze with SonarCloud
-        run: ./mvnw initialize sonar:sonar -B -D"sonar.login=$SONAR_TOKEN" -Dlicense.skip=true
+        run: ./mvnw verify sonar:sonar -B -D"sonar.login=$SONAR_TOKEN" -Dlicense.skip=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
