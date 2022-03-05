@@ -56,7 +56,13 @@ public final class Uptime {
      */
     public static long queryUpTime() {
         long uptime = 0L;
-        String s = ExecutingCommand.getFirstAnswer("/usr/bin/uptime");
+        String s = ExecutingCommand.getFirstAnswer("uptime");
+        if (s.isEmpty()) {
+            s = ExecutingCommand.getFirstAnswer("w");
+        }
+        if (s.isEmpty()) {
+            s = ExecutingCommand.getFirstAnswer("/usr/bin/uptime");
+        }
         Matcher m = UPTIME_FORMAT_AIX.matcher(s);
         if (m.matches()) {
             if (m.group(2) != null) {
