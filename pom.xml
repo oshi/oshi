@@ -129,6 +129,7 @@
         <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
         <maven-release-plugin.version>3.0.0-M5</maven-release-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <bind-api.version>2.3.3</bind-api.version>
@@ -413,6 +414,24 @@
                             3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) this is not needed anymore. -->
                         <!-- except that OSSRH fails with no sources with this excluded <execution> <id>attach-sources</id>
                             <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> </execution> -->
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>${properties-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>read-project-properties</goal>
+                            </goals>
+                            <phase>initialize</phase>
+                            <configuration>
+                                <files>
+                                    <file>${main.basedir}/config/sonar-project.properties</file>
+                                </files>
+                            </configuration>
+                        </execution>
                     </executions>
                 </plugin>
                 <!-- External Tools -->
@@ -994,10 +1013,6 @@
         </profile>
         <profile>
             <id>sonar</id>
-            <properties>
-                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-                <sonar.organization>oshi_oshi</sonar.organization>
-            </properties>
             <build>
                 <plugins>
                     <plugin>

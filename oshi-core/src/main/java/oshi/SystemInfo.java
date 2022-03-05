@@ -27,7 +27,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.Platform; // NOSONAR squid:S1191
+import com.sun.jna.Platform;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;

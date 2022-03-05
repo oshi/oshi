@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:S1191
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;

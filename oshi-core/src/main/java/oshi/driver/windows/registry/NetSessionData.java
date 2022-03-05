@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ package oshi.driver.windows.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Netapi32;
 import com.sun.jna.platform.win32.Netapi32.SESSION_INFO_10;
 import com.sun.jna.ptr.IntByReference;

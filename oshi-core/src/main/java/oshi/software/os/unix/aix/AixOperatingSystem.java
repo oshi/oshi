@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 

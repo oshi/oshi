@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Platform; // NOSONAR squid:S1191
+import com.sun.jna.Platform;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.Auxv;

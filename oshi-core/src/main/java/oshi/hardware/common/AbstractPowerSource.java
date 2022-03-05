@@ -26,7 +26,7 @@ package oshi.hardware.common;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.sun.jna.Platform; // NOSONAR squid:S1191
+import com.sun.jna.Platform;
 
 import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;

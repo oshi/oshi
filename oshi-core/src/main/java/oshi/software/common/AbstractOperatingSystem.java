@@ -40,7 +40,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.Platform; // NOSONAR squid:S1191
+import com.sun.jna.Platform;
 
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;

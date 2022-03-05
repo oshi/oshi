@@ -25,7 +25,7 @@ package oshi.util.platform.windows;
 
 import java.time.OffsetDateTime;
 
-import com.sun.jna.platform.win32.Variant; // NOSONAR
+import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;

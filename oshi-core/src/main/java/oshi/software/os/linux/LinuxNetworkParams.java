@@ -23,7 +23,7 @@
  */
 package oshi.software.os.linux;
 
-import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
+import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

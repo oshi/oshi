@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.linux.Udev; //NOSONAR squid:S1191
+import com.sun.jna.platform.linux.Udev;
 import com.sun.jna.platform.linux.Udev.UdevDevice;
 import com.sun.jna.platform.linux.Udev.UdevEnumerate;
 import com.sun.jna.platform.linux.Udev.UdevListEntry;

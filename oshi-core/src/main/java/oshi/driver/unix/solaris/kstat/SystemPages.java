@@ -23,7 +23,7 @@
  */
 package oshi.driver.unix.solaris.kstat;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:s1191
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;

@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.Native; // NOSONAR squid:s1191
+import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 import oshi.annotation.concurrent.ThreadSafe;

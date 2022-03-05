@@ -23,7 +23,7 @@
  */
 package oshi.software.os.unix.freebsd;
 
-import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
+import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

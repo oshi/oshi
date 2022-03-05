@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.linux.Udev; // NOSONAR squid:S1191
+import com.sun.jna.platform.linux.Udev;
 import com.sun.jna.platform.linux.Udev.UdevContext;
 import com.sun.jna.platform.linux.Udev.UdevDevice;
 import com.sun.jna.platform.linux.Udev.UdevEnumerate;

@@ -29,7 +29,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.WinNT.HANDLEByReference; // NOSONAR
+import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
 import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.util.FormatUtil;

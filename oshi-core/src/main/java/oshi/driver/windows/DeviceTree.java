@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  */
 package oshi.driver.windows;
 
-import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_CLASS; // NOSONAR squid:S1191
+import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_CLASS;
 import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_DEVICEDESC;
 import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_FRIENDLYNAME;
 import static com.sun.jna.platform.win32.Cfgmgr32.CM_DRP_MFG;

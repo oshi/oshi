@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.PdhUtil; //NOSONAR
+import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.COM.Wbemcli;
