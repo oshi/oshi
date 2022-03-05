@@ -32,7 +32,7 @@ import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_P
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:s1191
+import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.PerfCounterQuery;

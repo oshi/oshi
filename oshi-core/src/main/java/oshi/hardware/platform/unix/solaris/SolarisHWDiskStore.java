@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; //NOSONAR
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
 
 import oshi.annotation.concurrent.ThreadSafe;

@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;

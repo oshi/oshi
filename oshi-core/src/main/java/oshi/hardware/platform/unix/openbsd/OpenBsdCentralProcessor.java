@@ -47,7 +47,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;

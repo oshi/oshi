@@ -23,7 +23,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 

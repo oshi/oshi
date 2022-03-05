@@ -26,7 +26,7 @@ package oshi.util.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR; // NOSONAR
+import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR;
 import com.sun.jna.platform.win32.Pdh;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
 import com.sun.jna.platform.win32.PdhMsg;

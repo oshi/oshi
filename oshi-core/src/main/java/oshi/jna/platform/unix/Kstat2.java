@@ -23,7 +23,7 @@
  */
 package oshi.jna.platform.unix;
 
-import com.sun.jna.Library; // NOSONAR squid:S1191
+import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;

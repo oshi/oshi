@@ -28,7 +28,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sun.jna.Memory; // NOSONAR
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Guid.GUID;

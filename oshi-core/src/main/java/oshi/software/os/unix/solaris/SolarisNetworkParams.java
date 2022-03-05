@@ -23,7 +23,7 @@
  */
 package oshi.software.os.unix.solaris;
 
-import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX; // NOSONAR squid:S1191
+import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX;
 
 import com.sun.jna.Native;
 

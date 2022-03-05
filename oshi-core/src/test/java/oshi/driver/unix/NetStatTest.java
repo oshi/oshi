@@ -33,7 +33,7 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Platform; // NOSONAR squid:S1191
+import com.sun.jna.Platform;
 
 import oshi.software.os.InternetProtocolStats.IPConnection;
 import oshi.software.os.InternetProtocolStats.TcpStats;

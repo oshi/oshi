@@ -26,7 +26,7 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.platform.win32.Advapi32Util; // NOSONAR squid:S1191
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinReg;
