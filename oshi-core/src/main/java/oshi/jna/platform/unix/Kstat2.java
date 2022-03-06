@@ -298,11 +298,21 @@ public interface Kstat2 extends Library {
                 case KSTAT2_NVVT_INT:
                     return nv.data.integerVal;
                 case KSTAT2_NVVT_INTS:
-                    return nv.data.integers.addr.getLongArray(0, nv.data.integers.len);
+                    Pointer[] intPtrArray = nv.data.integers.addr.getPointerArray(0, nv.data.integers.len);
+                    long[] integerArr = new long[intPtrArray.length];
+                    for (int i = 0; i < integerArr.length; i++) {
+                        integerArr[i] = intPtrArray[i].getLong(0);
+                    }
+                    return integerArr;
                 case KSTAT2_NVVT_STR:
-                    return nv.data.strings.addr.getString(0);
+                    return nv.data.stringVal;
                 case KSTAT2_NVVT_STRS:
-                    return nv.data.strings.addr.getStringArray(0, nv.data.strings.len);
+                    Pointer[] strPtrArray = nv.data.strings.addr.getPointerArray(0, nv.data.strings.len);
+                    String[] stringArray = new String[strPtrArray.length];
+                    for (int i = 0; i < stringArray.length; i++) {
+                        stringArray[i] = strPtrArray[i].getString(0);
+                    }
+                    return stringArray;
                 default:
                     return null;
                 }
@@ -327,6 +337,7 @@ public interface Kstat2 extends Library {
             public Kstat2Map map;
             public long integerVal;
             public IntegersArr integers;
+            public String stringVal;
             public StringsArr strings;
 
             @FieldOrder({ "addr", "len" })
@@ -365,6 +376,8 @@ public interface Kstat2 extends Library {
                 data.setType(IntegersArr.class);
                 break;
             case KSTAT2_NVVT_STR:
+                data.setType(String.class);
+                break;
             case KSTAT2_NVVT_STRS:
                 data.setType(StringsArr.class);
                 break;
