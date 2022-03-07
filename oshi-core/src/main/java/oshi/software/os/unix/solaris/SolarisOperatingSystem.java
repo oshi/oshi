@@ -40,6 +40,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.solaris.Who;
+import oshi.jna.platform.unix.Kstat2;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -71,7 +72,21 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         VERSION = split[0];
         BUILD_NUMBER = split.length > 1 ? split[1] : "";
     }
-    public static final boolean IS_11_4_OR_HIGHER = "11.4".compareTo(BUILD_NUMBER) <= 0;
+
+    /**
+     * This static field identifies if the kstat2 library (available in Solaris 11.4
+     * or greater) can be loaded.
+     */
+    public static final boolean HAS_KSTAT2;
+    static {
+        Kstat2 lib = null;
+        try {
+            lib = Kstat2.INSTANCE;
+        } catch (UnsatisfiedLinkError e) {
+            // 11.3 or earlier, no kstat2
+        }
+        HAS_KSTAT2 = lib != null;
+    }
 
     private static final Supplier<Pair<Long, Long>> BOOT_UPTIME = Memoizer
             .memoize(SolarisOperatingSystem::queryBootAndUptime, defaultExpiration());
@@ -200,7 +215,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemUptime() {
-        if (IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return BOOT_UPTIME.get().getB();
         }
@@ -220,7 +235,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        if (IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return BOOT_UPTIME.get().getA();
         }
