@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,7 +43,6 @@ import oshi.driver.unix.solaris.disk.Prtvtoc;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Quintet;
@@ -108,7 +109,7 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
     @Override
     public boolean updateAttributes() {
         this.timeStamp = System.currentTimeMillis();
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return updateAttributes2();
         }

@@ -23,10 +23,11 @@
  */
 package oshi.driver.unix.solaris.kstat;
 
+import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;
@@ -48,7 +49,7 @@ public final class SystemPages {
      *         size for bytes.
      */
     public static Pair<Long, Long> queryAvailableTotal() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryAvailableTotal2();
         }

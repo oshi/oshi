@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
+
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +37,6 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
@@ -136,7 +137,7 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
     public boolean updateAttributes() {
         // Initialize to a sane default value
         this.timeStamp = System.currentTimeMillis();
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return updateAttributes2();
         }

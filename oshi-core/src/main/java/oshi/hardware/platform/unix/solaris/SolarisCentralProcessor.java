@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +38,6 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.SolarisLibc;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -61,7 +62,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected ProcessorIdentifier queryProcessorId() {
         boolean cpu64bit = "64".equals(ExecutingCommand.getFirstAnswer("isainfo -b").trim());
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryProcessorId2(cpu64bit);
         }
@@ -110,7 +111,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return new Pair<>(initProcessorCounts2(numaNodeMap), null);
         }
@@ -208,7 +209,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryCurrentFreq2(getLogicalProcessorCount());
         }
@@ -243,7 +244,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryMaxFreq() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryMaxFreq2();
         }
@@ -296,7 +297,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryProcessorCpuLoadTicks2(getLogicalProcessorCount());
         }
@@ -362,7 +363,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryContextSwitches2();
         }
@@ -386,7 +387,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryInterrupts() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryInterrupts2();
         }

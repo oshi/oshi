@@ -23,6 +23,7 @@
  */
 package oshi.software.os.unix.solaris;
 
+import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
 import static oshi.util.Memoizer.defaultExpiration;
 
 import java.io.File;
@@ -171,7 +172,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return FILE_DESC.get().getA();
         }
@@ -187,7 +188,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
 
     @Override
     public long getMaxFileDescriptors() {
-        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {
+        if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return FILE_DESC.get().getB();
         }
