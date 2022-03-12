@@ -437,6 +437,21 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         StringBuilder sb = new StringBuilder(getProcessorIdentifier().getName());
         sb.append("\n ").append(getPhysicalPackageCount()).append(" physical CPU package(s)");
         sb.append("\n ").append(getPhysicalProcessorCount()).append(" physical CPU core(s)");
+        int eCores = 0;
+        int pCores = 0;
+        int maxEfficiency = Integer.MIN_VALUE;
+        for (PhysicalProcessor cpu : getPhysicalProcessors()) {
+            int eff = cpu.getEfficiency();
+            if (eff > maxEfficiency) {
+                maxEfficiency = eff;
+                eCores += pCores;
+                pCores = 0;
+            }
+            pCores++;
+        }
+        if (eCores > 0) {
+            sb.append(" (").append(pCores).append(" performance + ").append(eCores).append(" efficiency)");
+        }
         sb.append("\n ").append(getLogicalProcessorCount()).append(" logical CPU(s)");
         sb.append('\n').append("Identifier: ").append(getProcessorIdentifier().getIdentifier());
         sb.append('\n').append("ProcessorID: ").append(getProcessorIdentifier().getProcessorID());
