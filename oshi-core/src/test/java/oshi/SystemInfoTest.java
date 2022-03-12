@@ -188,8 +188,8 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         oshi.add(processor.toString());
         oshi.add(" Cores:");
         for (PhysicalProcessor p : processor.getPhysicalProcessors()) {
-            oshi.add("  " + p.getPhysicalProcessorNumber() + ": efficiency=" + p.getEfficiency() + ", id="
-                    + p.getIdString());
+            oshi.add("  " + (processor.getPhysicalPackageCount() > 1 ? p.getPhysicalPackageNumber() + "," : "")
+                    + p.getPhysicalProcessorNumber() + ": efficiency=" + p.getEfficiency() + ", id=" + p.getIdString());
         }
     }
 
