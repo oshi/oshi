@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -437,18 +438,17 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         StringBuilder sb = new StringBuilder(getProcessorIdentifier().getName());
         sb.append("\n ").append(getPhysicalPackageCount()).append(" physical CPU package(s)");
         sb.append("\n ").append(getPhysicalProcessorCount()).append(" physical CPU core(s)");
-        int eCores = 0;
-        int pCores = 0;
-        int maxEfficiency = Integer.MIN_VALUE;
+        Map<Integer, Integer> efficiencyCount = new HashMap<>();
+        int maxEfficiency = 0;
         for (PhysicalProcessor cpu : getPhysicalProcessors()) {
             int eff = cpu.getEfficiency();
+            efficiencyCount.merge(eff, 1, Integer::sum);
             if (eff > maxEfficiency) {
                 maxEfficiency = eff;
-                eCores += pCores;
-                pCores = 0;
             }
-            pCores++;
         }
+        int pCores = efficiencyCount.getOrDefault(maxEfficiency, 0);
+        int eCores = getPhysicalProcessorCount() - pCores;
         if (eCores > 0) {
             sb.append(" (").append(pCores).append(" performance + ").append(eCores).append(" efficiency)");
         }
