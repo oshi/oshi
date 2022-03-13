@@ -266,7 +266,7 @@ public abstract class AbstractPowerSource implements PowerSource {
         if (getVoltage() > 0) {
             sb.append(getVoltage()).append("V, ");
         } else {
-            sb.append(Constants.UNKNOWN);
+            sb.append(Constants.UNKNOWN).append(", ");
         }
         sb.append("Amperage: ").append(getAmperage()).append("mA,\n ");
         sb.append("Power OnLine: ").append(isPowerOnLine()).append(", ");
