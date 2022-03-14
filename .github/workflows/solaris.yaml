@@ -40,7 +40,7 @@ jobs:
   testsolaris_sparc:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
-    name: Test JDK 8, Solaris SPARC
+    name: Test JDK 11, Solaris SPARC
     steps:
     - name: Test in Solaris SPARC
       uses: appleboy/ssh-action@master
@@ -57,4 +57,4 @@ jobs:
           git checkout master
           git reset --hard HEAD~2
           git pull
-          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+          _JAVA_OPTIONS="-Xms128M -Xmx128M" ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
