@@ -5,10 +5,9 @@ freebsd_task:
   freebsd_instance:
     matrix:
       image_family: freebsd-11-4
-      image_family: freebsd-12-1
-      # Unreliable, spot check closer to official release
-      # image_family: freebsd-13-0-snap
+      image_family: freebsd-12-3
+      image_family: freebsd-13-0
   maven_cache:
     folder: ~/.m2
-  install_script: pkg install -y openjdk8
+  install_script: pkg install -y openjdk11
   test_script: ./mvnw test -Djacoco.skip=true -B
