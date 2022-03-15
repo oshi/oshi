@@ -305,7 +305,14 @@ public final class KstatUtil {
      */
     public static Object[] queryKstat2(String mapStr, String... names) {
         Object[] result = new Object[names.length];
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
+        Kstat2MatcherList matchers = null;
+        try {
+            matchers = new Kstat2MatcherList();
+        } catch (java.lang.UnsatisfiedLinkError e) {
+            LOG.debug("Is this Solaris 11.4+? Failed to get stats on {} for names {}: {}", mapStr, Arrays.toString(names), e.getMessage());
+            return result;
+        }
+
         KstatUtil.CHAIN.lock();
         try {
             matchers.addMatcher(Kstat2.KSTAT2_M_STRING, mapStr);
@@ -342,7 +349,14 @@ public final class KstatUtil {
     public static List<Object[]> queryKstat2List(String beforeStr, String afterStr, String... names) {
         List<Object[]> results = new ArrayList<>();
         int s = 0;
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
+        Kstat2MatcherList matchers = null;
+        try {
+            matchers = new Kstat2MatcherList();
+        } catch (java.lang.UnsatisfiedLinkError e) {
+            LOG.debug("Is this Solaris 11.4+? Failed to get stats on {} for names {}: {}", mapStr, Arrays.toString(names), e.getMessage());
+            return result;
+        }
+
         KstatUtil.CHAIN.lock();
         try {
             matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + "*" + afterStr);
