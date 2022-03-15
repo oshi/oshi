@@ -1,20 +1,14 @@
-# 6.1.5 (in progress)
+# 6.1.6 (in progress)
 
-##### New Features
-* [#1974](https://github.com/oshi/oshi/pull/1974): Enable suppression of disabled perfmon counter warnings - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-##### Bug fixes / Improvements
-* [#1960](https://github.com/oshi/oshi/pull/1960),
-  [#1962](https://github.com/oshi/oshi/pull/1962): Improve kstat chain locking - [@dbwiddis](https://github.com/dbwiddis).
-* [#1966](https://github.com/oshi/oshi/pull/1966): Determine kstat2 branch by attempting to load library - [@dbwiddis](https://github.com/dbwiddis).
-* [#1971](https://github.com/oshi/oshi/pull/1971): Show performance and efficiency core total on CPU toString - [@dbwiddis](https://github.com/dbwiddis).
-
-# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01)
+# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01), 6.1.5 (2022-03-15)
 
 ##### New Features
 * [#1851](https://github.com/oshi/oshi/pull/1851),
   [#1858](https://github.com/oshi/oshi/pull/1858): Add PhysicalProcessor class to expose hybrid processor topology - [@dbwiddis](https://github.com/dbwiddis).
 * [#1886](https://github.com/oshi/oshi/pull/1886): Implement Processor Utility to optionally match Windows Task Manager CPU usage - [@dbwiddis](https://github.com/dbwiddis).
+* [#1974](https://github.com/oshi/oshi/pull/1974): Enable suppression of disabled perfmon counter warnings - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#1831](https://github.com/oshi/oshi/pull/1831): Improve Solaris and AIX process listing using procfs - [@dbwiddis](https://github.com/dbwiddis).
@@ -34,6 +28,10 @@
 * [#1945](https://github.com/oshi/oshi/pull/1945): Refactor all binary file reading to use ByteBuffers - [@dbwiddis](https://github.com/dbwiddis).
 * [#1949](https://github.com/oshi/oshi/pull/1949): Refine Processor Utility calculations for more precision - [@dbwiddis](https://github.com/dbwiddis).
 * [#1950](https://github.com/oshi/oshi/pull/1950): Handle Processor Utility 32-bit counter rollover - [@dbwiddis](https://github.com/dbwiddis).
+* [#1960](https://github.com/oshi/oshi/pull/1960),
+  [#1962](https://github.com/oshi/oshi/pull/1962): Improve kstat chain locking - [@dbwiddis](https://github.com/dbwiddis).
+* [#1966](https://github.com/oshi/oshi/pull/1966): Determine kstat2 branch by attempting to load library - [@dbwiddis](https://github.com/dbwiddis).
+* [#1971](https://github.com/oshi/oshi/pull/1971): Show performance and efficiency core total on CPU toString - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Artifact Removal
 * [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).
