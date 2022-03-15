@@ -25,7 +25,7 @@ package oshi.jna.platform.unix;
 
 import java.nio.ByteBuffer;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 
 import oshi.util.FileUtil;
 

@@ -23,10 +23,11 @@
  */
 package oshi.driver.unix.solaris.kstat;
 
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat; // NOSONAR squid:s1191
+import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
+
+import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;
@@ -48,29 +49,29 @@ public final class SystemPages {
      *         size for bytes.
      */
     public static Pair&lt;Long, Long&gt; queryAvailableTotal() {
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (SolarisOperatingSystem.IS_11_4_OR_HIGHER) {</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (HAS_KSTAT2) {</span>
             // Use Kstat2 implementation
-<span class="nc" id="L53">            return queryAvailableTotal2();</span>
+<span class="nc" id="L54">            return queryAvailableTotal2();</span>
         }
-<span class="nc" id="L55">        long memAvailable = 0;</span>
-<span class="nc" id="L56">        long memTotal = 0;</span>
+<span class="nc" id="L56">        long memAvailable = 0;</span>
+<span class="nc" id="L57">        long memTotal = 0;</span>
         // Get first result
-<span class="nc" id="L58">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L59">            Kstat ksp = KstatChain.lookup(null, -1, &quot;system_pages&quot;);</span>
+<span class="nc" id="L59">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L60">            Kstat ksp = kc.lookup(null, -1, &quot;system_pages&quot;);</span>
             // Set values
-<span class="nc bnc" id="L61" title="All 4 branches missed.">            if (ksp != null &amp;&amp; KstatChain.read(ksp)) {</span>
-<span class="nc" id="L62">                memAvailable = KstatUtil.dataLookupLong(ksp, &quot;availrmem&quot;); // not a typo</span>
-<span class="nc" id="L63">                memTotal = KstatUtil.dataLookupLong(ksp, &quot;physmem&quot;);</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L63">                memAvailable = KstatUtil.dataLookupLong(ksp, &quot;availrmem&quot;); // not a typo</span>
+<span class="nc" id="L64">                memTotal = KstatUtil.dataLookupLong(ksp, &quot;physmem&quot;);</span>
             }
         }
-<span class="nc" id="L66">        return new Pair&lt;&gt;(memAvailable, memTotal);</span>
+<span class="nc" id="L67">        return new Pair&lt;&gt;(memAvailable, memTotal);</span>
     }
 
     private static Pair&lt;Long, Long&gt; queryAvailableTotal2() {
-<span class="nc" id="L70">        Object[] results = KstatUtil.queryKstat2(&quot;kstat:/pages/unix/system_pages&quot;, &quot;availrmem&quot;, &quot;physmem&quot;);</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        long avail = results[0] == null ? 0L : (long) results[0];</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        long total = results[1] == null ? 0L : (long) results[1];</span>
-<span class="nc" id="L73">        return new Pair&lt;&gt;(avail, total);</span>
+<span class="nc" id="L71">        Object[] results = KstatUtil.queryKstat2(&quot;kstat:/pages/unix/system_pages&quot;, &quot;availrmem&quot;, &quot;physmem&quot;);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        long avail = results[0] == null ? 0L : (long) results[0];</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        long total = results[1] == null ? 0L : (long) results[1];</span>
+<span class="nc" id="L74">        return new Pair&lt;&gt;(avail, total);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.WinBase; // NOSONAR squid:s1191
+import com.sun.jna.platform.win32.WinBase;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;

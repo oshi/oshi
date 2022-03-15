@@ -26,6 +26,7 @@ package oshi.driver.windows.perfmon;
 import static oshi.driver.windows.perfmon.PerfmonConstants.PAGING_FILE;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE;
 
+import java.util.Collections;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -41,25 +42,25 @@ public final class PagingFile {
     /**
      * For swap file usage
      */
-<span class="nc" id="L44">    public enum PagingPercentProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L45">        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Usage&quot;);</span>
+<span class="nc" id="L45">    public enum PagingPercentProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L46">        PERCENTUSAGE(PerfCounterQuery.TOTAL_INSTANCE, &quot;% Usage&quot;);</span>
 
         private final String instance;
         private final String counter;
 
-<span class="nc" id="L50">        PagingPercentProperty(String instance, String counter) {</span>
-<span class="nc" id="L51">            this.instance = instance;</span>
-<span class="nc" id="L52">            this.counter = counter;</span>
-<span class="nc" id="L53">        }</span>
+<span class="nc" id="L51">        PagingPercentProperty(String instance, String counter) {</span>
+<span class="nc" id="L52">            this.instance = instance;</span>
+<span class="nc" id="L53">            this.counter = counter;</span>
+<span class="nc" id="L54">        }</span>
 
         @Override
         public String getInstance() {
-<span class="nc" id="L57">            return instance;</span>
+<span class="nc" id="L58">            return instance;</span>
         }
 
         @Override
         public String getCounter() {
-<span class="nc" id="L62">            return counter;</span>
+<span class="nc" id="L63">            return counter;</span>
         }
     }
 
@@ -72,7 +73,10 @@ public final class PagingFile {
      * @return Paging file counters for memory.
      */
     public static Map&lt;PagingPercentProperty, Long&gt; querySwapUsed() {
-<span class="nc" id="L75">        return PerfCounterQuery.queryValues(PagingPercentProperty.class, PAGING_FILE,</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L77">            return Collections.emptyMap();</span>
+        }
+<span class="nc" id="L79">        return PerfCounterQuery.queryValues(PagingPercentProperty.class, PAGING_FILE,</span>
                 WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE);
     }
 }

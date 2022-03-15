@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2016-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -196,8 +196,8 @@
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         oshi.add(processor.toString());
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>         oshi.add(<span class="jxr_string">" Cores:"</span>);
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">for</strong> (PhysicalProcessor p : processor.getPhysicalProcessors()) {
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>             oshi.add(<span class="jxr_string">"  "</span> + p.getPhysicalProcessorNumber() + <span class="jxr_string">": efficiency="</span> + p.getEfficiency() + <span class="jxr_string">", id="</span>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                     + p.getIdString());
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             oshi.add(<span class="jxr_string">"  "</span> + (processor.getPhysicalPackageCount() &gt; 1 ? p.getPhysicalPackageNumber() + <span class="jxr_string">","</span> : <span class="jxr_string">""</span>)
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                     + p.getPhysicalProcessorNumber() + <span class="jxr_string">": efficiency="</span> + p.getEfficiency() + <span class="jxr_string">", id="</span> + p.getIdString());
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>         }
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
 <a class="jxr_linenumber" name="L195" href="#L195">195</a> 

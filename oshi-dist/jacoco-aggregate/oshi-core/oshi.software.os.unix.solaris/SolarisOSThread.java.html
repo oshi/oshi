@@ -29,7 +29,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.Pointer; // NOSONAR squid:S1191
+import com.sun.jna.Pointer;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfo;

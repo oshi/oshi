@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2016-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
@@ -35,7 +35,7 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.solaris.LibKstat.Kstat; <em class="jxr_comment">// NOSONAR</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
@@ -57,9 +57,9 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">static</strong> {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">if</strong> (KstatChain.lookup(KSTAT_BATT_MOD[1], 0, <strong class="jxr_keyword">null</strong>) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">if</strong> (kc.lookup(KSTAT_BATT_MOD[1], 0, <strong class="jxr_keyword">null</strong>) != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>                  KSTAT_BATT_IDX = 1;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (KstatChain.lookup(KSTAT_BATT_MOD[2], 0, <strong class="jxr_keyword">null</strong>) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (kc.lookup(KSTAT_BATT_MOD[2], 0, <strong class="jxr_keyword">null</strong>) != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>                  KSTAT_BATT_IDX = 2;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>              } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>                  KSTAT_BATT_IDX = 0;
@@ -115,7 +115,7 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">if</strong> (KSTAT_BATT_IDX &gt; 0) {
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>             <em class="jxr_comment">// Get kstat for the battery information</em>
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">try</strong> (KstatChain kc = KstatUtil.openChain()) {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 Kstat ksp = KstatChain.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, <span class="jxr_string">"battery BIF0"</span>);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 Kstat ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, <span class="jxr_string">"battery BIF0"</span>);
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>                 <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>                     <em class="jxr_comment">// Predicted battery capacity when fully charged.</em>
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>                     <strong class="jxr_keyword">long</strong> energyFull = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"bif_last_cap"</span>);
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                 }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> 
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <em class="jxr_comment">// Get kstat for the battery state</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 ksp = KstatChain.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, <span class="jxr_string">"battery BST0"</span>);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, <span class="jxr_string">"battery BST0"</span>);
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <strong class="jxr_keyword">if</strong> (ksp != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>                     <em class="jxr_comment">// estimated remaining battery capacity</em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                     <strong class="jxr_keyword">long</strong> energyNow = KstatUtil.dataLookupLong(ksp, <span class="jxr_string">"bst_rem_cap"</span>);

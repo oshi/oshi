@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;

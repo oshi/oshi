@@ -56,18 +56,24 @@ public final class Uptime {
      */
     public static long queryUpTime() {
 <span class="nc" id="L58">        long uptime = 0L;</span>
-<span class="nc" id="L59">        String s = ExecutingCommand.getFirstAnswer(&quot;/usr/bin/uptime&quot;);</span>
-<span class="nc" id="L60">        Matcher m = UPTIME_FORMAT_AIX.matcher(s);</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (m.matches()) {</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (m.group(2) != null) {</span>
-<span class="nc" id="L63">                uptime += ParseUtil.parseLongOrDefault(m.group(2), 0L) * DAY_MS;</span>
-            }
-<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (m.group(4) != null) {</span>
-<span class="nc" id="L66">                uptime += ParseUtil.parseLongOrDefault(m.group(4), 0L) * HOUR_MS;</span>
-            }
-<span class="nc" id="L68">            uptime += ParseUtil.parseLongOrDefault(m.group(5), 0L) * MINUTE_MS;</span>
+<span class="nc" id="L59">        String s = ExecutingCommand.getFirstAnswer(&quot;uptime&quot;);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (s.isEmpty()) {</span>
+<span class="nc" id="L61">            s = ExecutingCommand.getFirstAnswer(&quot;w&quot;);</span>
         }
-<span class="nc" id="L70">        return uptime;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (s.isEmpty()) {</span>
+<span class="nc" id="L64">            s = ExecutingCommand.getFirstAnswer(&quot;/usr/bin/uptime&quot;);</span>
+        }
+<span class="nc" id="L66">        Matcher m = UPTIME_FORMAT_AIX.matcher(s);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (m.group(2) != null) {</span>
+<span class="nc" id="L69">                uptime += ParseUtil.parseLongOrDefault(m.group(2), 0L) * DAY_MS;</span>
+            }
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            if (m.group(4) != null) {</span>
+<span class="nc" id="L72">                uptime += ParseUtil.parseLongOrDefault(m.group(4), 0L) * HOUR_MS;</span>
+            }
+<span class="nc" id="L74">            uptime += ParseUtil.parseLongOrDefault(m.group(5), 0L) * MINUTE_MS;</span>
+        }
+<span class="nc" id="L76">        return uptime;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

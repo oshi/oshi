@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.Native; // NOSONAR squid:S1191
+import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.SolarisLibc;

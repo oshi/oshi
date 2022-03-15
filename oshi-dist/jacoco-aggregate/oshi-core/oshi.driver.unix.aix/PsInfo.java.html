@@ -35,7 +35,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory; // NOSONAR squid:S1191
+import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;

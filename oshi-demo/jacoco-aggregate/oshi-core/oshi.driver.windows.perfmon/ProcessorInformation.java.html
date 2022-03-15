@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcessorInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">ProcessorInformation.java</span></div><h1>ProcessorInformation.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -29,10 +29,11 @@ import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_C
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.VersionHelpers; // NOSONAR squid:s1191
+import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.PerfCounterQuery;
@@ -47,107 +48,107 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class ProcessorInformation {
 
-<span class="nc" id="L50">    private static final boolean IS_WIN7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();</span>
+<span class="nc" id="L51">    private static final boolean IS_WIN7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();</span>
 
     /**
      * Processor performance counters
      */
-<span class="nc" id="L55">    public enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L56">    public enum ProcessorTickCountProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L57">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+<span class="nc" id="L58">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
         // Remaining elements define counters
-<span class="nc" id="L59">        PERCENTDPCTIME(&quot;% DPC Time&quot;), //</span>
-<span class="nc" id="L60">        PERCENTINTERRUPTTIME(&quot;% Interrupt Time&quot;), //</span>
-<span class="nc" id="L61">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
-<span class="nc" id="L62">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
-<span class="nc" id="L63">        PERCENTUSERTIME(&quot;% User Time&quot;);</span>
+<span class="nc" id="L60">        PERCENTDPCTIME(&quot;% DPC Time&quot;), //</span>
+<span class="nc" id="L61">        PERCENTINTERRUPTTIME(&quot;% Interrupt Time&quot;), //</span>
+<span class="nc" id="L62">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
+<span class="nc" id="L63">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
+<span class="nc" id="L64">        PERCENTUSERTIME(&quot;% User Time&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L67">        ProcessorTickCountProperty(String counter) {</span>
-<span class="nc" id="L68">            this.counter = counter;</span>
-<span class="nc" id="L69">        }</span>
+<span class="nc" id="L68">        ProcessorTickCountProperty(String counter) {</span>
+<span class="nc" id="L69">            this.counter = counter;</span>
+<span class="nc" id="L70">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L73">            return counter;</span>
+<span class="nc" id="L74">            return counter;</span>
         }
     }
 
     /**
      * Processor performance counters including utility counters
      */
-<span class="nc" id="L80">    public enum ProcessorUtilityTickCountProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L81">    public enum ProcessorUtilityTickCountProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L82">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+<span class="nc" id="L83">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
         // Remaining elements define counters
-<span class="nc" id="L84">        PERCENTDPCTIME(&quot;% DPC Time&quot;), //</span>
-<span class="nc" id="L85">        PERCENTINTERRUPTTIME(&quot;% Interrupt Time&quot;), //</span>
-<span class="nc" id="L86">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
-<span class="nc" id="L87">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
+<span class="nc" id="L85">        PERCENTDPCTIME(&quot;% DPC Time&quot;), //</span>
+<span class="nc" id="L86">        PERCENTINTERRUPTTIME(&quot;% Interrupt Time&quot;), //</span>
+<span class="nc" id="L87">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
+<span class="nc" id="L88">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
         // The above 3 counters are 100ns base type
         // For PDH accessible as secondary counter in any of them
-<span class="nc" id="L90">        TIMESTAMP_SYS100NS(&quot;% Processor Time_Base&quot;), //</span>
-<span class="nc" id="L91">        PERCENTPRIVILEGEDUTILITY(&quot;% Privileged Utility&quot;), //</span>
-<span class="nc" id="L92">        PERCENTPROCESSORUTILITY(&quot;% Processor Utility&quot;), //</span>
-<span class="nc" id="L93">        PERCENTPROCESSORUTILITY_BASE(&quot;% Processor Utility_Base&quot;), //</span>
-<span class="nc" id="L94">        PERCENTUSERTIME(&quot;% User Time&quot;);</span>
+<span class="nc" id="L91">        TIMESTAMP_SYS100NS(&quot;% Processor Time_Base&quot;), //</span>
+<span class="nc" id="L92">        PERCENTPRIVILEGEDUTILITY(&quot;% Privileged Utility&quot;), //</span>
+<span class="nc" id="L93">        PERCENTPROCESSORUTILITY(&quot;% Processor Utility&quot;), //</span>
+<span class="nc" id="L94">        PERCENTPROCESSORUTILITY_BASE(&quot;% Processor Utility_Base&quot;), //</span>
+<span class="nc" id="L95">        PERCENTUSERTIME(&quot;% User Time&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L98">        ProcessorUtilityTickCountProperty(String counter) {</span>
-<span class="nc" id="L99">            this.counter = counter;</span>
-<span class="nc" id="L100">        }</span>
+<span class="nc" id="L99">        ProcessorUtilityTickCountProperty(String counter) {</span>
+<span class="nc" id="L100">            this.counter = counter;</span>
+<span class="nc" id="L101">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L104">            return counter;</span>
+<span class="nc" id="L105">            return counter;</span>
         }
     }
 
     /**
      * System interrupts counters
      */
-<span class="nc" id="L111">    public enum InterruptsProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L112">        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
+<span class="nc" id="L112">    public enum InterruptsProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L113">        INTERRUPTSPERSEC(PerfCounterQuery.TOTAL_INSTANCE, &quot;Interrupts/sec&quot;);</span>
 
         private final String instance;
         private final String counter;
 
-<span class="nc" id="L117">        InterruptsProperty(String instance, String counter) {</span>
-<span class="nc" id="L118">            this.instance = instance;</span>
-<span class="nc" id="L119">            this.counter = counter;</span>
-<span class="nc" id="L120">        }</span>
+<span class="nc" id="L118">        InterruptsProperty(String instance, String counter) {</span>
+<span class="nc" id="L119">            this.instance = instance;</span>
+<span class="nc" id="L120">            this.counter = counter;</span>
+<span class="nc" id="L121">        }</span>
 
         @Override
         public String getInstance() {
-<span class="nc" id="L124">            return instance;</span>
+<span class="nc" id="L125">            return instance;</span>
         }
 
         @Override
         public String getCounter() {
-<span class="nc" id="L129">            return counter;</span>
+<span class="nc" id="L130">            return counter;</span>
         }
     }
 
     /**
      * Processor Frequency counters. Requires Win7 or greater
      */
-<span class="nc" id="L136">    public enum ProcessorFrequencyProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L137">    public enum ProcessorFrequencyProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L138">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+<span class="nc" id="L139">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
         // Remaining elements define counters
-<span class="nc" id="L140">        PERCENTOFMAXIMUMFREQUENCY(&quot;% of Maximum Frequency&quot;);</span>
+<span class="nc" id="L141">        PERCENTOFMAXIMUMFREQUENCY(&quot;% of Maximum Frequency&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L144">        ProcessorFrequencyProperty(String counter) {</span>
-<span class="nc" id="L145">            this.counter = counter;</span>
-<span class="nc" id="L146">        }</span>
+<span class="nc" id="L145">        ProcessorFrequencyProperty(String counter) {</span>
+<span class="nc" id="L146">            this.counter = counter;</span>
+<span class="nc" id="L147">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L150">            return counter;</span>
+<span class="nc" id="L151">            return counter;</span>
         }
     }
 
@@ -160,9 +161,12 @@ public final class ProcessorInformation {
      * @return Performance Counters for processors.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt;&gt; queryProcessorCounters() {
-<span class="nc bnc" id="L163" title="All 2 branches missed.">        return IS_WIN7_OR_GREATER ? PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class,</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L165">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+        }
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        return IS_WIN7_OR_GREATER ? PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class,</span>
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL)
-<span class="nc" id="L165">                : PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class, PROCESSOR,</span>
+<span class="nc" id="L169">                : PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class, PROCESSOR,</span>
                         WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL);
     }
 
@@ -172,7 +176,10 @@ public final class ProcessorInformation {
      * @return Performance Counters for processor capacity.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; queryProcessorCapacityCounters() {
-<span class="nc" id="L175">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorUtilityTickCountProperty.class,</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L180">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+        }
+<span class="nc" id="L182">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorUtilityTickCountProperty.class,</span>
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 
@@ -182,7 +189,10 @@ public final class ProcessorInformation {
      * @return Interrupts counter for the total of all processors.
      */
     public static Map&lt;InterruptsProperty, Long&gt; queryInterruptCounters() {
-<span class="nc" id="L185">        return PerfCounterQuery.queryValues(InterruptsProperty.class, PROCESSOR,</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L193">            return Collections.emptyMap();</span>
+        }
+<span class="nc" id="L195">        return PerfCounterQuery.queryValues(InterruptsProperty.class, PROCESSOR,</span>
                 WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
     }
 
@@ -192,7 +202,10 @@ public final class ProcessorInformation {
      * @return Processor frequency counter for each processor.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt;&gt; queryFrequencyCounters() {
-<span class="nc" id="L195">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L206">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+        }
+<span class="nc" id="L208">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,</span>
                 WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 }
