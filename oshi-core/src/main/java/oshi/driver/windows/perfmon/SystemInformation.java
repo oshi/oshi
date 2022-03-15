@@ -26,6 +26,7 @@ package oshi.driver.windows.perfmon;
 import static oshi.driver.windows.perfmon.PerfmonConstants.SYSTEM;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM;
 
+import java.util.Collections;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -72,6 +73,9 @@ public final class SystemInformation {
      * @return Context switches counter for the total of all processors.
      */
     public static Map<ContextSwitchProperty, Long> queryContextSwitchCounters() {
+        if (PerfmonDisabled.PERF_OS_DISABLED) {
+            return Collections.emptyMap();
+        }
         return PerfCounterQuery.queryValues(ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
     }
 }

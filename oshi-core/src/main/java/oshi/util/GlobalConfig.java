@@ -56,9 +56,24 @@ public final class GlobalConfig {
     public static final String OSHI_OS_WINDOWS_HKEYPERFDATA = "oshi.os.windows.hkeyperfdata";
     public static final String OSHI_OS_WINDOWS_CPU_UTILITY = "oshi.os.windows.cpu.utility";
 
+    public static final String OSHI_OS_WINDOWS_PERFDISK_DIABLED = "oshi.os.windows.perfdisk.disabled";
+    public static final String OSHI_OS_WINDOWS_PERFOS_DIABLED = "oshi.os.windows.perfos.disabled";
+    public static final String OSHI_OS_WINDOWS_PERFPROC_DIABLED = "oshi.os.windows.perfproc.disabled";
+
     public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
 
     private GlobalConfig() {
+    }
+
+    /**
+     * Get the property associated with the given key.
+     *
+     * @param key
+     *            The property key
+     * @return The property value if it exists, or null otherwise
+     */
+    public static String get(String key) {
+        return CONFIG.getProperty(key);
     }
 
     /**

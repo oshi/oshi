@@ -27,6 +27,7 @@ import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESS;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -100,6 +101,9 @@ public final class ProcessInformation {
      * @return Process counters for each process.
      */
     public static Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> queryProcessCounters() {
+        if (PerfmonDisabled.PERF_PROC_DISABLED) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessPerformanceProperty.class, PROCESS,
                 WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
     }
@@ -110,6 +114,9 @@ public final class ProcessInformation {
      * @return Process handle counters for each process.
      */
     public static Pair<List<String>, Map<HandleCountProperty, List<Long>>> queryHandles() {
+        if (PerfmonDisabled.PERF_PROC_DISABLED) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
         return PerfCounterWildcardQuery.queryInstancesAndValues(HandleCountProperty.class, PROCESS,
                 WIN32_PERFPROC_PROCESS);
     }

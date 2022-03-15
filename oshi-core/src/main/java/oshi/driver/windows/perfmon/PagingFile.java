@@ -26,6 +26,7 @@ package oshi.driver.windows.perfmon;
 import static oshi.driver.windows.perfmon.PerfmonConstants.PAGING_FILE;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE;
 
+import java.util.Collections;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -72,6 +73,9 @@ public final class PagingFile {
      * @return Paging file counters for memory.
      */
     public static Map<PagingPercentProperty, Long> querySwapUsed() {
+        if (PerfmonDisabled.PERF_OS_DISABLED) {
+            return Collections.emptyMap();
+        }
         return PerfCounterQuery.queryValues(PagingPercentProperty.class, PAGING_FILE,
                 WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE);
     }
