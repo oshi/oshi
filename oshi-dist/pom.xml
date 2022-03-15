@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.oshi</groupId>
         <artifactId>oshi-parent</artifactId>
-        <version>6.1.5</version>
+        <version>6.1.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>oshi-dist</artifactId>
@@ -14,7 +14,7 @@
     <scm>
         <connection>scm:git:git@github.com:oshi/oshi.git</connection>
         <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
-        <tag>oshi-parent-6.1.5</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/oshi/oshi.git</url>
     </scm>
 
