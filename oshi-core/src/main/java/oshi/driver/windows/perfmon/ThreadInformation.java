@@ -26,6 +26,7 @@ package oshi.driver.windows.perfmon;
 import static oshi.driver.windows.perfmon.PerfmonConstants.THREAD;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -80,6 +81,9 @@ public final class ThreadInformation {
      * @return Thread counters for each thread.
      */
     public static Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> queryThreadCounters() {
+        if (PerfmonDisabled.PERF_PROC_DISABLED) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,
                 WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL);
     }

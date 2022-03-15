@@ -3,13 +3,19 @@
 
 ## CPU/memory trade-offs
 
-OSHI avoids aching large amount of information, leaving caching to the user.  Limited use of caching is employed in many classes using Memoized suppliers in instance fields, thus avoiding repeated operating system calls.
+OSHI avoids caching large amount of information, leaving caching to the user.  Limited use of caching is employed in many classes using Memoized suppliers in instance fields, thus avoiding repeated operating system calls.
 
 Users with memory constraints can ensure the existing cached information is disposed of by using a new instance of `SystemInfo` and the subordinate classes when collecting data.
 
 ## Updating statistics on objects in a list
 
 Many of the individual objects returned by lists, such as `OSProcess`, `NetworkIF`, `OSFileStore`, and others, have an `updateAttributes()` method that operates only on that object. These are intended for use primarily if that individual process is the only one being monitored/updated.  In many cases, the entire list must be queried to provide the information, so users updating multiple objects in a list should simply re-query the entire list once and then correlate the new set of results to the old ones in their own application.
+
+## Windows performance counters
+
+OSHI attempts to read process and thread information from the registry base key HKEY_PERFORMANCE_DATA in preference to performance counters for performance reasons. This approach may cause problems with localization and can be disabled in the configuration file, or by calling `GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, false);` shortly after startup (at least before querying process lists).
+
+Some users may choose to disable performance counters in their registry for performance reasons (e.g., gaming). Log warnings when detecting these disabled counters can be confusing. If your application does not use any information from these classes of performance counters, you can suppress these log warnings by calling `GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_PERFOS_DISABLED, true);`, `GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_PERFPROC_DISABLED, true);`, and/or `GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_PERFDISK_DISABLED, true);`.
 
 ## Windows process command lines
 
@@ -32,4 +38,4 @@ Because OSHI does not know whether COM has been initialized externally, each WMI
 
 ## Physical device latency
 
-Updates of statistics on disks, filestores, USB devices, and some network information may incur physical device or network latency and respond more slowly than other native calls.  Periodic polling for updates should generally be less frequent than OS-kernel based statistics such as CPU and memory.
+Updates of statistics on disks, filestores, USB devices, and some network information may incur physical device or network latency and respond more slowly than other native calls.  Periodic polling for updates should generally be less frequent than OS-kernel based statistics such as CPU and memory. Also see the discussion above regarding disk performance counters; if only unchanging disk statistics are required then disabling the querying of PerfDisk counters will slightly improve performance.

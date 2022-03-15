@@ -1,8 +1,12 @@
 # 6.1.5 (in progress)
 
+##### New Features
+* [#1974](https://github.com/oshi/oshi/pull/1974): Enable suppression of disabled perfmon counter warnings - [@dbwiddis](https://github.com/dbwiddis).
+
 ##### Bug fixes / Improvements
 * [#1960](https://github.com/oshi/oshi/pull/1960),
   [#1962](https://github.com/oshi/oshi/pull/1962): Improve kstat chain locking - [@dbwiddis](https://github.com/dbwiddis).
+* [#1966](https://github.com/oshi/oshi/pull/1966): Determine kstat2 branch by attempting to load library - [@dbwiddis](https://github.com/dbwiddis).
 * [#1971](https://github.com/oshi/oshi/pull/1971): Show performance and efficiency core total on CPU toString - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01)
