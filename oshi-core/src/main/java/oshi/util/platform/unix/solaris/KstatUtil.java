@@ -47,6 +47,7 @@ import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
 import oshi.jna.platform.unix.Kstat2.Kstat2Map;
 import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
 import oshi.jna.platform.unix.Kstat2StatusException;
+import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
 
@@ -304,6 +305,10 @@ public final class KstatUtil {
      * @return An object array with the data corresponding to the names
      */
     public static Object[] queryKstat2(String mapStr, String... names) {
+        if (!SolarisOperatingSystem.HAS_KSTAT2) {
+            throw new UnsupportedOperationException(
+                    "Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this.");
+        }
         Object[] result = new Object[names.length];
         Kstat2MatcherList matchers = new Kstat2MatcherList();
         KstatUtil.CHAIN.lock();
@@ -340,6 +345,10 @@ public final class KstatUtil {
      * @return A list of object arrays with the data corresponding to the names
      */
     public static List<Object[]> queryKstat2List(String beforeStr, String afterStr, String... names) {
+        if (!SolarisOperatingSystem.HAS_KSTAT2) {
+            throw new UnsupportedOperationException(
+                    "Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this.");
+        }
         List<Object[]> results = new ArrayList<>();
         int s = 0;
         Kstat2MatcherList matchers = new Kstat2MatcherList();
