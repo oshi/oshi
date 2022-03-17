@@ -15,13 +15,13 @@ on:
       - '**.yaml'
 
 jobs:
-  # SSH into AIX server and run test on AIX 7.1
+  # SSH into AIX server and run test on AIX 7.2
   # Configured to pull latest from oshi master branch
   # To test on a PR, log into the aix server and create a new branch
   testaix:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
-    name: Test JDK 8, aix
+    name: Test JDK 11, aix
     steps:
     - name: Test in AIX
       uses: appleboy/ssh-action@master
@@ -33,8 +33,8 @@ jobs:
         script_stop: true
         command_timeout: 15m
         script: |
+          export JAVA_HOME=~/jdk-11.0.14.1+1
           cd ~/git/oshi
-          export JAVA_HOME=/usr/java8_64
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master

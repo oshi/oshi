@@ -12,15 +12,12 @@ on:
       - '**.yaml'
 
 jobs:
-  # Runs current branch on Windows, Linux, macOS with multiple JDKs
+  # Runs current branch with multiple JDKs
   testmatrix:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # Baseline support, Current LTS, Current GA, Current EA
-        java: [8, 11, 17]
-        # note that windows-2016 will be removed on 15-march-2022
-        # see https://github.com/actions/virtual-environments/issues/4312
+        java: [11, 17]
         # Jacoco 0.8.7 is incompatible JDK 18-ea, temporarily disabling.
         # Re-enable for version 0.8.8. See https://github.com/jacoco/jacoco/pull/1198
         os: [windows-2019, windows-2022]

@@ -12,13 +12,12 @@ on:
       - '**.yaml'
 
 jobs:
-  # Runs full project on JDK 8
+  # Runs full project on multiple JDKs
   testmatrix:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # Baseline support, Current LTS, Current GA, Current EA
-        java: [8, 11, 17]
+        java: [11, 17]
         os: [ubuntu-latest]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
