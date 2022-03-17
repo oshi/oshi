@@ -44,6 +44,8 @@
     <modules>
         <module>oshi-core</module>
         <module>oshi-demo</module>
+        <module>oshi-core-java11</module>
+        <module>oshi-dist</module>
     </modules>
 
     <scm>
@@ -85,6 +87,8 @@
         <maven.compiler.target>8</maven.compiler.target>
         <maven.compiler.testSource>8</maven.compiler.testSource>
         <maven.compiler.testTarget>8</maven.compiler.testTarget>
+        <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
+        <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
         <maven.min-version>3.3.9</maven.min-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
@@ -146,7 +150,6 @@
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
-        <animal-sniffer-maven-plugin.version>1.21</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>7.0.0</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.0</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
@@ -894,54 +897,6 @@
     </reporting>
 
     <profiles>
-        <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <!-- Restrict the API to be compatible with Java 8 -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>animal-sniffer-maven-plugin</artifactId>
-                        <version>${animal-sniffer-maven-plugin.version}</version>
-                        <configuration>
-                            <signature>
-                                <groupId>org.codehaus.mojo.signature</groupId>
-                                <artifactId>java18</artifactId>
-                                <version>1.0</version>
-                            </signature>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>test-sniffer</id>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                                <phase>test</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>java11</id>
-            <activation>
-                <jdk>[11,)</jdk>
-            </activation>
-            <!-- Only include java11 and dist modules on Java 11+ -->
-            <modules>
-                <module>oshi-core-java11</module>
-                <module>oshi-dist</module>
-            </modules>
-            <!-- Restrict the API to be compatible with Java 8 -->
-            <properties>
-                <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
-                <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
-            </properties>
-        </profile>
         <profile>
             <id>checks</id>
             <build>
