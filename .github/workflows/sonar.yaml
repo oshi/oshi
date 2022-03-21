@@ -24,7 +24,7 @@ jobs:
           java-version: 11
           distribution: 'zulu'
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
