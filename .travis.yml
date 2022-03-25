@@ -1,23 +1,15 @@
 language: java
 os: linux
-dist: xenial
+dist: trusty
 
 addons:
   hosts:
     - oshi
   hostname: oshi
-  sonarcloud:
-    organization: "OSHI"
-    token:
-      secure: "rYs+vTWUYIfTD0axJ9KlExyy1OPu7aM0/ZBizauWpE333MteyblNQg+8kgSFZMVXIIa3hJfTbSWBqkHU+WaIquMkcX5YOIsmC+LadVEQaujRRzCyc4vapscR1t52FUlkCxr5rtxH4hLiNSEHFh8Ba1lX+SflRPtfAkbVqM1FuW1lCKlIZ99mzUzqHPnYa2QBp2g/JqMnEaoKnRz2+yiLynq9/k5rmXtvvPFQJvmXnP2MERdWpkFAj4Pj++TqRpgVoKuZDw3dkk1yEjhwJvrJwDpMH/jX517u5sZJdwo1p6+I3h6MMIrbDQSymCbS4ZJi05xUB23EScPdrUqfjJrdbOijgXXPewKMAeEQuDjU1rQq4bZ07tNOQOw9s9C14wKWWO1jUD9AlYusFSKbue88rHyqtdjaGsxNoGuYPxMSYZbce6Ssz1hmf3QKSTK/ku2NqWvbG3eUhqmtIRE84KtPceFFz6I2JAY4cMXYuJEzKXH0ryA0wNKORaninAbHYjd10iLHl4OiPt1Cfp5y5alzO0GLrqSi9UyEbc5Fgt2L8JMEFLdO73nAlIEPRW1X8EYzDrdCkXyL8FhkRpOSeAMyMKXymvdfZvCT/bXtqrAmhx0i11isjK3wcq4KWX30f5YmDh+m4jnYwbc16E+dwvb/+3YsYGV9CZkEAtFBOnhydqE="
 
 cache:
   directories:
     - $HOME/.m2
-
-# disable shallow clone, full history desired for sonar
-git:
-  depth: false
 
 before_install:
   - |
@@ -40,10 +32,12 @@ before_install:
 script:
   - if [ "${TRAVIS_BRANCH}" = "master" ]; then
       java -version;
-      mvn clean verify sonar:sonar -Dproject.settings=config/sonar-project.properties;
+      mvn test;
     fi
 
 # 4 concurrent builds on travis-ci.com but limit to what's not covered by other CI
+# Github Actions handles Windows, macOS, and Linux
+# Cirrus CI handles FreeBSD
 jobs:
   include:
     - name: "Linux JDK11 ARM"
