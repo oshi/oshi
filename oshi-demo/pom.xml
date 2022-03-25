@@ -21,7 +21,7 @@
     </scm>
 
     <properties>
-        <jackson.version>2.13.2</jackson.version>
+        <jackson.version>2.13.2.1</jackson.version>
         <jfreechart.version>1.5.3</jfreechart.version>
     </properties>
 
