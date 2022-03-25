@@ -40,4 +40,5 @@ jobs:
           doas mvn clean
           doas chown -R oshi:oshi .
           mvn test -B -Djacoco.skip=true -Dlicense.skip=true
-          doas mvn test -B -Djacoco.skip=true -Dlicense.skip=true
+          doas mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
+          doas mvn clean
