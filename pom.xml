@@ -145,7 +145,6 @@
         <versions-maven-plugin.version>2.10.0</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
-        <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.21</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>7.0.4</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.1</puppycrawl.checkstyle.version>
@@ -616,12 +615,6 @@
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>${sonar-maven-plugin.version}</version>
-                </plugin>
-                <!-- Wagon -->
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>wagon-maven-plugin</artifactId>
-                    <version>${wagon-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
