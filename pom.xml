@@ -234,8 +234,8 @@
                     <version>${maven-scm-publish-plugin.version}</version>
                     <configuration>
                         <checkoutDirectory>${user.home}/maven-sites/${project.name}</checkoutDirectory>
-                        <!-- no need for site:stage, use target/site -->
-                        <content>${project.reporting.outputDirectory}</content>
+                        <!-- need site:stage to collect multimodule project -->
+                        <content>${project.output.directory}/staging/site</content>
                         <scmBranch>gh-pages</scmBranch>
                         <tryUpdate>true</tryUpdate>
                     </configuration>
