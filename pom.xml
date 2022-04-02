@@ -235,7 +235,7 @@
                     <configuration>
                         <checkoutDirectory>${user.home}/maven-sites/${project.name}</checkoutDirectory>
                         <!-- need site:stage to collect multimodule project -->
-                        <content>${project.output.directory}/staging/site</content>
+                        <content>${project.build.directory}/staging/site</content>
                         <scmBranch>gh-pages</scmBranch>
                         <tryUpdate>true</tryUpdate>
                     </configuration>
