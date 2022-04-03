@@ -47,8 +47,8 @@
     </modules>
 
     <scm>
-        <connection>scm:git:git@github.com:oshi/oshi.git</connection>
-        <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com/oshi/oshi.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:oshi/oshi.git</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/oshi/oshi.git</url>
     </scm>
@@ -74,7 +74,7 @@
         <site>
             <id>gh-pages</id>
             <name>OSHI GitHub Pages</name>
-            <url>scp://oshi.github.io/oshi/</url>
+            <url>scm:git:ssh://git@github.com/oshi/oshi.git</url>
         </site>
     </distributionManagement>
 
@@ -107,9 +107,9 @@
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
         <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+        <maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.11.0</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <wagon-ssh.version>3.5.1</wagon-ssh.version>
         <maven-fluido-skin.version>1.10.0</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
@@ -145,7 +145,6 @@
         <versions-maven-plugin.version>2.10.0</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
-        <wagon-maven-plugin.version>2.0.2</wagon-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.21</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>7.0.4</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.1</puppycrawl.checkstyle.version>
@@ -217,18 +216,28 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven-site-plugin.version}</version>
+                    <configuration>
+                        <!-- don't deploy site with maven-site-plugin (instead use scm publish during release) -->
+                        <skipDeploy>true</skipDeploy>
+                    </configuration>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.wagon</groupId>
-                            <artifactId>wagon-ssh</artifactId>
-                            <version>${wagon-ssh.version}</version>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.maven.skins</groupId>
                             <artifactId>maven-fluido-skin</artifactId>
                             <version>${maven-fluido-skin.version}</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-publish-plugin</artifactId>
+                    <version>${maven-scm-publish-plugin.version}</version>
+                    <configuration>
+                        <checkoutDirectory>${user.home}/maven-sites/oshi</checkoutDirectory>
+                        <scmBranch>gh-pages</scmBranch>
+                        <skipDeletedFiles>true</skipDeletedFiles>
+                        <tryUpdate>true</tryUpdate>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -605,12 +614,6 @@
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>${sonar-maven-plugin.version}</version>
-                </plugin>
-                <!-- Wagon -->
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>wagon-maven-plugin</artifactId>
-                    <version>${wagon-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
@@ -1156,6 +1159,20 @@
                         <configuration>
                             <skip>true</skip>
                         </configuration>
+                    </plugin>
+                    <!-- deploy site with maven-scm-publish-plugin -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-publish-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>scm-publish</id>
+                                <goals>
+                                    <goal>publish-scm</goal>
+                                </goals>
+                                <phase>site-deploy</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
