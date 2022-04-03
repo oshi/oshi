@@ -235,6 +235,7 @@
                     <configuration>
                         <checkoutDirectory>${user.home}/maven-sites/oshi</checkoutDirectory>
                         <scmBranch>gh-pages</scmBranch>
+                        <skipDeletedFiles>true</skipDeletedFiles>
                         <tryUpdate>true</tryUpdate>
                     </configuration>
                 </plugin>
