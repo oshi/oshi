@@ -35,12 +35,12 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.unix.solaris.Kstat2;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.solaris.Who;
-import oshi.jna.platform.unix.Kstat2;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;

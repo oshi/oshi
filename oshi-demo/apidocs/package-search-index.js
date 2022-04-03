@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"oshi.demo"},{"l":"oshi.demo.gui"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"oshi.demo"},{"l":"oshi.demo.gui"}]

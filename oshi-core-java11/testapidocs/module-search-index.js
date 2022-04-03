@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"com.github.oshi"}];updateSearchResults();
+moduleSearchIndex = [{"l":"com.github.oshi"}]

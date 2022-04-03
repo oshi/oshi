@@ -35,6 +35,11 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.unix.solaris.Kstat2;
+import com.sun.jna.platform.unix.solaris.Kstat2.Kstat2Handle;
+import com.sun.jna.platform.unix.solaris.Kstat2.Kstat2Map;
+import com.sun.jna.platform.unix.solaris.Kstat2.Kstat2MatcherList;
+import com.sun.jna.platform.unix.solaris.Kstat2StatusException;
 import com.sun.jna.platform.unix.solaris.LibKstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatCtl;
@@ -42,11 +47,6 @@ import com.sun.jna.platform.unix.solaris.LibKstat.KstatNamed;
 
 import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.Kstat2;
-import oshi.jna.platform.unix.Kstat2.Kstat2Handle;
-import oshi.jna.platform.unix.Kstat2.Kstat2Map;
-import oshi.jna.platform.unix.Kstat2.Kstat2MatcherList;
-import oshi.jna.platform.unix.Kstat2StatusException;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
