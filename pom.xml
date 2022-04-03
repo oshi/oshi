@@ -234,8 +234,6 @@
                     <version>${maven-scm-publish-plugin.version}</version>
                     <configuration>
                         <checkoutDirectory>${user.home}/maven-sites/oshi</checkoutDirectory>
-                        <!-- need site:stage to collect multimodule project -->
-                        <content>${project.build.directory}/staging</content>
                         <scmBranch>gh-pages</scmBranch>
                         <tryUpdate>true</tryUpdate>
                     </configuration>
