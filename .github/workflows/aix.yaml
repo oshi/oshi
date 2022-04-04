@@ -34,6 +34,7 @@ jobs:
         command_timeout: 15m
         script: |
           export JAVA_HOME=~/jdk-11.0.14.1+1
+          rm -fR ~/javasharedresources
           cd ~/git/oshi
           git checkout master
           git reset --hard HEAD~2
