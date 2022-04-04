@@ -1164,6 +1164,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-scm-publish-plugin</artifactId>
+                        <configuration>
+                            <!-- no need for site:stage, use target/site or target/checkout/target/site on release -->
+                            <content>${project.reporting.outputDirectory}</content>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>scm-publish</id>
