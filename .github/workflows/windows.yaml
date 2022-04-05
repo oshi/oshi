@@ -17,9 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        java: [11, 17]
-        # Jacoco 0.8.7 is incompatible JDK 18-ea, temporarily disabling.
-        # Re-enable for version 0.8.8. See https://github.com/jacoco/jacoco/pull/1198
+        java: [11, 17, 18, 19-ea]
         os: [windows-2019, windows-2022]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
