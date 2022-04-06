@@ -11,6 +11,8 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    # disable on windows JDK18+ until junit-platform-maven-plugin fix
+    # https://github.com/sormuras/junit-platform-maven-plugin/issues/95
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -35,6 +37,7 @@ jobs:
         run: ./mvnw checkstyle:check
       - name: License check
         if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '17')
-        run: git fetch --unshallow && ./mvnw license:check -D"license.git.copyrightLastYearMaxCommitsLookup=100000"
+        run: git fetch --unshallow && ./mvnw license:check
       - name: Test with Maven
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos') || contains(matrix.java, '11') || contains(matrix.java, '17')
         run: ./mvnw test -B -D"license.skip=true"
