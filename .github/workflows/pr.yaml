@@ -8,6 +8,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}

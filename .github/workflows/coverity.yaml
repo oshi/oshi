@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "0 9 */4 * *" # every 4 days at 09:00 UTC
 
+permissions:
+  contents: read
+
 jobs:
   build:
     if: github.repository_owner == 'oshi'
