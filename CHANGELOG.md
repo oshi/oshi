@@ -1,10 +1,8 @@
-# 6.1.6 (in progress)
+# 6.1.7 (in progress)
 
-##### Bug fixes / Improvements
-* [#1988](https://github.com/oshi/oshi/pull/1988): Update to JNA 5.11.0 - [@dbwiddis](https://github.com/dbwiddis).
-* [#2007](https://github.com/oshi/oshi/pull/2007): Pick one property file to load even with duplicates - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
 
-# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01), 6.1.5 (2022-03-15)
+# 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01), 6.1.5 (2022-03-15), 6.1.6 (2022-04-10)
 
 ##### New Features
 * [#1851](https://github.com/oshi/oshi/pull/1851),
@@ -34,6 +32,8 @@
   [#1962](https://github.com/oshi/oshi/pull/1962): Improve kstat chain locking - [@dbwiddis](https://github.com/dbwiddis).
 * [#1966](https://github.com/oshi/oshi/pull/1966): Determine kstat2 branch by attempting to load library - [@dbwiddis](https://github.com/dbwiddis).
 * [#1971](https://github.com/oshi/oshi/pull/1971): Show performance and efficiency core total on CPU toString - [@dbwiddis](https://github.com/dbwiddis).
+* [#1988](https://github.com/oshi/oshi/pull/1988): Update to JNA 5.11.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#2007](https://github.com/oshi/oshi/pull/2007): Pick one property file to load even with duplicates - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Artifact Removal
 * [#1868](https://github.com/oshi/oshi/pull/1868): Remove shaded jar artifact - [@dbwiddis](https://github.com/dbwiddis).
