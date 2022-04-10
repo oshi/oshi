@@ -437,10 +437,9 @@ public final class FileUtil {
                 return false;
             }
             if (resources.size() > 1) {
-                LOG.warn("Configuration conflict: there is more than one {} file on the classpath", propsFilename);
-                return true;
+                LOG.warn("Configuration conflict: there is more than one {} file on the classpath: {}", propsFilename,
+                        resources);
             }
-
             try (InputStream in = resources.get(0).openStream()) {
                 if (in != null) {
                     archProps.load(in);
