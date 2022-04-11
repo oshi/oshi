@@ -21,7 +21,7 @@ jobs:
   testaix:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
-    name: Test JDK 8, aix
+    name: Test JDK 11, aix
     steps:
     - name: Test in AIX
       uses: appleboy/ssh-action@master
@@ -33,9 +33,9 @@ jobs:
         script_stop: true
         command_timeout: 15m
         script: |
-          cd ~/git/oshi
-          export JAVA_HOME=/usr/java8_64
+          export JAVA_HOME=/home/oshi/jdk-11.0.14.1+1
+          cd ~/git/oshi          
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
-          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true -Djvm.options=-Xshareclasses:none
