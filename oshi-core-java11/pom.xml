@@ -13,13 +13,6 @@
 
     <name>oshi-core-java11</name>
 
-    <scm>
-        <connection>scm:git:git@github.com:oshi/oshi.git</connection>
-        <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/oshi/oshi.git</url>
-    </scm>
-
     <properties>
         <oshi.core.basedir>${main.basedir}/oshi-core</oshi.core.basedir>
         <maven.compiler.source>11</maven.compiler.source>

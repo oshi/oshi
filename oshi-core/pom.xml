@@ -13,13 +13,6 @@
 
     <name>oshi-core</name>
 
-    <scm>
-        <connection>scm:git:git@github.com:oshi/oshi.git</connection>
-        <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/oshi/oshi.git</url>
-    </scm>
-
     <dependencyManagement>
         <dependencies>
             <!-- Due to critical nature of OSHI jna usage, set to dependency management to help influence usage -->

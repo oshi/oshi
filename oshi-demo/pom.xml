@@ -13,13 +13,6 @@
 
     <name>oshi-demo</name>
 
-    <scm>
-        <connection>scm:git:git@github.com:oshi/oshi.git</connection>
-        <developerConnection>scm:git:git@github.com:oshi/oshi.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/oshi/oshi.git</url>
-    </scm>
-
     <properties>
         <jackson.version>2.13.2.2</jackson.version>
         <jfreechart.version>1.5.3</jfreechart.version>
