@@ -445,36 +445,35 @@
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>                 <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>             }
 <a class="jxr_linenumber" name="L439" href="#L439">439</a>             <strong class="jxr_keyword">if</strong> (resources.size() &gt; 1) {
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 LOG.warn(<span class="jxr_string">"Configuration conflict: there is more than one {} file on the classpath"</span>, propsFilename);
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 LOG.warn(<span class="jxr_string">"Configuration conflict: there is more than one {} file on the classpath: {}"</span>, propsFilename,
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>                         resources);
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>             }
-<a class="jxr_linenumber" name="L443" href="#L443">443</a> 
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>             <strong class="jxr_keyword">try</strong> (InputStream in = resources.get(0).openStream()) {
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>                 <strong class="jxr_keyword">if</strong> (in != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>                     archProps.load(in);
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>                 }
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>             }
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         }
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     }
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> 
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">     * Reads the target of a symbolic link</em>
-<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">     * @param file</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">     *            The file to read</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">     * @return The symlink name, or null if the read failed</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String readSymlinkTarget(File file) {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>             <strong class="jxr_keyword">return</strong> Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         }
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>     }
-<a class="jxr_linenumber" name="L469" href="#L469">469</a> }
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>             <strong class="jxr_keyword">try</strong> (InputStream in = resources.get(0).openStream()) {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                 <strong class="jxr_keyword">if</strong> (in != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                     archProps.load(in);
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>                 }
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>             }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         }
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     }
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> 
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">     * Reads the target of a symbolic link</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">     * @param file</em>
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">     *            The file to read</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">     * @return The symlink name, or null if the read failed</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String readSymlinkTarget(File file) {
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>             <strong class="jxr_keyword">return</strong> Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         }
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
+<a class="jxr_linenumber" name="L468" href="#L468">468</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

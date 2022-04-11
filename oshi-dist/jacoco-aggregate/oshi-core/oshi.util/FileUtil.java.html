@@ -437,18 +437,17 @@ public final class FileUtil {
 <span class="nc" id="L437">                return false;</span>
             }
 <span class="nc bnc" id="L439" title="All 2 branches missed.">            if (resources.size() &gt; 1) {</span>
-<span class="nc" id="L440">                LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath&quot;, propsFilename);</span>
-<span class="nc" id="L441">                return true;</span>
+<span class="nc" id="L440">                LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath: {}&quot;, propsFilename,</span>
+                        resources);
             }
-
-<span class="nc" id="L444">            try (InputStream in = resources.get(0).openStream()) {</span>
-<span class="nc bnc" id="L445" title="All 2 branches missed.">                if (in != null) {</span>
-<span class="nc" id="L446">                    archProps.load(in);</span>
+<span class="nc" id="L443">            try (InputStream in = resources.get(0).openStream()) {</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">                if (in != null) {</span>
+<span class="nc" id="L445">                    archProps.load(in);</span>
                 }
             }
-<span class="nc" id="L449">            return true;</span>
-<span class="nc" id="L450">        } catch (IOException e) {</span>
-<span class="nc" id="L451">            return false;</span>
+<span class="nc" id="L448">            return true;</span>
+<span class="nc" id="L449">        } catch (IOException e) {</span>
+<span class="nc" id="L450">            return false;</span>
         }
     }
 
@@ -461,10 +460,10 @@ public final class FileUtil {
      */
     public static String readSymlinkTarget(File file) {
         try {
-<span class="nc" id="L464">            return Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();</span>
-<span class="nc" id="L465">        } catch (IOException e) {</span>
-<span class="nc" id="L466">            return null;</span>
+<span class="nc" id="L463">            return Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();</span>
+<span class="nc" id="L464">        } catch (IOException e) {</span>
+<span class="nc" id="L465">            return null;</span>
         }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

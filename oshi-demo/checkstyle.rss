@@ -60,20 +60,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.UserComInit.java">oshi/demo/UserComInit.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.MemoryPanel.java">oshi/demo/gui/MemoryPanel.java</a>
                 </td>
                 <td>
@@ -88,7 +74,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.package-info.java">oshi/demo/gui/package-info.java</a>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.UserComInit.java">oshi/demo/UserComInit.java</a>
                 </td>
                 <td>
                   0
@@ -103,6 +89,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.UsbPanel.java">oshi/demo/gui/UsbPanel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.gui.package-info.java">oshi/demo/gui/package-info.java</a>
                 </td>
                 <td>
                   0
@@ -228,7 +228,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.WmiNoComInitQueryHandler.java">oshi/demo/WmiNoComInitQueryHandler.java</a>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.ComputerID.java">oshi/demo/ComputerID.java</a>
                 </td>
                 <td>
                   0
@@ -242,7 +242,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.ComputerID.java">oshi/demo/ComputerID.java</a>
+                  <a href="https://github.com/oshi/oshi/oshi-demo/checkstyle.html#oshi.demo.WmiNoComInitQueryHandler.java">oshi/demo/WmiNoComInitQueryHandler.java</a>
                 </td>
                 <td>
                   0
