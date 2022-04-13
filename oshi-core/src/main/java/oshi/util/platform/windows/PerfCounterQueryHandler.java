@@ -29,9 +29,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-
 import oshi.annotation.concurrent.NotThreadSafe;
+import oshi.jna.platform.windows.WinNT.CleanerHANDLEByReference;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
@@ -47,9 +46,9 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 
     // Map of counter handles
-    private Map<PerfCounter, HANDLEByReference> counterHandleMap = new HashMap<>();
+    private Map<PerfCounter, CleanerHANDLEByReference> counterHandleMap = new HashMap<>();
     // The query handle
-    private HANDLEByReference queryHandle = null;
+    private CleanerHANDLEByReference queryHandle = null;
 
     /**
      * Begin monitoring a Performance Data counter.
@@ -61,7 +60,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     public boolean addCounterToQuery(PerfCounter counter) {
         // Open a new query or get the handle to an existing one
         if (this.queryHandle == null) {
-            this.queryHandle = new HANDLEByReference();
+            this.queryHandle = new CleanerHANDLEByReference();
             if (!PerfDataUtil.openQuery(this.queryHandle)) {
                 LOG.warn("Failed to open a query for PDH counter: {}", counter.getCounterPath());
                 this.queryHandle = null;
@@ -69,7 +68,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
             }
         }
         // Get a new handle for the counter
-        HANDLEByReference p = new HANDLEByReference();
+        CleanerHANDLEByReference p = new CleanerHANDLEByReference();
         if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {
             LOG.warn("Failed to add counter for PDH counter: {}", counter.getCounterPath());
             return false;
@@ -87,7 +86,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
      */
     public boolean removeCounterFromQuery(PerfCounter counter) {
         boolean success = false;
-        HANDLEByReference href = counterHandleMap.remove(counter);
+        CleanerHANDLEByReference href = counterHandleMap.remove(counter);
         // null if handle wasn't present
         if (href != null) {
             success = PerfDataUtil.removeCounter(href);
@@ -104,7 +103,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
      */
     public void removeAllCounters() {
         // Remove all counters from counterHandle map
-        for (HANDLEByReference href : counterHandleMap.values()) {
+        for (CleanerHANDLEByReference href : counterHandleMap.values()) {
             PerfDataUtil.removeCounter(href);
         }
         counterHandleMap.clear();

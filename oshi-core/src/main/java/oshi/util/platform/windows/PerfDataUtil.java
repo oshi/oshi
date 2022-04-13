@@ -35,11 +35,12 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
 import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.windows.CleanerPdh;
+import oshi.jna.platform.windows.WinNT;
+import oshi.jna.platform.windows.WinNT.CleanerHANDLEByReference;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -55,7 +56,7 @@ public final class PerfDataUtil {
 
     private static final DWORD_PTR PZERO = new DWORD_PTR(0);
     private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));
-    private static final Pdh PDH = Pdh.INSTANCE;
+    private static final CleanerPdh PDH = CleanerPdh.INSTANCE;
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
@@ -151,7 +152,7 @@ public final class PerfDataUtil {
      *            The query to update all counters in
      * @return The update timestamp of the first counter in the query
      */
-    public static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
+    public static long updateQueryTimestamp(WinNT.CleanerHANDLEByReference query) {
         LONGLONGByReference pllTimeStamp = new LONGLONGByReference();
         int ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)
                 : PDH.PdhCollectQueryData(query.getValue());
@@ -181,7 +182,7 @@ public final class PerfDataUtil {
      *            pointer to the query
      * @return true if successful
      */
-    public static boolean openQuery(HANDLEByReference q) {
+    public static boolean openQuery(CleanerHANDLEByReference q) {
         int ret = PDH.PdhOpenQuery(null, PZERO, q);
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isErrorEnabled()) {
@@ -199,7 +200,7 @@ public final class PerfDataUtil {
      *            pointer to the query
      * @return true if successful
      */
-    public static boolean closeQuery(HANDLEByReference q) {
+    public static boolean closeQuery(CleanerHANDLEByReference q) {
         return WinError.ERROR_SUCCESS == PDH.PdhCloseQuery(q.getValue());
     }
 
@@ -211,7 +212,7 @@ public final class PerfDataUtil {
      * @return long value of the counter, or negative value representing an error
      *         code
      */
-    public static long queryCounter(WinNT.HANDLEByReference counter) {
+    public static long queryCounter(WinNT.CleanerHANDLEByReference counter) {
         PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
         int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
         if (ret != WinError.ERROR_SUCCESS) {
@@ -231,7 +232,7 @@ public final class PerfDataUtil {
      * @return long value of the counter's second value, or negative value
      *         representing an error code
      */
-    public static long querySecondCounter(WinNT.HANDLEByReference counter) {
+    public static long querySecondCounter(WinNT.CleanerHANDLEByReference counter) {
         PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
         int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
         if (ret != WinError.ERROR_SUCCESS) {
@@ -255,7 +256,8 @@ public final class PerfDataUtil {
      *            Pointer to the counter
      * @return true if successful
      */
-    public static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
+    public static boolean addCounter(WinNT.CleanerHANDLEByReference query, String path,
+            WinNT.CleanerHANDLEByReference p) {
         int ret = IS_VISTA_OR_GREATER ? PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p)
                 : PDH.PdhAddCounter(query.getValue(), path, PZERO, p);
         if (ret != WinError.ERROR_SUCCESS) {
@@ -275,7 +277,7 @@ public final class PerfDataUtil {
      *            pointer to the counter
      * @return true if successful
      */
-    public static boolean removeCounter(HANDLEByReference p) {
+    public static boolean removeCounter(CleanerHANDLEByReference p) {
         return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());
     }
 }

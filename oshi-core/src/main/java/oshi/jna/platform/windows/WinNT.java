@@ -23,10 +23,43 @@
  */
 package oshi.jna.platform.windows;
 
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.ptr.ByReference;
 
 public interface WinNT extends com.sun.jna.platform.win32.WinNT {
+
+    // TEMP For Cleaner Memory implementation
+    public static class CleanerHANDLEByReference extends ByReference {
+        public CleanerHANDLEByReference() {
+            this(null);
+        }
+
+        public CleanerHANDLEByReference(HANDLE h) {
+            super(Native.POINTER_SIZE);
+            setValue(h);
+        }
+
+        public void setValue(HANDLE h) {
+            getPointer().setPointer(0, h != null ? h.getPointer() : null);
+        }
+
+        public HANDLE getValue() {
+            Pointer p = getPointer().getPointer(0);
+            if (p == null) {
+                return null;
+            }
+            if (WinBase.INVALID_HANDLE_VALUE.getPointer().equals(p)) {
+                return WinBase.INVALID_HANDLE_VALUE;
+            }
+            HANDLE h = new HANDLE();
+            h.setPointer(p);
+            return h;
+        }
+    }
 
     @FieldOrder({ "TokenIsElevated" })
     class TOKEN_ELEVATION extends Structure {

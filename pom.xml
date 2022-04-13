@@ -479,6 +479,7 @@
                                     <exclude>**/*.yml</exclude>
                                     <exclude>**/*.yaml</exclude>
                                     <exclude>**/cov-analysis*/**</exclude>
+                                    <exclude>**/*Cleaner*.java</exclude>
                                 </excludes>
                             </licenseSet>
                         </licenseSets>
