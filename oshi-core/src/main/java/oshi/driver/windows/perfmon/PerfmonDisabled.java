@@ -59,11 +59,19 @@ public final class PerfmonDisabled {
             String key = String.format("SYSTEM\\CurrentControlSet\\Services\\%s\\Performance", service);
             String value = "Disable Performance Counters";
             // If disabled in registry, log warning and return
-            if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, key, value)
-                    && Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, key, value) > 0) {
-                LOG.warn("{} counters are disabled and won't return data: {}\\\\{}\\\\{} > 0.", service,
-                        "HKEY_LOCAL_MACHINE", key, value);
-                return true;
+            if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, key, value)) {
+                Object disabled = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, key, value);
+                if (disabled instanceof Integer) {
+                    if ((Integer) disabled > 0) {
+                        LOG.warn("{} counters are disabled and won't return data: {}\\\\{}\\\\{} > 0.", service,
+                                "HKEY_LOCAL_MACHINE", key, value);
+                        return true;
+                    }
+                } else {
+                    LOG.warn(
+                            "Invalid registry value type detected for {} counters. Should be REG_DWORD. Ignoring: {}\\\\{}\\\\{}.",
+                            service, "HKEY_LOCAL_MACHINE", key, value);
+                }
             }
             return false;
         }
