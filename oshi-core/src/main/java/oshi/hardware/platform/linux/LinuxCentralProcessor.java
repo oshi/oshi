@@ -231,13 +231,15 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         Map<Integer, String> modAliasMap = new HashMap<>();
         String cpuPath = "/sys/devices/system/cpu/";
         try {
-            Files.find(Paths.get(cpuPath), Integer.MAX_VALUE,
-                    (path, basicFileAttributes) -> path.toFile().getName().matches("cpu\\d+")).forEach(cpu -> {
-                        String syspath = cpu.toString(); // /sys/devices/system/cpu/cpuX
-                        Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(syspath + "/uevent", "=");
-                        String modAlias = uevent.get("MODALIAS");
-                        logProcs.add(getLogicalProcessorFromSyspath(syspath, modAlias, coreEfficiencyMap, modAliasMap));
-                    });
+            try (Stream<Path> cpuFiles = Files.find(Paths.get(cpuPath), Integer.MAX_VALUE,
+                    (path, basicFileAttributes) -> path.toFile().getName().matches("cpu\\d+"))) {
+                cpuFiles.forEach(cpu -> {
+                    String syspath = cpu.toString(); // /sys/devices/system/cpu/cpuX
+                    Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(syspath + "/uevent", "=");
+                    String modAlias = uevent.get("MODALIAS");
+                    logProcs.add(getLogicalProcessorFromSyspath(syspath, modAlias, coreEfficiencyMap, modAliasMap));
+                });
+            }
         } catch (IOException e) {
             // No udev and no cpu info in sysfs? Bad.
             LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
