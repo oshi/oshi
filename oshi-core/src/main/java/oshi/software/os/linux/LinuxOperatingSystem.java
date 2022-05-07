@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.LibC.Sysinfo;
+import com.sun.jna.platform.linux.Udev;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Who;
@@ -81,6 +82,20 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final String RELEASE_DELIM = " release ";
     private static final String DOUBLE_QUOTES = "(?:^\")|(?:\"$)";
     private static final String FILENAME_PROPERTIES = "oshi.linux.filename.properties";
+
+    /**
+     * This static field identifies if the udev library can be loaded.
+     */
+    public static final boolean HAS_UDEV;
+    static {
+        Udev lib = null;
+        try {
+            lib = Udev.INSTANCE;
+        } catch (UnsatisfiedLinkError e) {
+            // no udev
+        }
+        HAS_UDEV = lib != null;
+    }
 
     /**
      * Jiffies per second, used for process time counters.

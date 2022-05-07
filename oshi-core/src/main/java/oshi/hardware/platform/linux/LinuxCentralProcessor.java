@@ -23,6 +23,7 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
 import static oshi.util.platform.linux.ProcPath.CPUINFO;
 
 import java.io.File;
@@ -56,6 +57,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -159,10 +161,32 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
+        Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
+                ? readTopologyFromUdev()
+                : readTopologyFromSysfs();
+        List<LogicalProcessor> logProcs = topology.getA();
+        Map<Integer, Integer> coreEfficiencyMap = topology.getB();
+        Map<Integer, String> modAliasMap = topology.getC();
+        // Failsafe
+        if (logProcs.isEmpty()) {
+            logProcs.add(new LogicalProcessor(0, 0, 0));
+            coreEfficiencyMap.put(0, 0);
+        }
+
+        List<PhysicalProcessor> physProcs = coreEfficiencyMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
+                .map(e -> {
+                    int pkgId = e.getKey() >> 16;
+                    int coreId = e.getKey() & 0xffff;
+                    return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
+                }).collect(Collectors.toList());
+        return new Pair<>(logProcs, physProcs);
+    }
+
+    private Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
-        // Enumerate CPU topology from sysfs
+        // Enumerate CPU topology from sysfs via udev
         UdevContext udev = Udev.INSTANCE.udev_new();
         try {
             UdevEnumerate enumerate = udev.enumerateNew();
@@ -203,18 +227,17 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         } finally {
             udev.unref();
         }
-        // Failsafe
-        if (logProcs.isEmpty()) {
-            logProcs.add(new LogicalProcessor(0, 0, 0));
-            coreEfficiencyMap.put(0, 0);
-        }
-        List<PhysicalProcessor> physProcs = coreEfficiencyMap.entrySet().stream().sorted(Map.Entry.comparingByKey())
-                .map(e -> {
-                    int pkgId = e.getKey() >> 16;
-                    int coreId = e.getKey() & 0xffff;
-                    return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
-                }).collect(Collectors.toList());
-        return new Pair<>(logProcs, physProcs);
+        return new Triplet<>(logProcs, coreEfficiencyMap, modAliasMap);
+    }
+
+    private Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
+        Map<Integer, String> modAliasMap = new HashMap<>();
+
+        // TODO Similar to above iterating SYSFS or using udevadm
+
+        return new Triplet<>(logProcs, coreEfficiencyMap, modAliasMap);
     }
 
     @Override
