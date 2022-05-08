@@ -23,13 +23,19 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.linux.Udev;
 
@@ -40,6 +46,8 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxLogicalVolumeGroup.class);
 
     private static final String BLOCK = "block";
     private static final String DM_UUID = "DM_UUID";
@@ -52,6 +60,10 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     }
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        if (!HAS_UDEV) {
+            LOG.warn("Logical Volume Group information requires libudev, which is not present.");
+            return Collections.emptyList();
+        }
         Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
 

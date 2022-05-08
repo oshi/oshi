@@ -23,11 +23,16 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.linux.Udev;
 import com.sun.jna.platform.linux.Udev.UdevDevice;
@@ -43,6 +48,8 @@ import oshi.hardware.common.AbstractUsbDevice;
  */
 @Immutable
 public class LinuxUsbDevice extends AbstractUsbDevice {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxUsbDevice.class);
 
     private static final String SUBSYSTEM_USB = "usb";
     private static final String DEVTYPE_USB_DEVICE = "usb_device";
@@ -90,6 +97,10 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     }
 
     private static List<UsbDevice> getUsbDevices() {
+        if (!HAS_UDEV) {
+            LOG.warn("USB Device information requires libudev, which is not present.");
+            return Collections.emptyList();
+        }
         // Build a list of devices with no parent; these will be the roots
         List<String> usbControllers = new ArrayList<>();
 

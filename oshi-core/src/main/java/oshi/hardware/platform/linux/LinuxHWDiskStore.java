@@ -23,6 +23,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.linux.Udev;
 import com.sun.jna.platform.linux.Udev.UdevContext;
@@ -53,6 +58,8 @@ import oshi.util.platform.linux.ProcPath;
  */
 @ThreadSafe
 public final class LinuxHWDiskStore extends AbstractHWDiskStore {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxHWDiskStore.class);
 
     private static final String BLOCK = "block";
     private static final String DISK = "disk";
@@ -160,6 +167,10 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     private static List<HWDiskStore> getDisks(LinuxHWDiskStore storeToUpdate) {
+        if (!HAS_UDEV) {
+            LOG.warn("Disk Store information requires libudev, which is not present.");
+            return Collections.emptyList();
+        }
         LinuxHWDiskStore store = null;
         List<HWDiskStore> result = new ArrayList<>();
 

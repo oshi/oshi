@@ -23,10 +23,16 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.linux.Udev;
 import com.sun.jna.platform.linux.Udev.UdevContext;
@@ -46,6 +52,8 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class LinuxPowerSource extends AbstractPowerSource {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);
+
     public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
@@ -64,6 +72,10 @@ public final class LinuxPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
+        if (!HAS_UDEV) {
+            LOG.warn("Power Source information requires libudev, which is not present.");
+            return Collections.emptyList();
+        }
         String psName;
         String psDeviceName;
         double psRemainingCapacityPercent = -1d;
