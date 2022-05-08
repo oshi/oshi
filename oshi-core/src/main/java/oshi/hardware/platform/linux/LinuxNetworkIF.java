@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,13 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+
 import java.io.File;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +74,9 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
 
     private static String queryIfModel(NetworkInterface netint) {
         String name = netint.getName();
+        if (!HAS_UDEV) {
+            return queryIfModelFromSysfs(name);
+        }
         UdevContext udev = Udev.INSTANCE.udev_new();
         if (udev != null) {
             try {
@@ -92,6 +98,19 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
             } finally {
                 udev.unref();
             }
+        }
+        return name;
+    }
+
+    private static String queryIfModelFromSysfs(String name) {
+        Map<String, String> uevent = FileUtil.getKeyValueMapFromFile("/sys/class/net/" + name + "/uevent", "=");
+        String devVendor = uevent.get("ID_VENDOR_FROM_DATABASE");
+        String devModel = uevent.get("ID_MODEL_FROM_DATABASE");
+        if (!Util.isBlank(devModel)) {
+            if (!Util.isBlank(devVendor)) {
+                return devVendor + " " + devModel;
+            }
+            return devModel;
         }
         return name;
     }

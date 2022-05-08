@@ -3,6 +3,7 @@
 ##### Bug fixes / Improvements
 * [#2016](https://github.com/oshi/oshi/pull/2016): Make disabled counter check robust to invalid registry types - [@dbwiddis](https://github.com/dbwiddis).
 * [#2033](https://github.com/oshi/oshi/pull/2033): Graceful fallback for CPU Topology without udev - [@dbwiddis](https://github.com/dbwiddis).
+* [#2034](https://github.com/oshi/oshi/pull/2034): Fallback or log warning to avoid exception with no udev - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01), 6.1.5 (2022-03-15), 6.1.6 (2022-04-10)
 
