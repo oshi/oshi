@@ -174,12 +174,11 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public List<OSProcess> queryAllProcesses() {
         List<OSProcess> procs = new ArrayList<>();
         int[] pids = new int[this.maxProc];
+        Arrays.fill(pids, -1);
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
                 pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
         for (int i = 0; i < numberOfProcesses; i++) {
-            // Handle off-by-one bug in proc_listpids where the size returned
-            // is: SystemB.INT_SIZE * (pids + 1)
-            if (pids[i] != 0) {
+            if (pids[i] >= 0) {
                 OSProcess proc = getProcess(pids[i]);
                 if (proc != null) {
                     procs.add(proc);
