@@ -272,7 +272,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         // Sort by highest CPU
         List<OSProcess> procs = os.getProcesses(ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC, 5);
         oshi.add("   PID  %CPU %MEM       VSZ       RSS Name");
-        for (int i = 0; i < procs.size() && i < 5; i++) {
+        for (int i = 0; i < procs.size(); i++) {
             OSProcess p = procs.get(i);
             oshi.add(String.format(" %5d %5.1f %4.1f %9s %9s %s", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
