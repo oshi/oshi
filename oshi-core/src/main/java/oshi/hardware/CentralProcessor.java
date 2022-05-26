@@ -166,6 +166,32 @@ public interface CentralProcessor {
     double[] getSystemLoadAverage(int nelem);
 
     /**
+     * This method waits one second and then returns
+     * the system load average for that second.
+     * @return The system load average of the next second.
+     * @see #getSystemLoadAverage(int)
+     */
+    default double getCurrentSystemLoadAverage() throws InterruptedException {
+        return getCurrentSystemLoadAverage(1000);
+    }
+
+    /**
+     * This method waits the provided amount of milliseconds and then returns
+     * the system load average for that time period.
+     * @param ms Milliseconds to wait.
+     * @return The system load average of the provided time period.
+     * @see #getSystemLoadAverage(int)
+     */
+    default double getCurrentSystemLoadAverage(long ms) throws InterruptedException {
+        long[][] oldTicks = getProcessorCpuLoadTicks();
+        Thread.sleep(ms);
+        double[] arr = getProcessorCpuLoadBetweenTicks(oldTicks);
+        double result = 0.0;
+        for (double v : arr) { result += v; }
+        return result / arr.length;
+    }
+
+    /**
      * Returns the "recent cpu usage" for all logical processors by counting ticks
      * from {@link #getProcessorCpuLoadTicks()} between the user-provided value from
      * a previous call.
