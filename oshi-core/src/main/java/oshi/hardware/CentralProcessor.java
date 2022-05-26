@@ -167,22 +167,22 @@ public interface CentralProcessor {
 
     /**
      * This method waits one second and then returns
-     * the system load average for that second.
-     * @return The system load average of the next second.
-     * @see #getSystemLoadAverage(int)
+     * the processor usage for that second.
+     * @return Value between 0 and 1 (100%) that represents the average processor usage of the next second.
+     * @see #getProcessorCpuLoadBetweenTicks(long[][])
      */
-    default double getCurrentSystemLoadAverage() throws InterruptedException {
-        return getCurrentSystemLoadAverage(1000);
+    default double getCurrentUsage() throws InterruptedException {
+        return getCurrentUsage(1000);
     }
 
     /**
      * This method waits the provided amount of milliseconds and then returns
-     * the system load average for that time period.
+     * the processor usage for that time period.
      * @param ms Milliseconds to wait.
-     * @return The system load average of the provided time period.
-     * @see #getSystemLoadAverage(int)
+     * @return Value between 0 and 1 (100%) that represents the average processor usage of the provided time period.
+     * @see #getProcessorCpuLoadBetweenTicks(long[][])
      */
-    default double getCurrentSystemLoadAverage(long ms) throws InterruptedException {
+    default double getCurrentUsage(long ms) throws InterruptedException {
         long[][] oldTicks = getProcessorCpuLoadTicks();
         Thread.sleep(ms);
         double[] arr = getProcessorCpuLoadBetweenTicks(oldTicks);
