@@ -166,23 +166,30 @@ public interface CentralProcessor {
     double[] getSystemLoadAverage(int nelem);
 
     /**
-     * This method waits one second and then returns
-     * the processor usage for that second.
+     * This method waits one second and then returns the overall processor load average for that second.
+     * Note that the returned value may be above 1 (100%), which means the processor is being overloaded.
+     * Also keep in mind, that the average load of all logical processors is getting returned.
+     *
      * @return Value between 0 and 1 (100%) that represents the average processor usage of the next second.
-     * @see #getProcessorCpuLoadBetweenTicks(long[][])
+     *         Note that the returned value may be above 1, which means the processor is being overloaded.
+     * @see #getSystemLoadAverage(int)
      */
-    default double getCurrentUsage() throws InterruptedException {
-        return getCurrentUsage(1000);
+    default double getOverallCurrentSystemLoadAverage() throws InterruptedException {
+        return getOverallCurrentSystemLoadAverage(1000);
     }
 
     /**
-     * This method waits the provided amount of milliseconds and then returns
-     * the processor usage for that time period.
-     * @param ms Milliseconds to wait.
+     * This method waits the provided amount of milliseconds and then returns the overall processor load average for that time period.
+     * Note that the returned value may be above 1 (100%), which means the processor is being overloaded.
+     * Also keep in mind, that the average load of all logical processors is getting returned.
+     *
+     * @param ms
+     *          Milliseconds to wait.
      * @return Value between 0 and 1 (100%) that represents the average processor usage of the provided time period.
-     * @see #getProcessorCpuLoadBetweenTicks(long[][])
+     *         Note that the returned value may be above 1, which means the processor is being overloaded.
+     * @see #getSystemLoadAverage(int)
      */
-    default double getCurrentUsage(long ms) throws InterruptedException {
+    default double getOverallCurrentSystemLoadAverage(long ms) throws InterruptedException {
         long[][] oldTicks = getProcessorCpuLoadTicks();
         Thread.sleep(ms);
         double[] arr = getProcessorCpuLoadBetweenTicks(oldTicks);
