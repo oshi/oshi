@@ -166,36 +166,19 @@ public interface CentralProcessor {
     double[] getSystemLoadAverage(int nelem);
 
     /**
-     * This method waits one second and then returns the overall processor load average for that second.
-     * Note that the returned value may be above 1 (100%), which means the processor is being overloaded.
-     * Also keep in mind, that the average load of all logical processors is getting returned.
+     * This method waits the provided amount of milliseconds
+     * and then returns the cpu usage for that time period.
      *
-     * @return Value between 0 and 1 (100%) that represents the average processor usage of the next second.
-     *         Note that the returned value may be above 1, which means the processor is being overloaded.
-     * @see #getSystemLoadAverage(int)
-     */
-    default double getOverallCurrentSystemLoadAverage() throws InterruptedException {
-        return getOverallCurrentSystemLoadAverage(1000);
-    }
-
-    /**
-     * This method waits the provided amount of milliseconds and then returns the overall processor load average for that time period.
-     * Note that the returned value may be above 1 (100%), which means the processor is being overloaded.
-     * Also keep in mind, that the average load of all logical processors is getting returned.
-     *
-     * @param ms
+     * @param delay
      *          Milliseconds to wait.
-     * @return Value between 0 and 1 (100%) that represents the average processor usage of the provided time period.
-     *         Note that the returned value may be above 1, which means the processor is being overloaded.
-     * @see #getSystemLoadAverage(int)
+     * @return Value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
+     * @see #getSystemCpuLoadTicks()
+     * @see #getSystemCpuLoadBetweenTicks(long[])
      */
-    default double getOverallCurrentSystemLoadAverage(long ms) throws InterruptedException {
-        long[][] oldTicks = getProcessorCpuLoadTicks();
-        Thread.sleep(ms);
-        double[] arr = getProcessorCpuLoadBetweenTicks(oldTicks);
-        double result = 0.0;
-        for (double v : arr) { result += v; }
-        return result / arr.length;
+    default double getSystemCpuLoad(long delay) {
+        long[] oldTicks = getSystemCpuLoadTicks();
+        Util.sleep(delay);
+        return getSystemCpuLoadBetweenTicks(oldTicks);
     }
 
     /**
