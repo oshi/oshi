@@ -166,6 +166,48 @@ public interface CentralProcessor {
     double[] getSystemLoadAverage(int nelem);
 
     /**
+     * This is a convenience method which collects an initial set of ticks using
+     * {@link #getSystemCpuLoadTicks()} and passes that result to
+     * {@link #getSystemCpuLoadBetweenTicks(long[])} after the specified delay.
+     *
+     * @param delay
+     *            Milliseconds to wait.
+     * @return value between 0 and 1 (100%) that represents the cpu usage in the
+     *         provided time period.
+     */
+    default double getSystemCpuLoad(long delay) {
+        long start = System.nanoTime();
+        long[] oldTicks = getSystemCpuLoadTicks();
+        long toWait = delay - (System.nanoTime() - start) / 1_000_000;
+        // protect against IllegalArgumentException
+        if (toWait > 0L) {
+            Util.sleep(delay);
+        }
+        return getSystemCpuLoadBetweenTicks(oldTicks);
+    }
+
+    /**
+     * This is a convenience method which collects an initial set of ticks using
+     * {@link #getProcessorCpuLoadTicks()} and passes that result to
+     * {@link #getProcessorCpuLoadBetweenTicks(long[][])} after the specified delay.
+     *
+     * @param delay
+     *            Milliseconds to wait.
+     * @return array of CPU load between 0 and 1 (100%) for each logical processor,
+     *         for the provided time period.
+     */
+    default double[] getProcessorCpuLoad(long delay) {
+        long start = System.nanoTime();
+        long[][] oldTicks = getProcessorCpuLoadTicks();
+        long toWait = delay - (System.nanoTime() - start) / 1_000_000;
+        // protect against IllegalArgumentException
+        if (toWait > 0L) {
+            Util.sleep(delay);
+        }
+        return getProcessorCpuLoadBetweenTicks(oldTicks);
+    }
+
+    /**
      * Returns the "recent cpu usage" for all logical processors by counting ticks
      * from {@link #getProcessorCpuLoadTicks()} between the user-provided value from
      * a previous call.
