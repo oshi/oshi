@@ -179,7 +179,10 @@ public interface CentralProcessor {
         long start = System.nanoTime();
         long[] oldTicks = getSystemCpuLoadTicks();
         long toWait = delay - (System.nanoTime() - start) / 1_000_000;
-        if(toWait > 0L) Util.sleep(delay); // protect against IllegalArgumentException
+        // protect against IllegalArgumentException
+        if(toWait > 0L) {
+            Util.sleep(delay);
+        }
         return getSystemCpuLoadBetweenTicks(oldTicks);
     }
 
@@ -197,7 +200,10 @@ public interface CentralProcessor {
         long start = System.nanoTime();
         long[][] oldTicks = getProcessorCpuLoadTicks();
         long toWait = delay - (System.nanoTime() - start) / 1_000_000;
-        if(toWait > 0L) Util.sleep(delay); // protect against IllegalArgumentException
+        // protect against IllegalArgumentException
+        if(toWait > 0L) {
+            Util.sleep(delay);
+        }
         return getProcessorCpuLoadBetweenTicks(oldTicks);
     }
 
