@@ -196,7 +196,7 @@ public interface CentralProcessor {
      *          Milliseconds to wait.
      * @return array of CPU load between 0 and 1 (100%) for each logical processor, for the provided time period.
      */
-    default double[] getProcessorCpuLoad(long delay){
+    default double[] getProcessorCpuLoad(long delay) {
         long start = System.nanoTime();
         long[][] oldTicks = getProcessorCpuLoadTicks();
         long toWait = delay - (System.nanoTime() - start) / 1_000_000;
