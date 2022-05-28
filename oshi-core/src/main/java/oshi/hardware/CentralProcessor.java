@@ -166,14 +166,14 @@ public interface CentralProcessor {
     double[] getSystemLoadAverage(int nelem);
 
     /**
-     * This is a convenience method which collects an initial set
-     * of ticks using {@link #getSystemCpuLoadTicks()} and passes
-     * that result to {@link #getSystemCpuLoadBetweenTicks(long[])}
-     * after the specified delay.
+     * This is a convenience method which collects an initial set of ticks using
+     * {@link #getSystemCpuLoadTicks()} and passes that result to
+     * {@link #getSystemCpuLoadBetweenTicks(long[])} after the specified delay.
      *
      * @param delay
-     *          Milliseconds to wait.
-     * @return value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
+     *            Milliseconds to wait.
+     * @return value between 0 and 1 (100%) that represents the cpu usage in the
+     *         provided time period.
      */
     default double getSystemCpuLoad(long delay) {
         long start = System.nanoTime();
@@ -187,14 +187,14 @@ public interface CentralProcessor {
     }
 
     /**
-     * This is a convenience method which collects an initial set
-     * of ticks using {@link #getProcessorCpuLoadTicks()} and passes
-     * that result to {@link #getProcessorCpuLoadBetweenTicks(long[][])}
-     * after the specified delay.
+     * This is a convenience method which collects an initial set of ticks using
+     * {@link #getProcessorCpuLoadTicks()} and passes that result to
+     * {@link #getProcessorCpuLoadBetweenTicks(long[][])} after the specified delay.
      *
      * @param delay
-     *          Milliseconds to wait.
-     * @return array of CPU load between 0 and 1 (100%) for each logical processor, for the provided time period.
+     *            Milliseconds to wait.
+     * @return array of CPU load between 0 and 1 (100%) for each logical processor,
+     *         for the provided time period.
      */
     default double[] getProcessorCpuLoad(long delay) {
         long start = System.nanoTime();
