@@ -173,7 +173,7 @@ public interface CentralProcessor {
      *
      * @param delay
      *          Milliseconds to wait.
-     * @return Value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
+     * @return value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
      */
     default double getSystemCpuLoad(long delay) {
         long start = System.nanoTime();
@@ -191,7 +191,7 @@ public interface CentralProcessor {
      *
      * @param delay
      *          Milliseconds to wait.
-     * @return Value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
+     * @return array of CPU load between 0 and 1 (100%) for each logical processor, for the provided time period.
      */
     default double[] getProcessorCpuLoad(long delay){
         long start = System.nanoTime();
