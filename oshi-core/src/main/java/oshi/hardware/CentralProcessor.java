@@ -166,19 +166,39 @@ public interface CentralProcessor {
     double[] getSystemLoadAverage(int nelem);
 
     /**
-     * This method waits the provided amount of milliseconds
-     * and then returns the cpu usage for that time period.
+     * This is a convenience method which collects an initial set
+     * of ticks using {@link #getSystemCpuLoadTicks()} and passes
+     * that result to {@link #getSystemCpuLoadBetweenTicks(long[])}
+     * after the specified delay.
      *
      * @param delay
      *          Milliseconds to wait.
      * @return Value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
-     * @see #getSystemCpuLoadTicks()
-     * @see #getSystemCpuLoadBetweenTicks(long[])
      */
     default double getSystemCpuLoad(long delay) {
+        long start = System.nanoTime();
         long[] oldTicks = getSystemCpuLoadTicks();
-        Util.sleep(delay);
+        long toWait = delay - (System.nanoTime() - start) / 1_000_000;
+        if(toWait > 0L) Util.sleep(delay); // protect against IllegalArgumentException
         return getSystemCpuLoadBetweenTicks(oldTicks);
+    }
+
+    /**
+     * This is a convenience method which collects an initial set
+     * of ticks using {@link #getProcessorCpuLoadTicks()} and passes
+     * that result to {@link #getProcessorCpuLoadBetweenTicks(long[][])}
+     * after the specified delay.
+     *
+     * @param delay
+     *          Milliseconds to wait.
+     * @return Value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
+     */
+    default double[] getProcessorCpuLoad(long delay){
+        long start = System.nanoTime();
+        long[][] oldTicks = getProcessorCpuLoadTicks();
+        long toWait = delay - (System.nanoTime() - start) / 1_000_000;
+        if(toWait > 0L) Util.sleep(delay); // protect against IllegalArgumentException
+        return getProcessorCpuLoadBetweenTicks(oldTicks);
     }
 
     /**
