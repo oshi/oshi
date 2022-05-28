@@ -1,5 +1,8 @@
 # 6.2.0 (in progress)
 
+##### New Features
+* [#2046](https://github.com/oshi/oshi/pull/2046): Added getSystemCpuLoad/getProcessorCpuLoad convenience methods - [@Osiris-Team](https://github.com/Osiris-Team).
+
 ##### Bug fixes / Improvements
 * [#2016](https://github.com/oshi/oshi/pull/2016): Make disabled counter check robust to invalid registry types - [@dbwiddis](https://github.com/dbwiddis).
 * [#2033](https://github.com/oshi/oshi/pull/2033): Graceful fallback for CPU Topology without udev - [@dbwiddis](https://github.com/dbwiddis).
