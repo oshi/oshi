@@ -54,6 +54,7 @@ public final class GlobalConfig {
     public static final String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = "oshi.os.windows.procstate.suspended";
     public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
     public static final String OSHI_OS_WINDOWS_HKEYPERFDATA = "oshi.os.windows.hkeyperfdata";
+    public static final String OSHI_OS_WINDOWS_LOADAVERAGE = "oshi.os.windows.loadaverage";
     public static final String OSHI_OS_WINDOWS_CPU_UTILITY = "oshi.os.windows.cpu.utility";
 
     public static final String OSHI_OS_WINDOWS_PERFDISK_DIABLED = "oshi.os.windows.perfdisk.disabled";

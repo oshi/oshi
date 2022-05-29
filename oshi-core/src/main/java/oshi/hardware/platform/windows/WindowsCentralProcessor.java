@@ -79,6 +79,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Whether to match task manager using Processor Utility ticks
     private static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
+
     // This tick query is memoized to enforce a minimum elapsed time for determining
     // the capacity base multiplier
     private final Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY
@@ -90,6 +91,16 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             : null;
     // Lazily initialized
     private Long utilityBaseMultiplier = null;
+
+    // Whether to start a daemon thread for Load Average
+    private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
+    // Initialize to 0 if using load averages, -1 otherwise
+    private static double[] loadAverage;
+    static {
+        if (!USE_LOAD_AVERAGE) {
+            loadAverage = new double[] { -1, -1, -1 };
+        }
+    }
 
     /**
      * Initializes Class variables
@@ -287,12 +298,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
-        double[] average = new double[nelem];
-        // Windows doesn't have load average
-        for (int i = 0; i < average.length; i++) {
-            average[i] = -1;
+        synchronized (loadAverage) {
+            return Arrays.copyOf(loadAverage, nelem);
         }
-        return average;
     }
 
     @Override
