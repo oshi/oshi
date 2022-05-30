@@ -40,10 +40,13 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class LoadAverage {
 
-    // Start a daemon thread for Load Average
+    // Daemon thread for Load Average
     private static Thread loadAvgThread = null;
+
     private static double[] loadAverages = new double[] { -1d, -1d, -1d };
-    private static final double[] LOADAVERAGE_WEIGHT = new double[] { 11d / 12d, 59d / 60d, 179d / 180d };
+    private static final double[] EXP_WEIGHT = new double[] {
+            // 1-, 5-, and 15-minute exponential smoothing weight
+            Math.exp(-5d / 60d), Math.exp(-5d / 300d), Math.exp(-5d / 900d) };
 
     private LoadAverage() {
     }
@@ -111,8 +114,8 @@ public final class LoadAverage {
                         }
                         // Use exponential smoothing to update values
                         for (int i = 0; i < loadAverages.length; i++) {
-                            loadAverages[i] *= LOADAVERAGE_WEIGHT[i];
-                            loadAverages[i] += (runningProcesses + queueLength) * (1d - LOADAVERAGE_WEIGHT[i]);
+                            loadAverages[i] *= EXP_WEIGHT[i];
+                            loadAverages[i] += (runningProcesses + queueLength) * (1d - EXP_WEIGHT[i]);
                         }
                     }
 
