@@ -40,7 +40,7 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class LoadAverage {
 
-    // C start a daemon thread for Load Average
+    // Start a daemon thread for Load Average
     private static Thread loadAvgThread = null;
     private static double[] loadAverages = new double[] { -1d, -1d, -1d };
     private static final double[] LOADAVERAGE_WEIGHT = new double[] { 11d / 12d, 59d / 60d, 179d / 180d };
