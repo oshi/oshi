@@ -369,9 +369,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                         || initProcessorUtilityBase == null))) {
             return ticks;
         }
-        for (String element : instances) {
-            int cpu = element.contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(element, 0)
-                    : ParseUtil.parseIntOrDefault(element, 0);
+        for (String instance : instances) {
+            int cpu = instance.contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)
+                    : ParseUtil.parseIntOrDefault(instance, 0);
             if (cpu >= ncpu) {
                 continue;
             }

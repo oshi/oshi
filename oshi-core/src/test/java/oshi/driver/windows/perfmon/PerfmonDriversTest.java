@@ -35,6 +35,7 @@ import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION
 import static oshi.driver.windows.perfmon.PerfmonConstants.SYSTEM;
 import static oshi.driver.windows.perfmon.PerfmonConstants.THREAD;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL;
@@ -58,6 +59,7 @@ import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
 import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.driver.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
 import oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
 import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
@@ -118,6 +120,14 @@ class PerfmonDriversTest {
     }
 
     @Test
+    void testQueryIdleProcessCounters() {
+        testWildcardCounters("PDH IdleProcessCounters",
+                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(IdleProcessorTimeProperty.class, PROCESS));
+        testWildcardCounters("WMI IdleProcessCounters", PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(
+                IdleProcessorTimeProperty.class, WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0));
+    }
+
+    @Test
     void testQueryProcessorCounters() {
         testWildcardCounters("PDH ProcessorCounters",
                 PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ProcessorTickCountProperty.class, PROCESSOR));
@@ -130,11 +140,14 @@ class PerfmonDriversTest {
                     PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorTickCountProperty.class,
                             WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
 
-            testWildcardCounters("PDH ProcessorCapacityCounters", PerfCounterWildcardQuery
-                    .queryInstancesAndValuesFromPDH(ProcessorUtilityTickCountProperty.class, PROCESSOR_INFORMATION));
-            testWildcardCounters("WMI ProcessorCapacityCounters",
-                    PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorUtilityTickCountProperty.class,
-                            WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
+            if (VersionHelpers.IsWindows8OrGreater()) {
+                testWildcardCounters("PDH ProcessorUtilityCounters",
+                        PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ProcessorUtilityTickCountProperty.class,
+                                PROCESSOR_INFORMATION));
+                testWildcardCounters("WMI ProcessorUtilityCounters",
+                        PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorUtilityTickCountProperty.class,
+                                WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
+            }
         }
     }
 

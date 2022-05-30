@@ -30,7 +30,6 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
 import oshi.driver.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
-import oshi.util.Util;
 import oshi.util.tuples.Pair;
 
 /**
@@ -42,6 +41,7 @@ import oshi.util.tuples.Pair;
 public final class LoadAverage {
 
     // C start a daemon thread for Load Average
+    private static Thread loadAvgThread = null;
     private static double[] loadAverages = new double[] { -1d, -1d, -1d };
     private static final double[] LOADAVERAGE_WEIGHT = new double[] { 11d / 12d, 59d / 60d, 179d / 180d };
 
@@ -54,8 +54,18 @@ public final class LoadAverage {
         }
     }
 
-    public static void startDaemon() {
-        Thread loadAvgThread = new Thread() {
+    public static synchronized void stopDaemon() {
+        if (loadAvgThread != null) {
+            loadAvgThread.interrupt();
+            loadAvgThread = null;
+        }
+    }
+
+    public static synchronized void startDaemon() {
+        if (loadAvgThread != null) {
+            return;
+        }
+        loadAvgThread = new Thread(null, null, "OSHI Load Average daemon") {
             @Override
             public void run() {
                 // Initialize tick counters
@@ -72,8 +82,13 @@ public final class LoadAverage {
                 // The two components of load average
                 double runningProcesses;
                 long queueLength;
-                Util.sleep(5000L);
-                do {
+
+                try {
+                    Thread.sleep(5000L);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                while (!Thread.currentThread().isInterrupted()) {
                     // get non-idle ticks, proxy for average processes running
                     nonIdlePair = LoadAverage.queryNonIdleTicks();
                     nonIdleTicks = nonIdlePair.getA() - nonIdleTicks0;
@@ -105,11 +120,14 @@ public final class LoadAverage {
                     if (delay < 500L) {
                         delay += 5000L;
                     }
-                    Util.sleep(delay);
-                } while (true);
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
             }
         };
-        loadAvgThread.setName("OSHI Load Average daemon");
         loadAvgThread.setDaemon(true);
         loadAvgThread.start();
     }
@@ -120,7 +138,7 @@ public final class LoadAverage {
         List<String> instances = idleValues.getA();
         Map<IdleProcessorTimeProperty, List<Long>> valueMap = idleValues.getB();
         List<Long> proctimeTicks = valueMap.get(IdleProcessorTimeProperty.PERCENTPROCESSORTIME);
-        List<Long> proctimeBase = valueMap.get(IdleProcessorTimeProperty.PERCENTPROCESSORTIME_BASE);
+        List<Long> proctimeBase = valueMap.get(IdleProcessorTimeProperty.ELAPSEDTIME);
         long nonIdleTicks = 0L;
         long nonIdleBase = 0L;
         for (int i = 0; i < instances.size(); i++) {

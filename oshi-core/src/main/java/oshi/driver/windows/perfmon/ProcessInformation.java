@@ -25,7 +25,7 @@ package oshi.driver.windows.perfmon;
 
 import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESS;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL_OR_IDLE;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
 
 import java.util.Collections;
@@ -94,14 +94,14 @@ public final class ProcessInformation {
     }
 
     /**
-     * Cooked processor performance counters
+     * Processor performance counters
      */
     public enum IdleProcessorTimeProperty implements PdhCounterWildcardProperty {
         // First element defines WMI instance name field and PDH instance filter
         NAME(PerfCounterQuery.TOTAL_OR_IDLE_INSTANCES),
         // Remaining elements define counters
         PERCENTPROCESSORTIME("% Processor Time"), //
-        PERCENTPROCESSORTIME_BASE("% Processor Time_Base");
+        ELAPSEDTIME("Elapsed Time");
 
         private final String counter;
 
@@ -154,6 +154,6 @@ public final class ProcessInformation {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
         return PerfCounterWildcardQuery.queryInstancesAndValues(IdleProcessorTimeProperty.class, PROCESS,
-                WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL_OR_IDLE);
+                WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0);
     }
 }
