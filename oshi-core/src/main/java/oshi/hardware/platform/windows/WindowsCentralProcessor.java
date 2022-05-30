@@ -47,6 +47,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.LogicalProcessorInformation;
+import oshi.driver.windows.perfmon.LoadAverage;
 import oshi.driver.windows.perfmon.ProcessorInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
@@ -54,7 +55,6 @@ import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProper
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.windows.perfmon.SystemInformation;
 import oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
-import oshi.driver.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -62,7 +62,6 @@ import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
@@ -77,6 +76,14 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
+
+    // Whether to start a daemon thread ot calculate load average
+    private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
+    static {
+        if (USE_LOAD_AVERAGE) {
+            LoadAverage.startDaemon();
+        }
+    }
 
     // Whether to match task manager using Processor Utility ticks
     private static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
@@ -93,44 +100,6 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             : null;
     // Lazily initialized
     private Long utilityBaseMultiplier = null;
-
-    // C start a daemon thread for Load Average
-    private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
-    private static double[] loadAverage;
-    private static final double[] LOADAVERAGE_WEIGHT;
-    private static final long LOADAVERAGE_INIT_NANOS = System.nanoTime();
-    static {
-        if (USE_LOAD_AVERAGE) {
-            loadAverage = new double[3];
-            LOADAVERAGE_WEIGHT = new double[] { 11d / 12d, 59d / 60d, 179d / 180d };
-            // Start daemon thread
-            Thread loadAvgThread = new Thread() {
-                @Override
-                public void run() {
-                    long queueLength;
-                    do {
-                        queueLength = SystemInformation.queryProcessorQueueLength()
-                                .getOrDefault(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 0L);
-                        synchronized (loadAverage) {
-                            for (int i = 0; i < loadAverage.length; i++) {
-                                loadAverage[i] *= LOADAVERAGE_WEIGHT[i];
-                                loadAverage[i] += queueLength * (1d - LOADAVERAGE_WEIGHT[i]);
-                            }
-                        }
-                        // Sleep until next 5-second tick since init
-                        long delay = (System.nanoTime() - LOADAVERAGE_INIT_NANOS) / 1_000_000L;
-                        Util.sleep(delay % 5000L);
-                    } while (true);
-                }
-            };
-            loadAvgThread.setName("OSHI Load Average daemon");
-            loadAvgThread.setDaemon(true);
-            loadAvgThread.start();
-        } else {
-            loadAverage = new double[] { -1d, -1d, -1d };
-            LOADAVERAGE_WEIGHT = null;
-        }
-    }
 
     /**
      * Initializes Class variables
@@ -328,9 +297,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
-        synchronized (loadAverage) {
-            return Arrays.copyOf(loadAverage, nelem);
-        }
+        return LoadAverage.queryLoadAverage(nelem);
     }
 
     @Override

@@ -64,6 +64,7 @@ public final class PerfCounterQuery {
      * Multiple classes use these constants
      */
     public static final String TOTAL_INSTANCE = "_Total";
+    public static final String TOTAL_OR_IDLE_INSTANCES = "_Total|Idle";
     public static final String TOTAL_INSTANCES = "*_Total";
     public static final String NOT_TOTAL_INSTANCE = "^" + TOTAL_INSTANCE;
     public static final String NOT_TOTAL_INSTANCES = "^" + TOTAL_INSTANCES;
