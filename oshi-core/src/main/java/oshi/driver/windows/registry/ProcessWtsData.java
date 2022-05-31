@@ -92,13 +92,12 @@ public final class ProcessWtsData {
         Pointer pProcessInfo = ppProcessInfo.getValue();
         final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
         WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
-        for (int i = 0; i < processInfo.length; i++) {
-            if (pids == null || pids.contains(processInfo[i].ProcessId)) {
-                wtsMap.put(processInfo[i].ProcessId,
-                        new WtsInfo(processInfo[i].pProcessName, "", processInfo[i].NumberOfThreads,
-                                processInfo[i].PagefileUsage & 0xffff_ffffL,
-                                processInfo[i].KernelTime.getValue() / 10_000L,
-                                processInfo[i].UserTime.getValue() / 10_000, processInfo[i].HandleCount));
+        for (WTS_PROCESS_INFO_EX info : processInfo) {
+            if (pids == null || pids.contains(info.ProcessId)) {
+                wtsMap.put(info.ProcessId,
+                        new WtsInfo(info.pProcessName, "", info.NumberOfThreads, info.PagefileUsage & 0xffff_ffffL,
+                                info.KernelTime.getValue() / 10_000L, info.UserTime.getValue() / 10_000,
+                                info.HandleCount));
             }
         }
         // Clean up memory

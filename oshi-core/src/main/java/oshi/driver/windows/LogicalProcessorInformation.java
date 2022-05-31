@@ -78,14 +78,14 @@ public final class LogicalProcessorInformation {
         // Map to store efficiency class of a processor core
         Map<GROUP_AFFINITY, Integer> coreEfficiencyMap = new HashMap<>();
 
-        for (int i = 0; i < procInfo.length; i++) {
-            switch (procInfo[i].relationship) {
+        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX info : procInfo) {
+            switch (info.relationship) {
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
                 // could assign a package to more than one processor group
-                packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);
+                packages.add(((PROCESSOR_RELATIONSHIP) info).groupMask);
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
-                PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) procInfo[i]);
+                PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) info);
                 // for Core, groupCount is always 1
                 cores.add(core.groupMask[0]);
                 if (IS_WIN10_OR_GREATER) {
@@ -93,7 +93,7 @@ public final class LogicalProcessorInformation {
                 }
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-                numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);
+                numaNodes.add((NUMA_NODE_RELATIONSHIP) info);
                 break;
             default:
                 // Ignore Group and Cache info

@@ -298,8 +298,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
         List<Long> valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
         long descriptors = 0L;
         if (valueList != null) {
-            for (int i = 0; i < valueList.size(); i++) {
-                descriptors += valueList.get(i);
+            for (Long value : valueList) {
+                descriptors += value;
             }
         }
         return descriptors;

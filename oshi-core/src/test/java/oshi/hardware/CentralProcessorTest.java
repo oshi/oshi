@@ -83,8 +83,8 @@ class CentralProcessorTest {
         assertThat("Logical processor frequency array length should be the same as its logical processor count",
                 p.getLogicalProcessorCount(), is(curr.length));
         if (max >= 0) {
-            for (int i = 0; i < curr.length; i++) {
-                assertThat("Logical processor frequency should be at most it's max frequency", curr[i],
+            for (long freq : curr) {
+                assertThat("Logical processor frequency should be at most it's max frequency", freq,
                         is(lessThanOrEqualTo(max)));
             }
         }

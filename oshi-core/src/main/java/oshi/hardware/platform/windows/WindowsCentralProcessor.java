@@ -228,10 +228,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             if (!instances.isEmpty()) {
                 long maxFreq = this.getMaxFreq();
                 long[] freqs = new long[getLogicalProcessorCount()];
-                for (int p = 0; p < instances.size(); p++) {
-                    int cpu = instances.get(p).contains(",")
-                            ? numaNodeProcToLogicalProcMap.getOrDefault(instances.get(p), 0)
-                            : ParseUtil.parseIntOrDefault(instances.get(p), 0);
+                for (String instance : instances) {
+                    int cpu = instance.contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)
+                            : ParseUtil.parseIntOrDefault(instance, 0);
                     if (cpu >= getLogicalProcessorCount()) {
                         continue;
                     }
@@ -365,9 +364,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                         || initProcessorUtilityBase == null))) {
             return ticks;
         }
-        for (int p = 0; p < instances.size(); p++) {
-            int cpu = instances.get(p).contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(instances.get(p), 0)
-                    : ParseUtil.parseIntOrDefault(instances.get(p), 0);
+        for (String element : instances) {
+            int cpu = element.contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(element, 0)
+                    : ParseUtil.parseIntOrDefault(element, 0);
             if (cpu >= ncpu) {
                 continue;
             }

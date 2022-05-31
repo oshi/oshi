@@ -158,9 +158,9 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         printGraphicsCards(hal.getGraphicsCards());
 
         StringBuilder output = new StringBuilder();
-        for (int i = 0; i < oshi.size(); i++) {
-            output.append(oshi.get(i));
-            if (oshi.get(i) != null && !oshi.get(i).endsWith("\n")) {
+        for (String line : oshi) {
+            output.append(line);
+            if (line != null && !line.endsWith("\n")) {
                 output.append('\n');
             }
         }
