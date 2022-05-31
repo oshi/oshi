@@ -87,7 +87,7 @@ public final class LoadAverage {
                 long queueLength;
 
                 try {
-                    Thread.sleep(5000L);
+                    Thread.sleep(2500L);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
