@@ -47,6 +47,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.LogicalProcessorInformation;
+import oshi.driver.windows.perfmon.LoadAverage;
 import oshi.driver.windows.perfmon.ProcessorInformation;
 import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
@@ -76,9 +77,18 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
 
+    // Whether to start a daemon thread ot calculate load average
+    private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
+    static {
+        if (USE_LOAD_AVERAGE) {
+            LoadAverage.startDaemon();
+        }
+    }
+
     // Whether to match task manager using Processor Utility ticks
     private static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
+
     // This tick query is memoized to enforce a minimum elapsed time for determining
     // the capacity base multiplier
     private final Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY
@@ -287,12 +297,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
-        double[] average = new double[nelem];
-        // Windows doesn't have load average
-        for (int i = 0; i < average.length; i++) {
-            average[i] = -1;
-        }
-        return average;
+        return LoadAverage.queryLoadAverage(nelem);
     }
 
     @Override
@@ -364,9 +369,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                         || initProcessorUtilityBase == null))) {
             return ticks;
         }
-        for (String element : instances) {
-            int cpu = element.contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(element, 0)
-                    : ParseUtil.parseIntOrDefault(element, 0);
+        for (String instance : instances) {
+            int cpu = instance.contains(",") ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)
+                    : ParseUtil.parseIntOrDefault(instance, 0);
             if (cpu >= ncpu) {
                 continue;
             }

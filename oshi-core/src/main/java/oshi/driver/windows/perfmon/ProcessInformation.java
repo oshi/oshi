@@ -25,6 +25,7 @@ package oshi.driver.windows.perfmon;
 
 import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESS;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
 
 import java.util.Collections;
@@ -92,6 +93,28 @@ public final class ProcessInformation {
         }
     }
 
+    /**
+     * Processor performance counters
+     */
+    public enum IdleProcessorTimeProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(PerfCounterQuery.TOTAL_OR_IDLE_INSTANCES),
+        // Remaining elements define counters
+        PERCENTPROCESSORTIME("% Processor Time"), //
+        ELAPSEDTIME("Elapsed Time");
+
+        private final String counter;
+
+        IdleProcessorTimeProperty(String counter) {
+            this.counter = counter;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
     private ProcessInformation() {
     }
 
@@ -119,5 +142,18 @@ public final class ProcessInformation {
         }
         return PerfCounterWildcardQuery.queryInstancesAndValues(HandleCountProperty.class, PROCESS,
                 WIN32_PERFPROC_PROCESS);
+    }
+
+    /**
+     * Returns cooked idle process performance counters.
+     *
+     * @return Cooked performance counters for idle process.
+     */
+    public static Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> queryIdleProcessCounters() {
+        if (PerfmonDisabled.PERF_OS_DISABLED) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
+        return PerfCounterWildcardQuery.queryInstancesAndValues(IdleProcessorTimeProperty.class, PROCESS,
+                WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0);
     }
 }

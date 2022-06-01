@@ -127,10 +127,18 @@ public final class PerfCounterWildcardQuery {
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);
 
         // Get list of instances
-        final PdhEnumObjectItems objectItems;
-        try {
-            objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
-        } catch (PdhException e) {
+        // Temporary workaround for JNA buffer size race condition
+        PdhEnumObjectItems objectItems = null;
+        int retries = 99;
+        while (retries > 0) {
+            try {
+                objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
+                retries = 0;
+            } catch (PdhException e) {
+                retries--;
+            }
+        }
+        if (objectItems == null) {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
         List<String> instances = objectItems.getInstances();

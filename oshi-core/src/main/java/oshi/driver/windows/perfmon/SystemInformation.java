@@ -34,7 +34,7 @@ import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
 /**
- * Utility to query System performance counter
+ * Utility to query System performance counters
  */
 @ThreadSafe
 public final class SystemInformation {
@@ -64,6 +64,31 @@ public final class SystemInformation {
         }
     }
 
+    /**
+     * Processor Queue Length property
+     */
+    public enum ProcessorQueueLengthProperty implements PdhCounterProperty {
+        PROCESSORQUEUELENGTH(null, "Processor Queue Length");
+
+        private final String instance;
+        private final String counter;
+
+        ProcessorQueueLengthProperty(String instance, String counter) {
+            this.instance = instance;
+            this.counter = counter;
+        }
+
+        @Override
+        public String getInstance() {
+            return instance;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
     private SystemInformation() {
     }
 
@@ -77,5 +102,18 @@ public final class SystemInformation {
             return Collections.emptyMap();
         }
         return PerfCounterQuery.queryValues(ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
+    }
+
+    /**
+     * Returns processor queue length.
+     *
+     * @return Processor Queue Length.
+     */
+    public static Map<ProcessorQueueLengthProperty, Long> queryProcessorQueueLength() {
+        if (PerfmonDisabled.PERF_OS_DISABLED) {
+            return Collections.emptyMap();
+        }
+        return PerfCounterQuery.queryValues(ProcessorQueueLengthProperty.class, SYSTEM,
+                WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
     }
 }

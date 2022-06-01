@@ -47,6 +47,7 @@ public final class PerfmonConstants {
     static final String WIN32_PERFPROC_PROCESS = "Win32_PerfRawData_PerfProc_Process";
     static final String WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
             + " WHERE NOT Name LIKE \"%_Total\"";
+    static final String WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0 = "Win32_PerfRawData_PerfProc_Process WHERE IDProcess=0";
 
     static final String THREAD = "Thread";
     static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \"%_Total\"";

@@ -2,6 +2,7 @@
 
 ##### New Features
 * [#2046](https://github.com/oshi/oshi/pull/2046): Added getSystemCpuLoad/getProcessorCpuLoad convenience methods - [@Osiris-Team](https://github.com/Osiris-Team).
+* [#2050](https://github.com/oshi/oshi/pull/2050): Implement optional Windows Load Average - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#2016](https://github.com/oshi/oshi/pull/2016): Make disabled counter check robust to invalid registry types - [@dbwiddis](https://github.com/dbwiddis).
