@@ -33,9 +33,10 @@ jobs:
         script_stop: true
         command_timeout: 15m
         script: |
+          rm -fR ~/javasharedresources
           cd ~/git/oshi
           export JAVA_HOME=/opt/ibm-semeru-open-17-jdk
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
-          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true -Djvm.options=-Xshareclasses:none
