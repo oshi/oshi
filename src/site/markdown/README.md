@@ -23,8 +23,8 @@ Stable Release Version
   * JDK6: [oshi-core-3.14.0](https://search.maven.org/artifact/com.github.oshi/oshi-core/3.14.0/jar)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.1.7-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=6.1.7-SNAPSHOT&amp;e=jar)
-  * JPMS: [oshi-core-java11-6.1.7-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=6.1.7-SNAPSHOT&amp;e=jar)
+  * JDK8: [oshi-core-6.2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=6.2.0-SNAPSHOT&amp;e=jar)
+  * JPMS: [oshi-core-java11-6.2.0-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=6.2.0-SNAPSHOT&amp;e=jar)
 
 Documentation
 -------------
