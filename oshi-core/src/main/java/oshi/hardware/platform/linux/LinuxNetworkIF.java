@@ -64,8 +64,8 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     private long collisions;
     private long speed;
     private long timeStamp;
-    private String ifAlias;
-    private IfOperStatus ifOperStatus;
+    private String ifAlias = "";
+    private IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
     public LinuxNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint, queryIfModel(netint));
