@@ -41,8 +41,10 @@ import static org.hamcrest.Matchers.oneOf;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -242,23 +244,25 @@ class OperatingSystemTest {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         List<OSProcess> processes = os.getProcesses(null, null, 0);
-        Set<Integer> zeroChildSet = new HashSet<>();
-        Set<Integer> oneChildSet = new HashSet<>();
-        Set<Integer> manyChildSet = new HashSet<>();
+        Map<Integer, Long> zeroChildMap = new HashMap<>();
+        Map<Integer, Long> oneChildMap = new HashMap<>();
+        Map<Integer, Long> manyChildMap = new HashMap<>();
         // Initialize all processes with no children
         for (OSProcess p : processes) {
-            zeroChildSet.add(p.getProcessID());
+            zeroChildMap.put(p.getProcessID(), p.getStartTime());
         }
         // Move parents with 1 or more children to other set
         for (OSProcess p : processes) {
-            if (zeroChildSet.contains(p.getParentProcessID())) {
+            int ppid = p.getParentProcessID();
+            long startTime = p.getStartTime();
+            if (zeroChildMap.getOrDefault(ppid, 0L) >= startTime) {
                 // Zero to One
-                zeroChildSet.remove(p.getParentProcessID());
-                oneChildSet.add(p.getParentProcessID());
-            } else if (oneChildSet.contains(p.getParentProcessID())) {
+                oneChildMap.put(ppid, zeroChildMap.get(ppid));
+                zeroChildMap.remove(ppid);
+            } else if (oneChildMap.getOrDefault(ppid, 0L) >= startTime) {
                 // One to many
-                oneChildSet.remove(p.getParentProcessID());
-                manyChildSet.add(p.getParentProcessID());
+                manyChildMap.put(ppid, oneChildMap.get(ppid));
+                oneChildMap.remove(ppid);
             }
         }
         // Now test that majority of each set is in same category
@@ -266,9 +270,9 @@ class OperatingSystemTest {
         int matchedChild = 0;
         int matchedDescendant = 0;
         int descendantNotLessThanChild = 0;
-        if (zeroChildSet.size() > 9) {
+        if (zeroChildMap.size() > 9) {
             int total = 0;
-            for (Integer i : zeroChildSet) {
+            for (Integer i : zeroChildMap.keySet()) {
                 List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
                 List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
                 if (children.size() == 0) {
@@ -278,22 +282,22 @@ class OperatingSystemTest {
                     matchedDescendant++;
                 }
                 // This is more than enough to test
-                if (++total > 19) {
+                if (++total > 9) {
                     break;
                 }
             }
             assertThat("Most processes with no children should not suddenly have them.", matchedChild,
-                    is(greaterThan(total / 4)));
+                    is(greaterThan(total / 2)));
             assertThat("Most processes with no children should not suddenly have descendants.", matchedDescendant,
-                    is(greaterThan(total / 4)));
+                    is(greaterThan(total / 2)));
         }
         // One child
         matchedChild = 0;
         matchedDescendant = 0;
         descendantNotLessThanChild = 0;
-        if (oneChildSet.size() > 14) {
+        if (oneChildMap.size() > 9) {
             int total = 0;
-            for (Integer i : oneChildSet) {
+            for (Integer i : oneChildMap.keySet()) {
                 List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
                 List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
                 if (children.size() == 1) {
@@ -306,24 +310,24 @@ class OperatingSystemTest {
                     descendantNotLessThanChild++;
                 }
                 // This is more than enough to test
-                if (++total > 19) {
+                if (++total > 9) {
                     break;
                 }
             }
             assertThat("Most processes with one child should not suddenly have zero or more than one.", matchedChild,
-                    is(greaterThan(total / 5)));
+                    is(greaterThan(total / 2)));
             assertThat("Most processes with one child should not suddenly have zero descendants.", matchedDescendant,
-                    is(greaterThan(total / 5)));
+                    is(greaterThan(total / 2)));
             assertThat("Most processes with one child should have no more children than descendants",
-                    descendantNotLessThanChild, is(greaterThan(total / 4)));
+                    descendantNotLessThanChild, is(greaterThan(total / 2)));
         }
         // Many children
         matchedChild = 0;
         matchedDescendant = 0;
         descendantNotLessThanChild = 0;
-        if (manyChildSet.size() > 9) {
+        if (manyChildMap.size() > 9) {
             int total = 0;
-            for (Integer i : manyChildSet) {
+            for (Integer i : manyChildMap.keySet()) {
                 // Use a non-null sorting for test purposes
                 List<OSProcess> children = os.getChildProcesses(i, ProcessFiltering.VALID_PROCESS,
                         ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
@@ -339,16 +343,16 @@ class OperatingSystemTest {
                     descendantNotLessThanChild++;
                 }
                 // This is more than enough to test
-                if (++total > 19) {
+                if (++total > 9) {
                     break;
                 }
             }
             assertThat("Most processes with more than one child should not suddenly have none.", matchedChild,
-                    is(greaterThan(total / 4)));
+                    is(greaterThan(total / 2)));
             assertThat("Most processes with more than one child should not suddenly have no descendants.",
-                    matchedDescendant, is(greaterThan(total / 4)));
+                    matchedDescendant, is(greaterThan(total / 2)));
             assertThat("Most processes with more than one child should have no more children than descendants",
-                    descendantNotLessThanChild, is(greaterThan(total / 4)));
+                    descendantNotLessThanChild, is(greaterThan(total / 2)));
         }
     }
 
