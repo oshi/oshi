@@ -134,8 +134,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         // Get this pid and its descendants
         List<OSProcess> descendantProcs = queryDescendantProcesses(parentPid);
         // Extract the parent from the list
-        OSProcess parent = descendantProcs.stream().filter(p -> p.getProcessID() == parentPid).findAny()
-                .orElse(null);
+        OSProcess parent = descendantProcs.stream().filter(p -> p.getProcessID() == parentPid).findAny().orElse(null);
         // Get the parent's start time
         long parentStartTime = parent == null ? 0 : parent.getStartTime();
         // Get descendants after parent
