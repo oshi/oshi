@@ -40,4 +40,4 @@ jobs:
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
-          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true -Djvm.options=-Xshareclasses:none
