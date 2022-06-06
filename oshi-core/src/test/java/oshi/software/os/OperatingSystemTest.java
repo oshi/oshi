@@ -287,9 +287,9 @@ class OperatingSystemTest {
                 }
             }
             assertThat("Most processes with no children should not suddenly have them.", matchedChild,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 3)));
             assertThat("Most processes with no children should not suddenly have descendants.", matchedDescendant,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 3)));
         }
         // One child
         matchedChild = 0;
@@ -315,11 +315,11 @@ class OperatingSystemTest {
                 }
             }
             assertThat("Most processes with one child should not suddenly have zero or more than one.", matchedChild,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 3)));
             assertThat("Most processes with one child should not suddenly have zero descendants.", matchedDescendant,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 3)));
             assertThat("Most processes with one child should have no more children than descendants",
-                    descendantNotLessThanChild, is(greaterThan(total / 2)));
+                    descendantNotLessThanChild, is(greaterThan(total / 3)));
         }
         // Many children
         matchedChild = 0;
@@ -348,11 +348,11 @@ class OperatingSystemTest {
                 }
             }
             assertThat("Most processes with more than one child should not suddenly have none.", matchedChild,
-                    is(greaterThan(total / 2)));
+                    is(greaterThan(total / 3)));
             assertThat("Most processes with more than one child should not suddenly have no descendants.",
-                    matchedDescendant, is(greaterThan(total / 2)));
+                    matchedDescendant, is(greaterThan(total / 3)));
             assertThat("Most processes with more than one child should have no more children than descendants",
-                    descendantNotLessThanChild, is(greaterThan(total / 2)));
+                    descendantNotLessThanChild, is(greaterThan(total / 3)));
         }
     }
 

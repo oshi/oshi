@@ -37,6 +37,7 @@ jobs:
           rm -fR ~/.cache/JNA
           cd ~/git/oshi
           export JAVA_HOME=/opt/ibm-semeru-open-17-jdk
+          export MAVEN_OPTS="-Xshareclasses:none"
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
