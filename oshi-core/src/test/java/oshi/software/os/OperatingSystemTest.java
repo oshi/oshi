@@ -255,11 +255,11 @@ class OperatingSystemTest {
         for (OSProcess p : processes) {
             int ppid = p.getParentProcessID();
             long startTime = p.getStartTime();
-            if (zeroChildMap.getOrDefault(ppid, 0L) >= startTime) {
+            if (zeroChildMap.containsKey(ppid) && zeroChildMap.get(ppid) >= startTime) {
                 // Zero to One
                 oneChildMap.put(ppid, zeroChildMap.get(ppid));
                 zeroChildMap.remove(ppid);
-            } else if (oneChildMap.getOrDefault(ppid, 0L) >= startTime) {
+            } else if (oneChildMap.containsKey(ppid) && oneChildMap.get(ppid) >= startTime) {
                 // One to many
                 manyChildMap.put(ppid, oneChildMap.get(ppid));
                 oneChildMap.remove(ppid);
