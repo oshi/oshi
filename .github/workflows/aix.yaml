@@ -34,9 +34,10 @@ jobs:
         command_timeout: 15m
         script: |
           rm -fR ~/.cache/JNA
+          rm -fR ~/javashared*
           cd ~/git/oshi
           export JAVA_HOME=/opt/ibm-semeru-open-17-jdk
-          export MAVEN_OPTS="-Xshareclasses:reset -Djnidispatch.persist=true"
+          export MAVEN_OPTS="-Xshareclasses:none -Djnidispatch.preserve=true -Djna.debug_load.jna=true"
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
