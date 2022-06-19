@@ -475,7 +475,7 @@ public final class KstatUtil {
     }
 
     /**
-     * Class to hold the parameters to call kstat_lookup
+     * Class to hold the parameters to call kstat_data_lookup
      */
     private static class KstatDataLookup {
         private final Kstat ksp;
