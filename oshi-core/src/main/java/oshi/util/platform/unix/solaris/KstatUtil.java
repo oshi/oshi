@@ -316,17 +316,6 @@ public final class KstatUtil {
         }
     }
 
-    private static void logTimeoutException(Kstat ksp) {
-        if (LOG.isDebugEnabled()) {
-            logTimeoutException(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
-                    Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));
-        }
-    }
-
-    private static void logTimeoutException(String module, int instance, String name) {
-        LOG.debug("Execution failure or timeout reading kstat {}:{}:{}", module, instance, name);
-    }
-
     /**
      * Query Kstat2 with a single map
      *
@@ -341,27 +330,20 @@ public final class KstatUtil {
             throw new UnsupportedOperationException(
                     "Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this.");
         }
-        Object[] result = new Object[names.length];
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
         KstatUtil.CHAIN.lock();
         try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_STRING, mapStr);
-            Kstat2Handle handle = new Kstat2Handle();
-            try {
-                Kstat2Map map = handle.lookupMap(mapStr);
-                for (int i = 0; i < names.length; i++) {
-                    result[i] = map.getValue(names[i]);
-                }
-            } finally {
-                handle.close();
-            }
+            return CompletableFuture.supplyAsync(new Kstat2LookupMap(mapStr, null, names)::lookupMap).get(globalTimeout,
+                    TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException e) {
+            logTimeoutException2(mapStr);
         } catch (Kstat2StatusException e) {
             LOG.debug("Failed to get stats on {} for names {}: {}", mapStr, Arrays.toString(names), e.getMessage());
         } finally {
             KstatUtil.CHAIN.unlock();
-            matchers.free();
         }
-        return result;
+        return new Object[names.length];
     }
 
     /**
@@ -381,34 +363,44 @@ public final class KstatUtil {
             throw new UnsupportedOperationException(
                     "Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this.");
         }
-        List<Object[]> results = new ArrayList<>();
-        int s = 0;
-        Kstat2MatcherList matchers = new Kstat2MatcherList();
         KstatUtil.CHAIN.lock();
         try {
-            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + "*" + afterStr);
-            Kstat2Handle handle = new Kstat2Handle();
-            try {
-                for (s = 0; s < Integer.MAX_VALUE; s++) {
-                    Object[] result = new Object[names.length];
-                    Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
-                    for (int i = 0; i < names.length; i++) {
-                        result[i] = map.getValue(names[i]);
-                    }
-                    results.add(result);
-                }
-            } finally {
-                handle.close();
-            }
+            return CompletableFuture.supplyAsync(new Kstat2LookupMap(beforeStr, afterStr, names)::lookupMapList)
+                    .get(globalTimeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException e) {
+            logTimeoutException2(beforeStr, afterStr);
         } catch (Kstat2StatusException e) {
-            // Expected to end iteration
-            LOG.debug("Failed to get stats on {}{}{} for names {}: {}", beforeStr, s, afterStr, Arrays.toString(names),
+            LOG.debug("Failed to get stats on {}*{} for names {}: {}", beforeStr, afterStr, Arrays.toString(names),
                     e.getMessage());
         } finally {
             KstatUtil.CHAIN.unlock();
-            matchers.free();
         }
-        return results;
+        return Collections.emptyList();
+    }
+
+    /*
+     * Log messages
+     */
+
+    private static void logTimeoutException(Kstat ksp) {
+        if (LOG.isDebugEnabled()) {
+            logTimeoutException(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
+                    Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));
+        }
+    }
+
+    private static void logTimeoutException(String module, int instance, String name) {
+        LOG.debug("Execution failure or timeout reading kstat {}:{}:{}", module, instance, name);
+    }
+
+    private static void logTimeoutException2(String mapStr) {
+        LOG.debug("Execution failure or timeout reading kstat2 {}", mapStr);
+    }
+
+    private static void logTimeoutException2(String beforeStr, String afterStr) {
+        LOG.debug("Execution failure or timeout reading kstat2 {}*{}", beforeStr, afterStr);
     }
 
     /*
@@ -492,6 +484,67 @@ public final class KstatUtil {
 
         private Pointer dataLookup() {
             return LibKstat.INSTANCE.kstat_data_lookup(ksp, name);
+        }
+    }
+
+    /**
+     * Class to hold the parameters to call kstat2_lookup_map
+     */
+    private static final class Kstat2LookupMap {
+        private final String beforeStr; // mapStr for single
+        private final String afterStr; // null for single
+        private final String[] names;
+
+        private Kstat2LookupMap(String beforeStr, String afterStr, String[] names) {
+            this.beforeStr = beforeStr;
+            this.afterStr = afterStr;
+            this.names = names;
+        }
+
+        private Object[] lookupMap() throws Kstat2StatusException {
+            Kstat2MatcherList matchers = new Kstat2MatcherList();
+            try {
+                matchers.addMatcher(Kstat2.KSTAT2_M_STRING, beforeStr);
+                Kstat2Handle handle = new Kstat2Handle();
+                try {
+                    Object[] result = new Object[names.length];
+                    Kstat2Map map = handle.lookupMap(beforeStr);
+                    for (int i = 0; i < names.length; i++) {
+                        result[i] = map.getValue(names[i]);
+                    }
+                    return result;
+                } finally {
+                    handle.close();
+                }
+            } finally {
+                KstatUtil.CHAIN.unlock();
+                matchers.free();
+            }
+        }
+
+        private List<Object[]> lookupMapList() throws Kstat2StatusException {
+            List<Object[]> results = new ArrayList<>();
+            int s = 0;
+            Kstat2MatcherList matchers = new Kstat2MatcherList();
+            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + "*" + afterStr);
+            try {
+                Kstat2Handle handle = new Kstat2Handle();
+                try {
+                    for (s = 0; s < Integer.MAX_VALUE; s++) {
+                        Object[] result = new Object[names.length];
+                        Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
+                        for (int i = 0; i < names.length; i++) {
+                            result[i] = map.getValue(names[i]);
+                        }
+                        results.add(result);
+                    }
+                    return results;
+                } finally {
+                    handle.close();
+                }
+            } finally {
+                matchers.free();
+            }
         }
     }
 }
