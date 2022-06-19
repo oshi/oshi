@@ -26,12 +26,7 @@ package oshi.util.platform.unix.solaris;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -54,8 +49,6 @@ import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.util.FormatUtil;
-import oshi.util.GlobalConfig;
-import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -65,9 +58,6 @@ import oshi.util.Util;
 public final class KstatUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);
-
-    private static long globalTimeout = ParseUtil
-            .unsignedIntToLong(GlobalConfig.get(GlobalConfig.OSHI_UTIL_KSTAT_TIMEOUT, -1));
 
     private static final Lock CHAIN = new ReentrantLock();
     // Only one thread may access the chain at any time, so we wrap this object in
@@ -113,15 +103,19 @@ public final class KstatUtil {
          */
         @GuardedBy("CHAIN")
         public boolean read(Kstat ksp) {
-            try {
-                return CompletableFuture.supplyAsync(new KstatRead(localCtlRef, ksp)::read).get(globalTimeout,
-                        TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException | TimeoutException e) {
-                logTimeoutException(ksp);
+            int retry = 0;
+            while (0 > LibKstat.INSTANCE.kstat_read(localCtlRef, ksp, null)) {
+                if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Failed to read kstat {}:{}:{}",
+                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
+                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));
+                    }
+                    return false;
+                }
+                Util.sleep(8 << retry);
             }
-            return false;
+            return true;
         }
 
         /**
@@ -142,15 +136,7 @@ public final class KstatUtil {
          */
         @GuardedBy("CHAIN")
         public Kstat lookup(String module, int instance, String name) {
-            try {
-                return CompletableFuture.supplyAsync(new KstatLookup(localCtlRef, module, instance, name)::lookup)
-                        .get(globalTimeout, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException | TimeoutException e) {
-                logTimeoutException(module, instance, name);
-            }
-            return null;
+            return LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name);
         }
 
         /**
@@ -172,15 +158,16 @@ public final class KstatUtil {
          */
         @GuardedBy("CHAIN")
         public List<Kstat> lookupAll(String module, int instance, String name) {
-            try {
-                return CompletableFuture.supplyAsync(new KstatLookup(localCtlRef, module, instance, name)::lookupAll)
-                        .get(globalTimeout, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException | TimeoutException e) {
-                logTimeoutException(module, instance, name);
+            List<Kstat> kstats = new ArrayList<>();
+            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name); ksp != null; ksp = ksp
+                    .next()) {
+                if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))
+                        && (instance < 0 || instance == ksp.ks_instance)
+                        && (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {
+                    kstats.add(ksp);
+                }
             }
-            return Collections.emptyList();
+            return kstats;
         }
 
         /**
@@ -239,15 +226,7 @@ public final class KstatUtil {
         if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED && ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {
             throw new IllegalArgumentException("Not a kstat_named or kstat_timer kstat.");
         }
-        Pointer p = null;
-        try {
-            p = CompletableFuture.supplyAsync(new KstatDataLookup(ksp, name)::dataLookup).get(globalTimeout,
-                    TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException | TimeoutException e) {
-            logTimeoutException(ksp);
-        }
+        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);
         if (p == null) {
             LOG.debug("Failed to lookup kstat value for key {}", name);
             return "";
@@ -314,17 +293,6 @@ public final class KstatUtil {
             LOG.error("Unimplemented or non-numeric kstat data type {}", data.data_type);
             return 0L;
         }
-    }
-
-    private static void logTimeoutException(Kstat ksp) {
-        if (LOG.isDebugEnabled()) {
-            logTimeoutException(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
-                    Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));
-        }
-    }
-
-    private static void logTimeoutException(String module, int instance, String name) {
-        LOG.debug("Execution failure or timeout reading kstat {}:{}:{}", module, instance, name);
     }
 
     /**
@@ -409,89 +377,5 @@ public final class KstatUtil {
             matchers.free();
         }
         return results;
-    }
-
-    /*
-     * Helper classes for CompletableFutures to save the parameters when calling
-     */
-
-    /**
-     * Class to hold the parameters to call kstat_read
-     */
-    private static final class KstatRead {
-        private final KstatCtl ref;
-        private final Kstat ksp;
-
-        private KstatRead(KstatCtl ref, Kstat ksp) {
-            this.ref = ref;
-            this.ksp = ksp;
-        }
-
-        private boolean read() {
-            int retry = 0;
-            while (0 > LibKstat.INSTANCE.kstat_read(ref, ksp, null)) {
-                if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Failed to read kstat {}:{}:{}",
-                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,
-                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));
-                    }
-                    return false;
-                }
-                Util.sleep(8 << retry);
-            }
-            return true;
-        }
-    }
-
-    /**
-     * Class to hold the parameters to call kstat_lookup
-     */
-    private static final class KstatLookup {
-        private final KstatCtl ref;
-        private final String module;
-        private final int instance;
-        private final String name;
-
-        KstatLookup(KstatCtl ref, String module, int instance, String name) {
-            this.ref = ref;
-            this.module = module;
-            this.instance = instance;
-            this.name = name;
-        }
-
-        private Kstat lookup() {
-            return LibKstat.INSTANCE.kstat_lookup(ref, module, instance, name);
-        }
-
-        private List<Kstat> lookupAll() {
-            List<Kstat> kstats = new ArrayList<>();
-            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(ref, module, instance, name); ksp != null; ksp = ksp
-                    .next()) {
-                if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))
-                        && (instance < 0 || instance == ksp.ks_instance)
-                        && (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {
-                    kstats.add(ksp);
-                }
-            }
-            return kstats;
-        }
-    }
-
-    /**
-     * Class to hold the parameters to call kstat_data_lookup
-     */
-    private static final class KstatDataLookup {
-        private final Kstat ksp;
-        private final String name;
-
-        private KstatDataLookup(Kstat ksp, String name) {
-            this.ksp = ksp;
-            this.name = name;
-        }
-
-        private Pointer dataLookup() {
-            return LibKstat.INSTANCE.kstat_data_lookup(ksp, name);
-        }
     }
 }
