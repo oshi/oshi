@@ -411,19 +411,23 @@ public final class KstatUtil {
         return results;
     }
 
+    /*
+     * Helper classes for CompletableFutures to save the parameters when calling
+     */
+
     /**
      * Class to hold the parameters to call kstat_read
      */
-    private static class KstatRead {
+    private static final class KstatRead {
         private final KstatCtl ref;
         private final Kstat ksp;
 
-        public KstatRead(KstatCtl ref, Kstat ksp) {
+        private KstatRead(KstatCtl ref, Kstat ksp) {
             this.ref = ref;
             this.ksp = ksp;
         }
 
-        public boolean read() {
+        private boolean read() {
             int retry = 0;
             while (0 > LibKstat.INSTANCE.kstat_read(ref, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
@@ -443,24 +447,24 @@ public final class KstatUtil {
     /**
      * Class to hold the parameters to call kstat_lookup
      */
-    private static class KstatLookup {
+    private static final class KstatLookup {
         private final KstatCtl ref;
         private final String module;
         private final int instance;
         private final String name;
 
-        public KstatLookup(KstatCtl ref, String module, int instance, String name) {
+        KstatLookup(KstatCtl ref, String module, int instance, String name) {
             this.ref = ref;
             this.module = module;
             this.instance = instance;
             this.name = name;
         }
 
-        public Kstat lookup() {
+        private Kstat lookup() {
             return LibKstat.INSTANCE.kstat_lookup(ref, module, instance, name);
         }
 
-        public List<Kstat> lookupAll() {
+        private List<Kstat> lookupAll() {
             List<Kstat> kstats = new ArrayList<>();
             for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(ref, module, instance, name); ksp != null; ksp = ksp
                     .next()) {
@@ -477,16 +481,16 @@ public final class KstatUtil {
     /**
      * Class to hold the parameters to call kstat_data_lookup
      */
-    private static class KstatDataLookup {
+    private static final class KstatDataLookup {
         private final Kstat ksp;
         private final String name;
 
-        public KstatDataLookup(Kstat ksp, String name) {
+        private KstatDataLookup(Kstat ksp, String name) {
             this.ksp = ksp;
             this.name = name;
         }
 
-        public Pointer dataLookup() {
+        private Pointer dataLookup() {
             return LibKstat.INSTANCE.kstat_data_lookup(ksp, name);
         }
     }
