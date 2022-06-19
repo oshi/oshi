@@ -44,6 +44,7 @@ public final class GlobalConfig {
     private static final Properties CONFIG = FileUtil.readPropertiesFromFilename(OSHI_PROPERTIES);
 
     public static final String OSHI_UTIL_MEMOIZER_EXPIRATION = "oshi.util.memoizer.expiration";
+    public static final String OSHI_UTIL_KSTAT_TIMEOUT = "oshi.util.kstat.timeout";
     public static final String OSHI_UTIL_WMI_TIMEOUT = "oshi.util.wmi.timeout";
     public static final String OSHI_UTIL_PROC_PATH = "oshi.util.proc.path";
 
