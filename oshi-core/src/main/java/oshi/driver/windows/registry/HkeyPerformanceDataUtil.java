@@ -68,6 +68,8 @@ public final class HkeyPerformanceDataUtil {
     private static final String COUNTER = "Counter";
     private static final Map<String, Integer> COUNTER_INDEX_MAP = mapCounterIndicesFromRegistry();
 
+    private static int maxPerfBufferSize = 4096;
+
     private HkeyPerformanceDataUtil() {
     }
 
@@ -257,14 +259,14 @@ public final class HkeyPerformanceDataUtil {
      *            {@link #COUNTER_INDEX_MAP}.
      * @return A buffer containing the data if successful, null otherwise.
      */
-    private static Memory readPerfDataBuffer(String objectName) {
+    private static synchronized Memory readPerfDataBuffer(String objectName) {
         // Need this index as a string
         String objectIndexStr = Integer.toString(COUNTER_INDEX_MAP.get(objectName));
 
         // Now load the data from the regsitry.
-        int bufferSize = 4096;
-        IntByReference lpcbData = new IntByReference(bufferSize);
-        Memory pPerfData = new Memory(bufferSize);
+
+        IntByReference lpcbData = new IntByReference(maxPerfBufferSize);
+        Memory pPerfData = new Memory(maxPerfBufferSize);
         int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null, pPerfData,
                 lpcbData);
         if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
@@ -273,9 +275,9 @@ public final class HkeyPerformanceDataUtil {
         }
         // Grow buffer as needed to fit the data
         while (ret == WinError.ERROR_MORE_DATA) {
-            bufferSize += 4096;
-            lpcbData.setValue(bufferSize);
-            pPerfData = new Memory(bufferSize);
+            maxPerfBufferSize += 4096;
+            lpcbData.setValue(maxPerfBufferSize);
+            pPerfData = new Memory(maxPerfBufferSize);
             ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null, pPerfData,
                     lpcbData);
         }
