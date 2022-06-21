@@ -12,6 +12,7 @@
 * [#2054](https://github.com/oshi/oshi/pull/2054): Prevent NPE when network interface has no statistics - [@dbwiddis](https://github.com/dbwiddis).
 * [#2055](https://github.com/oshi/oshi/pull/2055): Fix incomplete collection of child processes - [@marcelkliemannel](https://github.com/marcelkliemannel).
 * [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
+* [#2077](https://github.com/oshi/oshi/pull/2077): Fix processor numbering with Windows Processor Groups - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01), 6.1.5 (2022-03-15), 6.1.6 (2022-04-10)
 
