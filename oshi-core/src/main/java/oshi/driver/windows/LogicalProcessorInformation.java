@@ -102,10 +102,10 @@ public final class LogicalProcessorInformation {
         }
         // Windows doesn't define core and package numbers, so we define our own for
         // consistent use across the API. Here we sort so core and package numbers
-        // increment consistently with processor umbers/bitmasks, ordered in groups.
-        cores.sort(Comparator.comparing(c -> c.group * 64L + c.mask.longValue()));
+        // increment consistently with processor numbers/bitmasks, ordered in groups.
+        cores.sort(Comparator.comparing(c -> c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));
         // if package in multiple groups will still use first group for sorting
-        packages.sort(Comparator.comparing(p -> p[0].group * 64L + p[0].mask.longValue()));
+        packages.sort(Comparator.comparing(p -> p[0].group * 64L + Long.numberOfTrailingZeros(p[0].mask.longValue())));
 
         // Iterate Logical Processors and use bitmasks to match packages, cores,
         // and NUMA nodes. Perfmon instances are numa node + processor number, so we
