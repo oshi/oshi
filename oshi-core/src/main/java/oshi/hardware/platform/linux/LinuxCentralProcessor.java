@@ -247,7 +247,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         return new Triplet<>(logProcs, coreEfficiencyMap, modAliasMap);
     }
 
-    private LogicalProcessor getLogicalProcessorFromSyspath(String syspath, String modAlias,
+    private static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, String modAlias,
             Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
         int processor = ParseUtil.getFirstIntValue(syspath);
         int coreId = FileUtil.getIntFromFile(syspath + "/topology/core_id");

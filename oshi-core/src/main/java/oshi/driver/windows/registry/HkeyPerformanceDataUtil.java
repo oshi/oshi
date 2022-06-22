@@ -68,7 +68,7 @@ public final class HkeyPerformanceDataUtil {
     private static final String COUNTER = "Counter";
     private static final Map<String, Integer> COUNTER_INDEX_MAP = mapCounterIndicesFromRegistry();
 
-    private static int maxPerfBufferSize = 4096;
+    private static int maxPerfBufferSize = 16384;
 
     private HkeyPerformanceDataUtil() {
     }
@@ -133,7 +133,7 @@ public final class HkeyPerformanceDataUtil {
         for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
             PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
             // Some counters will require multiple objects so we iterate until we find the
-            // right one. e.g. Process (230) is by iteself but Thread (232) has Process
+            // right one. e.g. Process (230) is by itself but Thread (232) has Process
             // object first
             if (perfObject.ObjectNameTitleIndex == COUNTER_INDEX_MAP.get(objectName).intValue()) {
                 // We found a matching object.
@@ -275,7 +275,7 @@ public final class HkeyPerformanceDataUtil {
         }
         // Grow buffer as needed to fit the data
         while (ret == WinError.ERROR_MORE_DATA) {
-            maxPerfBufferSize += 4096;
+            maxPerfBufferSize += 8192;
             lpcbData.setValue(maxPerfBufferSize);
             pPerfData = new Memory(maxPerfBufferSize);
             ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null, pPerfData,
