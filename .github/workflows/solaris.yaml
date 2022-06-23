@@ -38,6 +38,7 @@ jobs:
           git pull
           mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
   # Runs current branch on Solaris 11.3 on SPARC
+  # Retries flaky test once, possible junit-platform-maven-test issue
   testsolaris_sparc:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
@@ -58,4 +59,4 @@ jobs:
           git checkout master
           git reset --hard HEAD~2
           git pull
-          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true || ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
