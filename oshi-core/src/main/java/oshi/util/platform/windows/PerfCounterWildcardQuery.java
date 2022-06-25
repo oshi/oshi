@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
-import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -127,17 +126,7 @@ public final class PerfCounterWildcardQuery {
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);
 
         // Get list of instances
-        // Temporary workaround for JNA buffer size race condition
-        PdhEnumObjectItems objectItems = null;
-        int retries = 99;
-        while (retries > 0) {
-            try {
-                objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
-                retries = 0;
-            } catch (PdhException e) {
-                retries--;
-            }
-        }
+        PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
         if (objectItems == null) {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
