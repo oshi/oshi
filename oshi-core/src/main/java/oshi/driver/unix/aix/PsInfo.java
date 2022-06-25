@@ -161,56 +161,57 @@ public final class PsInfo {
                 }
 
                 // Reusable buffer
-                Memory buffer = new Memory(PAGE_SIZE * 2);
-                size_t bufSize = new size_t(buffer.size());
+                try (Memory buffer = new Memory(PAGE_SIZE * 2)) {
+                    size_t bufSize = new size_t(buffer.size());
 
-                // Read the pointers to the arg strings
-                long bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, 0, argv);
-                long[] argPtr = new long[argc];
-                long argp = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, argv - bufStart, increment);
-                if (argp > 0) {
-                    for (int i = 0; i < argc; i++) {
-                        long offset = argp + i * increment;
-                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                        argPtr[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    }
-                }
-
-                // Also read the pointers to the env strings
-                // We don't know how many, so stop when we get to null pointer
-                bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envp);
-                List<Long> envPtrList = new ArrayList<>();
-                long addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, envp - bufStart, increment);
-                int limit = 500; // sane max env strings to stop at
-                long offset = addr;
-                while (addr != 0 && --limit > 0) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                    long envPtr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    if (envPtr != 0) {
-                        envPtrList.add(envPtr);
-                    }
-                    offset += increment;
-                }
-
-                // Now read the arg strings from the buffer
-                for (int i = 0; i < argPtr.length && argPtr[i] != 0; i++) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argPtr[i]);
-                    if (bufStart != 0) {
-                        String argStr = buffer.getString(argPtr[i] - bufStart);
-                        if (!argStr.isEmpty()) {
-                            args.add(argStr);
+                    // Read the pointers to the arg strings
+                    long bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, 0, argv);
+                    long[] argPtr = new long[argc];
+                    long argp = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, argv - bufStart, increment);
+                    if (argp > 0) {
+                        for (int i = 0; i < argc; i++) {
+                            long offset = argp + i * increment;
+                            bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
+                            argPtr[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
                         }
                     }
-                }
 
-                // And now read the env strings from the buffer
-                for (Long envPtr : envPtrList) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);
-                    if (bufStart != 0) {
-                        String envStr = buffer.getString(envPtr - bufStart);
-                        int idx = envStr.indexOf('=');
-                        if (idx > 0) {
-                            env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                    // Also read the pointers to the env strings
+                    // We don't know how many, so stop when we get to null pointer
+                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envp);
+                    List<Long> envPtrList = new ArrayList<>();
+                    long addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, envp - bufStart, increment);
+                    int limit = 500; // sane max env strings to stop at
+                    long offset = addr;
+                    while (addr != 0 && --limit > 0) {
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
+                        long envPtr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
+                        if (envPtr != 0) {
+                            envPtrList.add(envPtr);
+                        }
+                        offset += increment;
+                    }
+
+                    // Now read the arg strings from the buffer
+                    for (int i = 0; i < argPtr.length && argPtr[i] != 0; i++) {
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argPtr[i]);
+                        if (bufStart != 0) {
+                            String argStr = buffer.getString(argPtr[i] - bufStart);
+                            if (!argStr.isEmpty()) {
+                                args.add(argStr);
+                            }
+                        }
+                    }
+
+                    // And now read the env strings from the buffer
+                    for (Long envPtr : envPtrList) {
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);
+                        if (bufStart != 0) {
+                            String envStr = buffer.getString(envPtr - bufStart);
+                            int idx = envStr.indexOf('=');
+                            if (idx > 0) {
+                                env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                            }
                         }
                     }
                 }

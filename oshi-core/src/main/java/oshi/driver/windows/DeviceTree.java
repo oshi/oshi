@@ -92,9 +92,7 @@ public final class DeviceTree {
         // Get device IDs for the top level devices
         HANDLE hDevInfo = SA.SetupDiGetClassDevs(guidDevInterface, null, null, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
         if (!INVALID_HANDLE_VALUE.equals(hDevInfo)) {
-            try {
-                // Create re-usable native allocations
-                Memory buf = new Memory(MAX_PATH);
+            try (Memory buf = new Memory(MAX_PATH)) {
                 IntByReference size = new IntByReference(MAX_PATH);
                 // Enumerate Device Info using BFS queue
                 Queue<Integer> deviceTree = new ArrayDeque<>();

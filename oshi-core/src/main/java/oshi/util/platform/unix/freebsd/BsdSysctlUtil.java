@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
@@ -59,12 +58,13 @@ public final class BsdSysctlUtil {
      */
     public static int sysctl(String name, int def) {
         size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        Pointer p = new Memory(size.longValue());
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-            return def;
+        try (Memory p = new Memory(size.longValue())) {
+            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                return def;
+            }
+            return p.getInt(0);
         }
-        return p.getInt(0);
     }
 
     /**
@@ -78,12 +78,13 @@ public final class BsdSysctlUtil {
      */
     public static long sysctl(String name, long def) {
         size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.UINT64_SIZE));
-        Pointer p = new Memory(size.longValue());
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-            return def;
+        try (Memory p = new Memory(size.longValue())) {
+            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                return def;
+            }
+            return p.getLong(0);
         }
-        return p.getLong(0);
     }
 
     /**
@@ -103,12 +104,13 @@ public final class BsdSysctlUtil {
             return def;
         }
         // Add 1 to size for null terminated string
-        Pointer p = new Memory(size.longValue() + 1L);
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-            LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-            return def;
+        try (Memory p = new Memory(size.longValue() + 1L)) {
+            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                return def;
+            }
+            return p.getString(0);
         }
-        return p.getString(0);
     }
 
     /**
@@ -147,6 +149,7 @@ public final class BsdSysctlUtil {
         Memory m = new Memory(size.longValue());
         if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, m, size, null, size_t.ZERO)) {
             LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+            m.close();
             return null;
         }
         return m;

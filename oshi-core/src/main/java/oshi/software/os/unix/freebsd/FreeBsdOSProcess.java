@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -145,17 +144,18 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             mib[2] = 7; // KERN_PROC_ARGS
             mib[3] = getProcessID();
             // Allocate memory for arguments
-            Memory m = new Memory(ARGMAX);
-            size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
-            // Fetch arguments
-            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                return Collections.unmodifiableList(
-                        ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
-            } else {
+            try (Memory m = new Memory(ARGMAX)) {
+                size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+                // Fetch arguments
+                if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                    return Collections.unmodifiableList(
+                            ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
+                } else {
 
-                LOG.warn(
-                        "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
-                        getProcessID(), Native.getLastError());
+                    LOG.warn(
+                            "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
+                            getProcessID(), Native.getLastError());
+                }
             }
         }
         return Collections.emptyList();
@@ -175,16 +175,17 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             mib[2] = 35; // KERN_PROC_ENV
             mib[3] = getProcessID();
             // Allocate memory for environment variables
-            Memory m = new Memory(ARGMAX);
-            size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
-            // Fetch environment variables
-            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                return Collections.unmodifiableMap(
-                        ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
-            } else {
-                LOG.warn(
-                        "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
-                        getProcessID(), Native.getLastError());
+            try (Memory m = new Memory(ARGMAX)) {
+                size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+                // Fetch environment variables
+                if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                    return Collections.unmodifiableMap(
+                            ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
+                } else {
+                    LOG.warn(
+                            "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
+                            getProcessID(), Native.getLastError());
+                }
             }
         }
         return Collections.emptyMap();
@@ -315,15 +316,16 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         mib[2] = 9; // KERN_PROC_SV_NAME
         mib[3] = getProcessID();
         // Allocate memory for arguments
-        Pointer abi = new Memory(32);
-        size_t.ByReference size = new size_t.ByReference(new size_t(32));
-        // Fetch abi vector
-        if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
-            String elf = abi.getString(0);
-            if (elf.contains("ELF32")) {
-                return 32;
-            } else if (elf.contains("ELF64")) {
-                return 64;
+        try (Memory abi = new Memory(32)) {
+            size_t.ByReference size = new size_t.ByReference(new size_t(32));
+            // Fetch abi vector
+            if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
+                String elf = abi.getString(0);
+                if (elf.contains("ELF32")) {
+                    return 32;
+                } else if (elf.contains("ELF64")) {
+                    return 64;
+                }
             }
         }
         return 0;

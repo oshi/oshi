@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -293,25 +292,27 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         // Allocate memory for array of CPTime
         long size = new CpTime().size();
         long arraySize = size * getLogicalProcessorCount();
-        Pointer p = new Memory(arraySize);
-        String name = "kern.cp_times";
-        // Fetch
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, new size_t.ByReference(new size_t(arraySize)), null,
-                size_t.ZERO)) {
-            LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
-            return ticks;
-        }
-        // p now points to the data; need to copy each element
-        for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-            ticks[cpu][TickType.USER.getIndex()] = p
-                    .getLong(size * cpu + FreeBsdLibc.CP_USER * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.NICE.getIndex()] = p
-                    .getLong(size * cpu + FreeBsdLibc.CP_NICE * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.SYSTEM.getIndex()] = p
-                    .getLong(size * cpu + FreeBsdLibc.CP_SYS * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.IRQ.getIndex()] = p.getLong(size * cpu + FreeBsdLibc.CP_INTR * FreeBsdLibc.UINT64_SIZE); // lgtm
-            ticks[cpu][TickType.IDLE.getIndex()] = p
-                    .getLong(size * cpu + FreeBsdLibc.CP_IDLE * FreeBsdLibc.UINT64_SIZE); // lgtm
+        try (Memory p = new Memory(arraySize)) {
+            String name = "kern.cp_times";
+            // Fetch
+            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, new size_t.ByReference(new size_t(arraySize)), null,
+                    size_t.ZERO)) {
+                LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
+                return ticks;
+            }
+            // p now points to the data; need to copy each element
+            for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
+                ticks[cpu][TickType.USER.getIndex()] = p
+                        .getLong(size * cpu + FreeBsdLibc.CP_USER * FreeBsdLibc.UINT64_SIZE); // lgtm
+                ticks[cpu][TickType.NICE.getIndex()] = p
+                        .getLong(size * cpu + FreeBsdLibc.CP_NICE * FreeBsdLibc.UINT64_SIZE); // lgtm
+                ticks[cpu][TickType.SYSTEM.getIndex()] = p
+                        .getLong(size * cpu + FreeBsdLibc.CP_SYS * FreeBsdLibc.UINT64_SIZE); // lgtm
+                ticks[cpu][TickType.IRQ.getIndex()] = p
+                        .getLong(size * cpu + FreeBsdLibc.CP_INTR * FreeBsdLibc.UINT64_SIZE); // lgtm
+                ticks[cpu][TickType.IDLE.getIndex()] = p
+                        .getLong(size * cpu + FreeBsdLibc.CP_IDLE * FreeBsdLibc.UINT64_SIZE); // lgtm
+            }
         }
         return ticks;
     }
@@ -343,21 +344,23 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     public long queryContextSwitches() {
         String name = "vm.stats.sys.v_swtch";
         size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        Pointer p = new Memory(size.longValue());
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-            return 0L;
+        try (Memory p = new Memory(size.longValue())) {
+            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
+                return 0L;
+            }
+            return ParseUtil.unsignedIntToLong(p.getInt(0));
         }
-        return ParseUtil.unsignedIntToLong(p.getInt(0));
     }
 
     @Override
     public long queryInterrupts() {
         String name = "vm.stats.sys.v_intr";
         size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        Pointer p = new Memory(size.longValue());
-        if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-            return 0L;
+        try (Memory p = new Memory(size.longValue())) {
+            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
+                return 0L;
+            }
+            return ParseUtil.unsignedIntToLong(p.getInt(0));
         }
-        return ParseUtil.unsignedIntToLong(p.getInt(0));
     }
 }

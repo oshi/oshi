@@ -81,14 +81,15 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         int[] mib = new int[2];
         mib[0] = 1; // CTL_KERN
         mib[1] = 8; // KERN_ARGMAX
-        Memory m = new Memory(Integer.BYTES);
-        size_t.ByReference size = new size_t.ByReference(new size_t(Integer.BYTES));
-        if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-            ARGMAX = m.getInt(0);
-        } else {
-            LOG.warn("Failed sysctl call for process arguments max size (kern.argmax). Error code: {}",
-                    Native.getLastError());
-            ARGMAX = 0;
+        try (Memory m = new Memory(Integer.BYTES)) {
+            size_t.ByReference size = new size_t.ByReference(new size_t(Integer.BYTES));
+            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                ARGMAX = m.getInt(0);
+            } else {
+                LOG.warn("Failed sysctl call for process arguments max size (kern.argmax). Error code: {}",
+                        Native.getLastError());
+                ARGMAX = 0;
+            }
         }
     }
 
@@ -163,25 +164,26 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             mib[2] = getProcessID();
             mib[3] = 1; // KERN_PROC_ARGV
             // Allocate memory for arguments
-            Memory m = new Memory(ARGMAX);
-            size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
-            // Fetch arguments
-            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                // Returns a null-terminated list of pointers to the actual data
-                List<String> args = new ArrayList<>();
-                // To iterate the pointer-list
-                long offset = 0;
-                // Get the data base address to calculate offsets
-                long baseAddr = Pointer.nativeValue(m);
-                long maxAddr = baseAddr + size.getValue().longValue();
-                // Get the address of the data. If null (0) we're done iterating
-                long argAddr = Pointer.nativeValue(m.getPointer(offset));
-                while (argAddr > baseAddr && argAddr < maxAddr) {
-                    args.add(m.getString(argAddr - baseAddr));
-                    offset += Native.POINTER_SIZE;
-                    argAddr = Pointer.nativeValue(m.getPointer(offset));
+            try (Memory m = new Memory(ARGMAX)) {
+                size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+                // Fetch arguments
+                if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                    // Returns a null-terminated list of pointers to the actual data
+                    List<String> args = new ArrayList<>();
+                    // To iterate the pointer-list
+                    long offset = 0;
+                    // Get the data base address to calculate offsets
+                    long baseAddr = Pointer.nativeValue(m);
+                    long maxAddr = baseAddr + size.getValue().longValue();
+                    // Get the address of the data. If null (0) we're done iterating
+                    long argAddr = Pointer.nativeValue(m.getPointer(offset));
+                    while (argAddr > baseAddr && argAddr < maxAddr) {
+                        args.add(m.getString(argAddr - baseAddr));
+                        offset += Native.POINTER_SIZE;
+                        argAddr = Pointer.nativeValue(m.getPointer(offset));
+                    }
+                    return Collections.unmodifiableList(args);
                 }
-                return Collections.unmodifiableList(args);
             }
         }
         return Collections.emptyList();
@@ -200,29 +202,30 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         mib[2] = getProcessID();
         mib[3] = 3; // KERN_PROC_ENV
         // Allocate memory for environment variables
-        Memory m = new Memory(ARGMAX);
-        size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
-        // Fetch environment variables
-        if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-            // Returns a null-terminated list of pointers to the actual data
-            Map<String, String> env = new LinkedHashMap<>();
-            // To iterate the pointer-list
-            long offset = 0;
-            // Get the data base address to calculate offsets
-            long baseAddr = Pointer.nativeValue(m);
-            long maxAddr = baseAddr + size.longValue();
-            // Get the address of the data. If null (0) we're done iterating
-            long argAddr = Pointer.nativeValue(m.getPointer(offset));
-            while (argAddr > baseAddr && argAddr < maxAddr) {
-                String envStr = m.getString(argAddr - baseAddr);
-                int idx = envStr.indexOf('=');
-                if (idx > 0) {
-                    env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+        try (Memory m = new Memory(ARGMAX)) {
+            size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+            // Fetch environment variables
+            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                // Returns a null-terminated list of pointers to the actual data
+                Map<String, String> env = new LinkedHashMap<>();
+                // To iterate the pointer-list
+                long offset = 0;
+                // Get the data base address to calculate offsets
+                long baseAddr = Pointer.nativeValue(m);
+                long maxAddr = baseAddr + size.longValue();
+                // Get the address of the data. If null (0) we're done iterating
+                long argAddr = Pointer.nativeValue(m.getPointer(offset));
+                while (argAddr > baseAddr && argAddr < maxAddr) {
+                    String envStr = m.getString(argAddr - baseAddr);
+                    int idx = envStr.indexOf('=');
+                    if (idx > 0) {
+                        env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                    }
+                    offset += Native.POINTER_SIZE;
+                    argAddr = Pointer.nativeValue(m.getPointer(offset));
                 }
-                offset += Native.POINTER_SIZE;
-                argAddr = Pointer.nativeValue(m.getPointer(offset));
+                return Collections.unmodifiableMap(env);
             }
-            return Collections.unmodifiableMap(env);
         }
         return Collections.emptyMap();
     }

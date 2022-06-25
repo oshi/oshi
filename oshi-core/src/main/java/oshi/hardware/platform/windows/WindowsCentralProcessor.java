@@ -272,21 +272,22 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         ProcessorPowerInformation ppi = new ProcessorPowerInformation();
         long[] freqs = new long[getLogicalProcessorCount()];
         int bufferSize = ppi.size() * freqs.length;
-        Memory mem = new Memory(bufferSize);
-        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null, 0, mem,
-                bufferSize)) {
-            LOG.error("Unable to get Processor Information");
-            Arrays.fill(freqs, -1L);
-            return freqs;
-        }
-        for (int i = 0; i < freqs.length; i++) {
-            ppi = new ProcessorPowerInformation(mem.share(i * (long) ppi.size()));
-            if (fieldIndex == 1) { // Max
-                freqs[i] = ppi.maxMhz * 1_000_000L;
-            } else if (fieldIndex == 2) { // Current
-                freqs[i] = ppi.currentMhz * 1_000_000L;
-            } else {
-                freqs[i] = -1L;
+        try (Memory mem = new Memory(bufferSize)) {
+            if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null, 0,
+                    mem, bufferSize)) {
+                LOG.error("Unable to get Processor Information");
+                Arrays.fill(freqs, -1L);
+                return freqs;
+            }
+            for (int i = 0; i < freqs.length; i++) {
+                ppi = new ProcessorPowerInformation(mem.share(i * (long) ppi.size()));
+                if (fieldIndex == 1) { // Max
+                    freqs[i] = ppi.maxMhz * 1_000_000L;
+                } else if (fieldIndex == 2) { // Current
+                    freqs[i] = ppi.currentMhz * 1_000_000L;
+                } else {
+                    freqs[i] = -1L;
+                }
             }
         }
         return freqs;

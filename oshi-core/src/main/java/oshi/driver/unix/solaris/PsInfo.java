@@ -180,53 +180,54 @@ public final class PsInfo {
 
                 // Reusable buffer
                 long bufStart = 0;
-                Memory buffer = new Memory(PAGE_SIZE * 2);
-                size_t bufSize = new size_t(buffer.size());
+                try (Memory buffer = new Memory(PAGE_SIZE * 2)) {
+                    size_t bufSize = new size_t(buffer.size());
 
-                // Read the pointers to the arg strings
-                // We know argc so we can count them
-                long[] argp = new long[argc];
-                long offset = argv;
-                for (int i = 0; i < argc; i++) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                    argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    offset += increment;
-                }
-
-                // Also read the pointers to the env strings
-                // We don't know how many, so stop when we get to null pointer
-                List<Long> envPtrList = new ArrayList<>();
-                offset = envp;
-                long addr = 0;
-                int limit = 500; // sane max env strings to stop at
-                do {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                    addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                    if (addr != 0) {
-                        envPtrList.add(addr);
+                    // Read the pointers to the arg strings
+                    // We know argc so we can count them
+                    long[] argp = new long[argc];
+                    long offset = argv;
+                    for (int i = 0; i < argc; i++) {
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
+                        argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
+                        offset += increment;
                     }
-                    offset += increment;
-                } while (addr != 0 && --limit > 0);
 
-                // Now read the arg strings from the buffer
-                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);
-                    if (bufStart != 0) {
-                        String argStr = buffer.getString(argp[i] - bufStart);
-                        if (!argStr.isEmpty()) {
-                            args.add(argStr);
+                    // Also read the pointers to the env strings
+                    // We don't know how many, so stop when we get to null pointer
+                    List<Long> envPtrList = new ArrayList<>();
+                    offset = envp;
+                    long addr = 0;
+                    int limit = 500; // sane max env strings to stop at
+                    do {
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
+                        addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
+                        if (addr != 0) {
+                            envPtrList.add(addr);
+                        }
+                        offset += increment;
+                    } while (addr != 0 && --limit > 0);
+
+                    // Now read the arg strings from the buffer
+                    for (int i = 0; i < argp.length && argp[i] != 0; i++) {
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);
+                        if (bufStart != 0) {
+                            String argStr = buffer.getString(argp[i] - bufStart);
+                            if (!argStr.isEmpty()) {
+                                args.add(argStr);
+                            }
                         }
                     }
-                }
 
-                // And now read the env strings from the buffer
-                for (Long envPtr : envPtrList) {
-                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);
-                    if (bufStart != 0) {
-                        String envStr = buffer.getString(envPtr - bufStart);
-                        int idx = envStr.indexOf('=');
-                        if (idx > 0) {
-                            env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                    // And now read the env strings from the buffer
+                    for (Long envPtr : envPtrList) {
+                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);
+                        if (bufStart != 0) {
+                            String envStr = buffer.getString(envPtr - bufStart);
+                            int idx = envStr.indexOf('=');
+                            if (idx > 0) {
+                                env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                            }
                         }
                     }
                 }
