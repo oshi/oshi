@@ -1,5 +1,9 @@
 # 6.2.0 (in progress)
 
+#### Performance improvement
+* [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
+* [#2080](https://github.com/oshi/oshi/pull/2080): JNA 5.12.0 - [@dbwiddis](https://github.com/dbwiddis).
+
 ##### New Features
 * [#2046](https://github.com/oshi/oshi/pull/2046): Added getSystemCpuLoad/getProcessorCpuLoad convenience methods - [@Osiris-Team](https://github.com/Osiris-Team).
 * [#2050](https://github.com/oshi/oshi/pull/2050): Implement optional Windows Load Average - [@dbwiddis](https://github.com/dbwiddis).
@@ -11,7 +15,6 @@
 * [#2039](https://github.com/oshi/oshi/pull/2039): Include PID 0 on macOS - [@dbwiddis](https://github.com/dbwiddis).
 * [#2054](https://github.com/oshi/oshi/pull/2054): Prevent NPE when network interface has no statistics - [@dbwiddis](https://github.com/dbwiddis).
 * [#2055](https://github.com/oshi/oshi/pull/2055): Fix incomplete collection of child processes - [@marcelkliemannel](https://github.com/marcelkliemannel).
-* [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
 * [#2077](https://github.com/oshi/oshi/pull/2077): Fix processor numbering with Windows Processor Groups - [@dbwiddis](https://github.com/dbwiddis).
 * [#2078](https://github.com/oshi/oshi/pull/2078): Support macOS 13 (Ventura) - [@dbwiddis](https://github.com/dbwiddis).
 
