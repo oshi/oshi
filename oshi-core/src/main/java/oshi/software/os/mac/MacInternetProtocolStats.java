@@ -258,60 +258,64 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
 
     private static BsdTcpstat queryTcpstat() {
         BsdTcpstat mt = new BsdTcpstat();
-        Memory m = SysctlUtil.sysctl("net.inet.tcp.stats");
-        if (m != null && m.size() >= 128) {
-            mt.tcps_connattempt = m.getInt(0);
-            mt.tcps_accepts = m.getInt(4);
-            mt.tcps_drops = m.getInt(12);
-            mt.tcps_conndrops = m.getInt(16);
-            mt.tcps_sndpack = m.getInt(64);
-            mt.tcps_sndrexmitpack = m.getInt(72);
-            mt.tcps_rcvpack = m.getInt(104);
-            mt.tcps_rcvbadsum = m.getInt(112);
-            mt.tcps_rcvbadoff = m.getInt(116);
-            mt.tcps_rcvmemdrop = m.getInt(120);
-            mt.tcps_rcvshort = m.getInt(124);
+        try (Memory m = SysctlUtil.sysctl("net.inet.tcp.stats")) {
+            if (m != null && m.size() >= 128) {
+                mt.tcps_connattempt = m.getInt(0);
+                mt.tcps_accepts = m.getInt(4);
+                mt.tcps_drops = m.getInt(12);
+                mt.tcps_conndrops = m.getInt(16);
+                mt.tcps_sndpack = m.getInt(64);
+                mt.tcps_sndrexmitpack = m.getInt(72);
+                mt.tcps_rcvpack = m.getInt(104);
+                mt.tcps_rcvbadsum = m.getInt(112);
+                mt.tcps_rcvbadoff = m.getInt(116);
+                mt.tcps_rcvmemdrop = m.getInt(120);
+                mt.tcps_rcvshort = m.getInt(124);
+            }
         }
         return mt;
     }
 
     private static BsdIpstat queryIpstat() {
         BsdIpstat mi = new BsdIpstat();
-        Memory m = SysctlUtil.sysctl("net.inet.ip.stats");
-        if (m != null && m.size() >= 60) {
-            mi.ips_total = m.getInt(0);
-            mi.ips_badsum = m.getInt(4);
-            mi.ips_tooshort = m.getInt(8);
-            mi.ips_toosmall = m.getInt(12);
-            mi.ips_badhlen = m.getInt(16);
-            mi.ips_badlen = m.getInt(20);
-            mi.ips_delivered = m.getInt(56);
+        try (Memory m = SysctlUtil.sysctl("net.inet.ip.stats")) {
+            if (m != null && m.size() >= 60) {
+                mi.ips_total = m.getInt(0);
+                mi.ips_badsum = m.getInt(4);
+                mi.ips_tooshort = m.getInt(8);
+                mi.ips_toosmall = m.getInt(12);
+                mi.ips_badhlen = m.getInt(16);
+                mi.ips_badlen = m.getInt(20);
+                mi.ips_delivered = m.getInt(56);
+            }
         }
         return mi;
     }
 
     private static BsdIp6stat queryIp6stat() {
         BsdIp6stat mi6 = new BsdIp6stat();
-        Memory m = SysctlUtil.sysctl("net.inet6.ip6.stats");
-        if (m != null && m.size() >= 96) {
-            mi6.ip6s_total = m.getLong(0);
-            mi6.ip6s_localout = m.getLong(88);
+        try (Memory m = SysctlUtil.sysctl("net.inet6.ip6.stats")) {
+            if (m != null && m.size() >= 96) {
+                mi6.ip6s_total = m.getLong(0);
+                mi6.ip6s_localout = m.getLong(88);
+            }
         }
         return mi6;
     }
 
     public static BsdUdpstat queryUdpstat() {
         BsdUdpstat ut = new BsdUdpstat();
-        Memory m = SysctlUtil.sysctl("net.inet.udp.stats");
-        if (m != null && m.size() >= 1644) {
-            ut.udps_ipackets = m.getInt(0);
-            ut.udps_hdrops = m.getInt(4);
-            ut.udps_badsum = m.getInt(8);
-            ut.udps_badlen = m.getInt(12);
-            ut.udps_opackets = m.getInt(36);
-            ut.udps_noportmcast = m.getInt(48);
-            ut.udps_rcv6_swcsum = m.getInt(64);
-            ut.udps_snd6_swcsum = m.getInt(80);
+        try (Memory m = SysctlUtil.sysctl("net.inet.udp.stats")) {
+            if (m != null && m.size() >= 1644) {
+                ut.udps_ipackets = m.getInt(0);
+                ut.udps_hdrops = m.getInt(4);
+                ut.udps_badsum = m.getInt(8);
+                ut.udps_badlen = m.getInt(12);
+                ut.udps_opackets = m.getInt(36);
+                ut.udps_noportmcast = m.getInt(48);
+                ut.udps_rcv6_swcsum = m.getInt(64);
+                ut.udps_snd6_swcsum = m.getInt(80);
+            }
         }
         return ut;
     }

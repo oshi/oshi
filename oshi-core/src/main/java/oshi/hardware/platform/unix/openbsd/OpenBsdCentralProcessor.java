@@ -211,16 +211,17 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         int[] mib = new int[2];
         mib[0] = CTL_KERN;
         mib[1] = KERN_CPTIME;
-        Memory m = OpenBsdSysctlUtil.sysctl(mib);
-        // array of 5 or 6 native longs
-        long[] cpuTicks = cpTimeToTicks(m, false);
-        if (cpuTicks.length >= 5) {
-            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
-            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-            int offset = cpuTicks.length > 5 ? 1 : 0;
-            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
-            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+        try (Memory m = OpenBsdSysctlUtil.sysctl(mib)) {
+            // array of 5 or 6 native longs
+            long[] cpuTicks = cpTimeToTicks(m, false);
+            if (cpuTicks.length >= 5) {
+                ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
+                ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+                ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+                int offset = cpuTicks.length > 5 ? 1 : 0;
+                ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
+                ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+            }
         }
         return ticks;
     }
@@ -238,16 +239,17 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         mib[1] = KERN_CPTIME2;
         for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
             mib[2] = cpu;
-            Memory m = OpenBsdSysctlUtil.sysctl(mib);
-            // array of 5 or 6 longs
-            long[] cpuTicks = cpTimeToTicks(m, true);
-            if (cpuTicks.length >= 5) {
-                ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
-                ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-                ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-                int offset = cpuTicks.length > 5 ? 1 : 0;
-                ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
-                ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+            try (Memory m = OpenBsdSysctlUtil.sysctl(mib)) {
+                // array of 5 or 6 longs
+                long[] cpuTicks = cpTimeToTicks(m, true);
+                if (cpuTicks.length >= 5) {
+                    ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
+                    ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+                    ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+                    int offset = cpuTicks.length > 5 ? 1 : 0;
+                    ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
+                    ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+                }
             }
         }
         return ticks;

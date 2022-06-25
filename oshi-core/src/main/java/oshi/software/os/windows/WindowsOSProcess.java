@@ -535,14 +535,15 @@ public class WindowsOSProcess extends AbstractOSProcess {
                     // Fetch the Environment Strings
                     int envSize = upp.EnvironmentSize.intValue();
                     if (envSize > 0) {
-                        Memory buffer = new Memory(envSize);
-                        Kernel32.INSTANCE.ReadProcessMemory(h, upp.Environment, buffer, envSize, nRead);
-                        if (nRead.getValue() > 0) {
-                            char[] env = buffer.getCharArray(0, envSize / 2);
-                            Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
-                            // First entry in Environment is "=::=::\"
-                            envMap.remove("");
-                            return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
+                        try (Memory buffer = new Memory(envSize)) {
+                            Kernel32.INSTANCE.ReadProcessMemory(h, upp.Environment, buffer, envSize, nRead);
+                            if (nRead.getValue() > 0) {
+                                char[] env = buffer.getCharArray(0, envSize / 2);
+                                Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
+                                // First entry in Environment is "=::=::\"
+                                envMap.remove("");
+                                return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
+                            }
                         }
                     }
                     return new Triplet<>(cwd, cl, Collections.emptyMap());
@@ -562,11 +563,12 @@ public class WindowsOSProcess extends AbstractOSProcess {
         IntByReference nRead = new IntByReference();
         if (s.Length > 0) {
             // Add space for null terminator
-            Memory m = new Memory(s.Length + 2L);
-            m.clear(); // really only need null in last 2 bytes but this is easier
-            Kernel32.INSTANCE.ReadProcessMemory(h, s.Buffer, m, s.Length, nRead);
-            if (nRead.getValue() > 0) {
-                return m.getWideString(0);
+            try (Memory m = new Memory(s.Length + 2L)) {
+                m.clear(); // really only need null in last 2 bytes but this is easier
+                Kernel32.INSTANCE.ReadProcessMemory(h, s.Buffer, m, s.Length, nRead);
+                if (nRead.getValue() > 0) {
+                    return m.getWideString(0);
+                }
             }
         }
         return "";

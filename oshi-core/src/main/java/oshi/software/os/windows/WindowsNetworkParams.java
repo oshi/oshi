@@ -75,28 +75,29 @@ final class WindowsNetworkParams extends AbstractNetworkParams {
             return new String[0];
         }
 
-        Memory buffer = new Memory(bufferSize.getValue());
-        ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);
-        if (ret != 0) {
-            LOG.error("Failed to get network parameters. Error code: {}", ret);
-            return new String[0];
-        }
-        FIXED_INFO fixedInfo = new FIXED_INFO(buffer);
-
-        List<String> list = new ArrayList<>();
-        IP_ADDR_STRING dns = fixedInfo.DnsServerList;
-        while (dns != null) {
-            // a char array of size 16.
-            // This array holds an IPv4 address in dotted decimal notation.
-            String addr = Native.toString(dns.IpAddress.String, StandardCharsets.US_ASCII);
-            int nullPos = addr.indexOf(0);
-            if (nullPos != -1) {
-                addr = addr.substring(0, nullPos);
+        try (Memory buffer = new Memory(bufferSize.getValue())) {
+            ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);
+            if (ret != 0) {
+                LOG.error("Failed to get network parameters. Error code: {}", ret);
+                return new String[0];
             }
-            list.add(addr);
-            dns = dns.Next;
+            FIXED_INFO fixedInfo = new FIXED_INFO(buffer);
+
+            List<String> list = new ArrayList<>();
+            IP_ADDR_STRING dns = fixedInfo.DnsServerList;
+            while (dns != null) {
+                // a char array of size 16.
+                // This array holds an IPv4 address in dotted decimal notation.
+                String addr = Native.toString(dns.IpAddress.String, StandardCharsets.US_ASCII);
+                int nullPos = addr.indexOf(0);
+                if (nullPos != -1) {
+                    addr = addr.substring(0, nullPos);
+                }
+                list.add(addr);
+                dns = dns.Next;
+            }
+            return list.toArray(new String[0]);
         }
-        return list.toArray(new String[0]);
     }
 
     @Override

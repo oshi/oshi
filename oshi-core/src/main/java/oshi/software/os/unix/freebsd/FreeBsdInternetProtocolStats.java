@@ -78,35 +78,37 @@ public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats 
 
     private static BsdTcpstat queryTcpstat() {
         BsdTcpstat ft = new BsdTcpstat();
-        Memory m = BsdSysctlUtil.sysctl("net.inet.tcp.stats");
-        if (m != null && m.size() >= 128) {
-            ft.tcps_connattempt = m.getInt(0);
-            ft.tcps_accepts = m.getInt(4);
-            ft.tcps_drops = m.getInt(12);
-            ft.tcps_conndrops = m.getInt(16);
-            ft.tcps_sndpack = m.getInt(64);
-            ft.tcps_sndrexmitpack = m.getInt(72);
-            ft.tcps_rcvpack = m.getInt(104);
-            ft.tcps_rcvbadsum = m.getInt(112);
-            ft.tcps_rcvbadoff = m.getInt(116);
-            ft.tcps_rcvmemdrop = m.getInt(120);
-            ft.tcps_rcvshort = m.getInt(124);
+        try (Memory m = BsdSysctlUtil.sysctl("net.inet.tcp.stats")) {
+            if (m != null && m.size() >= 128) {
+                ft.tcps_connattempt = m.getInt(0);
+                ft.tcps_accepts = m.getInt(4);
+                ft.tcps_drops = m.getInt(12);
+                ft.tcps_conndrops = m.getInt(16);
+                ft.tcps_sndpack = m.getInt(64);
+                ft.tcps_sndrexmitpack = m.getInt(72);
+                ft.tcps_rcvpack = m.getInt(104);
+                ft.tcps_rcvbadsum = m.getInt(112);
+                ft.tcps_rcvbadoff = m.getInt(116);
+                ft.tcps_rcvmemdrop = m.getInt(120);
+                ft.tcps_rcvshort = m.getInt(124);
+            }
         }
         return ft;
     }
 
     private static BsdUdpstat queryUdpstat() {
         BsdUdpstat ut = new BsdUdpstat();
-        Memory m = BsdSysctlUtil.sysctl("net.inet.udp.stats");
-        if (m != null && m.size() >= 1644) {
-            ut.udps_ipackets = m.getInt(0);
-            ut.udps_hdrops = m.getInt(4);
-            ut.udps_badsum = m.getInt(8);
-            ut.udps_badlen = m.getInt(12);
-            ut.udps_opackets = m.getInt(36);
-            ut.udps_noportmcast = m.getInt(48);
-            ut.udps_rcv6_swcsum = m.getInt(64);
-            ut.udps_snd6_swcsum = m.getInt(80);
+        try (Memory m = BsdSysctlUtil.sysctl("net.inet.udp.stats")) {
+            if (m != null && m.size() >= 1644) {
+                ut.udps_ipackets = m.getInt(0);
+                ut.udps_hdrops = m.getInt(4);
+                ut.udps_badsum = m.getInt(8);
+                ut.udps_badlen = m.getInt(12);
+                ut.udps_opackets = m.getInt(36);
+                ut.udps_noportmcast = m.getInt(48);
+                ut.udps_rcv6_swcsum = m.getInt(64);
+                ut.udps_snd6_swcsum = m.getInt(80);
+            }
         }
         return ut;
     }
