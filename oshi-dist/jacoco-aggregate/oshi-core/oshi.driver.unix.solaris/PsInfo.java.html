@@ -180,61 +180,62 @@ public final class PsInfo {
 
                 // Reusable buffer
 <span class="nc" id="L182">                long bufStart = 0;</span>
-<span class="nc" id="L183">                Memory buffer = new Memory(PAGE_SIZE * 2);</span>
-<span class="nc" id="L184">                size_t bufSize = new size_t(buffer.size());</span>
+<span class="nc" id="L183">                try (Memory buffer = new Memory(PAGE_SIZE * 2)) {</span>
+<span class="nc" id="L184">                    size_t bufSize = new size_t(buffer.size());</span>
 
-                // Read the pointers to the arg strings
-                // We know argc so we can count them
-<span class="nc" id="L188">                long[] argp = new long[argc];</span>
-<span class="nc" id="L189">                long offset = argv;</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                for (int i = 0; i &lt; argc; i++) {</span>
-<span class="nc" id="L191">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
-<span class="nc bnc" id="L192" title="All 2 branches missed.">                    argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
-<span class="nc" id="L193">                    offset += increment;</span>
-                }
-
-                // Also read the pointers to the env strings
-                // We don't know how many, so stop when we get to null pointer
-<span class="nc" id="L198">                List&lt;Long&gt; envPtrList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L199">                offset = envp;</span>
-<span class="nc" id="L200">                long addr = 0;</span>
-<span class="nc" id="L201">                int limit = 500; // sane max env strings to stop at</span>
-                do {
-<span class="nc" id="L203">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">                    addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">                    if (addr != 0) {</span>
-<span class="nc" id="L206">                        envPtrList.add(addr);</span>
+                    // Read the pointers to the arg strings
+                    // We know argc so we can count them
+<span class="nc" id="L188">                    long[] argp = new long[argc];</span>
+<span class="nc" id="L189">                    long offset = argv;</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                    for (int i = 0; i &lt; argc; i++) {</span>
+<span class="nc" id="L191">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">                        argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
+<span class="nc" id="L193">                        offset += increment;</span>
                     }
-<span class="nc" id="L208">                    offset += increment;</span>
-<span class="nc bnc" id="L209" title="All 4 branches missed.">                } while (addr != 0 &amp;&amp; --limit &gt; 0);</span>
 
-                // Now read the arg strings from the buffer
-<span class="nc bnc" id="L212" title="All 4 branches missed.">                for (int i = 0; i &lt; argp.length &amp;&amp; argp[i] != 0; i++) {</span>
-<span class="nc" id="L213">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">                    if (bufStart != 0) {</span>
-<span class="nc" id="L215">                        String argStr = buffer.getString(argp[i] - bufStart);</span>
-<span class="nc bnc" id="L216" title="All 2 branches missed.">                        if (!argStr.isEmpty()) {</span>
-<span class="nc" id="L217">                            args.add(argStr);</span>
+                    // Also read the pointers to the env strings
+                    // We don't know how many, so stop when we get to null pointer
+<span class="nc" id="L198">                    List&lt;Long&gt; envPtrList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L199">                    offset = envp;</span>
+<span class="nc" id="L200">                    long addr = 0;</span>
+<span class="nc" id="L201">                    int limit = 500; // sane max env strings to stop at</span>
+                    do {
+<span class="nc" id="L203">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                        addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                        if (addr != 0) {</span>
+<span class="nc" id="L206">                            envPtrList.add(addr);</span>
+                        }
+<span class="nc" id="L208">                        offset += increment;</span>
+<span class="nc bnc" id="L209" title="All 4 branches missed.">                    } while (addr != 0 &amp;&amp; --limit &gt; 0);</span>
+
+                    // Now read the arg strings from the buffer
+<span class="nc bnc" id="L212" title="All 4 branches missed.">                    for (int i = 0; i &lt; argp.length &amp;&amp; argp[i] != 0; i++) {</span>
+<span class="nc" id="L213">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                        if (bufStart != 0) {</span>
+<span class="nc" id="L215">                            String argStr = buffer.getString(argp[i] - bufStart);</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                            if (!argStr.isEmpty()) {</span>
+<span class="nc" id="L217">                                args.add(argStr);</span>
+                            }
                         }
                     }
-                }
 
-                // And now read the env strings from the buffer
-<span class="nc bnc" id="L223" title="All 2 branches missed.">                for (Long envPtr : envPtrList) {</span>
-<span class="nc" id="L224">                    bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">                    if (bufStart != 0) {</span>
-<span class="nc" id="L226">                        String envStr = buffer.getString(envPtr - bufStart);</span>
-<span class="nc" id="L227">                        int idx = envStr.indexOf('=');</span>
-<span class="nc bnc" id="L228" title="All 2 branches missed.">                        if (idx &gt; 0) {</span>
-<span class="nc" id="L229">                            env.put(envStr.substring(0, idx), envStr.substring(idx + 1));</span>
+                    // And now read the env strings from the buffer
+<span class="nc bnc" id="L223" title="All 2 branches missed.">                    for (Long envPtr : envPtrList) {</span>
+<span class="nc" id="L224">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">                        if (bufStart != 0) {</span>
+<span class="nc" id="L226">                            String envStr = buffer.getString(envPtr - bufStart);</span>
+<span class="nc" id="L227">                            int idx = envStr.indexOf('=');</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">                            if (idx &gt; 0) {</span>
+<span class="nc" id="L229">                                env.put(envStr.substring(0, idx), envStr.substring(idx + 1));</span>
+                            }
                         }
-                    }
-<span class="nc" id="L232">                }</span>
+<span class="nc" id="L232">                    }</span>
+                }
             } finally {
-<span class="nc" id="L234">                LIBC.close(fd);</span>
+<span class="nc" id="L235">                LIBC.close(fd);</span>
             }
         }
-<span class="nc" id="L237">        return new Pair&lt;&gt;(args, env);</span>
+<span class="nc" id="L238">        return new Pair&lt;&gt;(args, env);</span>
     }
 
     /**
@@ -257,21 +258,21 @@ public final class PsInfo {
     private static long conditionallyReadBufferFromStartOfPage(int fd, Memory buffer, size_t bufSize, long bufStart,
             long addr) {
         // If we don't have the right buffer, update it
-<span class="nc bnc" id="L260" title="All 4 branches missed.">        if (addr &lt; bufStart || addr - bufStart &gt; PAGE_SIZE) {</span>
-<span class="nc" id="L261">            long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;</span>
-<span class="nc" id="L262">            ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));</span>
+<span class="nc bnc" id="L261" title="All 4 branches missed.">        if (addr &lt; bufStart || addr - bufStart &gt; PAGE_SIZE) {</span>
+<span class="nc" id="L262">            long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;</span>
+<span class="nc" id="L263">            ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));</span>
             // May return less than asked but should be at least a full page
-<span class="nc bnc" id="L264" title="All 2 branches missed.">            if (result.longValue() &lt; PAGE_SIZE) {</span>
-<span class="nc" id="L265">                LOG.debug(&quot;Failed to read page from address space: {} bytes read&quot;, result.longValue());</span>
-<span class="nc" id="L266">                return 0;</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">            if (result.longValue() &lt; PAGE_SIZE) {</span>
+<span class="nc" id="L266">                LOG.debug(&quot;Failed to read page from address space: {} bytes read&quot;, result.longValue());</span>
+<span class="nc" id="L267">                return 0;</span>
             }
-<span class="nc" id="L268">            return newStart;</span>
+<span class="nc" id="L269">            return newStart;</span>
         }
-<span class="nc" id="L270">        return bufStart;</span>
+<span class="nc" id="L271">        return bufStart;</span>
     }
 
     private static long getOffsetFromBuffer(Memory buffer, long offset, long increment) {
-<span class="nc bnc" id="L274" title="All 2 branches missed.">        return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -42,13 +42,13 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinBase;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessInformation;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32LogicalDisk;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessInformation;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32LogicalDisk;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseableIntByReference;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractFileSystem;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
@@ -183,141 +183,139 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">char</strong>[] fstype;
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">char</strong>[] name;
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">char</strong>[] mount;
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         IntByReference pFlags;
-<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         fs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         aVolume = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
-<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">if</strong> (WinBase.INVALID_HANDLE_VALUE.equals(hVol)) {
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">return</strong> fs;
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         }
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>             <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 fstype = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[16];
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 name = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 mount = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 pFlags = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>                 userFreeBytes = <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(0L);
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>                 totalBytes = <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(0L);
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>                 systemFreeBytes = <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(0L);
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 volume = Native.toString(aVolume);
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>                 Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, pFlags, fstype, 16);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> flags = pFlags.getValue();
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 strMount = Native.toString(mount);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>                 <strong class="jxr_keyword">if</strong> (!strMount.isEmpty() &amp;&amp; (volumeToMatch == <strong class="jxr_keyword">null</strong> || volumeToMatch.equals(volume))) {
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>                     strName = Native.toString(name);
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>                     strFsType = Native.toString(fstype);
-<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>                     StringBuilder options = <strong class="jxr_keyword">new</strong> StringBuilder((FILE_READ_ONLY_VOLUME &amp; flags) == 0 ? <span class="jxr_string">"rw"</span> : <span class="jxr_string">"ro"</span>);
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>                     String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -&gt; (e.getKey() &amp; flags) &gt; 0)
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>                             .map(Map.Entry::getValue).collect(Collectors.joining(<span class="jxr_string">","</span>));
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>                     <strong class="jxr_keyword">if</strong> (!moreOptions.isEmpty()) {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>                         options.append(',').append(moreOptions);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>                     }
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>                     Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>                     <em class="jxr_comment">// Parse uuid from volume name</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>                     String uuid = ParseUtil.parseUuidOrDefault(volume, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>                     fs.add(<strong class="jxr_keyword">new</strong> <a name="WindowsOSFileStore" href="../../../../oshi/software/os/windows/WindowsOSFileStore.html#WindowsOSFileStore">WindowsOSFileStore</a>(String.format(<span class="jxr_string">"%s (%s)"</span>, strName, strMount), volume, strName,
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>                             strMount, options.toString(), uuid, <span class="jxr_string">""</span>, getDriveType(strMount), strFsType,
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>                             systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>                 }
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             } <strong class="jxr_keyword">while</strong> (Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE));
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">return</strong> fs;
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             Kernel32.INSTANCE.FindVolumeClose(hVol);
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         }
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * Package private method for getting logical drives listed in WMI.</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * @param nameToMatch</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     *            an optional string to filter match, null otherwise</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * @param localOnly</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     *            Whether to only search local drives</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * @return A list of {@link OSFileStore} objects representing all network</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     *         mounted volumes</em>
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">static</strong> List&lt;OSFileStore&gt; getWmiVolumes(String nameToMatch, <strong class="jxr_keyword">boolean</strong> localOnly) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">long</strong> free;
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">long</strong> total;
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         List&lt;OSFileStore&gt; fs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         WmiResult&lt;LogicalDiskProperty&gt; drives = Win32LogicalDisk.queryLogicalDisk(nameToMatch, localOnly);
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drives.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             String label = WmiUtil.getString(drives, LogicalDiskProperty.VOLUMENAME, i);
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             String options = WmiUtil.getUint16(drives, LogicalDiskProperty.ACCESS, i) == 1 ? <span class="jxr_string">"ro"</span> : <span class="jxr_string">"rw"</span>;
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             <strong class="jxr_keyword">int</strong> type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>             String volume;
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>             <strong class="jxr_keyword">if</strong> (type != 4) {
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>                 <strong class="jxr_keyword">char</strong>[] chrVolume = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + <span class="jxr_string">"&#92;&#92;"</span>, chrVolume, BUFSIZE);
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                 volume = Native.toString(chrVolume);
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                 String[] split = volume.split(<span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>);
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1 &amp;&amp; split[split.length - 1].length() &gt; 0) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                     description = split[split.length - 1];
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                 }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>             }
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>             fs.add(<strong class="jxr_keyword">new</strong> <a name="WindowsOSFileStore" href="../../../../oshi/software/os/windows/WindowsOSFileStore.html#WindowsOSFileStore">WindowsOSFileStore</a>(String.format(<span class="jxr_string">"%s (%s)"</span>, description, name), volume, label, name + <span class="jxr_string">"&#92;&#92;"</span>,
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                     options, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>, getDriveType(name), WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i),
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                     free, free, total, 0, 0));
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">return</strong> fs;
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     }
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> 
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     * Private method for getting mounted drive type.</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     * @param drive</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     *            Mounted drive</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">     * @return A drive type description</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getDriveType(String drive) {
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <strong class="jxr_keyword">switch</strong> (Kernel32.INSTANCE.GetDriveType(drive)) {
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">case</strong> 2:
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Removable drive"</span>;
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">case</strong> 3:
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Fixed drive"</span>;
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">case</strong> 4:
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Network drive"</span>;
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">case</strong> 5:
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"CD-ROM"</span>;
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">case</strong> 6:
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"RAM drive"</span>;
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown drive type"</span>;
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         }
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>     @Override
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         Map&lt;HandleCountProperty, List&lt;Long&gt;&gt; valueListMap = ProcessInformation.queryHandles().getB();
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         List&lt;Long&gt; valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">long</strong> descriptors = 0L;
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">if</strong> (valueList != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; valueList.size(); i++) {
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>                 descriptors += valueList.get(i);
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>             }
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         }
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">return</strong> descriptors;
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>     }
-<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     @Override
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">return</strong> MAX_WINDOWS_HANDLES;
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> }
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         fs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         aVolume = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         hVol = Kernel32.INSTANCE.FindFirstVolume(aVolume, BUFSIZE);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">if</strong> (WinBase.INVALID_HANDLE_VALUE.equals(hVol)) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>             <strong class="jxr_keyword">return</strong> fs;
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">try</strong> (CloseableIntByReference pFlags = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 fstype = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[16];
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 name = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>                 mount = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 userFreeBytes = <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(0L);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 totalBytes = <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(0L);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>                 systemFreeBytes = <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(0L);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>                 volume = Native.toString(aVolume);
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>                 Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, pFlags, fstype, 16);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> flags = pFlags.getValue();
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                 Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 strMount = Native.toString(mount);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>                 <strong class="jxr_keyword">if</strong> (!strMount.isEmpty() &amp;&amp; (volumeToMatch == <strong class="jxr_keyword">null</strong> || volumeToMatch.equals(volume))) {
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                     strName = Native.toString(name);
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                     strFsType = Native.toString(fstype);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>                     StringBuilder options = <strong class="jxr_keyword">new</strong> StringBuilder((FILE_READ_ONLY_VOLUME &amp; flags) == 0 ? <span class="jxr_string">"rw"</span> : <span class="jxr_string">"ro"</span>);
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>                     String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -&gt; (e.getKey() &amp; flags) &gt; 0)
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>                             .map(Map.Entry::getValue).collect(Collectors.joining(<span class="jxr_string">","</span>));
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>                     <strong class="jxr_keyword">if</strong> (!moreOptions.isEmpty()) {
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>                         options.append(',').append(moreOptions);
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>                     }
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>                     Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                     <em class="jxr_comment">// Parse uuid from volume name</em>
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>                     String uuid = ParseUtil.parseUuidOrDefault(volume, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>                     fs.add(<strong class="jxr_keyword">new</strong> <a name="WindowsOSFileStore" href="../../../../oshi/software/os/windows/WindowsOSFileStore.html#WindowsOSFileStore">WindowsOSFileStore</a>(String.format(<span class="jxr_string">"%s (%s)"</span>, strName, strMount), volume, strName,
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                             strMount, options.toString(), uuid, <span class="jxr_string">""</span>, getDriveType(strMount), strFsType,
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                             systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                 }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             } <strong class="jxr_keyword">while</strong> (Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE));
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <strong class="jxr_keyword">return</strong> fs;
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             Kernel32.INSTANCE.FindVolumeClose(hVol);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     * Package private method for getting logical drives listed in WMI.</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * @param nameToMatch</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     *            an optional string to filter match, null otherwise</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * @param localOnly</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     *            Whether to only search local drives</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * @return A list of {@link OSFileStore} objects representing all network</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     *         mounted volumes</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">static</strong> List&lt;OSFileStore&gt; getWmiVolumes(String nameToMatch, <strong class="jxr_keyword">boolean</strong> localOnly) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">long</strong> free;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">long</strong> total;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         List&lt;OSFileStore&gt; fs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         WmiResult&lt;LogicalDiskProperty&gt; drives = Win32LogicalDisk.queryLogicalDisk(nameToMatch, localOnly);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; drives.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             String description = WmiUtil.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             String name = WmiUtil.getString(drives, LogicalDiskProperty.NAME, i);
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             String label = WmiUtil.getString(drives, LogicalDiskProperty.VOLUMENAME, i);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             String options = WmiUtil.getUint16(drives, LogicalDiskProperty.ACCESS, i) == 1 ? <span class="jxr_string">"ro"</span> : <span class="jxr_string">"rw"</span>;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             <strong class="jxr_keyword">int</strong> type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             String volume;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             <strong class="jxr_keyword">if</strong> (type != 4) {
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                 <strong class="jxr_keyword">char</strong>[] chrVolume = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[BUFSIZE];
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>                 Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(name + <span class="jxr_string">"&#92;&#92;"</span>, chrVolume, BUFSIZE);
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>                 volume = Native.toString(chrVolume);
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 String[] split = volume.split(<span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1 &amp;&amp; split[split.length - 1].length() &gt; 0) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                     description = split[split.length - 1];
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 }
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             }
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             fs.add(<strong class="jxr_keyword">new</strong> <a name="WindowsOSFileStore" href="../../../../oshi/software/os/windows/WindowsOSFileStore.html#WindowsOSFileStore">WindowsOSFileStore</a>(String.format(<span class="jxr_string">"%s (%s)"</span>, description, name), volume, label, name + <span class="jxr_string">"&#92;&#92;"</span>,
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                     options, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>, getDriveType(name), WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i),
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                     free, free, total, 0, 0));
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         }
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">return</strong> fs;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     * Private method for getting mounted drive type.</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     * @param drive</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     *            Mounted drive</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     * @return A drive type description</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getDriveType(String drive) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">switch</strong> (Kernel32.INSTANCE.GetDriveType(drive)) {
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">case</strong> 2:
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Removable drive"</span>;
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">case</strong> 3:
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Fixed drive"</span>;
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">case</strong> 4:
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Network drive"</span>;
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">case</strong> 5:
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"CD-ROM"</span>;
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">case</strong> 6:
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"RAM drive"</span>;
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown drive type"</span>;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     @Override
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         Map&lt;HandleCountProperty, List&lt;Long&gt;&gt; valueListMap = ProcessInformation.queryHandles().getB();
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         List&lt;Long&gt; valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">long</strong> descriptors = 0L;
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">if</strong> (valueList != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             <strong class="jxr_keyword">for</strong> (Long value : valueList) {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                 descriptors += value;
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>             }
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <strong class="jxr_keyword">return</strong> descriptors;
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     }
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> 
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     @Override
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">return</strong> MAX_WINDOWS_HANDLES;
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>     }
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

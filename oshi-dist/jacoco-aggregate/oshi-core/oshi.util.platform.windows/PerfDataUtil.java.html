@@ -28,18 +28,17 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR;
 import com.sun.jna.platform.win32.Pdh;
-import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
 import com.sun.jna.platform.win32.PdhMsg;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
-import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
 import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableLONGLONGByReference;
+import oshi.jna.Struct.CloseablePdhRawCounter;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -51,13 +50,13 @@ import oshi.util.Util;
 @ThreadSafe
 public final class PerfDataUtil {
 
-<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);</span>
+<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtil.class);</span>
 
-<span class="nc" id="L56">    private static final DWORD_PTR PZERO = new DWORD_PTR(0);</span>
-<span class="nc" id="L57">    private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));</span>
-<span class="nc" id="L58">    private static final Pdh PDH = Pdh.INSTANCE;</span>
+<span class="nc" id="L55">    private static final DWORD_PTR PZERO = new DWORD_PTR(0);</span>
+<span class="nc" id="L56">    private static final DWORDByReference PDH_FMT_RAW = new DWORDByReference(new DWORD(Pdh.PDH_FMT_RAW));</span>
+<span class="nc" id="L57">    private static final Pdh PDH = Pdh.INSTANCE;</span>
 
-<span class="nc" id="L60">    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();</span>
+<span class="nc" id="L59">    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();</span>
 
     /**
      * Encapsulates the three string components of a performance counter
@@ -69,45 +68,45 @@ public final class PerfDataUtil {
         private final String counter;
         private final boolean baseCounter;
 
-<span class="nc" id="L72">        public PerfCounter(String objectName, String instanceName, String counterName) {</span>
-<span class="nc" id="L73">            this.object = objectName;</span>
-<span class="nc" id="L74">            this.instance = instanceName;</span>
-<span class="nc" id="L75">            int baseIdx = counterName.indexOf(&quot;_Base&quot;);</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (baseIdx &gt; 0) {</span>
-<span class="nc" id="L77">                this.counter = counterName.substring(0, baseIdx);</span>
-<span class="nc" id="L78">                this.baseCounter = true;</span>
+<span class="nc" id="L71">        public PerfCounter(String objectName, String instanceName, String counterName) {</span>
+<span class="nc" id="L72">            this.object = objectName;</span>
+<span class="nc" id="L73">            this.instance = instanceName;</span>
+<span class="nc" id="L74">            int baseIdx = counterName.indexOf(&quot;_Base&quot;);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (baseIdx &gt; 0) {</span>
+<span class="nc" id="L76">                this.counter = counterName.substring(0, baseIdx);</span>
+<span class="nc" id="L77">                this.baseCounter = true;</span>
             } else {
-<span class="nc" id="L80">                this.counter = counterName;</span>
-<span class="nc" id="L81">                this.baseCounter = false;</span>
+<span class="nc" id="L79">                this.counter = counterName;</span>
+<span class="nc" id="L80">                this.baseCounter = false;</span>
             }
-<span class="nc" id="L83">        }</span>
+<span class="nc" id="L82">        }</span>
 
         /**
          * @return Returns the object.
          */
         public String getObject() {
-<span class="nc" id="L89">            return object;</span>
+<span class="nc" id="L88">            return object;</span>
         }
 
         /**
          * @return Returns the instance.
          */
         public String getInstance() {
-<span class="nc" id="L96">            return instance;</span>
+<span class="nc" id="L95">            return instance;</span>
         }
 
         /**
          * @return Returns the counter.
          */
         public String getCounter() {
-<span class="nc" id="L103">            return counter;</span>
+<span class="nc" id="L102">            return counter;</span>
         }
 
         /**
          * @return Returns whether the counter is a base counter
          */
         public boolean isBaseCounter() {
-<span class="nc" id="L110">            return baseCounter;</span>
+<span class="nc" id="L109">            return baseCounter;</span>
         }
 
         /**
@@ -116,13 +115,13 @@ public final class PerfDataUtil {
          * @return A string representing the counter path
          */
         public String getCounterPath() {
-<span class="nc" id="L119">            StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L120">            sb.append('\\').append(object);</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (instance != null) {</span>
-<span class="nc" id="L122">                sb.append('(').append(instance).append(')');</span>
+<span class="nc" id="L118">            StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L119">            sb.append('\\').append(object);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (instance != null) {</span>
+<span class="nc" id="L121">                sb.append('(').append(instance).append(')');</span>
             }
-<span class="nc" id="L124">            sb.append('\\').append(counter);</span>
-<span class="nc" id="L125">            return sb.toString();</span>
+<span class="nc" id="L123">            sb.append('\\').append(counter);</span>
+<span class="nc" id="L124">            return sb.toString();</span>
         }
     }
 
@@ -141,7 +140,7 @@ public final class PerfDataUtil {
      * @return A PerfCounter object encapsulating the object, instance, and counter
      */
     public static PerfCounter createCounter(String object, String instance, String counter) {
-<span class="nc" id="L144">        return new PerfCounter(object, instance, counter);</span>
+<span class="nc" id="L143">        return new PerfCounter(object, instance, counter);</span>
     }
 
     /**
@@ -151,27 +150,28 @@ public final class PerfDataUtil {
      *            The query to update all counters in
      * @return The update timestamp of the first counter in the query
      */
-    public static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
-<span class="nc" id="L155">        LONGLONGByReference pllTimeStamp = new LONGLONGByReference();</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        int ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)</span>
-<span class="nc" id="L157">                : PDH.PdhCollectQueryData(query.getValue());</span>
-        // Due to race condition, initial update may fail with PDH_NO_DATA.
-<span class="nc" id="L159">        int retries = 0;</span>
-<span class="nc bnc" id="L160" title="All 4 branches missed.">        while (ret == PdhMsg.PDH_NO_DATA &amp;&amp; retries++ &lt; 3) {</span>
-            // Exponential fallback.
-<span class="nc" id="L162">            Util.sleep(1 &lt;&lt; retries);</span>
-<span class="nc bnc" id="L163" title="All 2 branches missed.">            ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)</span>
-<span class="nc" id="L164">                    : PDH.PdhCollectQueryData(query.getValue());</span>
-        }
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L168">                LOG.warn(&quot;Failed to update counter. Error code: {}&quot;, String.format(FormatUtil.formatError(ret)));</span>
+    public static long updateQueryTimestamp(HANDLEByReference query) {
+<span class="nc" id="L154">        try (CloseableLONGLONGByReference pllTimeStamp = new CloseableLONGLONGByReference()) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            int ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)</span>
+<span class="nc" id="L156">                    : PDH.PdhCollectQueryData(query.getValue());</span>
+            // Due to race condition, initial update may fail with PDH_NO_DATA.
+<span class="nc" id="L158">            int retries = 0;</span>
+<span class="nc bnc" id="L159" title="All 4 branches missed.">            while (ret == PdhMsg.PDH_NO_DATA &amp;&amp; retries++ &lt; 3) {</span>
+                // Exponential fallback.
+<span class="nc" id="L161">                Util.sleep(1 &lt;&lt; retries);</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)</span>
+<span class="nc" id="L163">                        : PDH.PdhCollectQueryData(query.getValue());</span>
             }
-<span class="nc" id="L170">            return 0L;</span>
-        }
-        // Perf Counter timestamp is in local time
-<span class="nc bnc" id="L173" title="All 2 branches missed.">        return IS_VISTA_OR_GREATER ? ParseUtil.filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true)</span>
-<span class="nc" id="L174">                : System.currentTimeMillis();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L167">                    LOG.warn(&quot;Failed to update counter. Error code: {}&quot;, String.format(FormatUtil.formatError(ret)));</span>
+                }
+<span class="nc" id="L169">                return 0L;</span>
+            }
+            // Perf Counter timestamp is in local time
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            return IS_VISTA_OR_GREATER ? ParseUtil.filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true)</span>
+<span class="nc" id="L173">                    : System.currentTimeMillis();</span>
+<span class="nc" id="L174">        }</span>
     }
 
     /**
@@ -211,16 +211,17 @@ public final class PerfDataUtil {
      * @return long value of the counter, or negative value representing an error
      *         code
      */
-    public static long queryCounter(WinNT.HANDLEByReference counter) {
-<span class="nc" id="L215">        PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();</span>
-<span class="nc" id="L216">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
-<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
-<span class="nc bnc" id="L218" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L219">                LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(FormatUtil.formatError(ret)));</span>
+    public static long queryCounter(HANDLEByReference counter) {
+<span class="nc" id="L215">        try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {</span>
+<span class="nc" id="L216">            int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">                if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L219">                    LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(FormatUtil.formatError(ret)));</span>
+                }
+<span class="nc" id="L221">                return ret;</span>
             }
-<span class="nc" id="L221">            return ret;</span>
-        }
-<span class="nc" id="L223">        return counterValue.FirstValue;</span>
+<span class="nc" id="L223">            return counterValue.FirstValue;</span>
+<span class="nc" id="L224">        }</span>
     }
 
     /**
@@ -231,16 +232,17 @@ public final class PerfDataUtil {
      * @return long value of the counter's second value, or negative value
      *         representing an error code
      */
-    public static long querySecondCounter(WinNT.HANDLEByReference counter) {
-<span class="nc" id="L235">        PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();</span>
-<span class="nc" id="L236">        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
-<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
-<span class="nc bnc" id="L238" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L239">                LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(FormatUtil.formatError(ret)));</span>
+    public static long querySecondCounter(HANDLEByReference counter) {
+<span class="nc" id="L236">        try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {</span>
+<span class="nc" id="L237">            int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">            if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">                if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L240">                    LOG.warn(&quot;Failed to get counter. Error code: {}&quot;, String.format(FormatUtil.formatError(ret)));</span>
+                }
+<span class="nc" id="L242">                return ret;</span>
             }
-<span class="nc" id="L241">            return ret;</span>
-        }
-<span class="nc" id="L243">        return counterValue.SecondValue;</span>
+<span class="nc" id="L244">            return counterValue.SecondValue;</span>
+<span class="nc" id="L245">        }</span>
     }
 
     /**
@@ -255,17 +257,17 @@ public final class PerfDataUtil {
      *            Pointer to the counter
      * @return true if successful
      */
-    public static boolean addCounter(WinNT.HANDLEByReference query, String path, WinNT.HANDLEByReference p) {
-<span class="nc bnc" id="L259" title="All 2 branches missed.">        int ret = IS_VISTA_OR_GREATER ? PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p)</span>
-<span class="nc" id="L260">                : PDH.PdhAddCounter(query.getValue(), path, PZERO, p);</span>
-<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
-<span class="nc bnc" id="L262" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L263">                LOG.warn(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
-<span class="nc" id="L264">                        String.format(FormatUtil.formatError(ret)));</span>
+    public static boolean addCounter(HANDLEByReference query, String path, HANDLEByReference p) {
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        int ret = IS_VISTA_OR_GREATER ? PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p)</span>
+<span class="nc" id="L262">                : PDH.PdhAddCounter(query.getValue(), path, PZERO, p);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (ret != WinError.ERROR_SUCCESS) {</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L265">                LOG.warn(&quot;Failed to add PDH Counter: {}, Error code: {}&quot;, path,</span>
+<span class="nc" id="L266">                        String.format(FormatUtil.formatError(ret)));</span>
             }
-<span class="nc" id="L266">            return false;</span>
+<span class="nc" id="L268">            return false;</span>
         }
-<span class="nc" id="L268">        return true;</span>
+<span class="nc" id="L270">        return true;</span>
     }
 
     /**
@@ -276,7 +278,7 @@ public final class PerfDataUtil {
      * @return true if successful
      */
     public static boolean removeCounter(HANDLEByReference p) {
-<span class="nc bnc" id="L279" title="All 2 branches missed.">        return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

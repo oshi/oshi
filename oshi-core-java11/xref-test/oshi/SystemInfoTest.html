@@ -166,9 +166,9 @@
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         printGraphicsCards(hal.getGraphicsCards());
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> 
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         StringBuilder output = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; oshi.size(); i++) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             output.append(oshi.get(i));
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">if</strong> (oshi.get(i) != <strong class="jxr_keyword">null</strong> &amp;&amp; !oshi.get(i).endsWith(<span class="jxr_string">"\n"</span>)) {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">for</strong> (String line : oshi) {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             output.append(line);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">if</strong> (line != <strong class="jxr_keyword">null</strong> &amp;&amp; !line.endsWith(<span class="jxr_string">"\n"</span>)) {
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>                 output.append('\n');
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>             }
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
@@ -280,7 +280,7 @@
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>         <em class="jxr_comment">// Sort by highest CPU</em>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>         List&lt;OSProcess&gt; procs = os.getProcesses(ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC, 5);
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>         oshi.add(<span class="jxr_string">"   PID  %CPU %MEM       VSZ       RSS Name"</span>);
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procs.size() &amp;&amp; i &lt; 5; i++) {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procs.size(); i++) {
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>             OSProcess p = procs.get(i);
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>             oshi.add(String.format(<span class="jxr_string">" %5d %5.1f %4.1f %9s %9s %s"</span>, p.getProcessID(),
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),

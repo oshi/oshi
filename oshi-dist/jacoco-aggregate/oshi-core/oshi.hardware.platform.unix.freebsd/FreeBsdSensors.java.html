@@ -24,7 +24,6 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -35,28 +34,29 @@ import oshi.jna.platform.unix.FreeBsdLibc;
  * Sensors from coretemp
  */
 @ThreadSafe
-<span class="nc" id="L38">final class FreeBsdSensors extends AbstractSensors {</span>
+<span class="nc" id="L37">final class FreeBsdSensors extends AbstractSensors {</span>
 
     @Override
     public double queryCpuTemperature() {
-<span class="nc" id="L42">        return queryKldloadCoretemp();</span>
+<span class="nc" id="L41">        return queryKldloadCoretemp();</span>
     }
 
     /*
      * If user has loaded coretemp module via kldload coretemp, sysctl call will
      * return temperature
      *
-     * @return Tempurature if successful, otherwise NaN
+     * @return Temperature if successful, otherwise NaN
      */
     private static double queryKldloadCoretemp() {
-<span class="nc" id="L52">        String name = &quot;dev.cpu.%d.temperature&quot;;</span>
-<span class="nc" id="L53">        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));</span>
-<span class="nc" id="L54">        Pointer p = new Memory(size.longValue());</span>
-<span class="nc" id="L55">        int cpu = 0;</span>
-<span class="nc" id="L56">        double sumTemp = 0d;</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L58">            sumTemp += p.getInt(0) / 10d - 273.15;</span>
-<span class="nc" id="L59">            cpu++;</span>
+<span class="nc" id="L51">        String name = &quot;dev.cpu.%d.temperature&quot;;</span>
+<span class="nc" id="L52">        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));</span>
+<span class="nc" id="L53">        int cpu = 0;</span>
+<span class="nc" id="L54">        double sumTemp = 0d;</span>
+<span class="nc" id="L55">        try (Memory p = new Memory(size.longValue())) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L57">                sumTemp += p.getInt(0) / 10d - 273.15;</span>
+<span class="nc" id="L58">                cpu++;</span>
+            }
         }
 <span class="nc bnc" id="L61" title="All 2 branches missed.">        return cpu &gt; 0 ? sumTemp / cpu : Double.NaN;</span>
     }

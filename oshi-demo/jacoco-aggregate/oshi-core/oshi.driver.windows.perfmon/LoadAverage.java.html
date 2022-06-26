@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LoadAverage.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">LoadAverage.java</span></div><h1>LoadAverage.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.driver.windows.perfmon;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
+import oshi.driver.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
+import oshi.util.tuples.Pair;
+
+/**
+ * Utility to calculate a load average equivalent metric on Windows. Starts a
+ * daemon thread to collect the necessary counters and averages in 5-second
+ * intervals.
+ */
+@ThreadSafe
+public final class LoadAverage {
+
+    // Daemon thread for Load Average
+<span class="nc" id="L44">    private static Thread loadAvgThread = null;</span>
+
+<span class="nc" id="L46">    private static double[] loadAverages = new double[] { -1d, -1d, -1d };</span>
+<span class="nc" id="L47">    private static final double[] EXP_WEIGHT = new double[] {</span>
+            // 1-, 5-, and 15-minute exponential smoothing weight
+<span class="nc" id="L49">            Math.exp(-5d / 60d), Math.exp(-5d / 300d), Math.exp(-5d / 900d) };</span>
+
+    private LoadAverage() {
+    }
+
+    public static double[] queryLoadAverage(int nelem) {
+<span class="nc" id="L55">        synchronized (loadAverages) {</span>
+<span class="nc" id="L56">            return Arrays.copyOf(loadAverages, nelem);</span>
+        }
+    }
+
+    public static synchronized void stopDaemon() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (loadAvgThread != null) {</span>
+<span class="nc" id="L62">            loadAvgThread.interrupt();</span>
+<span class="nc" id="L63">            loadAvgThread = null;</span>
+        }
+<span class="nc" id="L65">    }</span>
+
+    public static synchronized void startDaemon() {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (loadAvgThread != null) {</span>
+<span class="nc" id="L69">            return;</span>
+        }
+<span class="nc" id="L71">        loadAvgThread = new Thread(&quot;OSHI Load Average daemon&quot;) {</span>
+            @Override
+            public void run() {
+                // Initialize tick counters
+<span class="nc" id="L75">                Pair&lt;Long, Long&gt; nonIdlePair = LoadAverage.queryNonIdleTicks();</span>
+<span class="nc" id="L76">                long nonIdleTicks0 = nonIdlePair.getA();</span>
+<span class="nc" id="L77">                long nonIdleBase0 = nonIdlePair.getB();</span>
+                long nonIdleTicks;
+                long nonIdleBase;
+
+                // Use nanoTime to synchronize queries at 5 seconds
+<span class="nc" id="L82">                long initNanos = System.nanoTime();</span>
+                long delay;
+
+                // The two components of load average
+                double runningProcesses;
+                long queueLength;
+
+                try {
+<span class="nc" id="L90">                    Thread.sleep(2500L);</span>
+<span class="nc" id="L91">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L92">                    Thread.currentThread().interrupt();</span>
+<span class="nc" id="L93">                }</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                while (!Thread.currentThread().isInterrupted()) {</span>
+                    // get non-idle ticks, proxy for average processes running
+<span class="nc" id="L96">                    nonIdlePair = LoadAverage.queryNonIdleTicks();</span>
+<span class="nc" id="L97">                    nonIdleTicks = nonIdlePair.getA() - nonIdleTicks0;</span>
+<span class="nc" id="L98">                    nonIdleBase = nonIdlePair.getB() - nonIdleBase0;</span>
+<span class="nc bnc" id="L99" title="All 4 branches missed.">                    if (nonIdleBase &gt; 0 &amp;&amp; nonIdleTicks &gt; 0) {</span>
+<span class="nc" id="L100">                        runningProcesses = (double) nonIdleTicks / nonIdleBase;</span>
+                    } else {
+<span class="nc" id="L102">                        runningProcesses = 0d;</span>
+                    }
+<span class="nc" id="L104">                    nonIdleTicks0 = nonIdlePair.getA();</span>
+<span class="nc" id="L105">                    nonIdleBase0 = nonIdlePair.getB();</span>
+                    // get processes waiting
+<span class="nc" id="L107">                    queueLength = SystemInformation.queryProcessorQueueLength()</span>
+<span class="nc" id="L108">                            .getOrDefault(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 0L);</span>
+
+<span class="nc" id="L110">                    synchronized (loadAverages) {</span>
+                        // Init to running procs the first time
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                        if (loadAverages[0] &lt; 0d) {</span>
+<span class="nc" id="L113">                            Arrays.fill(loadAverages, runningProcesses);</span>
+                        }
+                        // Use exponential smoothing to update values
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                        for (int i = 0; i &lt; loadAverages.length; i++) {</span>
+<span class="nc" id="L117">                            loadAverages[i] *= EXP_WEIGHT[i];</span>
+<span class="nc" id="L118">                            loadAverages[i] += (runningProcesses + queueLength) * (1d - EXP_WEIGHT[i]);</span>
+                        }
+<span class="nc" id="L120">                    }</span>
+
+<span class="nc" id="L122">                    delay = 5000L - (System.nanoTime() - initNanos) % 5_000_000_000L / 1_000_000;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                    if (delay &lt; 500L) {</span>
+<span class="nc" id="L124">                        delay += 5000L;</span>
+                    }
+                    try {
+<span class="nc" id="L127">                        Thread.sleep(delay);</span>
+<span class="nc" id="L128">                    } catch (InterruptedException e) {</span>
+<span class="nc" id="L129">                        Thread.currentThread().interrupt();</span>
+<span class="nc" id="L130">                    }</span>
+                }
+<span class="nc" id="L132">            }</span>
+        };
+<span class="nc" id="L134">        loadAvgThread.setDaemon(true);</span>
+<span class="nc" id="L135">        loadAvgThread.start();</span>
+<span class="nc" id="L136">    }</span>
+
+    private static Pair&lt;Long, Long&gt; queryNonIdleTicks() {
+        Pair&lt;List&lt;String&gt;, Map&lt;IdleProcessorTimeProperty, List&lt;Long&gt;&gt;&gt; idleValues = ProcessInformation
+<span class="nc" id="L140">                .queryIdleProcessCounters();</span>
+<span class="nc" id="L141">        List&lt;String&gt; instances = idleValues.getA();</span>
+<span class="nc" id="L142">        Map&lt;IdleProcessorTimeProperty, List&lt;Long&gt;&gt; valueMap = idleValues.getB();</span>
+<span class="nc" id="L143">        List&lt;Long&gt; proctimeTicks = valueMap.get(IdleProcessorTimeProperty.PERCENTPROCESSORTIME);</span>
+<span class="nc" id="L144">        List&lt;Long&gt; proctimeBase = valueMap.get(IdleProcessorTimeProperty.ELAPSEDTIME);</span>
+<span class="nc" id="L145">        long nonIdleTicks = 0L;</span>
+<span class="nc" id="L146">        long nonIdleBase = 0L;</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (int i = 0; i &lt; instances.size(); i++) {</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            if (&quot;_Total&quot;.equals(instances.get(i))) {</span>
+<span class="nc" id="L149">                nonIdleTicks += proctimeTicks.get(i);</span>
+<span class="nc" id="L150">                nonIdleBase += proctimeBase.get(i);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            } else if (&quot;Idle&quot;.equals(instances.get(i))) {</span>
+<span class="nc" id="L152">                nonIdleTicks -= proctimeTicks.get(i);</span>
+            }
+        }
+<span class="nc" id="L155">        return new Pair&lt;&gt;(nonIdleTicks, nonIdleBase);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

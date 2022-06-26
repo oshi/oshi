@@ -89,21 +89,22 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 <span class="nc" id="L89">        mib[0] = CTL_VFS;</span>
 <span class="nc" id="L90">        mib[1] = VFS_GENERIC;</span>
 <span class="nc" id="L91">        mib[2] = VFS_BCACHESTAT;</span>
-<span class="nc" id="L92">        Memory m = OpenBsdSysctlUtil.sysctl(mib);</span>
-<span class="nc" id="L93">        Bcachestats cache = new Bcachestats(m);</span>
-<span class="nc" id="L94">        return (cache.numbufpages + free + inactive);</span>
+<span class="nc" id="L92">        try (Memory m = OpenBsdSysctlUtil.sysctl(mib)) {</span>
+<span class="nc" id="L93">            Bcachestats cache = new Bcachestats(m);</span>
+<span class="nc" id="L94">            return (cache.numbufpages + free + inactive);</span>
+        }
     }
 
     private static long queryPhysMem() {
-<span class="nc" id="L98">        return OpenBsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
+<span class="nc" id="L99">        return OpenBsdSysctlUtil.sysctl(&quot;hw.physmem&quot;, 0L);</span>
     }
 
     private static long queryPageSize() {
-<span class="nc" id="L102">        return OpenBsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
+<span class="nc" id="L103">        return OpenBsdSysctlUtil.sysctl(&quot;hw.pagesize&quot;, 4096L);</span>
     }
 
     private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L106">        return new OpenBsdVirtualMemory(this);</span>
+<span class="nc" id="L107">        return new OpenBsdVirtualMemory(this);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

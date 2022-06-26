@@ -29,10 +29,10 @@ import java.util.List;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Netapi32;
 import com.sun.jna.platform.win32.Netapi32.SESSION_INFO_10;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.software.os.OSSession;
 
 /**
@@ -49,24 +49,25 @@ public final class NetSessionData {
 
     public static List&lt;OSSession&gt; queryUserSessions() {
 <span class="nc" id="L51">        List&lt;OSSession&gt; sessions = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L52">        PointerByReference bufptr = new PointerByReference();</span>
-<span class="nc" id="L53">        IntByReference entriesread = new IntByReference();</span>
-<span class="nc" id="L54">        IntByReference totalentries = new IntByReference();</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (0 == NET.NetSessionEnum(null, null, null, 10, bufptr, Netapi32.MAX_PREFERRED_LENGTH, entriesread,</span>
-                totalentries, null)) {
-<span class="nc" id="L57">            Pointer buf = bufptr.getValue();</span>
-<span class="nc" id="L58">            SESSION_INFO_10 si10 = new SESSION_INFO_10(buf);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (entriesread.getValue() &gt; 0) {</span>
-<span class="nc" id="L60">                SESSION_INFO_10[] sessionInfo = (SESSION_INFO_10[]) si10.toArray(entriesread.getValue());</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">                for (SESSION_INFO_10 si : sessionInfo) {</span>
-                    // time field is connected seconds
-<span class="nc" id="L63">                    long logonTime = System.currentTimeMillis() - (1000L * si.sesi10_time);</span>
-<span class="nc" id="L64">                    sessions.add(new OSSession(si.sesi10_username, &quot;Network session&quot;, logonTime, si.sesi10_cname));</span>
+<span class="nc" id="L52">        try (CloseablePointerByReference bufptr = new CloseablePointerByReference();</span>
+<span class="nc" id="L53">                CloseableIntByReference entriesread = new CloseableIntByReference();</span>
+<span class="nc" id="L54">                CloseableIntByReference totalentries = new CloseableIntByReference()) {</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">            if (0 == NET.NetSessionEnum(null, null, null, 10, bufptr, Netapi32.MAX_PREFERRED_LENGTH, entriesread,</span>
+                    totalentries, null)) {
+<span class="nc" id="L57">                Pointer buf = bufptr.getValue();</span>
+<span class="nc" id="L58">                SESSION_INFO_10 si10 = new SESSION_INFO_10(buf);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">                if (entriesread.getValue() &gt; 0) {</span>
+<span class="nc" id="L60">                    SESSION_INFO_10[] sessionInfo = (SESSION_INFO_10[]) si10.toArray(entriesread.getValue());</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">                    for (SESSION_INFO_10 si : sessionInfo) {</span>
+                        // time field is connected seconds
+<span class="nc" id="L63">                        long logonTime = System.currentTimeMillis() - (1000L * si.sesi10_time);</span>
+<span class="nc" id="L64">                        sessions.add(new OSSession(si.sesi10_username, &quot;Network session&quot;, logonTime, si.sesi10_cname));</span>
+                    }
                 }
+<span class="nc" id="L67">                NET.NetApiBufferFree(buf);</span>
             }
-<span class="nc" id="L67">            NET.NetApiBufferFree(buf);</span>
         }
-<span class="nc" id="L69">        return sessions;</span>
+<span class="nc" id="L70">        return sessions;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

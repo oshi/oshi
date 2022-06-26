@@ -36,13 +36,13 @@ import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.ProcessXPProperty;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
@@ -80,49 +80,50 @@ public final class ProcessWtsData {
 
     private static Map&lt;Integer, WtsInfo&gt; queryProcessWtsMapFromWTS(Collection&lt;Integer&gt; pids) {
 <span class="nc" id="L82">        Map&lt;Integer, WtsInfo&gt; wtsMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L83">        IntByReference pCount = new IntByReference(0);</span>
-<span class="nc" id="L84">        final PointerByReference ppProcessInfo = new PointerByReference();</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,</span>
-                new IntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1), Wtsapi32.WTS_ANY_SESSION, ppProcessInfo,
-                pCount)) {
-<span class="nc" id="L88">            LOG.error(&quot;Failed to enumerate Processes. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L89">            return wtsMap;</span>
-        }
-        // extract the pointed-to pointer and create array
-<span class="nc" id="L92">        Pointer pProcessInfo = ppProcessInfo.getValue();</span>
-<span class="nc" id="L93">        final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);</span>
-<span class="nc" id="L94">        WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (int i = 0; i &lt; processInfo.length; i++) {</span>
-<span class="nc bnc" id="L96" title="All 4 branches missed.">            if (pids == null || pids.contains(processInfo[i].ProcessId)) {</span>
-<span class="nc" id="L97">                wtsMap.put(processInfo[i].ProcessId,</span>
-                        new WtsInfo(processInfo[i].pProcessName, &quot;&quot;, processInfo[i].NumberOfThreads,
-                                processInfo[i].PagefileUsage &amp; 0xffff_ffffL,
-<span class="nc" id="L100">                                processInfo[i].KernelTime.getValue() / 10_000L,</span>
-<span class="nc" id="L101">                                processInfo[i].UserTime.getValue() / 10_000, processInfo[i].HandleCount));</span>
+<span class="nc" id="L83">        try (CloseableIntByReference pCount = new CloseableIntByReference(0);</span>
+<span class="nc" id="L84">                CloseablePointerByReference ppProcessInfo = new CloseablePointerByReference();</span>
+<span class="nc" id="L85">                CloseableIntByReference infoLevel1 = new CloseableIntByReference(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1)) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (!Wtsapi32.INSTANCE.WTSEnumerateProcessesEx(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, infoLevel1,</span>
+                    Wtsapi32.WTS_ANY_SESSION, ppProcessInfo, pCount)) {
+<span class="nc" id="L88">                LOG.error(&quot;Failed to enumerate Processes. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L89">                return wtsMap;</span>
             }
-        }
-        // Clean up memory
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo, pCount.getValue())) {</span>
-<span class="nc" id="L106">            LOG.warn(&quot;Failed to Free Memory for Processes. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-        }
-<span class="nc" id="L108">        return wtsMap;</span>
+            // extract the pointed-to pointer and create array
+<span class="nc" id="L92">            Pointer pProcessInfo = ppProcessInfo.getValue();</span>
+<span class="nc" id="L93">            final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);</span>
+<span class="nc" id="L94">            WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            for (WTS_PROCESS_INFO_EX info : processInfo) {</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">                if (pids == null || pids.contains(info.ProcessId)) {</span>
+<span class="nc" id="L97">                    wtsMap.put(info.ProcessId,</span>
+                            new WtsInfo(info.pProcessName, &quot;&quot;, info.NumberOfThreads, info.PagefileUsage &amp; 0xffff_ffffL,
+<span class="nc" id="L99">                                    info.KernelTime.getValue() / 10_000L, info.UserTime.getValue() / 10_000,</span>
+                                    info.HandleCount));
+                }
+            }
+            // Clean up memory
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo,</span>
+<span class="nc" id="L105">                    pCount.getValue())) {</span>
+<span class="nc" id="L106">                LOG.warn(&quot;Failed to Free Memory for Processes. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+            }
+<span class="nc" id="L108">        }</span>
+<span class="nc" id="L109">        return wtsMap;</span>
     }
 
     private static Map&lt;Integer, WtsInfo&gt; queryProcessWtsMapFromPerfMon(Collection&lt;Integer&gt; pids) {
-<span class="nc" id="L112">        Map&lt;Integer, WtsInfo&gt; wtsMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L113">        WmiResult&lt;ProcessXPProperty&gt; processWmiResult = Win32Process.queryProcesses(pids);</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">        for (int i = 0; i &lt; processWmiResult.getResultCount(); i++) {</span>
-<span class="nc" id="L115">            wtsMap.put(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), new WtsInfo(</span>
-<span class="nc" id="L116">                    WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i),</span>
-<span class="nc" id="L117">                    WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),</span>
-<span class="nc" id="L118">                    WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),</span>
+<span class="nc" id="L113">        Map&lt;Integer, WtsInfo&gt; wtsMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L114">        WmiResult&lt;ProcessXPProperty&gt; processWmiResult = Win32Process.queryProcesses(pids);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        for (int i = 0; i &lt; processWmiResult.getResultCount(); i++) {</span>
+<span class="nc" id="L116">            wtsMap.put(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), new WtsInfo(</span>
+<span class="nc" id="L117">                    WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i),</span>
+<span class="nc" id="L118">                    WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),</span>
+<span class="nc" id="L119">                    WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),</span>
                     // WMI Pagefile usage is in KB
-<span class="nc" id="L120">                    1024 * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) &amp; 0xffff_ffffL),</span>
-<span class="nc" id="L121">                    WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,</span>
-<span class="nc" id="L122">                    WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,</span>
-<span class="nc" id="L123">                    WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));</span>
+<span class="nc" id="L121">                    1024 * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) &amp; 0xffff_ffffL),</span>
+<span class="nc" id="L122">                    WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,</span>
+<span class="nc" id="L123">                    WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,</span>
+<span class="nc" id="L124">                    WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));</span>
         }
-<span class="nc" id="L125">        return wtsMap;</span>
+<span class="nc" id="L126">        return wtsMap;</span>
     }
 
     /**
@@ -139,63 +140,63 @@ public final class ProcessWtsData {
         private final long openFiles;
 
         public WtsInfo(String name, String path, int threadCount, long virtualSize, long kernelTime, long userTime,
-<span class="nc" id="L142">                long openFiles) {</span>
-<span class="nc" id="L143">            this.name = name;</span>
-<span class="nc" id="L144">            this.path = path;</span>
-<span class="nc" id="L145">            this.threadCount = threadCount;</span>
-<span class="nc" id="L146">            this.virtualSize = virtualSize;</span>
-<span class="nc" id="L147">            this.kernelTime = kernelTime;</span>
-<span class="nc" id="L148">            this.userTime = userTime;</span>
-<span class="nc" id="L149">            this.openFiles = openFiles;</span>
-<span class="nc" id="L150">        }</span>
+<span class="nc" id="L143">                long openFiles) {</span>
+<span class="nc" id="L144">            this.name = name;</span>
+<span class="nc" id="L145">            this.path = path;</span>
+<span class="nc" id="L146">            this.threadCount = threadCount;</span>
+<span class="nc" id="L147">            this.virtualSize = virtualSize;</span>
+<span class="nc" id="L148">            this.kernelTime = kernelTime;</span>
+<span class="nc" id="L149">            this.userTime = userTime;</span>
+<span class="nc" id="L150">            this.openFiles = openFiles;</span>
+<span class="nc" id="L151">        }</span>
 
         /**
          * @return the name
          */
         public String getName() {
-<span class="nc" id="L156">            return name;</span>
+<span class="nc" id="L157">            return name;</span>
         }
 
         /**
          * @return the path
          */
         public String getPath() {
-<span class="nc" id="L163">            return path;</span>
+<span class="nc" id="L164">            return path;</span>
         }
 
         /**
          * @return the threadCount
          */
         public int getThreadCount() {
-<span class="nc" id="L170">            return threadCount;</span>
+<span class="nc" id="L171">            return threadCount;</span>
         }
 
         /**
          * @return the virtualSize
          */
         public long getVirtualSize() {
-<span class="nc" id="L177">            return virtualSize;</span>
+<span class="nc" id="L178">            return virtualSize;</span>
         }
 
         /**
          * @return the kernelTime
          */
         public long getKernelTime() {
-<span class="nc" id="L184">            return kernelTime;</span>
+<span class="nc" id="L185">            return kernelTime;</span>
         }
 
         /**
          * @return the userTime
          */
         public long getUserTime() {
-<span class="nc" id="L191">            return userTime;</span>
+<span class="nc" id="L192">            return userTime;</span>
         }
 
         /**
          * @return the openFiles
          */
         public long getOpenFiles() {
-<span class="nc" id="L198">            return openFiles;</span>
+<span class="nc" id="L199">            return openFiles;</span>
         }
     }
 }

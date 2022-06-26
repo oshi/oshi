@@ -29,6 +29,7 @@ oshi.hardware.platform.unix.freebsd
 oshi.hardware.platform.unix.openbsd
 oshi.hardware.platform.unix.solaris
 oshi.hardware.platform.windows
+oshi.jna
 oshi.jna.platform.linux
 oshi.jna.platform.mac
 oshi.jna.platform.unix

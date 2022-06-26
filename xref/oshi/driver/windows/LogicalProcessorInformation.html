@@ -86,14 +86,14 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_comment">// Map to store efficiency class of a processor core</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          Map&lt;GROUP_AFFINITY, Integer&gt; coreEfficiencyMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; procInfo.length; i++) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">switch</strong> (procInfo[i].relationship) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">for</strong> (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX info : procInfo) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">switch</strong> (info.relationship) {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <em class="jxr_comment">// could assign a package to more than one processor group</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  packages.add(((PROCESSOR_RELATIONSHIP) info).groupMask);
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) procInfo[i]);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) info);
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  <em class="jxr_comment">// for Core, groupCount is always 1</em>
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  cores.add(core.groupMask[0]);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">if</strong> (IS_WIN10_OR_GREATER) {
@@ -101,7 +101,7 @@
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                  }
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                  numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                  numaNodes.add((NUMA_NODE_RELATIONSHIP) info);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>              <strong class="jxr_keyword">default</strong>:
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>                  <em class="jxr_comment">// Ignore Group and Cache info</em>
@@ -110,10 +110,10 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         }
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <em class="jxr_comment">// Windows doesn't define core and package numbers, so we define our own for</em>
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// consistent use across the API. Here we sort so core and package numbers</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <em class="jxr_comment">// increment consistently with processor umbers/bitmasks, ordered in groups.</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         cores.sort(Comparator.comparing(c -&gt; c.group * 64L + c.mask.longValue()));
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <em class="jxr_comment">// increment consistently with processor numbers/bitmasks, ordered in groups.</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         cores.sort(Comparator.comparing(c -&gt; c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         <em class="jxr_comment">// if package in multiple groups will still use first group for sorting</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         packages.sort(Comparator.comparing(p -&gt; p[0].group * 64L + p[0].mask.longValue()));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         packages.sort(Comparator.comparing(p -&gt; p[0].group * 64L + Long.numberOfTrailingZeros(p[0].mask.longValue())));
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> 
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// Iterate Logical Processors and use bitmasks to match packages, cores,</em>
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// and NUMA nodes. Perfmon instances are numa node + processor number, so we</em>

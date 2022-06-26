@@ -266,64 +266,68 @@
 <a class="jxr_linenumber" name="L258" href="#L258">258</a> 
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BsdTcpstat queryTcpstat() {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>         BsdTcpstat mt = <strong class="jxr_keyword">new</strong> BsdTcpstat();
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet.tcp.stats"</span>);
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 128) {
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>             mt.tcps_connattempt = m.getInt(0);
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>             mt.tcps_accepts = m.getInt(4);
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             mt.tcps_drops = m.getInt(12);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             mt.tcps_conndrops = m.getInt(16);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>             mt.tcps_sndpack = m.getInt(64);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>             mt.tcps_sndrexmitpack = m.getInt(72);
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>             mt.tcps_rcvpack = m.getInt(104);
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>             mt.tcps_rcvbadsum = m.getInt(112);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             mt.tcps_rcvbadoff = m.getInt(116);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             mt.tcps_rcvmemdrop = m.getInt(120);
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>             mt.tcps_rcvshort = m.getInt(124);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         }
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">return</strong> mt;
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>     }
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BsdIpstat queryIpstat() {
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         BsdIpstat mi = <strong class="jxr_keyword">new</strong> BsdIpstat();
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet.ip.stats"</span>);
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 60) {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             mi.ips_total = m.getInt(0);
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             mi.ips_badsum = m.getInt(4);
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>             mi.ips_tooshort = m.getInt(8);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>             mi.ips_toosmall = m.getInt(12);
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>             mi.ips_badhlen = m.getInt(16);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>             mi.ips_badlen = m.getInt(20);
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>             mi.ips_delivered = m.getInt(56);
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         }
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">return</strong> mi;
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BsdIp6stat queryIp6stat() {
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         BsdIp6stat mi6 = <strong class="jxr_keyword">new</strong> BsdIp6stat();
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet6.ip6.stats"</span>);
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 96) {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>             mi6.ip6s_total = m.getLong(0);
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>             mi6.ip6s_localout = m.getLong(88);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">return</strong> mi6;
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>     }
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> BsdUdpstat queryUdpstat() {
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         BsdUdpstat ut = <strong class="jxr_keyword">new</strong> BsdUdpstat();
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet.udp.stats"</span>);
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 1644) {
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>             ut.udps_ipackets = m.getInt(0);
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>             ut.udps_hdrops = m.getInt(4);
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>             ut.udps_badsum = m.getInt(8);
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>             ut.udps_badlen = m.getInt(12);
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>             ut.udps_opackets = m.getInt(36);
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>             ut.udps_noportmcast = m.getInt(48);
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>             ut.udps_rcv6_swcsum = m.getInt(64);
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>             ut.udps_snd6_swcsum = m.getInt(80);
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         }
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">return</strong> ut;
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>     }
-<a class="jxr_linenumber" name="L318" href="#L318">318</a> }
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">try</strong> (Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet.tcp.stats"</span>)) {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 128) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 mt.tcps_connattempt = m.getInt(0);
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 mt.tcps_accepts = m.getInt(4);
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 mt.tcps_drops = m.getInt(12);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 mt.tcps_conndrops = m.getInt(16);
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 mt.tcps_sndpack = m.getInt(64);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 mt.tcps_sndrexmitpack = m.getInt(72);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>                 mt.tcps_rcvpack = m.getInt(104);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 mt.tcps_rcvbadsum = m.getInt(112);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 mt.tcps_rcvbadoff = m.getInt(116);
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 mt.tcps_rcvmemdrop = m.getInt(120);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 mt.tcps_rcvshort = m.getInt(124);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             }
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         }
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">return</strong> mt;
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>     }
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> 
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BsdIpstat queryIpstat() {
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         BsdIpstat mi = <strong class="jxr_keyword">new</strong> BsdIpstat();
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">try</strong> (Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet.ip.stats"</span>)) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 60) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 mi.ips_total = m.getInt(0);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 mi.ips_badsum = m.getInt(4);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 mi.ips_tooshort = m.getInt(8);
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 mi.ips_toosmall = m.getInt(12);
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 mi.ips_badhlen = m.getInt(16);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 mi.ips_badlen = m.getInt(20);
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                 mi.ips_delivered = m.getInt(56);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>             }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">return</strong> mi;
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BsdIp6stat queryIp6stat() {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         BsdIp6stat mi6 = <strong class="jxr_keyword">new</strong> BsdIp6stat();
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">try</strong> (Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet6.ip6.stats"</span>)) {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>             <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 96) {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>                 mi6.ip6s_total = m.getLong(0);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                 mi6.ip6s_localout = m.getLong(88);
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>             }
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <strong class="jxr_keyword">return</strong> mi6;
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     }
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> 
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> BsdUdpstat queryUdpstat() {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         BsdUdpstat ut = <strong class="jxr_keyword">new</strong> BsdUdpstat();
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">try</strong> (Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet.udp.stats"</span>)) {
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>             <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 1644) {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                 ut.udps_ipackets = m.getInt(0);
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>                 ut.udps_hdrops = m.getInt(4);
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>                 ut.udps_badsum = m.getInt(8);
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 ut.udps_badlen = m.getInt(12);
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 ut.udps_opackets = m.getInt(36);
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 ut.udps_noportmcast = m.getInt(48);
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 ut.udps_rcv6_swcsum = m.getInt(64);
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>                 ut.udps_snd6_swcsum = m.getInt(80);
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>             }
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         }
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <strong class="jxr_keyword">return</strong> ut;
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

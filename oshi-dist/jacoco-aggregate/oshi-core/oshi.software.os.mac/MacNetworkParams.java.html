@@ -33,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
@@ -68,49 +68,50 @@ import oshi.util.ParseUtil;
 <span class="nc" id="L68">            LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e.getMessage());</span>
 <span class="nc" id="L69">            return &quot;&quot;;</span>
 <span class="nc" id="L70">        }</span>
-<span class="nc" id="L71">        PointerByReference ptr = new PointerByReference();</span>
-<span class="nc" id="L72">        int res = SYS.getaddrinfo(hostname, null, hint, ptr);</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L75">                LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SYS.gai_strerror(res));</span>
+<span class="nc" id="L71">        try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {</span>
+<span class="nc" id="L72">            int res = SYS.getaddrinfo(hostname, null, hint, ptr);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (res &gt; 0) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">                if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L75">                    LOG.error(&quot;Failed getaddrinfo(): {}&quot;, SYS.gai_strerror(res));</span>
+                }
+<span class="nc" id="L77">                return &quot;&quot;;</span>
             }
-<span class="nc" id="L77">            return &quot;&quot;;</span>
-        }
-<span class="nc" id="L79">        Addrinfo info = new Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L80">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L81">        SYS.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L82">        return canonname;</span>
+<span class="nc" id="L79">            Addrinfo info = new Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L80">            String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L81">            SYS.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L82">            return canonname;</span>
+<span class="nc" id="L83">        }</span>
     }
 
     @Override
     public String getHostName() {
-<span class="nc" id="L87">        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (0 != SYS.gethostname(hostnameBuffer, hostnameBuffer.length)) {</span>
-<span class="nc" id="L89">            return super.getHostName();</span>
+<span class="nc" id="L88">        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (0 != SYS.gethostname(hostnameBuffer, hostnameBuffer.length)) {</span>
+<span class="nc" id="L90">            return super.getHostName();</span>
         }
-<span class="nc" id="L91">        return Native.toString(hostnameBuffer);</span>
+<span class="nc" id="L92">        return Native.toString(hostnameBuffer);</span>
     }
 
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L96">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
+<span class="nc" id="L97">        return searchGateway(ExecutingCommand.runNative(&quot;route -n get default&quot;));</span>
     }
 
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L101">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
-<span class="nc" id="L102">        boolean v6Table = false;</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc bnc" id="L104" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
-<span class="nc" id="L105">                String[] fields = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L106" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
-<span class="nc" id="L107">                    return fields[1].split(&quot;%&quot;)[0];</span>
+<span class="nc" id="L102">        List&lt;String&gt; lines = ExecutingCommand.runNative(&quot;netstat -nr&quot;);</span>
+<span class="nc" id="L103">        boolean v6Table = false;</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">            if (v6Table &amp;&amp; line.startsWith(DEFAULT_GATEWAY)) {</span>
+<span class="nc" id="L106">                String[] fields = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L107" title="All 4 branches missed.">                if (fields.length &gt; 2 &amp;&amp; fields[2].contains(&quot;G&quot;)) {</span>
+<span class="nc" id="L108">                    return fields[1].split(&quot;%&quot;)[0];</span>
                 }
-<span class="nc bnc" id="L109" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
-<span class="nc" id="L110">                v6Table = true;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {</span>
+<span class="nc" id="L111">                v6Table = true;</span>
             }
-<span class="nc" id="L112">        }</span>
-<span class="nc" id="L113">        return &quot;&quot;;</span>
+<span class="nc" id="L113">        }</span>
+<span class="nc" id="L114">        return &quot;&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -54,6 +54,7 @@ public final class GlobalConfig {
     public static final String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = &quot;oshi.os.windows.procstate.suspended&quot;;
     public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = &quot;oshi.os.windows.commandline.batch&quot;;
     public static final String OSHI_OS_WINDOWS_HKEYPERFDATA = &quot;oshi.os.windows.hkeyperfdata&quot;;
+    public static final String OSHI_OS_WINDOWS_LOADAVERAGE = &quot;oshi.os.windows.loadaverage&quot;;
     public static final String OSHI_OS_WINDOWS_CPU_UTILITY = &quot;oshi.os.windows.cpu.utility&quot;;
 
     public static final String OSHI_OS_WINDOWS_PERFDISK_DIABLED = &quot;oshi.os.windows.perfdisk.disabled&quot;;
@@ -73,7 +74,7 @@ public final class GlobalConfig {
      * @return The property value if it exists, or null otherwise
      */
     public static String get(String key) {
-<span class="nc" id="L76">        return CONFIG.getProperty(key);</span>
+<span class="nc" id="L77">        return CONFIG.getProperty(key);</span>
     }
 
     /**
@@ -86,7 +87,7 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static String get(String key, String def) {
-<span class="nc" id="L89">        return CONFIG.getProperty(key, def);</span>
+<span class="nc" id="L90">        return CONFIG.getProperty(key, def);</span>
     }
 
     /**
@@ -99,8 +100,8 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static int get(String key, int def) {
-<span class="nc" id="L102">        String value = CONFIG.getProperty(key);</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseIntOrDefault(value, def);</span>
+<span class="nc" id="L103">        String value = CONFIG.getProperty(key);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseIntOrDefault(value, def);</span>
     }
 
     /**
@@ -113,8 +114,8 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static double get(String key, double def) {
-<span class="nc" id="L116">        String value = CONFIG.getProperty(key);</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseDoubleOrDefault(value, def);</span>
+<span class="nc" id="L117">        String value = CONFIG.getProperty(key);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseDoubleOrDefault(value, def);</span>
     }
 
     /**
@@ -127,8 +128,8 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static boolean get(String key, boolean def) {
-<span class="nc" id="L130">        String value = CONFIG.getProperty(key);</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        return value == null ? def : Boolean.parseBoolean(value);</span>
+<span class="nc" id="L131">        String value = CONFIG.getProperty(key);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        return value == null ? def : Boolean.parseBoolean(value);</span>
     }
 
     /**
@@ -141,12 +142,12 @@ public final class GlobalConfig {
      *            The new value
      */
     public static void set(String key, Object val) {
-<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (val == null) {</span>
-<span class="nc" id="L145">            CONFIG.remove(key);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (val == null) {</span>
+<span class="nc" id="L146">            CONFIG.remove(key);</span>
         } else {
-<span class="nc" id="L147">            CONFIG.setProperty(key, val.toString());</span>
+<span class="nc" id="L148">            CONFIG.setProperty(key, val.toString());</span>
         }
-<span class="nc" id="L149">    }</span>
+<span class="nc" id="L150">    }</span>
 
     /**
      * Reset the given property to its default value.
@@ -155,15 +156,15 @@ public final class GlobalConfig {
      *            The property key
      */
     public static void remove(String key) {
-<span class="nc" id="L158">        CONFIG.remove(key);</span>
-<span class="nc" id="L159">    }</span>
+<span class="nc" id="L159">        CONFIG.remove(key);</span>
+<span class="nc" id="L160">    }</span>
 
     /**
      * Clear the configuration.
      */
     public static void clear() {
-<span class="nc" id="L165">        CONFIG.clear();</span>
-<span class="nc" id="L166">    }</span>
+<span class="nc" id="L166">        CONFIG.clear();</span>
+<span class="nc" id="L167">    }</span>
 
     /**
      * Load the given {@link java.util.Properties} into the global configuration.
@@ -172,8 +173,8 @@ public final class GlobalConfig {
      *            The new properties
      */
     public static void load(Properties properties) {
-<span class="nc" id="L175">        CONFIG.putAll(properties);</span>
-<span class="nc" id="L176">    }</span>
+<span class="nc" id="L176">        CONFIG.putAll(properties);</span>
+<span class="nc" id="L177">    }</span>
 
     /**
      * Indicates that a configuration value is invalid.
@@ -187,8 +188,8 @@ public final class GlobalConfig {
          *            The property name
          */
         public PropertyException(String property) {
-<span class="nc" id="L190">            super(&quot;Invalid property: \&quot;&quot; + property + &quot;\&quot; = &quot; + GlobalConfig.get(property, null));</span>
-<span class="nc" id="L191">        }</span>
+<span class="nc" id="L191">            super(&quot;Invalid property: \&quot;&quot; + property + &quot;\&quot; = &quot; + GlobalConfig.get(property, null));</span>
+<span class="nc" id="L192">        }</span>
 
         /**
          * @param property
@@ -197,8 +198,8 @@ public final class GlobalConfig {
          *            An exception message
          */
         public PropertyException(String property, String message) {
-<span class="nc" id="L200">            super(&quot;Invalid property \&quot;&quot; + property + &quot;\&quot;: &quot; + message);</span>
-<span class="nc" id="L201">        }</span>
+<span class="nc" id="L201">            super(&quot;Invalid property \&quot;&quot; + property + &quot;\&quot;: &quot; + message);</span>
+<span class="nc" id="L202">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

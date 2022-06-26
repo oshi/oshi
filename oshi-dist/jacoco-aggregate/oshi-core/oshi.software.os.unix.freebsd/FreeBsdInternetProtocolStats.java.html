@@ -78,37 +78,39 @@ import oshi.util.tuples.Pair;
 
     private static BsdTcpstat queryTcpstat() {
 <span class="nc" id="L80">        BsdTcpstat ft = new BsdTcpstat();</span>
-<span class="nc" id="L81">        Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;);</span>
-<span class="nc bnc" id="L82" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 128) {</span>
-<span class="nc" id="L83">            ft.tcps_connattempt = m.getInt(0);</span>
-<span class="nc" id="L84">            ft.tcps_accepts = m.getInt(4);</span>
-<span class="nc" id="L85">            ft.tcps_drops = m.getInt(12);</span>
-<span class="nc" id="L86">            ft.tcps_conndrops = m.getInt(16);</span>
-<span class="nc" id="L87">            ft.tcps_sndpack = m.getInt(64);</span>
-<span class="nc" id="L88">            ft.tcps_sndrexmitpack = m.getInt(72);</span>
-<span class="nc" id="L89">            ft.tcps_rcvpack = m.getInt(104);</span>
-<span class="nc" id="L90">            ft.tcps_rcvbadsum = m.getInt(112);</span>
-<span class="nc" id="L91">            ft.tcps_rcvbadoff = m.getInt(116);</span>
-<span class="nc" id="L92">            ft.tcps_rcvmemdrop = m.getInt(120);</span>
-<span class="nc" id="L93">            ft.tcps_rcvshort = m.getInt(124);</span>
+<span class="nc" id="L81">        try (Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;)) {</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 128) {</span>
+<span class="nc" id="L83">                ft.tcps_connattempt = m.getInt(0);</span>
+<span class="nc" id="L84">                ft.tcps_accepts = m.getInt(4);</span>
+<span class="nc" id="L85">                ft.tcps_drops = m.getInt(12);</span>
+<span class="nc" id="L86">                ft.tcps_conndrops = m.getInt(16);</span>
+<span class="nc" id="L87">                ft.tcps_sndpack = m.getInt(64);</span>
+<span class="nc" id="L88">                ft.tcps_sndrexmitpack = m.getInt(72);</span>
+<span class="nc" id="L89">                ft.tcps_rcvpack = m.getInt(104);</span>
+<span class="nc" id="L90">                ft.tcps_rcvbadsum = m.getInt(112);</span>
+<span class="nc" id="L91">                ft.tcps_rcvbadoff = m.getInt(116);</span>
+<span class="nc" id="L92">                ft.tcps_rcvmemdrop = m.getInt(120);</span>
+<span class="nc" id="L93">                ft.tcps_rcvshort = m.getInt(124);</span>
+            }
         }
-<span class="nc" id="L95">        return ft;</span>
+<span class="nc" id="L96">        return ft;</span>
     }
 
     private static BsdUdpstat queryUdpstat() {
-<span class="nc" id="L99">        BsdUdpstat ut = new BsdUdpstat();</span>
-<span class="nc" id="L100">        Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;);</span>
-<span class="nc bnc" id="L101" title="All 4 branches missed.">        if (m != null &amp;&amp; m.size() &gt;= 1644) {</span>
-<span class="nc" id="L102">            ut.udps_ipackets = m.getInt(0);</span>
-<span class="nc" id="L103">            ut.udps_hdrops = m.getInt(4);</span>
-<span class="nc" id="L104">            ut.udps_badsum = m.getInt(8);</span>
-<span class="nc" id="L105">            ut.udps_badlen = m.getInt(12);</span>
-<span class="nc" id="L106">            ut.udps_opackets = m.getInt(36);</span>
-<span class="nc" id="L107">            ut.udps_noportmcast = m.getInt(48);</span>
-<span class="nc" id="L108">            ut.udps_rcv6_swcsum = m.getInt(64);</span>
-<span class="nc" id="L109">            ut.udps_snd6_swcsum = m.getInt(80);</span>
+<span class="nc" id="L100">        BsdUdpstat ut = new BsdUdpstat();</span>
+<span class="nc" id="L101">        try (Memory m = BsdSysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;)) {</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 1644) {</span>
+<span class="nc" id="L103">                ut.udps_ipackets = m.getInt(0);</span>
+<span class="nc" id="L104">                ut.udps_hdrops = m.getInt(4);</span>
+<span class="nc" id="L105">                ut.udps_badsum = m.getInt(8);</span>
+<span class="nc" id="L106">                ut.udps_badlen = m.getInt(12);</span>
+<span class="nc" id="L107">                ut.udps_opackets = m.getInt(36);</span>
+<span class="nc" id="L108">                ut.udps_noportmcast = m.getInt(48);</span>
+<span class="nc" id="L109">                ut.udps_rcv6_swcsum = m.getInt(64);</span>
+<span class="nc" id="L110">                ut.udps_snd6_swcsum = m.getInt(80);</span>
+            }
         }
-<span class="nc" id="L111">        return ut;</span>
+<span class="nc" id="L113">        return ut;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -211,18 +211,19 @@ import oshi.util.tuples.Triplet;
 <span class="nc" id="L211">        int[] mib = new int[2];</span>
 <span class="nc" id="L212">        mib[0] = CTL_KERN;</span>
 <span class="nc" id="L213">        mib[1] = KERN_CPTIME;</span>
-<span class="nc" id="L214">        Memory m = OpenBsdSysctlUtil.sysctl(mib);</span>
-        // array of 5 or 6 native longs
-<span class="nc" id="L216">        long[] cpuTicks = cpTimeToTicks(m, false);</span>
-<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (cpuTicks.length &gt;= 5) {</span>
-<span class="nc" id="L218">            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
-<span class="nc" id="L219">            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
-<span class="nc" id="L220">            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
-<span class="nc bnc" id="L221" title="All 2 branches missed.">            int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
-<span class="nc" id="L222">            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
-<span class="nc" id="L223">            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
+<span class="nc" id="L214">        try (Memory m = OpenBsdSysctlUtil.sysctl(mib)) {</span>
+            // array of 5 or 6 native longs
+<span class="nc" id="L216">            long[] cpuTicks = cpTimeToTicks(m, false);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (cpuTicks.length &gt;= 5) {</span>
+<span class="nc" id="L218">                ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
+<span class="nc" id="L219">                ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
+<span class="nc" id="L220">                ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
+<span class="nc" id="L222">                ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
+<span class="nc" id="L223">                ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
+            }
         }
-<span class="nc" id="L225">        return ticks;</span>
+<span class="nc" id="L226">        return ticks;</span>
     }
 
     /**
@@ -232,25 +233,26 @@ import oshi.util.tuples.Triplet;
      */
     @Override
     protected long[][] queryProcessorCpuLoadTicks() {
-<span class="nc" id="L235">        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];</span>
-<span class="nc" id="L236">        int[] mib = new int[3];</span>
-<span class="nc" id="L237">        mib[0] = CTL_KERN;</span>
-<span class="nc" id="L238">        mib[1] = KERN_CPTIME2;</span>
-<span class="nc bnc" id="L239" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {</span>
-<span class="nc" id="L240">            mib[2] = cpu;</span>
-<span class="nc" id="L241">            Memory m = OpenBsdSysctlUtil.sysctl(mib);</span>
-            // array of 5 or 6 longs
-<span class="nc" id="L243">            long[] cpuTicks = cpTimeToTicks(m, true);</span>
-<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (cpuTicks.length &gt;= 5) {</span>
-<span class="nc" id="L245">                ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
-<span class="nc" id="L246">                ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
-<span class="nc" id="L247">                ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
-<span class="nc bnc" id="L248" title="All 2 branches missed.">                int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
-<span class="nc" id="L249">                ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
-<span class="nc" id="L250">                ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
+<span class="nc" id="L236">        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];</span>
+<span class="nc" id="L237">        int[] mib = new int[3];</span>
+<span class="nc" id="L238">        mib[0] = CTL_KERN;</span>
+<span class="nc" id="L239">        mib[1] = KERN_CPTIME2;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        for (int cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {</span>
+<span class="nc" id="L241">            mib[2] = cpu;</span>
+<span class="nc" id="L242">            try (Memory m = OpenBsdSysctlUtil.sysctl(mib)) {</span>
+                // array of 5 or 6 longs
+<span class="nc" id="L244">                long[] cpuTicks = cpTimeToTicks(m, true);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                if (cpuTicks.length &gt;= 5) {</span>
+<span class="nc" id="L246">                    ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];</span>
+<span class="nc" id="L247">                    ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];</span>
+<span class="nc" id="L248">                    ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">                    int offset = cpuTicks.length &gt; 5 ? 1 : 0;</span>
+<span class="nc" id="L250">                    ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];</span>
+<span class="nc" id="L251">                    ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];</span>
+                }
             }
         }
-<span class="nc" id="L253">        return ticks;</span>
+<span class="nc" id="L255">        return ticks;</span>
     }
 
     /**
@@ -269,16 +271,16 @@ import oshi.util.tuples.Triplet;
      * @return The array
      */
     private static long[] cpTimeToTicks(Memory m, boolean force64bit) {
-<span class="nc bnc" id="L272" title="All 2 branches missed.">        long longBytes = force64bit ? 8L : Native.LONG_SIZE;</span>
-<span class="nc bnc" id="L273" title="All 2 branches missed.">        int arraySize = m == null ? 0 : (int) (m.size() / longBytes);</span>
-<span class="nc bnc" id="L274" title="All 4 branches missed.">        if (force64bit &amp;&amp; m != null) {</span>
-<span class="nc" id="L275">            return m.getLongArray(0, arraySize);</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">        long longBytes = force64bit ? 8L : Native.LONG_SIZE;</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        int arraySize = m == null ? 0 : (int) (m.size() / longBytes);</span>
+<span class="nc bnc" id="L276" title="All 4 branches missed.">        if (force64bit &amp;&amp; m != null) {</span>
+<span class="nc" id="L277">            return m.getLongArray(0, arraySize);</span>
         }
-<span class="nc" id="L277">        long[] ticks = new long[arraySize];</span>
-<span class="nc bnc" id="L278" title="All 2 branches missed.">        for (int i = 0; i &lt; arraySize; i++) {</span>
-<span class="nc" id="L279">            ticks[i] = m.getNativeLong(i * longBytes).longValue();</span>
+<span class="nc" id="L279">        long[] ticks = new long[arraySize];</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">        for (int i = 0; i &lt; arraySize; i++) {</span>
+<span class="nc" id="L281">            ticks[i] = m.getNativeLong(i * longBytes).longValue();</span>
         }
-<span class="nc" id="L281">        return ticks;</span>
+<span class="nc" id="L283">        return ticks;</span>
     }
 
     /**
@@ -303,15 +305,15 @@ import oshi.util.tuples.Triplet;
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L306" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L307">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L308" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L309">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L309">        double[] average = new double[nelem];</span>
-<span class="nc" id="L310">        int retval = OpenBsdLibc.INSTANCE.getloadavg(average, nelem);</span>
-<span class="nc bnc" id="L311" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
-<span class="nc" id="L312">            Arrays.fill(average, -1d);</span>
+<span class="nc" id="L311">        double[] average = new double[nelem];</span>
+<span class="nc" id="L312">        int retval = OpenBsdLibc.INSTANCE.getloadavg(average, nelem);</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (retval &lt; nelem) {</span>
+<span class="nc" id="L314">            Arrays.fill(average, -1d);</span>
         }
-<span class="nc" id="L314">        return average;</span>
+<span class="nc" id="L316">        return average;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -116,7 +116,7 @@ import oshi.util.tuples.Pair;
         // Get this pid and its children
 <span class="nc" id="L117">        List&lt;OSProcess&gt; childProcs = queryChildProcesses(parentPid);</span>
         // Extract the parent from the list
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        OSProcess parent = childProcs.stream().filter(p -&gt; p.getParentProcessID() == parentPid).findAny().orElse(null);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        OSProcess parent = childProcs.stream().filter(p -&gt; p.getProcessID() == parentPid).findAny().orElse(null);</span>
         // Get the parent's start time
 <span class="nc bnc" id="L121" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
         // Get children after parent
@@ -134,15 +134,14 @@ import oshi.util.tuples.Pair;
         // Get this pid and its descendants
 <span class="nc" id="L135">        List&lt;OSProcess&gt; descendantProcs = queryDescendantProcesses(parentPid);</span>
         // Extract the parent from the list
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        OSProcess parent = descendantProcs.stream().filter(p -&gt; p.getParentProcessID() == parentPid).findAny()</span>
-<span class="nc" id="L138">                .orElse(null);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        OSProcess parent = descendantProcs.stream().filter(p -&gt; p.getProcessID() == parentPid).findAny().orElse(null);</span>
         // Get the parent's start time
-<span class="nc bnc" id="L140" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        long parentStartTime = parent == null ? 0 : parent.getStartTime();</span>
         // Get descendants after parent
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        return queryDescendantProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
-<span class="nc bnc" id="L143" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
-<span class="nc bnc" id="L144" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
-<span class="nc" id="L145">                .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        return queryDescendantProcesses(parentPid).stream().filter(filter == null ? ALL_PROCESSES : filter)</span>
+<span class="nc bnc" id="L142" title="All 4 branches missed.">                .filter(p -&gt; p.getProcessID() != parentPid &amp;&amp; p.getStartTime() &gt;= parentStartTime)</span>
+<span class="nc bnc" id="L143" title="All 4 branches missed.">                .sorted(sort == null ? NO_SORTING : sort).limit(limit &gt; 0 ? limit : Long.MAX_VALUE)</span>
+<span class="nc" id="L144">                .collect(Collectors.toList());</span>
     }
 
     protected abstract List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid);
@@ -163,9 +162,9 @@ import oshi.util.tuples.Pair;
      */
     protected static Set&lt;Integer&gt; getChildrenOrDescendants(Collection&lt;OSProcess&gt; allProcs, int parentPid,
             boolean allDescendants) {
-<span class="nc" id="L166">        Map&lt;Integer, Integer&gt; parentPidMap = allProcs.stream()</span>
-<span class="nc" id="L167">                .collect(Collectors.toMap(OSProcess::getProcessID, OSProcess::getParentProcessID));</span>
-<span class="nc" id="L168">        return getChildrenOrDescendants(parentPidMap, parentPid, allDescendants);</span>
+<span class="nc" id="L165">        Map&lt;Integer, Integer&gt; parentPidMap = allProcs.stream()</span>
+<span class="nc" id="L166">                .collect(Collectors.toMap(OSProcess::getProcessID, OSProcess::getParentProcessID));</span>
+<span class="nc" id="L167">        return getChildrenOrDescendants(parentPidMap, parentPid, allDescendants);</span>
     }
 
     /**
@@ -185,34 +184,34 @@ import oshi.util.tuples.Pair;
     protected static Set&lt;Integer&gt; getChildrenOrDescendants(Map&lt;Integer, Integer&gt; parentPidMap, int parentPid,
             boolean allDescendants) {
         // Set to hold results
-<span class="nc" id="L188">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L189">        descendantPids.add(parentPid);</span>
+<span class="nc" id="L187">        Set&lt;Integer&gt; descendantPids = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L188">        descendantPids.add(parentPid);</span>
         // Queue for BFS algorithm
-<span class="nc" id="L191">        Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();</span>
-<span class="nc" id="L192">        queue.add(parentPid);</span>
+<span class="nc" id="L190">        Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();</span>
+<span class="nc" id="L191">        queue.add(parentPid);</span>
         // Add children, repeating if recursive
         do {
-<span class="nc bnc" id="L195" title="All 2 branches missed.">            for (int pid : getChildren(parentPidMap, queue.poll())) {</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">                if (!descendantPids.contains(pid)) {</span>
-<span class="nc" id="L197">                    descendantPids.add(pid);</span>
-<span class="nc" id="L198">                    queue.add(pid);</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            for (int pid : getChildren(parentPidMap, queue.poll())) {</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">                if (!descendantPids.contains(pid)) {</span>
+<span class="nc" id="L196">                    descendantPids.add(pid);</span>
+<span class="nc" id="L197">                    queue.add(pid);</span>
                 }
-<span class="nc" id="L200">            }</span>
-<span class="nc bnc" id="L201" title="All 4 branches missed.">        } while (allDescendants &amp;&amp; !queue.isEmpty());</span>
-<span class="nc" id="L202">        return descendantPids;</span>
+<span class="nc" id="L199">            }</span>
+<span class="nc bnc" id="L200" title="All 4 branches missed.">        } while (allDescendants &amp;&amp; !queue.isEmpty());</span>
+<span class="nc" id="L201">        return descendantPids;</span>
     }
 
     private static Set&lt;Integer&gt; getChildren(Map&lt;Integer, Integer&gt; parentPidMap, int parentPid) {
-<span class="nc" id="L206">        return parentPidMap.entrySet().stream()</span>
-<span class="nc bnc" id="L207" title="All 4 branches missed.">                .filter(e -&gt; e.getValue().equals(parentPid) &amp;&amp; !e.getKey().equals(parentPid)).map(Entry::getKey)</span>
-<span class="nc" id="L208">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L205">        return parentPidMap.entrySet().stream()</span>
+<span class="nc bnc" id="L206" title="All 4 branches missed.">                .filter(e -&gt; e.getValue().equals(parentPid) &amp;&amp; !e.getKey().equals(parentPid)).map(Entry::getKey)</span>
+<span class="nc" id="L207">                .collect(Collectors.toSet());</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L213">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L214">        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());</span>
-<span class="nc" id="L215">        return sb.toString();</span>
+<span class="nc" id="L212">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L213">        sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());</span>
+<span class="nc" id="L214">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

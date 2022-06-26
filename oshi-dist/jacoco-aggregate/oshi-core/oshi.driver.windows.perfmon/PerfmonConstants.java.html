@@ -47,6 +47,7 @@ public final class PerfmonConstants {
     static final String WIN32_PERFPROC_PROCESS = &quot;Win32_PerfRawData_PerfProc_Process&quot;;
     static final String WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
             + &quot; WHERE NOT Name LIKE \&quot;%_Total\&quot;&quot;;
+    static final String WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0 = &quot;Win32_PerfRawData_PerfProc_Process WHERE IDProcess=0&quot;;
 
     static final String THREAD = &quot;Thread&quot;;
     static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL = &quot;Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \&quot;%_Total\&quot;&quot;;
@@ -66,8 +67,8 @@ public final class PerfmonConstants {
     /**
      * Everything in this class is static, never instantiate it
      */
-<span class="nc" id="L69">    private PerfmonConstants() {</span>
-<span class="nc" id="L70">        throw new AssertionError();</span>
+<span class="nc" id="L70">    private PerfmonConstants() {</span>
+<span class="nc" id="L71">        throw new AssertionError();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

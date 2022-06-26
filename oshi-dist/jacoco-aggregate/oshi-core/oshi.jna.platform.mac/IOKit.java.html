@@ -23,8 +23,10 @@
  */
 package oshi.jna.platform.mac;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.NativeLongByReference;
@@ -35,7 +37,7 @@ import com.sun.jna.ptr.NativeLongByReference;
  */
 public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 
-<span class="nc" id="L38">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
+<span class="nc" id="L40">    IOKit INSTANCE = Native.load(&quot;IOKit&quot;, IOKit.class);</span>
 
     /*
      * Do not commit SMC structures to JNA
@@ -44,7 +46,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
      * Holds the return value of SMC version query.
      */
     @FieldOrder({ &quot;major&quot;, &quot;minor&quot;, &quot;build&quot;, &quot;reserved&quot;, &quot;release&quot; })
-<span class="nc" id="L47">    class SMCKeyDataVers extends Structure {</span>
+<span class="nc" id="L49">    class SMCKeyDataVers extends Structure {</span>
         public byte major;
         public byte minor;
         public byte build;
@@ -56,7 +58,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
      * Holds the return value of SMC pLimit query.
      */
     @FieldOrder({ &quot;version&quot;, &quot;length&quot;, &quot;cpuPLimit&quot;, &quot;gpuPLimit&quot;, &quot;memPLimit&quot; })
-<span class="nc" id="L59">    class SMCKeyDataPLimitData extends Structure {</span>
+<span class="nc" id="L61">    class SMCKeyDataPLimitData extends Structure {</span>
         public short version;
         public short length;
         public int cpuPLimit;
@@ -68,7 +70,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
      * Holds the return value of SMC KeyInfo query.
      */
     @FieldOrder({ &quot;dataSize&quot;, &quot;dataType&quot;, &quot;dataAttributes&quot; })
-<span class="nc" id="L71">    class SMCKeyDataKeyInfo extends Structure {</span>
+<span class="nc" id="L73">    class SMCKeyDataKeyInfo extends Structure {</span>
         public int dataSize;
         public int dataType;
         public byte dataAttributes;
@@ -78,7 +80,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
      * Holds the return value of SMC query.
      */
     @FieldOrder({ &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;, &quot;data32&quot;, &quot;bytes&quot; })
-<span class="nc" id="L81">    class SMCKeyData extends Structure {</span>
+<span class="nc" id="L83">    class SMCKeyData extends Structure {</span>
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -87,18 +89,26 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
         public byte status;
         public byte data8;
         public int data32;
-<span class="nc" id="L90">        public byte[] bytes = new byte[32];</span>
+<span class="nc" id="L92">        public byte[] bytes = new byte[32];</span>
     }
 
     /**
      * Holds an SMC value
      */
     @FieldOrder({ &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; })
-<span class="nc" id="L97">    class SMCVal extends Structure {</span>
-<span class="nc" id="L98">        public byte[] key = new byte[5];</span>
+<span class="nc" id="L99">    class SMCVal extends Structure implements AutoCloseable {</span>
+<span class="nc" id="L100">        public byte[] key = new byte[5];</span>
         public int dataSize;
-<span class="nc" id="L100">        public byte[] dataType = new byte[5];</span>
-<span class="nc" id="L101">        public byte[] bytes = new byte[32];</span>
+<span class="nc" id="L102">        public byte[] dataType = new byte[5];</span>
+<span class="nc" id="L103">        public byte[] bytes = new byte[32];</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L107">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L109">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L111">        }</span>
     }
 
     /*

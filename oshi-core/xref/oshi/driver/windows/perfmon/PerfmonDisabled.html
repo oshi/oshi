@@ -67,18 +67,26 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>              String key = String.format(<span class="jxr_string">"SYSTEM&#92;&#92;CurrentControlSet&#92;&#92;Services&#92;&#92;%s&#92;&#92;Performance"</span>, service);
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>              String value = <span class="jxr_string">"Disable Performance Counters"</span>;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>              <em class="jxr_comment">// If disabled in registry, log warning and return</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">if</strong> (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, key, value)
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      &amp;&amp; Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, key, value) &gt; 0) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  LOG.warn(<span class="jxr_string">"{} counters are disabled and won't return data: {}&#92;&#92;&#92;&#92;{}&#92;&#92;&#92;&#92;{} &gt; 0."</span>, service,
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                          <span class="jxr_string">"HKEY_LOCAL_MACHINE"</span>, key, value);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <em class="jxr_comment">// If not null or empty, parse as boolean</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">return</strong> Boolean.parseBoolean(perfDisabled);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">if</strong> (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, key, value)) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  Object disabled = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, key, value);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <strong class="jxr_keyword">if</strong> (disabled instanceof Integer) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      <strong class="jxr_keyword">if</strong> ((Integer) disabled &gt; 0) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                          LOG.warn(<span class="jxr_string">"{} counters are disabled and won't return data: {}&#92;&#92;&#92;&#92;{}&#92;&#92;&#92;&#92;{} &gt; 0."</span>, service,
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                                  <span class="jxr_string">"HKEY_LOCAL_MACHINE"</span>, key, value);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      LOG.warn(
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                              <span class="jxr_string">"Invalid registry value type detected for {} counters. Should be REG_DWORD. Ignoring: {}&#92;&#92;&#92;&#92;{}&#92;&#92;&#92;&#92;{}."</span>,
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                              service, <span class="jxr_string">"HKEY_LOCAL_MACHINE"</span>, key, value);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_comment">// If not null or empty, parse as boolean</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">return</strong> Boolean.parseBoolean(perfDisabled);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

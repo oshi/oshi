@@ -218,7 +218,7 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L218">        try (KstatChain kc = KstatUtil.openChain()) {</span>
 <span class="nc bnc" id="L219" title="All 2 branches missed.">            for (int i = 0; i &lt; freqs.length; i++) {</span>
 <span class="nc bnc" id="L220" title="All 2 branches missed.">                for (Kstat ksp : kc.lookupAll(CPU_INFO, i, null)) {</span>
-<span class="nc bnc" id="L221" title="All 2 branches missed.">                    if (kc.read(ksp)) {</span>
+<span class="nc bnc" id="L221" title="All 4 branches missed.">                    if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
 <span class="nc" id="L222">                        freqs[i] = KstatUtil.dataLookupLong(ksp, &quot;current_clock_Hz&quot;);</span>
                     }
 <span class="nc" id="L224">                }</span>

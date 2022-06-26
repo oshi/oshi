@@ -29,23 +29,24 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.ptr.IntByReference;
+
+import oshi.jna.ByRef.CloseableIntByReference;
 
 /**
  * Windows OS native system information.
  */
 public class WindowsOSSystemInfo {
-<span class="nc" id="L38">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
+<span class="nc" id="L39">    private static final Logger LOG = LoggerFactory.getLogger(WindowsOSSystemInfo.class);</span>
 
     // Populated during call to init
-<span class="nc" id="L41">    private SYSTEM_INFO systemInfo = null;</span>
+<span class="nc" id="L42">    private SYSTEM_INFO systemInfo = null;</span>
 
     /**
      * Constructor for WindowsOSSystemInfo.
      */
-<span class="nc" id="L46">    public WindowsOSSystemInfo() {</span>
-<span class="nc" id="L47">        init();</span>
-<span class="nc" id="L48">    }</span>
+<span class="nc" id="L47">    public WindowsOSSystemInfo() {</span>
+<span class="nc" id="L48">        init();</span>
+<span class="nc" id="L49">    }</span>
 
     /**
      * Constructor for WindowsOSSystemInfo.
@@ -53,16 +54,15 @@ public class WindowsOSSystemInfo {
      * @param si
      *            a {@link com.sun.jna.platform.win32.WinBase.SYSTEM_INFO} object.
      */
-<span class="nc" id="L56">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
-<span class="nc" id="L57">        this.systemInfo = si;</span>
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L57">    public WindowsOSSystemInfo(SYSTEM_INFO si) {</span>
+<span class="nc" id="L58">        this.systemInfo = si;</span>
+<span class="nc" id="L59">    }</span>
 
     private void init() {
-<span class="nc" id="L61">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
-<span class="nc" id="L62">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
+<span class="nc" id="L62">        SYSTEM_INFO si = new SYSTEM_INFO();</span>
+<span class="nc" id="L63">        Kernel32.INSTANCE.GetSystemInfo(si);</span>
 
-        try {
-<span class="nc" id="L65">            IntByReference isWow64 = new IntByReference();</span>
+<span class="nc" id="L65">        try (CloseableIntByReference isWow64 = new CloseableIntByReference()) {</span>
             // This returns a pseudo handle, currently (HANDLE)-1, that is
             // interpreted as the current process handle. The pseudo handle need
             // not be closed when it is no longer needed. Calling the

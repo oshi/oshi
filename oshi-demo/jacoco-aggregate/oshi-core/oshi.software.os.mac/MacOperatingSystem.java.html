@@ -39,12 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.Timeval;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
 import oshi.driver.mac.WindowInfo;
+import oshi.jna.Struct.CloseableProcTaskInfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -174,124 +174,125 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     public List&lt;OSProcess&gt; queryAllProcesses() {
 <span class="nc" id="L175">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L176">        int[] pids = new int[this.maxProc];</span>
-<span class="nc" id="L177">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
+<span class="nc" id="L177">        Arrays.fill(pids, -1);</span>
+<span class="nc" id="L178">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
                 pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
-<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
-            // Handle off-by-one bug in proc_listpids where the size returned
-            // is: SystemB.INT_SIZE * (pids + 1)
-<span class="nc bnc" id="L182" title="All 2 branches missed.">            if (pids[i] != 0) {</span>
-<span class="nc" id="L183">                OSProcess proc = getProcess(pids[i]);</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">                if (proc != null) {</span>
-<span class="nc" id="L185">                    procs.add(proc);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (pids[i] &gt;= 0) {</span>
+<span class="nc" id="L182">                OSProcess proc = getProcess(pids[i]);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                if (proc != null) {</span>
+<span class="nc" id="L184">                    procs.add(proc);</span>
                 }
             }
         }
-<span class="nc" id="L189">        return procs;</span>
+<span class="nc" id="L188">        return procs;</span>
     }
 
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L194">        OSProcess proc = new MacOSProcess(pid, this.minor);</span>
-<span class="nc bnc" id="L195" title="All 2 branches missed.">        return proc.getState().equals(State.INVALID) ? null : proc;</span>
+<span class="nc" id="L193">        OSProcess proc = new MacOSProcess(pid, this.minor);</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        return proc.getState().equals(State.INVALID) ? null : proc;</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryChildProcesses(int parentPid) {
-<span class="nc" id="L200">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
-<span class="nc" id="L201">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
-<span class="nc" id="L202">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L199">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L200">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
+<span class="nc" id="L201">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid) {
-<span class="nc" id="L207">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
-<span class="nc" id="L208">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
-<span class="nc" id="L209">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L206">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L207">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
+<span class="nc" id="L208">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
     public int getProcessId() {
-<span class="nc" id="L214">        return SystemB.INSTANCE.getpid();</span>
+<span class="nc" id="L213">        return SystemB.INSTANCE.getpid();</span>
     }
 
     @Override
     public int getProcessCount() {
-<span class="nc" id="L219">        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;</span>
+<span class="nc" id="L218">        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;</span>
     }
 
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
         // allocating array space
-<span class="nc" id="L226">        int[] pids = new int[getProcessCount() + 10];</span>
-<span class="nc" id="L227">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
+<span class="nc" id="L225">        int[] pids = new int[getProcessCount() + 10];</span>
+<span class="nc" id="L226">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
                 / SystemB.INT_SIZE;
-<span class="nc" id="L229">        int numberOfThreads = 0;</span>
-<span class="nc" id="L230">        ProcTaskInfo taskInfo = new ProcTaskInfo();</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
-<span class="nc" id="L232">            int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">            if (exit != -1) {</span>
-<span class="nc" id="L234">                numberOfThreads += taskInfo.pti_threadnum;</span>
+<span class="nc" id="L228">        int numberOfThreads = 0;</span>
+<span class="nc" id="L229">        try (CloseableProcTaskInfo taskInfo = new CloseableProcTaskInfo()) {</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">            for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+<span class="nc" id="L231">                int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo,</span>
+<span class="nc" id="L232">                        taskInfo.size());</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                if (exit != -1) {</span>
+<span class="nc" id="L234">                    numberOfThreads += taskInfo.pti_threadnum;</span>
+                }
             }
         }
-<span class="nc" id="L237">        return numberOfThreads;</span>
+<span class="nc" id="L238">        return numberOfThreads;</span>
     }
 
     @Override
     public long getSystemUptime() {
-<span class="nc" id="L242">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
+<span class="nc" id="L243">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
     }
 
     @Override
     public long getSystemBootTime() {
-<span class="nc" id="L247">        return BOOTTIME;</span>
+<span class="nc" id="L248">        return BOOTTIME;</span>
     }
 
     @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L252">        return new MacNetworkParams();</span>
+<span class="nc" id="L253">        return new MacNetworkParams();</span>
     }
 
     @Override
     public List&lt;OSService&gt; getServices() {
         // Get running services
-<span class="nc" id="L258">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L259">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
-<span class="nc bnc" id="L260" title="All 2 branches missed.">        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {</span>
-<span class="nc" id="L261">            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);</span>
-<span class="nc" id="L262">            services.add(s);</span>
-<span class="nc" id="L263">            running.add(p.getName());</span>
-<span class="nc" id="L264">        }</span>
+<span class="nc" id="L259">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L260">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {</span>
+<span class="nc" id="L262">            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);</span>
+<span class="nc" id="L263">            services.add(s);</span>
+<span class="nc" id="L264">            running.add(p.getName());</span>
+<span class="nc" id="L265">        }</span>
         // Get Directories for stopped services
-<span class="nc" id="L266">        ArrayList&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L267">        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);</span>
-<span class="nc bnc" id="L268" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
-<span class="nc" id="L269">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
+<span class="nc" id="L267">        ArrayList&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L268">        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);</span>
+<span class="nc bnc" id="L269" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
+<span class="nc" id="L270">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
         } else {
-<span class="nc" id="L271">            LOG.error(&quot;Directory: /System/Library/LaunchAgents does not exist&quot;);</span>
+<span class="nc" id="L272">            LOG.error(&quot;Directory: /System/Library/LaunchAgents does not exist&quot;);</span>
         }
-<span class="nc" id="L273">        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);</span>
-<span class="nc bnc" id="L274" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
-<span class="nc" id="L275">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
+<span class="nc" id="L274">        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);</span>
+<span class="nc bnc" id="L275" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
+<span class="nc" id="L276">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
         } else {
-<span class="nc" id="L277">            LOG.error(&quot;Directory: /System/Library/LaunchDaemons does not exist&quot;);</span>
+<span class="nc" id="L278">            LOG.error(&quot;Directory: /System/Library/LaunchDaemons does not exist&quot;);</span>
         }
-<span class="nc bnc" id="L279" title="All 2 branches missed.">        for (File f : files) {</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">        for (File f : files) {</span>
             // remove .plist extension
-<span class="nc" id="L281">            String name = f.getName().substring(0, f.getName().length() - 6);</span>
-<span class="nc" id="L282">            int index = name.lastIndexOf('.');</span>
-<span class="nc bnc" id="L283" title="All 4 branches missed.">            String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);</span>
-<span class="nc bnc" id="L284" title="All 4 branches missed.">            if (!running.contains(name) &amp;&amp; !running.contains(shortName)) {</span>
-<span class="nc" id="L285">                OSService s = new OSService(name, 0, STOPPED);</span>
-<span class="nc" id="L286">                services.add(s);</span>
+<span class="nc" id="L282">            String name = f.getName().substring(0, f.getName().length() - 6);</span>
+<span class="nc" id="L283">            int index = name.lastIndexOf('.');</span>
+<span class="nc bnc" id="L284" title="All 4 branches missed.">            String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);</span>
+<span class="nc bnc" id="L285" title="All 4 branches missed.">            if (!running.contains(name) &amp;&amp; !running.contains(shortName)) {</span>
+<span class="nc" id="L286">                OSService s = new OSService(name, 0, STOPPED);</span>
+<span class="nc" id="L287">                services.add(s);</span>
             }
-<span class="nc" id="L288">        }</span>
-<span class="nc" id="L289">        return services;</span>
+<span class="nc" id="L289">        }</span>
+<span class="nc" id="L290">        return services;</span>
     }
 
     @Override
     public List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly) {
-<span class="nc" id="L294">        return WindowInfo.queryDesktopWindows(visibleOnly);</span>
+<span class="nc" id="L295">        return WindowInfo.queryDesktopWindows(visibleOnly);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

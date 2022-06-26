@@ -221,7 +221,7 @@ import oshi.util.tuples.Pair;
         }
 <span class="nc" id="L222">        try (KstatChain kc = KstatUtil.openChain()) {</span>
 <span class="nc" id="L223">            Kstat ksp = kc.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
-<span class="nc bnc" id="L224" title="All 2 branches missed.">            if (ksp != null) {</span>
+<span class="nc bnc" id="L224" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
                 // Snap Time is in nanoseconds; divide for seconds
 <span class="nc" id="L226">                return ksp.ks_snaptime / 1_000_000_000L;</span>
             }

@@ -37,10 +37,10 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Netapi32;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Netapi32.SESSION_INFO_10;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseableIntByReference;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseablePointerByReference;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSSession;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
@@ -57,26 +57,27 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;OSSession&gt; queryUserSessions() {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          List&lt;OSSession&gt; sessions = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          PointerByReference bufptr = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          IntByReference entriesread = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          IntByReference totalentries = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">if</strong> (0 == NET.NetSessionEnum(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 10, bufptr, Netapi32.MAX_PREFERRED_LENGTH, entriesread,
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  totalentries, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              Pointer buf = bufptr.getValue();
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              SESSION_INFO_10 si10 = <strong class="jxr_keyword">new</strong> SESSION_INFO_10(buf);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">if</strong> (entriesread.getValue() &gt; 0) {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  SESSION_INFO_10[] sessionInfo = (SESSION_INFO_10[]) si10.toArray(entriesread.getValue());
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  <strong class="jxr_keyword">for</strong> (SESSION_INFO_10 si : sessionInfo) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                      <em class="jxr_comment">// time field is connected seconds</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      <strong class="jxr_keyword">long</strong> logonTime = System.currentTimeMillis() - (1000L * si.sesi10_time);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                      sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(si.sesi10_username, <span class="jxr_string">"Network session"</span>, logonTime, si.sesi10_cname));
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              NET.NetApiBufferFree(buf);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> sessions;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">try</strong> (CloseablePointerByReference bufptr = <strong class="jxr_keyword">new</strong> CloseablePointerByReference();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  CloseableIntByReference entriesread = <strong class="jxr_keyword">new</strong> CloseableIntByReference();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  CloseableIntByReference totalentries = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">if</strong> (0 == NET.NetSessionEnum(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 10, bufptr, Netapi32.MAX_PREFERRED_LENGTH, entriesread,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                      totalentries, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  Pointer buf = bufptr.getValue();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  SESSION_INFO_10 si10 = <strong class="jxr_keyword">new</strong> SESSION_INFO_10(buf);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  <strong class="jxr_keyword">if</strong> (entriesread.getValue() &gt; 0) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                      SESSION_INFO_10[] sessionInfo = (SESSION_INFO_10[]) si10.toArray(entriesread.getValue());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                      <strong class="jxr_keyword">for</strong> (SESSION_INFO_10 si : sessionInfo) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                          <em class="jxr_comment">// time field is connected seconds</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                          <strong class="jxr_keyword">long</strong> logonTime = System.currentTimeMillis() - (1000L * si.sesi10_time);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                          sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(si.sesi10_username, <span class="jxr_string">"Network session"</span>, logonTime, si.sesi10_cname));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  NET.NetApiBufferFree(buf);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> sessions;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

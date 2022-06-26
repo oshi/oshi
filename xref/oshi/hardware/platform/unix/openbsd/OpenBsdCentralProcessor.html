@@ -219,109 +219,111 @@
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[2];
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>         mib[0] = CTL_KERN;
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>         mib[1] = KERN_CPTIME;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         Memory m = OpenBsdSysctlUtil.sysctl(mib);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <em class="jxr_comment">// array of 5 or 6 native longs</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">long</strong>[] cpuTicks = cpTimeToTicks(m, false);
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">if</strong> (cpuTicks.length &gt;= 5) {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>             ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <strong class="jxr_keyword">int</strong> offset = cpuTicks.length &gt; 5 ? 1 : 0;
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>             ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         }
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     }
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     * Get the processor CPU load ticks</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * @return The processor CPU load ticks</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     @Override
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()][TickType.values().length];
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[3];
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         mib[0] = CTL_KERN;
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         mib[1] = KERN_CPTIME2;
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             mib[2] = cpu;
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>             Memory m = OpenBsdSysctlUtil.sysctl(mib);
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             <em class="jxr_comment">// array of 5 or 6 longs</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>             <strong class="jxr_keyword">long</strong>[] cpuTicks = cpTimeToTicks(m, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">if</strong> (cpuTicks.length &gt;= 5) {
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>                 ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                 <strong class="jxr_keyword">int</strong> offset = cpuTicks.length &gt; 5 ? 1 : 0;
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>                 ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>                 ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             }
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> 
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * Parse memory buffer returned from sysctl kern.cptime or kern.cptime2 to an</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * array of 5 or 6 longs depending on version.</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     * Versions 6.4 and later have a 6-element array while earlier versions have</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * only 5 elements. Additionally kern.cptime uses a native-sized long (32- or</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     * 64-bit) value while kern.cptime2 is always a 64-bit value.</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     * @param m</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     *            A buffer containing the array.</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     * @param force64bit</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     *            True if the buffer is filled with 64-bit longs, false if native</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     *            long sized values</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     * @return The array</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[] cpTimeToTicks(Memory m, <strong class="jxr_keyword">boolean</strong> force64bit) {
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">long</strong> longBytes = force64bit ? 8L : Native.LONG_SIZE;
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">int</strong> arraySize = m == <strong class="jxr_keyword">null</strong> ? 0 : (<strong class="jxr_keyword">int</strong>) (m.size() / longBytes);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">if</strong> (force64bit &amp;&amp; m != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>             <strong class="jxr_keyword">return</strong> m.getLongArray(0, arraySize);
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         }
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[arraySize];
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; arraySize; i++) {
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>             ticks[i] = m.getNativeLong(i * longBytes).longValue();
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         }
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> 
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * Returns the system load average for the number of elements specified, up to</em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     * 3, representing 1, 5, and 15 minutes. The system load average is the sum of</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * the number of runnable entities queued to the available processors and the</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * number of runnable entities running on the available processors averaged over</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * a period of time. The way in which the load average is calculated is</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * operating system specific but is typically a damped time-dependent average.</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     * If the load average is not available, a negative value is returned. This</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * method is designed to provide a hint about the system load and may be queried</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     * frequently.</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * The load average may be unavailable on some platforms (e.g., Windows) where</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     * it is expensive to implement this method.</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     * @param nelem</em>
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     *            Number of elements to return.</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * @return an array of the system load averages for 1, 5, and 15 minutes with</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     *         the size of the array specified by nelem; or negative values if not</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     *         available.</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>     @Override
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         }
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">int</strong> retval = OpenBsdLibc.INSTANCE.getloadavg(average, nelem);
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>             Arrays.fill(average, -1d);
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         }
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>     }
-<a class="jxr_linenumber" name="L316" href="#L316">316</a> }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">try</strong> (Memory m = OpenBsdSysctlUtil.sysctl(mib)) {
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <em class="jxr_comment">// array of 5 or 6 native longs</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">long</strong>[] cpuTicks = cpTimeToTicks(m, false);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">if</strong> (cpuTicks.length &gt;= 5) {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                 ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                 ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>                 ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>                 <strong class="jxr_keyword">int</strong> offset = cpuTicks.length &gt; 5 ? 1 : 0;
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                 ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         }
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * Get the processor CPU load ticks</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * @return The processor CPU load ticks</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     @Override
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()][TickType.values().length];
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[3];
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         mib[0] = CTL_KERN;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         mib[1] = KERN_CPTIME2;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>             mib[2] = cpu;
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>             <strong class="jxr_keyword">try</strong> (Memory m = OpenBsdSysctlUtil.sysctl(mib)) {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>                 <em class="jxr_comment">// array of 5 or 6 longs</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                 <strong class="jxr_keyword">long</strong>[] cpuTicks = cpTimeToTicks(m, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 <strong class="jxr_keyword">if</strong> (cpuTicks.length &gt;= 5) {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                     ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                     ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                     ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                     <strong class="jxr_keyword">int</strong> offset = cpuTicks.length &gt; 5 ? 1 : 0;
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                     ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR + offset];
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>                     ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE + offset];
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                 }
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * Parse memory buffer returned from sysctl kern.cptime or kern.cptime2 to an</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     * array of 5 or 6 longs depending on version.</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     * Versions 6.4 and later have a 6-element array while earlier versions have</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * only 5 elements. Additionally kern.cptime uses a native-sized long (32- or</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     * 64-bit) value while kern.cptime2 is always a 64-bit value.</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     * @param m</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     *            A buffer containing the array.</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     * @param force64bit</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     *            True if the buffer is filled with 64-bit longs, false if native</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     *            long sized values</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     * @return The array</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[] cpTimeToTicks(Memory m, <strong class="jxr_keyword">boolean</strong> force64bit) {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">long</strong> longBytes = force64bit ? 8L : Native.LONG_SIZE;
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">int</strong> arraySize = m == <strong class="jxr_keyword">null</strong> ? 0 : (<strong class="jxr_keyword">int</strong>) (m.size() / longBytes);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">if</strong> (force64bit &amp;&amp; m != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             <strong class="jxr_keyword">return</strong> m.getLongArray(0, arraySize);
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[arraySize];
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; arraySize; i++) {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>             ticks[i] = m.getNativeLong(i * longBytes).longValue();
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         }
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * Returns the system load average for the number of elements specified, up to</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * 3, representing 1, 5, and 15 minutes. The system load average is the sum of</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * the number of runnable entities queued to the available processors and the</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * number of runnable entities running on the available processors averaged over</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     * a period of time. The way in which the load average is calculated is</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * operating system specific but is typically a damped time-dependent average.</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     * If the load average is not available, a negative value is returned. This</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * method is designed to provide a hint about the system load and may be queried</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * frequently.</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     * The load average may be unavailable on some platforms (e.g., Windows) where</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     * it is expensive to implement this method.</em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * @param nelem</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     *            Number of elements to return.</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     * @return an array of the system load averages for 1, 5, and 15 minutes with</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> <em class="jxr_javadoccomment">     *         the size of the array specified by nelem; or negative values if not</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     *         available.</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     @Override
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         }
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">int</strong> retval = OpenBsdLibc.INSTANCE.getloadavg(average, nelem);
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>             Arrays.fill(average, -1d);
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         }
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     }
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

@@ -59,16 +59,24 @@ public final class PerfmonDisabled {
 <span class="nc" id="L59">            String key = String.format(&quot;SYSTEM\\CurrentControlSet\\Services\\%s\\Performance&quot;, service);</span>
 <span class="nc" id="L60">            String value = &quot;Disable Performance Counters&quot;;</span>
             // If disabled in registry, log warning and return
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, key, value)</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">                    &amp;&amp; Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, key, value) &gt; 0) {</span>
-<span class="nc" id="L64">                LOG.warn(&quot;{} counters are disabled and won't return data: {}\\\\{}\\\\{} &gt; 0.&quot;, service,</span>
-                        &quot;HKEY_LOCAL_MACHINE&quot;, key, value);
-<span class="nc" id="L66">                return true;</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, key, value)) {</span>
+<span class="nc" id="L63">                Object disabled = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, key, value);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                if (disabled instanceof Integer) {</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                    if ((Integer) disabled &gt; 0) {</span>
+<span class="nc" id="L66">                        LOG.warn(&quot;{} counters are disabled and won't return data: {}\\\\{}\\\\{} &gt; 0.&quot;, service,</span>
+                                &quot;HKEY_LOCAL_MACHINE&quot;, key, value);
+<span class="nc" id="L68">                        return true;</span>
+                    }
+                } else {
+<span class="nc" id="L71">                    LOG.warn(</span>
+                            &quot;Invalid registry value type detected for {} counters. Should be REG_DWORD. Ignoring: {}\\\\{}\\\\{}.&quot;,
+                            service, &quot;HKEY_LOCAL_MACHINE&quot;, key, value);
+                }
             }
-<span class="nc" id="L68">            return false;</span>
+<span class="nc" id="L76">            return false;</span>
         }
         // If not null or empty, parse as boolean
-<span class="nc" id="L71">        return Boolean.parseBoolean(perfDisabled);</span>
+<span class="nc" id="L79">        return Boolean.parseBoolean(perfDisabled);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

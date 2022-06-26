@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ByRef.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna</a> &gt; <span class="el_source">ByRef.java</span></div><h1>ByRef.java</h1><pre class="source lang-java linenums">/*
+ * MIT License
+ *
+ * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package oshi.jna;
+
+import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
+import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
+import com.sun.jna.platform.win32.Tlhelp32.PROCESSENTRY32;
+import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
+import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.NativeLongByReference;
+import com.sun.jna.ptr.PointerByReference;
+
+/**
+ * Wrapper classes for JNA clases which extend
+ * {@link com.sun.jna.ptr.ByReference} intended for use in try-with-resources
+ * blocks.
+ */
+public interface ByRef {
+
+    class CloseableIntByReference extends IntByReference implements AutoCloseable {
+        public CloseableIntByReference() {
+<span class="nc" id="L48">            super();</span>
+<span class="nc" id="L49">        }</span>
+
+        public CloseableIntByReference(int value) {
+<span class="nc" id="L52">            super(value);</span>
+<span class="nc" id="L53">        }</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L57">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L59">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L61">        }</span>
+    }
+
+    class CloseableLongByReference extends LongByReference implements AutoCloseable {
+        public CloseableLongByReference() {
+<span class="nc" id="L66">            super();</span>
+<span class="nc" id="L67">        }</span>
+
+        public CloseableLongByReference(long value) {
+<span class="nc" id="L70">            super(value);</span>
+<span class="nc" id="L71">        }</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L75">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L77">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L79">        }</span>
+    }
+
+    class CloseableNativeLongByReference extends NativeLongByReference implements AutoCloseable {
+        public CloseableNativeLongByReference() {
+<span class="nc" id="L84">            super();</span>
+<span class="nc" id="L85">        }</span>
+
+        public CloseableNativeLongByReference(NativeLong nativeLong) {
+<span class="nc" id="L88">            super(nativeLong);</span>
+<span class="nc" id="L89">        }</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L93">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L95">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L97">        }</span>
+    }
+
+<span class="nc" id="L100">    class CloseablePointerByReference extends PointerByReference implements AutoCloseable {</span>
+        @Override
+        public void close() {
+<span class="nc" id="L103">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L105">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L107">        }</span>
+    }
+
+<span class="nc" id="L110">    class CloseableLONGLONGByReference extends LONGLONGByReference implements AutoCloseable {</span>
+        @Override
+        public void close() {
+<span class="nc" id="L113">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L115">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L117">        }</span>
+    }
+
+<span class="nc" id="L120">    class CloseableULONGptrByReference extends ULONG_PTRByReference implements AutoCloseable {</span>
+        @Override
+        public void close() {
+<span class="nc" id="L123">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L125">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L127">        }</span>
+    }
+
+<span class="nc" id="L130">    class CloseableHANDLEByReference extends HANDLEByReference implements AutoCloseable {</span>
+        @Override
+        public void close() {
+<span class="nc" id="L133">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L135">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L137">        }</span>
+    }
+
+    class CloseableSizeTByReference extends size_t.ByReference implements AutoCloseable {
+        public CloseableSizeTByReference() {
+<span class="nc" id="L142">            super();</span>
+<span class="nc" id="L143">        }</span>
+
+        public CloseableSizeTByReference(long value) {
+<span class="nc" id="L146">            super(value);</span>
+<span class="nc" id="L147">        }</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L151">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L153">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L155">        }</span>
+    }
+
+<span class="nc" id="L158">    class CloseablePROCESSENTRY32ByReference extends PROCESSENTRY32.ByReference implements AutoCloseable {</span>
+        @Override
+        public void close() {
+<span class="nc" id="L161">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L163">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L165">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

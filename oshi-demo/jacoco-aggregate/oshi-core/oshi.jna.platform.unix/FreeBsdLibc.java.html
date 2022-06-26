@@ -23,7 +23,9 @@
  */
 package oshi.jna.platform.unix;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
@@ -32,7 +34,7 @@ import com.sun.jna.Structure.FieldOrder;
  * if/when its code is incorporated into the JNA project.
  */
 public interface FreeBsdLibc extends CLibrary {
-<span class="nc" id="L35">    FreeBsdLibc INSTANCE = Native.load(&quot;libc&quot;, FreeBsdLibc.class);</span>
+<span class="nc" id="L37">    FreeBsdLibc INSTANCE = Native.load(&quot;libc&quot;, FreeBsdLibc.class);</span>
 
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 16;
@@ -43,24 +45,24 @@ public interface FreeBsdLibc extends CLibrary {
      * Connection info
      */
     @FieldOrder({ &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_id&quot;, &quot;ut_pid&quot;, &quot;ut_user&quot;, &quot;ut_line&quot;, &quot;ut_host&quot;, &quot;ut_spare&quot; })
-<span class="nc" id="L46">    class FreeBsdUtmpx extends Structure {</span>
+<span class="nc" id="L48">    class FreeBsdUtmpx extends Structure {</span>
         public short ut_type; // type of entry
         public Timeval ut_tv; // time entry was made
-<span class="nc" id="L49">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
+<span class="nc" id="L51">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
         public int ut_pid; // process id
-<span class="nc" id="L51">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
-<span class="nc" id="L52">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
-<span class="nc" id="L53">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
-<span class="nc" id="L54">        public byte[] ut_spare = new byte[64];</span>
+<span class="nc" id="L53">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
+<span class="nc" id="L54">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
+<span class="nc" id="L55">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L56">        public byte[] ut_spare = new byte[64];</span>
     }
 
     /*
      * Data size
      */
     /** Constant &lt;code&gt;UINT64_SIZE=Native.getNativeSize(long.class)&lt;/code&gt; */
-<span class="nc" id="L61">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
+<span class="nc" id="L63">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
     /** Constant &lt;code&gt;INT_SIZE=Native.getNativeSize(int.class)&lt;/code&gt; */
-<span class="nc" id="L63">    int INT_SIZE = Native.getNativeSize(int.class);</span>
+<span class="nc" id="L65">    int INT_SIZE = Native.getNativeSize(int.class);</span>
 
     /*
      * CPU state indices
@@ -82,7 +84,7 @@ public interface FreeBsdLibc extends CLibrary {
      * Return type for BSD sysctl kern.boottime
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L85">    class Timeval extends Structure {</span>
+<span class="nc" id="L87">    class Timeval extends Structure {</span>
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
     }
@@ -91,8 +93,16 @@ public interface FreeBsdLibc extends CLibrary {
      * CPU Ticks
      */
     @FieldOrder({ &quot;cpu_ticks&quot; })
-<span class="nc" id="L94">    class CpTime extends Structure {</span>
-<span class="nc" id="L95">        public long[] cpu_ticks = new long[CPUSTATES];</span>
+<span class="nc" id="L96">    class CpTime extends Structure implements AutoCloseable {</span>
+<span class="nc" id="L97">        public long[] cpu_ticks = new long[CPUSTATES];</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L101">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L103">                ((Memory) p).close();</span>
+            }
+<span class="nc" id="L105">        }</span>
     }
 
     /**

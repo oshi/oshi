@@ -48,12 +48,12 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinError;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.win32.W32APITypeMapper;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractPowerSource;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.win32.W32APITypeMapper;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractPowerSource;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseableIntByReference;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.BATTERY_INFORMATION;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.BATTERY_MANUFACTURE_DATE;
@@ -136,212 +136,231 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         <em class="jxr_comment">// across all IOCTL entries if there are more than one.</em>
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> 
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">int</strong> size = <strong class="jxr_keyword">new</strong> SystemBatteryState().size();
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         Memory mem = <strong class="jxr_keyword">new</strong> Memory(size);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">if</strong> (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, <strong class="jxr_keyword">null</strong>, 0, mem,
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 size)) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             SystemBatteryState batteryState = <strong class="jxr_keyword">new</strong> SystemBatteryState(mem);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">if</strong> (batteryState.batteryPresent &gt; 0) {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 <strong class="jxr_keyword">if</strong> (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                     psTimeRemainingEstimated = batteryState.estimatedTime;
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (batteryState.charging &gt; 0) {
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>                     psTimeRemainingEstimated = -2d;
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>                 psMaxCapacity = batteryState.maxCapacity;
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>                 psCurrentCapacity = batteryState.remainingCapacity;
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                 psRemainingCapacityPercent = Math.min(1d, (<strong class="jxr_keyword">double</strong>) psCurrentCapacity / psMaxCapacity);
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>                 psPowerUsageRate = batteryState.rate;
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>             }
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <em class="jxr_comment">// Enumerate batteries and ask each one for information</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <em class="jxr_comment">// Ported from:</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <em class="jxr_comment">// https://docs.microsoft.com/en-us/windows/win32/power/enumerating-battery-devices</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         HANDLE hdev = SetupApi.INSTANCE.SetupDiGetClassDevs(GUID_DEVCLASS_BATTERY, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>,
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">if</strong> (!WinBase.INVALID_HANDLE_VALUE.equals(hdev)) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">boolean</strong> batteryFound = false;
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             <em class="jxr_comment">// Limit search to 100 batteries max</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> idev = 0; !batteryFound &amp;&amp; idev &lt; 100; idev++) {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 SP_DEVICE_INTERFACE_DATA did = <strong class="jxr_keyword">new</strong> SP_DEVICE_INTERFACE_DATA();
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>                 did.cbSize = did.size();
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 <strong class="jxr_keyword">if</strong> (SetupApi.INSTANCE.SetupDiEnumDeviceInterfaces(hdev, <strong class="jxr_keyword">null</strong>, GUID_DEVCLASS_BATTERY, idev, did)) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                     IntByReference requiredSize = <strong class="jxr_keyword">new</strong> IntByReference(0);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>                     SetupApi.INSTANCE.SetupDiGetDeviceInterfaceDetail(hdev, did, <strong class="jxr_keyword">null</strong>, 0, requiredSize, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>                     <strong class="jxr_keyword">if</strong> (WinError.ERROR_INSUFFICIENT_BUFFER == Kernel32.INSTANCE.GetLastError()) {
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                         <em class="jxr_comment">// PSP_DEVICE_INTERFACE_DETAIL_DATA: int size + TCHAR array</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>                         Memory pdidd = <strong class="jxr_keyword">new</strong> Memory(requiredSize.getValue());
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                         <em class="jxr_comment">// pdidd-&gt;cbSize is defined as sizeof(*pdidd)</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                         <em class="jxr_comment">// On 64 bit, cbSize is 8. On 32-bit it's 5 or 6 based on char size</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>                         <em class="jxr_comment">// This must be set properly for the method to work but is otherwise ignored</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>                         pdidd.setInt(0, Integer.BYTES + (X64 ? 4 : CHAR_WIDTH));
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>                         <em class="jxr_comment">// Regardless of this setting the string portion starts after one byte</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>                         <strong class="jxr_keyword">if</strong> (SetupApi.INSTANCE.SetupDiGetDeviceInterfaceDetail(hdev, did, pdidd, (<strong class="jxr_keyword">int</strong>) pdidd.size(),
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>                                 requiredSize, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>                             <em class="jxr_comment">// Enumerated a battery. Ask it for information.</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>                             String devicePath = CHAR_WIDTH &gt; 1 ? pdidd.getWideString(Integer.BYTES)
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>                                     : pdidd.getString(Integer.BYTES);
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>                             HANDLE hBattery = Kernel32.INSTANCE.CreateFile(devicePath, <em class="jxr_comment">// pdidd-&gt;DevicePath</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>                                     WinNT.GENERIC_READ | WinNT.GENERIC_WRITE,
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>                                     WinNT.FILE_SHARE_READ | WinNT.FILE_SHARE_WRITE, <strong class="jxr_keyword">null</strong>, WinNT.OPEN_EXISTING,
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                                     WinNT.FILE_ATTRIBUTE_NORMAL, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>                             <strong class="jxr_keyword">if</strong> (!WinBase.INVALID_HANDLE_VALUE.equals(hBattery)) {
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                                 <em class="jxr_comment">// Ask the battery for its tag.</em>
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                                 BATTERY_QUERY_INFORMATION bqi = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_QUERY_INFORMATION();
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                                 IntByReference dwWait = <strong class="jxr_keyword">new</strong> IntByReference(0);
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>                                 IntByReference dwTag = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>                                 IntByReference dwOut = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>                                 <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_TAG,
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>                                         dwWait.getPointer(), Integer.BYTES, dwTag.getPointer(), Integer.BYTES, dwOut,
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>                                         <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>                                     bqi.BatteryTag = dwTag.getValue();
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                                     <strong class="jxr_keyword">if</strong> (bqi.BatteryTag &gt; 0) {
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>                                         <em class="jxr_comment">// With the tag, you can query the battery info.</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>                                         bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryInformation
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>                                                 .ordinal();
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>                                         bqi.write();
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>                                         BATTERY_INFORMATION bi = <strong class="jxr_keyword">new</strong> BATTERY_INFORMATION();
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>                                         <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION,
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>                                                 bqi.getPointer(), bqi.size(), bi.getPointer(), bi.size(), dwOut,
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>                                                 <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>                                             <em class="jxr_comment">// Only non-UPS system batteries count</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>                                             bi.read();
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>                                             <strong class="jxr_keyword">if</strong> (0 != (bi.Capabilities &amp; BATTERY_SYSTEM_BATTERY)
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>                                                     &amp;&amp; 0 == (bi.Capabilities &amp; BATTERY_IS_SHORT_TERM)) {
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>                                                 <em class="jxr_comment">// Capabilities flags non-mWh units</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>                                                 <strong class="jxr_keyword">if</strong> (0 == (bi.Capabilities &amp; BATTERY_CAPACITY_RELATIVE)) {
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>                                                     psCapacityUnits = CapacityUnits.MWH;
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>                                                 }
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>                                                 psChemistry = Native.toString(bi.Chemistry, StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>                                                 psDesignCapacity = bi.DesignedCapacity;
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>                                                 psMaxCapacity = bi.FullChargedCapacity;
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>                                                 psCycleCount = bi.CycleCount;
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>                                                 <em class="jxr_comment">// Query the battery status.</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>                                                 PowrProf.BATTERY_WAIT_STATUS bws = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_WAIT_STATUS();
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>                                                 bws.BatteryTag = bqi.BatteryTag;
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>                                                 bws.write();
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>                                                 PowrProf.BATTERY_STATUS bs = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_STATUS();
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>                                                 <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>                                                         IOCTL_BATTERY_QUERY_STATUS, bws.getPointer(), bws.size(),
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>                                                         bs.getPointer(), bs.size(), dwOut, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                                                     bs.read();
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>                                                     <strong class="jxr_keyword">if</strong> (0 != (bs.PowerState &amp; BATTERY_POWER_ON_LINE)) {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>                                                         psPowerOnLine = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>                                                     }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>                                                     <strong class="jxr_keyword">if</strong> (0 != (bs.PowerState &amp; BATTERY_DISCHARGING)) {
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>                                                         psDischarging = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>                                                     }
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>                                                     <strong class="jxr_keyword">if</strong> (0 != (bs.PowerState &amp; BATTERY_CHARGING)) {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>                                                         psCharging = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>                                                     }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                                                     psCurrentCapacity = bs.Capacity;
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>                                                     psVoltage = bs.Voltage &gt; 0 ? bs.Voltage / 1000d : bs.Voltage;
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>                                                     psPowerUsageRate = bs.Rate;
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>                                                     <strong class="jxr_keyword">if</strong> (psVoltage &gt; 0) {
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>                                                         psAmperage = psPowerUsageRate / psVoltage;
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>                                                     }
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>                                                 }
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                                             }
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>                                             psDeviceName = batteryQueryString(hBattery, dwTag.getValue(),
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>                                                     PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryDeviceName
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                                                             .ordinal());
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>                                             psManufacturer = batteryQueryString(hBattery, dwTag.getValue(),
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                                                     PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureName
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>                                                             .ordinal());
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>                                             psSerialNumber = batteryQueryString(hBattery, dwTag.getValue(),
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                                                     PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatterySerialNumber
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>                                                             .ordinal());
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>                                             bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureDate
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>                                                     .ordinal();
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>                                             bqi.write();
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>                                             BATTERY_MANUFACTURE_DATE bmd = <strong class="jxr_keyword">new</strong> BATTERY_MANUFACTURE_DATE();
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                                             <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                                                     IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                                                     bmd.getPointer(), bmd.size(), dwOut, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                                                 bmd.read();
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                                                 <em class="jxr_comment">// If failed, returns -1 for each field</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                                                 <strong class="jxr_keyword">if</strong> (bmd.Year &gt; 1900 &amp;&amp; bmd.Month &gt; 0 &amp;&amp; bmd.Day &gt; 0) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                                                     psManufactureDate = LocalDate.of(bmd.Year, bmd.Month, bmd.Day);
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                                                 }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                                             }
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> 
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                                             bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryTemperature
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                                                     .ordinal();
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>                                             bqi.write();
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>                                             IntByReference tempK = <strong class="jxr_keyword">new</strong> IntByReference(); <em class="jxr_comment">// 1/10 degree K</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>                                             <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>                                                     IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>                                                     tempK.getPointer(), Integer.BYTES, dwOut, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>                                                 psTemperature = tempK.getValue() / 10d - 273.15;
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>                                             }
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>                                             <em class="jxr_comment">// Put last because we change the AtRate field</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                                             bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                                                     .ordinal();
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>                                             <strong class="jxr_keyword">if</strong> (psPowerUsageRate != 0) {
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>                                                 bqi.AtRate = psPowerUsageRate;
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                                             }
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>                                             bqi.write();
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>                                             IntByReference tr = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>                                             <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>                                                     IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>                                                     tr.getPointer(), Integer.BYTES, dwOut, <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>                                                 psTimeRemainingInstant = tr.getValue();
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                                             }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>                                             <em class="jxr_comment">// Fallback</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>                                             <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt; 0 &amp;&amp; psPowerUsageRate != 0) {
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>                                                 psTimeRemainingInstant = (psMaxCapacity - psCurrentCapacity) * 3600d
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>                                                         / psPowerUsageRate;
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>                                                 <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt; 0) {
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>                                                     psTimeRemainingInstant *= -1;
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>                                                 }
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>                                             }
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>                                             <em class="jxr_comment">// Exit loop</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>                                             batteryFound = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>                                         }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>                                     }
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>                                 }
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>                                 Kernel32.INSTANCE.CloseHandle(hBattery);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>                             }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                         }
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>                     }
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (WinError.ERROR_NO_MORE_ITEMS == Kernel32.INSTANCE.GetLastError()) {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>                     <strong class="jxr_keyword">break</strong>; <em class="jxr_comment">// Enumeration failed - perhaps we're out of items</em>
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>                 }
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>             }
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>             SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hdev);
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         }
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>     }
-<a class="jxr_linenumber" name="L317" href="#L317">317</a> 
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String batteryQueryString(HANDLE hBattery, <strong class="jxr_keyword">int</strong> tag, <strong class="jxr_keyword">int</strong> infoLevel) {
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         BATTERY_QUERY_INFORMATION bqi = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_QUERY_INFORMATION();
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         bqi.BatteryTag = tag;
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         bqi.InformationLevel = infoLevel;
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         bqi.write();
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         IntByReference dwOut = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">boolean</strong> ret = false;
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">long</strong> bufSize = 0;
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         Memory nameBuf;
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>             <em class="jxr_comment">// First increment is probably enough</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>             bufSize += 256;
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>             nameBuf = <strong class="jxr_keyword">new</strong> Memory(bufSize);
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>             ret = Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>                     bqi.size(), nameBuf, (<strong class="jxr_keyword">int</strong>) nameBuf.size(), dwOut, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         } <strong class="jxr_keyword">while</strong> (!ret &amp;&amp; bufSize &lt; 4096);
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">return</strong> CHAR_WIDTH &gt; 1 ? nameBuf.getWideString(0) : nameBuf.getString(0);
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>     }
-<a class="jxr_linenumber" name="L336" href="#L336">336</a> }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">try</strong> (Memory mem = <strong class="jxr_keyword">new</strong> Memory(size)) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">if</strong> (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, <strong class="jxr_keyword">null</strong>, 0, mem,
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                     size)) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 SystemBatteryState batteryState = <strong class="jxr_keyword">new</strong> SystemBatteryState(mem);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 <strong class="jxr_keyword">if</strong> (batteryState.batteryPresent &gt; 0) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                     <strong class="jxr_keyword">if</strong> (batteryState.acOnLine == 0 &amp;&amp; batteryState.charging == 0 &amp;&amp; batteryState.discharging &gt; 0) {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                         psTimeRemainingEstimated = batteryState.estimatedTime;
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (batteryState.charging &gt; 0) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                         psTimeRemainingEstimated = -2d;
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                     }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                     psMaxCapacity = batteryState.maxCapacity;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                     psCurrentCapacity = batteryState.remainingCapacity;
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                     psRemainingCapacityPercent = Math.min(1d, (<strong class="jxr_keyword">double</strong>) psCurrentCapacity / psMaxCapacity);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     psPowerUsageRate = batteryState.rate;
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <em class="jxr_comment">// Enumerate batteries and ask each one for information</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <em class="jxr_comment">// Ported from:</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <em class="jxr_comment">// https://docs.microsoft.com/en-us/windows/win32/power/enumerating-battery-devices</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         HANDLE hdev = SetupApi.INSTANCE.SetupDiGetClassDevs(GUID_DEVCLASS_BATTERY, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">if</strong> (!WinBase.INVALID_HANDLE_VALUE.equals(hdev)) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             <strong class="jxr_keyword">boolean</strong> batteryFound = false;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <em class="jxr_comment">// Limit search to 100 batteries max</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> idev = 0; !batteryFound &amp;&amp; idev &lt; 100; idev++) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                 SP_DEVICE_INTERFACE_DATA did = <strong class="jxr_keyword">new</strong> SP_DEVICE_INTERFACE_DATA();
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 did.cbSize = did.size();
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 <strong class="jxr_keyword">if</strong> (SetupApi.INSTANCE.SetupDiEnumDeviceInterfaces(hdev, <strong class="jxr_keyword">null</strong>, GUID_DEVCLASS_BATTERY, idev, did)) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                     <strong class="jxr_keyword">try</strong> (CloseableIntByReference requiredSize = <strong class="jxr_keyword">new</strong> CloseableIntByReference(0);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                             CloseableIntByReference dwWait = <strong class="jxr_keyword">new</strong> CloseableIntByReference(0);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                             CloseableIntByReference dwTag = <strong class="jxr_keyword">new</strong> CloseableIntByReference();
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                             CloseableIntByReference dwOut = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                         SetupApi.INSTANCE.SetupDiGetDeviceInterfaceDetail(hdev, did, <strong class="jxr_keyword">null</strong>, 0, requiredSize, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>                         <strong class="jxr_keyword">if</strong> (WinError.ERROR_INSUFFICIENT_BUFFER == Kernel32.INSTANCE.GetLastError()) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                             <em class="jxr_comment">// PSP_DEVICE_INTERFACE_DETAIL_DATA: int size + TCHAR array</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                             <strong class="jxr_keyword">try</strong> (Memory pdidd = <strong class="jxr_keyword">new</strong> Memory(requiredSize.getValue())) {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                                 <em class="jxr_comment">// pdidd-&gt;cbSize is defined as sizeof(*pdidd)</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                                 <em class="jxr_comment">// On 64 bit, cbSize is 8. On 32-bit it's 5 or 6 based on char size</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                                 <em class="jxr_comment">// This must be set properly for the method to work but is otherwise ignored</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                                 pdidd.setInt(0, Integer.BYTES + (X64 ? 4 : CHAR_WIDTH));
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                                 <em class="jxr_comment">// Regardless of this setting the string portion starts after one byte</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                                 <strong class="jxr_keyword">if</strong> (SetupApi.INSTANCE.SetupDiGetDeviceInterfaceDetail(hdev, did, pdidd,
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                                         (<strong class="jxr_keyword">int</strong>) pdidd.size(), requiredSize, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>                                     <em class="jxr_comment">// Enumerated a battery. Ask it for information.</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                                     String devicePath = CHAR_WIDTH &gt; 1 ? pdidd.getWideString(Integer.BYTES)
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>                                             : pdidd.getString(Integer.BYTES);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>                                     HANDLE hBattery = Kernel32.INSTANCE.CreateFile(devicePath, <em class="jxr_comment">// pdidd-&gt;DevicePath</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                                             WinNT.GENERIC_READ | WinNT.GENERIC_WRITE,
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                                             WinNT.FILE_SHARE_READ | WinNT.FILE_SHARE_WRITE, <strong class="jxr_keyword">null</strong>, WinNT.OPEN_EXISTING,
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                                             WinNT.FILE_ATTRIBUTE_NORMAL, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                                     <strong class="jxr_keyword">if</strong> (!WinBase.INVALID_HANDLE_VALUE.equals(hBattery)) {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                                         <em class="jxr_comment">// Ask the battery for its tag.</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                                         BATTERY_QUERY_INFORMATION bqi = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_QUERY_INFORMATION();
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                                         <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_TAG,
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>                                                 dwWait.getPointer(), Integer.BYTES, dwTag.getPointer(), Integer.BYTES,
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                                                 dwOut, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                                             bqi.BatteryTag = dwTag.getValue();
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                                             <strong class="jxr_keyword">if</strong> (bqi.BatteryTag &gt; 0) {
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>                                                 <em class="jxr_comment">// With the tag, you can query the battery info.</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                                                 bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryInformation
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>                                                         .ordinal();
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>                                                 bqi.write();
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>                                                 BATTERY_INFORMATION bi = <strong class="jxr_keyword">new</strong> BATTERY_INFORMATION();
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                                                 <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                                                         IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(), bqi.size(),
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>                                                         bi.getPointer(), bi.size(), dwOut, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>                                                     <em class="jxr_comment">// Only non-UPS system batteries count</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                                                     bi.read();
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                                                     <strong class="jxr_keyword">if</strong> (0 != (bi.Capabilities &amp; BATTERY_SYSTEM_BATTERY)
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>                                                             &amp;&amp; 0 == (bi.Capabilities &amp; BATTERY_IS_SHORT_TERM)) {
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>                                                         <em class="jxr_comment">// Capabilities flags non-mWh units</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>                                                         <strong class="jxr_keyword">if</strong> (0 == (bi.Capabilities &amp; BATTERY_CAPACITY_RELATIVE)) {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>                                                             psCapacityUnits = CapacityUnits.MWH;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>                                                         }
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>                                                         psChemistry = Native.toString(bi.Chemistry,
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>                                                                 StandardCharsets.US_ASCII);
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>                                                         psDesignCapacity = bi.DesignedCapacity;
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                                                         psMaxCapacity = bi.FullChargedCapacity;
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>                                                         psCycleCount = bi.CycleCount;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>                                                         <em class="jxr_comment">// Query the battery status.</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                                                         PowrProf.BATTERY_WAIT_STATUS bws = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_WAIT_STATUS();
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                                                         bws.BatteryTag = bqi.BatteryTag;
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                                                         bws.write();
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>                                                         PowrProf.BATTERY_STATUS bs = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_STATUS();
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>                                                         <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                                                                 IOCTL_BATTERY_QUERY_STATUS, bws.getPointer(),
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>                                                                 bws.size(), bs.getPointer(), bs.size(), dwOut, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                                                             bs.read();
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>                                                             <strong class="jxr_keyword">if</strong> (0 != (bs.PowerState &amp; BATTERY_POWER_ON_LINE)) {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>                                                                 psPowerOnLine = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>                                                             }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>                                                             <strong class="jxr_keyword">if</strong> (0 != (bs.PowerState &amp; BATTERY_DISCHARGING)) {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                                                                 psDischarging = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>                                                             }
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>                                                             <strong class="jxr_keyword">if</strong> (0 != (bs.PowerState &amp; BATTERY_CHARGING)) {
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                                                                 psCharging = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                                                             }
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                                                             psCurrentCapacity = bs.Capacity;
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                                                             psVoltage = bs.Voltage &gt; 0 ? bs.Voltage / 1000d
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                                                                     : bs.Voltage;
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                                                             psPowerUsageRate = bs.Rate;
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>                                                             <strong class="jxr_keyword">if</strong> (psVoltage &gt; 0) {
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                                                                 psAmperage = psPowerUsageRate / psVoltage;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>                                                             }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>                                                         }
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>                                                     }
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                                                     psDeviceName = batteryQueryString(hBattery, dwTag.getValue(),
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                                                             PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryDeviceName
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                                                                     .ordinal());
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                                                     psManufacturer = batteryQueryString(hBattery, dwTag.getValue(),
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                                                             PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureName
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                                                                     .ordinal());
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                                                     psSerialNumber = batteryQueryString(hBattery, dwTag.getValue(),
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>                                                             PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatterySerialNumber
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                                                                     .ordinal());
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>                                                     bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryManufactureDate
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>                                                             .ordinal();
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>                                                     bqi.write();
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                                                     BATTERY_MANUFACTURE_DATE bmd = <strong class="jxr_keyword">new</strong> BATTERY_MANUFACTURE_DATE();
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                                                     <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                                                             IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                                                             bqi.size(), bmd.getPointer(), bmd.size(), dwOut, <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                                                         bmd.read();
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>                                                         <em class="jxr_comment">// If failed, returns -1 for each field</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                                                         <strong class="jxr_keyword">if</strong> (bmd.Year &gt; 1900 &amp;&amp; bmd.Month &gt; 0 &amp;&amp; bmd.Day &gt; 0) {
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                                                             psManufactureDate = LocalDate.of(bmd.Year, bmd.Month,
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                                                                     bmd.Day);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                                                         }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                                                     }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>                                                     bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryTemperature
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                                                             .ordinal();
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>                                                     bqi.write();
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                                                     <strong class="jxr_keyword">try</strong> (CloseableIntByReference tempK = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>                                                         <em class="jxr_comment">// 1/10 degree K</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                                                         <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                                                                 IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                                                                 bqi.size(), tempK.getPointer(), Integer.BYTES, dwOut,
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                                                                 <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                                                             psTemperature = tempK.getValue() / 10d - 273.15;
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                                                         }
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                                                     }
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                                                     <em class="jxr_comment">// Put last because we change the AtRate field</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                                                     bqi.InformationLevel = PowrProf.BATTERY_QUERY_INFORMATION_LEVEL.BatteryEstimatedTime
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                                                             .ordinal();
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                                                     <strong class="jxr_keyword">if</strong> (psPowerUsageRate != 0) {
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                                                         bqi.AtRate = psPowerUsageRate;
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                                                     }
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                                                     bqi.write();
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                                                     <strong class="jxr_keyword">try</strong> (CloseableIntByReference tr = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                                                         <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.DeviceIoControl(hBattery,
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>                                                                 IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                                                                 bqi.size(), tr.getPointer(), Integer.BYTES, dwOut,
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>                                                                 <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>                                                             psTimeRemainingInstant = tr.getValue();
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>                                                         }
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>                                                     }
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>                                                     <em class="jxr_comment">// Fallback</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                                                     <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt; 0 &amp;&amp; psPowerUsageRate != 0) {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>                                                         psTimeRemainingInstant = (psMaxCapacity - psCurrentCapacity)
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                                                                 * 3600d / psPowerUsageRate;
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>                                                         <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt; 0) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                                                             psTimeRemainingInstant *= -1;
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>                                                         }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>                                                     }
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>                                                     <em class="jxr_comment">// Exit loop</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                                                     batteryFound = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>                                                 }
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>                                             }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>                                         }
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                                         Kernel32.INSTANCE.CloseHandle(hBattery);
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>                                     }
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>                                 }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                             }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                         }
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                     }
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (WinError.ERROR_NO_MORE_ITEMS == Kernel32.INSTANCE.GetLastError()) {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>                     <strong class="jxr_keyword">break</strong>; <em class="jxr_comment">// Enumeration failed - perhaps we're out of items</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>                 }
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>             }
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>             SetupApi.INSTANCE.SetupDiDestroyDeviceInfoList(hdev);
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSource" href="../../../../oshi/hardware/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String batteryQueryString(HANDLE hBattery, <strong class="jxr_keyword">int</strong> tag, <strong class="jxr_keyword">int</strong> infoLevel) {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         BATTERY_QUERY_INFORMATION bqi = <strong class="jxr_keyword">new</strong> PowrProf.BATTERY_QUERY_INFORMATION();
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         bqi.BatteryTag = tag;
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         bqi.InformationLevel = infoLevel;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         bqi.write();
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         <strong class="jxr_keyword">try</strong> (CloseableIntByReference dwOut = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>             <strong class="jxr_keyword">boolean</strong> ret = false;
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>             <strong class="jxr_keyword">long</strong> bufSize = 256;
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>             Memory nameBuf = <strong class="jxr_keyword">new</strong> Memory(bufSize);
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>             <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 ret = Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                         bqi.size(), nameBuf, (<strong class="jxr_keyword">int</strong>) nameBuf.size(), dwOut, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 <strong class="jxr_keyword">if</strong> (!ret) {
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                     bufSize += 256;
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                     nameBuf.close();
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                     <strong class="jxr_keyword">if</strong> (bufSize &gt; 4096) {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>                         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                     }
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                     nameBuf = <strong class="jxr_keyword">new</strong> Memory(bufSize);
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 }
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>             } <strong class="jxr_keyword">while</strong> (!ret);
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>             String name = CHAR_WIDTH &gt; 1 ? nameBuf.getWideString(0) : nameBuf.getString(0);
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             nameBuf.close();
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <strong class="jxr_keyword">return</strong> name;
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         }
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>     }
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

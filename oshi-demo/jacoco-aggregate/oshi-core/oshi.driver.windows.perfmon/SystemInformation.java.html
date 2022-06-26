@@ -34,7 +34,7 @@ import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
 /**
- * Utility to query System performance counter
+ * Utility to query System performance counters
  */
 @ThreadSafe
 public final class SystemInformation {
@@ -64,6 +64,31 @@ public final class SystemInformation {
         }
     }
 
+    /**
+     * Processor Queue Length property
+     */
+<span class="nc" id="L70">    public enum ProcessorQueueLengthProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L71">        PROCESSORQUEUELENGTH(null, &quot;Processor Queue Length&quot;);</span>
+
+        private final String instance;
+        private final String counter;
+
+<span class="nc" id="L76">        ProcessorQueueLengthProperty(String instance, String counter) {</span>
+<span class="nc" id="L77">            this.instance = instance;</span>
+<span class="nc" id="L78">            this.counter = counter;</span>
+<span class="nc" id="L79">        }</span>
+
+        @Override
+        public String getInstance() {
+<span class="nc" id="L83">            return instance;</span>
+        }
+
+        @Override
+        public String getCounter() {
+<span class="nc" id="L88">            return counter;</span>
+        }
+    }
+
     private SystemInformation() {
     }
 
@@ -73,10 +98,23 @@ public final class SystemInformation {
      * @return Context switches counter for the total of all processors.
      */
     public static Map&lt;ContextSwitchProperty, Long&gt; queryContextSwitchCounters() {
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
-<span class="nc" id="L77">            return Collections.emptyMap();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L102">            return Collections.emptyMap();</span>
         }
-<span class="nc" id="L79">        return PerfCounterQuery.queryValues(ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);</span>
+<span class="nc" id="L104">        return PerfCounterQuery.queryValues(ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);</span>
+    }
+
+    /**
+     * Returns processor queue length.
+     *
+     * @return Processor Queue Length.
+     */
+    public static Map&lt;ProcessorQueueLengthProperty, Long&gt; queryProcessorQueueLength() {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L114">            return Collections.emptyMap();</span>
+        }
+<span class="nc" id="L116">        return PerfCounterQuery.queryValues(ProcessorQueueLengthProperty.class, SYSTEM,</span>
+                WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

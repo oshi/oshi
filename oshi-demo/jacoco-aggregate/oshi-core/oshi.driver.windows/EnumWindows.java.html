@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>EnumWindows.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows</a> &gt; <span class="el_source">EnumWindows.java</span></div><h1>EnumWindows.java</h1><pre class="source lang-java linenums">/*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the &quot;Software&quot;), to deal
@@ -34,9 +34,9 @@ import com.sun.jna.platform.WindowUtils;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.HWND;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.software.os.OSDesktopWindow;
 
 /**
@@ -73,29 +73,30 @@ public final class EnumWindows {
 <span class="nc bnc" id="L73" title="All 2 branches missed.">                    if (!zOrderMap.containsKey(hWnd)) {</span>
 <span class="nc" id="L74">                        updateWindowZOrderMap(hWnd, zOrderMap);</span>
                     }
-<span class="nc" id="L76">                    IntByReference pProcessId = new IntByReference();</span>
-<span class="nc" id="L77">                    User32.INSTANCE.GetWindowThreadProcessId(hWnd, pProcessId);</span>
-<span class="nc" id="L78">                    windowList.add(new OSDesktopWindow(Pointer.nativeValue(hWnd.getPointer()), window.getTitle(),</span>
-<span class="nc" id="L79">                            window.getFilePath(), window.getLocAndSize(), pProcessId.getValue(), zOrderMap.get(hWnd),</span>
-                            visible));
+<span class="nc" id="L76">                    try (CloseableIntByReference pProcessId = new CloseableIntByReference()) {</span>
+<span class="nc" id="L77">                        User32.INSTANCE.GetWindowThreadProcessId(hWnd, pProcessId);</span>
+<span class="nc" id="L78">                        windowList.add(new OSDesktopWindow(Pointer.nativeValue(hWnd.getPointer()), window.getTitle(),</span>
+<span class="nc" id="L79">                                window.getFilePath(), window.getLocAndSize(), pProcessId.getValue(),</span>
+<span class="nc" id="L80">                                zOrderMap.get(hWnd), visible));</span>
+                    }
                 }
             }
-<span class="nc" id="L83">        }</span>
-<span class="nc" id="L84">        return windowList;</span>
+<span class="nc" id="L84">        }</span>
+<span class="nc" id="L85">        return windowList;</span>
     }
 
     private static void updateWindowZOrderMap(HWND hWnd, Map&lt;HWND, Integer&gt; zOrderMap) {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (hWnd != null) {</span>
-<span class="nc" id="L89">            int zOrder = 1;</span>
-<span class="nc" id="L90">            HWND h = new HWND(hWnd.getPointer());</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (hWnd != null) {</span>
+<span class="nc" id="L90">            int zOrder = 1;</span>
+<span class="nc" id="L91">            HWND h = new HWND(hWnd.getPointer());</span>
             // First is highest, so decrement
             do {
-<span class="nc" id="L93">                zOrderMap.put(h, --zOrder);</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            } while ((h = User32.INSTANCE.GetWindow(h, GW_HWNDNEXT)) != null);</span>
+<span class="nc" id="L94">                zOrderMap.put(h, --zOrder);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            } while ((h = User32.INSTANCE.GetWindow(h, GW_HWNDNEXT)) != null);</span>
             // now add lowest value to all
-<span class="nc" id="L96">            final int offset = zOrder * -1;</span>
-<span class="nc" id="L97">            zOrderMap.replaceAll((k, v) -&gt; v + offset);</span>
+<span class="nc" id="L97">            final int offset = zOrder * -1;</span>
+<span class="nc" id="L98">            zOrderMap.replaceAll((k, v) -&gt; v + offset);</span>
         }
-<span class="nc" id="L99">    }</span>
+<span class="nc" id="L100">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -49,10 +49,10 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Wtsapi32.WTSINFO;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Wtsapi32.WTS_CLIENT_ADDRESS;
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Wtsapi32.WTS_SESSION_INFO;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseableIntByReference;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseablePointerByReference;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSSession;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
@@ -78,87 +78,88 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;OSSession&gt; queryUserSessions() {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          List&lt;OSSession&gt; sessions = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">if</strong> (IS_VISTA_OR_GREATER) {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              PointerByReference ppSessionInfo = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              IntByReference pCount = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">if</strong> (WTS.WTSEnumerateSessions(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, 0, 1, ppSessionInfo, pCount)) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  Pointer pSessionInfo = ppSessionInfo.getValue();
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  <strong class="jxr_keyword">if</strong> (pCount.getValue() &gt; 0) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      WTS_SESSION_INFO sessionInfoRef = <strong class="jxr_keyword">new</strong> WTS_SESSION_INFO(pSessionInfo);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                      WTS_SESSION_INFO[] sessionInfo = (WTS_SESSION_INFO[]) sessionInfoRef.toArray(pCount.getValue());
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                      <strong class="jxr_keyword">for</strong> (WTS_SESSION_INFO session : sessionInfo) {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                          <strong class="jxr_keyword">if</strong> (session.State == WTS_ACTIVE) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                              <em class="jxr_comment">// Use session id to fetch additional session information</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                              PointerByReference ppBuffer = <strong class="jxr_keyword">new</strong> PointerByReference();
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                              IntByReference pBytes = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                              WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, session.SessionId,
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                                      WTS_CLIENTPROTOCOLTYPE, ppBuffer, pBytes);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                              Pointer pBuffer = ppBuffer.getValue(); <em class="jxr_comment">// pointer to USHORT</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                              <strong class="jxr_keyword">short</strong> protocolType = pBuffer.getShort(0); <em class="jxr_comment">// 0 = console, 2 = RDP</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                              WTS.WTSFreeMemory(pBuffer);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                              <em class="jxr_comment">// We've already got console from registry, only test RDP</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                              <strong class="jxr_keyword">if</strong> (protocolType &gt; 0) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                                  <em class="jxr_comment">// DEVICE</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                                  String device = session.pWinStationName;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                                  <em class="jxr_comment">// USER and LOGIN TIME</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                  WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, session.SessionId,
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                          WTS_SESSIONINFO, ppBuffer, pBytes);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                                  pBuffer = ppBuffer.getValue(); <em class="jxr_comment">// returns WTSINFO</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>                                  WTSINFO wtsInfo = <strong class="jxr_keyword">new</strong> WTSINFO(pBuffer);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                                  <em class="jxr_comment">// Temporary due to broken LARGE_INTEGER, remove in JNA 5.6.0</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                                 <strong class="jxr_keyword">long</strong> logonTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME(
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                                         <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(wtsInfo.LogonTime.getValue())).toTime();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>                                 String userName = wtsInfo.getUserName();
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                                 WTS.WTSFreeMemory(pBuffer);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                                 <em class="jxr_comment">// HOST</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                                 WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, session.SessionId,
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                                         WTS_CLIENTADDRESS, ppBuffer, pBytes);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                                 pBuffer = ppBuffer.getValue(); <em class="jxr_comment">// returns WTS_CLIENT_ADDRESS</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                                 WTS_CLIENT_ADDRESS addr = <strong class="jxr_keyword">new</strong> WTS_CLIENT_ADDRESS(pBuffer);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                                 WTS.WTSFreeMemory(pBuffer);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                                 String host = <span class="jxr_string">"::"</span>;
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                                 <strong class="jxr_keyword">if</strong> (addr.AddressFamily == IPHlpAPI.AF_INET) {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                                     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                                         host = InetAddress.getByAddress(Arrays.copyOfRange(addr.Address, 2, 6))
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                                                 .getHostAddress();
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                                     } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                                         <em class="jxr_comment">// If array is not length of 4, shouldn't happen</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                                         host = <span class="jxr_string">"Illegal length IP Array"</span>;
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                                     }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (addr.AddressFamily == IPHlpAPI.AF_INET6) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                                     <em class="jxr_comment">// Get ints for address parsing</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                                     <strong class="jxr_keyword">int</strong>[] ipArray = convertBytesToInts(addr.Address);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                                     host = ParseUtil.parseUtAddrV6toIP(ipArray);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                                 }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                                 sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(userName, device, logonTime, host));
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                             }
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                         }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     }
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 }
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 WTS.WTSFreeMemory(pSessionInfo);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             }
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">return</strong> sessions;
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>     }
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     * Per WTS_INFO_CLASS docs, the IP address is offset by two bytes from the start</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * of the Address member of the WTS_CLIENT_ADDRESS structure. Also contrary to</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * docs, IPv4 is not a null terminated string.</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * This method converts the byte[20] to an int[4] parseable by existing code</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @param address</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     *            The 20-byte array from the WTS_CLIENT_ADDRESS structure</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @return A 4-int array for {@link ParseUtil#parseUtAddrV6toIP}</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong>[] convertBytesToInts(byte[] address) {
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         IntBuffer intBuf = ByteBuffer.wrap(Arrays.copyOfRange(address, 2, 18)).order(ByteOrder.BIG_ENDIAN)
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                 .asIntBuffer();
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">int</strong>[] array = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[intBuf.remaining()];
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         intBuf.get(array);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">return</strong> array;
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">try</strong> (CloseablePointerByReference ppSessionInfo = <strong class="jxr_keyword">new</strong> CloseablePointerByReference();
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      CloseableIntByReference pCount = <strong class="jxr_keyword">new</strong> CloseableIntByReference();
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      CloseablePointerByReference ppBuffer = <strong class="jxr_keyword">new</strong> CloseablePointerByReference();
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      CloseableIntByReference pBytes = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  <strong class="jxr_keyword">if</strong> (WTS.WTSEnumerateSessions(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, 0, 1, ppSessionInfo, pCount)) {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      Pointer pSessionInfo = ppSessionInfo.getValue();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                      <strong class="jxr_keyword">if</strong> (pCount.getValue() &gt; 0) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          WTS_SESSION_INFO sessionInfoRef = <strong class="jxr_keyword">new</strong> WTS_SESSION_INFO(pSessionInfo);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                          WTS_SESSION_INFO[] sessionInfo = (WTS_SESSION_INFO[]) sessionInfoRef.toArray(pCount.getValue());
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                          <strong class="jxr_keyword">for</strong> (WTS_SESSION_INFO session : sessionInfo) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                              <strong class="jxr_keyword">if</strong> (session.State == WTS_ACTIVE) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                                  <em class="jxr_comment">// Use session id to fetch additional session information</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                                  WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, session.SessionId,
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                                          WTS_CLIENTPROTOCOLTYPE, ppBuffer, pBytes);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                                  Pointer pBuffer = ppBuffer.getValue(); <em class="jxr_comment">// pointer to USHORT</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                                  <strong class="jxr_keyword">short</strong> protocolType = pBuffer.getShort(0); <em class="jxr_comment">// 0 = console, 2 = RDP</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                                  WTS.WTSFreeMemory(pBuffer);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                                  <em class="jxr_comment">// We've already got console from registry, only test RDP</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                                  <strong class="jxr_keyword">if</strong> (protocolType &gt; 0) {
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                                      <em class="jxr_comment">// DEVICE</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                                      String device = session.pWinStationName;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                                      <em class="jxr_comment">// USER and LOGIN TIME</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                      WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                              session.SessionId, WTS_SESSIONINFO, ppBuffer, pBytes);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                                      pBuffer = ppBuffer.getValue(); <em class="jxr_comment">// returns WTSINFO</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                                      WTSINFO wtsInfo = <strong class="jxr_keyword">new</strong> WTSINFO(pBuffer);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                                      <em class="jxr_comment">// Temporary due to broken LARGE_INTEGER, remove in JNA 5.6.0</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                                     <strong class="jxr_keyword">long</strong> logonTime = <strong class="jxr_keyword">new</strong> WinBase.FILETIME(
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                                             <strong class="jxr_keyword">new</strong> WinNT.LARGE_INTEGER(wtsInfo.LogonTime.getValue())).toTime();
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                                     String userName = wtsInfo.getUserName();
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                                     WTS.WTSFreeMemory(pBuffer);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                                     <em class="jxr_comment">// HOST</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                                     WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                                             session.SessionId, WTS_CLIENTADDRESS, ppBuffer, pBytes);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                                     pBuffer = ppBuffer.getValue(); <em class="jxr_comment">// returns WTS_CLIENT_ADDRESS</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                                     WTS_CLIENT_ADDRESS addr = <strong class="jxr_keyword">new</strong> WTS_CLIENT_ADDRESS(pBuffer);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                                     WTS.WTSFreeMemory(pBuffer);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                                     String host = <span class="jxr_string">"::"</span>;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                                     <strong class="jxr_keyword">if</strong> (addr.AddressFamily == IPHlpAPI.AF_INET) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                                         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                                             host = InetAddress.getByAddress(Arrays.copyOfRange(addr.Address, 2, 6))
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                                                     .getHostAddress();
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                                         } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                                             <em class="jxr_comment">// If array is not length of 4, shouldn't happen</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                                             host = <span class="jxr_string">"Illegal length IP Array"</span>;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                                         }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (addr.AddressFamily == IPHlpAPI.AF_INET6) {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                                         <em class="jxr_comment">// Get ints for address parsing</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                                         <strong class="jxr_keyword">int</strong>[] ipArray = convertBytesToInts(addr.Address);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                                         host = ParseUtil.parseUtAddrV6toIP(ipArray);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                                     }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                                     sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(userName, device, logonTime, host));
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                                 }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                             }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                         }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                     WTS.WTSFreeMemory(pSessionInfo);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                 }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">return</strong> sessions;
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * Per WTS_INFO_CLASS docs, the IP address is offset by two bytes from the start</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * of the Address member of the WTS_CLIENT_ADDRESS structure. Also contrary to</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * docs, IPv4 is not a null terminated string.</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * This method converts the byte[20] to an int[4] parseable by existing code</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * @param address</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     *            The 20-byte array from the WTS_CLIENT_ADDRESS structure</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     * @return A 4-int array for {@link ParseUtil#parseUtAddrV6toIP}</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong>[] convertBytesToInts(byte[] address) {
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         IntBuffer intBuf = ByteBuffer.wrap(Arrays.copyOfRange(address, 2, 18)).order(ByteOrder.BIG_ENDIAN)
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                 .asIntBuffer();
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">int</strong>[] array = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[intBuf.remaining()];
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         intBuf.get(array);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">return</strong> array;
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

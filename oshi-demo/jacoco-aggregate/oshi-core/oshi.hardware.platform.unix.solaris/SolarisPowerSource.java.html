@@ -108,7 +108,7 @@ public final class SolarisPowerSource extends AbstractPowerSource {
             // Get kstat for the battery information
 <span class="nc" id="L109">            try (KstatChain kc = KstatUtil.openChain()) {</span>
 <span class="nc" id="L110">                Kstat ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, &quot;battery BIF0&quot;);</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (ksp != null) {</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">                if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
                     // Predicted battery capacity when fully charged.
 <span class="nc" id="L113">                    long energyFull = KstatUtil.dataLookupLong(ksp, &quot;bif_last_cap&quot;);</span>
 <span class="nc bnc" id="L114" title="All 4 branches missed.">                    if (energyFull == 0xffffffff || energyFull &lt;= 0) {</span>
@@ -131,7 +131,7 @@ public final class SolarisPowerSource extends AbstractPowerSource {
 
                 // Get kstat for the battery state
 <span class="nc" id="L133">                ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, &quot;battery BST0&quot;);</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">                if (ksp != null) {</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">                if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
                     // estimated remaining battery capacity
 <span class="nc" id="L136">                    long energyNow = KstatUtil.dataLookupLong(ksp, &quot;bst_rem_cap&quot;);</span>
 <span class="nc bnc" id="L137" title="All 2 branches missed.">                    if (energyNow &gt;= 0) {</span>

@@ -38,11 +38,11 @@ import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg.HKEY;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
+import oshi.jna.ByRef.CloseableIntByReference;
 
 /**
  * A Display
@@ -91,14 +91,14 @@ final class WindowsDisplay extends AbstractDisplay {
 
 <span class="nc" id="L92">                byte[] edid = new byte[1];</span>
 
-<span class="nc" id="L94">                IntByReference pType = new IntByReference();</span>
-<span class="nc" id="L95">                IntByReference lpcbData = new IntByReference();</span>
-
-<span class="nc bnc" id="L97" title="All 2 branches missed.">                if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {</span>
-<span class="nc" id="L98">                    edid = new byte[lpcbData.getValue()];</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">                    if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {</span>
-<span class="nc" id="L100">                        Display display = new WindowsDisplay(edid);</span>
-<span class="nc" id="L101">                        displays.add(display);</span>
+<span class="nc" id="L94">                try (CloseableIntByReference pType = new CloseableIntByReference();</span>
+<span class="nc" id="L95">                        CloseableIntByReference lpcbData = new CloseableIntByReference()) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                    if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {</span>
+<span class="nc" id="L97">                        edid = new byte[lpcbData.getValue()];</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                        if (ADV.RegQueryValueEx(key, &quot;EDID&quot;, 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {</span>
+<span class="nc" id="L99">                            Display display = new WindowsDisplay(edid);</span>
+<span class="nc" id="L100">                            displays.add(display);</span>
+                        }
                     }
                 }
 <span class="nc" id="L104">                Advapi32.INSTANCE.RegCloseKey(key);</span>

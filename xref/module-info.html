@@ -16,18 +16,19 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>       exports oshi.software.os;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>       exports oshi.util;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>      <em class="jxr_comment">// JNA needs reflective access to Structure subclasses</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>      opens oshi.jna.platform.linux to com.sun.jna;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>      opens oshi.jna.platform.mac to com.sun.jna;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>      opens oshi.jna.platform.windows to com.sun.jna;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>      opens oshi.jna.platform.unix to com.sun.jna;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <em class="jxr_comment">// dependencies</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>      requires com.sun.jna;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      requires com.sun.jna.platform;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>      requires transitive java.desktop;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      requires org.slf4j;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  }
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>      <em class="jxr_comment">// JNA needs reflective access to Structure and ByReference subclasses</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>      opens oshi.jna to com.sun.jna;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>      opens oshi.jna.platform.linux to com.sun.jna;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>      opens oshi.jna.platform.mac to com.sun.jna;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>      opens oshi.jna.platform.windows to com.sun.jna;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      opens oshi.jna.platform.unix to com.sun.jna;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <em class="jxr_comment">// dependencies</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      requires com.sun.jna;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      requires com.sun.jna.platform;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      requires transitive java.desktop;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      requires org.slf4j;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

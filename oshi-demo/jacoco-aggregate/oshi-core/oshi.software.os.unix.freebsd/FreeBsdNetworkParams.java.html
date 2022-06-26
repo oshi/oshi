@@ -29,12 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.unix.CLibrary;
-import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
+import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
@@ -54,37 +54,38 @@ import oshi.util.ExecutingCommand;
 <span class="nc" id="L54">        hint.ai_flags = CLibrary.AI_CANONNAME;</span>
 <span class="nc" id="L55">        String hostname = getHostName();</span>
 
-<span class="nc" id="L57">        PointerByReference ptr = new PointerByReference();</span>
-<span class="nc" id="L58">        int res = LIBC.getaddrinfo(hostname, null, hint, ptr);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (res &gt; 0) {</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (LOG.isErrorEnabled()) {</span>
-<span class="nc" id="L61">                LOG.warn(&quot;Failed getaddrinfo(): {}&quot;, LIBC.gai_strerror(res));</span>
+<span class="nc" id="L57">        try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {</span>
+<span class="nc" id="L58">            int res = LIBC.getaddrinfo(hostname, null, hint, ptr);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (res &gt; 0) {</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                if (LOG.isErrorEnabled()) {</span>
+<span class="nc" id="L61">                    LOG.warn(&quot;Failed getaddrinfo(): {}&quot;, LIBC.gai_strerror(res));</span>
+                }
+<span class="nc" id="L63">                return &quot;&quot;;</span>
             }
-<span class="nc" id="L63">            return &quot;&quot;;</span>
-        }
-<span class="nc" id="L65">        Addrinfo info = new Addrinfo(ptr.getValue());</span>
-<span class="nc" id="L66">        String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L67">        LIBC.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L68">        return canonname;</span>
+<span class="nc" id="L65">            Addrinfo info = new Addrinfo(ptr.getValue());</span>
+<span class="nc" id="L66">            String canonname = info.ai_canonname.trim();</span>
+<span class="nc" id="L67">            LIBC.freeaddrinfo(ptr.getValue());</span>
+<span class="nc" id="L68">            return canonname;</span>
+<span class="nc" id="L69">        }</span>
     }
 
     @Override
     public String getHostName() {
-<span class="nc" id="L73">        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {</span>
-<span class="nc" id="L75">            return super.getHostName();</span>
+<span class="nc" id="L74">        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {</span>
+<span class="nc" id="L76">            return super.getHostName();</span>
         }
-<span class="nc" id="L77">        return Native.toString(hostnameBuffer);</span>
+<span class="nc" id="L78">        return Native.toString(hostnameBuffer);</span>
     }
 
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L82">        return searchGateway(ExecutingCommand.runNative(&quot;route -4 get default&quot;));</span>
+<span class="nc" id="L83">        return searchGateway(ExecutingCommand.runNative(&quot;route -4 get default&quot;));</span>
     }
 
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L87">        return searchGateway(ExecutingCommand.runNative(&quot;route -6 get default&quot;));</span>
+<span class="nc" id="L88">        return searchGateway(ExecutingCommand.runNative(&quot;route -6 get default&quot;));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

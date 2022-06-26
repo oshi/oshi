@@ -78,14 +78,14 @@ public final class LogicalProcessorInformation {
         // Map to store efficiency class of a processor core
 <span class="nc" id="L79">        Map&lt;GROUP_AFFINITY, Integer&gt; coreEfficiencyMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (int i = 0; i &lt; procInfo.length; i++) {</span>
-<span class="nc bnc" id="L82" title="All 4 branches missed.">            switch (procInfo[i].relationship) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX info : procInfo) {</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">            switch (info.relationship) {</span>
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
                 // could assign a package to more than one processor group
-<span class="nc" id="L85">                packages.add(((PROCESSOR_RELATIONSHIP) procInfo[i]).groupMask);</span>
+<span class="nc" id="L85">                packages.add(((PROCESSOR_RELATIONSHIP) info).groupMask);</span>
 <span class="nc" id="L86">                break;</span>
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
-<span class="nc" id="L88">                PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) procInfo[i]);</span>
+<span class="nc" id="L88">                PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) info);</span>
                 // for Core, groupCount is always 1
 <span class="nc" id="L90">                cores.add(core.groupMask[0]);</span>
 <span class="nc bnc" id="L91" title="All 2 branches missed.">                if (IS_WIN10_OR_GREATER) {</span>
@@ -93,7 +93,7 @@ public final class LogicalProcessorInformation {
                 }
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-<span class="nc" id="L96">                numaNodes.add((NUMA_NODE_RELATIONSHIP) procInfo[i]);</span>
+<span class="nc" id="L96">                numaNodes.add((NUMA_NODE_RELATIONSHIP) info);</span>
 <span class="nc" id="L97">                break;</span>
             default:
                 // Ignore Group and Cache info
@@ -102,10 +102,10 @@ public final class LogicalProcessorInformation {
         }
         // Windows doesn't define core and package numbers, so we define our own for
         // consistent use across the API. Here we sort so core and package numbers
-        // increment consistently with processor umbers/bitmasks, ordered in groups.
-<span class="nc" id="L106">        cores.sort(Comparator.comparing(c -&gt; c.group * 64L + c.mask.longValue()));</span>
+        // increment consistently with processor numbers/bitmasks, ordered in groups.
+<span class="nc" id="L106">        cores.sort(Comparator.comparing(c -&gt; c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));</span>
         // if package in multiple groups will still use first group for sorting
-<span class="nc" id="L108">        packages.sort(Comparator.comparing(p -&gt; p[0].group * 64L + p[0].mask.longValue()));</span>
+<span class="nc" id="L108">        packages.sort(Comparator.comparing(p -&gt; p[0].group * 64L + Long.numberOfTrailingZeros(p[0].mask.longValue())));</span>
 
         // Iterate Logical Processors and use bitmasks to match packages, cores,
         // and NUMA nodes. Perfmon instances are numa node + processor number, so we

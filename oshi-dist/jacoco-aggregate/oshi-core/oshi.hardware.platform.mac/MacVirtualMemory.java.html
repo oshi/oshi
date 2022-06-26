@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.platform.mac.SystemB.XswUsage;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
@@ -111,15 +111,17 @@ final class MacVirtualMemory extends AbstractVirtualMemory {
     private static Pair&lt;Long, Long&gt; queryVmStat() {
 <span class="nc" id="L112">        long swapPagesIn = 0L;</span>
 <span class="nc" id="L113">        long swapPagesOut = 0L;</span>
-<span class="nc" id="L114">        VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="nc" id="L116">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L117">            swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
-<span class="nc" id="L118">            swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
-        } else {
-<span class="nc" id="L120">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L114">        try (CloseableVMStatistics vmStats = new CloseableVMStatistics();</span>
+<span class="nc" id="L115">                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+                    size)) {
+<span class="nc" id="L118">                swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
+<span class="nc" id="L119">                swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
+            } else {
+<span class="nc" id="L121">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+            }
         }
-<span class="nc" id="L122">        return new Pair&lt;&gt;(swapPagesIn, swapPagesOut);</span>
+<span class="nc" id="L124">        return new Pair&lt;&gt;(swapPagesIn, swapPagesOut);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

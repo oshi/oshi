@@ -55,29 +55,30 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERFPROC_PROCESS = <span class="jxr_string">"Win32_PerfRawData_PerfProc_Process"</span>;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL = WIN32_PERFPROC_PROCESS
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>              + <span class="jxr_string">" WHERE NOT Name LIKE \&quot;%_Total\&quot;"</span>;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String THREAD = <span class="jxr_string">"Thread"</span>;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL = <span class="jxr_string">"Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \&quot;%_Total\&quot;"</span>;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <em class="jxr_comment">// For Vista- ... Older systems just have processor #</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROCESSOR = <span class="jxr_string">"Processor"</span>;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL = <span class="jxr_string">"Win32_PerfRawData_PerfOS_Processor WHERE Name!=\&quot;_Total\&quot;"</span>;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL = <span class="jxr_string">"Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;"</span>;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_comment">// For Win7+ ... NAME field includes NUMA nodes</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROCESSOR_INFORMATION = <span class="jxr_string">"Processor Information"</span>;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = <span class="jxr_string">"Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE \&quot;%_Total\&quot;"</span>;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SYSTEM = <span class="jxr_string">"System"</span>;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = <span class="jxr_string">"Win32_PerfRawData_PerfOS_System"</span>;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     * Everything in this class is static, never instantiate it</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <a name="PerfmonConstants" href="../../../../oshi/driver/windows/perfmon/PerfmonConstants.html#PerfmonConstants">PerfmonConstants</a>() {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> AssertionError();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0 = <span class="jxr_string">"Win32_PerfRawData_PerfProc_Process WHERE IDProcess=0"</span>;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String THREAD = <span class="jxr_string">"Thread"</span>;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL = <span class="jxr_string">"Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \&quot;%_Total\&quot;"</span>;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_comment">// For Vista- ... Older systems just have processor #</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROCESSOR = <span class="jxr_string">"Processor"</span>;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL = <span class="jxr_string">"Win32_PerfRawData_PerfOS_Processor WHERE Name!=\&quot;_Total\&quot;"</span>;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL = <span class="jxr_string">"Win32_PerfRawData_PerfOS_Processor WHERE Name=\&quot;_Total\&quot;"</span>;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <em class="jxr_comment">// For Win7+ ... NAME field includes NUMA nodes</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROCESSOR_INFORMATION = <span class="jxr_string">"Processor Information"</span>;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = <span class="jxr_string">"Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE \&quot;%_Total\&quot;"</span>;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SYSTEM = <span class="jxr_string">"System"</span>;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = <span class="jxr_string">"Win32_PerfRawData_PerfOS_System"</span>;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     * Everything in this class is static, never instantiate it</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <a name="PerfmonConstants" href="../../../../oshi/driver/windows/perfmon/PerfmonConstants.html#PerfmonConstants">PerfmonConstants</a>() {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> AssertionError();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

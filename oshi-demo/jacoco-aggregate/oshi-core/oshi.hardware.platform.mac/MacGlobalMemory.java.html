@@ -35,14 +35,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.VMStatistics;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseableLongByReference;
+import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -133,30 +133,33 @@ import oshi.util.platform.mac.SysctlUtil;
     }
 
     private long queryVmStats() {
-<span class="nc" id="L136">        VMStatistics vmStats = new VMStatistics();</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
-<span class="nc" id="L138">                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {</span>
-<span class="nc" id="L139">            LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L140">            return 0L;</span>
-        }
-<span class="nc" id="L142">        return (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
+<span class="nc" id="L136">        try (CloseableVMStatistics vmStats = new CloseableVMStatistics();</span>
+<span class="nc" id="L137">                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+                    size)) {
+<span class="nc" id="L140">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L141">                return 0L;</span>
+            }
+<span class="nc" id="L143">            return (vmStats.free_count + vmStats.inactive_count) * getPageSize();</span>
+<span class="nc" id="L144">        }</span>
     }
 
     private static long queryPhysMem() {
-<span class="nc" id="L146">        return SysctlUtil.sysctl(&quot;hw.memsize&quot;, 0L);</span>
+<span class="nc" id="L148">        return SysctlUtil.sysctl(&quot;hw.memsize&quot;, 0L);</span>
     }
 
     private static long queryPageSize() {
-<span class="nc" id="L150">        LongByReference pPageSize = new LongByReference();</span>
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
-<span class="nc" id="L152">            return pPageSize.getValue();</span>
-        }
-<span class="nc" id="L154">        LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
-<span class="nc" id="L155">        return 4098L;</span>
+<span class="nc" id="L152">        try (CloseableLongByReference pPageSize = new CloseableLongByReference()) {</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {</span>
+<span class="nc" id="L154">                return pPageSize.getValue();</span>
+            }
+<span class="nc" id="L156">        }</span>
+<span class="nc" id="L157">        LOG.error(&quot;Failed to get host page size. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L158">        return 4098L;</span>
     }
 
     private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L159">        return new MacVirtualMemory(this);</span>
+<span class="nc" id="L162">        return new MacVirtualMemory(this);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

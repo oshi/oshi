@@ -50,6 +50,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.util.tuples.Quintet;
 
 /**
@@ -59,8 +60,8 @@ import oshi.util.tuples.Quintet;
 public final class DeviceTree {
 
     private static final int MAX_PATH = 260;
-<span class="nc" id="L62">    private static final SetupApi SA = SetupApi.INSTANCE;</span>
-<span class="nc" id="L63">    private static final Cfgmgr32 C32 = Cfgmgr32.INSTANCE;</span>
+<span class="nc" id="L63">    private static final SetupApi SA = SetupApi.INSTANCE;</span>
+<span class="nc" id="L64">    private static final Cfgmgr32 C32 = Cfgmgr32.INSTANCE;</span>
 
     private DeviceTree() {
     }
@@ -85,78 +86,76 @@ public final class DeviceTree {
      */
     public static Quintet&lt;Set&lt;Integer&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;, Map&lt;Integer, String&gt;, Map&lt;Integer, String&gt;&gt; queryDeviceTree(
             GUID guidDevInterface) {
-<span class="nc" id="L88">        Map&lt;Integer, Integer&gt; parentMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L89">        Map&lt;Integer, String&gt; nameMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L90">        Map&lt;Integer, String&gt; deviceIdMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L91">        Map&lt;Integer, String&gt; mfgMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L89">        Map&lt;Integer, Integer&gt; parentMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L90">        Map&lt;Integer, String&gt; nameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L91">        Map&lt;Integer, String&gt; deviceIdMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L92">        Map&lt;Integer, String&gt; mfgMap = new HashMap&lt;&gt;();</span>
         // Get device IDs for the top level devices
-<span class="nc" id="L93">        HANDLE hDevInfo = SA.SetupDiGetClassDevs(guidDevInterface, null, null, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (!INVALID_HANDLE_VALUE.equals(hDevInfo)) {</span>
-            try {
-                // Create re-usable native allocations
-<span class="nc" id="L97">                Memory buf = new Memory(MAX_PATH);</span>
-<span class="nc" id="L98">                IntByReference size = new IntByReference(MAX_PATH);</span>
+<span class="nc" id="L94">        HANDLE hDevInfo = SA.SetupDiGetClassDevs(guidDevInterface, null, null, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (!INVALID_HANDLE_VALUE.equals(hDevInfo)) {</span>
+<span class="nc" id="L96">            try (Memory buf = new Memory(MAX_PATH);</span>
+<span class="nc" id="L97">                    CloseableIntByReference size = new CloseableIntByReference(MAX_PATH);</span>
+<span class="nc" id="L98">                    CloseableIntByReference child = new CloseableIntByReference();</span>
+<span class="nc" id="L99">                    CloseableIntByReference sibling = new CloseableIntByReference()) {</span>
                 // Enumerate Device Info using BFS queue
-<span class="nc" id="L100">                Queue&lt;Integer&gt; deviceTree = new ArrayDeque&lt;&gt;();</span>
+<span class="nc" id="L101">                Queue&lt;Integer&gt; deviceTree = new ArrayDeque&lt;&gt;();</span>
                 // Get the enumeration object
-<span class="nc" id="L102">                SP_DEVINFO_DATA devInfoData = new SP_DEVINFO_DATA();</span>
-<span class="nc" id="L103">                devInfoData.cbSize = devInfoData.size();</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">                for (int i = 0; SA.SetupDiEnumDeviceInfo(hDevInfo, i, devInfoData); i++) {</span>
-<span class="nc" id="L105">                    deviceTree.add(devInfoData.DevInst);</span>
+<span class="nc" id="L103">                SP_DEVINFO_DATA devInfoData = new SP_DEVINFO_DATA();</span>
+<span class="nc" id="L104">                devInfoData.cbSize = devInfoData.size();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                for (int i = 0; SA.SetupDiEnumDeviceInfo(hDevInfo, i, devInfoData); i++) {</span>
+<span class="nc" id="L106">                    deviceTree.add(devInfoData.DevInst);</span>
                     // Initialize parent and child objects
-<span class="nc" id="L107">                    int node = 0;</span>
-<span class="nc" id="L108">                    IntByReference child = new IntByReference();</span>
-<span class="nc" id="L109">                    IntByReference sibling = new IntByReference();</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">                    while (!deviceTree.isEmpty()) {</span>
+<span class="nc" id="L108">                    int node = 0;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                    while (!deviceTree.isEmpty()) {</span>
                         // Process the next device in the queue
-<span class="nc" id="L112">                        node = deviceTree.poll();</span>
+<span class="nc" id="L111">                        node = deviceTree.poll();</span>
 
                         // Save the strings in their maps
-<span class="nc" id="L115">                        String deviceId = Cfgmgr32Util.CM_Get_Device_ID(node);</span>
-<span class="nc" id="L116">                        deviceIdMap.put(node, deviceId);</span>
+<span class="nc" id="L114">                        String deviceId = Cfgmgr32Util.CM_Get_Device_ID(node);</span>
+<span class="nc" id="L115">                        deviceIdMap.put(node, deviceId);</span>
                         // Prefer friendly name over desc if it is present.
                         // If neither, use class (service)
-<span class="nc" id="L119">                        String name = getDevNodeProperty(node, CM_DRP_FRIENDLYNAME, buf, size);</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">                        if (name.isEmpty()) {</span>
-<span class="nc" id="L121">                            name = getDevNodeProperty(node, CM_DRP_DEVICEDESC, buf, size);</span>
+<span class="nc" id="L118">                        String name = getDevNodeProperty(node, CM_DRP_FRIENDLYNAME, buf, size);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                        if (name.isEmpty()) {</span>
+<span class="nc" id="L120">                            name = getDevNodeProperty(node, CM_DRP_DEVICEDESC, buf, size);</span>
                         }
-<span class="nc bnc" id="L123" title="All 2 branches missed.">                        if (name.isEmpty()) {</span>
-<span class="nc" id="L124">                            name = getDevNodeProperty(node, CM_DRP_CLASS, buf, size);</span>
-<span class="nc" id="L125">                            String svc = getDevNodeProperty(node, CM_DRP_SERVICE, buf, size);</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">                            if (!svc.isEmpty()) {</span>
-<span class="nc" id="L127">                                name = name + &quot; (&quot; + svc + &quot;)&quot;;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                        if (name.isEmpty()) {</span>
+<span class="nc" id="L123">                            name = getDevNodeProperty(node, CM_DRP_CLASS, buf, size);</span>
+<span class="nc" id="L124">                            String svc = getDevNodeProperty(node, CM_DRP_SERVICE, buf, size);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                            if (!svc.isEmpty()) {</span>
+<span class="nc" id="L126">                                name = name + &quot; (&quot; + svc + &quot;)&quot;;</span>
                             }
                         }
-<span class="nc" id="L130">                        nameMap.put(node, name);</span>
-<span class="nc" id="L131">                        mfgMap.put(node, getDevNodeProperty(node, CM_DRP_MFG, buf, size));</span>
+<span class="nc" id="L129">                        nameMap.put(node, name);</span>
+<span class="nc" id="L130">                        mfgMap.put(node, getDevNodeProperty(node, CM_DRP_MFG, buf, size));</span>
 
                         // Add any children to the queue, tracking the parent node
-<span class="nc bnc" id="L134" title="All 2 branches missed.">                        if (ERROR_SUCCESS == C32.CM_Get_Child(child, node, 0)) {</span>
-<span class="nc" id="L135">                            parentMap.put(child.getValue(), node);</span>
-<span class="nc" id="L136">                            deviceTree.add(child.getValue());</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">                            while (ERROR_SUCCESS == C32.CM_Get_Sibling(sibling, child.getValue(), 0)) {</span>
-<span class="nc" id="L138">                                parentMap.put(sibling.getValue(), node);</span>
-<span class="nc" id="L139">                                deviceTree.add(sibling.getValue());</span>
-<span class="nc" id="L140">                                child.setValue(sibling.getValue());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                        if (ERROR_SUCCESS == C32.CM_Get_Child(child, node, 0)) {</span>
+<span class="nc" id="L134">                            parentMap.put(child.getValue(), node);</span>
+<span class="nc" id="L135">                            deviceTree.add(child.getValue());</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                            while (ERROR_SUCCESS == C32.CM_Get_Sibling(sibling, child.getValue(), 0)) {</span>
+<span class="nc" id="L137">                                parentMap.put(sibling.getValue(), node);</span>
+<span class="nc" id="L138">                                deviceTree.add(sibling.getValue());</span>
+<span class="nc" id="L139">                                child.setValue(sibling.getValue());</span>
                             }
                         }
-<span class="nc" id="L143">                    }</span>
+<span class="nc" id="L142">                    }</span>
                 }
             } finally {
-<span class="nc" id="L146">                SA.SetupDiDestroyDeviceInfoList(hDevInfo);</span>
+<span class="nc" id="L145">                SA.SetupDiDestroyDeviceInfoList(hDevInfo);</span>
             }
         }
         // Look for output without parents, these are top of tree
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        Set&lt;Integer&gt; controllerDevices = deviceIdMap.keySet().stream().filter(k -&gt; !parentMap.containsKey(k))</span>
-<span class="nc" id="L151">                .collect(Collectors.toSet());</span>
-<span class="nc" id="L152">        return new Quintet&lt;&gt;(controllerDevices, parentMap, nameMap, deviceIdMap, mfgMap);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        Set&lt;Integer&gt; controllerDevices = deviceIdMap.keySet().stream().filter(k -&gt; !parentMap.containsKey(k))</span>
+<span class="nc" id="L150">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L151">        return new Quintet&lt;&gt;(controllerDevices, parentMap, nameMap, deviceIdMap, mfgMap);</span>
     }
 
     private static String getDevNodeProperty(int node, int cmDrp, Memory buf, IntByReference size) {
-<span class="nc" id="L156">        buf.clear();</span>
-<span class="nc" id="L157">        size.setValue((int) buf.size());</span>
-<span class="nc" id="L158">        C32.CM_Get_DevNode_Registry_Property(node, cmDrp, null, buf, size, 0);</span>
-<span class="nc" id="L159">        return buf.getWideString(0);</span>
+<span class="nc" id="L155">        buf.clear();</span>
+<span class="nc" id="L156">        size.setValue((int) buf.size());</span>
+<span class="nc" id="L157">        C32.CM_Get_DevNode_Registry_Property(node, cmDrp, null, buf, size, 0);</span>
+<span class="nc" id="L158">        return buf.getWideString(0);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

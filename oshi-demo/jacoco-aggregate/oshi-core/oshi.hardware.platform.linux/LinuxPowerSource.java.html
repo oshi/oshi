@@ -23,10 +23,16 @@
  */
 package oshi.hardware.platform.linux;
 
+import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.linux.Udev;
 import com.sun.jna.platform.linux.Udev.UdevContext;
@@ -46,17 +52,19 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class LinuxPowerSource extends AbstractPowerSource {
 
+<span class="nc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSource.class);</span>
+
     public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
             int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
-<span class="nc" id="L55">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
+<span class="nc" id="L63">        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,</span>
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
                 psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
                 psManufacturer, psSerialNumber, psTemperature);
-<span class="nc" id="L59">    }</span>
+<span class="nc" id="L67">    }</span>
 
     /**
      * Gets Battery Information
@@ -64,102 +72,106 @@ public final class LinuxPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static List&lt;PowerSource&gt; getPowerSources() {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (!HAS_UDEV) {</span>
+<span class="nc" id="L76">            LOG.warn(&quot;Power Source information requires libudev, which is not present.&quot;);</span>
+<span class="nc" id="L77">            return Collections.emptyList();</span>
+        }
         String psName;
         String psDeviceName;
-<span class="nc" id="L69">        double psRemainingCapacityPercent = -1d;</span>
-<span class="nc" id="L70">        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited</span>
-<span class="nc" id="L71">        double psTimeRemainingInstant = -1d;</span>
-<span class="nc" id="L72">        double psPowerUsageRate = 0d;</span>
-<span class="nc" id="L73">        double psVoltage = -1d;</span>
-<span class="nc" id="L74">        double psAmperage = 0d;</span>
-<span class="nc" id="L75">        boolean psPowerOnLine = false;</span>
-<span class="nc" id="L76">        boolean psCharging = false;</span>
-<span class="nc" id="L77">        boolean psDischarging = false;</span>
-<span class="nc" id="L78">        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;</span>
-<span class="nc" id="L79">        int psCurrentCapacity = -1;</span>
-<span class="nc" id="L80">        int psMaxCapacity = -1;</span>
-<span class="nc" id="L81">        int psDesignCapacity = -1;</span>
-<span class="nc" id="L82">        int psCycleCount = -1;</span>
+<span class="nc" id="L81">        double psRemainingCapacityPercent = -1d;</span>
+<span class="nc" id="L82">        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited</span>
+<span class="nc" id="L83">        double psTimeRemainingInstant = -1d;</span>
+<span class="nc" id="L84">        double psPowerUsageRate = 0d;</span>
+<span class="nc" id="L85">        double psVoltage = -1d;</span>
+<span class="nc" id="L86">        double psAmperage = 0d;</span>
+<span class="nc" id="L87">        boolean psPowerOnLine = false;</span>
+<span class="nc" id="L88">        boolean psCharging = false;</span>
+<span class="nc" id="L89">        boolean psDischarging = false;</span>
+<span class="nc" id="L90">        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;</span>
+<span class="nc" id="L91">        int psCurrentCapacity = -1;</span>
+<span class="nc" id="L92">        int psMaxCapacity = -1;</span>
+<span class="nc" id="L93">        int psDesignCapacity = -1;</span>
+<span class="nc" id="L94">        int psCycleCount = -1;</span>
         String psChemistry;
-<span class="nc" id="L84">        LocalDate psManufactureDate = null;</span>
+<span class="nc" id="L96">        LocalDate psManufactureDate = null;</span>
         String psManufacturer;
         String psSerialNumber;
-<span class="nc" id="L87">        double psTemperature = 0d;</span>
+<span class="nc" id="L99">        double psTemperature = 0d;</span>
 
-<span class="nc" id="L89">        List&lt;PowerSource&gt; psList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L90">        UdevContext udev = Udev.INSTANCE.udev_new();</span>
+<span class="nc" id="L101">        List&lt;PowerSource&gt; psList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L102">        UdevContext udev = Udev.INSTANCE.udev_new();</span>
         try {
-<span class="nc" id="L92">            UdevEnumerate enumerate = udev.enumerateNew();</span>
+<span class="nc" id="L104">            UdevEnumerate enumerate = udev.enumerateNew();</span>
             try {
-<span class="nc" id="L94">                enumerate.addMatchSubsystem(&quot;power_supply&quot;);</span>
-<span class="nc" id="L95">                enumerate.scanDevices();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">                for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {</span>
-<span class="nc" id="L97">                    String syspath = entry.getName();</span>
-<span class="nc" id="L98">                    String name = syspath.substring(syspath.lastIndexOf(File.separatorChar) + 1);</span>
-<span class="nc bnc" id="L99" title="All 4 branches missed.">                    if (!name.startsWith(&quot;ADP&quot;) &amp;&amp; !name.startsWith(&quot;AC&quot;)) {</span>
-<span class="nc" id="L100">                        UdevDevice device = udev.deviceNewFromSyspath(syspath);</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">                        if (device != null) {</span>
+<span class="nc" id="L106">                enumerate.addMatchSubsystem(&quot;power_supply&quot;);</span>
+<span class="nc" id="L107">                enumerate.scanDevices();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {</span>
+<span class="nc" id="L109">                    String syspath = entry.getName();</span>
+<span class="nc" id="L110">                    String name = syspath.substring(syspath.lastIndexOf(File.separatorChar) + 1);</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">                    if (!name.startsWith(&quot;ADP&quot;) &amp;&amp; !name.startsWith(&quot;AC&quot;)) {</span>
+<span class="nc" id="L112">                        UdevDevice device = udev.deviceNewFromSyspath(syspath);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                        if (device != null) {</span>
                             try {
-<span class="nc bnc" id="L103" title="All 2 branches missed.">                                if (ParseUtil.parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_PRESENT&quot;), 1) &gt; 0</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">                                        &amp;&amp; ParseUtil.parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_ONLINE&quot;),</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                                if (ParseUtil.parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_PRESENT&quot;), 1) &gt; 0</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                                        &amp;&amp; ParseUtil.parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_ONLINE&quot;),</span>
                                                 1) &gt; 0) {
-<span class="nc" id="L106">                                    psName = getOrDefault(device, &quot;POWER_SUPPLY_NAME&quot;, name);</span>
-<span class="nc" id="L107">                                    String status = device.getPropertyValue(&quot;POWER_SUPPLY_STATUS&quot;);</span>
-<span class="nc" id="L108">                                    psCharging = &quot;Charging&quot;.equals(status);</span>
-<span class="nc" id="L109">                                    psDischarging = &quot;Discharging&quot;.equals(status);</span>
-<span class="nc" id="L110">                                    psRemainingCapacityPercent = ParseUtil.parseIntOrDefault(</span>
-<span class="nc" id="L111">                                            device.getPropertyValue(&quot;POWER_SUPPLY_CAPACITY&quot;), -100) / 100d;</span>
+<span class="nc" id="L118">                                    psName = getOrDefault(device, &quot;POWER_SUPPLY_NAME&quot;, name);</span>
+<span class="nc" id="L119">                                    String status = device.getPropertyValue(&quot;POWER_SUPPLY_STATUS&quot;);</span>
+<span class="nc" id="L120">                                    psCharging = &quot;Charging&quot;.equals(status);</span>
+<span class="nc" id="L121">                                    psDischarging = &quot;Discharging&quot;.equals(status);</span>
+<span class="nc" id="L122">                                    psRemainingCapacityPercent = ParseUtil.parseIntOrDefault(</span>
+<span class="nc" id="L123">                                            device.getPropertyValue(&quot;POWER_SUPPLY_CAPACITY&quot;), -100) / 100d;</span>
 
                                     // Debian/Ubuntu provides Energy. Fedora/RHEL provides Charge.
-<span class="nc" id="L114">                                    psCurrentCapacity = ParseUtil</span>
-<span class="nc" id="L115">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_ENERGY_NOW&quot;), -1);</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">                                    if (psCurrentCapacity &lt; 0) {</span>
-<span class="nc" id="L117">                                        psCurrentCapacity = ParseUtil.parseIntOrDefault(</span>
-<span class="nc" id="L118">                                                device.getPropertyValue(&quot;POWER_SUPPLY_CHARGE_NOW&quot;), -1);</span>
+<span class="nc" id="L126">                                    psCurrentCapacity = ParseUtil</span>
+<span class="nc" id="L127">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_ENERGY_NOW&quot;), -1);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                                    if (psCurrentCapacity &lt; 0) {</span>
+<span class="nc" id="L129">                                        psCurrentCapacity = ParseUtil.parseIntOrDefault(</span>
+<span class="nc" id="L130">                                                device.getPropertyValue(&quot;POWER_SUPPLY_CHARGE_NOW&quot;), -1);</span>
                                     }
-<span class="nc" id="L120">                                    psMaxCapacity = ParseUtil</span>
-<span class="nc" id="L121">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_ENERGY_FULL&quot;), 1);</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">                                    if (psMaxCapacity &lt; 0) {</span>
-<span class="nc" id="L123">                                        psMaxCapacity = ParseUtil.parseIntOrDefault(</span>
-<span class="nc" id="L124">                                                device.getPropertyValue(&quot;POWER_SUPPLY_CHARGE_FULL&quot;), 1);</span>
+<span class="nc" id="L132">                                    psMaxCapacity = ParseUtil</span>
+<span class="nc" id="L133">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_ENERGY_FULL&quot;), 1);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                                    if (psMaxCapacity &lt; 0) {</span>
+<span class="nc" id="L135">                                        psMaxCapacity = ParseUtil.parseIntOrDefault(</span>
+<span class="nc" id="L136">                                                device.getPropertyValue(&quot;POWER_SUPPLY_CHARGE_FULL&quot;), 1);</span>
                                     }
-<span class="nc" id="L126">                                    psDesignCapacity = ParseUtil.parseIntOrDefault(</span>
-<span class="nc" id="L127">                                            device.getPropertyValue(&quot;POWER_SUPPLY_ENERGY_FULL_DESIGN&quot;), 1);</span>
-<span class="nc bnc" id="L128" title="All 2 branches missed.">                                    if (psDesignCapacity &lt; 0) {</span>
-<span class="nc" id="L129">                                        psDesignCapacity = ParseUtil.parseIntOrDefault(</span>
-<span class="nc" id="L130">                                                device.getPropertyValue(&quot;POWER_SUPPLY_CHARGE_FULL_DESIGN&quot;), 1);</span>
+<span class="nc" id="L138">                                    psDesignCapacity = ParseUtil.parseIntOrDefault(</span>
+<span class="nc" id="L139">                                            device.getPropertyValue(&quot;POWER_SUPPLY_ENERGY_FULL_DESIGN&quot;), 1);</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                                    if (psDesignCapacity &lt; 0) {</span>
+<span class="nc" id="L141">                                        psDesignCapacity = ParseUtil.parseIntOrDefault(</span>
+<span class="nc" id="L142">                                                device.getPropertyValue(&quot;POWER_SUPPLY_CHARGE_FULL_DESIGN&quot;), 1);</span>
                                     }
 
                                     // Debian/Ubuntu provides Voltage and Power.
                                     // Fedora/RHEL provides Voltage and Current.
-<span class="nc" id="L135">                                    psVoltage = ParseUtil</span>
-<span class="nc" id="L136">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_VOLTAGE_NOW&quot;), -1);</span>
+<span class="nc" id="L147">                                    psVoltage = ParseUtil</span>
+<span class="nc" id="L148">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_VOLTAGE_NOW&quot;), -1);</span>
                                     // From Physics we know P = IV so I = P/V
-<span class="nc bnc" id="L138" title="All 2 branches missed.">                                    if (psVoltage &gt; 0) {</span>
-<span class="nc" id="L139">                                        String power = device.getPropertyValue(&quot;POWER_SUPPLY_POWER_NOW&quot;);</span>
-<span class="nc" id="L140">                                        String current = device.getPropertyValue(&quot;POWER_SUPPLY_CURRENT_NOW&quot;);</span>
-<span class="nc bnc" id="L141" title="All 2 branches missed.">                                        if (power == null) {</span>
-<span class="nc" id="L142">                                            psAmperage = ParseUtil.parseIntOrDefault(current, 0);</span>
-<span class="nc" id="L143">                                            psPowerUsageRate = psAmperage * psVoltage;</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">                                        } else if (current == null) {</span>
-<span class="nc" id="L145">                                            psPowerUsageRate = ParseUtil.parseIntOrDefault(power, 0);</span>
-<span class="nc" id="L146">                                            psAmperage = psPowerUsageRate / psVoltage;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                                    if (psVoltage &gt; 0) {</span>
+<span class="nc" id="L151">                                        String power = device.getPropertyValue(&quot;POWER_SUPPLY_POWER_NOW&quot;);</span>
+<span class="nc" id="L152">                                        String current = device.getPropertyValue(&quot;POWER_SUPPLY_CURRENT_NOW&quot;);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                                        if (power == null) {</span>
+<span class="nc" id="L154">                                            psAmperage = ParseUtil.parseIntOrDefault(current, 0);</span>
+<span class="nc" id="L155">                                            psPowerUsageRate = psAmperage * psVoltage;</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">                                        } else if (current == null) {</span>
+<span class="nc" id="L157">                                            psPowerUsageRate = ParseUtil.parseIntOrDefault(power, 0);</span>
+<span class="nc" id="L158">                                            psAmperage = psPowerUsageRate / psVoltage;</span>
                                         } else {
-<span class="nc" id="L148">                                            psAmperage = ParseUtil.parseIntOrDefault(current, 0);</span>
-<span class="nc" id="L149">                                            psPowerUsageRate = ParseUtil.parseIntOrDefault(power, 0);</span>
+<span class="nc" id="L160">                                            psAmperage = ParseUtil.parseIntOrDefault(current, 0);</span>
+<span class="nc" id="L161">                                            psPowerUsageRate = ParseUtil.parseIntOrDefault(power, 0);</span>
                                         }
                                     }
 
-<span class="nc" id="L153">                                    psCycleCount = ParseUtil</span>
-<span class="nc" id="L154">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_CYCLE_COUNT&quot;), -1);</span>
-<span class="nc" id="L155">                                    psChemistry = getOrDefault(device, &quot;POWER_SUPPLY_TECHNOLOGY&quot;, Constants.UNKNOWN);</span>
-<span class="nc" id="L156">                                    psDeviceName = getOrDefault(device, &quot;POWER_SUPPLY_MODEL_NAME&quot;, Constants.UNKNOWN);</span>
-<span class="nc" id="L157">                                    psManufacturer = getOrDefault(device, &quot;POWER_SUPPLY_MANUFACTURER&quot;,</span>
+<span class="nc" id="L165">                                    psCycleCount = ParseUtil</span>
+<span class="nc" id="L166">                                            .parseIntOrDefault(device.getPropertyValue(&quot;POWER_SUPPLY_CYCLE_COUNT&quot;), -1);</span>
+<span class="nc" id="L167">                                    psChemistry = getOrDefault(device, &quot;POWER_SUPPLY_TECHNOLOGY&quot;, Constants.UNKNOWN);</span>
+<span class="nc" id="L168">                                    psDeviceName = getOrDefault(device, &quot;POWER_SUPPLY_MODEL_NAME&quot;, Constants.UNKNOWN);</span>
+<span class="nc" id="L169">                                    psManufacturer = getOrDefault(device, &quot;POWER_SUPPLY_MANUFACTURER&quot;,</span>
                                             Constants.UNKNOWN);
-<span class="nc" id="L159">                                    psSerialNumber = getOrDefault(device, &quot;POWER_SUPPLY_SERIAL_NUMBER&quot;,</span>
+<span class="nc" id="L171">                                    psSerialNumber = getOrDefault(device, &quot;POWER_SUPPLY_SERIAL_NUMBER&quot;,</span>
                                             Constants.UNKNOWN);
 
-<span class="nc" id="L162">                                    psList.add(new LinuxPowerSource(psName, psDeviceName, psRemainingCapacityPercent,</span>
+<span class="nc" id="L174">                                    psList.add(new LinuxPowerSource(psName, psDeviceName, psRemainingCapacityPercent,</span>
                                             psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate,
                                             psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging,
                                             psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity,
@@ -167,23 +179,23 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                                             psSerialNumber, psTemperature));
                                 }
                             } finally {
-<span class="nc" id="L170">                                device.unref();</span>
+<span class="nc" id="L182">                                device.unref();</span>
                             }
                         }
                     }
                 }
             } finally {
-<span class="nc" id="L176">                enumerate.unref();</span>
+<span class="nc" id="L188">                enumerate.unref();</span>
             }
         } finally {
-<span class="nc" id="L179">            udev.unref();</span>
+<span class="nc" id="L191">            udev.unref();</span>
         }
-<span class="nc" id="L181">        return psList;</span>
+<span class="nc" id="L193">        return psList;</span>
     }
 
     private static String getOrDefault(UdevDevice device, String property, String def) {
-<span class="nc" id="L185">        String value = device.getPropertyValue(property);</span>
-<span class="nc bnc" id="L186" title="All 2 branches missed.">        return value == null ? def : value;</span>
+<span class="nc" id="L197">        String value = device.getPropertyValue(property);</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        return value == null ? def : value;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
