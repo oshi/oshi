@@ -29,9 +29,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-
 import oshi.annotation.concurrent.NotThreadSafe;
+import oshi.jna.ByRef.CloseableHANDLEByReference;
 import oshi.util.FormatUtil;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
@@ -47,9 +46,9 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 
     // Map of counter handles
-    private Map<PerfCounter, HANDLEByReference> counterHandleMap = new HashMap<>();
+    private Map<PerfCounter, CloseableHANDLEByReference> counterHandleMap = new HashMap<>();
     // The query handle
-    private HANDLEByReference queryHandle = null;
+    private CloseableHANDLEByReference queryHandle = null;
 
     /**
      * Begin monitoring a Performance Data counter.
@@ -61,17 +60,19 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     public boolean addCounterToQuery(PerfCounter counter) {
         // Open a new query or get the handle to an existing one
         if (this.queryHandle == null) {
-            this.queryHandle = new HANDLEByReference();
+            this.queryHandle = new CloseableHANDLEByReference();
             if (!PerfDataUtil.openQuery(this.queryHandle)) {
                 LOG.warn("Failed to open a query for PDH counter: {}", counter.getCounterPath());
+                this.queryHandle.close();
                 this.queryHandle = null;
                 return false;
             }
         }
         // Get a new handle for the counter
-        HANDLEByReference p = new HANDLEByReference();
+        CloseableHANDLEByReference p = new CloseableHANDLEByReference();
         if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {
             LOG.warn("Failed to add counter for PDH counter: {}", counter.getCounterPath());
+            p.close();
             return false;
         }
         counterHandleMap.put(counter, p);
@@ -87,14 +88,16 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
      */
     public boolean removeCounterFromQuery(PerfCounter counter) {
         boolean success = false;
-        HANDLEByReference href = counterHandleMap.remove(counter);
-        // null if handle wasn't present
-        if (href != null) {
-            success = PerfDataUtil.removeCounter(href);
+        try (CloseableHANDLEByReference href = counterHandleMap.remove(counter)) {
+            // null if handle wasn't present
+            if (href != null) {
+                success = PerfDataUtil.removeCounter(href);
+            }
         }
         if (counterHandleMap.isEmpty()) {
-            PerfDataUtil.closeQuery(queryHandle);
-            queryHandle = null;
+            PerfDataUtil.closeQuery(this.queryHandle);
+            this.queryHandle.close();
+            this.queryHandle = null;
         }
         return success;
     }
@@ -104,15 +107,17 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
      */
     public void removeAllCounters() {
         // Remove all counters from counterHandle map
-        for (HANDLEByReference href : counterHandleMap.values()) {
+        for (CloseableHANDLEByReference href : counterHandleMap.values()) {
             PerfDataUtil.removeCounter(href);
+            href.close();
         }
         counterHandleMap.clear();
         // Remove query
         if (this.queryHandle != null) {
             PerfDataUtil.closeQuery(this.queryHandle);
+            this.queryHandle.close();
+            this.queryHandle = null;
         }
-        this.queryHandle = null;
     }
 
     /**
@@ -122,7 +127,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
      *         since the epoch, or 0 if the update failed
      */
     public long updateQuery() {
-        if (queryHandle == null) {
+        if (this.queryHandle == null) {
             LOG.warn("Query does not exist to update.");
             return 0L;
         }

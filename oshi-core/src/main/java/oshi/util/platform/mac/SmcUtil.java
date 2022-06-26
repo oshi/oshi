@@ -36,10 +36,10 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOService;
 import com.sun.jna.platform.mac.IOKitUtil;
-import com.sun.jna.ptr.NativeLongByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableNativeLongByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.mac.IOKit;
 import oshi.jna.platform.mac.IOKit.SMCKeyData;
 import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
@@ -90,13 +90,15 @@ public final class SmcUtil {
     public static IOConnect smcOpen() {
         IOService smcService = IOKitUtil.getMatchingService("AppleSMC");
         if (smcService != null) {
-            PointerByReference connPtr = new PointerByReference();
-            int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);
-            smcService.release();
-            if (result == 0) {
-                return new IOConnect(connPtr.getValue());
-            } else if (LOG.isErrorEnabled()) {
-                LOG.error(String.format("Unable to open connection to AppleSMC service. Error: 0x%08x", result));
+            try (CloseablePointerByReference connPtr = new CloseablePointerByReference()) {
+                int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);
+                if (result == 0) {
+                    return new IOConnect(connPtr.getValue());
+                } else if (LOG.isErrorEnabled()) {
+                    LOG.error(String.format("Unable to open connection to AppleSMC service. Error: 0x%08x", result));
+                }
+            } finally {
+                smcService.release();
             }
         } else {
             LOG.error("Unable to locate AppleSMC service");
@@ -126,19 +128,20 @@ public final class SmcUtil {
      * @return Double representing the value
      */
     public static double smcGetFloat(IOConnect conn, String key) {
-        SMCVal val = new SMCVal();
-        int result = smcReadKey(conn, key, val);
-        if (result == 0 && val.dataSize > 0) {
-            if (Arrays.equals(val.dataType, DATATYPE_SP78) && val.dataSize == 2) {
-                // First bit is sign, next 7 bits are integer portion, last 8 bits are
-                // fractional portion
-                return val.bytes[0] + val.bytes[1] / 256d;
-            } else if (Arrays.equals(val.dataType, DATATYPE_FPE2) && val.dataSize == 2) {
-                // First E (14) bits are integer portion last 2 bits are fractional portion
-                return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
-            } else if (Arrays.equals(val.dataType, DATATYPE_FLT) && val.dataSize == 4) {
-                // Standard 32-bit floating point
-                return ByteBuffer.wrap(val.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+        try (SMCVal val = new SMCVal()) {
+            int result = smcReadKey(conn, key, val);
+            if (result == 0 && val.dataSize > 0) {
+                if (Arrays.equals(val.dataType, DATATYPE_SP78) && val.dataSize == 2) {
+                    // First bit is sign, next 7 bits are integer portion, last 8 bits are
+                    // fractional portion
+                    return val.bytes[0] + val.bytes[1] / 256d;
+                } else if (Arrays.equals(val.dataType, DATATYPE_FPE2) && val.dataSize == 2) {
+                    // First E (14) bits are integer portion last 2 bits are fractional portion
+                    return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
+                } else if (Arrays.equals(val.dataType, DATATYPE_FLT) && val.dataSize == 4) {
+                    // Standard 32-bit floating point
+                    return ByteBuffer.wrap(val.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                }
             }
         }
         // Read failed
@@ -155,10 +158,11 @@ public final class SmcUtil {
      * @return Long representing the value
      */
     public static long smcGetLong(IOConnect conn, String key) {
-        SMCVal val = new SMCVal();
-        int result = smcReadKey(conn, key, val);
-        if (result == 0) {
-            return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);
+        try (SMCVal val = new SMCVal()) {
+            int result = smcReadKey(conn, key, val);
+            if (result == 0) {
+                return ParseUtil.byteArrayToLong(val.bytes, val.dataSize);
+            }
         }
         // Read failed
         return 0;
@@ -243,7 +247,10 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcCall(IOConnect conn, int index, SMCKeyData inputStructure, SMCKeyData outputStructure) {
-        return IO.IOConnectCallStructMethod(conn, index, inputStructure, new NativeLong(inputStructure.size()),
-                outputStructure, new NativeLongByReference(new NativeLong(outputStructure.size())));
+        try (CloseableNativeLongByReference size = new CloseableNativeLongByReference(
+                new NativeLong(outputStructure.size()))) {
+            return IO.IOConnectCallStructMethod(conn, index, inputStructure, new NativeLong(inputStructure.size()),
+                    outputStructure, size);
+        }
     }
 }
