@@ -27,6 +27,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
+import com.sun.jna.platform.win32.Tlhelp32.PROCESSENTRY32;
 import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.ptr.IntByReference;
@@ -115,6 +116,16 @@ public interface ByRef {
             super(value);
         }
 
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseablePROCESSENTRY32ByReference extends PROCESSENTRY32.ByReference implements AutoCloseable {
         @Override
         public void close() {
             Pointer p = this.getPointer();

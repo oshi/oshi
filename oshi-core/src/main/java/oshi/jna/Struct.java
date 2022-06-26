@@ -26,7 +26,11 @@ package oshi.jna;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
+import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
+import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
+import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
+import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 /**
  * Wrapper classes for JNA clases which extend {@link com.sun.jna.Structure}
@@ -45,6 +49,46 @@ public interface Struct {
     }
 
     class CloseableHostCpuLoadInfo extends HostCpuLoadInfo implements AutoCloseable {
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseableProcTaskInfo extends ProcTaskInfo implements AutoCloseable {
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseableProcTaskAllInfo extends ProcTaskAllInfo implements AutoCloseable {
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseableVnodePathInfo extends VnodePathInfo implements AutoCloseable {
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseablePerformanceInformation extends PERFORMANCE_INFORMATION implements AutoCloseable {
         @Override
         public void close() {
             Pointer p = this.getPointer();

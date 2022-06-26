@@ -49,14 +49,14 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Group;
 import com.sun.jna.platform.mac.SystemB.Passwd;
-import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.RUsageInfoV2;
-import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
 import oshi.driver.mac.ThreadInfo.ThreadStats;
+import oshi.jna.Struct.CloseableProcTaskAllInfo;
+import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.platform.mac.SysctlUtil;
@@ -355,85 +355,87 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
-        ProcTaskAllInfo taskAllInfo = new ProcTaskAllInfo();
-        if (0 > SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo,
-                taskAllInfo.size()) || taskAllInfo.ptinfo.pti_threadnum < 1) {
-            this.state = INVALID;
-            return false;
-        }
-        try (Memory buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
-            if (0 < SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
-                this.path = buf.getString(0).trim();
-                // Overwrite name with last part of path
-                String[] pathSplit = this.path.split("/");
-                if (pathSplit.length > 0) {
-                    this.name = pathSplit[pathSplit.length - 1];
+        try (CloseableProcTaskAllInfo taskAllInfo = new CloseableProcTaskAllInfo()) {
+            if (0 > SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo,
+                    taskAllInfo.size()) || taskAllInfo.ptinfo.pti_threadnum < 1) {
+                this.state = INVALID;
+                return false;
+            }
+            try (Memory buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
+                if (0 < SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
+                    this.path = buf.getString(0).trim();
+                    // Overwrite name with last part of path
+                    String[] pathSplit = this.path.split("/");
+                    if (pathSplit.length > 0) {
+                        this.name = pathSplit[pathSplit.length - 1];
+                    }
+                }
+            }
+            if (this.name.isEmpty()) {
+                // pbi_comm contains first 16 characters of name
+                this.name = Native.toString(taskAllInfo.pbsd.pbi_comm, StandardCharsets.UTF_8);
+            }
+
+            switch (taskAllInfo.pbsd.pbi_status) {
+            case SSLEEP:
+                this.state = SLEEPING;
+                break;
+            case SWAIT:
+                this.state = WAITING;
+                break;
+            case SRUN:
+                this.state = RUNNING;
+                break;
+            case SIDL:
+                this.state = NEW;
+                break;
+            case SZOMB:
+                this.state = ZOMBIE;
+                break;
+            case SSTOP:
+                this.state = STOPPED;
+                break;
+            default:
+                this.state = OTHER;
+                break;
+            }
+            this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;
+            this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);
+            Passwd pwuid = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);
+            if (pwuid != null) {
+                this.user = pwuid.pw_name;
+            }
+            this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);
+            Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);
+            if (grgid != null) {
+                this.group = grgid.gr_name;
+            }
+            this.threadCount = taskAllInfo.ptinfo.pti_threadnum;
+            this.priority = taskAllInfo.ptinfo.pti_priority;
+            this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;
+            this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;
+            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / 1_000_000L;
+            this.userTime = taskAllInfo.ptinfo.pti_total_user / 1_000_000L;
+            this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;
+            this.upTime = now - this.startTime;
+            this.openFiles = taskAllInfo.pbsd.pbi_nfiles;
+            this.bitness = (taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64;
+            this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
+            // testing using getrusage confirms pti_faults includes both major and minor
+            this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
+            this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
+            if (this.minorVersion >= 9) {
+                RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
+                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
+                    this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;
+                    this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
                 }
             }
         }
-        if (this.name.isEmpty()) {
-            // pbi_comm contains first 16 characters of name
-            this.name = Native.toString(taskAllInfo.pbsd.pbi_comm, StandardCharsets.UTF_8);
-        }
-
-        switch (taskAllInfo.pbsd.pbi_status) {
-        case SSLEEP:
-            this.state = SLEEPING;
-            break;
-        case SWAIT:
-            this.state = WAITING;
-            break;
-        case SRUN:
-            this.state = RUNNING;
-            break;
-        case SIDL:
-            this.state = NEW;
-            break;
-        case SZOMB:
-            this.state = ZOMBIE;
-            break;
-        case SSTOP:
-            this.state = STOPPED;
-            break;
-        default:
-            this.state = OTHER;
-            break;
-        }
-        this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;
-        this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);
-        Passwd pwuid = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);
-        if (pwuid != null) {
-            this.user = pwuid.pw_name;
-        }
-        this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);
-        Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);
-        if (grgid != null) {
-            this.group = grgid.gr_name;
-        }
-        this.threadCount = taskAllInfo.ptinfo.pti_threadnum;
-        this.priority = taskAllInfo.ptinfo.pti_priority;
-        this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;
-        this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;
-        this.kernelTime = taskAllInfo.ptinfo.pti_total_system / 1_000_000L;
-        this.userTime = taskAllInfo.ptinfo.pti_total_user / 1_000_000L;
-        this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;
-        this.upTime = now - this.startTime;
-        this.openFiles = taskAllInfo.pbsd.pbi_nfiles;
-        this.bitness = (taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64;
-        this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
-        // testing using getrusage confirms pti_faults includes both major and minor
-        this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
-        this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
-        if (this.minorVersion >= 9) {
-            RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
-            if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
-                this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;
-                this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
+        try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {
+            if (0 < SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
+                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);
             }
-        }
-        VnodePathInfo vpi = new VnodePathInfo();
-        if (0 < SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
-            this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);
         }
         return true;
     }
