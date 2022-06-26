@@ -8,7 +8,8 @@ module com.github.oshi {
     exports oshi.software.os;
     exports oshi.util;
 
-    // JNA needs reflective access to Structure subclasses
+    // JNA needs reflective access to Structure and ByReference subclasses
+    opens oshi.jna to com.sun.jna;
     opens oshi.jna.platform.linux to com.sun.jna;
     opens oshi.jna.platform.mac to com.sun.jna;
     opens oshi.jna.platform.windows to com.sun.jna;

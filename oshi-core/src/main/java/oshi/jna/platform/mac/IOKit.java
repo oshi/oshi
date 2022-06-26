@@ -23,8 +23,10 @@
  */
 package oshi.jna.platform.mac;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.NativeLongByReference;
@@ -94,11 +96,19 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
      * Holds an SMC value
      */
     @FieldOrder({ "key", "dataSize", "dataType", "bytes" })
-    class SMCVal extends Structure {
+    class SMCVal extends Structure implements AutoCloseable {
         public byte[] key = new byte[5];
         public int dataSize;
         public byte[] dataType = new byte[5];
         public byte[] bytes = new byte[32];
+
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
     }
 
     /*

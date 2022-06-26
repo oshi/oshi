@@ -4,6 +4,7 @@
 * [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
 * [#2080](https://github.com/oshi/oshi/pull/2080): JNA 5.12.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#2081](https://github.com/oshi/oshi/pull/2081): Proactively free native Memory allocations - [@dbwiddis](https://github.com/dbwiddis).
+* [#2082](https://github.com/oshi/oshi/pull/2082): Proactively free native reference allocations in utils - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### New Features
 * [#2046](https://github.com/oshi/oshi/pull/2046): Added getSystemCpuLoad/getProcessorCpuLoad convenience methods - [@Osiris-Team](https://github.com/Osiris-Team).

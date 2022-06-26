@@ -28,18 +28,18 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR;
 import com.sun.jna.platform.win32.Pdh;
-import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
 import com.sun.jna.platform.win32.PdhMsg;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
-import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableLONGLONGByReference;
+import oshi.jna.Struct.CloseablePdhRawCounter;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -152,26 +152,27 @@ public final class PerfDataUtil {
      * @return The update timestamp of the first counter in the query
      */
     public static long updateQueryTimestamp(WinNT.HANDLEByReference query) {
-        LONGLONGByReference pllTimeStamp = new LONGLONGByReference();
-        int ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)
-                : PDH.PdhCollectQueryData(query.getValue());
-        // Due to race condition, initial update may fail with PDH_NO_DATA.
-        int retries = 0;
-        while (ret == PdhMsg.PDH_NO_DATA && retries++ < 3) {
-            // Exponential fallback.
-            Util.sleep(1 << retries);
-            ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)
+        try (CloseableLONGLONGByReference pllTimeStamp = new CloseableLONGLONGByReference()) {
+            int ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)
                     : PDH.PdhCollectQueryData(query.getValue());
-        }
-        if (ret != WinError.ERROR_SUCCESS) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to update counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+            // Due to race condition, initial update may fail with PDH_NO_DATA.
+            int retries = 0;
+            while (ret == PdhMsg.PDH_NO_DATA && retries++ < 3) {
+                // Exponential fallback.
+                Util.sleep(1 << retries);
+                ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)
+                        : PDH.PdhCollectQueryData(query.getValue());
             }
-            return 0L;
+            if (ret != WinError.ERROR_SUCCESS) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to update counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+                }
+                return 0L;
+            }
+            // Perf Counter timestamp is in local time
+            return IS_VISTA_OR_GREATER ? ParseUtil.filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true)
+                    : System.currentTimeMillis();
         }
-        // Perf Counter timestamp is in local time
-        return IS_VISTA_OR_GREATER ? ParseUtil.filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true)
-                : System.currentTimeMillis();
     }
 
     /**
@@ -212,15 +213,16 @@ public final class PerfDataUtil {
      *         code
      */
     public static long queryCounter(WinNT.HANDLEByReference counter) {
-        PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
-        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
-        if (ret != WinError.ERROR_SUCCESS) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+        try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {
+            int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
+            if (ret != WinError.ERROR_SUCCESS) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to get counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+                }
+                return ret;
             }
-            return ret;
+            return counterValue.FirstValue;
         }
-        return counterValue.FirstValue;
     }
 
     /**
@@ -232,15 +234,16 @@ public final class PerfDataUtil {
      *         representing an error code
      */
     public static long querySecondCounter(WinNT.HANDLEByReference counter) {
-        PDH_RAW_COUNTER counterValue = new PDH_RAW_COUNTER();
-        int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
-        if (ret != WinError.ERROR_SUCCESS) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+        try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {
+            int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
+            if (ret != WinError.ERROR_SUCCESS) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to get counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+                }
+                return ret;
             }
-            return ret;
+            return counterValue.SecondValue;
         }
-        return counterValue.SecondValue;
     }
 
     /**
