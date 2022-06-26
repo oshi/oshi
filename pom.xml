@@ -771,6 +771,8 @@
                         <exclude>**/driver/**</exclude>
                         <exclude>**/common/**</exclude>
                         <exclude>**/Abstract*</exclude>
+                        <exclude>**/annotation/**</exclude>
+                        <exclude>**/jna/**</exclude>
                         <exclude>**/platform/**</exclude>
                         <exclude>**/linux/**</exclude>
                         <exclude>**/mac/**</exclude>
