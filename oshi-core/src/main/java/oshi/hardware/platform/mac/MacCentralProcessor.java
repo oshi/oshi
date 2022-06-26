@@ -44,12 +44,12 @@ import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
+import oshi.jna.Struct.CloseableHostCpuLoadInfo;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -155,17 +155,18 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
         int machPort = SystemB.INSTANCE.mach_host_self();
-        HostCpuLoadInfo cpuLoadInfo = new HostCpuLoadInfo();
-        if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo,
-                new IntByReference(cpuLoadInfo.size()))) {
-            LOG.error("Failed to get System CPU ticks. Error code: {} ", Native.getLastError());
-            return ticks;
-        }
+        try (CloseableHostCpuLoadInfo cpuLoadInfo = new CloseableHostCpuLoadInfo();
+                CloseableIntByReference size = new CloseableIntByReference(cpuLoadInfo.size())) {
+            if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, size)) {
+                LOG.error("Failed to get System CPU ticks. Error code: {} ", Native.getLastError());
+                return ticks;
+            }
 
-        ticks[TickType.USER.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-        ticks[TickType.NICE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-        ticks[TickType.SYSTEM.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-        ticks[TickType.IDLE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+            ticks[TickType.USER.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
+            ticks[TickType.NICE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
+            ticks[TickType.SYSTEM.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
+            ticks[TickType.IDLE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+        }
         // Leave IOWait and IRQ values as 0
         return ticks;
     }
@@ -200,24 +201,27 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
 
         int machPort = SystemB.INSTANCE.mach_host_self();
+        try (CloseableIntByReference procCount = new CloseableIntByReference();
+                CloseablePointerByReference procCpuLoadInfo = new CloseablePointerByReference();
+                CloseableIntByReference procInfoCount = new CloseableIntByReference()) {
+            if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
+                    procCpuLoadInfo, procInfoCount)) {
+                LOG.error("Failed to update CPU Load. Error code: {}", Native.getLastError());
+                return ticks;
+            }
 
-        IntByReference procCount = new IntByReference();
-        PointerByReference procCpuLoadInfo = new PointerByReference();
-        IntByReference procInfoCount = new IntByReference();
-        if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
-                procCpuLoadInfo, procInfoCount)) {
-            LOG.error("Failed to update CPU Load. Error code: {}", Native.getLastError());
-            return ticks;
-        }
-
-        int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
-        for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
-            int offset = cpu * SystemB.CPU_STATE_MAX;
-            ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-            ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-            ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil
-                    .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-            ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
+            int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
+            for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
+                int offset = cpu * SystemB.CPU_STATE_MAX;
+                ticks[cpu][TickType.USER.getIndex()] = FormatUtil
+                        .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+                ticks[cpu][TickType.NICE.getIndex()] = FormatUtil
+                        .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+                ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil
+                        .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+                ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil
+                        .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
+            }
         }
         return ticks;
     }

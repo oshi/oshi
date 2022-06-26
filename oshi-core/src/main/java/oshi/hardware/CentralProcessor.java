@@ -116,7 +116,7 @@ public interface CentralProcessor {
     double getSystemCpuLoadBetweenTicks(long[] oldTicks);
 
     /**
-     * Get System-wide CPU Load tick counters. Returns an array with seven elements
+     * Get System-wide CPU Load tick counters. Returns an array with eight elements
      * representing milliseconds spent in User (0), Nice (1), System (2), Idle (3),
      * IOwait (4), Hardware interrupts (IRQ) (5), Software interrupts/DPC (SoftIRQ)
      * (6), or Steal (7) states. Use
@@ -138,7 +138,7 @@ public interface CentralProcessor {
      * System value to get the total. System ticks also include time executing other
      * virtual hosts (steal).
      *
-     * @return An array of 7 long values representing time spent in User, Nice,
+     * @return An array of 8 long values representing time spent in User, Nice,
      *         System, Idle, IOwait, IRQ, SoftIRQ, and Steal states.
      */
     long[] getSystemCpuLoadTicks();

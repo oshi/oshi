@@ -25,6 +25,7 @@ package oshi.jna;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
 
 /**
@@ -34,6 +35,16 @@ import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
 public interface Struct {
 
     class CloseablePdhRawCounter extends PDH_RAW_COUNTER implements AutoCloseable {
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseableHostCpuLoadInfo extends HostCpuLoadInfo implements AutoCloseable {
         @Override
         public void close() {
             Pointer p = this.getPointer();
