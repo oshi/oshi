@@ -39,12 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.Timeval;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
 import oshi.driver.mac.WindowInfo;
+import oshi.jna.Struct.CloseableProcTaskInfo;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -226,11 +226,13 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
                 / SystemB.INT_SIZE;
         int numberOfThreads = 0;
-        ProcTaskInfo taskInfo = new ProcTaskInfo();
-        for (int i = 0; i < numberOfProcesses; i++) {
-            int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size());
-            if (exit != -1) {
-                numberOfThreads += taskInfo.pti_threadnum;
+        try (CloseableProcTaskInfo taskInfo = new CloseableProcTaskInfo()) {
+            for (int i = 0; i < numberOfProcesses; i++) {
+                int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo,
+                        taskInfo.size());
+                if (exit != -1) {
+                    numberOfThreads += taskInfo.pti_threadnum;
+                }
             }
         }
         return numberOfThreads;

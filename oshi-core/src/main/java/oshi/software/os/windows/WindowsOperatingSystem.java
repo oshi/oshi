@@ -50,7 +50,6 @@ import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
-import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.W32ServiceManager;
@@ -78,6 +77,9 @@ import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
+import oshi.jna.ByRef.CloseableHANDLEByReference;
+import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
+import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.jna.platform.windows.WinNT.TOKEN_ELEVATION;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -226,21 +228,22 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public boolean isElevated() {
-        HANDLEByReference hToken = new HANDLEByReference();
-        boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(), WinNT.TOKEN_QUERY,
-                hToken);
-        if (!success) {
-            LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
-            return false;
-        }
-        try {
-            TOKEN_ELEVATION elevation = new TOKEN_ELEVATION();
-            if (Advapi32.INSTANCE.GetTokenInformation(hToken.getValue(), TOKENELEVATION, elevation, elevation.size(),
-                    new IntByReference())) {
-                return elevation.TokenIsElevated > 0;
+        try (CloseableHANDLEByReference hToken = new CloseableHANDLEByReference()) {
+            boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
+                    WinNT.TOKEN_QUERY, hToken);
+            if (!success) {
+                LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
+                return false;
             }
-        } finally {
-            Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+            try {
+                TOKEN_ELEVATION elevation = new TOKEN_ELEVATION();
+                if (Advapi32.INSTANCE.GetTokenInformation(hToken.getValue(), TOKENELEVATION, elevation,
+                        elevation.size(), new IntByReference())) {
+                    return elevation.TokenIsElevated > 0;
+                }
+            } finally {
+                Kernel32.INSTANCE.CloseHandle(hToken.getValue());
+            }
         }
         return false;
     }
@@ -288,14 +291,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static Map<Integer, Integer> getParentPidsFromSnapshot() {
         Map<Integer, Integer> parentPidMap = new HashMap<>();
         // Get processes from ToolHelp API for parent PID
-        Tlhelp32.PROCESSENTRY32.ByReference processEntry = new Tlhelp32.PROCESSENTRY32.ByReference();
-        WinNT.HANDLE snapshot = Kernel32.INSTANCE.CreateToolhelp32Snapshot(Tlhelp32.TH32CS_SNAPPROCESS, new DWORD(0));
-        try {
-            while (Kernel32.INSTANCE.Process32Next(snapshot, processEntry)) {
-                parentPidMap.put(processEntry.th32ProcessID.intValue(), processEntry.th32ParentProcessID.intValue());
+        try (CloseablePROCESSENTRY32ByReference processEntry = new CloseablePROCESSENTRY32ByReference()) {
+            WinNT.HANDLE snapshot = Kernel32.INSTANCE.CreateToolhelp32Snapshot(Tlhelp32.TH32CS_SNAPPROCESS,
+                    new DWORD(0));
+            try {
+                while (Kernel32.INSTANCE.Process32Next(snapshot, processEntry)) {
+                    parentPidMap.put(processEntry.th32ProcessID.intValue(),
+                            processEntry.th32ParentProcessID.intValue());
+                }
+            } finally {
+                Kernel32.INSTANCE.CloseHandle(snapshot);
             }
-        } finally {
-            Kernel32.INSTANCE.CloseHandle(snapshot);
         }
         return parentPidMap;
     }
@@ -360,22 +366,24 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return 0;
+        try (CloseablePerformanceInformation perfInfo = new CloseablePerformanceInformation()) {
+            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+                LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
+                return 0;
+            }
+            return perfInfo.ProcessCount.intValue();
         }
-        return perfInfo.ProcessCount.intValue();
     }
 
     @Override
     public int getThreadCount() {
-        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return 0;
+        try (CloseablePerformanceInformation perfInfo = new CloseablePerformanceInformation()) {
+            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+                LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
+                return 0;
+            }
+            return perfInfo.ThreadCount.intValue();
         }
-        return perfInfo.ThreadCount.intValue();
     }
 
     @Override

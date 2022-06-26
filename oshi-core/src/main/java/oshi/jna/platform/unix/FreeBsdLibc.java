@@ -23,7 +23,9 @@
  */
 package oshi.jna.platform.unix;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
@@ -91,8 +93,16 @@ public interface FreeBsdLibc extends CLibrary {
      * CPU Ticks
      */
     @FieldOrder({ "cpu_ticks" })
-    class CpTime extends Structure {
+    class CpTime extends Structure implements AutoCloseable {
         public long[] cpu_ticks = new long[CPUSTATES];
+
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
     }
 
     /**
