@@ -34,13 +34,13 @@ import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.ProcessInformation;
 import oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.windows.wmi.Win32LogicalDisk;
 import oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
@@ -175,7 +175,6 @@ public class WindowsFileSystem extends AbstractFileSystem {
         char[] fstype;
         char[] name;
         char[] mount;
-        IntByReference pFlags;
 
         fs = new ArrayList<>();
         aVolume = new char[BUFSIZE];
@@ -184,12 +183,11 @@ public class WindowsFileSystem extends AbstractFileSystem {
         if (WinBase.INVALID_HANDLE_VALUE.equals(hVol)) {
             return fs;
         }
-        try {
+        try (CloseableIntByReference pFlags = new CloseableIntByReference()) {
             do {
                 fstype = new char[16];
                 name = new char[BUFSIZE];
                 mount = new char[BUFSIZE];
-                pFlags = new IntByReference();
 
                 userFreeBytes = new WinNT.LARGE_INTEGER(0L);
                 totalBytes = new WinNT.LARGE_INTEGER(0L);

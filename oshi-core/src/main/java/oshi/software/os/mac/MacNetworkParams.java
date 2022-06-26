@@ -33,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
@@ -68,18 +68,19 @@ final class MacNetworkParams extends AbstractNetworkParams {
             LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
             return "";
         }
-        PointerByReference ptr = new PointerByReference();
-        int res = SYS.getaddrinfo(hostname, null, hint, ptr);
-        if (res > 0) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed getaddrinfo(): {}", SYS.gai_strerror(res));
+        try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
+            int res = SYS.getaddrinfo(hostname, null, hint, ptr);
+            if (res > 0) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed getaddrinfo(): {}", SYS.gai_strerror(res));
+                }
+                return "";
             }
-            return "";
+            Addrinfo info = new Addrinfo(ptr.getValue());
+            String canonname = info.ai_canonname.trim();
+            SYS.freeaddrinfo(ptr.getValue());
+            return canonname;
         }
-        Addrinfo info = new Addrinfo(ptr.getValue());
-        String canonname = info.ai_canonname.trim();
-        SYS.freeaddrinfo(ptr.getValue());
-        return canonname;
     }
 
     @Override

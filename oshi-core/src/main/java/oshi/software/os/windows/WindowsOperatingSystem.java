@@ -59,10 +59,8 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.EnumWindows;
@@ -78,6 +76,7 @@ import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.jna.ByRef.CloseableHANDLEByReference;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
 import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.jna.platform.windows.WinNT.TOKEN_ELEVATION;
@@ -228,7 +227,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public boolean isElevated() {
-        try (CloseableHANDLEByReference hToken = new CloseableHANDLEByReference()) {
+        try (CloseableHANDLEByReference hToken = new CloseableHANDLEByReference();
+                CloseableIntByReference returnLength = new CloseableIntByReference()) {
             boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
                     WinNT.TOKEN_QUERY, hToken);
             if (!success) {
@@ -238,7 +238,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             try {
                 TOKEN_ELEVATION elevation = new TOKEN_ELEVATION();
                 if (Advapi32.INSTANCE.GetTokenInformation(hToken.getValue(), TOKENELEVATION, elevation,
-                        elevation.size(), new IntByReference())) {
+                        elevation.size(), returnLength)) {
                     return elevation.TokenIsElevated > 0;
                 }
             } finally {
@@ -458,33 +458,34 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @return {@code true} if debug privileges were successfully enabled.
      */
     private static boolean enableDebugPrivilege() {
-        HANDLEByReference hToken = new HANDLEByReference();
-        boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
-                WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
-        if (!success) {
-            LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
-            return false;
-        }
-        try {
-            WinNT.LUID luid = new WinNT.LUID();
-            success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
+        try (CloseableHANDLEByReference hToken = new CloseableHANDLEByReference()) {
+            boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
+                    WinNT.TOKEN_QUERY | WinNT.TOKEN_ADJUST_PRIVILEGES, hToken);
             if (!success) {
-                LOG.error("LookupPrivilegeValue failed. Error: {}", Native.getLastError());
+                LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
                 return false;
             }
-            WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
-            tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));
-            success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);
-            int err = Native.getLastError();
-            if (!success) {
-                LOG.error("AdjustTokenPrivileges failed. Error: {}", err);
-                return false;
-            } else if (err == WinError.ERROR_NOT_ALL_ASSIGNED) {
-                LOG.debug("Debug privileges not enabled.");
-                return false;
+            try {
+                WinNT.LUID luid = new WinNT.LUID();
+                success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
+                if (!success) {
+                    LOG.error("LookupPrivilegeValue failed. Error: {}", Native.getLastError());
+                    return false;
+                }
+                WinNT.TOKEN_PRIVILEGES tkp = new WinNT.TOKEN_PRIVILEGES(1);
+                tkp.Privileges[0] = new WinNT.LUID_AND_ATTRIBUTES(luid, new DWORD(WinNT.SE_PRIVILEGE_ENABLED));
+                success = Advapi32.INSTANCE.AdjustTokenPrivileges(hToken.getValue(), false, tkp, 0, null, null);
+                int err = Native.getLastError();
+                if (!success) {
+                    LOG.error("AdjustTokenPrivileges failed. Error: {}", err);
+                    return false;
+                } else if (err == WinError.ERROR_NOT_ALL_ASSIGNED) {
+                    LOG.debug("Debug privileges not enabled.");
+                    return false;
+                }
+            } finally {
+                Kernel32.INSTANCE.CloseHandle(hToken.getValue());
             }
-        } finally {
-            Kernel32.INSTANCE.CloseHandle(hToken.getValue());
         }
         return true;
     }
@@ -578,9 +579,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         if (X86) {
             return true;
         }
-        IntByReference isWow = new IntByReference();
-        Kernel32.INSTANCE.IsWow64Process(h, isWow);
-        return isWow.getValue() != 0;
+        try (CloseableIntByReference isWow = new CloseableIntByReference()) {
+            Kernel32.INSTANCE.IsWow64Process(h, isWow);
+            return isWow.getValue() != 0;
+        }
     }
 
     private static boolean isCurrentWow() {

@@ -27,10 +27,12 @@ import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
+import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Tlhelp32.PROCESSENTRY32;
 import com.sun.jna.platform.win32.WinDef.LONGLONGByReference;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -47,6 +49,24 @@ public interface ByRef {
         }
 
         public CloseableIntByReference(int value) {
+            super(value);
+        }
+
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseableLongByReference extends LongByReference implements AutoCloseable {
+        public CloseableLongByReference() {
+            super();
+        }
+
+        public CloseableLongByReference(long value) {
             super(value);
         }
 
@@ -88,6 +108,16 @@ public interface ByRef {
     }
 
     class CloseableLONGLONGByReference extends LONGLONGByReference implements AutoCloseable {
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseableULONGptrByReference extends ULONG_PTRByReference implements AutoCloseable {
         @Override
         public void close() {
             Pointer p = this.getPointer();

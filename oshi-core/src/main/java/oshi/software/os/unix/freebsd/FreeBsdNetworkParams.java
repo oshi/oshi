@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
 import oshi.jna.platform.unix.FreeBsdLibc;
@@ -54,18 +54,19 @@ final class FreeBsdNetworkParams extends AbstractNetworkParams {
         hint.ai_flags = CLibrary.AI_CANONNAME;
         String hostname = getHostName();
 
-        PointerByReference ptr = new PointerByReference();
-        int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
-        if (res > 0) {
-            if (LOG.isErrorEnabled()) {
-                LOG.warn("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
+        try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
+            int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
+            if (res > 0) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.warn("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
+                }
+                return "";
             }
-            return "";
+            Addrinfo info = new Addrinfo(ptr.getValue());
+            String canonname = info.ai_canonname.trim();
+            LIBC.freeaddrinfo(ptr.getValue());
+            return canonname;
         }
-        Addrinfo info = new Addrinfo(ptr.getValue());
-        String canonname = info.ai_canonname.trim();
-        LIBC.freeaddrinfo(ptr.getValue());
-        return canonname;
     }
 
     @Override

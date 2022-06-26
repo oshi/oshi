@@ -38,11 +38,11 @@ import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg.HKEY;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
+import oshi.jna.ByRef.CloseableIntByReference;
 
 /**
  * A Display
@@ -91,14 +91,14 @@ final class WindowsDisplay extends AbstractDisplay {
 
                 byte[] edid = new byte[1];
 
-                IntByReference pType = new IntByReference();
-                IntByReference lpcbData = new IntByReference();
-
-                if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {
-                    edid = new byte[lpcbData.getValue()];
-                    if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {
-                        Display display = new WindowsDisplay(edid);
-                        displays.add(display);
+                try (CloseableIntByReference pType = new CloseableIntByReference();
+                        CloseableIntByReference lpcbData = new CloseableIntByReference()) {
+                    if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {
+                        edid = new byte[lpcbData.getValue()];
+                        if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {
+                            Display display = new WindowsDisplay(edid);
+                            displays.add(display);
+                        }
                     }
                 }
                 Advapi32.INSTANCE.RegCloseKey(key);

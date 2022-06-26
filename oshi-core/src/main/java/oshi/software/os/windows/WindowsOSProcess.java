@@ -45,7 +45,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
-import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Shell32Util;
@@ -56,7 +55,6 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData;
@@ -66,6 +64,8 @@ import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseableULONGptrByReference;
 import oshi.jna.platform.windows.NtDll;
 import oshi.jna.platform.windows.NtDll.UNICODE_STRING;
 import oshi.software.common.AbstractOSProcess;
@@ -258,16 +258,14 @@ public class WindowsOSProcess extends AbstractOSProcess {
     public long getAffinityMask() {
         final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandle != null) {
-            try {
-                ULONG_PTRByReference processAffinity = new ULONG_PTRByReference();
-                ULONG_PTRByReference systemAffinity = new ULONG_PTRByReference();
+            try (CloseableULONGptrByReference processAffinity = new CloseableULONGptrByReference();
+                    CloseableULONGptrByReference systemAffinity = new CloseableULONGptrByReference()) {
                 if (Kernel32.INSTANCE.GetProcessAffinityMask(pHandle, processAffinity, systemAffinity)) {
                     return Pointer.nativeValue(processAffinity.getValue().toPointer());
                 }
             } finally {
                 Kernel32.INSTANCE.CloseHandle(pHandle);
             }
-            Kernel32.INSTANCE.CloseHandle(pHandle);
         }
         return 0L;
     }
@@ -361,9 +359,10 @@ public class WindowsOSProcess extends AbstractOSProcess {
             try {
                 // Test for 32-bit process on 64-bit windows
                 if (IS_VISTA_OR_GREATER && this.bitness == 64) {
-                    IntByReference wow64 = new IntByReference(0);
-                    if (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64) && wow64.getValue() > 0) {
-                        this.bitness = 32;
+                    try (CloseableIntByReference wow64 = new CloseableIntByReference()) {
+                        if (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64) && wow64.getValue() > 0) {
+                            this.bitness = 32;
+                        }
                     }
                 }
                 // Full path
@@ -500,53 +499,53 @@ public class WindowsOSProcess extends AbstractOSProcess {
             try {
                 // Can't check 32-bit procs from a 64-bit one
                 if (WindowsOperatingSystem.isX86() == WindowsOperatingSystem.isWow(h)) {
+                    try (CloseableIntByReference nRead = new CloseableIntByReference()) {
+                        // Start by getting the address of the PEB
+                        NtDll.PROCESS_BASIC_INFORMATION pbi = new NtDll.PROCESS_BASIC_INFORMATION();
+                        int ret = NtDll.INSTANCE.NtQueryInformationProcess(h, NtDll.PROCESS_BASIC_INFORMATION,
+                                pbi.getPointer(), pbi.size(), nRead);
+                        if (ret != 0) {
+                            return defaultCwdCommandlineEnvironment();
+                        }
+                        pbi.read();
 
-                    IntByReference nRead = new IntByReference();
+                        // Now fetch the PEB
+                        NtDll.PEB peb = new NtDll.PEB();
+                        Kernel32.INSTANCE.ReadProcessMemory(h, pbi.PebBaseAddress, peb.getPointer(), peb.size(), nRead);
+                        if (nRead.getValue() == 0) {
+                            return defaultCwdCommandlineEnvironment();
+                        }
+                        peb.read();
 
-                    // Start by getting the address of the PEB
-                    NtDll.PROCESS_BASIC_INFORMATION pbi = new NtDll.PROCESS_BASIC_INFORMATION();
-                    int ret = NtDll.INSTANCE.NtQueryInformationProcess(h, NtDll.PROCESS_BASIC_INFORMATION,
-                            pbi.getPointer(), pbi.size(), nRead);
-                    if (ret != 0) {
-                        return defaultCwdCommandlineEnvironment();
-                    }
-                    pbi.read();
+                        // Now fetch the Process Parameters structure containing our data
+                        NtDll.RTL_USER_PROCESS_PARAMETERS upp = new NtDll.RTL_USER_PROCESS_PARAMETERS();
+                        Kernel32.INSTANCE.ReadProcessMemory(h, peb.ProcessParameters, upp.getPointer(), upp.size(),
+                                nRead);
+                        if (nRead.getValue() == 0) {
+                            return defaultCwdCommandlineEnvironment();
+                        }
+                        upp.read();
 
-                    // Now fetch the PEB
-                    NtDll.PEB peb = new NtDll.PEB();
-                    Kernel32.INSTANCE.ReadProcessMemory(h, pbi.PebBaseAddress, peb.getPointer(), peb.size(), nRead);
-                    if (nRead.getValue() == 0) {
-                        return defaultCwdCommandlineEnvironment();
-                    }
-                    peb.read();
+                        // Get CWD and Command Line strings here
+                        String cwd = readUnicodeString(h, upp.CurrentDirectory.DosPath);
+                        String cl = readUnicodeString(h, upp.CommandLine);
 
-                    // Now fetch the Process Parameters structure containing our data
-                    NtDll.RTL_USER_PROCESS_PARAMETERS upp = new NtDll.RTL_USER_PROCESS_PARAMETERS();
-                    Kernel32.INSTANCE.ReadProcessMemory(h, peb.ProcessParameters, upp.getPointer(), upp.size(), nRead);
-                    if (nRead.getValue() == 0) {
-                        return defaultCwdCommandlineEnvironment();
-                    }
-                    upp.read();
-
-                    // Get CWD and Command Line strings here
-                    String cwd = readUnicodeString(h, upp.CurrentDirectory.DosPath);
-                    String cl = readUnicodeString(h, upp.CommandLine);
-
-                    // Fetch the Environment Strings
-                    int envSize = upp.EnvironmentSize.intValue();
-                    if (envSize > 0) {
-                        try (Memory buffer = new Memory(envSize)) {
-                            Kernel32.INSTANCE.ReadProcessMemory(h, upp.Environment, buffer, envSize, nRead);
-                            if (nRead.getValue() > 0) {
-                                char[] env = buffer.getCharArray(0, envSize / 2);
-                                Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
-                                // First entry in Environment is "=::=::\"
-                                envMap.remove("");
-                                return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
+                        // Fetch the Environment Strings
+                        int envSize = upp.EnvironmentSize.intValue();
+                        if (envSize > 0) {
+                            try (Memory buffer = new Memory(envSize)) {
+                                Kernel32.INSTANCE.ReadProcessMemory(h, upp.Environment, buffer, envSize, nRead);
+                                if (nRead.getValue() > 0) {
+                                    char[] env = buffer.getCharArray(0, envSize / 2);
+                                    Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
+                                    // First entry in Environment is "=::=::\"
+                                    envMap.remove("");
+                                    return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
+                                }
                             }
                         }
+                        return new Triplet<>(cwd, cl, Collections.emptyMap());
                     }
-                    return new Triplet<>(cwd, cl, Collections.emptyMap());
                 }
             } finally {
                 Kernel32.INSTANCE.CloseHandle(h);
@@ -560,10 +559,9 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     private static String readUnicodeString(HANDLE h, UNICODE_STRING s) {
-        IntByReference nRead = new IntByReference();
         if (s.Length > 0) {
             // Add space for null terminator
-            try (Memory m = new Memory(s.Length + 2L)) {
+            try (Memory m = new Memory(s.Length + 2L); CloseableIntByReference nRead = new CloseableIntByReference()) {
                 m.clear(); // really only need null in last 2 bytes but this is easier
                 Kernel32.INSTANCE.ReadProcessMemory(h, s.Buffer, m, s.Length, nRead);
                 if (nRead.getValue() > 0) {

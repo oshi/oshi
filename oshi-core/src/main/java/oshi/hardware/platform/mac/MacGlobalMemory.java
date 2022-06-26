@@ -35,14 +35,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.VMStatistics;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseableLongByReference;
+import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -133,13 +133,15 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
     }
 
     private long queryVmStats() {
-        VMStatistics vmStats = new VMStatistics();
-        if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
-            LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
-            return 0L;
+        try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
+                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
+            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                    size)) {
+                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+                return 0L;
+            }
+            return (vmStats.free_count + vmStats.inactive_count) * getPageSize();
         }
-        return (vmStats.free_count + vmStats.inactive_count) * getPageSize();
     }
 
     private static long queryPhysMem() {
@@ -147,9 +149,10 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
     }
 
     private static long queryPageSize() {
-        LongByReference pPageSize = new LongByReference();
-        if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
-            return pPageSize.getValue();
+        try (CloseableLongByReference pPageSize = new CloseableLongByReference()) {
+            if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
+                return pPageSize.getValue();
+            }
         }
         LOG.error("Failed to get host page size. Error code: {}", Native.getLastError());
         return 4098L;

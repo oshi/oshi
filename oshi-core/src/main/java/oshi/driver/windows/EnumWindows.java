@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,9 +34,9 @@ import com.sun.jna.platform.WindowUtils;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.HWND;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.software.os.OSDesktopWindow;
 
 /**
@@ -73,11 +73,12 @@ public final class EnumWindows {
                     if (!zOrderMap.containsKey(hWnd)) {
                         updateWindowZOrderMap(hWnd, zOrderMap);
                     }
-                    IntByReference pProcessId = new IntByReference();
-                    User32.INSTANCE.GetWindowThreadProcessId(hWnd, pProcessId);
-                    windowList.add(new OSDesktopWindow(Pointer.nativeValue(hWnd.getPointer()), window.getTitle(),
-                            window.getFilePath(), window.getLocAndSize(), pProcessId.getValue(), zOrderMap.get(hWnd),
-                            visible));
+                    try (CloseableIntByReference pProcessId = new CloseableIntByReference()) {
+                        User32.INSTANCE.GetWindowThreadProcessId(hWnd, pProcessId);
+                        windowList.add(new OSDesktopWindow(Pointer.nativeValue(hWnd.getPointer()), window.getTitle(),
+                                window.getFilePath(), window.getLocAndSize(), pProcessId.getValue(),
+                                zOrderMap.get(hWnd), visible));
+                    }
                 }
             }
         }

@@ -45,9 +45,9 @@ import com.sun.jna.platform.win32.WinPerf.PERF_DATA_BLOCK;
 import com.sun.jna.platform.win32.WinPerf.PERF_INSTANCE_DEFINITION;
 import com.sun.jna.platform.win32.WinPerf.PERF_OBJECT_TYPE;
 import com.sun.jna.platform.win32.WinReg;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -266,25 +266,26 @@ public final class HkeyPerformanceDataUtil {
 
         // Now load the data from the regsitry.
 
-        IntByReference lpcbData = new IntByReference(maxPerfBufferSize);
-        Memory pPerfData = new Memory(maxPerfBufferSize);
-        int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null, pPerfData,
-                lpcbData);
-        if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
-            LOG.error("Error reading performance data from registry for {}.", objectName);
-            pPerfData.close();
-            return null;
+        try (CloseableIntByReference lpcbData = new CloseableIntByReference(maxPerfBufferSize)) {
+            Memory pPerfData = new Memory(maxPerfBufferSize);
+            int ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null,
+                    pPerfData, lpcbData);
+            if (ret != WinError.ERROR_SUCCESS && ret != WinError.ERROR_MORE_DATA) {
+                LOG.error("Error reading performance data from registry for {}.", objectName);
+                pPerfData.close();
+                return null;
+            }
+            // Grow buffer as needed to fit the data
+            while (ret == WinError.ERROR_MORE_DATA) {
+                maxPerfBufferSize += 8192;
+                lpcbData.setValue(maxPerfBufferSize);
+                pPerfData.close();
+                pPerfData = new Memory(maxPerfBufferSize);
+                ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null,
+                        pPerfData, lpcbData);
+            }
+            return pPerfData;
         }
-        // Grow buffer as needed to fit the data
-        while (ret == WinError.ERROR_MORE_DATA) {
-            maxPerfBufferSize += 8192;
-            lpcbData.setValue(maxPerfBufferSize);
-            pPerfData.close();
-            pPerfData = new Memory(maxPerfBufferSize);
-            ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null, pPerfData,
-                    lpcbData);
-        }
-        return pPerfData;
     }
 
     /*

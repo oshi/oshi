@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.ptr.IntByReference;
+
+import oshi.jna.ByRef.CloseableIntByReference;
 
 /**
  * Windows OS native system information.
@@ -61,8 +62,7 @@ public class WindowsOSSystemInfo {
         SYSTEM_INFO si = new SYSTEM_INFO();
         Kernel32.INSTANCE.GetSystemInfo(si);
 
-        try {
-            IntByReference isWow64 = new IntByReference();
+        try (CloseableIntByReference isWow64 = new CloseableIntByReference()) {
             // This returns a pseudo handle, currently (HANDLE)-1, that is
             // interpreted as the current process handle. The pseudo handle need
             // not be closed when it is no longer needed. Calling the
