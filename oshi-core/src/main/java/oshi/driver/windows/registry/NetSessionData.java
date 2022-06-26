@@ -29,10 +29,10 @@ import java.util.List;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Netapi32;
 import com.sun.jna.platform.win32.Netapi32.SESSION_INFO_10;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.software.os.OSSession;
 
 /**
@@ -49,22 +49,23 @@ public final class NetSessionData {
 
     public static List<OSSession> queryUserSessions() {
         List<OSSession> sessions = new ArrayList<>();
-        PointerByReference bufptr = new PointerByReference();
-        IntByReference entriesread = new IntByReference();
-        IntByReference totalentries = new IntByReference();
-        if (0 == NET.NetSessionEnum(null, null, null, 10, bufptr, Netapi32.MAX_PREFERRED_LENGTH, entriesread,
-                totalentries, null)) {
-            Pointer buf = bufptr.getValue();
-            SESSION_INFO_10 si10 = new SESSION_INFO_10(buf);
-            if (entriesread.getValue() > 0) {
-                SESSION_INFO_10[] sessionInfo = (SESSION_INFO_10[]) si10.toArray(entriesread.getValue());
-                for (SESSION_INFO_10 si : sessionInfo) {
-                    // time field is connected seconds
-                    long logonTime = System.currentTimeMillis() - (1000L * si.sesi10_time);
-                    sessions.add(new OSSession(si.sesi10_username, "Network session", logonTime, si.sesi10_cname));
+        try (CloseablePointerByReference bufptr = new CloseablePointerByReference();
+                CloseableIntByReference entriesread = new CloseableIntByReference();
+                CloseableIntByReference totalentries = new CloseableIntByReference()) {
+            if (0 == NET.NetSessionEnum(null, null, null, 10, bufptr, Netapi32.MAX_PREFERRED_LENGTH, entriesread,
+                    totalentries, null)) {
+                Pointer buf = bufptr.getValue();
+                SESSION_INFO_10 si10 = new SESSION_INFO_10(buf);
+                if (entriesread.getValue() > 0) {
+                    SESSION_INFO_10[] sessionInfo = (SESSION_INFO_10[]) si10.toArray(entriesread.getValue());
+                    for (SESSION_INFO_10 si : sessionInfo) {
+                        // time field is connected seconds
+                        long logonTime = System.currentTimeMillis() - (1000L * si.sesi10_time);
+                        sessions.add(new OSSession(si.sesi10_username, "Network session", logonTime, si.sesi10_cname));
+                    }
                 }
+                NET.NetApiBufferFree(buf);
             }
-            NET.NetApiBufferFree(buf);
         }
         return sessions;
     }

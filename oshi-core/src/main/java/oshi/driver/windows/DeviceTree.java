@@ -50,6 +50,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.util.tuples.Quintet;
 
 /**
@@ -92,8 +93,10 @@ public final class DeviceTree {
         // Get device IDs for the top level devices
         HANDLE hDevInfo = SA.SetupDiGetClassDevs(guidDevInterface, null, null, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
         if (!INVALID_HANDLE_VALUE.equals(hDevInfo)) {
-            try (Memory buf = new Memory(MAX_PATH)) {
-                IntByReference size = new IntByReference(MAX_PATH);
+            try (Memory buf = new Memory(MAX_PATH);
+                    CloseableIntByReference size = new CloseableIntByReference(MAX_PATH);
+                    CloseableIntByReference child = new CloseableIntByReference();
+                    CloseableIntByReference sibling = new CloseableIntByReference()) {
                 // Enumerate Device Info using BFS queue
                 Queue<Integer> deviceTree = new ArrayDeque<>();
                 // Get the enumeration object
@@ -103,8 +106,6 @@ public final class DeviceTree {
                     deviceTree.add(devInfoData.DevInst);
                     // Initialize parent and child objects
                     int node = 0;
-                    IntByReference child = new IntByReference();
-                    IntByReference sibling = new IntByReference();
                     while (!deviceTree.isEmpty()) {
                         // Process the next device in the queue
                         node = deviceTree.poll();

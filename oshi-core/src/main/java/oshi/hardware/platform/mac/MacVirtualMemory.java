@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.platform.mac.SystemB.XswUsage;
-import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
@@ -111,13 +111,15 @@ final class MacVirtualMemory extends AbstractVirtualMemory {
     private static Pair<Long, Long> queryVmStat() {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
-        VMStatistics vmStats = new VMStatistics();
-        if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                new IntByReference(vmStats.size() / SystemB.INT_SIZE))) {
-            swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
-            swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
-        } else {
-            LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+        try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
+                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
+            if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                    size)) {
+                swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
+                swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
+            } else {
+                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+            }
         }
         return new Pair<>(swapPagesIn, swapPagesOut);
     }

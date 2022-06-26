@@ -1,17 +1,15 @@
 # 6.2.0 (in progress)
 
 ##### Performance improvement
-This release leverages improvements in JNA 5.12.0 which should result in a significant performance improvement, by promptly releasing native memory allocations and reducing Garbage Collector usage.
-* Finalizers in JNA were replaced by Cleaners, reducing the impact of native memory allocations in tenured heap space.
-* JNA's `Memory` class now implements `Closeable`. All direct allocations of `Memory` in OSHI are now closed when no longer needed, usually with try-with-resources blocks.
-* In addition, classes extending JNA's `Structure` and `ByReference` classes have an underlying `Memory` allocation. Closeable wrapper classes were created to ensure prompt release of native memory utility classes and hot path code such as processor usage and process information.
+This release leverages improvements in JNA 5.12.0 which should result in a significant performance improvement, by promptly releasing native memory allocations and reducing Garbage Collector usage. Finalizers in JNA were replaced by Cleaners, reducing the impact of native memory allocations in tenured heap space.
 
-Specific code changes:
+JNA's `Memory` class now implements `Closeable`. All direct allocations of `Memory` in OSHI are now freed proactively. In addition, classes extending JNA's `ByReference` classes have their underlying `Memory` allocation freed. Classes extending `Structure` on the hot path are also proactively freed.
 * [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
 * [#2080](https://github.com/oshi/oshi/pull/2080): JNA 5.12.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#2081](https://github.com/oshi/oshi/pull/2081): Proactively free native Memory allocations - [@dbwiddis](https://github.com/dbwiddis).
 * [#2082](https://github.com/oshi/oshi/pull/2082): Proactively free native reference allocations in utils - [@dbwiddis](https://github.com/dbwiddis).
 * [#2083](https://github.com/oshi/oshi/pull/2083): Proactively free native reference allocations on hot path - [@dbwiddis](https://github.com/dbwiddis).
+* [#2085](https://github.com/oshi/oshi/pull/2085): Proactively free remaining native ByReference allocations - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### New Features
 * [#2046](https://github.com/oshi/oshi/pull/2046): Added getSystemCpuLoad/getProcessorCpuLoad convenience methods - [@Osiris-Team](https://github.com/Osiris-Team).

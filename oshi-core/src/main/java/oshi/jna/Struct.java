@@ -28,6 +28,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
+import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
 import com.sun.jna.platform.win32.Pdh.PDH_RAW_COUNTER;
 import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
@@ -89,6 +90,16 @@ public interface Struct {
     }
 
     class CloseablePerformanceInformation extends PERFORMANCE_INFORMATION implements AutoCloseable {
+        @Override
+        public void close() {
+            Pointer p = this.getPointer();
+            if (p instanceof Memory) {
+                ((Memory) p).close();
+            }
+        }
+    }
+
+    class CloseableVMStatistics extends VMStatistics implements AutoCloseable {
         @Override
         public void close() {
             Pointer p = this.getPointer();
