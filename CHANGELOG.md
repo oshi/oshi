@@ -1,9 +1,13 @@
-# 6.2.0 (in progress)
+# 6.2.1 (in progress)
+
+* Your contribution here!
+
+# 6.2.0 (2022-06-26)
 
 ##### Performance improvement
-This release leverages improvements in JNA 5.12.0 which should result in a significant performance improvement, by promptly releasing native memory allocations and reducing Garbage Collector usage. Finalizers in JNA were replaced by Cleaners, reducing the impact of native memory allocations in tenured heap space.
+This release leverages improvements in JNA 5.12.0 which should significantly improve performance. Finalizers in JNA were replaced by Cleaners, reducing the impact of native memory allocations in tenured heap space by promptly releasing native memory allocations and reducing Garbage Collector usage. 
 
-JNA's `Memory` class now implements `Closeable`. All direct allocations of `Memory` in OSHI are now freed proactively. In addition, classes extending JNA's `ByReference` classes have their underlying `Memory` allocation freed. Classes extending `Structure` on the hot path are also proactively freed.
+JNA's `Memory` class now implements `Closeable`. All direct allocations of `Memory` and classes extending JNA's `ByReference` have their underlying `Memory` allocation freed proactively. Classes extending `Structure` on the hot path are also proactively freed.
 * [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
 * [#2080](https://github.com/oshi/oshi/pull/2080): JNA 5.12.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#2081](https://github.com/oshi/oshi/pull/2081): Proactively free native Memory allocations - [@dbwiddis](https://github.com/dbwiddis).
@@ -722,7 +726,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#51](https://github.com/oshi/oshi/pull/51): Added CPU Ticks and switched to OperatingSystemMXBean for CPU load / load average - [@dbwiddis](https://github.com/dbwiddis).
 * [#62](https://github.com/oshi/oshi/pull/62): Added Per-Processor CPU Load and Ticks - [@dbwiddis](https://github.com/dbwiddis).
 
-1.2 (2014-06-13)
+1.2 (2015-06-13)
 ================
 
 * Added TODO list and enhanced README documentation - [@ptitvert](https://github.com/ptitvert)
