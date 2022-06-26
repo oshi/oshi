@@ -118,6 +118,20 @@ class CentralProcessorTest {
     }
 
     @Test
+    void testDelayTicks() {
+        assertThat("System's cpu load should be inclusively between 0 and 1", p.getSystemCpuLoad(500),
+                is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));
+
+        double[] procCpuLoad = p.getProcessorCpuLoad(500);
+        assertThat("Cpu load array size should equal the logical processor count", p.getLogicalProcessorCount(),
+                is(procCpuLoad.length));
+        for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
+            assertThat("Cpu number " + cpu + "'s load should be inclusively between 0 and 1", procCpuLoad[cpu],
+                    is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));
+        }
+    }
+
+    @Test
     void testCounts() {
         assertThat("Logical processor count should be at least as high as its physical processor count",
                 p.getLogicalProcessorCount(), is(greaterThanOrEqualTo(p.getPhysicalProcessorCount())));
