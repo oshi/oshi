@@ -39,6 +39,10 @@ import com.sun.jna.ptr.PointerByReference;
  */
 public interface ByRef {
     class CloseableNativeLongByReference extends NativeLongByReference implements AutoCloseable {
+        public CloseableNativeLongByReference() {
+            super();
+        }
+
         public CloseableNativeLongByReference(NativeLong nativeLong) {
             super(nativeLong);
         }
