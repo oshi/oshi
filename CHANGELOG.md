@@ -1,6 +1,7 @@
 # 6.2.1 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2088](https://github.com/oshi/oshi/pull/2088): Catch exception and log warning for corrupt performance counters - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26)
 

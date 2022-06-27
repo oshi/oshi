@@ -60,6 +60,12 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Solaris 11 (SunOS 5.11)
 * AIX 7.1 (POWER4)
 
+## How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?
+
+OSHI (and many other programs) rely on the English Performance Counter indices in the registry. These are located at `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Perflib\009\Counter`. Sometimes when configuring localized Windows installations, these values become corrupt or are missing.
+
+If you receive this PDH error code, investigate whether your English (page 009) performance counters are corrupt. [Rebuild them](https://docs.microsoft.com/en-us/troubleshoot/windows-server/performance/rebuild-performance-counter-library-values) if necessary.
+
 ## How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?
 
 OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes.
@@ -109,13 +115,7 @@ If you want per-Process CPU load to match the Windows Task Manager display, you 
 
 ## Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?
 
-The initial call to some Windows Management Instrumentation (WMI) queries sometimes trigger RPC-related negotiation delays and timeouts described
-[here](https://docs.microsoft.com/en-us/windows/win32/services/services-and-rpc-tcp). OSHI attempts to use performance counters in preference
-to WMI whenever possible, but includes the WMI queries as a backup. There are several potential causes of these delays, which seem to occur more
-often on corporate-managed machines. If you are experiencing these delays:
-1. Investigate whether your English (page 009) performance counters are corrupt. [Rebuild them](https://docs.microsoft.com/en-us/troubleshoot/windows-server/performance/rebuild-performance-counter-library-values) if necessary.
-2. You can configure RPC and shorten the timeout by altering registry values under `HKLM\SYSTEM\CurrentControlSet\Control`.
-The `SCMApiConnectionParam` value (defaults to 21000 ms) can be reduced to shorten the delay.
+The initial call to some Windows Management Instrumentation (WMI) queries sometimes trigger RPC-related negotiation delays and timeouts described [here](https://docs.microsoft.com/en-us/windows/win32/services/services-and-rpc-tcp). OSHI attempts to use performance counters in preference to WMI whenever possible, but includes the WMI queries as a backup. There are several potential causes of these delays, which seem to occur more often on corporate-managed machines. If you are experiencing these delays, you can configure RPC and shorten the timeout by altering registry values under `HKLM\SYSTEM\CurrentControlSet\Control`. The `SCMApiConnectionParam` value (defaults to 21000 ms) can be reduced to shorten the delay.
 
 ## How is OSHI different from SIGAR?
 

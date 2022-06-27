@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
+import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -126,7 +127,14 @@ public final class PerfCounterWildcardQuery {
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);
 
         // Get list of instances
-        PdhEnumObjectItems objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
+        PdhEnumObjectItems objectItems = null;
+        try {
+            objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
+        } catch (PdhException e) {
+            LOG.warn(
+                    "Failed to locate performance object for {} in the registry. Performance counters may be corrupt. {}",
+                    perfObjectLocalized, e.getMessage());
+        }
         if (objectItems == null) {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
