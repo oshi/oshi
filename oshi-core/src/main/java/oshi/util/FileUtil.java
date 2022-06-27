@@ -420,7 +420,7 @@ public final class FileUtil {
                 return archProps;
             }
         }
-        LOG.warn("Failed to load default configuration");
+        LOG.warn("Failed to load configuration file from classloader: {}", propsFilename);
         return archProps;
     }
 
