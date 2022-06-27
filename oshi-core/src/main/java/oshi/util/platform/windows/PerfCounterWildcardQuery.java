@@ -123,8 +123,9 @@ public final class PerfCounterWildcardQuery {
         }
         String instanceFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
                 .toLowerCase();
-        // If pre-Vista, localize the perfObject
-        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);
+        // Localize the perfObject using different variable for the EnumObjectItems
+        // Will still use unlocalized perfObject for the query
+        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, true);
 
         // Get list of instances
         PdhEnumObjectItems objectItems = null;
