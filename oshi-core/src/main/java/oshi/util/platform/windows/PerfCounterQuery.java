@@ -56,9 +56,8 @@ public final class PerfCounterQuery {
     // Use a thread safe set to cache failed pdh queries
     private static final Set<String> FAILED_QUERY_CACHE = ConcurrentHashMap.newKeySet();
 
-    // For XP, use a map to cache localization strings
-    private static final ConcurrentHashMap<String, String> LOCALIZE_CACHE = IS_VISTA_OR_GREATER ? null
-            : new ConcurrentHashMap<>();
+    // A map to cache localization strings
+    private static final ConcurrentHashMap<String, String> LOCALIZE_CACHE = new ConcurrentHashMap<>();
 
     /*
      * Multiple classes use these constants
@@ -125,7 +124,7 @@ public final class PerfCounterQuery {
     public static <T extends Enum<T>> Map<T, Long> queryValuesFromPDH(Class<T> propertyEnum, String perfObject) {
         T[] props = propertyEnum.getEnumConstants();
         // If pre-Vista, localize the perfObject
-        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);
+        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, false);
         EnumMap<T, PerfCounter> counterMap = new EnumMap<>(propertyEnum);
         EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
         try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {
@@ -201,11 +200,13 @@ public final class PerfCounterQuery {
      *
      * @param perfObject
      *            A String to localize
+     * @param force
+     *            If true, always localize
      * @return The localized string if localization successful, or the original
      *         string otherwise.
      */
-    public static String localizeIfNeeded(String perfObject) {
-        return IS_VISTA_OR_GREATER ? perfObject
+    public static String localizeIfNeeded(String perfObject, boolean force) {
+        return !force && IS_VISTA_OR_GREATER ? perfObject
                 : LOCALIZE_CACHE.computeIfAbsent(perfObject, PerfCounterQuery::localizeUsingPerfIndex);
     }
 
