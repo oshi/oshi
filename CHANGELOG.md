@@ -2,11 +2,12 @@
 
 ##### Bug fixes / Improvements
 * [#2089](https://github.com/oshi/oshi/pull/2089): PDH wild card counters need English objects but localized instances - [@dbwiddis](https://github.com/dbwiddis).
+* [#2090](https://github.com/oshi/oshi/pull/2090): Proactively free more ByReference allocations - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26)
 
 ##### Performance improvement
-This release leverages improvements in JNA 5.12.0 which should significantly improve performance. Finalizers in JNA were replaced by Cleaners, reducing the impact of native memory allocations in tenured heap space by promptly releasing native memory allocations and reducing Garbage Collector usage. 
+This release leverages improvements in JNA 5.12.0 which should significantly improve performance. Finalizers in JNA were replaced by Cleaners, reducing the impact of native memory allocations in tenured heap space by promptly releasing native memory allocations and reducing Garbage Collector usage.
 
 JNA's `Memory` class now implements `Closeable`. All direct allocations of `Memory` and classes extending JNA's `ByReference` have their underlying `Memory` allocation freed proactively. Classes extending `Structure` on the hot path are also proactively freed.
 * [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).

@@ -48,6 +48,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -144,14 +145,13 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             mib[2] = 7; // KERN_PROC_ARGS
             mib[3] = getProcessID();
             // Allocate memory for arguments
-            try (Memory m = new Memory(ARGMAX)) {
-                size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+            try (Memory m = new Memory(ARGMAX);
+                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
                 // Fetch arguments
                 if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
                     return Collections.unmodifiableList(
                             ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
                 } else {
-
                     LOG.warn(
                             "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
                             getProcessID(), Native.getLastError());
@@ -175,8 +175,8 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             mib[2] = 35; // KERN_PROC_ENV
             mib[3] = getProcessID();
             // Allocate memory for environment variables
-            try (Memory m = new Memory(ARGMAX)) {
-                size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+            try (Memory m = new Memory(ARGMAX);
+                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
                 // Fetch environment variables
                 if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
                     return Collections.unmodifiableMap(
@@ -316,8 +316,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         mib[2] = 9; // KERN_PROC_SV_NAME
         mib[3] = getProcessID();
         // Allocate memory for arguments
-        try (Memory abi = new Memory(32)) {
-            size_t.ByReference size = new size_t.ByReference(new size_t(32));
+        try (Memory abi = new Memory(32); CloseableSizeTByReference size = new CloseableSizeTByReference(32)) {
             // Fetch abi vector
             if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
                 String elf = abi.getString(0);

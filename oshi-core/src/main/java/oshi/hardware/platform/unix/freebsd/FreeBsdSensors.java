@@ -28,6 +28,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
+import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 
 /**
@@ -49,16 +50,17 @@ final class FreeBsdSensors extends AbstractSensors {
      */
     private static double queryKldloadCoretemp() {
         String name = "dev.cpu.%d.temperature";
-        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        int cpu = 0;
-        double sumTemp = 0d;
-        try (Memory p = new Memory(size.longValue())) {
-            while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, size_t.ZERO)) {
-                sumTemp += p.getInt(0) / 10d - 273.15;
-                cpu++;
+        try (CloseableSizeTByReference size = new CloseableSizeTByReference(FreeBsdLibc.INT_SIZE)) {
+            int cpu = 0;
+            double sumTemp = 0d;
+            try (Memory p = new Memory(size.longValue())) {
+                while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(name, cpu), p, size, null, size_t.ZERO)) {
+                    sumTemp += p.getInt(0) / 10d - 273.15;
+                    cpu++;
+                }
             }
+            return cpu > 0 ? sumTemp / cpu : Double.NaN;
         }
-        return cpu > 0 ? sumTemp / cpu : Double.NaN;
     }
 
     @Override

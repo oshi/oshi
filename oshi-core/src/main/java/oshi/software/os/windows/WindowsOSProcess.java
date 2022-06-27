@@ -53,7 +53,6 @@ import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -64,6 +63,7 @@ import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
+import oshi.jna.ByRef.CloseableHANDLEByReference;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseableULONGptrByReference;
 import oshi.jna.platform.windows.NtDll;
@@ -365,19 +365,12 @@ public class WindowsOSProcess extends AbstractOSProcess {
                         }
                     }
                 }
-                // Full path
-                final HANDLEByReference phToken = new HANDLEByReference();
                 try { // EXECUTABLEPATH
                     if (IS_WINDOWS7_OR_GREATER) {
                         this.path = Kernel32Util.QueryFullProcessImageName(pHandle, 0);
                     }
                 } catch (Win32Exception e) {
                     this.state = INVALID;
-                } finally {
-                    final HANDLE token = phToken.getValue();
-                    if (token != null) {
-                        Kernel32.INSTANCE.CloseHandle(token);
-                    }
                 }
             } finally {
                 Kernel32.INSTANCE.CloseHandle(pHandle);
@@ -433,28 +426,30 @@ public class WindowsOSProcess extends AbstractOSProcess {
         Pair<String, String> pair = null;
         final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandle != null) {
-            final HANDLEByReference phToken = new HANDLEByReference();
-            try {
-                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-                    Account account = Advapi32Util.getTokenAccount(phToken.getValue());
-                    pair = new Pair<>(account.name, account.sidString);
-                } else {
-                    int error = Kernel32.INSTANCE.GetLastError();
-                    // Access denied errors are common. Fail silently.
-                    if (error != WinError.ERROR_ACCESS_DENIED) {
-                        LOG.error("Failed to get process token for process {}: {}", getProcessID(),
-                                Kernel32.INSTANCE.GetLastError());
+            try (CloseableHANDLEByReference phToken = new CloseableHANDLEByReference()) {
+                try {
+                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
+                            phToken)) {
+                        Account account = Advapi32Util.getTokenAccount(phToken.getValue());
+                        pair = new Pair<>(account.name, account.sidString);
+                    } else {
+                        int error = Kernel32.INSTANCE.GetLastError();
+                        // Access denied errors are common. Fail silently.
+                        if (error != WinError.ERROR_ACCESS_DENIED) {
+                            LOG.error("Failed to get process token for process {}: {}", getProcessID(),
+                                    Kernel32.INSTANCE.GetLastError());
+                        }
                     }
+                } catch (Win32Exception e) {
+                    LOG.warn("Failed to query user info for process {} ({}): {}", getProcessID(), getName(),
+                            e.getMessage());
+                } finally {
+                    final HANDLE token = phToken.getValue();
+                    if (token != null) {
+                        Kernel32.INSTANCE.CloseHandle(token);
+                    }
+                    Kernel32.INSTANCE.CloseHandle(pHandle);
                 }
-            } catch (Win32Exception e) {
-                LOG.warn("Failed to query user info for process {} ({}): {}", getProcessID(), getName(),
-                        e.getMessage());
-            } finally {
-                final HANDLE token = phToken.getValue();
-                if (token != null) {
-                    Kernel32.INSTANCE.CloseHandle(token);
-                }
-                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
         }
         if (pair == null) {
@@ -467,23 +462,24 @@ public class WindowsOSProcess extends AbstractOSProcess {
         Pair<String, String> pair = null;
         final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandle != null) {
-            final HANDLEByReference phToken = new HANDLEByReference();
-            if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-                Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
-                pair = new Pair<>(account.name, account.sidString);
-            } else {
-                int error = Kernel32.INSTANCE.GetLastError();
-                // Access denied errors are common. Fail silently.
-                if (error != WinError.ERROR_ACCESS_DENIED) {
-                    LOG.error("Failed to get process token for process {}: {}", getProcessID(),
-                            Kernel32.INSTANCE.GetLastError());
+            try (CloseableHANDLEByReference phToken = new CloseableHANDLEByReference()) {
+                if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
+                    Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
+                    pair = new Pair<>(account.name, account.sidString);
+                } else {
+                    int error = Kernel32.INSTANCE.GetLastError();
+                    // Access denied errors are common. Fail silently.
+                    if (error != WinError.ERROR_ACCESS_DENIED) {
+                        LOG.error("Failed to get process token for process {}: {}", getProcessID(),
+                                Kernel32.INSTANCE.GetLastError());
+                    }
                 }
+                final HANDLE token = phToken.getValue();
+                if (token != null) {
+                    Kernel32.INSTANCE.CloseHandle(token);
+                }
+                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
-            final HANDLE token = phToken.getValue();
-            if (token != null) {
-                Kernel32.INSTANCE.CloseHandle(token);
-            }
-            Kernel32.INSTANCE.CloseHandle(pHandle);
         }
         if (pair == null) {
             return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
