@@ -41,7 +41,6 @@ import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
 import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
-import com.sun.jna.platform.win32.WinNT.LUID;
 
 import oshi.util.Util;
 
@@ -181,13 +180,6 @@ public interface Struct {
     }
 
     class CloseableSystemInfo extends SYSTEM_INFO implements AutoCloseable {
-        @Override
-        public void close() {
-            Util.freeMemory(getPointer());
-        }
-    }
-
-    class CloseableLUID extends LUID implements AutoCloseable {
         @Override
         public void close() {
             Util.freeMemory(getPointer());
