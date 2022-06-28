@@ -178,44 +178,46 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
     }
 
     private static IPConnection queryIPConnection(int pid, int fd) {
-        SocketFdInfo si = new SocketFdInfo();
-        int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
-        if (si.size() == ret && si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
-            InSockInfo ini;
-            String type;
-            TcpState state;
-            if (si.psi.soi_kind == SOCKINFO_TCP) {
-                si.psi.soi_proto.setType("pri_tcp");
-                si.psi.soi_proto.read();
-                ini = si.psi.soi_proto.pri_tcp.tcpsi_ini;
-                state = stateLookup(si.psi.soi_proto.pri_tcp.tcpsi_state);
-                type = "tcp";
-            } else if (si.psi.soi_kind == SOCKINFO_IN) {
-                si.psi.soi_proto.setType("pri_in");
-                si.psi.soi_proto.read();
-                ini = si.psi.soi_proto.pri_in;
-                state = NONE;
-                type = "udp";
-            } else {
-                return null;
-            }
+        try (SocketFdInfo si = new SocketFdInfo()) {
+            int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
+            if (si.size() == ret && si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
+                InSockInfo ini;
+                String type;
+                TcpState state;
+                if (si.psi.soi_kind == SOCKINFO_TCP) {
+                    si.psi.soi_proto.setType("pri_tcp");
+                    si.psi.soi_proto.read();
+                    ini = si.psi.soi_proto.pri_tcp.tcpsi_ini;
+                    state = stateLookup(si.psi.soi_proto.pri_tcp.tcpsi_state);
+                    type = "tcp";
+                } else if (si.psi.soi_kind == SOCKINFO_IN) {
+                    si.psi.soi_proto.setType("pri_in");
+                    si.psi.soi_proto.read();
+                    ini = si.psi.soi_proto.pri_in;
+                    state = NONE;
+                    type = "udp";
+                } else {
+                    return null;
+                }
 
-            byte[] laddr;
-            byte[] faddr;
-            if (ini.insi_vflag == 1) {
-                laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
-                faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
-                type += "4";
-            } else if (ini.insi_vflag == 2) {
-                laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);
-                faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);
-                type += "6";
-            } else {
-                return null;
+                byte[] laddr;
+                byte[] faddr;
+                if (ini.insi_vflag == 1) {
+                    laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
+                    faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
+                    type += "4";
+                } else if (ini.insi_vflag == 2) {
+                    laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);
+                    faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);
+                    type += "6";
+                } else {
+                    return null;
+                }
+                int lport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_lport);
+                int fport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_fport);
+                return new IPConnection(type, laddr, lport, faddr, fport, state, si.psi.soi_qlen, si.psi.soi_incqlen,
+                        pid);
             }
-            int lport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_lport);
-            int fport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_fport);
-            return new IPConnection(type, laddr, lport, faddr, fport, state, si.psi.soi_qlen, si.psi.soi_incqlen, pid);
         }
         return null;
     }

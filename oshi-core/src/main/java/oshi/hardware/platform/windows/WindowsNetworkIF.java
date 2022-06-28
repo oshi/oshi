@@ -32,13 +32,13 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.IPHlpAPI;
-import com.sun.jna.platform.win32.IPHlpAPI.MIB_IFROW;
-import com.sun.jna.platform.win32.IPHlpAPI.MIB_IF_ROW2;
 import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
+import oshi.jna.Struct.CloseableMibIfRow;
+import oshi.jna.Struct.CloseableMibIfRow2;
 import oshi.util.ParseUtil;
 
 /**
@@ -172,51 +172,53 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
         // MIB_IFROW2 requires Vista (6.0) or later.
         if (IS_VISTA_OR_GREATER) {
             // Create new MIB_IFROW2 and set index to this interface index
-            MIB_IF_ROW2 ifRow = new MIB_IF_ROW2();
-            ifRow.InterfaceIndex = queryNetworkInterface().getIndex();
-            if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {
-                // Error, abort
-                LOG.error("Failed to retrieve data for interface {}, {}", queryNetworkInterface().getIndex(),
-                        getName());
-                return false;
+            try (CloseableMibIfRow2 ifRow = new CloseableMibIfRow2()) {
+                ifRow.InterfaceIndex = queryNetworkInterface().getIndex();
+                if (0 != IPHlpAPI.INSTANCE.GetIfEntry2(ifRow)) {
+                    // Error, abort
+                    LOG.error("Failed to retrieve data for interface {}, {}", queryNetworkInterface().getIndex(),
+                            getName());
+                    return false;
+                }
+                this.ifType = ifRow.Type;
+                this.ndisPhysicalMediumType = ifRow.PhysicalMediumType;
+                this.connectorPresent = (ifRow.InterfaceAndOperStatusFlags & CONNECTOR_PRESENT_BIT) > 0;
+                this.bytesSent = ifRow.OutOctets;
+                this.bytesRecv = ifRow.InOctets;
+                this.packetsSent = ifRow.OutUcastPkts;
+                this.packetsRecv = ifRow.InUcastPkts;
+                this.outErrors = ifRow.OutErrors;
+                this.inErrors = ifRow.InErrors;
+                this.collisions = ifRow.OutDiscards; // closest proxy
+                this.inDrops = ifRow.InDiscards; // closest proxy
+                this.speed = ifRow.ReceiveLinkSpeed;
+                this.ifAlias = Native.toString(ifRow.Alias);
+                this.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
             }
-            this.ifType = ifRow.Type;
-            this.ndisPhysicalMediumType = ifRow.PhysicalMediumType;
-            this.connectorPresent = (ifRow.InterfaceAndOperStatusFlags & CONNECTOR_PRESENT_BIT) > 0;
-            this.bytesSent = ifRow.OutOctets;
-            this.bytesRecv = ifRow.InOctets;
-            this.packetsSent = ifRow.OutUcastPkts;
-            this.packetsRecv = ifRow.InUcastPkts;
-            this.outErrors = ifRow.OutErrors;
-            this.inErrors = ifRow.InErrors;
-            this.collisions = ifRow.OutDiscards; // closest proxy
-            this.inDrops = ifRow.InDiscards; // closest proxy
-            this.speed = ifRow.ReceiveLinkSpeed;
-            this.ifAlias = Native.toString(ifRow.Alias);
-            this.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
         } else {
             // Create new MIB_IFROW and set index to this interface index
-            MIB_IFROW ifRow = new MIB_IFROW();
-            ifRow.dwIndex = queryNetworkInterface().getIndex();
-            if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
-                // Error, abort
-                LOG.error("Failed to retrieve data for interface {}, {}", queryNetworkInterface().getIndex(),
-                        getName());
-                return false;
+            try (CloseableMibIfRow ifRow = new CloseableMibIfRow()) {
+                ifRow.dwIndex = queryNetworkInterface().getIndex();
+                if (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
+                    // Error, abort
+                    LOG.error("Failed to retrieve data for interface {}, {}", queryNetworkInterface().getIndex(),
+                            getName());
+                    return false;
+                }
+                this.ifType = ifRow.dwType;
+                // These are unsigned ints. Widen them to longs.
+                this.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
+                this.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
+                this.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts);
+                this.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts);
+                this.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
+                this.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
+                this.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards); // closest proxy
+                this.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards); // closest proxy
+                this.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
+                this.ifAlias = ""; // not supported by MIB_IFROW
+                this.ifOperStatus = IfOperStatus.UNKNOWN; // not supported
             }
-            this.ifType = ifRow.dwType;
-            // These are unsigned ints. Widen them to longs.
-            this.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
-            this.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
-            this.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts);
-            this.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts);
-            this.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
-            this.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
-            this.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards); // closest proxy
-            this.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards); // closest proxy
-            this.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
-            this.ifAlias = ""; // not supported by MIB_IFROW
-            this.ifOperStatus = IfOperStatus.UNKNOWN; // not supported
         }
         this.timeStamp = System.currentTimeMillis();
         return true;

@@ -3,6 +3,7 @@
 ##### Bug fixes / Improvements
 * [#2089](https://github.com/oshi/oshi/pull/2089): PDH wild card counters need English objects but localized instances - [@dbwiddis](https://github.com/dbwiddis).
 * [#2090](https://github.com/oshi/oshi/pull/2090): Proactively free more ByReference allocations - [@dbwiddis](https://github.com/dbwiddis).
+* [#2091](https://github.com/oshi/oshi/pull/2091): Proactively free more Structure allocations - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26)
 

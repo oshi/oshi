@@ -26,6 +26,9 @@ package oshi.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -95,5 +98,18 @@ public final class Util {
      */
     public static boolean isBlankOrUnknown(String s) {
         return isBlank(s) || Constants.UNKNOWN.equals(s);
+    }
+
+    /**
+     * If the given Pointer is of class Memory, executes the close method on it to
+     * free its native allocation
+     *
+     * @param p
+     *            A pointer
+     */
+    public static void freeMemory(Pointer p) {
+        if (p instanceof Memory) {
+            ((Memory) p).close();
+        }
     }
 }

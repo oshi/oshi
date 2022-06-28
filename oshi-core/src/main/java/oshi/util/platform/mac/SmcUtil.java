@@ -212,25 +212,24 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcReadKey(IOConnect conn, String key, SMCVal val) {
-        SMCKeyData inputStructure = new SMCKeyData();
-        SMCKeyData outputStructure = new SMCKeyData();
-
-        inputStructure.key = (int) ParseUtil.strToLong(key, 4);
-        int result = smcGetKeyInfo(conn, inputStructure, outputStructure);
-        if (result == 0) {
-            val.dataSize = outputStructure.keyInfo.dataSize;
-            val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
-
-            inputStructure.keyInfo.dataSize = val.dataSize;
-            inputStructure.data8 = SMC_CMD_READ_BYTES;
-
-            result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);
+        try (SMCKeyData inputStructure = new SMCKeyData(); SMCKeyData outputStructure = new SMCKeyData()) {
+            inputStructure.key = (int) ParseUtil.strToLong(key, 4);
+            int result = smcGetKeyInfo(conn, inputStructure, outputStructure);
             if (result == 0) {
-                System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);
-                return 0;
+                val.dataSize = outputStructure.keyInfo.dataSize;
+                val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);
+
+                inputStructure.keyInfo.dataSize = val.dataSize;
+                inputStructure.data8 = SMC_CMD_READ_BYTES;
+
+                result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);
+                if (result == 0) {
+                    System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);
+                    return 0;
+                }
             }
+            return result;
         }
-        return result;
     }
 
     /**

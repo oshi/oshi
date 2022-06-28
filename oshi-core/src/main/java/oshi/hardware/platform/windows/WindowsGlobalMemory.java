@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
-import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -46,6 +45,7 @@ import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Triplet;
 
@@ -251,14 +251,15 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
     }
 
     private static Triplet<Long, Long, Long> readPerfInfo() {
-        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
-            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new Triplet<>(0L, 0L, 4098L);
+        try (CloseablePerformanceInformation performanceInfo = new CloseablePerformanceInformation()) {
+            if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
+                LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
+                return new Triplet<>(0L, 0L, 4098L);
+            }
+            long pageSize = performanceInfo.PageSize.longValue();
+            long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
+            long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
+            return new Triplet<>(memAvailable, memTotal, pageSize);
         }
-        long pageSize = performanceInfo.PageSize.longValue();
-        long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
-        long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
-        return new Triplet<>(memAvailable, memTotal, pageSize);
     }
 }

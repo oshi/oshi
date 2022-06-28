@@ -53,7 +53,11 @@ public final class Fsstat {
         // Use statfs to get size of mounted file systems
         int numfs = queryFsstat(null, 0, 0);
         // Get data on file system
-        Statfs[] fs = getFileSystems(numfs);
+        Statfs s = new Statfs();
+        // Create array to hold results
+        Statfs[] fs = (Statfs[]) s.toArray(numfs);
+        // Write file system data to array
+        queryFsstat(fs, numfs * fs[0].size(), SystemB.MNT_NOWAIT);
 
         // Iterate all mounted file systems
         for (Statfs f : fs) {
@@ -61,14 +65,6 @@ public final class Fsstat {
             mountPointMap.put(mntFrom.replace("/dev/", ""), Native.toString(f.f_mntonname, StandardCharsets.UTF_8));
         }
         return mountPointMap;
-    }
-
-    private static Statfs[] getFileSystems(int numfs) {
-        // Create array to hold results
-        Statfs[] fs = new Statfs[numfs];
-        // Write file system data to array
-        queryFsstat(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
-        return fs;
     }
 
     private static int queryFsstat(Statfs[] buf, int bufsize, int flags) {

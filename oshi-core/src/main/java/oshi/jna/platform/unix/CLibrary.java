@@ -31,6 +31,8 @@ import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.unix.LibCAPI;
 import com.sun.jna.ptr.PointerByReference;
 
+import oshi.util.Util;
+
 /**
  * C library with code common to all *nix-based operating systems. This class
  * should be considered non-API as it may be removed if/when its code is
@@ -57,7 +59,7 @@ public interface CLibrary extends LibCAPI, Library {
 
     @FieldOrder({ "ai_flags", "ai_family", "ai_socktype", "ai_protocol", "ai_addrlen", "ai_addr", "ai_canonname",
             "ai_next" })
-    class Addrinfo extends Structure {
+    class Addrinfo extends Structure implements AutoCloseable {
         public int ai_flags;
         public int ai_family;
         public int ai_socktype;
@@ -76,6 +78,11 @@ public interface CLibrary extends LibCAPI, Library {
         public Addrinfo(Pointer p) {
             super(p);
             read();
+        }
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
         }
     }
 

@@ -49,18 +49,18 @@ import com.sun.jna.platform.win32.IPHlpAPI;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCP6ROW_OWNER_PID;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCP6TABLE_OWNER_PID;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPROW_OWNER_PID;
-import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPSTATS;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_TCPTABLE_OWNER_PID;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDP6ROW_OWNER_PID;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDP6TABLE_OWNER_PID;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPROW_OWNER_PID;
-import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPSTATS;
 import com.sun.jna.platform.win32.IPHlpAPI.MIB_UDPTABLE_OWNER_PID;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinError;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.Struct.CloseableMibTcpStats;
+import oshi.jna.Struct.CloseableMibUdpStats;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ParseUtil;
 
@@ -76,34 +76,38 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
 
     @Override
     public TcpStats getTCPv4Stats() {
-        MIB_TCPSTATS stats = new MIB_TCPSTATS();
-        IPHLP.GetTcpStatisticsEx(stats, AF_INET);
-        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
-                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
-                stats.dwOutRsts);
+        try (CloseableMibTcpStats stats = new CloseableMibTcpStats()) {
+            IPHLP.GetTcpStatisticsEx(stats, AF_INET);
+            return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
+                    stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
+                    stats.dwOutRsts);
+        }
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-        MIB_TCPSTATS stats = new MIB_TCPSTATS();
-        IPHLP.GetTcpStatisticsEx(stats, AF_INET6);
-        return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
-                stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
-                stats.dwOutRsts);
+        try (CloseableMibTcpStats stats = new CloseableMibTcpStats()) {
+            IPHLP.GetTcpStatisticsEx(stats, AF_INET6);
+            return new TcpStats(stats.dwCurrEstab, stats.dwActiveOpens, stats.dwPassiveOpens, stats.dwAttemptFails,
+                    stats.dwEstabResets, stats.dwOutSegs, stats.dwInSegs, stats.dwRetransSegs, stats.dwInErrs,
+                    stats.dwOutRsts);
+        }
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-        MIB_UDPSTATS stats = new MIB_UDPSTATS();
-        IPHLP.GetUdpStatisticsEx(stats, AF_INET);
-        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);
+        try (CloseableMibUdpStats stats = new CloseableMibUdpStats()) {
+            IPHLP.GetUdpStatisticsEx(stats, AF_INET);
+            return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);
+        }
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-        MIB_UDPSTATS stats = new MIB_UDPSTATS();
-        IPHLP.GetUdpStatisticsEx(stats, AF_INET6);
-        return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);
+        try (CloseableMibUdpStats stats = new CloseableMibUdpStats()) {
+            IPHLP.GetUdpStatisticsEx(stats, AF_INET6);
+            return new UdpStats(stats.dwOutDatagrams, stats.dwInDatagrams, stats.dwNoPorts, stats.dwInErrors);
+        }
     }
 
     @Override

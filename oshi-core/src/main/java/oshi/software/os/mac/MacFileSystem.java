@@ -163,9 +163,10 @@ public class MacFileSystem extends AbstractFileSystem {
                 CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
 
                 // Create array to hold results
-                Statfs[] fs = new Statfs[numfs];
+                Statfs s = new Statfs();
+                Statfs[] fs = (Statfs[]) s.toArray(numfs);
                 // Fill array with results
-                numfs = SystemB.INSTANCE.getfsstat64(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);
+                numfs = SystemB.INSTANCE.getfsstat64(fs, fs[0].size() * fs.length, SystemB.MNT_NOWAIT);
                 for (int f = 0; f < numfs; f++) {
                     // Mount on name will match mounted path, e.g. /Volumes/foo
                     // Mount to name will match canonical path., e.g., /dev/disk0s2

@@ -45,12 +45,12 @@ import com.sun.jna.platform.win32.Cfgmgr32;
 import com.sun.jna.platform.win32.Cfgmgr32Util;
 import com.sun.jna.platform.win32.Guid.GUID;
 import com.sun.jna.platform.win32.SetupApi;
-import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.Struct.CloseableSpDevinfoData;
 import oshi.util.tuples.Quintet;
 
 /**
@@ -96,12 +96,11 @@ public final class DeviceTree {
             try (Memory buf = new Memory(MAX_PATH);
                     CloseableIntByReference size = new CloseableIntByReference(MAX_PATH);
                     CloseableIntByReference child = new CloseableIntByReference();
-                    CloseableIntByReference sibling = new CloseableIntByReference()) {
+                    CloseableIntByReference sibling = new CloseableIntByReference();
+                    CloseableSpDevinfoData devInfoData = new CloseableSpDevinfoData()) {
+                devInfoData.cbSize = devInfoData.size();
                 // Enumerate Device Info using BFS queue
                 Queue<Integer> deviceTree = new ArrayDeque<>();
-                // Get the enumeration object
-                SP_DEVINFO_DATA devInfoData = new SP_DEVINFO_DATA();
-                devInfoData.cbSize = devInfoData.size();
                 for (int i = 0; SA.SetupDiEnumDeviceInfo(hDevInfo, i, devInfoData); i++) {
                     deviceTree.add(devInfoData.DevInst);
                     // Initialize parent and child objects

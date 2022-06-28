@@ -50,22 +50,23 @@ final class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getDomainName() {
-        Addrinfo hint = new Addrinfo();
-        hint.ai_flags = CLibrary.AI_CANONNAME;
-        String hostname = getHostName();
+        try (Addrinfo hint = new Addrinfo()) {
+            hint.ai_flags = CLibrary.AI_CANONNAME;
+            String hostname = getHostName();
 
-        try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
-            int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
-            if (res > 0) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.warn("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
+            try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
+                int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
+                if (res > 0) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.warn("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
+                    }
+                    return "";
                 }
-                return "";
+                Addrinfo info = new Addrinfo(ptr.getValue()); // NOSONAR
+                String canonname = info.ai_canonname.trim();
+                LIBC.freeaddrinfo(ptr.getValue());
+                return canonname;
             }
-            Addrinfo info = new Addrinfo(ptr.getValue());
-            String canonname = info.ai_canonname.trim();
-            LIBC.freeaddrinfo(ptr.getValue());
-            return canonname;
         }
     }
 

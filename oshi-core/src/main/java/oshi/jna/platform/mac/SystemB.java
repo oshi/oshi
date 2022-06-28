@@ -29,6 +29,7 @@ import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.Union;
 
 import oshi.jna.platform.unix.CLibrary;
+import oshi.util.Util;
 
 /**
  * System class. This class should be considered non-API as it may be removed
@@ -158,9 +159,14 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
      * Mac socket info
      */
     @FieldOrder({ "pfi", "psi" })
-    class SocketFdInfo extends Structure {
+    class SocketFdInfo extends Structure implements AutoCloseable {
         public ProcFileInfo pfi;
         public SocketInfo psi;
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 
     /**

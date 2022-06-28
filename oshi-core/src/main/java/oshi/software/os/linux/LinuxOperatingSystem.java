@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
-import com.sun.jna.platform.linux.LibC.Sysinfo;
 import com.sun.jna.platform.linux.Udev;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -49,6 +48,7 @@ import oshi.driver.linux.proc.Auxv;
 import oshi.driver.linux.proc.CpuStat;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.linux.proc.UpTime;
+import oshi.jna.Struct.CloseableSysinfo;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -274,8 +274,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        try {
-            Sysinfo info = new Sysinfo();
+        try (CloseableSysinfo info = new CloseableSysinfo()) {
             if (0 != LibC.INSTANCE.sysinfo(info)) {
                 LOG.error("Failed to get process thread count. Error code: {}", Native.getLastError());
                 return 0;

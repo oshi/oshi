@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.XswUsage;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
+import oshi.jna.Struct.CloseableXswUsage;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
@@ -100,10 +100,11 @@ final class MacVirtualMemory extends AbstractVirtualMemory {
     private static Pair<Long, Long> querySwapUsage() {
         long swapUsed = 0L;
         long swapTotal = 0L;
-        XswUsage xswUsage = new XswUsage();
-        if (SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
-            swapUsed = xswUsage.xsu_used;
-            swapTotal = xswUsage.xsu_total;
+        try (CloseableXswUsage xswUsage = new CloseableXswUsage()) {
+            if (SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
+                swapUsed = xswUsage.xsu_used;
+                swapTotal = xswUsage.xsu_total;
+            }
         }
         return new Pair<>(swapUsed, swapTotal);
     }
