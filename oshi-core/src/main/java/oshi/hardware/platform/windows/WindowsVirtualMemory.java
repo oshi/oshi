@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
-import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.MemoryInformation;
@@ -42,6 +41,7 @@ import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
 import oshi.driver.windows.perfmon.PagingFile;
 import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -108,13 +108,14 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static Triplet<Long, Long, Long> querySwapTotalVirtMaxVirtUsed() {
-        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();
-        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-            LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-            return new Triplet<>(0L, 0L, 0L);
+        try (CloseablePerformanceInformation perfInfo = new CloseablePerformanceInformation()) {
+            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+                LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
+                return new Triplet<>(0L, 0L, 0L);
+            }
+            return new Triplet<>(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),
+                    perfInfo.CommitLimit.longValue(), perfInfo.CommitTotal.longValue());
         }
-        return new Triplet<>(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),
-                perfInfo.CommitLimit.longValue(), perfInfo.CommitTotal.longValue());
     }
 
     private static Pair<Long, Long> queryPageSwaps() {

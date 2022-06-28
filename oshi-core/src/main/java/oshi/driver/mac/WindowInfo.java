@@ -99,27 +99,27 @@ public final class WindowInfo {
                     int windowLayer = new CFNumberRef(result).intValue();
 
                     result = windowRef.getValue(kCGWindowBounds);
-                    CGRect rect = new CGRect();
-                    CoreGraphics.INSTANCE.CGRectMakeWithDictionaryRepresentation(new CFDictionaryRef(result), rect);
-                    Rectangle windowBounds = new Rectangle(FormatUtil.roundToInt(rect.origin.x),
-                            FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),
-                            FormatUtil.roundToInt(rect.size.height));
+                    try (CGRect rect = new CGRect()) {
+                        CoreGraphics.INSTANCE.CGRectMakeWithDictionaryRepresentation(new CFDictionaryRef(result), rect);
+                        Rectangle windowBounds = new Rectangle(FormatUtil.roundToInt(rect.origin.x),
+                                FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),
+                                FormatUtil.roundToInt(rect.size.height));
+                        // Note: the Quartz name returned by this field is rarely used
+                        result = windowRef.getValue(kCGWindowName); // Optional key, check for null
+                        String windowName = CFUtil.cfPointerToString(result, false);
+                        // This is the program running the window, use as name if name blank or add in
+                        // parenthesis
+                        result = windowRef.getValue(kCGWindowOwnerName); // Optional key, check for null
+                        String windowOwnerName = CFUtil.cfPointerToString(result, false);
+                        if (windowName.isEmpty()) {
+                            windowName = windowOwnerName;
+                        } else {
+                            windowName = windowName + "(" + windowOwnerName + ")";
+                        }
 
-                    // Note: the Quartz name returned by this field is rarely used
-                    result = windowRef.getValue(kCGWindowName); // Optional key, check for null
-                    String windowName = CFUtil.cfPointerToString(result, false);
-                    // This is the program running the window, use as name if name blank or add in
-                    // parenthesis
-                    result = windowRef.getValue(kCGWindowOwnerName); // Optional key, check for null
-                    String windowOwnerName = CFUtil.cfPointerToString(result, false);
-                    if (windowName.isEmpty()) {
-                        windowName = windowOwnerName;
-                    } else {
-                        windowName = windowName + "(" + windowOwnerName + ")";
+                        windowList.add(new OSDesktopWindow(windowNumber, windowName, windowOwnerName, windowBounds,
+                                windowOwnerPID, windowLayer, visible));
                     }
-
-                    windowList.add(new OSDesktopWindow(windowNumber, windowName, windowOwnerName, windowBounds,
-                            windowOwnerPID, windowLayer, visible));
                 }
             }
         } finally {

@@ -23,13 +23,13 @@
  */
 package oshi.jna.platform.mac;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.NativeLongByReference;
+
+import oshi.util.Util;
 
 /**
  * The I/O Kit framework implements non-kernel access to I/O Kit objects
@@ -80,7 +80,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
      * Holds the return value of SMC query.
      */
     @FieldOrder({ "key", "vers", "pLimitData", "keyInfo", "result", "status", "data8", "data32", "bytes" })
-    class SMCKeyData extends Structure {
+    class SMCKeyData extends Structure implements AutoCloseable {
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -90,6 +90,11 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
         public byte data8;
         public int data32;
         public byte[] bytes = new byte[32];
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 
     /**
@@ -104,10 +109,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 

@@ -54,11 +54,11 @@ import com.sun.jna.platform.win32.Tlhelp32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.W32ServiceManager;
 import com.sun.jna.platform.win32.Win32Exception;
-import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.platform.win32.WinNT.LUID;
 import com.sun.jna.platform.win32.Winsvc;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -79,6 +79,7 @@ import oshi.jna.ByRef.CloseableHANDLEByReference;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
 import oshi.jna.Struct.CloseablePerformanceInformation;
+import oshi.jna.Struct.CloseableSystemInfo;
 import oshi.jna.platform.windows.WinNT.TOKEN_ELEVATION;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -235,8 +236,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
                 return false;
             }
-            try {
-                TOKEN_ELEVATION elevation = new TOKEN_ELEVATION();
+            try (TOKEN_ELEVATION elevation = new TOKEN_ELEVATION()) {
                 if (Advapi32.INSTANCE.GetTokenInformation(hToken.getValue(), TOKENELEVATION, elevation,
                         elevation.size(), returnLength)) {
                     return elevation.TokenIsElevated > 0;
@@ -466,7 +466,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 return false;
             }
             try {
-                WinNT.LUID luid = new WinNT.LUID();
+                LUID luid = new LUID();
                 success = Advapi32.INSTANCE.LookupPrivilegeValue(null, WinNT.SE_DEBUG_NAME, luid);
                 if (!success) {
                     LOG.error("LookupPrivilegeValue failed. Error: {}", Native.getLastError());
@@ -554,9 +554,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static boolean isCurrentX86() {
-        SYSTEM_INFO sysinfo = new SYSTEM_INFO();
-        Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
-        return (0 == sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue());
+        try (CloseableSystemInfo sysinfo = new CloseableSystemInfo()) {
+            Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
+            return (0 == sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue());
+        }
     }
 
     /**

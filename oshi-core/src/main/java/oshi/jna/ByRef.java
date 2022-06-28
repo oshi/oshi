@@ -23,9 +23,7 @@
  */
 package oshi.jna;
 
-import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Tlhelp32.PROCESSENTRY32;
@@ -35,6 +33,8 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
+
+import oshi.util.Util;
 
 /**
  * Wrapper classes for JNA clases which extend
@@ -54,10 +54,7 @@ public interface ByRef {
 
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
@@ -72,10 +69,7 @@ public interface ByRef {
 
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
@@ -90,50 +84,35 @@ public interface ByRef {
 
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
     class CloseablePointerByReference extends PointerByReference implements AutoCloseable {
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
     class CloseableLONGLONGByReference extends LONGLONGByReference implements AutoCloseable {
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
     class CloseableULONGptrByReference extends ULONG_PTRByReference implements AutoCloseable {
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
     class CloseableHANDLEByReference extends HANDLEByReference implements AutoCloseable {
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
@@ -148,20 +127,14 @@ public interface ByRef {
 
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 
     class CloseablePROCESSENTRY32ByReference extends PROCESSENTRY32.ByReference implements AutoCloseable {
         @Override
         public void close() {
-            Pointer p = this.getPointer();
-            if (p instanceof Memory) {
-                ((Memory) p).close();
-            }
+            Util.freeMemory(getPointer());
         }
     }
 }

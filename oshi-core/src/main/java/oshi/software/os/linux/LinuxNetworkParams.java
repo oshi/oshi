@@ -59,27 +59,28 @@ final class LinuxNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getDomainName() {
-        Addrinfo hint = new Addrinfo();
-        hint.ai_flags = CLibrary.AI_CANONNAME;
-        String hostname = "";
-        try {
-            hostname = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
-            return "";
-        }
-        try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
-            int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
-            if (res > 0) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
-                }
+        try (Addrinfo hint = new Addrinfo()) {
+            hint.ai_flags = CLibrary.AI_CANONNAME;
+            String hostname = "";
+            try {
+                hostname = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException e) {
+                LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
                 return "";
             }
-            Addrinfo info = new Addrinfo(ptr.getValue());
-            String canonname = info.ai_canonname.trim();
-            LIBC.freeaddrinfo(ptr.getValue());
-            return canonname;
+            try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
+                int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
+                if (res > 0) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
+                    }
+                    return "";
+                }
+                Addrinfo info = new Addrinfo(ptr.getValue()); // NOSONAR
+                String canonname = info.ai_canonname.trim();
+                LIBC.freeaddrinfo(ptr.getValue());
+                return canonname;
+            }
         }
     }
 

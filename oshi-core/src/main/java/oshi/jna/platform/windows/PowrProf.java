@@ -28,6 +28,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
+import oshi.util.Util;
+
 /**
  * Power profile stats. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
@@ -41,7 +43,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
      */
     @FieldOrder({ "acOnLine", "batteryPresent", "charging", "discharging", "spare1", "tag", "maxCapacity",
             "remainingCapacity", "rate", "estimatedTime", "defaultAlert1", "defaultAlert2" })
-    class SystemBatteryState extends Structure {
+    class SystemBatteryState extends Structure implements AutoCloseable {
         public byte acOnLine;
         public byte batteryPresent;
         public byte charging;
@@ -62,6 +64,11 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
         public SystemBatteryState() {
             super();
+        }
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
         }
     }
 
@@ -89,10 +96,15 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
     // MOVE?
     @FieldOrder({ "BatteryTag", "InformationLevel", "AtRate" })
-    class BATTERY_QUERY_INFORMATION extends Structure {
+    class BATTERY_QUERY_INFORMATION extends Structure implements AutoCloseable {
         public int BatteryTag;
         public int InformationLevel;
         public int AtRate;
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 
     enum BATTERY_QUERY_INFORMATION_LEVEL {
@@ -102,7 +114,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
     @FieldOrder({ "Capabilities", "Technology", "Reserved", "Chemistry", "DesignedCapacity", "FullChargedCapacity",
             "DefaultAlert1", "DefaultAlert2", "CriticalBias", "CycleCount" })
-    class BATTERY_INFORMATION extends Structure {
+    class BATTERY_INFORMATION extends Structure implements AutoCloseable {
         public int Capabilities;
         public byte Technology;
         public byte[] Reserved = new byte[3];
@@ -113,29 +125,49 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
         public int DefaultAlert2;
         public int CriticalBias;
         public int CycleCount;
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 
     @FieldOrder({ "BatteryTag", "Timeout", "PowerState", "LowCapacity", "HighCapacity" })
-    class BATTERY_WAIT_STATUS extends Structure {
+    class BATTERY_WAIT_STATUS extends Structure implements AutoCloseable {
         public int BatteryTag;
         public int Timeout;
         public int PowerState;
         public int LowCapacity;
         public int HighCapacity;
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 
     @FieldOrder({ "PowerState", "Capacity", "Voltage", "Rate" })
-    class BATTERY_STATUS extends Structure {
+    class BATTERY_STATUS extends Structure implements AutoCloseable {
         public int PowerState;
         public int Capacity;
         public int Voltage;
         public int Rate;
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 
     @FieldOrder({ "Day", "Month", "Year" })
-    class BATTERY_MANUFACTURE_DATE extends Structure {
+    class BATTERY_MANUFACTURE_DATE extends Structure implements AutoCloseable {
         public byte Day;
         public byte Month;
         public short Year;
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 }

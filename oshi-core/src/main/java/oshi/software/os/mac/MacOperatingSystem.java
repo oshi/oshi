@@ -39,12 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.Timeval;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
 import oshi.driver.mac.WindowInfo;
 import oshi.jna.Struct.CloseableProcTaskInfo;
+import oshi.jna.Struct.CloseableTimeval;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -84,18 +84,19 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final long BOOTTIME;
     static {
-        Timeval tv = new Timeval();
-        if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
-            BOOTTIME = ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                    System.currentTimeMillis() / 1000);
-        } else {
-            // tv now points to a 64-bit timeval structure for boot time.
-            // First 4 bytes are seconds, second 4 bytes are microseconds
-            // (we ignore)
-            BOOTTIME = tv.tv_sec.longValue();
+        try (CloseableTimeval tv = new CloseableTimeval()) {
+            if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
+                // Usually this works. If it doesn't, fall back to text parsing.
+                // Boot time will be the first consecutive string of digits.
+                BOOTTIME = ParseUtil.parseLongOrDefault(
+                        ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                        System.currentTimeMillis() / 1000);
+            } else {
+                // tv now points to a 64-bit timeval structure for boot time.
+                // First 4 bytes are seconds, second 4 bytes are microseconds
+                // (we ignore)
+                BOOTTIME = tv.tv_sec.longValue();
+            }
         }
     }
 
@@ -190,7 +191,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        OSProcess proc = new MacOSProcess(pid, this.minor);
+        OSProcess proc = new MacOSProcess(pid, this.major, this.minor);
         return proc.getState().equals(State.INVALID) ? null : proc;
     }
 

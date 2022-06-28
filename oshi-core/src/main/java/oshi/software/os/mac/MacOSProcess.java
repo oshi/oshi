@@ -49,13 +49,13 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Group;
 import com.sun.jna.platform.mac.SystemB.Passwd;
-import com.sun.jna.platform.mac.SystemB.RUsageInfoV2;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
 import oshi.driver.mac.ThreadInfo.ThreadStats;
 import oshi.jna.Struct.CloseableProcTaskAllInfo;
+import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -84,6 +84,7 @@ public class MacOSProcess extends AbstractOSProcess {
     private static final int SZOMB = 5; // intermediate state in process termination
     private static final int SSTOP = 6; // process being traced
 
+    private int majorVersion;
     private int minorVersion;
 
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
@@ -114,8 +115,9 @@ public class MacOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public MacOSProcess(int pid, int minor) {
+    public MacOSProcess(int pid, int major, int minor) {
         super(pid);
+        this.majorVersion = major;
         this.minorVersion = minor;
         updateAttributes();
     }
@@ -424,8 +426,9 @@ public class MacOSProcess extends AbstractOSProcess {
             // testing using getrusage confirms pti_faults includes both major and minor
             this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
             this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
-            if (this.minorVersion >= 9) {
-                RUsageInfoV2 rUsageInfoV2 = new RUsageInfoV2();
+        }
+        if (this.majorVersion > 10 || this.minorVersion >= 9) {
+            try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {
                 if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
                     this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;
                     this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;

@@ -30,6 +30,8 @@ import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 
+import oshi.util.Util;
+
 /**
  * The Core Graphics framework is based on the Quartz advanced drawing engine.
  * It provides low-level, lightweight 2D rendering with unmatched output
@@ -61,6 +63,7 @@ public interface CoreGraphics extends Library {
     class CGPoint extends Structure {
         public double x;
         public double y;
+
     }
 
     /**
@@ -76,9 +79,14 @@ public interface CoreGraphics extends Library {
      * A rectangle with origin and size
      */
     @FieldOrder({ "origin", "size" })
-    class CGRect extends Structure {
+    class CGRect extends Structure implements AutoCloseable {
         public CGPoint origin;
         public CGSize size;
+
+        @Override
+        public void close() {
+            Util.freeMemory(getPointer());
+        }
     }
 
     CFArrayRef CGWindowListCopyWindowInfo(int option, int relativeToWindow);
