@@ -50,6 +50,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -81,8 +82,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         int[] mib = new int[2];
         mib[0] = 1; // CTL_KERN
         mib[1] = 8; // KERN_ARGMAX
-        try (Memory m = new Memory(Integer.BYTES)) {
-            size_t.ByReference size = new size_t.ByReference(new size_t(Integer.BYTES));
+        try (Memory m = new Memory(Integer.BYTES);
+                CloseableSizeTByReference size = new CloseableSizeTByReference(Integer.BYTES)) {
             if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
                 ARGMAX = m.getInt(0);
             } else {
@@ -164,8 +165,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             mib[2] = getProcessID();
             mib[3] = 1; // KERN_PROC_ARGV
             // Allocate memory for arguments
-            try (Memory m = new Memory(ARGMAX)) {
-                size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+            try (Memory m = new Memory(ARGMAX);
+                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
                 // Fetch arguments
                 if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
                     // Returns a null-terminated list of pointers to the actual data
@@ -202,8 +203,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         mib[2] = getProcessID();
         mib[3] = 3; // KERN_PROC_ENV
         // Allocate memory for environment variables
-        try (Memory m = new Memory(ARGMAX)) {
-            size_t.ByReference size = new size_t.ByReference(new size_t(ARGMAX));
+        try (Memory m = new Memory(ARGMAX); CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
             // Fetch environment variables
             if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
                 // Returns a null-terminated list of pointers to the actual data
