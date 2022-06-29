@@ -1,23 +1,22 @@
-# 6.2.1 (in progress)
+# 6.2.2 (in progress)
 
-##### Bug fixes / Improvements
-* [#2089](https://github.com/oshi/oshi/pull/2089): PDH wild card counters need English objects but localized instances - [@dbwiddis](https://github.com/dbwiddis).
-* [#2090](https://github.com/oshi/oshi/pull/2090): Proactively free more ByReference allocations - [@dbwiddis](https://github.com/dbwiddis).
-* [#2091](https://github.com/oshi/oshi/pull/2091): Proactively free more Structure allocations - [@dbwiddis](https://github.com/dbwiddis).
-* [#2094](https://github.com/oshi/oshi/pull/2080): JNA 5.12.1 - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.2.0 (2022-06-26)
+# 6.2.0 (2022-06-26), 6.2.1 (2022-06-29)
 
 ##### Performance improvement
-This release leverages improvements in JNA 5.12.0 which should significantly improve performance. Finalizers in JNA were replaced by Cleaners, reducing the impact of native memory allocations in tenured heap space by promptly releasing native memory allocations and reducing Garbage Collector usage.
+This release leverages improvements in JNA 5.12.1 which should significantly improve performance. Finalizers in JNA were replaced by Cleaners, reducing the impact of `Memory` objects in tenured heap space by promptly releasing native memory allocations.
 
-JNA's `Memory` class now implements `Closeable`. All direct allocations of `Memory` and classes extending JNA's `ByReference` have their underlying `Memory` allocation freed proactively. Classes extending `Structure` on the hot path are also proactively freed.
+In addition, JNA's `Memory` class now implements `Closeable`. All direct and most indirect allocations of `Memory` in OSHI now have their underlying native allocation freed proactively. 
 * [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
 * [#2080](https://github.com/oshi/oshi/pull/2080): JNA 5.12.0 - [@dbwiddis](https://github.com/dbwiddis).
-* [#2081](https://github.com/oshi/oshi/pull/2081): Proactively free native Memory allocations - [@dbwiddis](https://github.com/dbwiddis).
-* [#2082](https://github.com/oshi/oshi/pull/2082): Proactively free native reference allocations in utils - [@dbwiddis](https://github.com/dbwiddis).
-* [#2083](https://github.com/oshi/oshi/pull/2083): Proactively free native reference allocations on hot path - [@dbwiddis](https://github.com/dbwiddis).
-* [#2085](https://github.com/oshi/oshi/pull/2085): Proactively free remaining native ByReference allocations - [@dbwiddis](https://github.com/dbwiddis).
+* [#2081](https://github.com/oshi/oshi/pull/2081): Proactively free direct native Memory allocations - [@dbwiddis](https://github.com/dbwiddis).
+* [#2082](https://github.com/oshi/oshi/pull/2082),
+  [#2083](https://github.com/oshi/oshi/pull/2083),
+  [#2085](https://github.com/oshi/oshi/pull/2085),
+  [#2090](https://github.com/oshi/oshi/pull/2090),
+  [#2091](https://github.com/oshi/oshi/pull/2091): Proactively free indirect native Memory allocations - [@dbwiddis](https://github.com/dbwiddis).
+* [#2094](https://github.com/oshi/oshi/pull/2094): JNA 5.12.1 - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### New Features
 * [#2046](https://github.com/oshi/oshi/pull/2046): Added getSystemCpuLoad/getProcessorCpuLoad convenience methods - [@Osiris-Team](https://github.com/Osiris-Team).
@@ -32,6 +31,7 @@ JNA's `Memory` class now implements `Closeable`. All direct allocations of `Memo
 * [#2055](https://github.com/oshi/oshi/pull/2055): Fix incomplete collection of child processes - [@marcelkliemannel](https://github.com/marcelkliemannel).
 * [#2077](https://github.com/oshi/oshi/pull/2077): Fix processor numbering with Windows Processor Groups - [@dbwiddis](https://github.com/dbwiddis).
 * [#2078](https://github.com/oshi/oshi/pull/2078): Support macOS 13 (Ventura) - [@dbwiddis](https://github.com/dbwiddis).
+* [#2089](https://github.com/oshi/oshi/pull/2089): PDH wild card counters need English objects but localized instances - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01), 6.1.5 (2022-03-15), 6.1.6 (2022-04-10)
 
