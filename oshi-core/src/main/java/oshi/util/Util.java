@@ -109,12 +109,7 @@ public final class Util {
      */
     public static void freeMemory(Pointer p) {
         if (p instanceof Memory) {
-            try {
-                ((Memory) p).close();
-            } catch (NullPointerException e) {
-                // Race condition if cleaner has already worked
-                // https://github.com/java-native-access/jna/issues/1446
-            }
+            ((Memory) p).close();
         }
     }
 }
