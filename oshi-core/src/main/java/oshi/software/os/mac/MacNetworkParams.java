@@ -59,8 +59,6 @@ final class MacNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getDomainName() {
-        Addrinfo hint = new Addrinfo();
-        hint.ai_flags = CLibrary.AI_CANONNAME;
         String hostname = "";
         try {
             hostname = InetAddress.getLocalHost().getHostName();
@@ -68,7 +66,8 @@ final class MacNetworkParams extends AbstractNetworkParams {
             LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
             return "";
         }
-        try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
+        try (Addrinfo hint = new Addrinfo(); CloseablePointerByReference ptr = new CloseablePointerByReference()) {
+            hint.ai_flags = CLibrary.AI_CANONNAME;
             int res = SYS.getaddrinfo(hostname, null, hint, ptr);
             if (res > 0) {
                 if (LOG.isErrorEnabled()) {
@@ -76,7 +75,7 @@ final class MacNetworkParams extends AbstractNetworkParams {
                 }
                 return "";
             }
-            Addrinfo info = new Addrinfo(ptr.getValue());
+            Addrinfo info = new Addrinfo(ptr.getValue()); // NOSONAR
             String canonname = info.ai_canonname.trim();
             SYS.freeaddrinfo(ptr.getValue());
             return canonname;
