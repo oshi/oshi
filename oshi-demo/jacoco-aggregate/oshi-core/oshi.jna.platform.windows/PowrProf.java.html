@@ -28,25 +28,27 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
+import oshi.util.Util;
+
 /**
  * Power profile stats. This class should be considered non-API as it may be
  * removed if/when its code is incorporated into the JNA project.
  */
 public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
     /** Constant &lt;code&gt;INSTANCE&lt;/code&gt; */
-<span class="nc" id="L37">    PowrProf INSTANCE = Native.load(&quot;PowrProf&quot;, PowrProf.class);</span>
+<span class="nc" id="L39">    PowrProf INSTANCE = Native.load(&quot;PowrProf&quot;, PowrProf.class);</span>
 
     /**
      * Contains information about the current state of the system battery.
      */
     @FieldOrder({ &quot;acOnLine&quot;, &quot;batteryPresent&quot;, &quot;charging&quot;, &quot;discharging&quot;, &quot;spare1&quot;, &quot;tag&quot;, &quot;maxCapacity&quot;,
             &quot;remainingCapacity&quot;, &quot;rate&quot;, &quot;estimatedTime&quot;, &quot;defaultAlert1&quot;, &quot;defaultAlert2&quot; })
-    class SystemBatteryState extends Structure {
+    class SystemBatteryState extends Structure implements AutoCloseable {
         public byte acOnLine;
         public byte batteryPresent;
         public byte charging;
         public byte discharging;
-<span class="nc" id="L49">        public byte[] spare1 = new byte[3];</span>
+<span class="nc" id="L51">        public byte[] spare1 = new byte[3];</span>
         public byte tag;
         public int maxCapacity;
         public int remainingCapacity;
@@ -56,13 +58,18 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
         public int defaultAlert2;
 
         public SystemBatteryState(Pointer p) {
-<span class="nc" id="L59">            super(p);</span>
-<span class="nc" id="L60">            read();</span>
-<span class="nc" id="L61">        }</span>
+<span class="nc" id="L61">            super(p);</span>
+<span class="nc" id="L62">            read();</span>
+<span class="nc" id="L63">        }</span>
 
         public SystemBatteryState() {
-<span class="nc" id="L64">            super();</span>
-<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">            super();</span>
+<span class="nc" id="L67">        }</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L71">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L72">        }</span>
     }
 
     /**
@@ -78,65 +85,90 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
         public int currentIdleState;
 
         public ProcessorPowerInformation(Pointer p) {
-<span class="nc" id="L81">            super(p);</span>
-<span class="nc" id="L82">            read();</span>
-<span class="nc" id="L83">        }</span>
+<span class="nc" id="L88">            super(p);</span>
+<span class="nc" id="L89">            read();</span>
+<span class="nc" id="L90">        }</span>
 
         public ProcessorPowerInformation() {
-<span class="nc" id="L86">            super();</span>
-<span class="nc" id="L87">        }</span>
+<span class="nc" id="L93">            super();</span>
+<span class="nc" id="L94">        }</span>
     }
 
     // MOVE?
     @FieldOrder({ &quot;BatteryTag&quot;, &quot;InformationLevel&quot;, &quot;AtRate&quot; })
-<span class="nc" id="L92">    class BATTERY_QUERY_INFORMATION extends Structure {</span>
+<span class="nc" id="L99">    class BATTERY_QUERY_INFORMATION extends Structure implements AutoCloseable {</span>
         public int BatteryTag;
         public int InformationLevel;
         public int AtRate;
+
+        @Override
+        public void close() {
+<span class="nc" id="L106">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L107">        }</span>
     }
 
-<span class="nc" id="L98">    enum BATTERY_QUERY_INFORMATION_LEVEL {</span>
-<span class="nc" id="L99">        BatteryInformation, BatteryGranularityInformation, BatteryTemperature, BatteryEstimatedTime, BatteryDeviceName,</span>
-<span class="nc" id="L100">        BatteryManufactureDate, BatteryManufactureName, BatteryUniqueID, BatterySerialNumber</span>
+<span class="nc" id="L110">    enum BATTERY_QUERY_INFORMATION_LEVEL {</span>
+<span class="nc" id="L111">        BatteryInformation, BatteryGranularityInformation, BatteryTemperature, BatteryEstimatedTime, BatteryDeviceName,</span>
+<span class="nc" id="L112">        BatteryManufactureDate, BatteryManufactureName, BatteryUniqueID, BatterySerialNumber</span>
     }
 
     @FieldOrder({ &quot;Capabilities&quot;, &quot;Technology&quot;, &quot;Reserved&quot;, &quot;Chemistry&quot;, &quot;DesignedCapacity&quot;, &quot;FullChargedCapacity&quot;,
             &quot;DefaultAlert1&quot;, &quot;DefaultAlert2&quot;, &quot;CriticalBias&quot;, &quot;CycleCount&quot; })
-<span class="nc" id="L105">    class BATTERY_INFORMATION extends Structure {</span>
+<span class="nc" id="L117">    class BATTERY_INFORMATION extends Structure implements AutoCloseable {</span>
         public int Capabilities;
         public byte Technology;
-<span class="nc" id="L108">        public byte[] Reserved = new byte[3];</span>
-<span class="nc" id="L109">        public byte[] Chemistry = new byte[4];</span>
+<span class="nc" id="L120">        public byte[] Reserved = new byte[3];</span>
+<span class="nc" id="L121">        public byte[] Chemistry = new byte[4];</span>
         public int DesignedCapacity;
         public int FullChargedCapacity;
         public int DefaultAlert1;
         public int DefaultAlert2;
         public int CriticalBias;
         public int CycleCount;
+
+        @Override
+        public void close() {
+<span class="nc" id="L131">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L132">        }</span>
     }
 
     @FieldOrder({ &quot;BatteryTag&quot;, &quot;Timeout&quot;, &quot;PowerState&quot;, &quot;LowCapacity&quot;, &quot;HighCapacity&quot; })
-<span class="nc" id="L119">    class BATTERY_WAIT_STATUS extends Structure {</span>
+<span class="nc" id="L136">    class BATTERY_WAIT_STATUS extends Structure implements AutoCloseable {</span>
         public int BatteryTag;
         public int Timeout;
         public int PowerState;
         public int LowCapacity;
         public int HighCapacity;
+
+        @Override
+        public void close() {
+<span class="nc" id="L145">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L146">        }</span>
     }
 
     @FieldOrder({ &quot;PowerState&quot;, &quot;Capacity&quot;, &quot;Voltage&quot;, &quot;Rate&quot; })
-<span class="nc" id="L128">    class BATTERY_STATUS extends Structure {</span>
+<span class="nc" id="L150">    class BATTERY_STATUS extends Structure implements AutoCloseable {</span>
         public int PowerState;
         public int Capacity;
         public int Voltage;
         public int Rate;
+
+        @Override
+        public void close() {
+<span class="nc" id="L158">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L159">        }</span>
     }
 
     @FieldOrder({ &quot;Day&quot;, &quot;Month&quot;, &quot;Year&quot; })
-<span class="nc" id="L136">    class BATTERY_MANUFACTURE_DATE extends Structure {</span>
+<span class="nc" id="L163">    class BATTERY_MANUFACTURE_DATE extends Structure implements AutoCloseable {</span>
         public byte Day;
         public byte Month;
         public short Year;
+
+        @Override
+        public void close() {
+<span class="nc" id="L170">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L171">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
-import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.MemoryInformation;
@@ -42,6 +41,7 @@ import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
 import oshi.driver.windows.perfmon.PagingFile;
 import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -108,19 +108,20 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static Triplet&lt;Long, Long, Long&gt; querySwapTotalVirtMaxVirtUsed() {
-<span class="nc" id="L111">        PERFORMANCE_INFORMATION perfInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
-<span class="nc" id="L113">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L114">            return new Triplet&lt;&gt;(0L, 0L, 0L);</span>
-        }
-<span class="nc" id="L116">        return new Triplet&lt;&gt;(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),</span>
-<span class="nc" id="L117">                perfInfo.CommitLimit.longValue(), perfInfo.CommitTotal.longValue());</span>
+<span class="nc" id="L111">        try (CloseablePerformanceInformation perfInfo = new CloseablePerformanceInformation()) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {</span>
+<span class="nc" id="L113">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L114">                return new Triplet&lt;&gt;(0L, 0L, 0L);</span>
+            }
+<span class="nc" id="L116">            return new Triplet&lt;&gt;(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),</span>
+<span class="nc" id="L117">                    perfInfo.CommitLimit.longValue(), perfInfo.CommitTotal.longValue());</span>
+<span class="nc" id="L118">        }</span>
     }
 
     private static Pair&lt;Long, Long&gt; queryPageSwaps() {
-<span class="nc" id="L121">        Map&lt;PageSwapProperty, Long&gt; valueMap = MemoryInformation.queryPageSwaps();</span>
-<span class="nc" id="L122">        return new Pair&lt;&gt;(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),</span>
-<span class="nc" id="L123">                valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));</span>
+<span class="nc" id="L122">        Map&lt;PageSwapProperty, Long&gt; valueMap = MemoryInformation.queryPageSwaps();</span>
+<span class="nc" id="L123">        return new Pair&lt;&gt;(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),</span>
+<span class="nc" id="L124">                valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

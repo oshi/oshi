@@ -30,6 +30,8 @@ import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 
+import oshi.util.Util;
+
 /**
  * The Core Graphics framework is based on the Quartz advanced drawing engine.
  * It provides low-level, lightweight 2D rendering with unmatched output
@@ -43,7 +45,7 @@ import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
  */
 public interface CoreGraphics extends Library {
 
-<span class="nc" id="L46">    CoreGraphics INSTANCE = Native.load(&quot;CoreGraphics&quot;, CoreGraphics.class);</span>
+<span class="nc" id="L48">    CoreGraphics INSTANCE = Native.load(&quot;CoreGraphics&quot;, CoreGraphics.class);</span>
 
     int kCGNullWindowID = 0;
 
@@ -58,16 +60,17 @@ public interface CoreGraphics extends Library {
      * A point with X and Y coordinates
      */
     @FieldOrder({ &quot;x&quot;, &quot;y&quot; })
-<span class="nc" id="L61">    class CGPoint extends Structure {</span>
+<span class="nc" id="L63">    class CGPoint extends Structure {</span>
         public double x;
         public double y;
+
     }
 
     /**
      * A size with width and height
      */
     @FieldOrder({ &quot;width&quot;, &quot;height&quot; })
-<span class="nc" id="L70">    class CGSize extends Structure {</span>
+<span class="nc" id="L73">    class CGSize extends Structure {</span>
         public double width;
         public double height;
     }
@@ -76,9 +79,14 @@ public interface CoreGraphics extends Library {
      * A rectangle with origin and size
      */
     @FieldOrder({ &quot;origin&quot;, &quot;size&quot; })
-<span class="nc" id="L79">    class CGRect extends Structure {</span>
+<span class="nc" id="L82">    class CGRect extends Structure implements AutoCloseable {</span>
         public CGPoint origin;
         public CGSize size;
+
+        @Override
+        public void close() {
+<span class="nc" id="L88">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L89">        }</span>
     }
 
     CFArrayRef CGWindowListCopyWindowInfo(int option, int relativeToWindow);

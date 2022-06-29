@@ -38,6 +38,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableSizeTByReference;
 
 /**
  * Utility to query NetStat.
@@ -45,7 +46,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class NetStat {
 
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(NetStat.class);</span>
+<span class="nc" id="L49">    private static final Logger LOG = LoggerFactory.getLogger(NetStat.class);</span>
 
     private static final int CTL_NET = 4;
     private static final int PF_ROUTE = 17;
@@ -68,52 +69,53 @@ public final class NetStat {
     public static Map&lt;Integer, IFdata&gt; queryIFdata(int index) {
         // Ported from source code of &quot;netstat -ir&quot;. See
         // https://opensource.apple.com/source/network_cmds/network_cmds-457/netstat.tproj/if.c
-<span class="nc" id="L71">        Map&lt;Integer, IFdata&gt; data = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">        Map&lt;Integer, IFdata&gt; data = new HashMap&lt;&gt;();</span>
         // Get buffer of all interface information
-<span class="nc" id="L73">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
-<span class="nc" id="L74">        size_t.ByReference len = new size_t.ByReference();</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, size_t.ZERO)) {</span>
-<span class="nc" id="L76">            LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
-<span class="nc" id="L77">            return data;</span>
-        }
-<span class="nc" id="L79">        try (Memory buf = new Memory(len.longValue())) {</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, size_t.ZERO)) {</span>
-<span class="nc" id="L81">                LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
-<span class="nc" id="L82">                return data;</span>
+<span class="nc" id="L74">        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };</span>
+<span class="nc" id="L75">        try (CloseableSizeTByReference len = new CloseableSizeTByReference()) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (0 != SystemB.INSTANCE.sysctl(mib, 6, null, len, null, size_t.ZERO)) {</span>
+<span class="nc" id="L77">                LOG.error(&quot;Didn't get buffer length for IFLIST2&quot;);</span>
+<span class="nc" id="L78">                return data;</span>
             }
-<span class="nc" id="L84">            final long now = System.currentTimeMillis();</span>
+<span class="nc" id="L80">            try (Memory buf = new Memory(len.longValue())) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                if (0 != SystemB.INSTANCE.sysctl(mib, 6, buf, len, null, size_t.ZERO)) {</span>
+<span class="nc" id="L82">                    LOG.error(&quot;Didn't get buffer for IFLIST2&quot;);</span>
+<span class="nc" id="L83">                    return data;</span>
+                }
+<span class="nc" id="L85">                final long now = System.currentTimeMillis();</span>
 
-            // Iterate offset from buf's pointer up to limit of buf
-<span class="nc" id="L87">            int lim = (int) (buf.size() - new IFmsgHdr().size());</span>
-<span class="nc" id="L88">            int offset = 0;</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            while (offset &lt; lim) {</span>
-                // Get pointer to current native part of buf
-<span class="nc" id="L91">                Pointer p = buf.share(offset);</span>
-                // Cast pointer to if_msghdr
-<span class="nc" id="L93">                IFmsgHdr ifm = new IFmsgHdr(p);</span>
-<span class="nc" id="L94">                ifm.read();</span>
-                // Advance next
-<span class="nc" id="L96">                offset += ifm.ifm_msglen;</span>
-                // Skip messages which are not the right format
-<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (ifm.ifm_type == RTM_IFINFO2) {</span>
-                    // Cast pointer to if_msghdr2
-<span class="nc" id="L100">                    IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
-<span class="nc" id="L101">                    if2m.read();</span>
-<span class="nc bnc" id="L102" title="All 4 branches missed.">                    if (index &lt; 0 || index == if2m.ifm_index) {</span>
-<span class="nc" id="L103">                        data.put((int) if2m.ifm_index,</span>
-                                new IFdata(0xff &amp; if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets,
-                                        if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes, if2m.ifm_data.ifi_ibytes,
-                                        if2m.ifm_data.ifi_oerrors, if2m.ifm_data.ifi_ierrors,
-                                        if2m.ifm_data.ifi_collisions, if2m.ifm_data.ifi_iqdrops,
-                                        if2m.ifm_data.ifi_baudrate, now));
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                        if (index &gt;= 0) {</span>
-<span class="nc" id="L110">                            return data;</span>
+                // Iterate offset from buf's pointer up to limit of buf
+<span class="nc" id="L88">                int lim = (int) (buf.size() - new IFmsgHdr().size());</span>
+<span class="nc" id="L89">                int offset = 0;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                while (offset &lt; lim) {</span>
+                    // Get pointer to current native part of buf
+<span class="nc" id="L92">                    Pointer p = buf.share(offset);</span>
+                    // Cast pointer to if_msghdr
+<span class="nc" id="L94">                    IFmsgHdr ifm = new IFmsgHdr(p);</span>
+<span class="nc" id="L95">                    ifm.read();</span>
+                    // Advance next
+<span class="nc" id="L97">                    offset += ifm.ifm_msglen;</span>
+                    // Skip messages which are not the right format
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                    if (ifm.ifm_type == RTM_IFINFO2) {</span>
+                        // Cast pointer to if_msghdr2
+<span class="nc" id="L101">                        IFmsgHdr2 if2m = new IFmsgHdr2(p);</span>
+<span class="nc" id="L102">                        if2m.read();</span>
+<span class="nc bnc" id="L103" title="All 4 branches missed.">                        if (index &lt; 0 || index == if2m.ifm_index) {</span>
+<span class="nc" id="L104">                            data.put((int) if2m.ifm_index,</span>
+                                    new IFdata(0xff &amp; if2m.ifm_data.ifi_type, if2m.ifm_data.ifi_opackets,
+                                            if2m.ifm_data.ifi_ipackets, if2m.ifm_data.ifi_obytes,
+                                            if2m.ifm_data.ifi_ibytes, if2m.ifm_data.ifi_oerrors,
+                                            if2m.ifm_data.ifi_ierrors, if2m.ifm_data.ifi_collisions,
+                                            if2m.ifm_data.ifi_iqdrops, if2m.ifm_data.ifi_baudrate, now));
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                            if (index &gt;= 0) {</span>
+<span class="nc" id="L111">                                return data;</span>
+                            }
                         }
                     }
-                }
-<span class="nc" id="L114">            }</span>
-<span class="nc" id="L115">        }</span>
-<span class="nc" id="L116">        return data;</span>
+<span class="nc" id="L115">                }</span>
+<span class="nc" id="L116">            }</span>
+<span class="nc" id="L117">        }</span>
+<span class="nc" id="L118">        return data;</span>
     }
 
     /**
@@ -135,95 +137,95 @@ public final class NetStat {
 
         IFdata(int ifType, // NOSONAR squid:S00107
                 long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long collisions,
-<span class="nc" id="L138">                long iDrops, long speed, long timeStamp) {</span>
-<span class="nc" id="L139">            this.ifType = ifType;</span>
-<span class="nc" id="L140">            this.oPackets = oPackets &amp; 0xffffffffL;</span>
-<span class="nc" id="L141">            this.iPackets = iPackets &amp; 0xffffffffL;</span>
-<span class="nc" id="L142">            this.oBytes = oBytes &amp; 0xffffffffL;</span>
-<span class="nc" id="L143">            this.iBytes = iBytes &amp; 0xffffffffL;</span>
-<span class="nc" id="L144">            this.oErrors = oErrors &amp; 0xffffffffL;</span>
-<span class="nc" id="L145">            this.iErrors = iErrors &amp; 0xffffffffL;</span>
-<span class="nc" id="L146">            this.collisions = collisions &amp; 0xffffffffL;</span>
-<span class="nc" id="L147">            this.iDrops = iDrops &amp; 0xffffffffL;</span>
-<span class="nc" id="L148">            this.speed = speed &amp; 0xffffffffL;</span>
-<span class="nc" id="L149">            this.timeStamp = timeStamp;</span>
-<span class="nc" id="L150">        }</span>
+<span class="nc" id="L140">                long iDrops, long speed, long timeStamp) {</span>
+<span class="nc" id="L141">            this.ifType = ifType;</span>
+<span class="nc" id="L142">            this.oPackets = oPackets &amp; 0xffffffffL;</span>
+<span class="nc" id="L143">            this.iPackets = iPackets &amp; 0xffffffffL;</span>
+<span class="nc" id="L144">            this.oBytes = oBytes &amp; 0xffffffffL;</span>
+<span class="nc" id="L145">            this.iBytes = iBytes &amp; 0xffffffffL;</span>
+<span class="nc" id="L146">            this.oErrors = oErrors &amp; 0xffffffffL;</span>
+<span class="nc" id="L147">            this.iErrors = iErrors &amp; 0xffffffffL;</span>
+<span class="nc" id="L148">            this.collisions = collisions &amp; 0xffffffffL;</span>
+<span class="nc" id="L149">            this.iDrops = iDrops &amp; 0xffffffffL;</span>
+<span class="nc" id="L150">            this.speed = speed &amp; 0xffffffffL;</span>
+<span class="nc" id="L151">            this.timeStamp = timeStamp;</span>
+<span class="nc" id="L152">        }</span>
 
         /**
          * @return the ifType
          */
         public int getIfType() {
-<span class="nc" id="L156">            return ifType;</span>
+<span class="nc" id="L158">            return ifType;</span>
         }
 
         /**
          * @return the oPackets
          */
         public long getOPackets() {
-<span class="nc" id="L163">            return oPackets;</span>
+<span class="nc" id="L165">            return oPackets;</span>
         }
 
         /**
          * @return the iPackets
          */
         public long getIPackets() {
-<span class="nc" id="L170">            return iPackets;</span>
+<span class="nc" id="L172">            return iPackets;</span>
         }
 
         /**
          * @return the oBytes
          */
         public long getOBytes() {
-<span class="nc" id="L177">            return oBytes;</span>
+<span class="nc" id="L179">            return oBytes;</span>
         }
 
         /**
          * @return the iBytes
          */
         public long getIBytes() {
-<span class="nc" id="L184">            return iBytes;</span>
+<span class="nc" id="L186">            return iBytes;</span>
         }
 
         /**
          * @return the oErrors
          */
         public long getOErrors() {
-<span class="nc" id="L191">            return oErrors;</span>
+<span class="nc" id="L193">            return oErrors;</span>
         }
 
         /**
          * @return the iErrors
          */
         public long getIErrors() {
-<span class="nc" id="L198">            return iErrors;</span>
+<span class="nc" id="L200">            return iErrors;</span>
         }
 
         /**
          * @return the collisions
          */
         public long getCollisions() {
-<span class="nc" id="L205">            return collisions;</span>
+<span class="nc" id="L207">            return collisions;</span>
         }
 
         /**
          * @return the iDrops
          */
         public long getIDrops() {
-<span class="nc" id="L212">            return iDrops;</span>
+<span class="nc" id="L214">            return iDrops;</span>
         }
 
         /**
          * @return the speed
          */
         public long getSpeed() {
-<span class="nc" id="L219">            return speed;</span>
+<span class="nc" id="L221">            return speed;</span>
         }
 
         /**
          * @return the timeStamp
          */
         public long getTimeStamp() {
-<span class="nc" id="L226">            return timeStamp;</span>
+<span class="nc" id="L228">            return timeStamp;</span>
         }
     }
 }

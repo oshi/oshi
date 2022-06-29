@@ -99,27 +99,27 @@ public final class WindowInfo {
 <span class="nc" id="L99">                    int windowLayer = new CFNumberRef(result).intValue();</span>
 
 <span class="nc" id="L101">                    result = windowRef.getValue(kCGWindowBounds);</span>
-<span class="nc" id="L102">                    CGRect rect = new CGRect();</span>
-<span class="nc" id="L103">                    CoreGraphics.INSTANCE.CGRectMakeWithDictionaryRepresentation(new CFDictionaryRef(result), rect);</span>
-<span class="nc" id="L104">                    Rectangle windowBounds = new Rectangle(FormatUtil.roundToInt(rect.origin.x),</span>
-<span class="nc" id="L105">                            FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),</span>
-<span class="nc" id="L106">                            FormatUtil.roundToInt(rect.size.height));</span>
+<span class="nc" id="L102">                    try (CGRect rect = new CGRect()) {</span>
+<span class="nc" id="L103">                        CoreGraphics.INSTANCE.CGRectMakeWithDictionaryRepresentation(new CFDictionaryRef(result), rect);</span>
+<span class="nc" id="L104">                        Rectangle windowBounds = new Rectangle(FormatUtil.roundToInt(rect.origin.x),</span>
+<span class="nc" id="L105">                                FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),</span>
+<span class="nc" id="L106">                                FormatUtil.roundToInt(rect.size.height));</span>
+                        // Note: the Quartz name returned by this field is rarely used
+<span class="nc" id="L108">                        result = windowRef.getValue(kCGWindowName); // Optional key, check for null</span>
+<span class="nc" id="L109">                        String windowName = CFUtil.cfPointerToString(result, false);</span>
+                        // This is the program running the window, use as name if name blank or add in
+                        // parenthesis
+<span class="nc" id="L112">                        result = windowRef.getValue(kCGWindowOwnerName); // Optional key, check for null</span>
+<span class="nc" id="L113">                        String windowOwnerName = CFUtil.cfPointerToString(result, false);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                        if (windowName.isEmpty()) {</span>
+<span class="nc" id="L115">                            windowName = windowOwnerName;</span>
+                        } else {
+<span class="nc" id="L117">                            windowName = windowName + &quot;(&quot; + windowOwnerName + &quot;)&quot;;</span>
+                        }
 
-                    // Note: the Quartz name returned by this field is rarely used
-<span class="nc" id="L109">                    result = windowRef.getValue(kCGWindowName); // Optional key, check for null</span>
-<span class="nc" id="L110">                    String windowName = CFUtil.cfPointerToString(result, false);</span>
-                    // This is the program running the window, use as name if name blank or add in
-                    // parenthesis
-<span class="nc" id="L113">                    result = windowRef.getValue(kCGWindowOwnerName); // Optional key, check for null</span>
-<span class="nc" id="L114">                    String windowOwnerName = CFUtil.cfPointerToString(result, false);</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">                    if (windowName.isEmpty()) {</span>
-<span class="nc" id="L116">                        windowName = windowOwnerName;</span>
-                    } else {
-<span class="nc" id="L118">                        windowName = windowName + &quot;(&quot; + windowOwnerName + &quot;)&quot;;</span>
+<span class="nc" id="L120">                        windowList.add(new OSDesktopWindow(windowNumber, windowName, windowOwnerName, windowBounds,</span>
+                                windowOwnerPID, windowLayer, visible));
                     }
-
-<span class="nc" id="L121">                    windowList.add(new OSDesktopWindow(windowNumber, windowName, windowOwnerName, windowBounds,</span>
-                            windowOwnerPID, windowLayer, visible));
                 }
             }
         } finally {

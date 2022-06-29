@@ -26,11 +26,18 @@ package oshi.jna.platform.windows;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
+import oshi.util.Util;
+
 public interface WinNT extends com.sun.jna.platform.win32.WinNT {
 
     @FieldOrder({ &quot;TokenIsElevated&quot; })
-<span class="nc" id="L32">    class TOKEN_ELEVATION extends Structure {</span>
+<span class="nc" id="L34">    class TOKEN_ELEVATION extends Structure implements AutoCloseable {</span>
         public int TokenIsElevated;
+
+        @Override
+        public void close() {
+<span class="nc" id="L39">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L40">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

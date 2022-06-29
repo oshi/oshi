@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.XswUsage;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
+import oshi.jna.Struct.CloseableXswUsage;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
@@ -100,28 +100,29 @@ final class MacVirtualMemory extends AbstractVirtualMemory {
     private static Pair&lt;Long, Long&gt; querySwapUsage() {
 <span class="nc" id="L101">        long swapUsed = 0L;</span>
 <span class="nc" id="L102">        long swapTotal = 0L;</span>
-<span class="nc" id="L103">        XswUsage xswUsage = new XswUsage();</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
-<span class="nc" id="L105">            swapUsed = xswUsage.xsu_used;</span>
-<span class="nc" id="L106">            swapTotal = xswUsage.xsu_total;</span>
+<span class="nc" id="L103">        try (CloseableXswUsage xswUsage = new CloseableXswUsage()) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (SysctlUtil.sysctl(&quot;vm.swapusage&quot;, xswUsage)) {</span>
+<span class="nc" id="L105">                swapUsed = xswUsage.xsu_used;</span>
+<span class="nc" id="L106">                swapTotal = xswUsage.xsu_total;</span>
+            }
         }
-<span class="nc" id="L108">        return new Pair&lt;&gt;(swapUsed, swapTotal);</span>
+<span class="nc" id="L109">        return new Pair&lt;&gt;(swapUsed, swapTotal);</span>
     }
 
     private static Pair&lt;Long, Long&gt; queryVmStat() {
-<span class="nc" id="L112">        long swapPagesIn = 0L;</span>
-<span class="nc" id="L113">        long swapPagesOut = 0L;</span>
-<span class="nc" id="L114">        try (CloseableVMStatistics vmStats = new CloseableVMStatistics();</span>
-<span class="nc" id="L115">                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
+<span class="nc" id="L113">        long swapPagesIn = 0L;</span>
+<span class="nc" id="L114">        long swapPagesOut = 0L;</span>
+<span class="nc" id="L115">        try (CloseableVMStatistics vmStats = new CloseableVMStatistics();</span>
+<span class="nc" id="L116">                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,</span>
                     size)) {
-<span class="nc" id="L118">                swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
-<span class="nc" id="L119">                swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
+<span class="nc" id="L119">                swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);</span>
+<span class="nc" id="L120">                swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);</span>
             } else {
-<span class="nc" id="L121">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
+<span class="nc" id="L122">                LOG.error(&quot;Failed to get host VM info. Error code: {}&quot;, Native.getLastError());</span>
             }
         }
-<span class="nc" id="L124">        return new Pair&lt;&gt;(swapPagesIn, swapPagesOut);</span>
+<span class="nc" id="L125">        return new Pair&lt;&gt;(swapPagesIn, swapPagesOut);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

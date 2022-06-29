@@ -43,17 +43,17 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PhysicalMemory;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PhysicalMemory;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.VirtualMemory;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractGlobalMemory;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PhysicalMemory;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PhysicalMemory;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.VirtualMemory;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractGlobalMemory;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.jna.Struct.CloseablePerformanceInformation;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
@@ -259,17 +259,18 @@
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>     }
 <a class="jxr_linenumber" name="L252" href="#L252">252</a> 
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;Long, Long, Long&gt; readPerfInfo() {
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         PERFORMANCE_INFORMATION performanceInfo = <strong class="jxr_keyword">new</strong> PERFORMANCE_INFORMATION();
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>             LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(0L, 0L, 4098L);
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>         }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">long</strong> pageSize = performanceInfo.PageSize.longValue();
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">long</strong> memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">long</strong> memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(memAvailable, memTotal, pageSize);
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>     }
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <strong class="jxr_keyword">try</strong> (CloseablePerformanceInformation performanceInfo = <strong class="jxr_keyword">new</strong> CloseablePerformanceInformation()) {
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>             <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>                 LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(0L, 0L, 4098L);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>             }
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             <strong class="jxr_keyword">long</strong> pageSize = performanceInfo.PageSize.longValue();
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>             <strong class="jxr_keyword">long</strong> memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             <strong class="jxr_keyword">long</strong> memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(memAvailable, memTotal, pageSize);
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>     }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

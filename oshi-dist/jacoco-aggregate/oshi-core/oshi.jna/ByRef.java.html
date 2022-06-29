@@ -23,9 +23,7 @@
  */
 package oshi.jna;
 
-import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.win32.BaseTSD.ULONG_PTRByReference;
 import com.sun.jna.platform.win32.Tlhelp32.PROCESSENTRY32;
@@ -35,6 +33,8 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
+
+import oshi.util.Util;
 
 /**
  * Wrapper classes for JNA clases which extend
@@ -54,115 +54,88 @@ public interface ByRef {
 
         @Override
         public void close() {
-<span class="nc" id="L57">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L59">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L61">        }</span>
+<span class="nc" id="L57">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L58">        }</span>
     }
 
     class CloseableLongByReference extends LongByReference implements AutoCloseable {
         public CloseableLongByReference() {
-<span class="nc" id="L66">            super();</span>
-<span class="nc" id="L67">        }</span>
+<span class="nc" id="L63">            super();</span>
+<span class="nc" id="L64">        }</span>
 
         public CloseableLongByReference(long value) {
-<span class="nc" id="L70">            super(value);</span>
-<span class="nc" id="L71">        }</span>
+<span class="nc" id="L67">            super(value);</span>
+<span class="nc" id="L68">        }</span>
 
         @Override
         public void close() {
-<span class="nc" id="L75">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L77">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L79">        }</span>
+<span class="nc" id="L72">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L73">        }</span>
     }
 
     class CloseableNativeLongByReference extends NativeLongByReference implements AutoCloseable {
         public CloseableNativeLongByReference() {
-<span class="nc" id="L84">            super();</span>
-<span class="nc" id="L85">        }</span>
+<span class="nc" id="L78">            super();</span>
+<span class="nc" id="L79">        }</span>
 
         public CloseableNativeLongByReference(NativeLong nativeLong) {
-<span class="nc" id="L88">            super(nativeLong);</span>
-<span class="nc" id="L89">        }</span>
+<span class="nc" id="L82">            super(nativeLong);</span>
+<span class="nc" id="L83">        }</span>
 
         @Override
         public void close() {
-<span class="nc" id="L93">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L95">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L97">        }</span>
+<span class="nc" id="L87">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L88">        }</span>
     }
 
-<span class="nc" id="L100">    class CloseablePointerByReference extends PointerByReference implements AutoCloseable {</span>
+<span class="nc" id="L91">    class CloseablePointerByReference extends PointerByReference implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L103">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L105">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L107">        }</span>
+<span class="nc" id="L94">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L95">        }</span>
     }
 
-<span class="nc" id="L110">    class CloseableLONGLONGByReference extends LONGLONGByReference implements AutoCloseable {</span>
+<span class="nc" id="L98">    class CloseableLONGLONGByReference extends LONGLONGByReference implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L113">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L115">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L117">        }</span>
+<span class="nc" id="L101">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L102">        }</span>
     }
 
-<span class="nc" id="L120">    class CloseableULONGptrByReference extends ULONG_PTRByReference implements AutoCloseable {</span>
+<span class="nc" id="L105">    class CloseableULONGptrByReference extends ULONG_PTRByReference implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L123">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L125">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L127">        }</span>
+<span class="nc" id="L108">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L109">        }</span>
     }
 
-<span class="nc" id="L130">    class CloseableHANDLEByReference extends HANDLEByReference implements AutoCloseable {</span>
+<span class="nc" id="L112">    class CloseableHANDLEByReference extends HANDLEByReference implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L133">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L135">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L137">        }</span>
+<span class="nc" id="L115">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L116">        }</span>
     }
 
     class CloseableSizeTByReference extends size_t.ByReference implements AutoCloseable {
         public CloseableSizeTByReference() {
-<span class="nc" id="L142">            super();</span>
-<span class="nc" id="L143">        }</span>
+<span class="nc" id="L121">            super();</span>
+<span class="nc" id="L122">        }</span>
 
         public CloseableSizeTByReference(long value) {
-<span class="nc" id="L146">            super(value);</span>
-<span class="nc" id="L147">        }</span>
+<span class="nc" id="L125">            super(value);</span>
+<span class="nc" id="L126">        }</span>
 
         @Override
         public void close() {
-<span class="nc" id="L151">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L153">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L155">        }</span>
+<span class="nc" id="L130">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L131">        }</span>
     }
 
-<span class="nc" id="L158">    class CloseablePROCESSENTRY32ByReference extends PROCESSENTRY32.ByReference implements AutoCloseable {</span>
+<span class="nc" id="L134">    class CloseablePROCESSENTRY32ByReference extends PROCESSENTRY32.ByReference implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L161">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L163">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L165">        }</span>
+<span class="nc" id="L137">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L138">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

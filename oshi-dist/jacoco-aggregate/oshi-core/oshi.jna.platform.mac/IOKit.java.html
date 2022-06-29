@@ -23,13 +23,13 @@
  */
 package oshi.jna.platform.mac;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.NativeLongByReference;
+
+import oshi.util.Util;
 
 /**
  * The I/O Kit framework implements non-kernel access to I/O Kit objects
@@ -80,7 +80,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
      * Holds the return value of SMC query.
      */
     @FieldOrder({ &quot;key&quot;, &quot;vers&quot;, &quot;pLimitData&quot;, &quot;keyInfo&quot;, &quot;result&quot;, &quot;status&quot;, &quot;data8&quot;, &quot;data32&quot;, &quot;bytes&quot; })
-<span class="nc" id="L83">    class SMCKeyData extends Structure {</span>
+<span class="nc" id="L83">    class SMCKeyData extends Structure implements AutoCloseable {</span>
         public int key;
         public SMCKeyDataVers vers;
         public SMCKeyDataPLimitData pLimitData;
@@ -90,25 +90,27 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
         public byte data8;
         public int data32;
 <span class="nc" id="L92">        public byte[] bytes = new byte[32];</span>
+
+        @Override
+        public void close() {
+<span class="nc" id="L96">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L97">        }</span>
     }
 
     /**
      * Holds an SMC value
      */
     @FieldOrder({ &quot;key&quot;, &quot;dataSize&quot;, &quot;dataType&quot;, &quot;bytes&quot; })
-<span class="nc" id="L99">    class SMCVal extends Structure implements AutoCloseable {</span>
-<span class="nc" id="L100">        public byte[] key = new byte[5];</span>
+<span class="nc" id="L104">    class SMCVal extends Structure implements AutoCloseable {</span>
+<span class="nc" id="L105">        public byte[] key = new byte[5];</span>
         public int dataSize;
-<span class="nc" id="L102">        public byte[] dataType = new byte[5];</span>
-<span class="nc" id="L103">        public byte[] bytes = new byte[32];</span>
+<span class="nc" id="L107">        public byte[] dataType = new byte[5];</span>
+<span class="nc" id="L108">        public byte[] bytes = new byte[32];</span>
 
         @Override
         public void close() {
-<span class="nc" id="L107">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L109">                ((Memory) p).close();</span>
-            }
-<span class="nc" id="L111">        }</span>
+<span class="nc" id="L112">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L113">        }</span>
     }
 
     /*

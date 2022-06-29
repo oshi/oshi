@@ -56,9 +56,8 @@ public final class PerfCounterQuery {
     // Use a thread safe set to cache failed pdh queries
 <span class="nc" id="L57">    private static final Set&lt;String&gt; FAILED_QUERY_CACHE = ConcurrentHashMap.newKeySet();</span>
 
-    // For XP, use a map to cache localization strings
-<span class="nc bnc" id="L60" title="All 2 branches missed.">    private static final ConcurrentHashMap&lt;String, String&gt; LOCALIZE_CACHE = IS_VISTA_OR_GREATER ? null</span>
-<span class="nc" id="L61">            : new ConcurrentHashMap&lt;&gt;();</span>
+    // A map to cache localization strings
+<span class="nc" id="L60">    private static final ConcurrentHashMap&lt;String, String&gt; LOCALIZE_CACHE = new ConcurrentHashMap&lt;&gt;();</span>
 
     /*
      * Multiple classes use these constants
@@ -93,16 +92,16 @@ public final class PerfCounterQuery {
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; Map&lt;T, Long&gt; queryValues(Class&lt;T&gt; propertyEnum, String perfObject,
             String perfWmiClass) {
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (!FAILED_QUERY_CACHE.contains(perfObject)) {</span>
-<span class="nc" id="L97">            Map&lt;T, Long&gt; valueMap = queryValuesFromPDH(propertyEnum, perfObject);</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (!valueMap.isEmpty()) {</span>
-<span class="nc" id="L99">                return valueMap;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (!FAILED_QUERY_CACHE.contains(perfObject)) {</span>
+<span class="nc" id="L96">            Map&lt;T, Long&gt; valueMap = queryValuesFromPDH(propertyEnum, perfObject);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (!valueMap.isEmpty()) {</span>
+<span class="nc" id="L98">                return valueMap;</span>
             }
             // If we are here, query failed
-<span class="nc" id="L102">            LOG.warn(&quot;Disabling further attempts to query {}.&quot;, perfObject);</span>
-<span class="nc" id="L103">            FAILED_QUERY_CACHE.add(perfObject);</span>
+<span class="nc" id="L101">            LOG.warn(&quot;Disabling further attempts to query {}.&quot;, perfObject);</span>
+<span class="nc" id="L102">            FAILED_QUERY_CACHE.add(perfObject);</span>
         }
-<span class="nc" id="L105">        return queryValuesFromWMI(propertyEnum, perfWmiClass);</span>
+<span class="nc" id="L104">        return queryValuesFromWMI(propertyEnum, perfWmiClass);</span>
     }
 
     /**
@@ -123,29 +122,29 @@ public final class PerfCounterQuery {
      *         success, or an empty map if the PDH query failed.
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; Map&lt;T, Long&gt; queryValuesFromPDH(Class&lt;T&gt; propertyEnum, String perfObject) {
-<span class="nc" id="L126">        T[] props = propertyEnum.getEnumConstants();</span>
+<span class="nc" id="L125">        T[] props = propertyEnum.getEnumConstants();</span>
         // If pre-Vista, localize the perfObject
-<span class="nc" id="L128">        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject);</span>
-<span class="nc" id="L129">        EnumMap&lt;T, PerfCounter&gt; counterMap = new EnumMap&lt;&gt;(propertyEnum);</span>
-<span class="nc" id="L130">        EnumMap&lt;T, Long&gt; valueMap = new EnumMap&lt;&gt;(propertyEnum);</span>
-<span class="nc" id="L131">        try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {</span>
+<span class="nc" id="L127">        String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, false);</span>
+<span class="nc" id="L128">        EnumMap&lt;T, PerfCounter&gt; counterMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L129">        EnumMap&lt;T, Long&gt; valueMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc" id="L130">        try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {</span>
             // Set up the query and counter handles
-<span class="nc bnc" id="L133" title="All 2 branches missed.">            for (T prop : props) {</span>
-<span class="nc" id="L134">                PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized,</span>
-<span class="nc" id="L135">                        ((PdhCounterProperty) prop).getInstance(), ((PdhCounterProperty) prop).getCounter());</span>
-<span class="nc" id="L136">                counterMap.put(prop, counter);</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">                if (!pdhQueryHandler.addCounterToQuery(counter)) {</span>
-<span class="nc" id="L138">                    return valueMap;</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">            for (T prop : props) {</span>
+<span class="nc" id="L133">                PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized,</span>
+<span class="nc" id="L134">                        ((PdhCounterProperty) prop).getInstance(), ((PdhCounterProperty) prop).getCounter());</span>
+<span class="nc" id="L135">                counterMap.put(prop, counter);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (!pdhQueryHandler.addCounterToQuery(counter)) {</span>
+<span class="nc" id="L137">                    return valueMap;</span>
                 }
             }
             // And then query. Zero timestamp means update failed
-<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (0 &lt; pdhQueryHandler.updateQuery()) {</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">                for (T prop : props) {</span>
-<span class="nc" id="L144">                    valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            if (0 &lt; pdhQueryHandler.updateQuery()) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                for (T prop : props) {</span>
+<span class="nc" id="L143">                    valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));</span>
                 }
             }
-<span class="nc" id="L147">        }</span>
-<span class="nc" id="L148">        return valueMap;</span>
+<span class="nc" id="L146">        }</span>
+<span class="nc" id="L147">        return valueMap;</span>
     }
 
     /**
@@ -165,30 +164,30 @@ public final class PerfCounterQuery {
      *         successful, an empty map if the WMI query failed.
      */
     public static &lt;T extends Enum&lt;T&gt;&gt; Map&lt;T, Long&gt; queryValuesFromWMI(Class&lt;T&gt; propertyEnum, String wmiClass) {
-<span class="nc" id="L168">        WmiQuery&lt;T&gt; query = new WmiQuery&lt;&gt;(wmiClass, propertyEnum);</span>
-<span class="nc" id="L169">        WmiResult&lt;T&gt; result = Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query);</span>
-<span class="nc" id="L170">        EnumMap&lt;T, Long&gt; valueMap = new EnumMap&lt;&gt;(propertyEnum);</span>
-<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">            for (T prop : propertyEnum.getEnumConstants()) {</span>
-<span class="nc bnc" id="L173" title="All 5 branches missed.">                switch (result.getCIMType(prop)) {</span>
+<span class="nc" id="L167">        WmiQuery&lt;T&gt; query = new WmiQuery&lt;&gt;(wmiClass, propertyEnum);</span>
+<span class="nc" id="L168">        WmiResult&lt;T&gt; result = Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query);</span>
+<span class="nc" id="L169">        EnumMap&lt;T, Long&gt; valueMap = new EnumMap&lt;&gt;(propertyEnum);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (result.getResultCount() &gt; 0) {</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            for (T prop : propertyEnum.getEnumConstants()) {</span>
+<span class="nc bnc" id="L172" title="All 5 branches missed.">                switch (result.getCIMType(prop)) {</span>
                 case Wbemcli.CIM_UINT16:
-<span class="nc" id="L175">                    valueMap.put(prop, (long) WmiUtil.getUint16(result, prop, 0));</span>
-<span class="nc" id="L176">                    break;</span>
+<span class="nc" id="L174">                    valueMap.put(prop, (long) WmiUtil.getUint16(result, prop, 0));</span>
+<span class="nc" id="L175">                    break;</span>
                 case Wbemcli.CIM_UINT32:
-<span class="nc" id="L178">                    valueMap.put(prop, WmiUtil.getUint32asLong(result, prop, 0));</span>
-<span class="nc" id="L179">                    break;</span>
+<span class="nc" id="L177">                    valueMap.put(prop, WmiUtil.getUint32asLong(result, prop, 0));</span>
+<span class="nc" id="L178">                    break;</span>
                 case Wbemcli.CIM_UINT64:
-<span class="nc" id="L181">                    valueMap.put(prop, WmiUtil.getUint64(result, prop, 0));</span>
-<span class="nc" id="L182">                    break;</span>
+<span class="nc" id="L180">                    valueMap.put(prop, WmiUtil.getUint64(result, prop, 0));</span>
+<span class="nc" id="L181">                    break;</span>
                 case Wbemcli.CIM_DATETIME:
-<span class="nc" id="L184">                    valueMap.put(prop, WmiUtil.getDateTime(result, prop, 0).toInstant().toEpochMilli());</span>
-<span class="nc" id="L185">                    break;</span>
+<span class="nc" id="L183">                    valueMap.put(prop, WmiUtil.getDateTime(result, prop, 0).toInstant().toEpochMilli());</span>
+<span class="nc" id="L184">                    break;</span>
                 default:
-<span class="nc" id="L187">                    throw new ClassCastException(&quot;Unimplemented CIM Type Mapping.&quot;);</span>
+<span class="nc" id="L186">                    throw new ClassCastException(&quot;Unimplemented CIM Type Mapping.&quot;);</span>
                 }
             }
         }
-<span class="nc" id="L191">        return valueMap;</span>
+<span class="nc" id="L190">        return valueMap;</span>
     }
 
     /**
@@ -201,32 +200,34 @@ public final class PerfCounterQuery {
      *
      * @param perfObject
      *            A String to localize
+     * @param force
+     *            If true, always localize
      * @return The localized string if localization successful, or the original
      *         string otherwise.
      */
-    public static String localizeIfNeeded(String perfObject) {
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        return IS_VISTA_OR_GREATER ? perfObject</span>
-<span class="nc" id="L209">                : LOCALIZE_CACHE.computeIfAbsent(perfObject, PerfCounterQuery::localizeUsingPerfIndex);</span>
+    public static String localizeIfNeeded(String perfObject, boolean force) {
+<span class="nc bnc" id="L209" title="All 4 branches missed.">        return !force &amp;&amp; IS_VISTA_OR_GREATER ? perfObject</span>
+<span class="nc" id="L210">                : LOCALIZE_CACHE.computeIfAbsent(perfObject, PerfCounterQuery::localizeUsingPerfIndex);</span>
     }
 
     private static String localizeUsingPerfIndex(String perfObject) {
-<span class="nc" id="L213">        String localized = perfObject;</span>
+<span class="nc" id="L214">        String localized = perfObject;</span>
         try {
-<span class="nc" id="L215">            localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(perfObject));</span>
-<span class="nc" id="L216">        } catch (Win32Exception e) {</span>
-<span class="nc" id="L217">            LOG.warn(</span>
+<span class="nc" id="L216">            localized = PdhUtil.PdhLookupPerfNameByIndex(null, PdhUtil.PdhLookupPerfIndexByEnglishName(perfObject));</span>
+<span class="nc" id="L217">        } catch (Win32Exception e) {</span>
+<span class="nc" id="L218">            LOG.warn(</span>
                     &quot;Unable to locate English counter names in registry Perflib 009. Assuming English counters. Error {}. {}&quot;,
-<span class="nc" id="L219">                    String.format(&quot;0x%x&quot;, e.getHR().intValue()),</span>
+<span class="nc" id="L220">                    String.format(&quot;0x%x&quot;, e.getHR().intValue()),</span>
                     &quot;See https://support.microsoft.com/en-us/help/300956/how-to-manually-rebuild-performance-counter-library-values&quot;);
-<span class="nc" id="L221">        } catch (PdhException e) {</span>
-<span class="nc" id="L222">            LOG.warn(&quot;Unable to localize {} performance counter.  Error {}.&quot;, perfObject,</span>
-<span class="nc" id="L223">                    String.format(&quot;0x%x&quot;, e.getErrorCode()));</span>
-<span class="nc" id="L224">        }</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (localized.isEmpty()) {</span>
-<span class="nc" id="L226">            return perfObject;</span>
+<span class="nc" id="L222">        } catch (PdhException e) {</span>
+<span class="nc" id="L223">            LOG.warn(&quot;Unable to localize {} performance counter.  Error {}.&quot;, perfObject,</span>
+<span class="nc" id="L224">                    String.format(&quot;0x%x&quot;, e.getErrorCode()));</span>
+<span class="nc" id="L225">        }</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        if (localized.isEmpty()) {</span>
+<span class="nc" id="L227">            return perfObject;</span>
         }
-<span class="nc" id="L228">        LOG.debug(&quot;Localized {} to {}&quot;, perfObject, localized);</span>
-<span class="nc" id="L229">        return localized;</span>
+<span class="nc" id="L229">        LOG.debug(&quot;Localized {} to {}&quot;, perfObject, localized);</span>
+<span class="nc" id="L230">        return localized;</span>
     }
 
     /**

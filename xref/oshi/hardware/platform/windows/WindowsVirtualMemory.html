@@ -42,14 +42,14 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.MemoryInformation;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.PagingFile;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractVirtualMemory;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.MemoryInformation;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.PagingFile;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractVirtualMemory;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.jna.Struct.CloseablePerformanceInformation;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
@@ -116,21 +116,22 @@
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> 
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;Long, Long, Long&gt; querySwapTotalVirtMaxVirtUsed() {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         PERFORMANCE_INFORMATION perfInfo = <strong class="jxr_keyword">new</strong> PERFORMANCE_INFORMATION();
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(0L, 0L, 0L);
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 perfInfo.CommitLimit.longValue(), perfInfo.CommitTotal.longValue());
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pair&lt;Long, Long&gt; queryPageSwaps() {
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         Map&lt;PageSwapProperty, Long&gt; valueMap = MemoryInformation.queryPageSwaps();
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">try</strong> (CloseablePerformanceInformation perfInfo = <strong class="jxr_keyword">new</strong> CloseablePerformanceInformation()) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             <strong class="jxr_keyword">if</strong> (!Psapi.INSTANCE.GetPerformanceInfo(perfInfo, perfInfo.size())) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 LOG.error(<span class="jxr_string">"Failed to get Performance Info. Error code: {}"</span>, Kernel32.INSTANCE.GetLastError());
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(0L, 0L, 0L);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(perfInfo.CommitLimit.longValue() - perfInfo.PhysicalTotal.longValue(),
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                     perfInfo.CommitLimit.longValue(), perfInfo.CommitTotal.longValue());
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pair&lt;Long, Long&gt; queryPageSwaps() {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         Map&lt;PageSwapProperty, Long&gt; valueMap = MemoryInformation.queryPageSwaps();
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

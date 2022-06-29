@@ -178,74 +178,76 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
     }
 
     private static IPConnection queryIPConnection(int pid, int fd) {
-<span class="nc" id="L181">        SocketFdInfo si = new SocketFdInfo();</span>
-<span class="nc" id="L182">        int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());</span>
-<span class="nc bnc" id="L183" title="All 6 branches missed.">        if (si.size() == ret &amp;&amp; si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {</span>
-            InSockInfo ini;
-            String type;
-            TcpState state;
-<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (si.psi.soi_kind == SOCKINFO_TCP) {</span>
-<span class="nc" id="L188">                si.psi.soi_proto.setType(&quot;pri_tcp&quot;);</span>
-<span class="nc" id="L189">                si.psi.soi_proto.read();</span>
-<span class="nc" id="L190">                ini = si.psi.soi_proto.pri_tcp.tcpsi_ini;</span>
-<span class="nc" id="L191">                state = stateLookup(si.psi.soi_proto.pri_tcp.tcpsi_state);</span>
-<span class="nc" id="L192">                type = &quot;tcp&quot;;</span>
-<span class="nc bnc" id="L193" title="All 2 branches missed.">            } else if (si.psi.soi_kind == SOCKINFO_IN) {</span>
-<span class="nc" id="L194">                si.psi.soi_proto.setType(&quot;pri_in&quot;);</span>
-<span class="nc" id="L195">                si.psi.soi_proto.read();</span>
-<span class="nc" id="L196">                ini = si.psi.soi_proto.pri_in;</span>
-<span class="nc" id="L197">                state = NONE;</span>
-<span class="nc" id="L198">                type = &quot;udp&quot;;</span>
-            } else {
-<span class="nc" id="L200">                return null;</span>
-            }
+<span class="nc" id="L181">        try (SocketFdInfo si = new SocketFdInfo()) {</span>
+<span class="nc" id="L182">            int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());</span>
+<span class="nc bnc" id="L183" title="All 6 branches missed.">            if (si.size() == ret &amp;&amp; si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {</span>
+                InSockInfo ini;
+                String type;
+                TcpState state;
+<span class="nc bnc" id="L187" title="All 2 branches missed.">                if (si.psi.soi_kind == SOCKINFO_TCP) {</span>
+<span class="nc" id="L188">                    si.psi.soi_proto.setType(&quot;pri_tcp&quot;);</span>
+<span class="nc" id="L189">                    si.psi.soi_proto.read();</span>
+<span class="nc" id="L190">                    ini = si.psi.soi_proto.pri_tcp.tcpsi_ini;</span>
+<span class="nc" id="L191">                    state = stateLookup(si.psi.soi_proto.pri_tcp.tcpsi_state);</span>
+<span class="nc" id="L192">                    type = &quot;tcp&quot;;</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                } else if (si.psi.soi_kind == SOCKINFO_IN) {</span>
+<span class="nc" id="L194">                    si.psi.soi_proto.setType(&quot;pri_in&quot;);</span>
+<span class="nc" id="L195">                    si.psi.soi_proto.read();</span>
+<span class="nc" id="L196">                    ini = si.psi.soi_proto.pri_in;</span>
+<span class="nc" id="L197">                    state = NONE;</span>
+<span class="nc" id="L198">                    type = &quot;udp&quot;;</span>
+                } else {
+<span class="nc" id="L200">                    return null;</span>
+                }
 
-            byte[] laddr;
-            byte[] faddr;
-<span class="nc bnc" id="L205" title="All 2 branches missed.">            if (ini.insi_vflag == 1) {</span>
-<span class="nc" id="L206">                laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);</span>
-<span class="nc" id="L207">                faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);</span>
-<span class="nc" id="L208">                type += &quot;4&quot;;</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">            } else if (ini.insi_vflag == 2) {</span>
-<span class="nc" id="L210">                laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);</span>
-<span class="nc" id="L211">                faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);</span>
-<span class="nc" id="L212">                type += &quot;6&quot;;</span>
-            } else {
-<span class="nc" id="L214">                return null;</span>
+                byte[] laddr;
+                byte[] faddr;
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                if (ini.insi_vflag == 1) {</span>
+<span class="nc" id="L206">                    laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);</span>
+<span class="nc" id="L207">                    faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);</span>
+<span class="nc" id="L208">                    type += &quot;4&quot;;</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">                } else if (ini.insi_vflag == 2) {</span>
+<span class="nc" id="L210">                    laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);</span>
+<span class="nc" id="L211">                    faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);</span>
+<span class="nc" id="L212">                    type += &quot;6&quot;;</span>
+                } else {
+<span class="nc" id="L214">                    return null;</span>
+                }
+<span class="nc" id="L216">                int lport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_lport);</span>
+<span class="nc" id="L217">                int fport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_fport);</span>
+<span class="nc" id="L218">                return new IPConnection(type, laddr, lport, faddr, fport, state, si.psi.soi_qlen, si.psi.soi_incqlen,</span>
+                        pid);
             }
-<span class="nc" id="L216">            int lport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_lport);</span>
-<span class="nc" id="L217">            int fport = ParseUtil.bigEndian16ToLittleEndian(ini.insi_fport);</span>
-<span class="nc" id="L218">            return new IPConnection(type, laddr, lport, faddr, fport, state, si.psi.soi_qlen, si.psi.soi_incqlen, pid);</span>
-        }
-<span class="nc" id="L220">        return null;</span>
+<span class="nc" id="L221">        }</span>
+<span class="nc" id="L222">        return null;</span>
     }
 
     private static TcpState stateLookup(int state) {
-<span class="nc bnc" id="L224" title="All 12 branches missed.">        switch (state) {</span>
+<span class="nc bnc" id="L226" title="All 12 branches missed.">        switch (state) {</span>
         case 0:
-<span class="nc" id="L226">            return CLOSED;</span>
+<span class="nc" id="L228">            return CLOSED;</span>
         case 1:
-<span class="nc" id="L228">            return LISTEN;</span>
+<span class="nc" id="L230">            return LISTEN;</span>
         case 2:
-<span class="nc" id="L230">            return SYN_SENT;</span>
+<span class="nc" id="L232">            return SYN_SENT;</span>
         case 3:
-<span class="nc" id="L232">            return SYN_RECV;</span>
+<span class="nc" id="L234">            return SYN_RECV;</span>
         case 4:
-<span class="nc" id="L234">            return ESTABLISHED;</span>
+<span class="nc" id="L236">            return ESTABLISHED;</span>
         case 5:
-<span class="nc" id="L236">            return CLOSE_WAIT;</span>
+<span class="nc" id="L238">            return CLOSE_WAIT;</span>
         case 6:
-<span class="nc" id="L238">            return FIN_WAIT_1;</span>
+<span class="nc" id="L240">            return FIN_WAIT_1;</span>
         case 7:
-<span class="nc" id="L240">            return CLOSING;</span>
+<span class="nc" id="L242">            return CLOSING;</span>
         case 8:
-<span class="nc" id="L242">            return LAST_ACK;</span>
+<span class="nc" id="L244">            return LAST_ACK;</span>
         case 9:
-<span class="nc" id="L244">            return FIN_WAIT_2;</span>
+<span class="nc" id="L246">            return FIN_WAIT_2;</span>
         case 10:
-<span class="nc" id="L246">            return TIME_WAIT;</span>
+<span class="nc" id="L248">            return TIME_WAIT;</span>
         default:
-<span class="nc" id="L248">            return UNKNOWN;</span>
+<span class="nc" id="L250">            return UNKNOWN;</span>
         }
     }
 
@@ -257,67 +259,67 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
      */
 
     private static BsdTcpstat queryTcpstat() {
-<span class="nc" id="L260">        BsdTcpstat mt = new BsdTcpstat();</span>
-<span class="nc" id="L261">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;)) {</span>
-<span class="nc bnc" id="L262" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 128) {</span>
-<span class="nc" id="L263">                mt.tcps_connattempt = m.getInt(0);</span>
-<span class="nc" id="L264">                mt.tcps_accepts = m.getInt(4);</span>
-<span class="nc" id="L265">                mt.tcps_drops = m.getInt(12);</span>
-<span class="nc" id="L266">                mt.tcps_conndrops = m.getInt(16);</span>
-<span class="nc" id="L267">                mt.tcps_sndpack = m.getInt(64);</span>
-<span class="nc" id="L268">                mt.tcps_sndrexmitpack = m.getInt(72);</span>
-<span class="nc" id="L269">                mt.tcps_rcvpack = m.getInt(104);</span>
-<span class="nc" id="L270">                mt.tcps_rcvbadsum = m.getInt(112);</span>
-<span class="nc" id="L271">                mt.tcps_rcvbadoff = m.getInt(116);</span>
-<span class="nc" id="L272">                mt.tcps_rcvmemdrop = m.getInt(120);</span>
-<span class="nc" id="L273">                mt.tcps_rcvshort = m.getInt(124);</span>
+<span class="nc" id="L262">        BsdTcpstat mt = new BsdTcpstat();</span>
+<span class="nc" id="L263">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet.tcp.stats&quot;)) {</span>
+<span class="nc bnc" id="L264" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 128) {</span>
+<span class="nc" id="L265">                mt.tcps_connattempt = m.getInt(0);</span>
+<span class="nc" id="L266">                mt.tcps_accepts = m.getInt(4);</span>
+<span class="nc" id="L267">                mt.tcps_drops = m.getInt(12);</span>
+<span class="nc" id="L268">                mt.tcps_conndrops = m.getInt(16);</span>
+<span class="nc" id="L269">                mt.tcps_sndpack = m.getInt(64);</span>
+<span class="nc" id="L270">                mt.tcps_sndrexmitpack = m.getInt(72);</span>
+<span class="nc" id="L271">                mt.tcps_rcvpack = m.getInt(104);</span>
+<span class="nc" id="L272">                mt.tcps_rcvbadsum = m.getInt(112);</span>
+<span class="nc" id="L273">                mt.tcps_rcvbadoff = m.getInt(116);</span>
+<span class="nc" id="L274">                mt.tcps_rcvmemdrop = m.getInt(120);</span>
+<span class="nc" id="L275">                mt.tcps_rcvshort = m.getInt(124);</span>
             }
         }
-<span class="nc" id="L276">        return mt;</span>
+<span class="nc" id="L278">        return mt;</span>
     }
 
     private static BsdIpstat queryIpstat() {
-<span class="nc" id="L280">        BsdIpstat mi = new BsdIpstat();</span>
-<span class="nc" id="L281">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet.ip.stats&quot;)) {</span>
-<span class="nc bnc" id="L282" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 60) {</span>
-<span class="nc" id="L283">                mi.ips_total = m.getInt(0);</span>
-<span class="nc" id="L284">                mi.ips_badsum = m.getInt(4);</span>
-<span class="nc" id="L285">                mi.ips_tooshort = m.getInt(8);</span>
-<span class="nc" id="L286">                mi.ips_toosmall = m.getInt(12);</span>
-<span class="nc" id="L287">                mi.ips_badhlen = m.getInt(16);</span>
-<span class="nc" id="L288">                mi.ips_badlen = m.getInt(20);</span>
-<span class="nc" id="L289">                mi.ips_delivered = m.getInt(56);</span>
+<span class="nc" id="L282">        BsdIpstat mi = new BsdIpstat();</span>
+<span class="nc" id="L283">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet.ip.stats&quot;)) {</span>
+<span class="nc bnc" id="L284" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 60) {</span>
+<span class="nc" id="L285">                mi.ips_total = m.getInt(0);</span>
+<span class="nc" id="L286">                mi.ips_badsum = m.getInt(4);</span>
+<span class="nc" id="L287">                mi.ips_tooshort = m.getInt(8);</span>
+<span class="nc" id="L288">                mi.ips_toosmall = m.getInt(12);</span>
+<span class="nc" id="L289">                mi.ips_badhlen = m.getInt(16);</span>
+<span class="nc" id="L290">                mi.ips_badlen = m.getInt(20);</span>
+<span class="nc" id="L291">                mi.ips_delivered = m.getInt(56);</span>
             }
         }
-<span class="nc" id="L292">        return mi;</span>
+<span class="nc" id="L294">        return mi;</span>
     }
 
     private static BsdIp6stat queryIp6stat() {
-<span class="nc" id="L296">        BsdIp6stat mi6 = new BsdIp6stat();</span>
-<span class="nc" id="L297">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet6.ip6.stats&quot;)) {</span>
-<span class="nc bnc" id="L298" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 96) {</span>
-<span class="nc" id="L299">                mi6.ip6s_total = m.getLong(0);</span>
-<span class="nc" id="L300">                mi6.ip6s_localout = m.getLong(88);</span>
+<span class="nc" id="L298">        BsdIp6stat mi6 = new BsdIp6stat();</span>
+<span class="nc" id="L299">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet6.ip6.stats&quot;)) {</span>
+<span class="nc bnc" id="L300" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 96) {</span>
+<span class="nc" id="L301">                mi6.ip6s_total = m.getLong(0);</span>
+<span class="nc" id="L302">                mi6.ip6s_localout = m.getLong(88);</span>
             }
         }
-<span class="nc" id="L303">        return mi6;</span>
+<span class="nc" id="L305">        return mi6;</span>
     }
 
     public static BsdUdpstat queryUdpstat() {
-<span class="nc" id="L307">        BsdUdpstat ut = new BsdUdpstat();</span>
-<span class="nc" id="L308">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;)) {</span>
-<span class="nc bnc" id="L309" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 1644) {</span>
-<span class="nc" id="L310">                ut.udps_ipackets = m.getInt(0);</span>
-<span class="nc" id="L311">                ut.udps_hdrops = m.getInt(4);</span>
-<span class="nc" id="L312">                ut.udps_badsum = m.getInt(8);</span>
-<span class="nc" id="L313">                ut.udps_badlen = m.getInt(12);</span>
-<span class="nc" id="L314">                ut.udps_opackets = m.getInt(36);</span>
-<span class="nc" id="L315">                ut.udps_noportmcast = m.getInt(48);</span>
-<span class="nc" id="L316">                ut.udps_rcv6_swcsum = m.getInt(64);</span>
-<span class="nc" id="L317">                ut.udps_snd6_swcsum = m.getInt(80);</span>
+<span class="nc" id="L309">        BsdUdpstat ut = new BsdUdpstat();</span>
+<span class="nc" id="L310">        try (Memory m = SysctlUtil.sysctl(&quot;net.inet.udp.stats&quot;)) {</span>
+<span class="nc bnc" id="L311" title="All 4 branches missed.">            if (m != null &amp;&amp; m.size() &gt;= 1644) {</span>
+<span class="nc" id="L312">                ut.udps_ipackets = m.getInt(0);</span>
+<span class="nc" id="L313">                ut.udps_hdrops = m.getInt(4);</span>
+<span class="nc" id="L314">                ut.udps_badsum = m.getInt(8);</span>
+<span class="nc" id="L315">                ut.udps_badlen = m.getInt(12);</span>
+<span class="nc" id="L316">                ut.udps_opackets = m.getInt(36);</span>
+<span class="nc" id="L317">                ut.udps_noportmcast = m.getInt(48);</span>
+<span class="nc" id="L318">                ut.udps_rcv6_swcsum = m.getInt(64);</span>
+<span class="nc" id="L319">                ut.udps_snd6_swcsum = m.getInt(80);</span>
             }
         }
-<span class="nc" id="L320">        return ut;</span>
+<span class="nc" id="L322">        return ut;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -58,160 +58,160 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.LibCAPI.size_t;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.OpenBsdLibc;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.unix.openbsd.OpenBsdOperatingSystem.PsKeywords;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.unix.openbsd.FstatUtil;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment"> * OSProcess implementation</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdOSProcess" href="../../../../../oshi/software/os/unix/openbsd/OpenBsdOSProcess.html#OpenBsdOSProcess">OpenBsdOSProcess</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSProcess" href="../../../../../oshi/software/common/AbstractOSProcess.html#AbstractOSProcess">AbstractOSProcess</a> {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_comment">     * Package-private for use by OpenBsdOSThread</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      enum PsThreadColumns {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              .map(String::toLowerCase).collect(Collectors.joining(<span class="jxr_string">","</span>));
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ARGMAX;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[2];
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          mib[0] = 1; <em class="jxr_comment">// CTL_KERN</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          mib[1] = 8; <em class="jxr_comment">// KERN_ARGMAX</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(Integer.BYTES)) {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              size_t.ByReference size = <strong class="jxr_keyword">new</strong> size_t.ByReference(<strong class="jxr_keyword">new</strong> size_t(Integer.BYTES));
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">if</strong> (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, <strong class="jxr_keyword">null</strong>, size_t.ZERO) == 0) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  ARGMAX = m.getInt(0);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  LOG.warn(<span class="jxr_string">"Failed sysctl call for process arguments max size (kern.argmax). Error code: {}"</span>,
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                          Native.getLastError());
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  ARGMAX = 0;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>              }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;String&gt; commandLine = memoize(<strong class="jxr_keyword">this</strong>::queryCommandLine);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;List&lt;String&gt;&gt; arguments = memoize(<strong class="jxr_keyword">this</strong>::queryArguments);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;Map&lt;String, String&gt;&gt; environmentVariables = memoize(<strong class="jxr_keyword">this</strong>::queryEnvironmentVariables);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">private</strong> String name;
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">private</strong> String path = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">private</strong> String user;
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">private</strong> String userID;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">private</strong> String group;
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <strong class="jxr_keyword">private</strong> String groupID;
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">private</strong> State state = INVALID;
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> parentProcessID;
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> threadCount;
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> priority;
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> virtualSize;
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> residentSetSize;
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> kernelTime;
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> userTime;
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> startTime;
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> upTime;
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesRead;
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesWritten;
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> minorFaults;
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> majorFaults;
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> contextSwitches;
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> bitness;
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">private</strong> String commandLineBackup;
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">public</strong> <a name="OpenBsdOSProcess" href="../../../../../oshi/software/os/unix/openbsd/OpenBsdOSProcess.html#OpenBsdOSProcess">OpenBsdOSProcess</a>(<strong class="jxr_keyword">int</strong> pid, Map&lt;PsKeywords, String&gt; psMap) {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">super</strong>(pid);
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <em class="jxr_comment">// OpenBSD does not maintain a compatibility layer.</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <em class="jxr_comment">// Process bitness is OS bitness</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">this</strong>.bitness = Native.LONG_SIZE * 8;
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         updateThreadCount();
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         updateAttributes(psMap);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>     @Override
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> String getName() {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.name;
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     @Override
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">public</strong> String getPath() {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.path;
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     @Override
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">public</strong> String getCommandLine() {
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.commandLine.get();
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">private</strong> String queryCommandLine() {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         String cl = String.join(<span class="jxr_string">" "</span>, getArguments());
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">return</strong> cl.isEmpty() ? <strong class="jxr_keyword">this</strong>.commandLineBackup : cl;
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     @Override
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">public</strong> List&lt;String&gt; getArguments() {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong> arguments.get();
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">private</strong> List&lt;String&gt; queryArguments() {
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">if</strong> (ARGMAX &gt; 0) {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>             <em class="jxr_comment">// Get arguments via sysctl(3)</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             mib[0] = 1; <em class="jxr_comment">// CTL_KERN</em>
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             mib[1] = 55; <em class="jxr_comment">// KERN_PROC_ARGS</em>
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>             mib[2] = getProcessID();
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>             mib[3] = 1; <em class="jxr_comment">// KERN_PROC_ARGV</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>             <em class="jxr_comment">// Allocate memory for arguments</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(ARGMAX)) {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                 size_t.ByReference size = <strong class="jxr_keyword">new</strong> size_t.ByReference(<strong class="jxr_keyword">new</strong> size_t(ARGMAX));
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>                 <em class="jxr_comment">// Fetch arguments</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>                 <strong class="jxr_keyword">if</strong> (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, <strong class="jxr_keyword">null</strong>, size_t.ZERO) == 0) {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>                     <em class="jxr_comment">// Returns a null-terminated list of pointers to the actual data</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>                     List&lt;String&gt; args = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>                     <em class="jxr_comment">// To iterate the pointer-list</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>                     <strong class="jxr_keyword">long</strong> offset = 0;
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>                     <em class="jxr_comment">// Get the data base address to calculate offsets</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>                     <strong class="jxr_keyword">long</strong> baseAddr = Pointer.nativeValue(m);
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>                     <strong class="jxr_keyword">long</strong> maxAddr = baseAddr + size.getValue().longValue();
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>                     <em class="jxr_comment">// Get the address of the data. If null (0) we're done iterating</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>                     <strong class="jxr_keyword">long</strong> argAddr = Pointer.nativeValue(m.getPointer(offset));
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                     <strong class="jxr_keyword">while</strong> (argAddr &gt; baseAddr &amp;&amp; argAddr &lt; maxAddr) {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>                         args.add(m.getString(argAddr - baseAddr));
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                         offset += Native.POINTER_SIZE;
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>                         argAddr = Pointer.nativeValue(m.getPointer(offset));
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                     }
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>                     <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(args);
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 }
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>             }
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     }
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     @Override
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getEnvironmentVariables() {
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <strong class="jxr_keyword">return</strong> environmentVariables.get();
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     }
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; queryEnvironmentVariables() {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <em class="jxr_comment">// Get environment variables via sysctl(3)</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         mib[0] = 1; <em class="jxr_comment">// CTL_KERN</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         mib[1] = 55; <em class="jxr_comment">// KERN_PROC_ARGS</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>         mib[2] = getProcessID();
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         mib[3] = 3; <em class="jxr_comment">// KERN_PROC_ENV</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <em class="jxr_comment">// Allocate memory for environment variables</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(ARGMAX)) {
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             size_t.ByReference size = <strong class="jxr_keyword">new</strong> size_t.ByReference(<strong class="jxr_keyword">new</strong> size_t(ARGMAX));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseableSizeTByReference;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.OpenBsdLibc;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.unix.openbsd.OpenBsdOperatingSystem.PsKeywords;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.unix.openbsd.FstatUtil;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment"> * OSProcess implementation</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdOSProcess" href="../../../../../oshi/software/os/unix/openbsd/OpenBsdOSProcess.html#OpenBsdOSProcess">OpenBsdOSProcess</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSProcess" href="../../../../../oshi/software/common/AbstractOSProcess.html#AbstractOSProcess">AbstractOSProcess</a> {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_comment">     * Package-private for use by OpenBsdOSThread</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      enum PsThreadColumns {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              .map(String::toLowerCase).collect(Collectors.joining(<span class="jxr_string">","</span>));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ARGMAX;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[2];
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          mib[0] = 1; <em class="jxr_comment">// CTL_KERN</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          mib[1] = 8; <em class="jxr_comment">// KERN_ARGMAX</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(Integer.BYTES);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  CloseableSizeTByReference size = <strong class="jxr_keyword">new</strong> CloseableSizeTByReference(Integer.BYTES)) {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">if</strong> (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, <strong class="jxr_keyword">null</strong>, size_t.ZERO) == 0) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  ARGMAX = m.getInt(0);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  LOG.warn(<span class="jxr_string">"Failed sysctl call for process arguments max size (kern.argmax). Error code: {}"</span>,
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          Native.getLastError());
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  ARGMAX = 0;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;String&gt; commandLine = memoize(<strong class="jxr_keyword">this</strong>::queryCommandLine);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;List&lt;String&gt;&gt; arguments = memoize(<strong class="jxr_keyword">this</strong>::queryArguments);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;Map&lt;String, String&gt;&gt; environmentVariables = memoize(<strong class="jxr_keyword">this</strong>::queryEnvironmentVariables);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">private</strong> String name;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">private</strong> String path = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">private</strong> String user;
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">private</strong> String userID;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <strong class="jxr_keyword">private</strong> String group;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">private</strong> String groupID;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> State state = INVALID;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> parentProcessID;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> threadCount;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> priority;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> virtualSize;
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> residentSetSize;
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> kernelTime;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> userTime;
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> startTime;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> upTime;
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesRead;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesWritten;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> minorFaults;
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> majorFaults;
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> contextSwitches;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> bitness;
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">private</strong> String commandLineBackup;
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">public</strong> <a name="OpenBsdOSProcess" href="../../../../../oshi/software/os/unix/openbsd/OpenBsdOSProcess.html#OpenBsdOSProcess">OpenBsdOSProcess</a>(<strong class="jxr_keyword">int</strong> pid, Map&lt;PsKeywords, String&gt; psMap) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">super</strong>(pid);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <em class="jxr_comment">// OpenBSD does not maintain a compatibility layer.</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <em class="jxr_comment">// Process bitness is OS bitness</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">this</strong>.bitness = Native.LONG_SIZE * 8;
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         updateThreadCount();
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         updateAttributes(psMap);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     @Override
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">public</strong> String getName() {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.name;
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     @Override
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">public</strong> String getPath() {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.path;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     @Override
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">public</strong> String getCommandLine() {
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.commandLine.get();
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">private</strong> String queryCommandLine() {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         String cl = String.join(<span class="jxr_string">" "</span>, getArguments());
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">return</strong> cl.isEmpty() ? <strong class="jxr_keyword">this</strong>.commandLineBackup : cl;
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     @Override
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">public</strong> List&lt;String&gt; getArguments() {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">return</strong> arguments.get();
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <strong class="jxr_keyword">private</strong> List&lt;String&gt; queryArguments() {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">if</strong> (ARGMAX &gt; 0) {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             <em class="jxr_comment">// Get arguments via sysctl(3)</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             mib[0] = 1; <em class="jxr_comment">// CTL_KERN</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             mib[1] = 55; <em class="jxr_comment">// KERN_PROC_ARGS</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             mib[2] = getProcessID();
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             mib[3] = 1; <em class="jxr_comment">// KERN_PROC_ARGV</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <em class="jxr_comment">// Allocate memory for arguments</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(ARGMAX);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                     CloseableSizeTByReference size = <strong class="jxr_keyword">new</strong> CloseableSizeTByReference(ARGMAX)) {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                 <em class="jxr_comment">// Fetch arguments</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 <strong class="jxr_keyword">if</strong> (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, <strong class="jxr_keyword">null</strong>, size_t.ZERO) == 0) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                     <em class="jxr_comment">// Returns a null-terminated list of pointers to the actual data</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                     List&lt;String&gt; args = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                     <em class="jxr_comment">// To iterate the pointer-list</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                     <strong class="jxr_keyword">long</strong> offset = 0;
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                     <em class="jxr_comment">// Get the data base address to calculate offsets</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                     <strong class="jxr_keyword">long</strong> baseAddr = Pointer.nativeValue(m);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>                     <strong class="jxr_keyword">long</strong> maxAddr = baseAddr + size.getValue().longValue();
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                     <em class="jxr_comment">// Get the address of the data. If null (0) we're done iterating</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>                     <strong class="jxr_keyword">long</strong> argAddr = Pointer.nativeValue(m.getPointer(offset));
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>                     <strong class="jxr_keyword">while</strong> (argAddr &gt; baseAddr &amp;&amp; argAddr &lt; maxAddr) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                         args.add(m.getString(argAddr - baseAddr));
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                         offset += Native.POINTER_SIZE;
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                         argAddr = Pointer.nativeValue(m.getPointer(offset));
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                     }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                     <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(args);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>             }
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     @Override
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">public</strong> Map&lt;String, String&gt; getEnvironmentVariables() {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">return</strong> environmentVariables.get();
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; queryEnvironmentVariables() {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <em class="jxr_comment">// Get environment variables via sysctl(3)</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">int</strong>[] mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         mib[0] = 1; <em class="jxr_comment">// CTL_KERN</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         mib[1] = 55; <em class="jxr_comment">// KERN_PROC_ARGS</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         mib[2] = getProcessID();
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         mib[3] = 3; <em class="jxr_comment">// KERN_PROC_ENV</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <em class="jxr_comment">// Allocate memory for environment variables</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(ARGMAX); CloseableSizeTByReference size = <strong class="jxr_keyword">new</strong> CloseableSizeTByReference(ARGMAX)) {
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>             <em class="jxr_comment">// Fetch environment variables</em>
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">if</strong> (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, <strong class="jxr_keyword">null</strong>, size_t.ZERO) == 0) {
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>                 <em class="jxr_comment">// Returns a null-terminated list of pointers to the actual data</em>

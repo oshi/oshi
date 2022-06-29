@@ -53,26 +53,22 @@ public final class Fsstat {
         // Use statfs to get size of mounted file systems
 <span class="nc" id="L54">        int numfs = queryFsstat(null, 0, 0);</span>
         // Get data on file system
-<span class="nc" id="L56">        Statfs[] fs = getFileSystems(numfs);</span>
+<span class="nc" id="L56">        Statfs s = new Statfs();</span>
+        // Create array to hold results
+<span class="nc" id="L58">        Statfs[] fs = (Statfs[]) s.toArray(numfs);</span>
+        // Write file system data to array
+<span class="nc" id="L60">        queryFsstat(fs, numfs * fs[0].size(), SystemB.MNT_NOWAIT);</span>
 
         // Iterate all mounted file systems
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        for (Statfs f : fs) {</span>
-<span class="nc" id="L60">            String mntFrom = Native.toString(f.f_mntfromname, StandardCharsets.UTF_8);</span>
-<span class="nc" id="L61">            mountPointMap.put(mntFrom.replace(&quot;/dev/&quot;, &quot;&quot;), Native.toString(f.f_mntonname, StandardCharsets.UTF_8));</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (Statfs f : fs) {</span>
+<span class="nc" id="L64">            String mntFrom = Native.toString(f.f_mntfromname, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L65">            mountPointMap.put(mntFrom.replace(&quot;/dev/&quot;, &quot;&quot;), Native.toString(f.f_mntonname, StandardCharsets.UTF_8));</span>
         }
-<span class="nc" id="L63">        return mountPointMap;</span>
-    }
-
-    private static Statfs[] getFileSystems(int numfs) {
-        // Create array to hold results
-<span class="nc" id="L68">        Statfs[] fs = new Statfs[numfs];</span>
-        // Write file system data to array
-<span class="nc" id="L70">        queryFsstat(fs, numfs * new Statfs().size(), SystemB.MNT_NOWAIT);</span>
-<span class="nc" id="L71">        return fs;</span>
+<span class="nc" id="L67">        return mountPointMap;</span>
     }
 
     private static int queryFsstat(Statfs[] buf, int bufsize, int flags) {
-<span class="nc" id="L75">        return SystemB.INSTANCE.getfsstat64(buf, bufsize, flags);</span>
+<span class="nc" id="L71">        return SystemB.INSTANCE.getfsstat64(buf, bufsize, flags);</span>
     }
 
 }

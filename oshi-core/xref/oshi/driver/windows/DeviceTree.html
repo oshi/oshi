@@ -53,12 +53,12 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Cfgmgr32Util;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Guid.GUID;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.SetupApi;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseableIntByReference;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.IntByReference;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.jna.ByRef.CloseableIntByReference;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.jna.Struct.CloseableSpDevinfoData;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quintet;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">/**</em>
@@ -104,68 +104,67 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">try</strong> (Memory buf = <strong class="jxr_keyword">new</strong> Memory(MAX_PATH);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                      CloseableIntByReference size = <strong class="jxr_keyword">new</strong> CloseableIntByReference(MAX_PATH);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                      CloseableIntByReference child = <strong class="jxr_keyword">new</strong> CloseableIntByReference();
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      CloseableIntByReference sibling = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                 <em class="jxr_comment">// Enumerate Device Info using BFS queue</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 Queue&lt;Integer&gt; deviceTree = <strong class="jxr_keyword">new</strong> ArrayDeque&lt;&gt;();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 <em class="jxr_comment">// Get the enumeration object</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 SP_DEVINFO_DATA devInfoData = <strong class="jxr_keyword">new</strong> SP_DEVINFO_DATA();
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 devInfoData.cbSize = devInfoData.size();
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; SA.SetupDiEnumDeviceInfo(hDevInfo, i, devInfoData); i++) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                     deviceTree.add(devInfoData.DevInst);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     <em class="jxr_comment">// Initialize parent and child objects</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                     <strong class="jxr_keyword">int</strong> node = 0;
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                     <strong class="jxr_keyword">while</strong> (!deviceTree.isEmpty()) {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                         <em class="jxr_comment">// Process the next device in the queue</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                         node = deviceTree.poll();
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                         <em class="jxr_comment">// Save the strings in their maps</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                         String deviceId = Cfgmgr32Util.CM_Get_Device_ID(node);
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                         deviceIdMap.put(node, deviceId);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                         <em class="jxr_comment">// Prefer friendly name over desc if it is present.</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                         <em class="jxr_comment">// If neither, use class (service)</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                         String name = getDevNodeProperty(node, CM_DRP_FRIENDLYNAME, buf, size);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                         <strong class="jxr_keyword">if</strong> (name.isEmpty()) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                             name = getDevNodeProperty(node, CM_DRP_DEVICEDESC, buf, size);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                         }
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                         <strong class="jxr_keyword">if</strong> (name.isEmpty()) {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                             name = getDevNodeProperty(node, CM_DRP_CLASS, buf, size);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                             String svc = getDevNodeProperty(node, CM_DRP_SERVICE, buf, size);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                             <strong class="jxr_keyword">if</strong> (!svc.isEmpty()) {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                                 name = name + <span class="jxr_string">" ("</span> + svc + <span class="jxr_string">")"</span>;
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                             }
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                         }
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                         nameMap.put(node, name);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                         mfgMap.put(node, getDevNodeProperty(node, CM_DRP_MFG, buf, size));
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                         <em class="jxr_comment">// Add any children to the queue, tracking the parent node</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                         <strong class="jxr_keyword">if</strong> (ERROR_SUCCESS == C32.CM_Get_Child(child, node, 0)) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                             parentMap.put(child.getValue(), node);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                             deviceTree.add(child.getValue());
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                             <strong class="jxr_keyword">while</strong> (ERROR_SUCCESS == C32.CM_Get_Sibling(sibling, child.getValue(), 0)) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                                 parentMap.put(sibling.getValue(), node);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                                 deviceTree.add(sibling.getValue());
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>                                 child.setValue(sibling.getValue());
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>                             }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>                         }
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>                     }
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                 }
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>             } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 SA.SetupDiDestroyDeviceInfoList(hDevInfo);
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         }
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <em class="jxr_comment">// Look for output without parents, these are top of tree</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         Set&lt;Integer&gt; controllerDevices = deviceIdMap.keySet().stream().filter(k -&gt; !parentMap.containsKey(k))
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 .collect(Collectors.toSet());
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quintet&lt;&gt;(controllerDevices, parentMap, nameMap, deviceIdMap, mfgMap);
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getDevNodeProperty(<strong class="jxr_keyword">int</strong> node, <strong class="jxr_keyword">int</strong> cmDrp, Memory buf, IntByReference size) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         buf.clear();
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         size.setValue((<strong class="jxr_keyword">int</strong>) buf.size());
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         C32.CM_Get_DevNode_Registry_Property(node, cmDrp, <strong class="jxr_keyword">null</strong>, buf, size, 0);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> buf.getWideString(0);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      CloseableIntByReference sibling = <strong class="jxr_keyword">new</strong> CloseableIntByReference();
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                     CloseableSpDevinfoData devInfoData = <strong class="jxr_keyword">new</strong> CloseableSpDevinfoData()) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 devInfoData.cbSize = devInfoData.size();
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 <em class="jxr_comment">// Enumerate Device Info using BFS queue</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 Queue&lt;Integer&gt; deviceTree = <strong class="jxr_keyword">new</strong> ArrayDeque&lt;&gt;();
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; SA.SetupDiEnumDeviceInfo(hDevInfo, i, devInfoData); i++) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                     deviceTree.add(devInfoData.DevInst);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                     <em class="jxr_comment">// Initialize parent and child objects</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     <strong class="jxr_keyword">int</strong> node = 0;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                     <strong class="jxr_keyword">while</strong> (!deviceTree.isEmpty()) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                         <em class="jxr_comment">// Process the next device in the queue</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                         node = deviceTree.poll();
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                         <em class="jxr_comment">// Save the strings in their maps</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                         String deviceId = Cfgmgr32Util.CM_Get_Device_ID(node);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                         deviceIdMap.put(node, deviceId);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                         <em class="jxr_comment">// Prefer friendly name over desc if it is present.</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                         <em class="jxr_comment">// If neither, use class (service)</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                         String name = getDevNodeProperty(node, CM_DRP_FRIENDLYNAME, buf, size);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                         <strong class="jxr_keyword">if</strong> (name.isEmpty()) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                             name = getDevNodeProperty(node, CM_DRP_DEVICEDESC, buf, size);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                         }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                         <strong class="jxr_keyword">if</strong> (name.isEmpty()) {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                             name = getDevNodeProperty(node, CM_DRP_CLASS, buf, size);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                             String svc = getDevNodeProperty(node, CM_DRP_SERVICE, buf, size);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                             <strong class="jxr_keyword">if</strong> (!svc.isEmpty()) {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                                 name = name + <span class="jxr_string">" ("</span> + svc + <span class="jxr_string">")"</span>;
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                             }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                         }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                         nameMap.put(node, name);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                         mfgMap.put(node, getDevNodeProperty(node, CM_DRP_MFG, buf, size));
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                         <em class="jxr_comment">// Add any children to the queue, tracking the parent node</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                         <strong class="jxr_keyword">if</strong> (ERROR_SUCCESS == C32.CM_Get_Child(child, node, 0)) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                             parentMap.put(child.getValue(), node);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                             deviceTree.add(child.getValue());
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                             <strong class="jxr_keyword">while</strong> (ERROR_SUCCESS == C32.CM_Get_Sibling(sibling, child.getValue(), 0)) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                                 parentMap.put(sibling.getValue(), node);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                                 deviceTree.add(sibling.getValue());
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                                 child.setValue(sibling.getValue());
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                             }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                         }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                     }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                 }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                 SA.SetupDiDestroyDeviceInfoList(hDevInfo);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <em class="jxr_comment">// Look for output without parents, these are top of tree</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         Set&lt;Integer&gt; controllerDevices = deviceIdMap.keySet().stream().filter(k -&gt; !parentMap.containsKey(k))
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                 .collect(Collectors.toSet());
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quintet&lt;&gt;(controllerDevices, parentMap, nameMap, deviceIdMap, mfgMap);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getDevNodeProperty(<strong class="jxr_keyword">int</strong> node, <strong class="jxr_keyword">int</strong> cmDrp, Memory buf, IntByReference size) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         buf.clear();
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         size.setValue((<strong class="jxr_keyword">int</strong>) buf.size());
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         C32.CM_Get_DevNode_Registry_Property(node, cmDrp, <strong class="jxr_keyword">null</strong>, buf, size, 0);
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">return</strong> buf.getWideString(0);
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     }
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

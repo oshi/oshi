@@ -43,116 +43,116 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Memory;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Win32Exception;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinReg;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.LogicalProcessorInformation;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.LoadAverage;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.SystemInformation;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Processor;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> oshi.util.GlobalConfig;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment"> * A CPU, representing all of a system's processors. It may contain multiple</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment"> * individual Physical and Logical processors.</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsCentralProcessor" href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html#WindowsCentralProcessor">WindowsCentralProcessor</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractCentralProcessor" href="../../../../oshi/hardware/common/AbstractCentralProcessor.html#AbstractCentralProcessor">AbstractCentralProcessor</a> {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_comment">// populated by initProcessorCounts called by the parent constructor</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> Map&lt;String, Integer&gt; numaNodeProcToLogicalProcMap;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <em class="jxr_comment">// Whether to start a daemon thread ot calculate load average</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">if</strong> (USE_LOAD_AVERAGE) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              LoadAverage.startDaemon();
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_comment">// Whether to match task manager using Processor Utility ticks</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              &amp;&amp; GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_comment">// This tick query is memoized to enforce a minimum elapsed time for determining</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <em class="jxr_comment">// the capacity base multiplier</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt;&gt; processorUtilityCounters = USE_CPU_UTILITY
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              ? memoize(WindowsCentralProcessor::queryProcessorUtilityCounters, TimeUnit.MILLISECONDS.toNanos(300L))
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              : <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <em class="jxr_comment">// Store the initial query and start the memoizer expiration</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">private</strong> Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; initialUtilityCounters = USE_CPU_UTILITY
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              ? processorUtilityCounters.get().getB()
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             : <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <em class="jxr_comment">// Lazily initialized</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">private</strong> Long utilityBaseMultiplier = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     * Initializes Class variables</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     @Override
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">protected</strong> ProcessorIdentifier queryProcessorId() {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         String cpuVendor = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         String cpuName = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         String cpuIdentifier = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         String cpuFamily = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         String cpuModel = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         String cpuStepping = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">long</strong> cpuVendorFreq = 0L;
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         String processorID;
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">boolean</strong> cpu64bit = false;
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">final</strong> String cpuRegistryRoot = <span class="jxr_string">"HARDWARE&#92;&#92;DESCRIPTION&#92;&#92;System&#92;&#92;CentralProcessor&#92;&#92;"</span>;
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">if</strong> (processorIds.length &gt; 0) {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             String cpuRegistryPath = cpuRegistryRoot + processorIds[0];
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>             cpuVendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     <span class="jxr_string">"VendorIdentifier"</span>);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>             cpuName = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                     <span class="jxr_string">"ProcessorNameString"</span>);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>             cpuIdentifier = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     <span class="jxr_string">"Identifier"</span>);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                 cpuVendorFreq = Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, <span class="jxr_string">"~MHz"</span>)
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>                         * 1_000_000L;
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             } <strong class="jxr_keyword">catch</strong> (Win32Exception e) {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <em class="jxr_comment">// Leave as 0, parse the identifier as backup</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             }
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">if</strong> (!cpuIdentifier.isEmpty()) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>             cpuFamily = parseIdentifier(cpuIdentifier, <span class="jxr_string">"Family"</span>);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>             cpuModel = parseIdentifier(cpuIdentifier, <span class="jxr_string">"Model"</span>);
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>             cpuStepping = parseIdentifier(cpuIdentifier, <span class="jxr_string">"Stepping"</span>);
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         SYSTEM_INFO sysinfo = <strong class="jxr_keyword">new</strong> SYSTEM_INFO();
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">int</strong> processorArchitecture = sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue();
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">if</strong> (processorArchitecture == 9 <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_AMD64</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 || processorArchitecture == 12 <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_ARM64</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 || processorArchitecture == 6) { <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_IA64</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             cpu64bit = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Advapi32Util;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Win32Exception;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinReg;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.LogicalProcessorInformation;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.LoadAverage;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.SystemInformation;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Processor;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.jna.Struct.CloseableSystemInfo;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> oshi.util.GlobalConfig;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment"> * A CPU, representing all of a system's processors. It may contain multiple</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment"> * individual Physical and Logical processors.</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsCentralProcessor" href="../../../../oshi/hardware/platform/windows/WindowsCentralProcessor.html#WindowsCentralProcessor">WindowsCentralProcessor</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractCentralProcessor" href="../../../../oshi/hardware/common/AbstractCentralProcessor.html#AbstractCentralProcessor">AbstractCentralProcessor</a> {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <em class="jxr_comment">// populated by initProcessorCounts called by the parent constructor</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> Map&lt;String, Integer&gt; numaNodeProcToLogicalProcMap;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_comment">// Whether to start a daemon thread ot calculate load average</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">if</strong> (USE_LOAD_AVERAGE) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              LoadAverage.startDaemon();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_comment">// Whether to match task manager using Processor Utility ticks</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              &amp;&amp; GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <em class="jxr_comment">// This tick query is memoized to enforce a minimum elapsed time for determining</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_comment">// the capacity base multiplier</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt;&gt; processorUtilityCounters = USE_CPU_UTILITY
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              ? memoize(WindowsCentralProcessor::queryProcessorUtilityCounters, TimeUnit.MILLISECONDS.toNanos(300L))
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              : <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_comment">// Store the initial query and start the memoizer expiration</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">private</strong> Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; initialUtilityCounters = USE_CPU_UTILITY
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              ? processorUtilityCounters.get().getB()
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              : <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <em class="jxr_comment">// Lazily initialized</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">private</strong> Long utilityBaseMultiplier = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     * Initializes Class variables</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     @Override
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">protected</strong> ProcessorIdentifier queryProcessorId() {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         String cpuVendor = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         String cpuName = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         String cpuIdentifier = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         String cpuFamily = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         String cpuModel = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         String cpuStepping = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">long</strong> cpuVendorFreq = 0L;
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         String processorID;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">boolean</strong> cpu64bit = false;
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">final</strong> String cpuRegistryRoot = <span class="jxr_string">"HARDWARE&#92;&#92;DESCRIPTION&#92;&#92;System&#92;&#92;CentralProcessor&#92;&#92;"</span>;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">if</strong> (processorIds.length &gt; 0) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             String cpuRegistryPath = cpuRegistryRoot + processorIds[0];
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             cpuVendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                     <span class="jxr_string">"VendorIdentifier"</span>);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             cpuName = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                     <span class="jxr_string">"ProcessorNameString"</span>);
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             cpuIdentifier = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     <span class="jxr_string">"Identifier"</span>);
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 cpuVendorFreq = Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, <span class="jxr_string">"~MHz"</span>)
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                         * 1_000_000L;
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             } <strong class="jxr_keyword">catch</strong> (Win32Exception e) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <em class="jxr_comment">// Leave as 0, parse the identifier as backup</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">if</strong> (!cpuIdentifier.isEmpty()) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             cpuFamily = parseIdentifier(cpuIdentifier, <span class="jxr_string">"Family"</span>);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             cpuModel = parseIdentifier(cpuIdentifier, <span class="jxr_string">"Model"</span>);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             cpuStepping = parseIdentifier(cpuIdentifier, <span class="jxr_string">"Stepping"</span>);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">try</strong> (CloseableSystemInfo sysinfo = <strong class="jxr_keyword">new</strong> CloseableSystemInfo()) {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">int</strong> processorArchitecture = sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue();
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             <strong class="jxr_keyword">if</strong> (processorArchitecture == 9 <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_AMD64</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     || processorArchitecture == 12 <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_ARM64</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                     || processorArchitecture == 6) { <em class="jxr_comment">// PROCESSOR_ARCHITECTURE_IA64</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 cpu64bit = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             }
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         WmiResult&lt;ProcessorIdProperty&gt; processorId = Win32Processor.queryProcessorId();
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">if</strong> (processorId.getResultCount() &gt; 0) {
@@ -278,228 +278,225 @@
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong>[] queryNTPower(<strong class="jxr_keyword">int</strong> fieldIndex) {
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>         ProcessorPowerInformation ppi = <strong class="jxr_keyword">new</strong> ProcessorPowerInformation();
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">long</strong>[] freqs = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()];
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">int</strong> bufferSize = ppi.size() * freqs.length;
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">try</strong> (Memory mem = <strong class="jxr_keyword">new</strong> Memory(bufferSize)) {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>             <strong class="jxr_keyword">if</strong> (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, <strong class="jxr_keyword">null</strong>, 0,
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                     mem, bufferSize)) {
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 LOG.error(<span class="jxr_string">"Unable to get Processor Information"</span>);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 Arrays.fill(freqs, -1L);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 <strong class="jxr_keyword">return</strong> freqs;
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>             }
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; freqs.length; i++) {
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 ppi = <strong class="jxr_keyword">new</strong> ProcessorPowerInformation(mem.share(i * (<strong class="jxr_keyword">long</strong>) ppi.size()));
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 <strong class="jxr_keyword">if</strong> (fieldIndex == 1) { <em class="jxr_comment">// Max</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>                     freqs[i] = ppi.maxMhz * 1_000_000L;
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (fieldIndex == 2) { <em class="jxr_comment">// Current</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                     freqs[i] = ppi.currentMhz * 1_000_000L;
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>                     freqs[i] = -1L;
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>                 }
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>             }
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         }
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">return</strong> freqs;
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>     }
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> 
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     @Override
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         }
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">return</strong> LoadAverage.queryLoadAverage(nelem);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>     @Override
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <em class="jxr_comment">// These are used in all cases</em>
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         List&lt;String&gt; instances;
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         List&lt;Long&gt; systemList;
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         List&lt;Long&gt; userList;
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         List&lt;Long&gt; irqList;
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         List&lt;Long&gt; softIrqList;
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         List&lt;Long&gt; idleList;
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <em class="jxr_comment">// These are only used with USE_CPU_UTILITY</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         List&lt;Long&gt; baseList = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         List&lt;Long&gt; systemUtility = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         List&lt;Long&gt; processorUtility = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         List&lt;Long&gt; processorUtilityBase = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         List&lt;Long&gt; initSystemList = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         List&lt;Long&gt; initUserList = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         List&lt;Long&gt; initBase = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         List&lt;Long&gt; initSystemUtility = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         List&lt;Long&gt; initProcessorUtility = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         List&lt;Long&gt; initProcessorUtilityBase = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">if</strong> (USE_CPU_UTILITY) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>             Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = processorUtilityCounters
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>                     .get();
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>             instances = instanceValuePair.getA();
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>             Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>             systemList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>             userList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>             irqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTINTERRUPTTIME);
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>             softIrqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTDPCTIME);
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>             <em class="jxr_comment">// % Processor Time is actually Idle time</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>             idleList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORTIME);
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>             baseList = valueMap.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>             <em class="jxr_comment">// Utility ticks, if configured</em>
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>             systemUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>             processorUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>             processorUtilityBase = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
-<a class="jxr_linenumber" name="L340" href="#L340">340</a> 
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>             initSystemList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>             initUserList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>             initBase = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>             <em class="jxr_comment">// Utility ticks, if configured</em>
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>             initSystemUtility = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>             initProcessorUtility = initialUtilityCounters
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>                     .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>             initProcessorUtilityBase = initialUtilityCounters
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>                     .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>             Pair&lt;List&lt;String&gt;, Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = <a name="ProcessorInformation" href="../../../../oshi/driver/windows/perfmon/ProcessorInformation.html#ProcessorInformation">ProcessorInformation</a>
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>                     .queryProcessorCounters();
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>             instances = instanceValuePair.getA();
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>             Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>             systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>             userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>             irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>             softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>             <em class="jxr_comment">// % Processor Time is actually Idle time</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>             idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>         }
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> 
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>         <strong class="jxr_keyword">int</strong> ncpu = getLogicalProcessorCount();
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[ncpu][TickType.values().length];
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">if</strong> (instances.isEmpty() || systemList == <strong class="jxr_keyword">null</strong> || userList == <strong class="jxr_keyword">null</strong> || irqList == <strong class="jxr_keyword">null</strong> || softIrqList == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 || idleList == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                 || (USE_CPU_UTILITY &amp;&amp; (baseList == <strong class="jxr_keyword">null</strong> || systemUtility == <strong class="jxr_keyword">null</strong> || processorUtility == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>                         || processorUtilityBase == <strong class="jxr_keyword">null</strong> || initSystemList == <strong class="jxr_keyword">null</strong> || initUserList == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>                         || initBase == <strong class="jxr_keyword">null</strong> || initSystemUtility == <strong class="jxr_keyword">null</strong> || initProcessorUtility == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>                         || initProcessorUtilityBase == <strong class="jxr_keyword">null</strong>))) {
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         }
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <strong class="jxr_keyword">for</strong> (String instance : instances) {
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>             <strong class="jxr_keyword">int</strong> cpu = instance.contains(<span class="jxr_string">","</span>) ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>                     : ParseUtil.parseIntOrDefault(instance, 0);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>             <strong class="jxr_keyword">if</strong> (cpu &gt;= ncpu) {
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>                 <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>             }
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>             ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>             ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>             ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>             ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);
-<a class="jxr_linenumber" name="L384" href="#L384">384</a> 
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>             <em class="jxr_comment">// If users want Task Manager output we have to do some math to get there</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>             <strong class="jxr_keyword">if</strong> (USE_CPU_UTILITY) {
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 <em class="jxr_comment">// We have two new capacity numbers, processor (all but idle) and system</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>                 <em class="jxr_comment">// (included in processor). To further complicate matters, these are in percent</em>
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>                 <em class="jxr_comment">// units so must be divided by 100.</em>
-<a class="jxr_linenumber" name="L390" href="#L390">390</a> 
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 <em class="jxr_comment">// The 100NS elapsed time counter is a constant multiple of the capacity base</em>
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>                 <em class="jxr_comment">// counter. By enforcing a memoized pause we'll either have zero elapsed time or</em>
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 <em class="jxr_comment">// sufficient delay to determine this offset reliably once and not have to</em>
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>                 <em class="jxr_comment">// recalculate it</em>
-<a class="jxr_linenumber" name="L395" href="#L395">395</a> 
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>                 <em class="jxr_comment">// Get elapsed time in 100NS</em>
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>                 <strong class="jxr_keyword">long</strong> deltaT = baseList.get(cpu) - initBase.get(cpu);
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>                 <strong class="jxr_keyword">if</strong> (deltaT &gt; 0) {
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>                     <em class="jxr_comment">// Get elapsed utility base</em>
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>                     <strong class="jxr_keyword">long</strong> deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>                     <em class="jxr_comment">// The ratio of elapsed clock to elapsed utility base is an integer constant.</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>                     <em class="jxr_comment">// We can calculate a conversion factor to ensure a consistent application of</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>                     <em class="jxr_comment">// the correction. Since Utility is in percent, this is actually 100x the true</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>                     <em class="jxr_comment">// multiplier but is at the level where the integer calculation is precise</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>                     <strong class="jxr_keyword">long</strong> multiplier = lazilyCalculateMultiplier(deltaBase, deltaT);
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> 
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>                     <em class="jxr_comment">// 0 multiplier means we just re-initialized ticks</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>                     <strong class="jxr_keyword">if</strong> (multiplier &gt; 0) {
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>                         <em class="jxr_comment">// Get utility delta</em>
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>                         <strong class="jxr_keyword">long</strong> deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>                         <strong class="jxr_keyword">long</strong> deltaSys = systemUtility.get(cpu) - initSystemUtility.get(cpu);
-<a class="jxr_linenumber" name="L412" href="#L412">412</a> 
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>                         <em class="jxr_comment">// Calculate new target ticks</em>
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>                         <em class="jxr_comment">// Correct for the 100x multiplier at the end</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>                         <strong class="jxr_keyword">long</strong> newUser = initUserList.get(cpu) + multiplier * (deltaProc - deltaSys) / 100;
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>                         <strong class="jxr_keyword">long</strong> newSystem = initSystemList.get(cpu) + multiplier * deltaSys / 100;
-<a class="jxr_linenumber" name="L417" href="#L417">417</a> 
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>                         <em class="jxr_comment">// Adjust user to new, saving the delta</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>                         <strong class="jxr_keyword">long</strong> delta = newUser - ticks[cpu][TickType.USER.getIndex()];
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>                         ticks[cpu][TickType.USER.getIndex()] = newUser;
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>                         <em class="jxr_comment">// Do the same for system</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>                         delta += newSystem - ticks[cpu][TickType.SYSTEM.getIndex()];
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>                         ticks[cpu][TickType.SYSTEM.getIndex()] = newSystem;
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>                         <em class="jxr_comment">// Subtract delta from idle</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>                         ticks[cpu][TickType.IDLE.getIndex()] -= delta;
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>                     }
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>                 }
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>             }
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>             <em class="jxr_comment">// Decrement IRQ from system to avoid double counting in the total array</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
-<a class="jxr_linenumber" name="L433" href="#L433">433</a> 
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             <em class="jxr_comment">// Raw value is cumulative 100NS-ticks</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>             <em class="jxr_comment">// Divide by 10_000 to get milliseconds</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>             ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>             ticks[cpu][TickType.USER.getIndex()] /= 10_000L;
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>             ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>             ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>             ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>         }
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         <em class="jxr_comment">// Skipping nice and IOWait, they'll stay 0</em>
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     }
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> 
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">     * Lazily calculate the capacity tick multiplier once.</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">     * @param deltaBase</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">     *            The difference in base ticks.</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">     * @param deltaT</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">     *            The difference in elapsed 100NS time</em>
-<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">     * @return The ratio of elapsed time to base ticks</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">long</strong> lazilyCalculateMultiplier(<strong class="jxr_keyword">long</strong> deltaBase, <strong class="jxr_keyword">long</strong> deltaT) {
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <strong class="jxr_keyword">if</strong> (utilityBaseMultiplier == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>             <em class="jxr_comment">// If too much time has elapsed from class instantiation, re-initialize the</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>             <em class="jxr_comment">// ticks and return without calculating. Approx 7 minutes for 100NS counter to</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>             <em class="jxr_comment">// exceed max unsigned int.</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>             <strong class="jxr_keyword">if</strong> (deltaT &gt;&gt; 32 &gt; 0) {
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>                 initialUtilityCounters = processorUtilityCounters.get().getB();
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>                 <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>             }
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>             <em class="jxr_comment">// Base counter wraps approximately every 115 minutes</em>
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>             <em class="jxr_comment">// If deltaBase is nonpositive assume it has wrapped</em>
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>             <strong class="jxr_keyword">if</strong> (deltaBase &lt;= 0) {
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>                 deltaBase += 1L &lt;&lt; 32;
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>             }
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <strong class="jxr_keyword">long</strong> multiplier = Math.round((<strong class="jxr_keyword">double</strong>) deltaT / deltaBase);
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>             <em class="jxr_comment">// If not enough time has elapsed, return the value this one time but don't</em>
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>             <em class="jxr_comment">// persist. 5000 ms = 50 million 100NS ticks</em>
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>             <strong class="jxr_keyword">if</strong> (deltaT &lt; 50_000_000L) {
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>                 <strong class="jxr_keyword">return</strong> multiplier;
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>             }
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>             utilityBaseMultiplier = multiplier;
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>         }
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         <strong class="jxr_keyword">return</strong> utilityBaseMultiplier;
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>     }
-<a class="jxr_linenumber" name="L479" href="#L479">479</a> 
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; queryProcessorUtilityCounters() {
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">return</strong> ProcessorInformation.queryProcessorCapacityCounters();
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>     }
-<a class="jxr_linenumber" name="L483" href="#L483">483</a> 
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>     @Override
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">return</strong> SystemInformation.queryContextSwitchCounters().getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC,
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 0L);
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>     }
-<a class="jxr_linenumber" name="L489" href="#L489">489</a> 
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>     @Override
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         <strong class="jxr_keyword">return</strong> ProcessorInformation.queryInterruptCounters().getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>     }
-<a class="jxr_linenumber" name="L494" href="#L494">494</a> }
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) ppi.toArray(getLogicalProcessorCount());
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         <strong class="jxr_keyword">long</strong>[] freqs = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()];
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">if</strong> (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, <strong class="jxr_keyword">null</strong>, 0,
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 ppiArray[0].getPointer(), ppi.size() * ppiArray.length)) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             LOG.error(<span class="jxr_string">"Unable to get Processor Information"</span>);
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             Arrays.fill(freqs, -1L);
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             <strong class="jxr_keyword">return</strong> freqs;
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         }
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; freqs.length; i++) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             <strong class="jxr_keyword">if</strong> (fieldIndex == 1) { <em class="jxr_comment">// Max</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 freqs[i] = ppiArray[i].maxMhz * 1_000_000L;
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (fieldIndex == 2) { <em class="jxr_comment">// Current</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 freqs[i] = ppiArray[i].currentMhz * 1_000_000L;
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 freqs[i] = -1L;
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             }
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         }
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">return</strong> freqs;
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     @Override
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         }
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">return</strong> LoadAverage.queryLoadAverage(nelem);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     }
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     @Override
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <em class="jxr_comment">// These are used in all cases</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         List&lt;String&gt; instances;
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         List&lt;Long&gt; systemList;
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         List&lt;Long&gt; userList;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         List&lt;Long&gt; irqList;
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         List&lt;Long&gt; softIrqList;
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         List&lt;Long&gt; idleList;
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <em class="jxr_comment">// These are only used with USE_CPU_UTILITY</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         List&lt;Long&gt; baseList = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         List&lt;Long&gt; systemUtility = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         List&lt;Long&gt; processorUtility = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         List&lt;Long&gt; processorUtilityBase = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         List&lt;Long&gt; initSystemList = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         List&lt;Long&gt; initUserList = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         List&lt;Long&gt; initBase = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         List&lt;Long&gt; initSystemUtility = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         List&lt;Long&gt; initProcessorUtility = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         List&lt;Long&gt; initProcessorUtilityBase = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">if</strong> (USE_CPU_UTILITY) {
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>             Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = processorUtilityCounters
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>                     .get();
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>             instances = instanceValuePair.getA();
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>             Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>             systemList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>             userList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>             irqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTINTERRUPTTIME);
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>             softIrqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTDPCTIME);
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>             <em class="jxr_comment">// % Processor Time is actually Idle time</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             idleList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORTIME);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>             baseList = valueMap.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>             <em class="jxr_comment">// Utility ticks, if configured</em>
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>             systemUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>             processorUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>             processorUtilityBase = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>             initSystemList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>             initUserList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>             initBase = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>             <em class="jxr_comment">// Utility ticks, if configured</em>
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>             initSystemUtility = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>             initProcessorUtility = initialUtilityCounters
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                     .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>             initProcessorUtilityBase = initialUtilityCounters
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                     .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>             Pair&lt;List&lt;String&gt;, Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = <a name="ProcessorInformation" href="../../../../oshi/driver/windows/perfmon/ProcessorInformation.html#ProcessorInformation">ProcessorInformation</a>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                     .queryProcessorCounters();
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>             instances = instanceValuePair.getA();
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>             userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>             irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>             softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>             <em class="jxr_comment">// % Processor Time is actually Idle time</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>             idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         }
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> 
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         <strong class="jxr_keyword">int</strong> ncpu = getLogicalProcessorCount();
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[ncpu][TickType.values().length];
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <strong class="jxr_keyword">if</strong> (instances.isEmpty() || systemList == <strong class="jxr_keyword">null</strong> || userList == <strong class="jxr_keyword">null</strong> || irqList == <strong class="jxr_keyword">null</strong> || softIrqList == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 || idleList == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                 || (USE_CPU_UTILITY &amp;&amp; (baseList == <strong class="jxr_keyword">null</strong> || systemUtility == <strong class="jxr_keyword">null</strong> || processorUtility == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>                         || processorUtilityBase == <strong class="jxr_keyword">null</strong> || initSystemList == <strong class="jxr_keyword">null</strong> || initUserList == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                         || initBase == <strong class="jxr_keyword">null</strong> || initSystemUtility == <strong class="jxr_keyword">null</strong> || initProcessorUtility == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>                         || initProcessorUtilityBase == <strong class="jxr_keyword">null</strong>))) {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         }
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">for</strong> (String instance : instances) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>             <strong class="jxr_keyword">int</strong> cpu = instance.contains(<span class="jxr_string">","</span>) ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                     : ParseUtil.parseIntOrDefault(instance, 0);
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>             <strong class="jxr_keyword">if</strong> (cpu &gt;= ncpu) {
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>             }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>             ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>             ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>             ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>             ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>             <em class="jxr_comment">// If users want Task Manager output we have to do some math to get there</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>             <strong class="jxr_keyword">if</strong> (USE_CPU_UTILITY) {
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                 <em class="jxr_comment">// We have two new capacity numbers, processor (all but idle) and system</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 <em class="jxr_comment">// (included in processor). To further complicate matters, these are in percent</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>                 <em class="jxr_comment">// units so must be divided by 100.</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> 
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>                 <em class="jxr_comment">// The 100NS elapsed time counter is a constant multiple of the capacity base</em>
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>                 <em class="jxr_comment">// counter. By enforcing a memoized pause we'll either have zero elapsed time or</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>                 <em class="jxr_comment">// sufficient delay to determine this offset reliably once and not have to</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 <em class="jxr_comment">// recalculate it</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a> 
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 <em class="jxr_comment">// Get elapsed time in 100NS</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>                 <strong class="jxr_keyword">long</strong> deltaT = baseList.get(cpu) - initBase.get(cpu);
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>                 <strong class="jxr_keyword">if</strong> (deltaT &gt; 0) {
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>                     <em class="jxr_comment">// Get elapsed utility base</em>
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>                     <strong class="jxr_keyword">long</strong> deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>                     <em class="jxr_comment">// The ratio of elapsed clock to elapsed utility base is an integer constant.</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                     <em class="jxr_comment">// We can calculate a conversion factor to ensure a consistent application of</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                     <em class="jxr_comment">// the correction. Since Utility is in percent, this is actually 100x the true</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>                     <em class="jxr_comment">// multiplier but is at the level where the integer calculation is precise</em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                     <strong class="jxr_keyword">long</strong> multiplier = lazilyCalculateMultiplier(deltaBase, deltaT);
+<a class="jxr_linenumber" name="L403" href="#L403">403</a> 
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>                     <em class="jxr_comment">// 0 multiplier means we just re-initialized ticks</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                     <strong class="jxr_keyword">if</strong> (multiplier &gt; 0) {
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                         <em class="jxr_comment">// Get utility delta</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                         <strong class="jxr_keyword">long</strong> deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                         <strong class="jxr_keyword">long</strong> deltaSys = systemUtility.get(cpu) - initSystemUtility.get(cpu);
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>                         <em class="jxr_comment">// Calculate new target ticks</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>                         <em class="jxr_comment">// Correct for the 100x multiplier at the end</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>                         <strong class="jxr_keyword">long</strong> newUser = initUserList.get(cpu) + multiplier * (deltaProc - deltaSys) / 100;
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>                         <strong class="jxr_keyword">long</strong> newSystem = initSystemList.get(cpu) + multiplier * deltaSys / 100;
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>                         <em class="jxr_comment">// Adjust user to new, saving the delta</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>                         <strong class="jxr_keyword">long</strong> delta = newUser - ticks[cpu][TickType.USER.getIndex()];
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>                         ticks[cpu][TickType.USER.getIndex()] = newUser;
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>                         <em class="jxr_comment">// Do the same for system</em>
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>                         delta += newSystem - ticks[cpu][TickType.SYSTEM.getIndex()];
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                         ticks[cpu][TickType.SYSTEM.getIndex()] = newSystem;
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                         <em class="jxr_comment">// Subtract delta from idle</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>                         ticks[cpu][TickType.IDLE.getIndex()] -= delta;
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>                     }
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>                 }
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>             }
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>             <em class="jxr_comment">// Decrement IRQ from system to avoid double counting in the total array</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>             ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>                     + ticks[cpu][TickType.SOFTIRQ.getIndex()];
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> 
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>             <em class="jxr_comment">// Raw value is cumulative 100NS-ticks</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>             <em class="jxr_comment">// Divide by 10_000 to get milliseconds</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>             ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>             ticks[cpu][TickType.USER.getIndex()] /= 10_000L;
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <em class="jxr_comment">// Skipping nice and IOWait, they'll stay 0</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>     }
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> 
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">     * Lazily calculate the capacity tick multiplier once.</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">     * @param deltaBase</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">     *            The difference in base ticks.</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">     * @param deltaT</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">     *            The difference in elapsed 100NS time</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">     * @return The ratio of elapsed time to base ticks</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">long</strong> lazilyCalculateMultiplier(<strong class="jxr_keyword">long</strong> deltaBase, <strong class="jxr_keyword">long</strong> deltaT) {
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         <strong class="jxr_keyword">if</strong> (utilityBaseMultiplier == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>             <em class="jxr_comment">// If too much time has elapsed from class instantiation, re-initialize the</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>             <em class="jxr_comment">// ticks and return without calculating. Approx 7 minutes for 100NS counter to</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>             <em class="jxr_comment">// exceed max unsigned int.</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>             <strong class="jxr_keyword">if</strong> (deltaT &gt;&gt; 32 &gt; 0) {
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>                 initialUtilityCounters = processorUtilityCounters.get().getB();
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>                 <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>             }
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>             <em class="jxr_comment">// Base counter wraps approximately every 115 minutes</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>             <em class="jxr_comment">// If deltaBase is nonpositive assume it has wrapped</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>             <strong class="jxr_keyword">if</strong> (deltaBase &lt;= 0) {
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>                 deltaBase += 1L &lt;&lt; 32;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>             }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>             <strong class="jxr_keyword">long</strong> multiplier = Math.round((<strong class="jxr_keyword">double</strong>) deltaT / deltaBase);
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>             <em class="jxr_comment">// If not enough time has elapsed, return the value this one time but don't</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>             <em class="jxr_comment">// persist. 5000 ms = 50 million 100NS ticks</em>
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <strong class="jxr_keyword">if</strong> (deltaT &lt; 50_000_000L) {
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>                 <strong class="jxr_keyword">return</strong> multiplier;
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>             }
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>             utilityBaseMultiplier = multiplier;
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>         }
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <strong class="jxr_keyword">return</strong> utilityBaseMultiplier;
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>     }
+<a class="jxr_linenumber" name="L476" href="#L476">476</a> 
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; queryProcessorUtilityCounters() {
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">return</strong> ProcessorInformation.queryProcessorCapacityCounters();
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     }
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> 
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>     @Override
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         <strong class="jxr_keyword">return</strong> SystemInformation.queryContextSwitchCounters().getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC,
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>                 0L);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>     }
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> 
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>     @Override
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         <strong class="jxr_keyword">return</strong> ProcessorInformation.queryInterruptCounters().getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>     }
+<a class="jxr_linenumber" name="L491" href="#L491">491</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

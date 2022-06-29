@@ -212,25 +212,24 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcReadKey(IOConnect conn, String key, SMCVal val) {
-<span class="nc" id="L215">        SMCKeyData inputStructure = new SMCKeyData();</span>
-<span class="nc" id="L216">        SMCKeyData outputStructure = new SMCKeyData();</span>
+<span class="nc" id="L215">        try (SMCKeyData inputStructure = new SMCKeyData(); SMCKeyData outputStructure = new SMCKeyData()) {</span>
+<span class="nc" id="L216">            inputStructure.key = (int) ParseUtil.strToLong(key, 4);</span>
+<span class="nc" id="L217">            int result = smcGetKeyInfo(conn, inputStructure, outputStructure);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            if (result == 0) {</span>
+<span class="nc" id="L219">                val.dataSize = outputStructure.keyInfo.dataSize;</span>
+<span class="nc" id="L220">                val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);</span>
 
-<span class="nc" id="L218">        inputStructure.key = (int) ParseUtil.strToLong(key, 4);</span>
-<span class="nc" id="L219">        int result = smcGetKeyInfo(conn, inputStructure, outputStructure);</span>
-<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (result == 0) {</span>
-<span class="nc" id="L221">            val.dataSize = outputStructure.keyInfo.dataSize;</span>
-<span class="nc" id="L222">            val.dataType = ParseUtil.longToByteArray(outputStructure.keyInfo.dataType, 4, 5);</span>
+<span class="nc" id="L222">                inputStructure.keyInfo.dataSize = val.dataSize;</span>
+<span class="nc" id="L223">                inputStructure.data8 = SMC_CMD_READ_BYTES;</span>
 
-<span class="nc" id="L224">            inputStructure.keyInfo.dataSize = val.dataSize;</span>
-<span class="nc" id="L225">            inputStructure.data8 = SMC_CMD_READ_BYTES;</span>
-
-<span class="nc" id="L227">            result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);</span>
-<span class="nc bnc" id="L228" title="All 2 branches missed.">            if (result == 0) {</span>
-<span class="nc" id="L229">                System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);</span>
-<span class="nc" id="L230">                return 0;</span>
+<span class="nc" id="L225">                result = smcCall(conn, KERNEL_INDEX_SMC, inputStructure, outputStructure);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                if (result == 0) {</span>
+<span class="nc" id="L227">                    System.arraycopy(outputStructure.bytes, 0, val.bytes, 0, val.bytes.length);</span>
+<span class="nc" id="L228">                    return 0;</span>
+                }
             }
-        }
-<span class="nc" id="L233">        return result;</span>
+<span class="nc" id="L231">            return result;</span>
+<span class="nc" id="L232">        }</span>
     }
 
     /**
@@ -247,9 +246,9 @@ public final class SmcUtil {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcCall(IOConnect conn, int index, SMCKeyData inputStructure, SMCKeyData outputStructure) {
-<span class="nc" id="L250">        try (CloseableNativeLongByReference size = new CloseableNativeLongByReference(</span>
-<span class="nc" id="L251">                new NativeLong(outputStructure.size()))) {</span>
-<span class="nc" id="L252">            return IO.IOConnectCallStructMethod(conn, index, inputStructure, new NativeLong(inputStructure.size()),</span>
+<span class="nc" id="L249">        try (CloseableNativeLongByReference size = new CloseableNativeLongByReference(</span>
+<span class="nc" id="L250">                new NativeLong(outputStructure.size()))) {</span>
+<span class="nc" id="L251">            return IO.IOConnectCallStructMethod(conn, index, inputStructure, new NativeLong(inputStructure.size()),</span>
                     outputStructure, size);
         }
     }

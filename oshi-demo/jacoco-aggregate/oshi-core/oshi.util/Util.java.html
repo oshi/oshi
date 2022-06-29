@@ -26,6 +26,9 @@ package oshi.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -33,7 +36,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class Util {
-<span class="nc" id="L36">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
+<span class="nc" id="L39">    private static final Logger LOG = LoggerFactory.getLogger(Util.class);</span>
 
     private Util() {
     }
@@ -46,13 +49,13 @@ public final class Util {
      */
     public static void sleep(long ms) {
         try {
-<span class="nc" id="L49">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
-<span class="nc" id="L50">            Thread.sleep(ms);</span>
-<span class="nc" id="L51">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
-<span class="nc" id="L52">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e.getMessage());</span>
-<span class="nc" id="L53">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L54">        }</span>
-<span class="nc" id="L55">    }</span>
+<span class="nc" id="L52">            LOG.trace(&quot;Sleeping for {} ms&quot;, ms);</span>
+<span class="nc" id="L53">            Thread.sleep(ms);</span>
+<span class="nc" id="L54">        } catch (InterruptedException e) { // NOSONAR squid:S2142</span>
+<span class="nc" id="L55">            LOG.warn(&quot;Interrupted while sleeping for {} ms: {}&quot;, ms, e.getMessage());</span>
+<span class="nc" id="L56">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L57">        }</span>
+<span class="nc" id="L58">    }</span>
 
     /**
      * Tests if a String matches another String with a wildcard pattern.
@@ -69,10 +72,10 @@ public final class Util {
      *         remainder of the String does not match.
      */
     public static boolean wildcardMatch(String text, String pattern) {
-<span class="nc bnc" id="L72" title="All 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            return !wildcardMatch(text, pattern.substring(1));</span>
+<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            return !wildcardMatch(text, pattern.substring(1));</span>
         }
-<span class="nc" id="L75">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
+<span class="nc" id="L78">        return text.matches(pattern.replace(&quot;?&quot;, &quot;.?&quot;).replace(&quot;*&quot;, &quot;.*?&quot;));</span>
     }
 
     /**
@@ -83,7 +86,7 @@ public final class Util {
      * @return True if the String is either null or empty.
      */
     public static boolean isBlank(String s) {
-<span class="nc bnc" id="L86" title="All 4 branches missed.">        return s == null || s.isEmpty();</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">        return s == null || s.isEmpty();</span>
     }
 
     /**
@@ -94,7 +97,20 @@ public final class Util {
      * @return True if the String is either null or empty or the unknown constant.
      */
     public static boolean isBlankOrUnknown(String s) {
-<span class="nc bnc" id="L97" title="All 4 branches missed.">        return isBlank(s) || Constants.UNKNOWN.equals(s);</span>
+<span class="nc bnc" id="L100" title="All 4 branches missed.">        return isBlank(s) || Constants.UNKNOWN.equals(s);</span>
     }
+
+    /**
+     * If the given Pointer is of class Memory, executes the close method on it to
+     * free its native allocation
+     *
+     * @param p
+     *            A pointer
+     */
+    public static void freeMemory(Pointer p) {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (p instanceof Memory) {</span>
+<span class="nc" id="L112">            ((Memory) p).close();</span>
+        }
+<span class="nc" id="L114">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

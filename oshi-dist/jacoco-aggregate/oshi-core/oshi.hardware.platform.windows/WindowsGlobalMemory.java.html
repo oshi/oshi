@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
-import com.sun.jna.platform.win32.Psapi.PERFORMANCE_INFORMATION;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
@@ -46,6 +45,7 @@ import oshi.driver.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Triplet;
 
@@ -251,15 +251,16 @@ import oshi.util.tuples.Triplet;
     }
 
     private static Triplet&lt;Long, Long, Long&gt; readPerfInfo() {
-<span class="nc" id="L254">        PERFORMANCE_INFORMATION performanceInfo = new PERFORMANCE_INFORMATION();</span>
-<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
-<span class="nc" id="L256">            LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L257">            return new Triplet&lt;&gt;(0L, 0L, 4098L);</span>
-        }
-<span class="nc" id="L259">        long pageSize = performanceInfo.PageSize.longValue();</span>
-<span class="nc" id="L260">        long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L261">        long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L262">        return new Triplet&lt;&gt;(memAvailable, memTotal, pageSize);</span>
+<span class="nc" id="L254">        try (CloseablePerformanceInformation performanceInfo = new CloseablePerformanceInformation()) {</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
+<span class="nc" id="L256">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L257">                return new Triplet&lt;&gt;(0L, 0L, 4098L);</span>
+            }
+<span class="nc" id="L259">            long pageSize = performanceInfo.PageSize.longValue();</span>
+<span class="nc" id="L260">            long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L261">            long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L262">            return new Triplet&lt;&gt;(memAvailable, memTotal, pageSize);</span>
+<span class="nc" id="L263">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
