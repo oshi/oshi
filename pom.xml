@@ -110,7 +110,7 @@
         <maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.12.0</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
-        <maven-fluido-skin.version>1.11.0</maven-fluido-skin.version>
+        <maven-fluido-skin.version>1.11.1</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
         <build-helper-maven-plugin.version>3.3.0</build-helper-maven-plugin.version>
