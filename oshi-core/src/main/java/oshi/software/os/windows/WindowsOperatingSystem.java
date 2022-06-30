@@ -417,19 +417,19 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
                 // 6005 (Event log startup) as a reasonably close backup.
                 long event6005Time = 0L;
                 while (iter.hasNext()) {
-                    EventLogRecord record = iter.next();
-                    if (record.getStatusCode() == 12) {
+                    EventLogRecord logRecord = iter.next();
+                    if (logRecord.getStatusCode() == 12) {
                         // Event 12 is system boot. We want this value unless we find two 6005 events
                         // first (may occur with Fast Boot)
-                        return record.getRecord().TimeGenerated.longValue();
-                    } else if (record.getStatusCode() == 6005) {
+                        return logRecord.getRecord().TimeGenerated.longValue();
+                    } else if (logRecord.getStatusCode() == 6005) {
                         // If we already found one, this means we've found a second one without finding
                         // an event 12. Return the latest one.
                         if (event6005Time > 0) {
                             return event6005Time;
                         }
                         // First 6005; tentatively assign
-                        event6005Time = record.getRecord().TimeGenerated.longValue();
+                        event6005Time = logRecord.getRecord().TimeGenerated.longValue();
                     }
                 }
                 // Only one 6005 found, return
