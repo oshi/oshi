@@ -1252,7 +1252,7 @@ public final class ParseUtil {
                 .putInt(utAddrV6[3]).array();
         try {
             return InetAddress.getByAddress(ipv6).getHostAddress()
-                    .replaceAll("((?:(?:^|:)0+\\b){2,}):?(?!\\S*\\b\\1:0+\\b)(\\S*)", "::$2");
+                    .replaceAll("((?:(?:^|:)0+\\b){2,8}):?(?!\\S*\\b\\1:0+\\b)(\\S*)", "::$2");
         } catch (UnknownHostException e) {
             // Shouldn't happen with length 4 or 16
             return Constants.UNKNOWN;
