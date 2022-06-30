@@ -1,13 +1,14 @@
 # 6.2.2 (in progress)
 
 * Your contribution here!
+* [#2099](https://github.com/oshi/oshi/pull/2099): Remove useless public constructor for abstract class - [@victorjbassey](https://github.com/victorjbassey).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29)
 
 ##### Performance improvement
 This release leverages improvements in JNA 5.12.1 which should significantly improve performance. Finalizers in JNA were replaced by Cleaners, reducing the impact of `Memory` objects in tenured heap space by promptly releasing native memory allocations.
 
-In addition, JNA's `Memory` class now implements `Closeable`. All direct and most indirect allocations of `Memory` in OSHI now have their underlying native allocation freed proactively. 
+In addition, JNA's `Memory` class now implements `Closeable`. All direct and most indirect allocations of `Memory` in OSHI now have their underlying native allocation freed proactively.
 * [#2075](https://github.com/oshi/oshi/pull/2075): Reduce heap thrash with HKEY_PERFORMANCE_DATA buffer - [@dbwiddis](https://github.com/dbwiddis).
 * [#2080](https://github.com/oshi/oshi/pull/2080): JNA 5.12.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#2081](https://github.com/oshi/oshi/pull/2081): Proactively free direct native Memory allocations - [@dbwiddis](https://github.com/dbwiddis).
