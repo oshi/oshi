@@ -192,7 +192,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         return new Pair<>(logProcs, physProcs);
     }
 
-    private Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
+    private static Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
@@ -225,7 +225,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         return new Triplet<>(logProcs, coreEfficiencyMap, modAliasMap);
     }
 
-    private Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
+    private static Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
