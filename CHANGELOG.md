@@ -1,6 +1,7 @@
 # 6.2.2 (in progress)
 
 * Your contribution here!
+* [#2097](https://github.com/oshi/oshi/pull/2108): Prefer character classes to alternators in regex - [@varun83388](https://github.com/varun83388).
 * [#2095](https://github.com/oshi/oshi/pull/2095): Avoid using reserved identifiers as variable names - [@muhammetgumus](https://github.com/muhammetgumus)
 * [#2099](https://github.com/oshi/oshi/pull/2099): Remove useless public constructor for abstract class - [@victorjbassey](https://github.com/victorjbassey).
 
