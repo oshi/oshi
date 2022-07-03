@@ -7,13 +7,15 @@ OSHI is [first-timers-only](https://www.firsttimersonly.com/) friendly.  If you'
 
 ### Install git and maven
 
-If not installed, install `git`.
+If not installed, install `git` using your package manager. For Windows, [Git Bash](https://git-scm.com/downloads) is recommended.
 
 You may either install maven or replace the below `mvn` calls with the maven wrapper, just typing `./mvnw` instead.
 
 ### Fork the Project
 
-Fork the project on Github by clicking on the word "Fork" above and to the right of this page.  This will create your own fork at https://github.com/yournamehere/oshi.git.  Then clone your fork to your local repository on your machine and set up a [triangle workflow](https://github.com/forwards/first-contributions/blob/master/additional-material/git_workflow_scenarios/keeping-your-fork-synced-with-this-repository.md) using these commands:
+Fork the project on Github by clicking on the word "Fork" above and to the right of the main project page.  This will create your own fork at https://github.com/yournamehere/oshi.git.  
+
+Then clone your fork to your local repository on your machine and set up a [triangle workflow](https://github.com/forwards/first-contributions/blob/master/additional-material/git_workflow_scenarios/keeping-your-fork-synced-with-this-repository.md) using these commands:
 ```
 git clone https://github.com/yournamehere/oshi.git
 cd oshi
@@ -22,7 +24,7 @@ git remote add upstream https://github.com/oshi/oshi.git
 
 ### Create a Branch for your feature
 
-Make sure your fork is up-to-date and create a topic branch for your feature or bug fix.  (The name `my-feature-branch` is an example. Choose whatever you like.)
+Make sure your fork is up-to-date and create a branch for your feature or bug fix.  (The name `my-feature-branch` is an example. Choose whatever you like.)
 
 ```
 git checkout master
@@ -35,8 +37,9 @@ git checkout -b my-feature-branch
 Ensure that you can build the project and run tests.  After your change, the tests should still pass.
 
 ```
-mvn test
+mvn clean test
 ```
+(Using `clean` is generally optional but works around an existing bug in the testing plugin, where running `mvn test` twice without `clean` will fail.)
 
 ### Write Tests
 
@@ -49,7 +52,7 @@ We definitely appreciate pull requests that highlight or reproduce a problem, ev
 
 Implement your feature or bug fix.
 
-Make sure that `mvn test` completes without errors.
+Make sure that `mvn test` completes without errors. (Use `clean` if necessary.)
 
 ### Update Changelog
 
@@ -72,7 +75,7 @@ mvn spotless:apply
 
 ### Commit Changes
 
-Make sure git knows your name and email address:
+Make sure git knows your name and email address.
 
 ```
 git config --global user.name "Your Name"
@@ -106,14 +109,14 @@ If you've been working on a change for a while and other commits have been made 
 ```
 git fetch upstream
 git rebase upstream/master
-git push origin my-feature-branch -f
+git push origin my-feature-branch
 ```
 
 ### Update CHANGELOG Again
 
 If you didn't guess right on the PR number, update the [CHANGELOG](CHANGELOG.md) with the pull request number.
 
-You may amend your previous commit and force push the changes, or just submit a changelog commit.
+You may amend your previous commit and force push the changes, or just submit a new commit; the maintainers can squash them later.
 
 ```
 git commit --amend
@@ -122,9 +125,9 @@ git push origin my-feature-branch -f
 
 ### Check on Your Pull Request
 
-Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI.
-Everything should look green, otherwise read the Travis log to identify failed tests or compile erros.
-Fix issues and amend your commit as described above.
+Go back to your pull request after a few minutes and see whether it passed muster with the CI tests.
+Everything should look green, otherwise read the failed test logs to identify failed tests or compile errors.
+Fix issues and commit again as described above.
 
 ### Be Patient
 

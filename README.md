@@ -4,7 +4,6 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.oshi%22%20AND%20a:%22oshi-core%22)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
-[![buymeacoffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://buymeacoffee.com/dbwiddis)
 
 OSHI is a free JNA-based (native) Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a
