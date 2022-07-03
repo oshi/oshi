@@ -149,7 +149,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static List<LogicalProcessor> parseTopology() {
-        String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("[\\n\\r]");
+        Iterable<String> topology = Splitter.onPattern("[\\n\\r]").split(BsdSysctlUtil.sysctl("kern.sched.topology_spec", ""));
         /*-
          * Sample output:
          *
