@@ -18,7 +18,7 @@
             <item name="oshi" href="http://github.com/oshi/oshi" />
         </links>
         <menu name="User guide">
-            <item href="README.html" name="Overview" />
+            <item href="index.html" name="Overview" />
             <item href="oshi-core-java11/apidocs/" name="Javadocs" />
             <item href="FAQ.html" name="Frequently Asked Questions" />
             <item href="Performance.html" name="Performance Considerations" />
