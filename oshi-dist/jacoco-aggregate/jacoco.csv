@@ -51,7 +51,7 @@ oshi-dist/oshi-core,oshi.software.os.windows,WindowsOSFileStore,140,0,10,0,35,0,
 oshi-dist/oshi-core,oshi.software.os.windows,WindowsInternetProtocolStats,597,0,46,0,114,0,40,0,12,0
 oshi-dist/oshi-core,oshi.util.platform.unix.solaris,KstatUtil,382,0,38,0,77,0,29,0,6,0
 oshi-dist/oshi-core,oshi.util.platform.unix.solaris,KstatUtil.KstatChain,128,0,22,0,25,0,17,0,6,0
-oshi-dist/oshi-core,oshi.software.os.mac,MacNetworkParams,149,0,18,0,38,0,15,0,6,0
+oshi-dist/oshi-core,oshi.software.os.mac,MacNetworkParams,151,0,18,0,37,0,15,0,6,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacOperatingSystem,561,0,62,0,104,0,56,0,25,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-dist/oshi-core,oshi.software.os.mac,MacOSProcess,647,0,55,0,145,0,64,0,34,0
@@ -411,7 +411,7 @@ oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxUsbDevice,351,0,30,0,76,0,
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxSoundCard,238,0,32,0,42,0,23,0,7,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxHWDiskStore.UdevStat,56,0,0,0,6,0,3,0,3,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxPowerSource,322,0,28,0,82,0,18,0,4,0
-oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,1199,0,128,0,242,0,90,0,22,0
+oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,1197,0,128,0,242,0,90,0,22,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxHWDiskStore,592,0,66,0,129,0,51,0,18,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxVirtualMemory,215,0,21,0,47,0,22,0,10,0
 oshi-dist/oshi-core,oshi.hardware.platform.linux,LinuxLogicalVolumeGroup,257,0,28,0,46,0,22,0,8,0
@@ -463,7 +463,7 @@ oshi-dist/oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,3,0,0,0,1,0
 oshi-dist/oshi-core,oshi.driver.unix.openbsd.disk,Disklabel,322,0,28,0,50,0,17,0,3,0
 oshi-dist/oshi-core,oshi.software.common,AbstractOSProcess,106,0,8,0,17,0,10,0,6,0
 oshi-dist/oshi-core,oshi.software.common,AbstractOperatingSystem,359,0,50,0,50,0,44,0,19,0
-oshi-dist/oshi-core,oshi.software.common,AbstractInternetProtocolStats,27,0,0,0,5,0,4,0,4,0
+oshi-dist/oshi-core,oshi.software.common,AbstractInternetProtocolStats,27,0,0,0,4,0,4,0,4,0
 oshi-dist/oshi-core,oshi.software.common,AbstractOSFileStore,119,0,0,0,21,0,9,0,9,0
 oshi-dist/oshi-core,oshi.software.common,AbstractNetworkParams,176,0,20,0,39,0,16,0,6,0
 oshi-dist/oshi-core,oshi.software.common,AbstractFileSystem,22,0,0,0,6,0,3,0,3,0
@@ -531,7 +531,7 @@ oshi-dist/oshi-core-java11,oshi.software.os.windows,WindowsOSFileStore,140,0,10,
 oshi-dist/oshi-core-java11,oshi.software.os.windows,WindowsInternetProtocolStats,597,0,46,0,114,0,40,0,12,0
 oshi-dist/oshi-core-java11,oshi.util.platform.unix.solaris,KstatUtil,368,0,38,0,77,0,29,0,6,0
 oshi-dist/oshi-core-java11,oshi.util.platform.unix.solaris,KstatUtil.KstatChain,128,0,22,0,25,0,17,0,6,0
-oshi-dist/oshi-core-java11,oshi.software.os.mac,MacNetworkParams,149,0,18,0,38,0,15,0,6,0
+oshi-dist/oshi-core-java11,oshi.software.os.mac,MacNetworkParams,151,0,18,0,37,0,15,0,6,0
 oshi-dist/oshi-core-java11,oshi.software.os.mac,MacOperatingSystem,554,0,62,0,104,0,56,0,25,0
 oshi-dist/oshi-core-java11,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-dist/oshi-core-java11,oshi.software.os.mac,MacOSProcess,647,0,55,0,145,0,64,0,34,0
@@ -891,7 +891,7 @@ oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxUsbDevice,344,0,30,
 oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxSoundCard,216,0,32,0,42,0,23,0,7,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxHWDiskStore.UdevStat,56,0,0,0,6,0,3,0,3,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxPowerSource,322,0,28,0,82,0,18,0,4,0
-oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxCentralProcessor,1116,0,128,0,242,0,90,0,22,0
+oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxCentralProcessor,1114,0,128,0,242,0,90,0,22,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxHWDiskStore,586,0,66,0,129,0,51,0,18,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxVirtualMemory,215,0,21,0,47,0,22,0,10,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.linux,LinuxLogicalVolumeGroup,239,0,28,0,46,0,22,0,8,0
@@ -943,7 +943,7 @@ oshi-dist/oshi-core-java11,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,3,0,
 oshi-dist/oshi-core-java11,oshi.driver.unix.openbsd.disk,Disklabel,291,0,28,0,50,0,17,0,3,0
 oshi-dist/oshi-core-java11,oshi.software.common,AbstractOSProcess,106,0,8,0,17,0,10,0,6,0
 oshi-dist/oshi-core-java11,oshi.software.common,AbstractOperatingSystem,359,0,50,0,50,0,44,0,19,0
-oshi-dist/oshi-core-java11,oshi.software.common,AbstractInternetProtocolStats,27,0,0,0,5,0,4,0,4,0
+oshi-dist/oshi-core-java11,oshi.software.common,AbstractInternetProtocolStats,27,0,0,0,4,0,4,0,4,0
 oshi-dist/oshi-core-java11,oshi.software.common,AbstractOSFileStore,72,0,0,0,21,0,9,0,9,0
 oshi-dist/oshi-core-java11,oshi.software.common,AbstractNetworkParams,176,0,20,0,39,0,16,0,6,0
 oshi-dist/oshi-core-java11,oshi.software.common,AbstractFileSystem,22,0,0,0,6,0,3,0,3,0
@@ -1019,7 +1019,7 @@ oshi-dist/oshi-demo,oshi.software.os.windows,WindowsOSFileStore,140,0,10,0,35,0,
 oshi-dist/oshi-demo,oshi.software.os.windows,WindowsInternetProtocolStats,597,0,46,0,114,0,40,0,12,0
 oshi-dist/oshi-demo,oshi.util.platform.unix.solaris,KstatUtil,382,0,38,0,77,0,29,0,6,0
 oshi-dist/oshi-demo,oshi.util.platform.unix.solaris,KstatUtil.KstatChain,128,0,22,0,25,0,17,0,6,0
-oshi-dist/oshi-demo,oshi.software.os.mac,MacNetworkParams,149,0,18,0,38,0,15,0,6,0
+oshi-dist/oshi-demo,oshi.software.os.mac,MacNetworkParams,151,0,18,0,37,0,15,0,6,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacOperatingSystem,561,0,62,0,104,0,56,0,25,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-dist/oshi-demo,oshi.software.os.mac,MacOSProcess,647,0,55,0,145,0,64,0,34,0
@@ -1387,7 +1387,7 @@ oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxUsbDevice,351,0,30,0,76,0,
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxSoundCard,238,0,32,0,42,0,23,0,7,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxHWDiskStore.UdevStat,56,0,0,0,6,0,3,0,3,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxPowerSource,322,0,28,0,82,0,18,0,4,0
-oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxCentralProcessor,1199,0,128,0,242,0,90,0,22,0
+oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxCentralProcessor,1197,0,128,0,242,0,90,0,22,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxHWDiskStore,592,0,66,0,129,0,51,0,18,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxVirtualMemory,215,0,21,0,47,0,22,0,10,0
 oshi-dist/oshi-demo,oshi.hardware.platform.linux,LinuxLogicalVolumeGroup,257,0,28,0,46,0,22,0,8,0
@@ -1439,7 +1439,7 @@ oshi-dist/oshi-demo,oshi.jna.platform.mac,IOKit.SMCKeyDataPLimitData,3,0,0,0,1,0
 oshi-dist/oshi-demo,oshi.driver.unix.openbsd.disk,Disklabel,322,0,28,0,50,0,17,0,3,0
 oshi-dist/oshi-demo,oshi.software.common,AbstractOSProcess,106,0,8,0,17,0,10,0,6,0
 oshi-dist/oshi-demo,oshi.software.common,AbstractOperatingSystem,359,0,50,0,50,0,44,0,19,0
-oshi-dist/oshi-demo,oshi.software.common,AbstractInternetProtocolStats,27,0,0,0,5,0,4,0,4,0
+oshi-dist/oshi-demo,oshi.software.common,AbstractInternetProtocolStats,27,0,0,0,4,0,4,0,4,0
 oshi-dist/oshi-demo,oshi.software.common,AbstractOSFileStore,119,0,0,0,21,0,9,0,9,0
 oshi-dist/oshi-demo,oshi.software.common,AbstractNetworkParams,176,0,20,0,39,0,16,0,6,0
 oshi-dist/oshi-demo,oshi.software.common,AbstractFileSystem,22,0,0,0,6,0,3,0,3,0

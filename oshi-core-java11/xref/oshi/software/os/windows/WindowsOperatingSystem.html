@@ -425,19 +425,19 @@
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>                 <em class="jxr_comment">// 6005 (Event log startup) as a reasonably close backup.</em>
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>                 <strong class="jxr_keyword">long</strong> event6005Time = 0L;
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>                 <strong class="jxr_keyword">while</strong> (iter.hasNext()) {
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>                     EventLogRecord record = iter.next();
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>                     <strong class="jxr_keyword">if</strong> (record.getStatusCode() == 12) {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                     EventLogRecord logRecord = iter.next();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                     <strong class="jxr_keyword">if</strong> (logRecord.getStatusCode() == 12) {
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>                         <em class="jxr_comment">// Event 12 is system boot. We want this value unless we find two 6005 events</em>
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>                         <em class="jxr_comment">// first (may occur with Fast Boot)</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>                         <strong class="jxr_keyword">return</strong> record.getRecord().TimeGenerated.longValue();
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (record.getStatusCode() == 6005) {
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>                         <strong class="jxr_keyword">return</strong> logRecord.getRecord().TimeGenerated.longValue();
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (logRecord.getStatusCode() == 6005) {
 <a class="jxr_linenumber" name="L426" href="#L426">426</a>                         <em class="jxr_comment">// If we already found one, this means we've found a second one without finding</em>
 <a class="jxr_linenumber" name="L427" href="#L427">427</a>                         <em class="jxr_comment">// an event 12. Return the latest one.</em>
 <a class="jxr_linenumber" name="L428" href="#L428">428</a>                         <strong class="jxr_keyword">if</strong> (event6005Time &gt; 0) {
 <a class="jxr_linenumber" name="L429" href="#L429">429</a>                             <strong class="jxr_keyword">return</strong> event6005Time;
 <a class="jxr_linenumber" name="L430" href="#L430">430</a>                         }
 <a class="jxr_linenumber" name="L431" href="#L431">431</a>                         <em class="jxr_comment">// First 6005; tentatively assign</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>                         event6005Time = record.getRecord().TimeGenerated.longValue();
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>                         event6005Time = logRecord.getRecord().TimeGenerated.longValue();
 <a class="jxr_linenumber" name="L433" href="#L433">433</a>                     }
 <a class="jxr_linenumber" name="L434" href="#L434">434</a>                 }
 <a class="jxr_linenumber" name="L435" href="#L435">435</a>                 <em class="jxr_comment">// Only one 6005 found, return</em>

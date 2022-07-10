@@ -192,7 +192,7 @@ import oshi.util.tuples.Triplet;
 <span class="nc" id="L192">        return new Pair&lt;&gt;(logProcs, physProcs);</span>
     }
 
-    private Triplet&lt;List&lt;LogicalProcessor&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; readTopologyFromUdev() {
+    private static Triplet&lt;List&lt;LogicalProcessor&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; readTopologyFromUdev() {
 <span class="nc" id="L196">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L197">        Map&lt;Integer, Integer&gt; coreEfficiencyMap = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L198">        Map&lt;Integer, String&gt; modAliasMap = new HashMap&lt;&gt;();</span>
@@ -225,7 +225,7 @@ import oshi.util.tuples.Triplet;
 <span class="nc" id="L225">        return new Triplet&lt;&gt;(logProcs, coreEfficiencyMap, modAliasMap);</span>
     }
 
-    private Triplet&lt;List&lt;LogicalProcessor&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; readTopologyFromSysfs() {
+    private static Triplet&lt;List&lt;LogicalProcessor&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; readTopologyFromSysfs() {
 <span class="nc" id="L229">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L230">        Map&lt;Integer, Integer&gt; coreEfficiencyMap = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L231">        Map&lt;Integer, String&gt; modAliasMap = new HashMap&lt;&gt;();</span>

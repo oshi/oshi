@@ -1260,7 +1260,7 @@
 <a class="jxr_linenumber" name="L1252" href="#L1252">1252</a>                 .putInt(utAddrV6[3]).array();
 <a class="jxr_linenumber" name="L1253" href="#L1253">1253</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1254" href="#L1254">1254</a>             <strong class="jxr_keyword">return</strong> InetAddress.getByAddress(ipv6).getHostAddress()
-<a class="jxr_linenumber" name="L1255" href="#L1255">1255</a>                     .replaceAll(<span class="jxr_string">"((?:(?:^|:)0+&#92;&#92;b){2,}):?(?!&#92;&#92;S*&#92;&#92;b&#92;&#92;1:0+&#92;&#92;b)(&#92;&#92;S*)"</span>, <span class="jxr_string">"::$2"</span>);
+<a class="jxr_linenumber" name="L1255" href="#L1255">1255</a>                     .replaceAll(<span class="jxr_string">"((?:(?:^|:)0+&#92;&#92;b){2,8}):?(?!&#92;&#92;S*&#92;&#92;b&#92;&#92;1:0+&#92;&#92;b)(&#92;&#92;S*)"</span>, <span class="jxr_string">"::$2"</span>);
 <a class="jxr_linenumber" name="L1256" href="#L1256">1256</a>         } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
 <a class="jxr_linenumber" name="L1257" href="#L1257">1257</a>             <em class="jxr_comment">// Shouldn't happen with length 4 or 16</em>
 <a class="jxr_linenumber" name="L1258" href="#L1258">1258</a>             <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;

@@ -149,7 +149,7 @@ import oshi.util.tuples.Pair;
     }
 
     private static List&lt;LogicalProcessor&gt; parseTopology() {
-<span class="nc" id="L152">        String[] topology = BsdSysctlUtil.sysctl(&quot;kern.sched.topology_spec&quot;, &quot;&quot;).split(&quot;\\n|\\r&quot;);</span>
+<span class="nc" id="L152">        String[] topology = BsdSysctlUtil.sysctl(&quot;kern.sched.topology_spec&quot;, &quot;&quot;).split(&quot;[\\n\\r]&quot;);</span>
         /*-
          * Sample output:
          *

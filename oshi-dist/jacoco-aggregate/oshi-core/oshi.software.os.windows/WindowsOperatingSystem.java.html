@@ -417,19 +417,19 @@ import oshi.util.tuples.Pair;
                 // 6005 (Event log startup) as a reasonably close backup.
 <span class="nc" id="L418">                long event6005Time = 0L;</span>
 <span class="nc bnc" id="L419" title="All 2 branches missed.">                while (iter.hasNext()) {</span>
-<span class="nc" id="L420">                    EventLogRecord record = iter.next();</span>
-<span class="nc bnc" id="L421" title="All 2 branches missed.">                    if (record.getStatusCode() == 12) {</span>
+<span class="nc" id="L420">                    EventLogRecord logRecord = iter.next();</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">                    if (logRecord.getStatusCode() == 12) {</span>
                         // Event 12 is system boot. We want this value unless we find two 6005 events
                         // first (may occur with Fast Boot)
-<span class="nc" id="L424">                        return record.getRecord().TimeGenerated.longValue();</span>
-<span class="nc bnc" id="L425" title="All 2 branches missed.">                    } else if (record.getStatusCode() == 6005) {</span>
+<span class="nc" id="L424">                        return logRecord.getRecord().TimeGenerated.longValue();</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">                    } else if (logRecord.getStatusCode() == 6005) {</span>
                         // If we already found one, this means we've found a second one without finding
                         // an event 12. Return the latest one.
 <span class="nc bnc" id="L428" title="All 2 branches missed.">                        if (event6005Time &gt; 0) {</span>
 <span class="nc" id="L429">                            return event6005Time;</span>
                         }
                         // First 6005; tentatively assign
-<span class="nc" id="L432">                        event6005Time = record.getRecord().TimeGenerated.longValue();</span>
+<span class="nc" id="L432">                        event6005Time = logRecord.getRecord().TimeGenerated.longValue();</span>
                     }
 <span class="nc" id="L434">                }</span>
                 // Only one 6005 found, return

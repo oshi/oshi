@@ -1252,7 +1252,7 @@ public final class ParseUtil {
 <span class="nc" id="L1252">                .putInt(utAddrV6[3]).array();</span>
         try {
 <span class="nc" id="L1254">            return InetAddress.getByAddress(ipv6).getHostAddress()</span>
-<span class="nc" id="L1255">                    .replaceAll(&quot;((?:(?:^|:)0+\\b){2,}):?(?!\\S*\\b\\1:0+\\b)(\\S*)&quot;, &quot;::$2&quot;);</span>
+<span class="nc" id="L1255">                    .replaceAll(&quot;((?:(?:^|:)0+\\b){2,8}):?(?!\\S*\\b\\1:0+\\b)(\\S*)&quot;, &quot;::$2&quot;);</span>
 <span class="nc" id="L1256">        } catch (UnknownHostException e) {</span>
             // Shouldn't happen with length 4 or 16
 <span class="nc" id="L1258">            return Constants.UNKNOWN;</span>
