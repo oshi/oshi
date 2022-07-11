@@ -14,9 +14,6 @@
         </fluidoSkin>
     </custom>
     <body>
-        <links>
-            <item name="oshi" href="http://github.com/oshi/oshi" />
-        </links>
         <menu name="User guide">
             <item href="index.html" name="Overview" />
             <item href="oshi-core-java11/apidocs/" name="Javadocs" />
@@ -24,6 +21,11 @@
             <item href="Performance.html" name="Performance Considerations" />
             <item href="Upgrading.html" name="Major Version Breaking Changes" />
             <item href="SampleOutput.html" name="Sample Output" />
+        </menu>
+        <menu name="GitHub">
+            <item href="https://github.com/oshi/oshi" name="OSHI on GitHub" />
+            <item href="https://github.com/oshi/oshi/issues" name="Issues" />
+            <item href="https://github.com/oshi/oshi/releases" name="Releases" />
         </menu>
         <menu ref="reports" />
         <menu ref="parent" inherit="top" />
