@@ -1,8 +1,4 @@
-# CI on Unix OS
-# Separated from main CI matrix to reduce churn on failures due to infra
 name: OpenBSD CI
-
-concurrency: openbsd_vm
 
 on:
   workflow_dispatch:
@@ -15,30 +11,19 @@ on:
       - '**.yaml'
 
 jobs:
-  # SSH into OpenBSD server and run test on OpenBSD 6.8 32-bit
-  # Configured to pull latest from oshi master branch
-  # To test on a PR, log into the openbsd server and create a new branch
   testopenbsd:
-    if: github.repository_owner == 'oshi'
-    runs-on: ubuntu-latest
-    name: Test JDK 11, openbsd
+    runs-on: macos-12
+    name: Test JDK 11, OpenBSD vm
     steps:
-    - name: Test in OpenBSD
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.OPENBSD_OSHI_DOMAIN }}
-        username: oshi
-        password: ${{ secrets.OPENBSD_OSHI_PW }}
-        port: 10060
-        script_stop: true
-        command_timeout: 15m
-        script: |
-          cd ~/git/oshi
-          git checkout master
-          doas git reset --hard HEAD~2
-          doas git pull
-          doas mvn clean
-          doas chown -R oshi:oshi .
-          mvn test -B -Djacoco.skip=true -Dlicense.skip=true
-          doas mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
-          doas mvn clean
+      - uses: actions/checkout@v3
+      - name: Test on OpenBSD
+        id: test-openbsd
+        uses: vmactions/openbsd-vm@v0.0.3
+        with:
+          usesh: false
+          mem: 2048
+          prepare: |
+            pkg_add curl
+            pkg_add maven
+          run: |
+            mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
