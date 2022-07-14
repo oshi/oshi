@@ -6,13 +6,15 @@ import oshi.util.tuples.Pair;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PerfMonGpuEngineTest {
 
     public enum GpuEngineProperty implements PerfCounterWildcardQuery.PdhCounterWildcardProperty {
         NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
-        RUNNING_TIME("Running Time"),
-        UTILIZATION("Utilization Percentage");
+        UTILIZATION("Utilization Percentage"),
+        UTILIZATION_BASE("Utilization Percentage_Base");
 
         private final String counter;
 
@@ -26,37 +28,29 @@ public class PerfMonGpuEngineTest {
         }
     }
 
-    // hmmmmm individual instance dont look right......
-    public enum GpuEngineProperty2 implements PerfCounterQuery.PdhCounterProperty {
-        UTILIZATION("pid_10472_luid_0x00000000_0x0000f814_phys_0_eng_0_engtype_3d", "Utilization Percentage");
+    public static void main(String[] args) throws Exception {
+        while (true) {
+            Pair<List<String>, Map<GpuEngineProperty, List<Long>>> initial = PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(GpuEngineProperty.class, "GPU Engine");
 
-        private final String instance;
-        private final String counter;
+            Thread.sleep(100);
 
-        GpuEngineProperty2(String instance, String counter) {
-            this.counter = counter;
-            this.instance = instance;
+            Pair<List<String>, Map<GpuEngineProperty, List<Long>>> other = PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(GpuEngineProperty.class, "GPU Engine");
+
+            List<Long> baseA = initial.getB().get(GpuEngineProperty.UTILIZATION_BASE);
+            List<Long> baseB = other.getB().get(GpuEngineProperty.UTILIZATION_BASE);
+            List<Long> baseDifference = IntStream.range(0, baseA.size())
+                .mapToObj(i -> baseB.get(i) - baseA.get(i))
+                .collect(Collectors.toList());
+
+            List<Long> utilizationA = initial.getB().get(GpuEngineProperty.UTILIZATION);
+            List<Long> utilizationB = other.getB().get(GpuEngineProperty.UTILIZATION);
+            List<Double> utilization = IntStream.range(0, utilizationA.size())
+                .mapToObj(i -> 100 * (utilizationB.get(i) - utilizationA.get(i)) / (double) baseDifference.get(i))
+                .collect(Collectors.toList());
+
+            System.out.println(utilization);
+            Thread.sleep(100);
+
         }
-
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    public static void main(String[] args) {
-//        Pair<List<String>, Map<GpuEngineProperty, List<Long>>> result = PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(GpuEngineProperty.class, "GPU Engine");
-
-//        System.out.println(result.getA());
-//        System.out.println(result.getB());
-//        System.out.println(result.getA().size());
-//        System.out.println(result.getB().get(GpuEngineProperty.UTILIZATION).size());
-
-        System.out.println(PerfCounterQuery.queryValuesFromPDH(GpuEngineProperty2.class, "GPU Engine"));
     }
 }
