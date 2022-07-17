@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
@@ -55,7 +56,6 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
-import oshi.util.tuples.Quartet;
 
 /**
  * A CPU.
@@ -65,12 +65,12 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
-    private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
-
-    private static final int ROSETTA_CPUTYPE = 0x00000007;
-    private static final int ROSETTA_CPUFAMILY = 0x573b5eec;
-    private static final int M1_CPUTYPE = 0x0100000C;
+    private static final int ARM_CPUTYPE = 0x0100000C;
     private static final int M1_CPUFAMILY = 0x1b588bb3;
+    private static final int M2_CPUFAMILY = 0xda33d83d;
+
+    private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
+    private final boolean isArmCpu = isArmCpu();
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -81,24 +81,36 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         String cpuFamily;
         String processorID;
         long cpuFreq = 0L;
+        // Initial M1 chips said "Apple Processor". Later branding includes M1, M1 Pro,
+        // M1 Max, M2, etc. So if it starts with Apple it's M-something.
         if (cpuName.startsWith("Apple")) {
             // Processing an M1 chip
             cpuVendor = vendor.get();
             cpuStepping = "0"; // No correlation yet
             cpuModel = "0"; // No correlation yet
-            int type = SysctlUtil.sysctl("hw.cputype", 0);
-            int family = SysctlUtil.sysctl("hw.cpufamily", 0);
-            // M1 should have hw.cputype 0x0100000C (ARM64) and hw.cpufamily 0x1b588bb3 for
-            // an ARM SoC. However, under Rosetta 2, low level cpuid calls in the translated
-            // environment report hw.cputype for x86 (0x00000007) and hw.cpufamily for an
-            // Intel Westmere chip (0x573b5eec), family 6, model 44, stepping 0.
-            // Test if under Rosetta and generate correct chip
-            Quartet<Integer, Integer, Long, Map<Integer, String>> armCpu = queryArmCpu();
-            if (family == ROSETTA_CPUFAMILY) {
-                type = armCpu.getA();
-                family = armCpu.getB();
+            int type;
+            int family;
+            if (isArmCpu) {
+                type = ARM_CPUTYPE;
+                family = cpuName.contains("M2") ? M2_CPUFAMILY : M1_CPUFAMILY;
+                Memory timeBase = SysctlUtil.sysctl("hw.tbfrequency");
+                if (timeBase != null) {
+                    long tb = timeBase.getLong(0);
+                    timeBase.close();
+                    // sanity check
+                    if (tb < 100_000_000) {
+                        // clockinfo struct has five int values. First one is Hz
+                        Memory clockInfo = SysctlUtil.sysctl("kern.clockrate");
+                        if (clockInfo != null) {
+                            cpuFreq = tb * clockInfo.getInt(0);
+                            clockInfo.close();
+                        }
+                    }
+                }
+            } else {
+                type = SysctlUtil.sysctl("hw.cputype", 0);
+                family = SysctlUtil.sysctl("hw.cpufamily", 0);
             }
-            cpuFreq = armCpu.getC();
             // Translate to output
             cpuFamily = String.format("0x%08x", family);
             // Processor ID is an intel concept but CPU type + family conveys same info
@@ -117,8 +129,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
             processorID = String.format("%016x", processorIdBits);
         }
-        if (cpuFreq == 0) {
-            cpuFreq = SysctlUtil.sysctl("hw.cpufrequency", 0L);
+        if (cpuFreq == 0L) {
+            cpuFreq = isArmCpu ? 2_400_000_000L : SysctlUtil.sysctl("hw.cpufrequency", 0L);
         }
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
 
@@ -139,11 +151,15 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(i, coreId, pkgId));
             pkgCoreKeys.add((pkgId << 16) + coreId);
         }
-        Map<Integer, String> compatMap = queryArmCpu().getD();
+        Map<Integer, String> compatMap = queryCompatibleStrings();
         List<PhysicalProcessor> physProcs = pkgCoreKeys.stream().sorted().map(k -> {
-            String compat = compatMap.getOrDefault(k, "");
-            int efficiency = 0; // default, for E-core icestorm
-            if (compat.toLowerCase().contains("firestorm")) {
+            String compat = compatMap.getOrDefault(k, "").toLowerCase();
+            int efficiency = 0; // default, for E-core icestorm or blizzard
+            if (compat.contains("firestorm") || compat.contains("avalanche")) {
+                // This is brittle. A better long term solution is to use sysctls
+                // hw.perflevel1.physicalcpu: 2
+                // hw.perflevel0.physicalcpu: 8
+                // Note the 1 and 0 values are reversed from OSHI API definition
                 efficiency = 1; // P-core, more performance
             }
             return new PhysicalProcessor(k >> 16, k & 0xffff, efficiency, compat);
@@ -173,13 +189,25 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
-        long[] freq = new long[1];
-        freq[0] = SysctlUtil.sysctl("hw.cpufrequency", getProcessorIdentifier().getVendorFreq());
-        return freq;
+        // We can get current frequency with /usr/bin/powermetrics -s cpu_power -n 1
+        // but it requires sudo and is slow, so we do the boring thing
+        if (isArmCpu) {
+            return new long[] { getProcessorIdentifier().getVendorFreq() };
+        }
+        return new long[] { SysctlUtil.sysctl("hw.cpufrequency", getProcessorIdentifier().getVendorFreq()) };
     }
 
     @Override
     public long queryMaxFreq() {
+        if (isArmCpu) {
+            String cpuName = getProcessorIdentifier().getName();
+            if (cpuName.contains("M2")) {
+                return 3_400_000_000L;
+            } else if (cpuName.contains("Pro") || cpuName.contains("Max") || cpuName.contains("Ultra")) {
+                return 3_228_000_000L;
+            }
+            return 3_204_000_000L;
+        }
         return SysctlUtil.sysctl("hw.cpufrequency_max", getProcessorIdentifier().getVendorFreq());
     }
 
@@ -256,57 +284,37 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
     }
 
-    private static Quartet<Integer, Integer, Long, Map<Integer, String>> queryArmCpu() {
-        int type = ROSETTA_CPUTYPE;
-        int family = ROSETTA_CPUFAMILY;
-        long freq = 0L;
+    // Called by initProcessorCount in the constructor
+    // These populate the physical processor id strings
+    private static Map<Integer, String> queryCompatibleStrings() {
         Map<Integer, String> compatibleStrMap = new HashMap<>();
         // All CPUs are an IOPlatformDevice
         // Iterate each CPU and save frequency and "compatible" strings
         IOIterator iter = IOKitUtil.getMatchingServices("IOPlatformDevice");
         if (iter != null) {
-            Set<String> compatibleStrSet = new HashSet<>();
             IORegistryEntry cpu = iter.next();
             while (cpu != null) {
                 if (cpu.getName().toLowerCase().startsWith("cpu")) {
                     int procId = ParseUtil.getFirstIntValue(cpu.getName());
-                    // Accurate CPU vendor frequency in kHz as little-endian byte array
-                    byte[] data = cpu.getByteArrayProperty("clock-frequency");
-                    if (data != null) {
-                        long cpuFreq = ParseUtil.byteArrayToLong(data, data.length, false) * 1000L;
-                        if (cpuFreq > freq) {
-                            freq = cpuFreq;
-                        }
-                    }
                     // Compatible key is null-delimited C string array in byte array
-                    data = cpu.getByteArrayProperty("compatible");
+                    byte[] data = cpu.getByteArrayProperty("compatible");
                     if (data != null) {
-                        for (String s : new String(data, StandardCharsets.UTF_8).split("\0")) {
-                            if (!s.isEmpty()) {
-                                compatibleStrSet.add(s);
-                                if (compatibleStrMap.containsKey(procId)) {
-                                    compatibleStrMap.put(procId, compatibleStrMap.get(procId) + " " + s);
-                                } else {
-                                    compatibleStrMap.put(procId, s);
-                                }
-                            }
-                        }
+                        // Byte array is null delimited
+                        compatibleStrMap.put(procId, new String(data, StandardCharsets.UTF_8).replace('\0', ' '));
                     }
                 }
                 cpu.release();
                 cpu = iter.next();
             }
             iter.release();
-            // Match strings in "compatible" field with expectation for M1 chip
-            // Hard coded for M1 for now. Need to update and make more configurable for M1X,
-            // M2, etc.
-            List<String> m1compatible = Arrays.asList("ARM,v8", "apple,firestorm", "apple,icestorm");
-            compatibleStrSet.retainAll(m1compatible);
-            if (compatibleStrSet.size() == m1compatible.size()) {
-                type = M1_CPUTYPE;
-                family = M1_CPUFAMILY;
-            }
         }
-        return new Quartet<>(type, family, freq, compatibleStrMap);
+        return compatibleStrMap;
+    }
+
+    // Called when initiating instance variables which occurs after constructor has
+    // populated physical processors
+    private boolean isArmCpu() {
+        // M1 / M2 chips will have an efficiency > 0
+        return getPhysicalProcessors().stream().map(PhysicalProcessor::getEfficiency).anyMatch(e -> e > 0);
     }
 }
