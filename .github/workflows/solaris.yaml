@@ -13,22 +13,18 @@ on:
       - '**.yaml'
 
 jobs:
+  # Runs on Solaris 11.4 x86 VM
   testsolaris:
     runs-on: macos-12
-    name: Test JDK 11, Solaris vm
+    name: Test JDK 11, Solaris VM
     steps:
       - uses: actions/checkout@v3
       - name: Test on Solaris
         id: test-solaris
         uses: vmactions/solaris-vm@v0.0.3
         with:
-          usesh: false
-          mem: 2048
-          prepare: |
-            pkg_add curl
-            pkg_add maven
           run: |
-            mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
+            ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
 
   # Runs current branch on Solaris 11.3 on SPARC
   # Retries flaky test once, possible junit-platform-maven-test issue
