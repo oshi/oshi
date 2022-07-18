@@ -82,7 +82,7 @@ public final class SysctlUtil {
         try (Memory p = new Memory(uint64Size);
                 CloseableSizeTByReference size = new CloseableSizeTByReference(uint64Size)) {
             if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
                 return def;
             }
             return p.getLong(0);
@@ -102,13 +102,13 @@ public final class SysctlUtil {
         // Call first time with null pointer to get value of size
         try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
             if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
                 return def;
             }
             // Add 1 to size for null terminated string
             try (Memory p = new Memory(size.longValue() + 1L)) {
                 if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                    LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
                     return def;
                 }
                 return p.getString(0);
@@ -128,7 +128,7 @@ public final class SysctlUtil {
     public static boolean sysctl(String name, Structure struct) {
         try (CloseableSizeTByReference size = new CloseableSizeTByReference(struct.size())) {
             if (0 != SystemB.INSTANCE.sysctlbyname(name, struct.getPointer(), size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
                 return false;
             }
         }
@@ -147,12 +147,12 @@ public final class SysctlUtil {
     public static Memory sysctl(String name) {
         try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
             if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
                 return null;
             }
             Memory m = new Memory(size.longValue());
             if (0 != SystemB.INSTANCE.sysctlbyname(name, m, size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
+                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
                 m.close();
                 return null;
             }
