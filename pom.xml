@@ -139,7 +139,7 @@
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.2.0</maven-jxr-plugin.version>
-        <maven-project-info-reports-plugin.version>3.3.0</maven-project-info-reports-plugin.version>
+        <maven-project-info-reports-plugin.version>3.4.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.0.0-M7</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.0.0</taglist-maven-plugin.version>
         <versions-maven-plugin.version>2.11.0</versions-maven-plugin.version>
