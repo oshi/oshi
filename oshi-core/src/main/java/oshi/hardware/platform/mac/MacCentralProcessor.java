@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
@@ -80,7 +79,6 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         String cpuModel;
         String cpuFamily;
         String processorID;
-        long cpuFreq = 0L;
         // Initial M1 chips said "Apple Processor". Later branding includes M1, M1 Pro,
         // M1 Max, M2, etc. So if it starts with Apple it's M-something.
         if (cpuName.startsWith("Apple")) {
@@ -93,20 +91,6 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             if (isArmCpu) {
                 type = ARM_CPUTYPE;
                 family = cpuName.contains("M2") ? M2_CPUFAMILY : M1_CPUFAMILY;
-                Memory timeBase = SysctlUtil.sysctl("hw.tbfrequency");
-                if (timeBase != null) {
-                    long tb = timeBase.getLong(0);
-                    timeBase.close();
-                    // sanity check
-                    if (tb < 100_000_000) {
-                        // clockinfo struct has five int values. First one is Hz
-                        Memory clockInfo = SysctlUtil.sysctl("kern.clockrate");
-                        if (clockInfo != null) {
-                            cpuFreq = tb * clockInfo.getInt(0);
-                            clockInfo.close();
-                        }
-                    }
-                }
             } else {
                 type = SysctlUtil.sysctl("hw.cputype", 0);
                 family = SysctlUtil.sysctl("hw.cpufamily", 0);
@@ -129,9 +113,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
             processorID = String.format("%016x", processorIdBits);
         }
-        if (cpuFreq == 0L) {
-            cpuFreq = isArmCpu ? 2_400_000_000L : SysctlUtil.sysctl("hw.cpufrequency", 0L);
-        }
+        long cpuFreq = isArmCpu ? 2_400_000_000L : SysctlUtil.sysctl("hw.cpufrequency", 0L);
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
