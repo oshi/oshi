@@ -13,7 +13,6 @@ on:
       - '**.yaml'
 
 jobs:
-  # Runs current branch on solaris-vm v0.0.3
   testsolaris:
     runs-on: macos-12
     name: Test JDK 11, Solaris vm
@@ -34,6 +33,7 @@ jobs:
   # Runs current branch on Solaris 11.3 on SPARC
   # Retries flaky test once, possible junit-platform-maven-test issue
   testsolaris_sparc:
+    concurrency: solaris_gcc211
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     name: Test JDK 11, Solaris SPARC
@@ -54,5 +54,3 @@ jobs:
           git reset --hard HEAD~2
           git pull
           ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true || ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
-
-concurrency: solaris_gcc211
