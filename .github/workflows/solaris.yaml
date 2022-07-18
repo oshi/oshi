@@ -2,8 +2,6 @@
 # Separated from main CI matrix to reduce churn on failures due to infra
 name: Solaris CI
 
-concurrency: solaris_gcc211
-
 on:
   workflow_dispatch:
   push:
@@ -15,7 +13,7 @@ on:
       - '**.yaml'
 
 jobs:
-  # Runs current branch on Solaris 11.4 in a x64 VM
+  # Runs current branch on solaris-vm v0.0.3
   testsolaris:
     runs-on: macos-12
     name: Test JDK 11, Solaris vm
@@ -56,3 +54,5 @@ jobs:
           git reset --hard HEAD~2
           git pull
           ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true || ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+
+concurrency: solaris_gcc211
