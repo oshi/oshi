@@ -113,7 +113,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
             processorID = String.format("%016x", processorIdBits);
         }
-        long cpuFreq = isArmCpu ? 2_400_000_000L : SysctlUtil.sysctl("hw.cpufrequency", 0L);
+        long cpuFreq = isArmCpu ? getNominalFrequency() : SysctlUtil.sysctl("hw.cpufrequency", 0L);
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
@@ -171,24 +171,13 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
-        // We can get current frequency with /usr/bin/powermetrics -s cpu_power -n 1
-        // but it requires sudo and is slow, so we do the boring thing
-        if (isArmCpu) {
-            return new long[] { getProcessorIdentifier().getVendorFreq() };
-        }
-        return new long[] { SysctlUtil.sysctl("hw.cpufrequency", getProcessorIdentifier().getVendorFreq()) };
+        return new long[] { getProcessorIdentifier().getVendorFreq() };
     }
 
     @Override
     public long queryMaxFreq() {
         if (isArmCpu) {
-            String cpuName = getProcessorIdentifier().getName();
-            if (cpuName.contains("M2")) {
-                return 3_400_000_000L;
-            } else if (cpuName.contains("Pro") || cpuName.contains("Max") || cpuName.contains("Ultra")) {
-                return 3_228_000_000L;
-            }
-            return 3_204_000_000L;
+            return getProcessorIdentifier().getVendorFreq();
         }
         return SysctlUtil.sysctl("hw.cpufrequency_max", getProcessorIdentifier().getVendorFreq());
     }
@@ -298,5 +287,49 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private boolean isArmCpu() {
         // M1 / M2 chips will have an efficiency > 0
         return getPhysicalProcessors().stream().map(PhysicalProcessor::getEfficiency).anyMatch(e -> e > 0);
+    }
+
+    private static long getNominalFrequency() {
+        long maxFreq = 0L;
+        IOIterator iter = IOKitUtil.getMatchingServices("AppleARMIODevice");
+        if (iter != null) {
+            IORegistryEntry device = iter.next();
+            while (device != null) {
+                if (device.getName().toLowerCase().equals("pmgr")) {
+                    byte[] data = device.getByteArrayProperty("voltage-states5-sram");
+                    if (data != null) {
+                        maxFreq = getMaxFreqFromByteArray(data);
+                    }
+                    data = device.getByteArrayProperty("voltage-states1-sram");
+                    if (data != null) {
+                        long otherFreq = getMaxFreqFromByteArray(data);
+                        if (otherFreq > maxFreq) {
+                            maxFreq = otherFreq;
+                        }
+                    }
+                }
+                device.release();
+                device = iter.next();
+            }
+            iter.release();
+        }
+        if (maxFreq > 0L) {
+            return maxFreq;
+        }
+        // Default as per Rosetta
+        return 2_400_000_000L;
+    }
+
+    private static long getMaxFreqFromByteArray(byte[] data) {
+        long max = 0L;
+        for (int offset = 0; offset < data.length - 3; offset += 4) {
+            byte[] freqData = Arrays.copyOfRange(data, offset, offset + 4);
+            // Parse little-endian
+            long freq = ParseUtil.byteArrayToLong(freqData, 4, false);
+            if (freq > max) {
+                max = freq;
+            }
+        }
+        return max;
     }
 }
