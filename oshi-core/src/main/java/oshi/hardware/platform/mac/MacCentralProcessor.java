@@ -70,7 +70,11 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
     private final boolean isArmCpu = isArmCpu();
-    private long efficiencyFrequency = 0L;
+
+    // Equivalents of hw.cpufrequency on Apple Silicon, defaulting to Rosetta value
+    // Will update during initialization
+    private long performanceCoreFrequency = 2_400_000_000L;
+    private long efficiencyCoreFrequency = 2_400_000_000L;
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -114,7 +118,10 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
             processorID = String.format("%016x", processorIdBits);
         }
-        long cpuFreq = isArmCpu ? getNominalFrequency() : SysctlUtil.sysctl("hw.cpufrequency", 0L);
+        if (isArmCpu) {
+            calculateNominalFrequencies();
+        }
+        long cpuFreq = isArmCpu ? performanceCoreFrequency : SysctlUtil.sysctl("hw.cpufrequency", 0L);
         boolean cpu64bit = SysctlUtil.sysctl("hw.cpu64bit_capable", 0) != 0;
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
@@ -172,21 +179,20 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
-        long nominalFrequency = getProcessorIdentifier().getVendorFreq();
         if (isArmCpu) {
             Map<Integer, Long> physFreqMap = new HashMap<>();
             getPhysicalProcessors().stream().forEach(p -> physFreqMap.put(p.getPhysicalProcessorNumber(),
-                    p.getEfficiency() > 0 ? nominalFrequency : efficiencyFrequency));
+                    p.getEfficiency() > 0 ? performanceCoreFrequency : efficiencyCoreFrequency));
             return getLogicalProcessors().stream().map(LogicalProcessor::getPhysicalProcessorNumber)
-                    .map(p -> physFreqMap.getOrDefault(p, nominalFrequency)).mapToLong(f -> f).toArray();
+                    .map(p -> physFreqMap.getOrDefault(p, performanceCoreFrequency)).mapToLong(f -> f).toArray();
         }
-        return new long[] { nominalFrequency };
+        return new long[] { getProcessorIdentifier().getVendorFreq() };
     }
 
     @Override
     public long queryMaxFreq() {
         if (isArmCpu) {
-            return getProcessorIdentifier().getVendorFreq();
+            return performanceCoreFrequency;
         }
         return SysctlUtil.sysctl("hw.cpufrequency_max", getProcessorIdentifier().getVendorFreq());
     }
@@ -298,8 +304,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         return getPhysicalProcessors().stream().map(PhysicalProcessor::getEfficiency).anyMatch(e -> e > 0);
     }
 
-    private long getNominalFrequency() {
-        long maxFreq = 0L;
+    private void calculateNominalFrequencies() {
         IOIterator iter = IOKitUtil.getMatchingServices("AppleARMIODevice");
         if (iter != null) {
             IORegistryEntry device = iter.next();
@@ -307,17 +312,11 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                 if (device.getName().toLowerCase().equals("pmgr")) {
                     byte[] data = device.getByteArrayProperty("voltage-states5-sram");
                     if (data != null) {
-                        maxFreq = getMaxFreqFromByteArray(data);
+                        performanceCoreFrequency = getMaxFreqFromByteArray(data);
                     }
                     data = device.getByteArrayProperty("voltage-states1-sram");
                     if (data != null) {
-                        long otherFreq = getMaxFreqFromByteArray(data);
-                        if (otherFreq > maxFreq) {
-                            efficiencyFrequency = maxFreq;
-                            maxFreq = otherFreq;
-                        } else {
-                            efficiencyFrequency = otherFreq;
-                        }
+                        efficiencyCoreFrequency = getMaxFreqFromByteArray(data);
                     }
                 }
                 device.release();
@@ -325,15 +324,6 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             }
             iter.release();
         }
-        if (maxFreq > 0L) {
-            if (efficiencyFrequency == 0) {
-                efficiencyFrequency = maxFreq;
-            }
-            return maxFreq;
-        }
-        // Default as per Rosetta
-        efficiencyFrequency = 2_400_000_000L;
-        return efficiencyFrequency;
     }
 
     private static long getMaxFreqFromByteArray(byte[] data) {
