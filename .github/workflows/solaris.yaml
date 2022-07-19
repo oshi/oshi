@@ -2,6 +2,8 @@
 # Separated from main CI matrix to reduce churn on failures due to infra
 name: Solaris CI
 
+concurrency: solaris_gcc211
+
 on:
   workflow_dispatch:
   push:
@@ -13,29 +15,31 @@ on:
       - '**.yaml'
 
 jobs:
-  # Runs on Solaris 11.4 x86 VM
-  testsolaris:
-    runs-on: macos-12
-    name: Test JDK 11, Solaris VM
+  # Runs current branch on Solaris 11.4 in a x64 VM
+  testsolaris_x64:
+    if: github.repository_owner == 'oshi'
+    runs-on: ubuntu-latest
+    name: Test JDK 11, Solaris x64
     steps:
-      - uses: actions/checkout@v3
-      - name: Test on Solaris
-        id: test-solaris
-        uses: vmactions/solaris-vm@v0.0.5
-        with:
-          run: |
-            wget https://download.bell-sw.com/java/11.0.15.1+2/bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar.gz -nv
-            gunzip bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar.gz
-            tar xf bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar
-            export JAVA_HOME=./jdk-11.0.15.1-lite
-            export PATH=$JAVA_HOME:$PATH
-            java -version
-            ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
-
+    - name: Test in Solaris x64
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SOLARIS_OSHI_DOMAIN }}
+        username: oshi
+        password: ${{ secrets.SOLARIS_OSHI_PW }}
+        port: 10061
+        script_stop: true
+        command_timeout: 15m
+        script: |
+          export JAVA_HOME=~/zulu11.54.25-ca-jdk11.0.14.1-solaris
+          cd ~/git/oshi
+          git checkout master
+          git reset --hard HEAD~2
+          git pull
+          mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
   # Runs current branch on Solaris 11.3 on SPARC
   # Retries flaky test once, possible junit-platform-maven-test issue
   testsolaris_sparc:
-    concurrency: solaris_gcc211
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     name: Test JDK 11, Solaris SPARC
