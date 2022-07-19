@@ -31,7 +31,6 @@ import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -52,12 +51,10 @@ class DiskDriversTest {
                 .queryDeviceStrings(deviceMap.keySet());
         assertThat("Device string map should not be empty", deviceStringMap, is(not(anEmptyMap())));
 
-        // If lshal not installed, this may be empty
-        Map<String, Integer> majorMap = Lshal.queryDiskToMajorMap();
         // For partitions, requires root permissions
         if (new SolarisOperatingSystem().isElevated()) {
-            for (Entry<String, Integer> entry : majorMap.entrySet()) {
-                List<HWPartition> partList = Prtvtoc.queryPartitions(entry.getKey(), entry.getValue());
+            for (String disk : deviceStringMap.keySet()) {
+                List<HWPartition> partList = Prtvtoc.queryPartitions(disk, 0);
                 assertThat("Partition List should not be empty", partList.size(), greaterThan(0));
             }
         }
