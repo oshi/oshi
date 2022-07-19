@@ -70,6 +70,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
     private final boolean isArmCpu = isArmCpu();
+    private long efficiencyFrequency = 0L;
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -171,7 +172,15 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] queryCurrentFreq() {
-        return new long[] { getProcessorIdentifier().getVendorFreq() };
+        long nominalFrequency = getProcessorIdentifier().getVendorFreq();
+        if (isArmCpu) {
+            Map<Integer, Long> physFreqMap = new HashMap<>();
+            getPhysicalProcessors().stream().forEach(p -> physFreqMap.put(p.getPhysicalProcessorNumber(),
+                    p.getEfficiency() > 0 ? nominalFrequency : efficiencyFrequency));
+            return getLogicalProcessors().stream().map(LogicalProcessor::getPhysicalProcessorNumber)
+                    .map(p -> physFreqMap.getOrDefault(p, nominalFrequency)).mapToLong(f -> f).toArray();
+        }
+        return new long[] { nominalFrequency };
     }
 
     @Override
@@ -289,7 +298,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         return getPhysicalProcessors().stream().map(PhysicalProcessor::getEfficiency).anyMatch(e -> e > 0);
     }
 
-    private static long getNominalFrequency() {
+    private long getNominalFrequency() {
         long maxFreq = 0L;
         IOIterator iter = IOKitUtil.getMatchingServices("AppleARMIODevice");
         if (iter != null) {
@@ -304,7 +313,10 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                     if (data != null) {
                         long otherFreq = getMaxFreqFromByteArray(data);
                         if (otherFreq > maxFreq) {
+                            efficiencyFrequency = maxFreq;
                             maxFreq = otherFreq;
+                        } else {
+                            efficiencyFrequency = otherFreq;
                         }
                     }
                 }
@@ -314,10 +326,14 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             iter.release();
         }
         if (maxFreq > 0L) {
+            if (efficiencyFrequency == 0) {
+                efficiencyFrequency = maxFreq;
+            }
             return maxFreq;
         }
         // Default as per Rosetta
-        return 2_400_000_000L;
+        efficiencyFrequency = 2_400_000_000L;
+        return efficiencyFrequency;
     }
 
     private static long getMaxFreqFromByteArray(byte[] data) {
