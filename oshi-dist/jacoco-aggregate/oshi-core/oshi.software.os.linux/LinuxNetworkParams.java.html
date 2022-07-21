@@ -65,7 +65,7 @@ import oshi.util.ParseUtil;
             try {
 <span class="nc" id="L66">                hostname = InetAddress.getLocalHost().getHostName();</span>
 <span class="nc" id="L67">            } catch (UnknownHostException e) {</span>
-<span class="nc" id="L68">                LOG.error(&quot;Unknown host exception when getting address of local host: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L68">                LOG.warn(&quot;Unknown host exception when getting address of local host: {}&quot;, e.getMessage());</span>
 <span class="nc" id="L69">                return &quot;&quot;;</span>
 <span class="nc" id="L70">            }</span>
 <span class="nc" id="L71">            try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {</span>
@@ -76,69 +76,68 @@ import oshi.util.ParseUtil;
                     }
 <span class="nc" id="L77">                    return &quot;&quot;;</span>
                 }
-<span class="nc" id="L79">                Addrinfo info = new Addrinfo(ptr.getValue()); // NOSONAR</span>
-<span class="nc" id="L80">                String canonname = info.ai_canonname.trim();</span>
-<span class="nc" id="L81">                LIBC.freeaddrinfo(ptr.getValue());</span>
-<span class="nc" id="L82">                return canonname;</span>
-<span class="nc" id="L83">            }</span>
-<span class="nc" id="L84">        }</span>
+<span class="nc" id="L79">                try (Addrinfo info = new Addrinfo(ptr.getValue())) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                    return info.ai_canonname == null ? hostname : info.ai_canonname.trim();</span>
+                }
+<span class="nc" id="L82">            }</span>
+<span class="nc" id="L83">        }</span>
     }
 
     @Override
     public String getHostName() {
-<span class="nc" id="L89">        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (0 != LibC.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length)) {</span>
-<span class="nc" id="L91">            return super.getHostName();</span>
+<span class="nc" id="L88">        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (0 != LibC.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length)) {</span>
+<span class="nc" id="L90">            return super.getHostName();</span>
         }
-<span class="nc" id="L93">        return Native.toString(hostnameBuffer);</span>
+<span class="nc" id="L92">        return Native.toString(hostnameBuffer);</span>
     }
 
     @Override
     public String getIpv4DefaultGateway() {
-<span class="nc" id="L98">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet -n&quot;);</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
-<span class="nc" id="L100">            return &quot;&quot;;</span>
+<span class="nc" id="L97">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet -n&quot;);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
+<span class="nc" id="L99">            return &quot;&quot;;</span>
         }
 
-<span class="nc" id="L103">        String gateway = &quot;&quot;;</span>
-<span class="nc" id="L104">        int minMetric = Integer.MAX_VALUE;</span>
+<span class="nc" id="L102">        String gateway = &quot;&quot;;</span>
+<span class="nc" id="L103">        int minMetric = Integer.MAX_VALUE;</span>
 
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
-<span class="nc" id="L107">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
-<span class="nc bnc" id="L108" title="All 4 branches missed.">            if (fields.length &gt; 4 &amp;&amp; fields[0].equals(IPV4_DEFAULT_DEST)) {</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                boolean isGateway = fields[3].indexOf('G') != -1;</span>
-<span class="nc" id="L110">                int metric = ParseUtil.parseIntOrDefault(fields[4], Integer.MAX_VALUE);</span>
-<span class="nc bnc" id="L111" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
-<span class="nc" id="L112">                    minMetric = metric;</span>
-<span class="nc" id="L113">                    gateway = fields[1];</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
+<span class="nc" id="L106">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
+<span class="nc bnc" id="L107" title="All 4 branches missed.">            if (fields.length &gt; 4 &amp;&amp; fields[0].equals(IPV4_DEFAULT_DEST)) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                boolean isGateway = fields[3].indexOf('G') != -1;</span>
+<span class="nc" id="L109">                int metric = ParseUtil.parseIntOrDefault(fields[4], Integer.MAX_VALUE);</span>
+<span class="nc bnc" id="L110" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
+<span class="nc" id="L111">                    minMetric = metric;</span>
+<span class="nc" id="L112">                    gateway = fields[1];</span>
                 }
             }
         }
-<span class="nc" id="L117">        return gateway;</span>
+<span class="nc" id="L116">        return gateway;</span>
     }
 
     @Override
     public String getIpv6DefaultGateway() {
-<span class="nc" id="L122">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet6 -n&quot;);</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
-<span class="nc" id="L124">            return &quot;&quot;;</span>
+<span class="nc" id="L121">        List&lt;String&gt; routes = ExecutingCommand.runNative(&quot;route -A inet6 -n&quot;);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (routes.size() &lt;= 2) {</span>
+<span class="nc" id="L123">            return &quot;&quot;;</span>
         }
 
-<span class="nc" id="L127">        String gateway = &quot;&quot;;</span>
-<span class="nc" id="L128">        int minMetric = Integer.MAX_VALUE;</span>
+<span class="nc" id="L126">        String gateway = &quot;&quot;;</span>
+<span class="nc" id="L127">        int minMetric = Integer.MAX_VALUE;</span>
 
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
-<span class="nc" id="L131">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
-<span class="nc bnc" id="L132" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; fields[0].equals(IPV6_DEFAULT_DEST)) {</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">                boolean isGateway = fields[2].indexOf('G') != -1;</span>
-<span class="nc" id="L134">                int metric = ParseUtil.parseIntOrDefault(fields[3], Integer.MAX_VALUE);</span>
-<span class="nc bnc" id="L135" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
-<span class="nc" id="L136">                    minMetric = metric;</span>
-<span class="nc" id="L137">                    gateway = fields[1];</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (int i = 2; i &lt; routes.size(); i++) {</span>
+<span class="nc" id="L130">            String[] fields = ParseUtil.whitespaces.split(routes.get(i));</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">            if (fields.length &gt; 3 &amp;&amp; fields[0].equals(IPV6_DEFAULT_DEST)) {</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                boolean isGateway = fields[2].indexOf('G') != -1;</span>
+<span class="nc" id="L133">                int metric = ParseUtil.parseIntOrDefault(fields[3], Integer.MAX_VALUE);</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">                if (isGateway &amp;&amp; metric &lt; minMetric) {</span>
+<span class="nc" id="L135">                    minMetric = metric;</span>
+<span class="nc" id="L136">                    gateway = fields[1];</span>
                 }
             }
         }
-<span class="nc" id="L141">        return gateway;</span>
+<span class="nc" id="L140">        return gateway;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

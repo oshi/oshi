@@ -149,7 +149,7 @@ oshi-demo/oshi-core,oshi.hardware.platform.mac,MacPowerSource,404,0,42,0,112,0,2
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacFirmware,223,0,44,0,57,0,30,0,7,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacDisplay,81,0,8,0,26,0,7,0,3,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacLogicalVolumeGroup,140,0,16,0,30,0,13,0,5,0
-oshi-demo/oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,722,0,56,0,141,0,42,0,14,0
+oshi-demo/oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,760,0,70,0,150,0,56,0,21,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacComputerSystem,115,0,14,0,27,0,15,0,8,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,37,0,0,0,13,0,13,0,13,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacSensors,79,0,6,0,20,0,7,0,4,0
@@ -243,8 +243,8 @@ oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Processor,36,0,0,0,6,0,3,0,3,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32VideoController.VideoControllerProperty,33,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,OhmHardware.IdentifierProperty,9,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32LogicalDiskToPartition,11,0,0,0,2,0,1,0,1,0
-oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Process.ProcessXPProperty,51,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
+oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Process.ProcessXPProperty,51,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32LogicalDisk,44,0,6,0,9,0,4,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32PhysicalMemory.PhysicalMemoryProperty,33,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Processor.ProcessorIdProperty,9,0,0,0,2,0,1,0,1,0
@@ -336,7 +336,7 @@ oshi-demo/oshi-core,oshi.software.os.linux,LinuxFileSystem,495,0,58,0,113,0,38,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSThread,256,0,6,0,48,0,18,0,15,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSThread.ThreadPidStat,91,0,0,0,7,0,3,0,3,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1265,0,192,0,254,0,130,0,34,0
-oshi-demo/oshi-core,oshi.software.os.linux,LinuxNetworkParams,234,0,34,0,55,0,23,0,6,0
+oshi-demo/oshi-core,oshi.software.os.linux,LinuxNetworkParams,233,0,36,0,53,0,24,0,6,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSFileStore,119,0,6,0,31,0,13,0,10,0
 oshi-demo/oshi-core,oshi.util.platform.linux,ProcPath,267,0,2,0,32,0,3,0,2,0
 oshi-demo/oshi-core,oshi.util.platform.mac,CFUtil,25,0,6,0,8,0,5,0,2,0
