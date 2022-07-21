@@ -8,6 +8,7 @@
 * [#2095](https://github.com/oshi/oshi/pull/2095): Avoid using reserved identifiers as variable names - [@muhammetgumus](https://github.com/muhammetgumus)
 * [#2099](https://github.com/oshi/oshi/pull/2099): Remove useless public constructor for abstract class - [@victorjbassey](https://github.com/victorjbassey).
 * [#2124](https://github.com/oshi/oshi/pull/2124): Properly determine Apple Silicon frequency - [@dbwiddis](https://github.com/dbwiddis).
+* [#2133](https://github.com/oshi/oshi/pull/2133): Fix NPE for null canonical host name - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29)
 
