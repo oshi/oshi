@@ -13,7 +13,7 @@ You may either install maven or replace the below `mvn` calls with the maven wra
 
 ### Fork the Project
 
-Fork the project on Github by clicking on the word "Fork" above and to the right of the main project page.  This will create your own fork at https://github.com/yournamehere/oshi.git.  
+Fork the project on Github by clicking on the word "Fork" above and to the right of the main project page.  This will create your own fork at https://github.com/yournamehere/oshi.git.
 
 Then clone your fork to your local repository on your machine and set up a [triangle workflow](https://github.com/forwards/first-contributions/blob/master/additional-material/git_workflow_scenarios/keeping-your-fork-synced-with-this-repository.md) using these commands:
 ```

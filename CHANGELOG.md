@@ -1,16 +1,8 @@
-# 6.2.2 (in progress)
+# 6.2.3 (in progress)
 
-##### New Features
-* [#2118](https://github.com/oshi/oshi/pull/2118): Support Apple M2 chip - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-##### Bug fixes / Improvements
-* [#2097](https://github.com/oshi/oshi/pull/2108): Prefer character classes to alternators in regex - [@varun83388](https://github.com/varun83388).
-* [#2095](https://github.com/oshi/oshi/pull/2095): Avoid using reserved identifiers as variable names - [@muhammetgumus](https://github.com/muhammetgumus)
-* [#2099](https://github.com/oshi/oshi/pull/2099): Remove useless public constructor for abstract class - [@victorjbassey](https://github.com/victorjbassey).
-* [#2124](https://github.com/oshi/oshi/pull/2124): Properly determine Apple Silicon frequency - [@dbwiddis](https://github.com/dbwiddis).
-* [#2133](https://github.com/oshi/oshi/pull/2133): Fix NPE for null canonical host name - [@dbwiddis](https://github.com/dbwiddis).
-
-# 6.2.0 (2022-06-26), 6.2.1 (2022-06-29)
+# 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 
 ##### Performance improvement
 This release leverages improvements in JNA 5.12.1 which should significantly improve performance. Finalizers in JNA were replaced by Cleaners, reducing the impact of `Memory` objects in tenured heap space by promptly releasing native memory allocations.
@@ -29,6 +21,7 @@ In addition, JNA's `Memory` class now implements `Closeable`. All direct and mos
 ##### New Features
 * [#2046](https://github.com/oshi/oshi/pull/2046): Added getSystemCpuLoad/getProcessorCpuLoad convenience methods - [@Osiris-Team](https://github.com/Osiris-Team).
 * [#2050](https://github.com/oshi/oshi/pull/2050): Implement optional Windows Load Average - [@dbwiddis](https://github.com/dbwiddis).
+* [#2118](https://github.com/oshi/oshi/pull/2118): Support Apple M2 chip - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#2016](https://github.com/oshi/oshi/pull/2016): Make disabled counter check robust to invalid registry types - [@dbwiddis](https://github.com/dbwiddis).
@@ -40,6 +33,11 @@ In addition, JNA's `Memory` class now implements `Closeable`. All direct and mos
 * [#2077](https://github.com/oshi/oshi/pull/2077): Fix processor numbering with Windows Processor Groups - [@dbwiddis](https://github.com/dbwiddis).
 * [#2078](https://github.com/oshi/oshi/pull/2078): Support macOS 13 (Ventura) - [@dbwiddis](https://github.com/dbwiddis).
 * [#2089](https://github.com/oshi/oshi/pull/2089): PDH wild card counters need English objects but localized instances - [@dbwiddis](https://github.com/dbwiddis).
+* [#2097](https://github.com/oshi/oshi/pull/2108): Prefer character classes to alternators in regex - [@varun83388](https://github.com/varun83388).
+* [#2095](https://github.com/oshi/oshi/pull/2095): Avoid using reserved identifiers as variable names - [@muhammetgumus](https://github.com/muhammetgumus)
+* [#2099](https://github.com/oshi/oshi/pull/2099): Remove useless public constructor for abstract class - [@victorjbassey](https://github.com/victorjbassey).
+* [#2124](https://github.com/oshi/oshi/pull/2124): Properly determine Apple Silicon frequency - [@dbwiddis](https://github.com/dbwiddis).
+* [#2133](https://github.com/oshi/oshi/pull/2133): Fix NPE for null canonical host name - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.1.0 (2022-01-20), 6.1.1 (2022-02-13), 6.1.2 (2022-02-14), 6.1.3 (2022-02-22), 6.1.4 (2022-03-01), 6.1.5 (2022-03-15), 6.1.6 (2022-04-10)
 
