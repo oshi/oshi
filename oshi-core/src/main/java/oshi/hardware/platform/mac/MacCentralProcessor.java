@@ -67,14 +67,15 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private static final int ARM_CPUTYPE = 0x0100000C;
     private static final int M1_CPUFAMILY = 0x1b588bb3;
     private static final int M2_CPUFAMILY = 0xda33d83d;
+    private static final long DEFAULT_FREQUENCY = 2_400_000_000L;
 
     private final Supplier<String> vendor = memoize(MacCentralProcessor::platformExpert);
     private final boolean isArmCpu = isArmCpu();
 
     // Equivalents of hw.cpufrequency on Apple Silicon, defaulting to Rosetta value
     // Will update during initialization
-    private long performanceCoreFrequency = 2_400_000_000L;
-    private long efficiencyCoreFrequency = 2_400_000_000L;
+    private long performanceCoreFrequency = DEFAULT_FREQUENCY;
+    private long efficiencyCoreFrequency = DEFAULT_FREQUENCY;
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -307,35 +308,37 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     private void calculateNominalFrequencies() {
         IOIterator iter = IOKitUtil.getMatchingServices("AppleARMIODevice");
         if (iter != null) {
-            IORegistryEntry device = iter.next();
-            while (device != null) {
-                if (device.getName().toLowerCase().equals("pmgr")) {
-                    byte[] data = device.getByteArrayProperty("voltage-states5-sram");
-                    if (data != null) {
-                        performanceCoreFrequency = getMaxFreqFromByteArray(data);
+            try {
+                IORegistryEntry device = iter.next();
+                try {
+                    while (device != null) {
+                        if (device.getName().toLowerCase().equals("pmgr")) {
+                            performanceCoreFrequency = getMaxFreqFromByteArray(
+                                    device.getByteArrayProperty("voltage-states5-sram"));
+                            efficiencyCoreFrequency = getMaxFreqFromByteArray(
+                                    device.getByteArrayProperty("voltage-states1-sram"));
+                            return;
+                        }
+                        device.release();
+                        device = iter.next();
                     }
-                    data = device.getByteArrayProperty("voltage-states1-sram");
-                    if (data != null) {
-                        efficiencyCoreFrequency = getMaxFreqFromByteArray(data);
+                } finally {
+                    if (device != null) {
+                        device.release();
                     }
                 }
-                device.release();
-                device = iter.next();
+            } finally {
+                iter.release();
             }
-            iter.release();
         }
     }
 
-    private static long getMaxFreqFromByteArray(byte[] data) {
-        long max = 0L;
-        for (int offset = 0; offset < data.length - 3; offset += 4) {
-            byte[] freqData = Arrays.copyOfRange(data, offset, offset + 4);
-            // Parse little-endian
-            long freq = ParseUtil.byteArrayToLong(freqData, 4, false);
-            if (freq > max) {
-                max = freq;
-            }
+    private long getMaxFreqFromByteArray(byte[] data) {
+        // Max freq is 8 bytes from the end of the array
+        if (data != null && data.length >= 8) {
+            byte[] freqData = Arrays.copyOfRange(data, data.length - 8, data.length - 4);
+            return ParseUtil.byteArrayToLong(freqData, 4, false);
         }
-        return max;
+        return DEFAULT_FREQUENCY;
     }
 }
