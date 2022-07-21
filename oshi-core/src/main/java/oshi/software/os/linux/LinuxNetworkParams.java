@@ -65,7 +65,7 @@ final class LinuxNetworkParams extends AbstractNetworkParams {
             try {
                 hostname = InetAddress.getLocalHost().getHostName();
             } catch (UnknownHostException e) {
-                LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
+                LOG.warn("Unknown host exception when getting address of local host: {}", e.getMessage());
                 return "";
             }
             try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
@@ -76,10 +76,9 @@ final class LinuxNetworkParams extends AbstractNetworkParams {
                     }
                     return "";
                 }
-                Addrinfo info = new Addrinfo(ptr.getValue()); // NOSONAR
-                String canonname = info.ai_canonname.trim();
-                LIBC.freeaddrinfo(ptr.getValue());
-                return canonname;
+                try (Addrinfo info = new Addrinfo(ptr.getValue())) {
+                    return info.ai_canonname == null ? hostname : info.ai_canonname.trim();
+                }
             }
         }
     }
