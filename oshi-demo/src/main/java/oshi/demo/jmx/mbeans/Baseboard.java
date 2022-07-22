@@ -25,7 +25,16 @@ package oshi.demo.jmx.mbeans;
 
 import oshi.demo.jmx.demo.PropertiesAvailable;
 
-import javax.management.*;
+import javax.management.DynamicMBean;
+import javax.management.MBeanInfo;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanNotificationInfo;
+import javax.management.AttributeNotFoundException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.AttributeList;
+import javax.management.Attribute;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
