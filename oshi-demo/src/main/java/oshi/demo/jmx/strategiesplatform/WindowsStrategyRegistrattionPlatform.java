@@ -37,13 +37,15 @@ import java.beans.IntrospectionException;
 
 public class WindowsStrategyRegistrattionPlatform implements StrategyRegistrationPlatformMBeans {
     @Override
-    public void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer) throws NotCompliantMBeanException,
-        InstanceAlreadyExistsException, MBeanRegistrationException, MalformedObjectNameException, IntrospectionException, javax.management.IntrospectionException {
+    public void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer)
+            throws NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException,
+            MalformedObjectNameException, IntrospectionException, javax.management.IntrospectionException {
         // here we can register all the MBeans reletad to windows. for this sample we
         // are only gonna register one MBean with two Attribute
 
         ObjectName objectName = new ObjectName("oshi:component=BaseBoard");
-        oshi.demo.jmx.mbeans.Baseboard baseBoardMBean = new oshi.demo.jmx.mbeans.Baseboard(systemInfo.getHardware().getComputerSystem().getBaseboard());
+        oshi.demo.jmx.mbeans.Baseboard baseBoardMBean = new oshi.demo.jmx.mbeans.Baseboard(
+                systemInfo.getHardware().getComputerSystem().getBaseboard());
 
         mBeanServer.registerMBean(baseBoardMBean, objectName);
     }

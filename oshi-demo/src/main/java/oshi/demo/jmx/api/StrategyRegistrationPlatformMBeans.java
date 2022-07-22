@@ -29,6 +29,7 @@ import javax.management.*;
 import java.beans.IntrospectionException;
 
 public interface StrategyRegistrationPlatformMBeans {
-    public void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer) throws NotCompliantMBeanException,
-        InstanceAlreadyExistsException, MBeanRegistrationException, MalformedObjectNameException, IntrospectionException, javax.management.IntrospectionException;
+    public void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer)
+            throws NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException,
+            MalformedObjectNameException, IntrospectionException, javax.management.IntrospectionException;
 }

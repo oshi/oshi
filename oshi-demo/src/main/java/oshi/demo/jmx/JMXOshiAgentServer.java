@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 package oshi.demo.jmx;
+
 import oshi.SystemInfo;
 import oshi.demo.jmx.api.JMXOshiAgent;
 import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
@@ -60,6 +61,7 @@ import java.io.ObjectInputStream;
 import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 import java.util.Set;
+
 public class JMXOshiAgentServer implements JMXOshiAgent {
     private String host;
     private Integer port;
@@ -72,7 +74,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     private static JMXOshiAgentServer jmxOshiAgentServer;
 
     private JMXOshiAgentServer(Integer port, String host, Map properties, ContextRegistrationPlatform platform)
-        throws Exception {
+            throws Exception {
 
         this.port = port;
         this.host = host;
@@ -123,9 +125,9 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
             platformMBeans = new WindowsStrategyRegistrattionPlatform();
             contextRegistrationPlatform.setStrategyRegistrationContext(platformMBeans);
             break;
-            default :
-                System.out.println("Couldn't Initialize server ");
-                throw new Exception("Server could not be initialized");
+        default:
+            System.out.println("Couldn't Initialize server ");
+            throw new Exception("Server could not be initialized");
         }
 
         platformMBeans.registerMBeans(si, this.server);

@@ -31,13 +31,15 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import java.io.IOException;
 import java.util.HashMap;
+
 public class CreateJmxOshiAgent {
     private static ContextRegistrationPlatform platform = new ContextRegistrationPlatform();
+
     public static JMXOshiAgent createJmxOshiAgent(Integer port, String host) throws Exception {
         return JMXOshiAgentServer.getInstance(host, port, null, platform);
     }
-    public static JMXOshiAgent createJmxOshiAgent(Integer port, String host, HashMap properties)
-        throws Exception {
+
+    public static JMXOshiAgent createJmxOshiAgent(Integer port, String host, HashMap properties) throws Exception {
         return JMXOshiAgentServer.getInstance(host, port, properties, platform);
     }
 }

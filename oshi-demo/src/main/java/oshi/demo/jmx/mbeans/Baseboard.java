@@ -43,36 +43,41 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Baseboard implements DynamicMBean,PropertiesAvailable{
+public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
-    private oshi.hardware.Baseboard  baseboard;
+    private oshi.hardware.Baseboard baseboard;
     private MBeanInfo dMBeanInfo = null;
     private List<String> propertiesAvailable = new ArrayList<>();
-    private final String  PROPERTIES = "Properties";
-    private final String  GET_PREFIX = "get";
+    private final String PROPERTIES = "Properties";
+    private final String GET_PREFIX = "get";
+
     private void setUpMBean() throws IntrospectionException, javax.management.IntrospectionException {
 
         PropertyDescriptor[] methods = Introspector.getBeanInfo(baseboard.getClass()).getPropertyDescriptors();
         MBeanAttributeInfo[] attributeInfos = new MBeanAttributeInfo[methods.length];
 
-        for(int i = 0; i < methods.length; i++){
-            attributeInfos[i] = new MBeanAttributeInfo(methods[i].getName(),methods[i].getShortDescription(),methods[i].getReadMethod(),null);
-            propertiesAvailable.add(methods[i].getName().substring(0,1).toUpperCase() + methods[i].getName().substring(1));
+        for (int i = 0; i < methods.length; i++) {
+            attributeInfos[i] = new MBeanAttributeInfo(methods[i].getName(), methods[i].getShortDescription(),
+                    methods[i].getReadMethod(), null);
+            propertiesAvailable
+                    .add(methods[i].getName().substring(0, 1).toUpperCase() + methods[i].getName().substring(1));
         }
 
         dMBeanInfo = new MBeanInfo(baseboard.getClass().getName(), null, attributeInfos, null, null,
-            new MBeanNotificationInfo[0]);
+                new MBeanNotificationInfo[0]);
     }
 
-    public Baseboard(oshi.hardware.Baseboard baseboard) throws IntrospectionException, javax.management.IntrospectionException {
+    public Baseboard(oshi.hardware.Baseboard baseboard)
+            throws IntrospectionException, javax.management.IntrospectionException {
         this.baseboard = baseboard;
         this.setUpMBean();
     }
 
     @Override
-    public Object getAttribute(String attribute) throws AttributeNotFoundException, MBeanException, ReflectionException {
+    public Object getAttribute(String attribute)
+            throws AttributeNotFoundException, MBeanException, ReflectionException {
 
-        if(attribute.equals( PROPERTIES)){
+        if (attribute.equals(PROPERTIES)) {
             return this.getProperties();
         }
 
@@ -80,7 +85,7 @@ public class Baseboard implements DynamicMBean,PropertiesAvailable{
         try {
             method = baseboard.getClass().getDeclaredMethod(GET_PREFIX + attribute, null);
             method.setAccessible(true);
-            return method.invoke(baseboard,null);
+            return method.invoke(baseboard, null);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -89,7 +94,6 @@ public class Baseboard implements DynamicMBean,PropertiesAvailable{
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public MBeanInfo getMBeanInfo() {
@@ -100,8 +104,10 @@ public class Baseboard implements DynamicMBean,PropertiesAvailable{
     public List<String> getProperties() {
         return propertiesAvailable;
     }
+
     @Override
-    public void setAttribute(Attribute attribute) throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
+    public void setAttribute(Attribute attribute)
+            throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
 
     }
 
@@ -116,7 +122,8 @@ public class Baseboard implements DynamicMBean,PropertiesAvailable{
     }
 
     @Override
-    public Object invoke(String actionName, Object[] params, String[] signature) throws MBeanException, ReflectionException {
+    public Object invoke(String actionName, Object[] params, String[] signature)
+            throws MBeanException, ReflectionException {
         return null;
     }
 
