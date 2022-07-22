@@ -219,6 +219,7 @@
                     <configuration>
                         <!-- don't deploy site with maven-site-plugin (instead use scm publish during release) -->
                         <skipDeploy>true</skipDeploy>
+                        <relativizeDecorationLinks>false</relativizeDecorationLinks>	
                     </configuration>
                     <dependencies>
                         <dependency>
