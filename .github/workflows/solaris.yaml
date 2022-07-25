@@ -56,4 +56,4 @@ jobs:
           git checkout master
           git reset --hard HEAD~2
           git pull
-          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true || ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+          for i in {1..2}; do ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true && break || sleep 15; done
