@@ -18,6 +18,7 @@ jobs:
   # SSH into AIX server and run test on AIX 7.2
   # Configured to pull latest from oshi master branch
   # To test on a PR, log into the aix server and create a new branch
+  # Retries up to 3 times due to flaky library loading in OpenJ9
   testaix:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
@@ -41,4 +42,4 @@ jobs:
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
-          ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true -Djnidispatch.preserve=true -Djna.debug_load.jna=true
+          for i in {1..3}; do ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true && break || sleep 15; done
