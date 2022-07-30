@@ -25,7 +25,6 @@ package oshi.driver.windows.perfmon;
 
 import oshi.util.tuples.Pair;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
