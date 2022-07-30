@@ -64,6 +64,8 @@ public final class PerfmonConstants {
     static final String SYSTEM = "System";
     static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
 
+    static final String GPU_ENGINE = "GPU Engine";
+
     /**
      * Everything in this class is static, never instantiate it
      */
