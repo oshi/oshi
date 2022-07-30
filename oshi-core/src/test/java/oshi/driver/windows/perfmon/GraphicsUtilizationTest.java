@@ -21,23 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi;
+package oshi.driver.windows.perfmon;
 
-import oshi.driver.windows.perfmon.GraphicsUtilizationThread;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import oshi.util.Util;
 
-import java.util.Arrays;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 
-public class PerfMonGpuEngineTest {
+@EnabledOnOs(OS.WINDOWS)
+public class GraphicsUtilizationTest {
 
-    public static void main(String[] args) throws Exception {
-
+    @Test
+    void testQueryUtilizationPercentage() {
         GraphicsUtilizationThread gpuUtilizationThread = new GraphicsUtilizationThread();
-
         gpuUtilizationThread.start();
-
-        Thread.sleep(1000L);
-
-        System.out.println(Arrays.toString(gpuUtilizationThread.getUtilizationPercentages()));
-
+        assertThat("Failed because utilization percentages is already initialized",
+                gpuUtilizationThread.getUtilizationPercentages(), nullValue());
+        Util.sleep(10000L);
+        assertThat("Failed because utilization percentages is not initialized",
+                gpuUtilizationThread.getUtilizationPercentages(), notNullValue());
     }
 }

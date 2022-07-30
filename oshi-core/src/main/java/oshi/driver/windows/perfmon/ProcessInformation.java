@@ -23,6 +23,12 @@
  */
 package oshi.driver.windows.perfmon;
 
+import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESS;
+import static oshi.driver.windows.perfmon.PerfmonConstants.GPU_ENGINE;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +38,6 @@ import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
-
-import static oshi.driver.windows.perfmon.PerfmonConstants.*;
 
 /**
  * Utility to query Process Information performance counter
@@ -117,7 +121,8 @@ public final class ProcessInformation {
      */
     public enum GpuEngineProperty implements PerfCounterWildcardQuery.PdhCounterWildcardProperty {
         NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
-        UTILIZATION("Utilization Percentage"),
+        // Remaining elements define counters
+        UTILIZATION("Utilization Percentage"), //
         UTILIZATION_BASE("Utilization Percentage_Base");
 
         private final String counter;
@@ -145,7 +150,7 @@ public final class ProcessInformation {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessPerformanceProperty.class, PROCESS,
-            WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
+                WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 
     /**
@@ -158,7 +163,7 @@ public final class ProcessInformation {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
         return PerfCounterWildcardQuery.queryInstancesAndValues(HandleCountProperty.class, PROCESS,
-            WIN32_PERFPROC_PROCESS);
+                WIN32_PERFPROC_PROCESS);
     }
 
     /**
@@ -171,7 +176,7 @@ public final class ProcessInformation {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());
         }
         return PerfCounterWildcardQuery.queryInstancesAndValues(IdleProcessorTimeProperty.class, PROCESS,
-            WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0);
+                WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0);
     }
 
     /**
