@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+/**
+ * Utility to calculate graphics utilization via caching intervals of every
+ * 100ms
+ */
 public class GraphicsUtilizationThread extends Thread {
 
     /**
@@ -44,7 +48,8 @@ public class GraphicsUtilizationThread extends Thread {
     public void run() {
 
         // setup initial utilization values
-        Pair<List<String>, Map<ProcessInformation.GpuEngineProperty, List<Long>>> initialCounter = ProcessInformation.queryGpuCounters();
+        Pair<List<String>, Map<ProcessInformation.GpuEngineProperty, List<Long>>> initialCounter = ProcessInformation
+                .queryGpuCounters();
         Map<ProcessInformation.GpuEngineProperty, List<Long>> oldGpuEngineProperties = initialCounter.getB();
 
         gpuNames = initialCounter.getA();
@@ -58,16 +63,20 @@ public class GraphicsUtilizationThread extends Thread {
                 Thread.currentThread().interrupt();
             }
 
-            Pair<List<String>, Map<ProcessInformation.GpuEngineProperty, List<Long>>> newCounters = ProcessInformation.queryGpuCounters();
+            Pair<List<String>, Map<ProcessInformation.GpuEngineProperty, List<Long>>> newCounters = ProcessInformation
+                    .queryGpuCounters();
             Map<ProcessInformation.GpuEngineProperty, List<Long>> newGpuEngineProperties = newCounters.getB();
 
-            List<Long> newUtilizationBases = newGpuEngineProperties.get(ProcessInformation.GpuEngineProperty.UTILIZATION_BASE);
+            List<Long> newUtilizationBases = newGpuEngineProperties
+                    .get(ProcessInformation.GpuEngineProperty.UTILIZATION_BASE);
             List<Long> newUtilizations = newGpuEngineProperties.get(ProcessInformation.GpuEngineProperty.UTILIZATION);
 
-            // calculate utilization percentage via the difference between last 100ms and current utilization over the difference between their bases
+            // calculate utilization percentage via the difference between last 100ms and
+            // current utilization over the difference between their bases
             utilizationPercentages = IntStream.range(0, gpuNames.size())
-                .mapToDouble(i -> 100 * (newUtilizations.get(i) - utilizations.get(i)) / (double) (newUtilizationBases.get(i) - utilizationBases.get(i)))
-                .toArray();
+                    .mapToDouble(i -> 100 * (newUtilizations.get(i) - utilizations.get(i))
+                            / (double) (newUtilizationBases.get(i) - utilizationBases.get(i)))
+                    .toArray();
 
             // update old utilization counters to perform next interval computations
             utilizationBases = newUtilizationBases;
