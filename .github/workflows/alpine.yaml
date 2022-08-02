@@ -1,0 +1,31 @@
+name: Alpine CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+
+jobs:
+  testalpine:
+    runs-on: macos-12
+    name: Test JDK 11, Alpine vm
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ armv6, armv7, aarch64, s390x, ppc64le ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test on Alpine
+        id: test-alpine
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: ${{ matrix.arch }}
+          distro: alpine_latest
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
