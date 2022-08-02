@@ -31,5 +31,4 @@ jobs:
             mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
           install: |
             apk update
-            apk --update-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-            apk add maven musl
+            apk add musl
