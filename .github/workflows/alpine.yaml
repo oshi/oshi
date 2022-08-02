@@ -27,9 +27,8 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
           distro: alpine_latest
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
           run: |
             mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
           install: |
             apk update
-            apk add openjdk11 maven musl
+            apk --update-cache add openjdk11 maven musl
