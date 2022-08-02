@@ -31,4 +31,4 @@ jobs:
             mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
           install: |
             apk update
-            apk add musl
+            apk add maven musl
