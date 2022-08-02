@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.notNullValue;
 
 @EnabledOnOs(OS.WINDOWS)
-public class GraphicsUtilizationTest {
+class GraphicsUtilizationTest {
 
     @Test
     void testQueryUtilizationPercentage() {
