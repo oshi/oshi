@@ -33,8 +33,6 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Platform;
-
 import oshi.software.os.InternetProtocolStats.IPConnection;
 import oshi.software.os.InternetProtocolStats.TcpStats;
 import oshi.software.os.InternetProtocolStats.UdpStats;
@@ -51,14 +49,12 @@ class NetStatTest {
         }
     }
 
-    @EnabledOnOs({ OS.MAC, OS.OTHER })
+    @EnabledOnOs({ OS.MAC, OS.FREEBSD })
     @Test
     void testQueryTcpNetstat() {
-        if (Platform.isMac() || Platform.isFreeBSD()) {
-            Pair<Long, Long> tcpConns = NetStat.queryTcpnetstat();
-            assertThat("ipv4 connections must be nonnegative", tcpConns.getA().intValue(), greaterThanOrEqualTo(0));
-            assertThat("ipv6 connections must be nonnegative", tcpConns.getB().intValue(), greaterThanOrEqualTo(0));
-        }
+        Pair<Long, Long> tcpConns = NetStat.queryTcpnetstat();
+        assertThat("ipv4 connections must be nonnegative", tcpConns.getA().intValue(), greaterThanOrEqualTo(0));
+        assertThat("ipv6 connections must be nonnegative", tcpConns.getB().intValue(), greaterThanOrEqualTo(0));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -73,16 +69,13 @@ class NetStatTest {
         assertThat("udp4 datagrams sent must be nonnegative", udp6Stats.getDatagramsSent(), greaterThanOrEqualTo(0L));
     }
 
-    @EnabledOnOs(OS.OTHER)
+    @EnabledOnOs(OS.OPENBSD)
     @Test
     void testQueryStatsOpenBSD() {
-        if (Platform.isOpenBSD()) {
-            TcpStats tcpStats = NetStat.queryTcpStats("netstat -s -p tcp");
-            assertThat("tcp connections must be nonnegative", tcpStats.getConnectionsEstablished(),
-                    greaterThanOrEqualTo(0L));
-            UdpStats udpStats = NetStat.queryUdpStats("netstat -s -p udp");
-            assertThat("udp  datagrams sent must be nonnegative", udpStats.getDatagramsSent(),
-                    greaterThanOrEqualTo(0L));
-        }
+        TcpStats tcpStats = NetStat.queryTcpStats("netstat -s -p tcp");
+        assertThat("tcp connections must be nonnegative", tcpStats.getConnectionsEstablished(),
+                greaterThanOrEqualTo(0L));
+        UdpStats udpStats = NetStat.queryUdpStats("netstat -s -p udp");
+        assertThat("udp  datagrams sent must be nonnegative", udpStats.getDatagramsSent(), greaterThanOrEqualTo(0L));
     }
 }
