@@ -48,6 +48,7 @@ public final class ProcPath {
     public static final String CPUINFO = PROC + "/cpuinfo";
     public static final String DISKSTATS = PROC + "/diskstats";
     public static final String MEMINFO = PROC + "/meminfo";
+    public static final String MODEL = PROC + "/device-tree/model";
     public static final String MOUNTS = PROC + "/mounts";
     public static final String NET = PROC + "/net";
     public static final String PID_CMDLINE = PROC + "/%d/cmdline";
