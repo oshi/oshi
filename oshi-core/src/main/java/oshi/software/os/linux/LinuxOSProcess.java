@@ -51,6 +51,7 @@ import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.UserGroupInfo;
 import oshi.util.Util;
@@ -63,6 +64,9 @@ import oshi.util.platform.linux.ProcPath;
 public class LinuxOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcess.class);
+
+    private static final boolean LOG_PROCFS_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_PROCFS_LOGWARNING,
+            false);
 
     // Get a list of orders to pass to ParseUtil
     private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
@@ -143,8 +147,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        return Collections.unmodifiableMap(ParseUtil
-                .parseByteArrayToStringMap(FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, getProcessID()))));
+        return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(
+                FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, getProcessID()), LOG_PROCFS_WARNING)));
     }
 
     @Override
