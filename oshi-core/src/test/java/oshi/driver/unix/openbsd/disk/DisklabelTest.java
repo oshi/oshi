@@ -35,30 +35,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.Platform;
-
 import oshi.hardware.HWPartition;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 import oshi.util.tuples.Quartet;
 
-@EnabledOnOs(OS.OTHER)
+@EnabledOnOs(OS.OPENBSD)
 class DisklabelTest {
     @Test
     void testDisklabel() {
-        if (Platform.isOpenBSD()) {
-            String[] devices = OpenBsdSysctlUtil.sysctl("hw.disknames", "").split(",");
-            for (String device : devices) {
-                String diskName = device.split(":")[0];
-                Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(diskName);
-                // First 3 only available with elevation
-                if (new OpenBsdOperatingSystem().isElevated()) {
-                    assertThat("Disk label is not null", diskdata.getA(), not(nullValue()));
-                    assertThat("Disk duid is not null", diskdata.getB(), not(nullValue()));
-                    assertThat("Disk size is nonnegative", diskdata.getC().longValue(), greaterThanOrEqualTo(0L));
-                    for (HWPartition part : diskdata.getD()) {
-                        assertTrue(part.getIdentification().startsWith(diskName), "Partition ID starts with disk");
-                    }
+        String[] devices = OpenBsdSysctlUtil.sysctl("hw.disknames", "").split(",");
+        for (String device : devices) {
+            String diskName = device.split(":")[0];
+            Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(diskName);
+            // First 3 only available with elevation
+            if (new OpenBsdOperatingSystem().isElevated()) {
+                assertThat("Disk label is not null", diskdata.getA(), not(nullValue()));
+                assertThat("Disk duid is not null", diskdata.getB(), not(nullValue()));
+                assertThat("Disk size is nonnegative", diskdata.getC().longValue(), greaterThanOrEqualTo(0L));
+                for (HWPartition part : diskdata.getD()) {
+                    assertTrue(part.getIdentification().startsWith(diskName), "Partition ID starts with disk");
                 }
             }
         }

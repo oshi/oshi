@@ -1,6 +1,7 @@
 # 6.2.3 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2179](https://github.com/oshi/oshi/pull/2118): Update JUnit EnabledOnOS for OpenBSD and FreeBSD - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 
