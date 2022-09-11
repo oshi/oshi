@@ -50,6 +50,8 @@ public final class GlobalConfig {
     public static final String OSHI_PSEUDO_FILESYSTEM_TYPES = "oshi.pseudo.filesystem.types";
     public static final String OSHI_NETWORK_FILESYSTEM_TYPES = "oshi.network.filesystem.types";
 
+    public static final String OSHI_OS_LINUX_PROCFS_LOGWARNING = "oshi.os.linux.procfs.logwarning";
+
     public static final String OSHI_OS_WINDOWS_EVENTLOG = "oshi.os.windows.eventlog";
     public static final String OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED = "oshi.os.windows.procstate.suspended";
     public static final String OSHI_OS_WINDOWS_COMMANDLINE_BATCH = "oshi.os.windows.commandline.batch";
