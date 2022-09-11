@@ -3,6 +3,7 @@
 ##### Bug fixes / Improvements
 * [#2179](https://github.com/oshi/oshi/pull/2179): Update JUnit EnabledOnOS for OpenBSD and FreeBSD - [@dbwiddis](https://github.com/dbwiddis).
 * [#2180](https://github.com/oshi/oshi/pull/2180): Suppress log warnings for non-root procfs reads - [@dbwiddis](https://github.com/dbwiddis).
+* [#2181](https://github.com/oshi/oshi/pull/2181): Better handling of ARM CPU Names - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 
