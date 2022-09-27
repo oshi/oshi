@@ -12,7 +12,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 Supported platforms
 ---------------------------
-Windows • Linux • macOS • Unix (AIX, FreeBSD, OpenBSD, Solaris)
+Windows • Linux • macOS • Unix (AIX, FreeBSD, OpenBSD, Solaris) • Android
 
 Downloads and Dependency Management
 -----------------------------------

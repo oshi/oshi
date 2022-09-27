@@ -91,7 +91,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         Udev lib = null;
         try {
             lib = Udev.INSTANCE;
-        } catch (UnsatisfiedLinkError e) {
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
             // no udev
         }
         HAS_UDEV = lib != null;
