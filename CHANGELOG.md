@@ -6,7 +6,7 @@
 * [#2181](https://github.com/oshi/oshi/pull/2181): Better handling of ARM CPU Names - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### New Features
-* [#2196](https://github.com/oshi/oshi/issues/2196): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).
+* [#2197](https://github.com/oshi/oshi/issues/2197): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 
