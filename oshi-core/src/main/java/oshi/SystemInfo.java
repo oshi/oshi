@@ -103,6 +103,7 @@ public class SystemInfo {
         case WINDOWS:
             return new WindowsOperatingSystem();
         case LINUX:
+        case ANDROID:
             return new LinuxOperatingSystem();
         case MACOS:
             return new MacOperatingSystem();
@@ -134,6 +135,7 @@ public class SystemInfo {
         case WINDOWS:
             return new WindowsHardwareAbstractionLayer();
         case LINUX:
+        case ANDROID:
             return new LinuxHardwareAbstractionLayer();
         case MACOS:
             return new MacHardwareAbstractionLayer();

@@ -89,10 +89,10 @@
                 <executions>
                     <execution>
                         <id>auto-clean</id>
-                        <phase>initialize</phase>
                         <goals>
                             <goal>clean</goal>
                         </goals>
+                        <phase>initialize</phase>
                     </execution>
                 </executions>
             </plugin>

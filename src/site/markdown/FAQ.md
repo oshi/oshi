@@ -59,6 +59,7 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * OpenBSD 6.8
 * Solaris 11 (SunOS 5.11)
 * AIX 7.1 (POWER4)
+* Android 7.0 and higher
 
 ## How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?
 
