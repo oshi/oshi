@@ -24,10 +24,13 @@
 package oshi.driver.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
@@ -48,7 +51,7 @@ import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.tuples.Quintet;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -75,14 +78,12 @@ public final class LogicalProcessorInformation {
                 .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);
         // Used to cross-reference a processor to package, cache, pr core
         List<GROUP_AFFINITY[]> packages = new ArrayList<>();
-        List<GROUP_AFFINITY> caches = new ArrayList<>();
+        List<Pair<Triplet<GROUP_AFFINITY, Byte, Integer>, Triplet<Byte, Short, Integer>>> caches = new ArrayList<>();
         List<GROUP_AFFINITY> cores = new ArrayList<>();
         // Used to iterate
         List<NUMA_NODE_RELATIONSHIP> numaNodes = new ArrayList<>();
         // Map to store efficiency class of a processor core
         Map<GROUP_AFFINITY, Integer> coreEfficiencyMap = new HashMap<>();
-        // Map to store cache stats
-        Map<GROUP_AFFINITY, Quintet<Byte, Byte, Short, Integer, Integer>> cacheStatsMap = new HashMap<>();
 
         for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX info : procInfo) {
             switch (info.relationship) {
@@ -92,9 +93,8 @@ public final class LogicalProcessorInformation {
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
                 CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) info;
-                caches.add(cache.groupMask);
-                cacheStatsMap.put(cache.groupMask,
-                        new Quintet<>(cache.level, cache.associativity, cache.lineSize, cache.size, cache.type));
+                caches.add(new Pair<>(new Triplet<>(cache.groupMask, cache.level, cache.type),
+                        new Triplet<>(cache.associativity, cache.lineSize, cache.size)));
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
                 PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) info);
@@ -117,7 +117,11 @@ public final class LogicalProcessorInformation {
         // numbers increment consistently with processor numbers/bitmasks, ordered in
         // processor groups.
         cores.sort(Comparator.comparing(c -> c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));
-        caches.sort(Comparator.comparing(c -> c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));
+        // Additionally for caches we sort larger cache levels first so caches across
+        // multiple processors will consistently be first in output
+        caches.sort(Comparator.comparing(
+                c -> c.getA().getA().group * 6400L + Long.numberOfTrailingZeros(c.getA().getA().mask.longValue()) * 100L
+                        - c.getA().getB() * 10L + c.getA().getC()));
         // if package in multiple groups will still use first group for sorting
         packages.sort(Comparator.comparing(p -> p[0].group * 64L + Long.numberOfTrailingZeros(p[0].mask.longValue())));
 
@@ -148,18 +152,18 @@ public final class LogicalProcessorInformation {
             int hiBit = 63 - Long.numberOfLeadingZeros(mask);
             for (int lp = lowBit; lp <= hiBit; lp++) {
                 if ((mask & (1L << lp)) != 0) {
-                    int coreId = getMatchingCoreOrCache(cores, group, lp);
-                    int cacheId = getMatchingCoreOrCache(caches, group, lp);
+                    int coreId = getMatchingCore(cores, group, lp);
+                    Set<Integer> cacheIds = getMatchingCaches(caches, group, lp);
                     int pkgId = getMatchingPackage(packages, group, lp);
                     corePkgMap.put(coreId, pkgId);
                     pkgCpuidMap.put(coreId, processorIdMap.getOrDefault(pkgId, ""));
-                    LogicalProcessor logProc = new LogicalProcessor(lp, coreId, pkgId, nodeNum, cacheId, group);
+                    LogicalProcessor logProc = new LogicalProcessor(lp, coreId, pkgId, nodeNum, cacheIds, group);
                     logProcs.add(logProc);
                 }
             }
         }
         List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, corePkgMap, pkgCpuidMap);
-        List<ProcessorCache> procCaches = getProcCaches(caches, cacheStatsMap);
+        List<ProcessorCache> procCaches = getProcCaches(caches);
         return new Triplet<>(logProcs, physProcs, procCaches);
     }
 
@@ -176,14 +180,13 @@ public final class LogicalProcessorInformation {
         return physProcs;
     }
 
-    private static List<ProcessorCache> getProcCaches(List<GROUP_AFFINITY> caches,
-            Map<GROUP_AFFINITY, Quintet<Byte, Byte, Short, Integer, Integer>> cacheStatsMap) {
+    private static List<ProcessorCache> getProcCaches(
+            List<Pair<Triplet<GROUP_AFFINITY, Byte, Integer>, Triplet<Byte, Short, Integer>>> caches) {
         List<ProcessorCache> procCaches = new ArrayList<>();
         int cacheNum = 0;
-        for (GROUP_AFFINITY cache : caches) {
-            Quintet<Byte, Byte, Short, Integer, Integer> stats = cacheStatsMap.get(cache);
-            procCaches.add(new ProcessorCache(cacheNum++, stats.getA(), stats.getB(), stats.getC(), stats.getD(),
-                    stats.getE()));
+        for (Pair<Triplet<GROUP_AFFINITY, Byte, Integer>, Triplet<Byte, Short, Integer>> cache : caches) {
+            procCaches.add(new ProcessorCache(cacheNum++, cache.getA().getB(), cache.getB().getA(), cache.getB().getB(),
+                    cache.getB().getC(), cache.getA().getC()));
         }
         return procCaches;
     }
@@ -199,13 +202,25 @@ public final class LogicalProcessorInformation {
         return 0;
     }
 
-    private static int getMatchingCoreOrCache(List<GROUP_AFFINITY> c, int g, int lp) {
-        for (int j = 0; j < c.size(); j++) {
-            if ((c.get(j).mask.longValue() & (1L << lp)) != 0 && c.get(j).group == g) {
+    private static int getMatchingCore(List<GROUP_AFFINITY> cores, int g, int lp) {
+        for (int j = 0; j < cores.size(); j++) {
+            if ((cores.get(j).mask.longValue() & (1L << lp)) != 0 && cores.get(j).group == g) {
                 return j;
             }
         }
         return 0;
+    }
+
+    private static Set<Integer> getMatchingCaches(
+            List<Pair<Triplet<GROUP_AFFINITY, Byte, Integer>, Triplet<Byte, Short, Integer>>> caches, int g, int lp) {
+        Set<Integer> matchingCaches = new LinkedHashSet<>(); // preserve order
+        for (int j = 0; j < caches.size(); j++) {
+            if ((caches.get(j).getA().getA().mask.longValue() & (1L << lp)) != 0
+                    && caches.get(j).getA().getA().group == g) {
+                matchingCaches.add(j);
+            }
+        }
+        return Collections.unmodifiableSet(matchingCaches);
     }
 
     /*

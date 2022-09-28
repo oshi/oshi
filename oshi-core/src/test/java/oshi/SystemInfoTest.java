@@ -222,7 +222,8 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                     processor.getLogicalProcessors().stream()
                             .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
                             .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
-                            .map(p -> Integer.toString(p.getCacheNumber())).collect(Collectors.joining(","))));
+                            .flatMap(p -> p.getCacheNumbers().stream()).distinct().map(Object::toString)
+                            .collect(Collectors.joining(","))));
         }
         for (ProcessorCache cache : processor.getProcessorCaches()) {
             oshi.add(cache.toString());

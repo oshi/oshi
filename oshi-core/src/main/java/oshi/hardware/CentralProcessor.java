@@ -25,8 +25,10 @@ package oshi.hardware;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -381,7 +383,7 @@ public interface CentralProcessor {
         private final int physicalProcessorNumber;
         private final int physicalPackageNumber;
         private final int numaNode;
-        private final int cacheNumber;
+        private final Set<Integer> cacheNumbers;
         private final int processorGroup;
 
         /**
@@ -393,7 +395,7 @@ public interface CentralProcessor {
          *            the package/socket number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
-            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0, 0);
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, Collections.emptySet(), 0);
         }
 
         /**
@@ -408,7 +410,7 @@ public interface CentralProcessor {
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
                 int numaNode) {
-            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0, 0);
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, Collections.emptySet(), 0);
         }
 
         /**
@@ -420,18 +422,18 @@ public interface CentralProcessor {
          *            the package/socket number
          * @param numaNode
          *            the NUMA node number
-         * @param cacheNumber
-         *            the cache number
+         * @param cacheNumbers
+         *            the set of cache numbers
          * @param processorGroup
          *            the Processor Group number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
-                int numaNode, int cacheNumber, int processorGroup) {
+                int numaNode, Set<Integer> cacheNumbers, int processorGroup) {
             this.processorNumber = processorNumber;
             this.physicalProcessorNumber = physicalProcessorNumber;
             this.physicalPackageNumber = physicalPackageNumber;
             this.numaNode = numaNode;
-            this.cacheNumber = cacheNumber;
+            this.cacheNumbers = cacheNumbers;
             this.processorGroup = processorGroup;
         }
 
@@ -479,13 +481,13 @@ public interface CentralProcessor {
         }
 
         /**
-         * The processor cache id number assigned to this logical processor. Set to 0 if
-         * the operating system does not provide cache topology details.
+         * The processor cache id numbers assigned to this logical processor. Empty set
+         * if the operating system does not provide cache topology details.
          *
-         * @return the cacheNumber
+         * @return the cache numbers associated with this processor.
          */
-        public int getCacheNumber() {
-            return cacheNumber;
+        public Set<Integer> getCacheNumbers() {
+            return cacheNumbers;
         }
 
         /**
@@ -632,7 +634,7 @@ public interface CentralProcessor {
         }
 
         /**
-         * The cache number corresponding to {@link LogicalProcessor#getCacheNumber()}.
+         * The cache number corresponding to {@link LogicalProcessor#getCacheNumbers()}.
          *
          * @return the cache number
          */
