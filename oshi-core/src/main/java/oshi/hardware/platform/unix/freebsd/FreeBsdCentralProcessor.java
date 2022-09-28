@@ -46,7 +46,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU
@@ -116,7 +116,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
+    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
         List<LogicalProcessor> logProcs = parseTopology();
         // Force at least one processor
         if (logProcs.isEmpty()) {
@@ -143,9 +143,9 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         if (dmesg.isEmpty()) {
-            return new Pair<>(logProcs, null);
+            return new Triplet<>(logProcs, null, null);
         }
-        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
+        return new Triplet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null);
     }
 
     private static List<LogicalProcessor> parseTopology() {

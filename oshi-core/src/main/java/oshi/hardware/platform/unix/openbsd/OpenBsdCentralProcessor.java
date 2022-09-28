@@ -122,7 +122,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
+    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
         // Iterate dmesg, look for lines:
         // cpu0: smt 0, core 0, package 0
         // cpu1: smt 0, core 1, package 0
@@ -161,9 +161,9 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         if (dmesg.isEmpty()) {
-            return new Pair<>(logProcs, null);
+            return new Triplet<>(logProcs, null, null);
         }
-        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
+        return new Triplet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null);
     }
 
     /**

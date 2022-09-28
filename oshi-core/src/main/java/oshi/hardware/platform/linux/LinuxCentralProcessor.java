@@ -62,7 +62,6 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -176,7 +175,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
+    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
         Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
                 ? readTopologyFromUdev()
                 : readTopologyFromSysfs();
@@ -198,7 +197,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
                 }).collect(Collectors.toList());
 
-        return new Pair<>(logProcs, physProcs);
+        return new Triplet<>(logProcs, physProcs, null);
     }
 
     private static Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {

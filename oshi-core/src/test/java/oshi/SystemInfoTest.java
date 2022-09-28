@@ -30,8 +30,11 @@ import static org.hamcrest.Matchers.not;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -39,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
+import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -186,10 +190,42 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static void printProcessor(CentralProcessor processor) {
         oshi.add(processor.toString());
-        oshi.add(" Cores:");
-        for (PhysicalProcessor p : processor.getPhysicalProcessors()) {
-            oshi.add("  " + (processor.getPhysicalPackageCount() > 1 ? p.getPhysicalPackageNumber() + "," : "")
-                    + p.getPhysicalProcessorNumber() + ": efficiency=" + p.getEfficiency() + ", id=" + p.getIdString());
+
+        Map<Integer, Integer> efficiencyCount = new HashMap<>();
+        int maxEfficiency = 0;
+        for (PhysicalProcessor cpu : processor.getPhysicalProcessors()) {
+            int eff = cpu.getEfficiency();
+            efficiencyCount.merge(eff, 1, Integer::sum);
+            if (eff > maxEfficiency) {
+                maxEfficiency = eff;
+            }
+        }
+        oshi.add(" Topology:");
+        oshi.add(String.format("  %7s %4s %4s %4s %4s %4s %s", "LogProc", "P/E", "Proc", "Pkg", "NUMA", "PGrp",
+                "Caches"));
+        for (PhysicalProcessor cpu : processor.getPhysicalProcessors()) {
+            oshi.add(String.format("  %7s %4s %4d %4s %4d %4d    %s",
+                    processor.getLogicalProcessors().stream()
+                            .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
+                            .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
+                            .map(p -> Integer.toString(p.getProcessorNumber())).collect(Collectors.joining(",")),
+                    cpu.getEfficiency() == maxEfficiency ? "P" : "E", cpu.getPhysicalProcessorNumber(),
+                    cpu.getPhysicalPackageNumber(),
+                    processor.getLogicalProcessors().stream()
+                            .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
+                            .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
+                            .mapToInt(p -> p.getNumaNode()).findFirst().orElse(0),
+                    processor.getLogicalProcessors().stream()
+                            .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
+                            .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
+                            .mapToInt(p -> p.getProcessorGroup()).findFirst().orElse(0),
+                    processor.getLogicalProcessors().stream()
+                            .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
+                            .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
+                            .map(p -> Integer.toString(p.getCacheNumber())).collect(Collectors.joining(","))));
+        }
+        for (ProcessorCache cache : processor.getProcessorCaches()) {
+            oshi.add(cache.toString());
         }
     }
 

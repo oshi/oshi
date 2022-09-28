@@ -104,6 +104,14 @@ public interface CentralProcessor {
     List<PhysicalProcessor> getPhysicalProcessors();
 
     /**
+     * Returns an {@code UnmodifiableList} of the CPU's processor caches. The list
+     * will be sorted in order of increasing cache ID.
+     *
+     * @return An {@code UnmodifiabeList} of processor caches.
+     */
+    List<ProcessorCache> getProcessorCaches();
+
+    /**
      * Returns the "recent cpu usage" for the whole system by counting ticks from
      * {@link #getSystemCpuLoadTicks()} between the user-provided value from a
      * previous call.
@@ -373,6 +381,7 @@ public interface CentralProcessor {
         private final int physicalProcessorNumber;
         private final int physicalPackageNumber;
         private final int numaNode;
+        private final int cacheNumber;
         private final int processorGroup;
 
         /**
@@ -384,7 +393,7 @@ public interface CentralProcessor {
          *            the package/socket number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
-            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0, 0);
         }
 
         /**
@@ -399,7 +408,7 @@ public interface CentralProcessor {
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
                 int numaNode) {
-            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0, 0);
         }
 
         /**
@@ -411,15 +420,18 @@ public interface CentralProcessor {
          *            the package/socket number
          * @param numaNode
          *            the NUMA node number
+         * @param cacheNumber
+         *            the cache number
          * @param processorGroup
          *            the Processor Group number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
-                int numaNode, int processorGroup) {
+                int numaNode, int cacheNumber, int processorGroup) {
             this.processorNumber = processorNumber;
             this.physicalProcessorNumber = physicalProcessorNumber;
             this.physicalPackageNumber = physicalPackageNumber;
             this.numaNode = numaNode;
+            this.cacheNumber = cacheNumber;
             this.processorGroup = processorGroup;
         }
 
@@ -464,6 +476,16 @@ public interface CentralProcessor {
          */
         public int getNumaNode() {
             return numaNode;
+        }
+
+        /**
+         * The processor cache id number assigned to this logical processor. Set to 0 if
+         * the operating system does not provide cache topology details.
+         *
+         * @return the cacheNumber
+         */
+        public int getCacheNumber() {
+            return cacheNumber;
         }
 
         /**
@@ -584,6 +606,91 @@ public interface CentralProcessor {
         public String toString() {
             return "PhysicalProcessor [package/core=" + physicalPackageNumber + "/" + physicalProcessorNumber
                     + ", efficiency=" + efficiency + ", idString=" + idString + "]";
+        }
+    }
+
+    /**
+     * A class representing CPU Cache Memory.
+     */
+    @Immutable
+    class ProcessorCache {
+        private final int cacheNumber;
+        private final byte level;
+        private final byte associativity;
+        private final short lineSize;
+        private final int cacheSize;
+        private final int type;
+
+        public ProcessorCache(int cacheNumber, byte level, byte associativity, short lineSize, int cacheSize,
+                int type) {
+            this.cacheNumber = cacheNumber;
+            this.level = level;
+            this.associativity = associativity;
+            this.lineSize = lineSize;
+            this.cacheSize = cacheSize;
+            this.type = type;
+        }
+
+        /**
+         * The cache number corresponding to {@link LogicalProcessor#getCacheNumber()}.
+         *
+         * @return the cache number
+         */
+        public int getCacheNumber() {
+            return cacheNumber;
+        }
+
+        /**
+         * The cache level. This member can be 1 (L1), 2 (L2), 3 (L3), or 4 (L4).
+         *
+         * @return the level
+         */
+        public byte getLevel() {
+            return level;
+        }
+
+        /**
+         * The cache associativity. If this member is {@code 0xFF}, the cache is fully
+         * associative.
+         *
+         * @return the associativity
+         */
+        public byte getAssociativity() {
+            return associativity;
+        }
+
+        /**
+         * The cache line size, in bytes.
+         *
+         * @return the line size
+         */
+        public short getLineSize() {
+            return lineSize;
+        }
+
+        /**
+         * The cache size, in bytes.
+         *
+         * @return the cache size
+         */
+        public int getCacheSize() {
+            return cacheSize;
+        }
+
+        /**
+         * The cache type. TODO: enum of CacheUnified, CacheInstruction, CacheData,
+         * CacheTrace.
+         *
+         * @return the type
+         */
+        public int getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return "ProcessorCache [cacheNumber=" + cacheNumber + ", level=" + level + ", associativity="
+                    + associativity + ", lineSize=" + lineSize + ", cacheSize=" + cacheSize + ", type=" + type + "]";
         }
     }
 

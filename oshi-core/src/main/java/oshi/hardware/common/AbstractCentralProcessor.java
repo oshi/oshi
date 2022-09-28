@@ -47,7 +47,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.Auxv;
 import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU.
@@ -75,12 +75,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     // Processor info, initialized in constructor
     private final List<LogicalProcessor> logicalProcessors;
     private final List<PhysicalProcessor> physicalProcessors;
+    private final List<ProcessorCache> processorCaches;
 
     /**
      * Create a Processor
      */
     protected AbstractCentralProcessor() {
-        Pair<List<LogicalProcessor>, List<PhysicalProcessor>> processorLists = initProcessorCounts();
+        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> processorLists = initProcessorCounts();
         // Populate logical processor lists.
         this.logicalProcessors = Collections.unmodifiableList(processorLists.getA());
         if (processorLists.getB() == null) {
@@ -93,6 +94,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         } else {
             this.physicalProcessors = Collections.unmodifiableList(processorLists.getB());
         }
+        this.processorCaches = processorLists.getC() == null ? Collections.emptyList()
+                : Collections.unmodifiableList(processorLists.getC());
         // Init processor counts
         Set<Integer> physPkgs = new HashSet<>();
         for (LogicalProcessor logProc : this.logicalProcessors) {
@@ -109,7 +112,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      *
      * @return An array of initialized Logical Processors and Physical Processors.
      */
-    protected abstract Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts();
+    protected abstract Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts();
 
     /**
      * Updates logical and physical processor counts and arrays
@@ -185,6 +188,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public List<PhysicalProcessor> getPhysicalProcessors() {
         return this.physicalProcessors;
+    }
+
+    @Override
+    public List<ProcessorCache> getProcessorCaches() {
+        return this.processorCaches;
     }
 
     @Override

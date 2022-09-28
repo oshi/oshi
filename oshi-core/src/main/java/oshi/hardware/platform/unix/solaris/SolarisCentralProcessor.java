@@ -42,7 +42,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU
@@ -109,11 +109,11 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
+    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         if (HAS_KSTAT2) {
             // Use Kstat2 implementation
-            return new Pair<>(initProcessorCounts2(numaNodeMap), null);
+            return new Triplet<>(initProcessorCounts2(numaNodeMap), null, null);
         }
         List<LogicalProcessor> logProcs = new ArrayList<>();
         try (KstatChain kc = KstatUtil.openChain()) {
@@ -147,9 +147,9 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
             }
         }
         if (dmesg.isEmpty()) {
-            return new Pair<>(logProcs, null);
+            return new Triplet<>(logProcs, null, null);
         }
-        return new Pair<>(logProcs, createProcListFromDmesg(logProcs, dmesg));
+        return new Triplet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null);
     }
 
     private static List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {
