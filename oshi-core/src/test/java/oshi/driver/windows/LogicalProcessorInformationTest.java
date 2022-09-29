@@ -58,7 +58,9 @@ class LogicalProcessorInformationTest {
                 .getLogicalProcessorInformationEx();
         assertThat("Must be more Logical Processors than Physical Ones", info.getA().size(),
                 greaterThanOrEqualTo(info.getB().size()));
-        assertThat("Must be more Physical Processors than Caches", info.getB().size(),
-                greaterThanOrEqualTo(info.getC().size()));
+        assertThat("Must be more Physical Processors than L3 Caches", info.getB().size(),
+                greaterThanOrEqualTo((int) info.getC().stream().filter(c -> c.getLevel() == 3).count()));
+        assertThat("Must be more Physical Processors than L2 Caches", info.getB().size(),
+                greaterThanOrEqualTo((int) info.getC().stream().filter(c -> c.getLevel() == 2).count()));
     }
 }
