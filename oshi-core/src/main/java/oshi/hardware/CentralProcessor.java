@@ -616,12 +616,20 @@ public interface CentralProcessor {
      */
     @Immutable
     class ProcessorCache {
+
+        /**
+         * The type of cache.
+         */
+        public enum Type {
+            UNIFIED, INSTRUCTION, DATA, TRACE
+        }
+
         private final int cacheNumber;
         private final byte level;
         private final byte associativity;
         private final short lineSize;
         private final int cacheSize;
-        private final int type;
+        private final Type type;
 
         public ProcessorCache(int cacheNumber, byte level, byte associativity, short lineSize, int cacheSize,
                 int type) {
@@ -630,7 +638,7 @@ public interface CentralProcessor {
             this.associativity = associativity;
             this.lineSize = lineSize;
             this.cacheSize = cacheSize;
-            this.type = type;
+            this.type = Type.values()[type];
         }
 
         /**
@@ -680,12 +688,11 @@ public interface CentralProcessor {
         }
 
         /**
-         * The cache type. TODO: enum of CacheUnified, CacheInstruction, CacheData,
-         * CacheTrace.
+         * The cache type.
          *
          * @return the type
          */
-        public int getType() {
+        public Type getType() {
             return type;
         }
 
