@@ -27,6 +27,10 @@ import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -621,19 +626,17 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         if (!systemctlFound) {
             // Get Directories for stopped services
-            File dir = new File("/etc/init");
-            if (dir.exists() && dir.isDirectory()) {
-                for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
-                    // remove .conf extension
-                    String name = f.getName().substring(0, f.getName().length() - 5);
-                    int index = name.lastIndexOf('.');
-                    String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
-                    if (!running.contains(name) && !running.contains(shortName)) {
-                        OSService s = new OSService(name, 0, STOPPED);
-                        services.add(s);
-                    }
-                }
-            } else {
+            try (Stream<Path> pathStream = Files.list(Paths.get("/etc/init"))) {
+                pathStream.filter(path -> path.toString().toLowerCase().endsWith(".conf"))
+                    .map(path -> path.toString().substring(0, path.toString().length() - 5))
+                    .filter(name -> {
+                        int index = name.lastIndexOf('.');
+                        String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
+                        return !running.contains(name) && !running.contains(shortName);
+                    })
+                    .map(name -> new OSService(name, 0, STOPPED))
+                    .forEach(services::add);
+            } catch (IOException e) {
                 LOG.error("Directory: /etc/init does not exist");
             }
         }

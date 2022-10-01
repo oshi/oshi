@@ -27,6 +27,9 @@ import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -34,6 +37,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,18 +270,19 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         }
         // Get Directories for stopped services
         ArrayList<File> files = new ArrayList<>();
-        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);
-        if (dir.exists() && dir.isDirectory()) {
-            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
-        } else {
+
+        try (Stream<Path> file = Files.list(Path.of(SYSTEM_LIBRARY_LAUNCH_AGENTS))) {
+            file.filter(f -> f.toString().toLowerCase().endsWith(".plist")).map(Path::toFile).forEach(files::add);
+        } catch (IOException e) {
             LOG.error("Directory: /System/Library/LaunchAgents does not exist");
         }
-        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);
-        if (dir.exists() && dir.isDirectory()) {
-            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
-        } else {
-            LOG.error("Directory: /System/Library/LaunchDaemons does not exist");
+
+        try (Stream<Path> file = Files.list(Path.of(SYSTEM_LIBRARY_LAUNCH_DAEMONS))) {
+            file.filter(f -> f.toString().toLowerCase().endsWith(".plist")).map(Path::toFile).forEach(files::add);
+        } catch (IOException e) {
+            LOG.error("Directory: /System/Library/LaunchAgents does not exist");
         }
+
         for (File f : files) {
             // remove .plist extension
             String name = f.getName().substring(0, f.getName().length() - 6);

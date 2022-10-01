@@ -272,8 +272,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         }
         // Iterate the list and make the partitions unmodifiable
         for (HWDiskStore hwds : result) {
-            ((LinuxHWDiskStore) hwds).partitionList = Collections.unmodifiableList(hwds.getPartitions().stream()
-                    .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+            ((LinuxHWDiskStore) hwds).partitionList = hwds.getPartitions().stream()
+                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toUnmodifiableList());
         }
         return result;
     }
@@ -312,11 +312,11 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     private static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_LOCATION).append(vgName).append('/').append(lvName).toString();
+        return DEV_LOCATION + vgName + '/' + lvName;
     }
 
     private static String getMountPointOfDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_MAPPER).append(vgName).append('-').append(lvName).toString();
+        return DEV_MAPPER + vgName + '-' + lvName;
     }
 
     private static String getDependentNamesFromHoldersDirectory(String sysPath) {

@@ -280,9 +280,7 @@ public class AixOSProcess extends AbstractOSProcess {
         for (File lwpidFile : numericFiles) {
             int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
             AixLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
-            if (info != null) {
-                mask |= info.pr_bindpro;
-            }
+            mask |= info.pr_bindpro;
         }
         mask &= affinityMask.get();
         return mask;
@@ -345,7 +343,7 @@ public class AixOSProcess extends AbstractOSProcess {
         this.startTime = info.pr_start.tv_sec * 1000L + info.pr_start.tv_nsec / 1_000_000L;
         // Avoid divide by zero for processes up less than a millisecond
         long elapsedTime = now - this.startTime;
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
+        this.upTime = Math.max(elapsedTime, 1L);
         this.userTime = userSysCpuTime.getA();
         this.kernelTime = userSysCpuTime.getB();
         this.commandLineBackup = Native.toString(info.pr_psargs);
