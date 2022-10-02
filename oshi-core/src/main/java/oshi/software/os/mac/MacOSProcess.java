@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -263,18 +264,12 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         long now = System.currentTimeMillis();
-        List<OSThread> details = new ArrayList<>();
-        List<ThreadStats> stats = ThreadInfo.queryTaskThreads(getProcessID());
-        for (ThreadStats stat : stats) {
+        return ThreadInfo.queryTaskThreads(getProcessID()).stream().parallel().map(stat->{
             // For long running threads the start time calculation can overestimate
-            long start = now - stat.getUpTime();
-            if (start < this.getStartTime()) {
-                start = this.getStartTime();
-            }
-            details.add(new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
-                    stat.getUserTime(), start, now - start, stat.getPriority()));
-        }
-        return details;
+            long start = Math.max(now - stat.getUpTime(), getStartTime());
+            return new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
+                stat.getUserTime(), start, now - start, stat.getPriority());
+        }).collect(Collectors.toList());
     }
 
     @Override
