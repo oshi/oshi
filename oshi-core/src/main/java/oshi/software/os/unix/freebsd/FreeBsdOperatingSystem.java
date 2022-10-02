@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -147,14 +148,15 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static List<OSProcess> getProcessListFromPS(int pid) {
-        List<OSProcess> procs = new ArrayList<>();
         String psCommand = "ps -awwxo " + PS_COMMAND_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
+
+        Predicate<Map<PsKeywords, String>> keywordARGS = psMap -> psMap.containsKey(PsKeywords.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' '))
-                .filter(psMap -> psMap.containsKey(PsKeywords.ARGS))
+                .filter(keywordARGS)
                 .map(psMap -> new FreeBsdOSProcess(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
                 .collect(Collectors.toList());
