@@ -523,6 +523,7 @@
                             </format>
                         </formats>
                         <java>
+                            <removeUnusedImports/>
                             <eclipse>
                                 <file>${main.basedir}/config/OSHIJavaFormatConventions.xml</file>
                             </eclipse>
