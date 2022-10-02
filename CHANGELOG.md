@@ -4,6 +4,7 @@
 * [#2179](https://github.com/oshi/oshi/pull/2179): Update JUnit EnabledOnOS for OpenBSD and FreeBSD - [@dbwiddis](https://github.com/dbwiddis).
 * [#2180](https://github.com/oshi/oshi/pull/2180): Suppress log warnings for non-root procfs reads - [@dbwiddis](https://github.com/dbwiddis).
 * [#2181](https://github.com/oshi/oshi/pull/2181): Better handling of ARM CPU Names - [@dbwiddis](https://github.com/dbwiddis).
+* [#2204](https://github.com/oshi/oshi/pull/2204): Improve performance using parallel streams for processes and threads - [@adrian-kong](https://github.com/adrian-kong).
 
 ##### New Features
 * [#2197](https://github.com/oshi/oshi/issues/2197): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).

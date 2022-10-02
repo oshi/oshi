@@ -33,7 +33,7 @@ import java.util.function.Predicate;
 public interface OSThread {
 
     /**
-     * Constants which may be used to filter Thread lists in
+     * Constants which may be used to filter Thread lists
      */
     final class ThreadFiltering {
         private ThreadFiltering() {

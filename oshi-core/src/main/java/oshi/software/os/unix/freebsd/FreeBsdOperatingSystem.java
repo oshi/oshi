@@ -25,6 +25,7 @@ package oshi.software.os.unix.freebsd;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,12 +45,12 @@ import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
-import oshi.software.os.FileSystem;
-import oshi.software.os.InternetProtocolStats;
-import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
+import oshi.software.os.InternetProtocolStats;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSService;
+import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -153,12 +154,12 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             psCommand += " -p " + pid;
         }
 
-        Predicate<Map<PsKeywords, String>> keywordARGS = psMap -> psMap.containsKey(PsKeywords.ARGS);
+        Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-                .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(keywordARGS)
+                .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
                 .map(psMap -> new FreeBsdOSProcess(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
-                .collect(Collectors.toList());
+                .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 
     @Override

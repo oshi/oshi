@@ -30,6 +30,7 @@ import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -354,10 +355,12 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
-        Predicate<Map<PsThreadColumns, String>> columnARGS = threadMap -> threadMap.containsKey(PsThreadColumns.ARGS);
+        Predicate<Map<PsThreadColumns, String>> hasColumnsArgs = threadMap -> threadMap
+                .containsKey(PsThreadColumns.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1)
-                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' ')).filter(columnARGS)
-                .map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap)).collect(Collectors.toList());
+                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+                .filter(hasColumnsArgs).map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap))
+                .filter(VALID_THREAD).collect(Collectors.toList());
     }
 
     @Override

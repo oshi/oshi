@@ -26,6 +26,7 @@ package oshi.software.os.windows;
 import static oshi.software.os.OSService.State.OTHER;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -337,11 +338,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Set<Integer> mapKeys = new HashSet<>(processWtsMap.keySet());
         mapKeys.retainAll(processMap.keySet());
 
-        Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
+        final Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
+        final Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
         return mapKeys.stream().parallel()
                 .map(pid -> new WindowsOSProcess(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
-                .collect(Collectors.toList());
+                .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 
     private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromRegistry() {

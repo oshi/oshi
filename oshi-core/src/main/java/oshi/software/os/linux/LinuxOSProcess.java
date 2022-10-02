@@ -24,6 +24,7 @@
 package oshi.software.os.linux;
 
 import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -248,7 +249,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         return ProcessStat.getThreadIds(getProcessID()).stream().parallel()
-                .map(id -> new LinuxOSThread(getProcessID(), id)).collect(Collectors.toList());
+                .map(id -> new LinuxOSThread(getProcessID(), id)).filter(VALID_THREAD).collect(Collectors.toList());
     }
 
     @Override

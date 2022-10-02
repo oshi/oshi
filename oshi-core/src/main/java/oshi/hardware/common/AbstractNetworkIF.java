@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -155,7 +156,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
         return includeLocalInterfaces ? interfaces
                 : getAllNetworkInterfaces().stream().parallel()
-                        .filter(networkInterface1 -> !isLocalInterface(networkInterface1)).collect(Collectors.toList());
+                        .filter(Predicate.not(AbstractNetworkIF::isLocalInterface)).collect(Collectors.toList());
     }
 
     /**
