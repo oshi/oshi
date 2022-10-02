@@ -129,8 +129,10 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         // Get L2 caches, one per physical processor
         List<ProcessorCache> caches = new ArrayList<>();
         int cacheSizeL2 = ParseUtil.parseIntOrDefault(ExecutingCommand.getAnswerAt("lsattr -l L2cache0 -E -O", 2), 0);
-        for (int i = 0; i < physProcs; i++) {
-            caches.add(new ProcessorCache(i, 2, 0, 64, cacheSizeL2, Type.UNIFIED));
+        if (cacheSizeL2 > 0) {
+            for (int i = 0; i < physProcs; i++) {
+                caches.add(new ProcessorCache(i, 2, 0, 64, cacheSizeL2, Type.UNIFIED));
+            }
         }
         // Get node and package mapping
         Map<Integer, Pair<Integer, Integer>> nodePkgMap = Lssrad.queryNodesPackages();
@@ -143,7 +145,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(proc, physProc, nodePkg == null ? 0 : nodePkg.getB(),
                     nodePkg == null ? 0 : nodePkg.getA(), procCaches, 0));
         }
-        return new Triplet<>(logProcs, null, null);
+        return new Triplet<>(logProcs, null, caches);
     }
 
     @Override
