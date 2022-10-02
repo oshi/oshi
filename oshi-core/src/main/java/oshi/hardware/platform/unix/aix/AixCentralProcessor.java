@@ -128,7 +128,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         int lpPerPp = lcpus / physProcs;
         // Get L2 caches, one per physical processor
         List<ProcessorCache> caches = new ArrayList<>();
-        int cacheSizeL2 = ParseUtil.parseIntOrDefault(ExecutingCommand.getAnswerAt("lsattr -l L2cache0 -E -O", 2), 0);
+        int cacheSizeL2 = ParseUtil.parseIntOrDefault(ExecutingCommand.getAnswerAt("lsattr -l L2cache0 -E -O", 1), 0);
         if (cacheSizeL2 > 0) {
             for (int i = 0; i < physProcs; i++) {
                 caches.add(new ProcessorCache(i, 2, 0, 64, cacheSizeL2, Type.UNIFIED));
