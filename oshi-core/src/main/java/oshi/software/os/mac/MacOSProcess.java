@@ -264,11 +264,11 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         long now = System.currentTimeMillis();
-        return ThreadInfo.queryTaskThreads(getProcessID()).stream().parallel().map(stat->{
+        return ThreadInfo.queryTaskThreads(getProcessID()).stream().parallel().map(stat -> {
             // For long running threads the start time calculation can overestimate
             long start = Math.max(now - stat.getUpTime(), getStartTime());
             return new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
-                stat.getUserTime(), start, now - start, stat.getPriority());
+                    stat.getUserTime(), start, now - start, stat.getPriority());
         }).collect(Collectors.toList());
     }
 

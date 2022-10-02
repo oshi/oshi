@@ -337,10 +337,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
             psCommand += " -p " + getProcessID();
         }
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-            .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
-            .filter(threadMap -> threadMap.containsKey(PsThreadColumns.PRI))
-            .map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap))
-            .collect(Collectors.toList());
+                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+                .filter(threadMap -> threadMap.containsKey(PsThreadColumns.PRI))
+                .map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap)).collect(Collectors.toList());
     }
 
     @Override

@@ -297,8 +297,8 @@ public class AixOSProcess extends AbstractOSProcess {
         }
 
         return Arrays.stream(numericFiles).parallel()
-            .map(lwpidFile -> new AixOSThread(getProcessID(), ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
-            .filter(thread -> thread.getState() != INVALID).collect(Collectors.toList());
+                .map(lwpidFile -> new AixOSThread(getProcessID(), ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
+                .filter(thread -> thread.getState() != INVALID).collect(Collectors.toList());
     }
 
     @Override

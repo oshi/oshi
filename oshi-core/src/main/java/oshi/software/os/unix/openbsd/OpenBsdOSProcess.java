@@ -354,10 +354,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             psCommand += " -p " + getProcessID();
         }
         return ExecutingCommand.runNative(psCommand).stream().skip(1)
-            .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
-            .filter(threadMap -> threadMap.containsKey(PsThreadColumns.ARGS))
-            .map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap))
-            .collect(Collectors.toList());
+                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+                .filter(threadMap -> threadMap.containsKey(PsThreadColumns.ARGS))
+                .map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap)).collect(Collectors.toList());
     }
 
     @Override

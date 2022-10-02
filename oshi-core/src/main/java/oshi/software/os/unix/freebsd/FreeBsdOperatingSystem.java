@@ -153,11 +153,11 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             psCommand += " -p " + pid;
         }
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-            .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' '))
-            .filter(psMap -> psMap.containsKey(PsKeywords.ARGS))
-            .map(psMap -> new FreeBsdOSProcess(
-                pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
-            .collect(Collectors.toList());
+                .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' '))
+                .filter(psMap -> psMap.containsKey(PsKeywords.ARGS))
+                .map(psMap -> new FreeBsdOSProcess(
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
+                .collect(Collectors.toList());
     }
 
     @Override

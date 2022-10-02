@@ -323,10 +323,9 @@ public class SolarisOSProcess extends AbstractOSProcess {
             return Collections.emptyList();
         }
 
-        return Arrays.stream(numericFiles).parallel()
-            .map(lwpidFile ->new SolarisOSThread(getProcessID(),  ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
-            .filter(thread -> thread.getState() != INVALID)
-            .collect(Collectors.toList());
+        return Arrays.stream(numericFiles).parallel().map(
+                lwpidFile -> new SolarisOSThread(getProcessID(), ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
+                .filter(thread -> thread.getState() != INVALID).collect(Collectors.toList());
     }
 
     @Override

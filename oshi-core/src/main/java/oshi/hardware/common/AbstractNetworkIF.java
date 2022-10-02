@@ -154,8 +154,8 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         List<NetworkInterface> interfaces = getAllNetworkInterfaces();
 
         return includeLocalInterfaces ? interfaces
-                : getAllNetworkInterfaces().stream().parallel().filter(networkInterface1 -> !isLocalInterface(networkInterface1))
-                        .collect(Collectors.toList());
+                : getAllNetworkInterfaces().stream().parallel()
+                        .filter(networkInterface1 -> !isLocalInterface(networkInterface1)).collect(Collectors.toList());
     }
 
     /**

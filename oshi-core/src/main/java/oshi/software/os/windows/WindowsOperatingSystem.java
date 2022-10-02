@@ -340,8 +340,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
         Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
         return mapKeys.stream().parallel()
-            .map(pid -> new WindowsOSProcess(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
-            .collect(Collectors.toList());
+                .map(pid -> new WindowsOSProcess(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
+                .collect(Collectors.toList());
     }
 
     private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromRegistry() {
