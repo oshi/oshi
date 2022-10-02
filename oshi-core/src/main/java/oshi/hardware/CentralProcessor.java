@@ -641,6 +641,15 @@ public interface CentralProcessor {
             this.type = Type.values()[type];
         }
 
+        public ProcessorCache(int cacheNumber, int level, int associativity, int lineSize, long cacheSize, Type type) {
+            this.cacheNumber = cacheNumber;
+            this.level = (byte) level;
+            this.associativity = (byte) associativity;
+            this.lineSize = (short) lineSize;
+            this.cacheSize = (int) cacheSize;
+            this.type = type;
+        }
+
         /**
          * The cache number corresponding to {@link LogicalProcessor#getCacheNumbers()}.
          *
