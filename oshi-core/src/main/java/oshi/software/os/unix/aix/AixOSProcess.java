@@ -30,6 +30,7 @@ import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -38,10 +39,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -290,24 +293,16 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<OSThread> threads = new ArrayList<>();
-
         // Get process files in proc
         File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         if (numericFiles == null) {
-            return threads;
+            return Collections.emptyList();
         }
 
-        // Iterate files
-        for (File lwpidFile : numericFiles) {
-            int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
-            OSThread thread = new AixOSThread(getProcessID(), lwpidNum);
-            if (thread.getState() != INVALID) {
-                threads.add(thread);
-            }
-        }
-        return threads;
+        return Arrays.stream(numericFiles).parallel()
+                .map(lwpidFile -> new AixOSThread(getProcessID(), ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
+                .filter(VALID_THREAD).collect(Collectors.toList());
     }
 
     @Override

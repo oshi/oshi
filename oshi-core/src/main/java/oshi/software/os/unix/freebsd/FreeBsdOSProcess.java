@@ -30,6 +30,7 @@ import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -332,25 +334,15 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<OSThread> threads = new ArrayList<>();
         String psCommand = "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
-        List<String> threadList = ExecutingCommand.runNative(psCommand);
-        if (threadList.size() > 1) {
-            // remove header row
-            threadList.remove(0);
-            // Fill list
-            for (String thread : threadList) {
-                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
-                        ' ');
-                if (threadMap.containsKey(PsThreadColumns.PRI)) {
-                    threads.add(new FreeBsdOSThread(getProcessID(), threadMap));
-                }
-            }
-        }
-        return threads;
+        Predicate<Map<PsThreadColumns, String>> hasColumnsPri = threadMap -> threadMap.containsKey(PsThreadColumns.PRI);
+        return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
+                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+                .filter(hasColumnsPri).map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap))
+                .filter(VALID_THREAD).collect(Collectors.toList());
     }
 
     @Override

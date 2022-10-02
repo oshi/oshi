@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -154,7 +154,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         List<NetworkInterface> interfaces = getAllNetworkInterfaces();
 
         return includeLocalInterfaces ? interfaces
-                : getAllNetworkInterfaces().stream().filter(networkInterface1 -> !isLocalInterface(networkInterface1))
+                : getAllNetworkInterfaces().stream().parallel().filter(ni -> !isLocalInterface(ni))
                         .collect(Collectors.toList());
     }
 

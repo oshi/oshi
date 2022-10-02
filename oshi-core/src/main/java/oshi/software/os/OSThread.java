@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+ * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,25 @@ package oshi.software.os;
 
 import oshi.software.os.OSProcess.State;
 
+import java.util.function.Predicate;
+
 /**
  * Represents a Thread/Task on the operating system.
  */
 public interface OSThread {
+
+    /**
+     * Constants which may be used to filter Thread lists
+     */
+    final class ThreadFiltering {
+        private ThreadFiltering() {
+        }
+
+        /**
+         * Exclude processes with {@link State#INVALID} process state.
+         */
+        public static final Predicate<OSThread> VALID_THREAD = p -> !p.getState().equals(State.INVALID);
+    }
 
     /**
      * The thread id. The meaning of this value is OS-dependent.

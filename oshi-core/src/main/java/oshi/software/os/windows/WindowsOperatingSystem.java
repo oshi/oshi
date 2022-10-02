@@ -26,6 +26,7 @@ package oshi.software.os.windows;
 import static oshi.software.os.OSService.State.OTHER;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -336,11 +338,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Set<Integer> mapKeys = new HashSet<>(processWtsMap.keySet());
         mapKeys.retainAll(processMap.keySet());
 
-        List<OSProcess> processList = new ArrayList<>();
-        for (Integer pid : mapKeys) {
-            processList.add(new WindowsOSProcess(pid, this, processMap, processWtsMap, threadMap));
-        }
-        return processList;
+        final Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
+        final Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
+        return mapKeys.stream().parallel()
+                .map(pid -> new WindowsOSProcess(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
+                .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 
     private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromRegistry() {
