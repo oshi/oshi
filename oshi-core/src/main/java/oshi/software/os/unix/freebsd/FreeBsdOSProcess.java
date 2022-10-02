@@ -332,25 +332,15 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        List<OSThread> threads = new ArrayList<>();
         String psCommand = "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
-        List<String> threadList = ExecutingCommand.runNative(psCommand);
-        if (threadList.size() > 1) {
-            // remove header row
-            threadList.remove(0);
-            // Fill list
-            for (String thread : threadList) {
-                Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(),
-                        ' ');
-                if (threadMap.containsKey(PsThreadColumns.PRI)) {
-                    threads.add(new FreeBsdOSThread(getProcessID(), threadMap));
-                }
-            }
-        }
-        return threads;
+        return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
+            .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+            .filter(threadMap -> threadMap.containsKey(PsThreadColumns.PRI))
+            .map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap))
+            .collect(Collectors.toList());
     }
 
     @Override

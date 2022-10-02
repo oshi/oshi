@@ -287,7 +287,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
         if (threads == null) {
             return Collections.emptyList();
         }
-        return threads.entrySet().stream()
+        return threads.entrySet().stream().parallel()
                 .map(entry -> new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
                 .collect(Collectors.toList());
     }
