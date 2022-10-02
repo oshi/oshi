@@ -621,7 +621,12 @@ public interface CentralProcessor {
          * The type of cache.
          */
         public enum Type {
-            UNIFIED, INSTRUCTION, DATA, TRACE
+            UNIFIED, INSTRUCTION, DATA, TRACE;
+
+            @Override
+            public String toString() {
+                return name().substring(0, 1) + name().substring(1).toLowerCase();
+            }
         }
 
         private final int cacheNumber;
@@ -707,8 +712,8 @@ public interface CentralProcessor {
 
         @Override
         public String toString() {
-            return "ProcessorCache [cacheNumber=" + cacheNumber + ", level=" + level + ", associativity="
-                    + associativity + ", lineSize=" + lineSize + ", cacheSize=" + cacheSize + ", type=" + type + "]";
+            return "ProcessorCache [cacheNumber=" + cacheNumber + ", L" + level + " " + type + ", cacheSize="
+                    + cacheSize + ", " + associativity + "-way associativity, lineSize=" + lineSize + "]";
         }
     }
 
