@@ -156,7 +156,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
         return includeLocalInterfaces ? interfaces
                 : getAllNetworkInterfaces().stream().parallel()
-                        .filter(Predicate.not(AbstractNetworkIF::isLocalInterface)).collect(Collectors.toList());
+                        .filter(ni -> !isLocalInterface(ni)).collect(Collectors.toList());
     }
 
     /**
