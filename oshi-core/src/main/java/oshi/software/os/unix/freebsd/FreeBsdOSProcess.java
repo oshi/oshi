@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -336,9 +337,10 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
+        Predicate<Map<PsThreadColumns, String>> columnPRI = threadMap -> threadMap.containsKey(PsThreadColumns.PRI);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
-                .filter(threadMap -> threadMap.containsKey(PsThreadColumns.PRI))
+                .filter(columnPRI)
                 .map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap)).collect(Collectors.toList());
     }
 

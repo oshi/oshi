@@ -30,6 +30,7 @@ import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -38,7 +39,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -298,7 +302,7 @@ public class AixOSProcess extends AbstractOSProcess {
 
         return Arrays.stream(numericFiles).parallel()
                 .map(lwpidFile -> new AixOSThread(getProcessID(), ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
-                .filter(thread -> thread.getState() != INVALID).collect(Collectors.toList());
+                .filter(VALID_THREAD).collect(Collectors.toList());
     }
 
     @Override
