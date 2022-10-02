@@ -152,22 +152,12 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
-        List<String> procList = ExecutingCommand.runNative(psCommand);
-        if (procList.isEmpty() || procList.size() < 2) {
-            return procs;
-        }
-        // remove header row
-        procList.remove(0);
-        // Fill list
-        for (String proc : procList) {
-            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
-            // Check if last (thus all) value populated
-            if (psMap.containsKey(PsKeywords.ARGS)) {
-                procs.add(new FreeBsdOSProcess(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap));
-            }
-        }
-        return procs;
+        return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
+            .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' '))
+            .filter(psMap -> psMap.containsKey(PsKeywords.ARGS))
+            .map(psMap -> new FreeBsdOSProcess(
+                pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
+            .collect(Collectors.toList());
     }
 
     @Override

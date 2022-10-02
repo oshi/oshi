@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -336,11 +337,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Set<Integer> mapKeys = new HashSet<>(processWtsMap.keySet());
         mapKeys.retainAll(processMap.keySet());
 
-        List<OSProcess> processList = new ArrayList<>();
-        for (Integer pid : mapKeys) {
-            processList.add(new WindowsOSProcess(pid, this, processMap, processWtsMap, threadMap));
-        }
-        return processList;
+        Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
+        Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
+        return mapKeys.stream().parallel()
+            .map(pid -> new WindowsOSProcess(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
+            .collect(Collectors.toList());
     }
 
     private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromRegistry() {
