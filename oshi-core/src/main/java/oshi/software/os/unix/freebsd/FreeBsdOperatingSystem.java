@@ -155,8 +155,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
         Predicate<Map<PsKeywords, String>> keywordARGS = psMap -> psMap.containsKey(PsKeywords.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-                .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' '))
-                .filter(keywordARGS)
+                .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(keywordARGS)
                 .map(psMap -> new FreeBsdOSProcess(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
                 .collect(Collectors.toList());

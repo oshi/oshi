@@ -339,8 +339,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         }
         Predicate<Map<PsThreadColumns, String>> columnPRI = threadMap -> threadMap.containsKey(PsThreadColumns.PRI);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
-                .filter(columnPRI)
+                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' ')).filter(columnPRI)
                 .map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap)).collect(Collectors.toList());
     }
 
