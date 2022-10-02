@@ -28,8 +28,10 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.sun.jna.Native;
@@ -41,6 +43,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.Lssrad;
 import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
+import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -122,13 +125,23 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         if (lcpus < 1) {
             lcpus = 1;
         }
+        int lpPerPp = lcpus / physProcs;
+        // Get L2 caches, one per physical processor
+        List<ProcessorCache> caches = new ArrayList<>();
+        int cacheSizeL2 = ParseUtil.parseIntOrDefault(ExecutingCommand.getAnswerAt("lsattr -l L2cache0 -E -O", 2), 0);
+        for (int i = 0; i < physProcs; i++) {
+            caches.add(new ProcessorCache(i, 2, 0, 64, cacheSizeL2, Type.UNIFIED));
+        }
         // Get node and package mapping
         Map<Integer, Pair<Integer, Integer>> nodePkgMap = Lssrad.queryNodesPackages();
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (int proc = 0; proc < lcpus; proc++) {
             Pair<Integer, Integer> nodePkg = nodePkgMap.get(proc);
-            logProcs.add(new LogicalProcessor(proc, proc / physProcs, nodePkg == null ? 0 : nodePkg.getB(),
-                    nodePkg == null ? 0 : nodePkg.getA()));
+            Set<Integer> procCaches = new HashSet<>();
+            int physProc = proc / lpPerPp;
+            procCaches.add(physProc);
+            logProcs.add(new LogicalProcessor(proc, physProc, nodePkg == null ? 0 : nodePkg.getB(),
+                    nodePkg == null ? 0 : nodePkg.getA(), procCaches, 0));
         }
         return new Triplet<>(logProcs, null, null);
     }

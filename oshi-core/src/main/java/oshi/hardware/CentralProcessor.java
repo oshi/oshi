@@ -713,7 +713,8 @@ public interface CentralProcessor {
         @Override
         public String toString() {
             return "ProcessorCache [cacheNumber=" + cacheNumber + ", L" + level + " " + type + ", cacheSize="
-                    + cacheSize + ", " + associativity + "-way associativity, lineSize=" + lineSize + "]";
+                    + cacheSize + ", " + (associativity > 0 ? associativity + "-way" : "unknown")
+                    + " associativity, lineSize=" + lineSize + "]";
         }
     }
 
