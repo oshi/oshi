@@ -34,14 +34,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -66,7 +63,6 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
@@ -209,7 +205,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        List<Pair<Triplet<List<Integer>, Integer, Type>, Triplet<Integer, Integer, Long>>> caches = new ArrayList<>();
+        List<ProcessorCache> caches = new ArrayList<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
         // Enumerate CPU topology from sysfs via udev
@@ -239,13 +235,12 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         } finally {
             udev.unref();
         }
-        Pair<List<LogicalProcessor>, List<ProcessorCache>> procCache = attachCachesToLogprocs(logProcs, caches);
-        return new Quartet<>(procCache.getA(), procCache.getB(), coreEfficiencyMap, modAliasMap);
+        return new Quartet<>(logProcs, distinctProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
     private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        List<Pair<Triplet<List<Integer>, Integer, Type>, Triplet<Integer, Integer, Long>>> caches = new ArrayList<>();
+        List<ProcessorCache> caches = new ArrayList<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
         String cpuPath = "/sys/devices/system/cpu/";
@@ -256,6 +251,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     String syspath = cpu.toString(); // /sys/devices/system/cpu/cpuX
                     Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(syspath + "/uevent", "=");
                     String modAlias = uevent.get("MODALIAS");
+                    // updates caches as a side-effect
                     logProcs.add(
                             getLogicalProcessorFromSyspath(syspath, caches, modAlias, coreEfficiencyMap, modAliasMap));
                 });
@@ -264,50 +260,11 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
             // No udev and no cpu info in sysfs? Bad.
             LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
         }
-        Pair<List<LogicalProcessor>, List<ProcessorCache>> procCache = attachCachesToLogprocs(logProcs, caches);
-        return new Quartet<>(procCache.getA(), procCache.getB(), coreEfficiencyMap, modAliasMap);
+        return new Quartet<>(logProcs, distinctProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
-    private static Pair<List<LogicalProcessor>, List<ProcessorCache>> attachCachesToLogprocs(
-            List<LogicalProcessor> logProcs,
-            List<Pair<Triplet<List<Integer>, Integer, Type>, Triplet<Integer, Integer, Long>>> caches) {
-        // Sort the caches by lowest processor and then by level (descending)
-        caches.sort(Comparator.comparing(
-                c -> Collections.min(c.getA().getA()) * 100L - c.getA().getB() * 10L + c.getA().getC().ordinal()));
-        // We will have multiple copies of the same L3 cache but only want to keep the
-        // one on the lowest level, so track which ones we've added an L3 to
-        Set<Integer> hasL3Cache = new HashSet<>();
-        // Iterating the caches to find the LPs, we will reverse this mapping and store
-        // a set in the LPs with the caches
-        Map<Integer, Set<Integer>> procToCacheMap = new HashMap<>();
-        // We'll save the caches to this list while iterating
-        List<ProcessorCache> procCaches = new ArrayList<>();
-        int cacheNum = 0;
-        for (Pair<Triplet<List<Integer>, Integer, Type>, Triplet<Integer, Integer, Long>> cache : caches) {
-            // Only add if not L3 cache or not in the set
-            if (cache.getA().getB() < 3 || !hasL3Cache.containsAll(cache.getA().getA())) {
-                if (cache.getA().getB() > 2) {
-                    hasL3Cache.addAll(cache.getA().getA());
-                }
-                for (Integer p : cache.getA().getA()) {
-                    procToCacheMap.putIfAbsent(p, new HashSet<>());
-                    procToCacheMap.get(p).add(cacheNum);
-                }
-                procCaches.add(new ProcessorCache(cacheNum++, cache.getA().getB(), cache.getB().getA(),
-                        cache.getB().getB(), cache.getB().getC(), cache.getA().getC()));
-            }
-        }
-        List<LogicalProcessor> logProcsWithCacheInfo = logProcs.stream().map(p -> {
-            return new LogicalProcessor(p.getProcessorNumber(), p.getPhysicalProcessorNumber(),
-                    p.getPhysicalPackageNumber(), p.getNumaNode(),
-                    procToCacheMap.getOrDefault(p.getProcessorNumber(), Collections.emptySet()), p.getProcessorGroup());
-        }).collect(Collectors.toList());
-        return new Pair<>(logProcsWithCacheInfo, procCaches);
-    }
-
-    private static LogicalProcessor getLogicalProcessorFromSyspath(String syspath,
-            List<Pair<Triplet<List<Integer>, Integer, Type>, Triplet<Integer, Integer, Long>>> caches, String modAlias,
-            Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
+    private static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, List<ProcessorCache> caches,
+            String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
         int processor = ParseUtil.getFirstIntValue(syspath);
         int coreId = FileUtil.getIntFromFile(syspath + "/topology/core_id");
         int pkgId = FileUtil.getIntFromFile(syspath + "/topology/physical_package_id");
@@ -331,14 +288,12 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         final String indexPrefix = cachePath + "/index";
         try (Stream<Path> path = Files.list(Paths.get(cachePath))) {
             path.filter(p -> p.toString().startsWith(indexPrefix)).forEach(c -> {
-                List<Integer> cpus = ParseUtil
-                        .parseHyphenatedIntList(FileUtil.getStringFromFile(c + "/shared_cpu_list")); // 1 or 0-11
                 int level = FileUtil.getIntFromFile(c + "/level"); // 1
                 Type type = parseCacheType(FileUtil.getStringFromFile(c + "/type")); // Data
                 int associativity = FileUtil.getIntFromFile(c + "/ways_of_associativity"); // 8
                 int lineSize = FileUtil.getIntFromFile(c + "/coherency_line_size"); // 64
                 long size = ParseUtil.parseDecimalMemorySizeToBinary(FileUtil.getStringFromFile(c + "/size")); // 32K
-                caches.add(new Pair<>(new Triplet<>(cpus, level, type), new Triplet<>(associativity, lineSize, size)));
+                caches.add(new ProcessorCache(level, associativity, lineSize, size, type));
             });
         } catch (IOException e) {
             // ignore

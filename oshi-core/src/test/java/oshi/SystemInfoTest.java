@@ -201,10 +201,9 @@ public class SystemInfoTest { // NOSONAR squid:S5786
             }
         }
         oshi.add(" Topology:");
-        oshi.add(String.format("  %7s %4s %4s %4s %4s %4s %s", "LogProc", "P/E", "Proc", "Pkg", "NUMA", "PGrp",
-                "Caches"));
+        oshi.add(String.format("  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA", "PGrp"));
         for (PhysicalProcessor cpu : processor.getPhysicalProcessors()) {
-            oshi.add(String.format("  %7s %4s %4d %4s %4d %4d    %s",
+            oshi.add(String.format("  %7s %4s %4d %4s %4d %4d",
                     processor.getLogicalProcessors().stream()
                             .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
                             .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
@@ -218,15 +217,11 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                     processor.getLogicalProcessors().stream()
                             .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
                             .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
-                            .mapToInt(p -> p.getProcessorGroup()).findFirst().orElse(0),
-                    processor.getLogicalProcessors().stream()
-                            .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
-                            .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
-                            .flatMap(p -> p.getCacheNumbers().stream()).distinct().map(Object::toString)
-                            .collect(Collectors.joining(","))));
+                            .mapToInt(p -> p.getProcessorGroup()).findFirst().orElse(0)));
         }
+        oshi.add(" Caches:");
         for (ProcessorCache cache : processor.getProcessorCaches()) {
-            oshi.add(cache.toString());
+            oshi.add("  " + cache.toString() + (cache.getLevel() < 3 ? " (per core)" : ""));
         }
     }
 

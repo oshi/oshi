@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import com.sun.jna.Platform;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.Auxv;
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
 
@@ -439,6 +441,48 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         physProcs.sort(Comparator.comparingInt(PhysicalProcessor::getPhysicalPackageNumber)
                 .thenComparingInt(PhysicalProcessor::getPhysicalProcessorNumber));
         return physProcs;
+    }
+
+    /**
+     * Filters a list of duplicate processor caches to a list of distinct
+     * representatives
+     *
+     * @param caches
+     *            Caches, including duplicates
+     * @return A list with (possibly) one each of L3, L2, L1D, and L1I caches
+     */
+    public static List<ProcessorCache> distinctProcCaches(List<ProcessorCache> caches) {
+        ProcessorCache level3 = null;
+        ProcessorCache level2 = null;
+        ProcessorCache level1d = null;
+        ProcessorCache level1i = null;
+        // input: caches, with many duplicates
+        // output: list with just the 4 types above
+        for (ProcessorCache cache : caches) {
+            switch (cache.getLevel()) {
+            case 3:
+                if (level3 == null) {
+                    level3 = cache;
+                }
+                break;
+            case 2:
+                if (level2 == null) {
+                    level2 = cache;
+                }
+                break;
+            case 1:
+                if (cache.getType() == Type.DATA && level1d == null) {
+                    level1d = cache;
+                } else if (cache.getType() == Type.INSTRUCTION && level1i == null) {
+                    level1i = cache;
+                }
+                break;
+            default:
+                // do nothing
+            }
+        }
+        return Arrays.asList(level3, level2, level1d, level1i).stream().filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -25,10 +25,8 @@ package oshi.hardware;
 
 import static oshi.util.Memoizer.memoize;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -383,7 +381,6 @@ public interface CentralProcessor {
         private final int physicalProcessorNumber;
         private final int physicalPackageNumber;
         private final int numaNode;
-        private final Set<Integer> cacheNumbers;
         private final int processorGroup;
 
         /**
@@ -395,7 +392,7 @@ public interface CentralProcessor {
          *            the package/socket number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber) {
-            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, Collections.emptySet(), 0);
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);
         }
 
         /**
@@ -410,7 +407,7 @@ public interface CentralProcessor {
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
                 int numaNode) {
-            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, Collections.emptySet(), 0);
+            this(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);
         }
 
         /**
@@ -422,18 +419,15 @@ public interface CentralProcessor {
          *            the package/socket number
          * @param numaNode
          *            the NUMA node number
-         * @param cacheNumbers
-         *            the set of cache numbers
          * @param processorGroup
          *            the Processor Group number
          */
         public LogicalProcessor(int processorNumber, int physicalProcessorNumber, int physicalPackageNumber,
-                int numaNode, Set<Integer> cacheNumbers, int processorGroup) {
+                int numaNode, int processorGroup) {
             this.processorNumber = processorNumber;
             this.physicalProcessorNumber = physicalProcessorNumber;
             this.physicalPackageNumber = physicalPackageNumber;
             this.numaNode = numaNode;
-            this.cacheNumbers = cacheNumbers;
             this.processorGroup = processorGroup;
         }
 
@@ -478,16 +472,6 @@ public interface CentralProcessor {
          */
         public int getNumaNode() {
             return numaNode;
-        }
-
-        /**
-         * The processor cache id numbers assigned to this logical processor. Empty set
-         * if the operating system does not provide cache topology details.
-         *
-         * @return the cache numbers associated with this processor.
-         */
-        public Set<Integer> getCacheNumbers() {
-            return cacheNumbers;
         }
 
         /**
@@ -629,39 +613,22 @@ public interface CentralProcessor {
             }
         }
 
-        private final int cacheNumber;
         private final byte level;
         private final byte associativity;
         private final short lineSize;
         private final int cacheSize;
         private final Type type;
 
-        public ProcessorCache(int cacheNumber, byte level, byte associativity, short lineSize, int cacheSize,
-                int type) {
-            this.cacheNumber = cacheNumber;
+        public ProcessorCache(byte level, byte associativity, short lineSize, int cacheSize, Type type) {
             this.level = level;
             this.associativity = associativity;
             this.lineSize = lineSize;
             this.cacheSize = cacheSize;
-            this.type = Type.values()[type];
-        }
-
-        public ProcessorCache(int cacheNumber, int level, int associativity, int lineSize, long cacheSize, Type type) {
-            this.cacheNumber = cacheNumber;
-            this.level = (byte) level;
-            this.associativity = (byte) associativity;
-            this.lineSize = (short) lineSize;
-            this.cacheSize = (int) cacheSize;
             this.type = type;
         }
 
-        /**
-         * The cache number corresponding to {@link LogicalProcessor#getCacheNumbers()}.
-         *
-         * @return the cache number
-         */
-        public int getCacheNumber() {
-            return cacheNumber;
+        public ProcessorCache(int level, int associativity, int lineSize, long cacheSize, Type type) {
+            this((byte) level, (byte) associativity, (short) lineSize, (int) cacheSize, type);
         }
 
         /**
@@ -712,9 +679,9 @@ public interface CentralProcessor {
 
         @Override
         public String toString() {
-            return "ProcessorCache [cacheNumber=" + cacheNumber + ", L" + level + " " + type + ", cacheSize="
-                    + cacheSize + ", " + (associativity > 0 ? associativity + "-way" : "unknown")
-                    + " associativity, lineSize=" + lineSize + "]";
+            return "ProcessorCache [L" + level + " " + type + ", cacheSize=" + cacheSize + ", "
+                    + (associativity > 0 ? associativity + "-way" : "unknown") + " associativity, lineSize=" + lineSize
+                    + "]";
         }
     }
 
