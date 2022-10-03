@@ -28,6 +28,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -432,8 +433,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 // ARM v8 big.LITTLE chips just use the # for efficiency class
                 // High-performance CPU (big): Cortex-A73, Cortex-A75, Cortex-A76
                 // High-efficiency CPU (LITTLE): Cortex-A53, Cortex-A55
-                if (isHybrid && idStr.startsWith("ARM Cortex")) {
-                    efficiency = ParseUtil.getFirstIntValue(idStr) >= 70 ? 1 : 0;
+                if (isHybrid && ((idStr.startsWith("ARM Cortex") && ParseUtil.getFirstIntValue(idStr) >= 70)
+                        || (idStr.startsWith("Apple")
+                                && (idStr.contains("Firestorm") || (idStr.contains("Avalanche")))))) {
+                    efficiency = 1;
                 }
                 physProcs.add(new PhysicalProcessor(pkgId, coreId, efficiency, idStr));
             }
@@ -444,14 +447,15 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * Filters a list of duplicate processor caches to a list of distinct
-     * representatives
+     * Filters a collection of duplicate processor caches to a list of distinct
+     * representatives in specific order
      *
      * @param caches
      *            Caches, including duplicates
-     * @return A list with (possibly) one each of L3, L2, L1D, and L1I caches
+     * @return A list with (possibly) one each of L3, L2, L1D, and L1I caches. For
+     *         hybrid cores, will list higher values first.
      */
-    public static List<ProcessorCache> distinctProcCaches(List<ProcessorCache> caches) {
+    public static List<ProcessorCache> distinctProcCaches(Collection<ProcessorCache> caches) {
         ProcessorCache level3 = null;
         ProcessorCache level2 = null;
         ProcessorCache level1d = null;

@@ -26,6 +26,7 @@ package oshi.hardware;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -682,6 +683,24 @@ public interface CentralProcessor {
             return "ProcessorCache [L" + level + " " + type + ", cacheSize=" + cacheSize + ", "
                     + (associativity > 0 ? associativity + "-way" : "unknown") + " associativity, lineSize=" + lineSize
                     + "]";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            ProcessorCache other = (ProcessorCache) obj;
+            return associativity == other.associativity && cacheSize == other.cacheSize && level == other.level
+                    && lineSize == other.lineSize && type == other.type;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(associativity, cacheSize, level, lineSize, type);
         }
     }
 
