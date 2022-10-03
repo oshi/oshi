@@ -184,7 +184,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // cpu4 at mainbus0 mpidr 100: ARM Cortex-A72 r0p2
         // cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
         // cpu4: 1024KB 64b/line 16-way L2 cache
-        Pattern q = Pattern.compile("cpu(\\\\d+).*: (.+cache.*)");
+        Pattern q = Pattern.compile("cpu(\\\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
         for (String s : ExecutingCommand.runNative("dmesg")) {
             Matcher m = p.matcher(s);
             if (m.matches()) {
@@ -203,7 +203,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         List<PhysicalProcessor> physProcs = cpuMap.isEmpty() ? null : createProcListFromDmesg(logProcs, cpuMap);
-        return new Triplet<>(logProcs, physProcs, distinctProcCaches(caches));
+        return new Triplet<>(logProcs, physProcs, orderedProcCaches(caches));
     }
 
     private ProcessorCache parseCacheStr(String cacheStr) {
@@ -216,14 +216,10 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             case "D-cache":
                 return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
                         ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.DATA);
-            case "L2 cache":
-                return new ProcessorCache(2, ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
-                        ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.UNIFIED);
-            case "L3 cache":
-                return new ProcessorCache(2, ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
-                        ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.UNIFIED);
             default:
-                // didn't parse
+                return new ProcessorCache(ParseUtil.getFirstIntValue(split[split.length]),
+                        ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
+                        ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.UNIFIED);
             }
         }
         return null;

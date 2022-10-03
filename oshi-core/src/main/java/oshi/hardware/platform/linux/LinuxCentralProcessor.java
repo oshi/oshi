@@ -36,9 +36,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -205,7 +207,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        List<ProcessorCache> caches = new ArrayList<>();
+        Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
         // Enumerate CPU topology from sysfs via udev
@@ -235,12 +237,12 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         } finally {
             udev.unref();
         }
-        return new Quartet<>(logProcs, distinctProcCaches(caches), coreEfficiencyMap, modAliasMap);
+        return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
-    private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
+    private static Quartet<List<LogicalProcessor>, Set<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        List<ProcessorCache> caches = new ArrayList<>();
+        Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
         String cpuPath = "/sys/devices/system/cpu/";
@@ -260,10 +262,10 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
             // No udev and no cpu info in sysfs? Bad.
             LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
         }
-        return new Quartet<>(logProcs, distinctProcCaches(caches), coreEfficiencyMap, modAliasMap);
+        return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
-    private static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, List<ProcessorCache> caches,
+    private static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, Set<ProcessorCache> caches,
             String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
         int processor = ParseUtil.getFirstIntValue(syspath);
         int coreId = FileUtil.getIntFromFile(syspath + "/topology/core_id");

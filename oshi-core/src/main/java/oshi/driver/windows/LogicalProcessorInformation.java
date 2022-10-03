@@ -23,13 +23,15 @@
  */
 package oshi.driver.windows;
 
-import static oshi.hardware.common.AbstractCentralProcessor.distinctProcCaches;
+import static oshi.hardware.common.AbstractCentralProcessor.orderedProcCaches;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
@@ -77,7 +79,7 @@ public final class LogicalProcessorInformation {
                 .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);
         // Used to cross-reference a processor to package, cache, pr core
         List<GROUP_AFFINITY[]> packages = new ArrayList<>();
-        List<ProcessorCache> caches = new ArrayList<>();
+        Set<ProcessorCache> caches = new HashSet<>();
         List<GROUP_AFFINITY> cores = new ArrayList<>();
         // Used to iterate
         List<NUMA_NODE_RELATIONSHIP> numaNodes = new ArrayList<>();
@@ -157,7 +159,7 @@ public final class LogicalProcessorInformation {
             }
         }
         List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, corePkgMap, pkgCpuidMap);
-        return new Triplet<>(logProcs, physProcs, distinctProcCaches(caches));
+        return new Triplet<>(logProcs, physProcs, orderedProcCaches(caches));
     }
 
     private static List<PhysicalProcessor> getPhysProcs(List<GROUP_AFFINITY> cores,

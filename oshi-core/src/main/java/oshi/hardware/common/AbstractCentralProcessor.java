@@ -28,14 +28,12 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -48,7 +46,6 @@ import com.sun.jna.Platform;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.Auxv;
 import oshi.hardware.CentralProcessor;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
 
@@ -447,45 +444,15 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * Filters a collection of duplicate processor caches to a list of distinct
-     * representatives in specific order
+     * Filters a set of processor caches to an ordered list
      *
      * @param caches
-     *            Caches, including duplicates
-     * @return A list with (possibly) one each of L3, L2, L1D, and L1I caches. For
-     *         hybrid cores, will list higher values first.
+     *            A set of unique caches.
+     * @return A list sorted by level (desc), type, and size (desc)
      */
-    public static List<ProcessorCache> distinctProcCaches(Collection<ProcessorCache> caches) {
-        ProcessorCache level3 = null;
-        ProcessorCache level2 = null;
-        ProcessorCache level1d = null;
-        ProcessorCache level1i = null;
-        // input: caches, with many duplicates
-        // output: list with just the 4 types above
-        for (ProcessorCache cache : caches) {
-            switch (cache.getLevel()) {
-            case 3:
-                if (level3 == null) {
-                    level3 = cache;
-                }
-                break;
-            case 2:
-                if (level2 == null) {
-                    level2 = cache;
-                }
-                break;
-            case 1:
-                if (cache.getType() == Type.DATA && level1d == null) {
-                    level1d = cache;
-                } else if (cache.getType() == Type.INSTRUCTION && level1i == null) {
-                    level1i = cache;
-                }
-                break;
-            default:
-                // do nothing
-            }
-        }
-        return Arrays.asList(level3, level2, level1d, level1i).stream().filter(Objects::nonNull)
+    public static List<ProcessorCache> orderedProcCaches(Set<ProcessorCache> caches) {
+        return caches.stream().sorted(Comparator.comparing(
+                c -> -1000 * c.getLevel() + 100 * c.getType().ordinal() - Integer.highestOneBit(c.getCacheSize())))
                 .collect(Collectors.toList());
     }
 

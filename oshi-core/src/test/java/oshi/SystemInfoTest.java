@@ -220,8 +220,25 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                             .mapToInt(p -> p.getProcessorGroup()).findFirst().orElse(0)));
         }
         oshi.add(" Caches:");
-        for (ProcessorCache cache : processor.getProcessorCaches()) {
-            oshi.add("  " + cache.toString() + (cache.getLevel() < 3 ? " (per core)" : ""));
+        List<ProcessorCache> caches = processor.getProcessorCaches();
+        for (int i = 0; i < caches.size(); i++) {
+            ProcessorCache cache = caches.get(i);
+            boolean perCore = cache.getLevel() < 3;
+            boolean pCore = perCore && i < caches.size() - 1 && cache.getLevel() == caches.get(i + 1).getLevel()
+                    && cache.getType() == caches.get(i + 1).getType();
+            boolean eCore = perCore && i > 0 && cache.getLevel() == caches.get(i - 1).getLevel()
+                    && cache.getType() == caches.get(i - 1).getType();
+            StringBuilder sb = new StringBuilder("  ").append(cache);
+            if (perCore) {
+                sb.append(" (per ");
+                if (pCore) {
+                    sb.append("P-");
+                } else if (eCore) {
+                    sb.append("E-");
+                }
+                sb.append("core)");
+            }
+            oshi.add(sb.toString());
         }
     }
 
