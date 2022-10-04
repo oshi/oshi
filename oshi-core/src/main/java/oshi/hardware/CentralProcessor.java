@@ -692,7 +692,7 @@ public interface CentralProcessor {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        if (!(obj instanceof ProcessorCache)) {
             if (this == obj) {
                 return true;
             }
