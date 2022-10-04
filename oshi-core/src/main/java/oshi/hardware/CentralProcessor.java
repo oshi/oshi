@@ -692,11 +692,11 @@ public interface CentralProcessor {
         }
 
         @Override
-        if (!(obj instanceof ProcessorCache)) {
+        public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
             }
-            if (obj == null || getClass() != obj.getClass()) {
+            if (obj == null || !(obj instanceof ProcessorCache)) {
                 return false;
             }
             ProcessorCache other = (ProcessorCache) obj;
