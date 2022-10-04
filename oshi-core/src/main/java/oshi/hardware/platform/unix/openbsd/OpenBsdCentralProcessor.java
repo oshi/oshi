@@ -217,9 +217,9 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
                 return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
                         ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.DATA);
             default:
-                return new ProcessorCache(ParseUtil.getFirstIntValue(split[3]),
-                        ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
-                        ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.UNIFIED);
+                return new ProcessorCache(ParseUtil.getFirstIntValue(split[3]), ParseUtil.getFirstIntValue(split[2]),
+                        ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
+                        Type.UNIFIED);
             }
         }
         return null;

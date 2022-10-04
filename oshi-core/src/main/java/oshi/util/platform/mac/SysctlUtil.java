@@ -58,10 +58,27 @@ public final class SysctlUtil {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
+        return sysctl(name, def, true);
+    }
+
+    /**
+     * Executes a sysctl call with an int result
+     *
+     * @param name
+     *            name of the sysctl
+     * @param def
+     *            default int value
+     * @param logWarning
+     *            whether to log the warning if not available
+     * @return The int result of the call if successful; the default otherwise
+     */
+    public static int sysctl(String name, int def, boolean logWarning) {
         int intSize = com.sun.jna.platform.mac.SystemB.INT_SIZE;
         try (Memory p = new Memory(intSize); CloseableSizeTByReference size = new CloseableSizeTByReference(intSize)) {
             if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                if (logWarning) {
+                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                }
                 return def;
             }
             return p.getInt(0);

@@ -105,8 +105,14 @@ public interface CentralProcessor {
     List<PhysicalProcessor> getPhysicalProcessors();
 
     /**
-     * Returns an {@code UnmodifiableList} of the CPU's processor caches. The list
-     * will be sorted in order of increasing cache ID.
+     * Returns an {@code UnmodifiableList} of the CPU's processor caches, removing
+     * duplicates. For hybrid processors, both performance and efficiency core
+     * caches are shown.
+     * <p>
+     * This is a best-effort method. Not all values are available on all operating
+     * systems or architetctures.
+     * <p>
+     * Not available on Solaris.
      *
      * @return An {@code UnmodifiabeList} of processor caches.
      */
