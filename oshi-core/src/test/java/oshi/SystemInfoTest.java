@@ -219,8 +219,10 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                             .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
                             .mapToInt(p -> p.getProcessorGroup()).findFirst().orElse(0)));
         }
-        oshi.add(" Caches:");
         List<ProcessorCache> caches = processor.getProcessorCaches();
+        if (!caches.isEmpty()) {
+            oshi.add(" Caches:");
+        }
         for (int i = 0; i < caches.size(); i++) {
             ProcessorCache cache = caches.get(i);
             boolean perCore = cache.getLevel() < 3;

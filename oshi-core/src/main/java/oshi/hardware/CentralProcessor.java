@@ -105,12 +105,13 @@ public interface CentralProcessor {
     List<PhysicalProcessor> getPhysicalProcessors();
 
     /**
-     * Returns an {@code UnmodifiableList} of the CPU's processor caches, removing
-     * duplicates. For hybrid processors, both performance and efficiency core
-     * caches are shown.
+     * Makes a best-effort attempt to identify the CPU's processor caches. For
+     * hybrid processors, both performance and efficiency core caches are shown.
+     * Only one instance of per-core caches is shown.
      * <p>
-     * This is a best-effort method. Not all values are available on all operating
-     * systems or architetctures.
+     * Values are unreliable in a VM. Callers should conduct sanity checking of the
+     * returned objects. Not all values are available on all operating systems or
+     * architectures.
      * <p>
      * Not available on Solaris.
      *
