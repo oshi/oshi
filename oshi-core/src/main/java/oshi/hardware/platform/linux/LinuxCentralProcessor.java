@@ -240,7 +240,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
-    private static Quartet<List<LogicalProcessor>, Set<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
+    private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
