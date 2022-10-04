@@ -26,6 +26,7 @@ package oshi.hardware;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -102,6 +103,21 @@ public interface CentralProcessor {
      * @return An {@code UnmodifiabeList} of physical processors.
      */
     List<PhysicalProcessor> getPhysicalProcessors();
+
+    /**
+     * Makes a best-effort attempt to identify the CPU's processor caches. For
+     * hybrid processors, both performance and efficiency core caches are shown.
+     * Only one instance of per-core caches is shown.
+     * <p>
+     * Values are unreliable in a VM. Callers should conduct sanity checking of the
+     * returned objects. Not all values are available on all operating systems or
+     * architectures.
+     * <p>
+     * Not available on Solaris.
+     *
+     * @return An {@code UnmodifiabeList} of processor caches.
+     */
+    List<ProcessorCache> getProcessorCaches();
 
     /**
      * Returns the "recent cpu usage" for the whole system by counting ticks from
@@ -584,6 +600,114 @@ public interface CentralProcessor {
         public String toString() {
             return "PhysicalProcessor [package/core=" + physicalPackageNumber + "/" + physicalProcessorNumber
                     + ", efficiency=" + efficiency + ", idString=" + idString + "]";
+        }
+    }
+
+    /**
+     * A class representing CPU Cache Memory.
+     */
+    @Immutable
+    class ProcessorCache {
+
+        /**
+         * The type of cache.
+         */
+        public enum Type {
+            UNIFIED, INSTRUCTION, DATA, TRACE;
+
+            @Override
+            public String toString() {
+                return name().substring(0, 1) + name().substring(1).toLowerCase();
+            }
+        }
+
+        private final byte level;
+        private final byte associativity;
+        private final short lineSize;
+        private final int cacheSize;
+        private final Type type;
+
+        public ProcessorCache(byte level, byte associativity, short lineSize, int cacheSize, Type type) {
+            this.level = level;
+            this.associativity = associativity;
+            this.lineSize = lineSize;
+            this.cacheSize = cacheSize;
+            this.type = type;
+        }
+
+        public ProcessorCache(int level, int associativity, int lineSize, long cacheSize, Type type) {
+            this((byte) level, (byte) associativity, (short) lineSize, (int) cacheSize, type);
+        }
+
+        /**
+         * The cache level. This member can be 1 (L1), 2 (L2), 3 (L3), or 4 (L4).
+         *
+         * @return the level
+         */
+        public byte getLevel() {
+            return level;
+        }
+
+        /**
+         * The cache associativity. If this member is {@code 0xFF}, the cache is fully
+         * associative.
+         *
+         * @return the associativity
+         */
+        public byte getAssociativity() {
+            return associativity;
+        }
+
+        /**
+         * The cache line size, in bytes.
+         *
+         * @return the line size
+         */
+        public short getLineSize() {
+            return lineSize;
+        }
+
+        /**
+         * The cache size, in bytes.
+         *
+         * @return the cache size
+         */
+        public int getCacheSize() {
+            return cacheSize;
+        }
+
+        /**
+         * The cache type.
+         *
+         * @return the type
+         */
+        public Type getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return "ProcessorCache [L" + level + " " + type + ", cacheSize=" + cacheSize + ", "
+                    + (associativity > 0 ? associativity + "-way" : "unknown") + " associativity, lineSize=" + lineSize
+                    + "]";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || !(obj instanceof ProcessorCache)) {
+                return false;
+            }
+            ProcessorCache other = (ProcessorCache) obj;
+            return associativity == other.associativity && cacheSize == other.cacheSize && level == other.level
+                    && lineSize == other.lineSize && type == other.type;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(associativity, cacheSize, level, lineSize, type);
         }
     }
 

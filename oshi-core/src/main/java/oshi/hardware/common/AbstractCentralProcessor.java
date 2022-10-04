@@ -47,7 +47,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.Auxv;
 import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU.
@@ -75,12 +75,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     // Processor info, initialized in constructor
     private final List<LogicalProcessor> logicalProcessors;
     private final List<PhysicalProcessor> physicalProcessors;
+    private final List<ProcessorCache> processorCaches;
 
     /**
      * Create a Processor
      */
     protected AbstractCentralProcessor() {
-        Pair<List<LogicalProcessor>, List<PhysicalProcessor>> processorLists = initProcessorCounts();
+        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> processorLists = initProcessorCounts();
         // Populate logical processor lists.
         this.logicalProcessors = Collections.unmodifiableList(processorLists.getA());
         if (processorLists.getB() == null) {
@@ -93,6 +94,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         } else {
             this.physicalProcessors = Collections.unmodifiableList(processorLists.getB());
         }
+        this.processorCaches = processorLists.getC() == null ? Collections.emptyList()
+                : Collections.unmodifiableList(processorLists.getC());
         // Init processor counts
         Set<Integer> physPkgs = new HashSet<>();
         for (LogicalProcessor logProc : this.logicalProcessors) {
@@ -109,7 +112,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      *
      * @return An array of initialized Logical Processors and Physical Processors.
      */
-    protected abstract Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts();
+    protected abstract Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts();
 
     /**
      * Updates logical and physical processor counts and arrays
@@ -185,6 +188,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public List<PhysicalProcessor> getPhysicalProcessors() {
         return this.physicalProcessors;
+    }
+
+    @Override
+    public List<ProcessorCache> getProcessorCaches() {
+        return this.processorCaches;
     }
 
     @Override
@@ -422,8 +430,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 // ARM v8 big.LITTLE chips just use the # for efficiency class
                 // High-performance CPU (big): Cortex-A73, Cortex-A75, Cortex-A76
                 // High-efficiency CPU (LITTLE): Cortex-A53, Cortex-A55
-                if (isHybrid && idStr.startsWith("ARM Cortex")) {
-                    efficiency = ParseUtil.getFirstIntValue(idStr) >= 70 ? 1 : 0;
+                if (isHybrid && ((idStr.startsWith("ARM Cortex") && ParseUtil.getFirstIntValue(idStr) >= 70)
+                        || (idStr.startsWith("Apple")
+                                && (idStr.contains("Firestorm") || (idStr.contains("Avalanche")))))) {
+                    efficiency = 1;
                 }
                 physProcs.add(new PhysicalProcessor(pkgId, coreId, efficiency, idStr));
             }
@@ -431,6 +441,19 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         physProcs.sort(Comparator.comparingInt(PhysicalProcessor::getPhysicalPackageNumber)
                 .thenComparingInt(PhysicalProcessor::getPhysicalProcessorNumber));
         return physProcs;
+    }
+
+    /**
+     * Filters a set of processor caches to an ordered list
+     *
+     * @param caches
+     *            A set of unique caches.
+     * @return A list sorted by level (desc), type, and size (desc)
+     */
+    public static List<ProcessorCache> orderedProcCaches(Set<ProcessorCache> caches) {
+        return caches.stream().sorted(Comparator.comparing(
+                c -> -1000 * c.getLevel() + 100 * c.getType().ordinal() - Integer.highestOneBit(c.getCacheSize())))
+                .collect(Collectors.toList());
     }
 
     @Override

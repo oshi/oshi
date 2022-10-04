@@ -46,6 +46,7 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
@@ -54,7 +55,7 @@ import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU.
@@ -130,7 +131,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
+    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
         int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         int physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
         int physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
@@ -143,6 +144,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             pkgCoreKeys.add((pkgId << 16) + coreId);
         }
         Map<Integer, String> compatMap = queryCompatibleStrings();
+        int perflevels = SysctlUtil.sysctl("hw.nperflevels", 1);
         List<PhysicalProcessor> physProcs = pkgCoreKeys.stream().sorted().map(k -> {
             String compat = compatMap.getOrDefault(k, "").toLowerCase();
             int efficiency = 0; // default, for E-core icestorm or blizzard
@@ -155,7 +157,34 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             }
             return new PhysicalProcessor(k >> 16, k & 0xffff, efficiency, compat);
         }).collect(Collectors.toList());
-        return new Pair<>(logProcs, physProcs);
+        List<ProcessorCache> caches = orderedProcCaches(getCacheValues(perflevels));
+        return new Triplet<>(logProcs, physProcs, caches);
+    }
+
+    private Set<ProcessorCache> getCacheValues(int perflevels) {
+        int linesize = (int) SysctlUtil.sysctl("hw.cachelinesize", 0L);
+        int l1associativity = SysctlUtil.sysctl("machdep.cpu.cache.L1_associativity", 0, false);
+        int l2associativity = SysctlUtil.sysctl("machdep.cpu.cache.L2_associativity", 0, false);
+        Set<ProcessorCache> caches = new HashSet<>();
+        for (int i = 0; i < perflevels; i++) {
+            int size = SysctlUtil.sysctl("hw.perflevel" + i + ".l1icachesize", 0, false);
+            if (size > 0) {
+                caches.add(new ProcessorCache(1, l1associativity, linesize, size, Type.INSTRUCTION));
+            }
+            size = SysctlUtil.sysctl("hw.perflevel" + i + ".l1dcachesize", 0, false);
+            if (size > 0) {
+                caches.add(new ProcessorCache(1, l1associativity, linesize, size, Type.DATA));
+            }
+            size = SysctlUtil.sysctl("hw.perflevel" + i + ".l2cachesize", 0, false);
+            if (size > 0) {
+                caches.add(new ProcessorCache(2, l2associativity, linesize, size, Type.UNIFIED));
+            }
+            size = SysctlUtil.sysctl("hw.perflevel" + i + ".l3cachesize", 0, false);
+            if (size > 0) {
+                caches.add(new ProcessorCache(3, 0, linesize, size, Type.UNIFIED));
+            }
+        }
+        return caches;
     }
 
     @Override

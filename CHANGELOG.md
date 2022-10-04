@@ -1,4 +1,4 @@
-# 6.2.3 (in progress)
+# 6.3.0 (in progress)
 
 ##### Bug fixes / Improvements
 * [#2179](https://github.com/oshi/oshi/pull/2179): Update JUnit EnabledOnOS for OpenBSD and FreeBSD - [@dbwiddis](https://github.com/dbwiddis).
@@ -8,6 +8,7 @@
 
 ##### New Features
 * [#2197](https://github.com/oshi/oshi/issues/2197): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).
+* [#2198](https://github.com/oshi/oshi/pull/2198): Added Processor Cache Information - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 

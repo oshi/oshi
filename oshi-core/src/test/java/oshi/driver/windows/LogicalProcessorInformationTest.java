@@ -38,23 +38,29 @@ import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
-import oshi.util.tuples.Pair;
+import oshi.hardware.CentralProcessor.ProcessorCache;
+import oshi.util.tuples.Triplet;
 
 @EnabledOnOs(OS.WINDOWS)
 class LogicalProcessorInformationTest {
     @Test
     void testGetLogicalProcessorInformation() {
-        Pair<List<LogicalProcessor>, List<PhysicalProcessor>> info = LogicalProcessorInformation
+        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> info = LogicalProcessorInformation
                 .getLogicalProcessorInformation();
         assertThat("Logical Processor list must not be empty", info.getA(), is(not(empty())));
         assertThat("Physical Processor list is null", info.getB(), is(nullValue()));
+        assertThat("Cache list is null", info.getC(), is(nullValue()));
     }
 
     @Test
     void testGetLogicalProcessorInformationEx() {
-        Pair<List<LogicalProcessor>, List<PhysicalProcessor>> info = LogicalProcessorInformation
+        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> info = LogicalProcessorInformation
                 .getLogicalProcessorInformationEx();
         assertThat("Must be more Logical Processors than Physical Ones", info.getA().size(),
                 greaterThanOrEqualTo(info.getB().size()));
+        assertThat("Must be more Physical Processors than L3 Caches", info.getB().size(),
+                greaterThanOrEqualTo((int) info.getC().stream().filter(c -> c.getLevel() == 3).count()));
+        assertThat("Must be more Physical Processors than L2 Caches", info.getB().size(),
+                greaterThanOrEqualTo((int) info.getC().stream().filter(c -> c.getLevel() == 2).count()));
     }
 }

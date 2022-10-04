@@ -63,6 +63,7 @@ import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU, representing all of a system's processors. It may contain multiple
@@ -181,9 +182,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
+    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
         if (VersionHelpers.IsWindows7OrGreater()) {
-            Pair<List<LogicalProcessor>, List<PhysicalProcessor>> procs = LogicalProcessorInformation
+            Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> procs = LogicalProcessorInformation
                     .getLogicalProcessorInformationEx();
             // Save numaNode,Processor lookup for future PerfCounter instance lookup
             // The processor number is based on the Processor Group, so we keep a separate

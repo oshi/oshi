@@ -23,15 +23,20 @@
  */
 package oshi.driver.windows;
 
+import static oshi.hardware.common.AbstractCentralProcessor.orderedProcCaches;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.CACHE_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.GROUP_AFFINITY;
 import com.sun.jna.platform.win32.WinNT.LOGICAL_PROCESSOR_RELATIONSHIP;
 import com.sun.jna.platform.win32.WinNT.NUMA_NODE_RELATIONSHIP;
@@ -45,8 +50,10 @@ import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
+import oshi.hardware.CentralProcessor.ProcessorCache;
+import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Utility to query Logical Processor Information
@@ -65,13 +72,14 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static Pair<List<LogicalProcessor>, List<PhysicalProcessor>> getLogicalProcessorInformationEx() {
+    public static Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> getLogicalProcessorInformationEx() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
                 .getLogicalProcessorInformationEx(WinNT.LOGICAL_PROCESSOR_RELATIONSHIP.RelationAll);
-        // Used to cross-reference a processor to package pr core
+        // Used to cross-reference a processor to package, cache, pr core
         List<GROUP_AFFINITY[]> packages = new ArrayList<>();
+        Set<ProcessorCache> caches = new HashSet<>();
         List<GROUP_AFFINITY> cores = new ArrayList<>();
         // Used to iterate
         List<NUMA_NODE_RELATIONSHIP> numaNodes = new ArrayList<>();
@@ -83,6 +91,11 @@ public final class LogicalProcessorInformation {
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
                 // could assign a package to more than one processor group
                 packages.add(((PROCESSOR_RELATIONSHIP) info).groupMask);
+                break;
+            case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
+                CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) info;
+                caches.add(new ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.size,
+                        Type.values()[cache.type]));
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
                 PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) info);
@@ -96,14 +109,16 @@ public final class LogicalProcessorInformation {
                 numaNodes.add((NUMA_NODE_RELATIONSHIP) info);
                 break;
             default:
-                // Ignore Group and Cache info
+                // Ignore Group info
                 break;
             }
         }
-        // Windows doesn't define core and package numbers, so we define our own for
-        // consistent use across the API. Here we sort so core and package numbers
-        // increment consistently with processor numbers/bitmasks, ordered in groups.
+        // Windows doesn't define core, cache, and package numbers, so we define our own
+        // for consistent use across the API. Here we sort so core, cache, and package
+        // numbers increment consistently with processor numbers/bitmasks, ordered in
+        // processor groups.
         cores.sort(Comparator.comparing(c -> c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));
+
         // if package in multiple groups will still use first group for sorting
         packages.sort(Comparator.comparing(p -> p[0].group * 64L + Long.numberOfTrailingZeros(p[0].mask.longValue())));
 
@@ -144,7 +159,7 @@ public final class LogicalProcessorInformation {
             }
         }
         List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, corePkgMap, pkgCpuidMap);
-        return new Pair<>(logProcs, physProcs);
+        return new Triplet<>(logProcs, physProcs, orderedProcCaches(caches));
     }
 
     private static List<PhysicalProcessor> getPhysProcs(List<GROUP_AFFINITY> cores,
@@ -189,9 +204,8 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static Pair<List<LogicalProcessor>, List<PhysicalProcessor>> getLogicalProcessorInformation() {
-        // Collect a list of logical processors on each physical core and
-        // package.
+    public static Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> getLogicalProcessorInformation() {
+        // Collect a list of logical processors on each physical core and package.
         List<Long> packageMaskList = new ArrayList<>();
         List<Long> coreMaskList = new ArrayList<>();
         WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] processors = Kernel32Util.getLogicalProcessorInformation();
@@ -223,7 +237,7 @@ public final class LogicalProcessorInformation {
                 }
             }
         }
-        return new Pair<>(logProcs, null);
+        return new Triplet<>(logProcs, null, null);
     }
 
     /**

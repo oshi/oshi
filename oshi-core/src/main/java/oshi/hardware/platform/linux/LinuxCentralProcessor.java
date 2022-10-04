@@ -36,9 +36,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -55,6 +57,7 @@ import com.sun.jna.platform.linux.Udev.UdevListEntry;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Lshw;
 import oshi.driver.linux.proc.CpuStat;
+import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystem;
@@ -62,7 +65,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -176,13 +179,14 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Pair<List<LogicalProcessor>, List<PhysicalProcessor>> initProcessorCounts() {
-        Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
+    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+        Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
                 ? readTopologyFromUdev()
                 : readTopologyFromSysfs();
         List<LogicalProcessor> logProcs = topology.getA();
-        Map<Integer, Integer> coreEfficiencyMap = topology.getB();
-        Map<Integer, String> modAliasMap = topology.getC();
+        List<ProcessorCache> caches = topology.getB();
+        Map<Integer, Integer> coreEfficiencyMap = topology.getC();
+        Map<Integer, String> modAliasMap = topology.getD();
         // Failsafe
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
@@ -198,11 +202,12 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
                 }).collect(Collectors.toList());
 
-        return new Pair<>(logProcs, physProcs);
+        return new Triplet<>(logProcs, physProcs, caches);
     }
 
-    private static Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
+    private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
+        Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
         // Enumerate CPU topology from sysfs via udev
@@ -223,7 +228,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                             device.unref();
                         }
                     }
-                    logProcs.add(getLogicalProcessorFromSyspath(syspath, modAlias, coreEfficiencyMap, modAliasMap));
+                    logProcs.add(
+                            getLogicalProcessorFromSyspath(syspath, caches, modAlias, coreEfficiencyMap, modAliasMap));
                 }
             } finally {
                 enumerate.unref();
@@ -231,11 +237,12 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         } finally {
             udev.unref();
         }
-        return new Triplet<>(logProcs, coreEfficiencyMap, modAliasMap);
+        return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
-    private static Triplet<List<LogicalProcessor>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
+    private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
+        Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
         String cpuPath = "/sys/devices/system/cpu/";
@@ -246,18 +253,20 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     String syspath = cpu.toString(); // /sys/devices/system/cpu/cpuX
                     Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(syspath + "/uevent", "=");
                     String modAlias = uevent.get("MODALIAS");
-                    logProcs.add(getLogicalProcessorFromSyspath(syspath, modAlias, coreEfficiencyMap, modAliasMap));
+                    // updates caches as a side-effect
+                    logProcs.add(
+                            getLogicalProcessorFromSyspath(syspath, caches, modAlias, coreEfficiencyMap, modAliasMap));
                 });
             }
         } catch (IOException e) {
             // No udev and no cpu info in sysfs? Bad.
             LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
         }
-        return new Triplet<>(logProcs, coreEfficiencyMap, modAliasMap);
+        return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
-    private static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, String modAlias,
-            Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
+    private static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, Set<ProcessorCache> caches,
+            String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
         int processor = ParseUtil.getFirstIntValue(syspath);
         int coreId = FileUtil.getIntFromFile(syspath + "/topology/core_id");
         int pkgId = FileUtil.getIntFromFile(syspath + "/topology/physical_package_id");
@@ -268,16 +277,38 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
             modAliasMap.put(pkgCoreKey, modAlias);
         }
         int nodeId = 0;
-        String prefix = syspath + "/node";
+        final String nodePrefix = syspath + "/node";
         try (Stream<Path> path = Files.list(Paths.get(syspath))) {
-            Optional<Path> first = path.filter(p -> p.toString().startsWith(prefix)).findFirst();
+            Optional<Path> first = path.filter(p -> p.toString().startsWith(nodePrefix)).findFirst();
             if (first.isPresent()) {
                 nodeId = ParseUtil.getFirstIntValue(first.get().getFileName().toString());
             }
         } catch (IOException e) {
             // ignore
         }
+        final String cachePath = syspath + "/cache";
+        final String indexPrefix = cachePath + "/index";
+        try (Stream<Path> path = Files.list(Paths.get(cachePath))) {
+            path.filter(p -> p.toString().startsWith(indexPrefix)).forEach(c -> {
+                int level = FileUtil.getIntFromFile(c + "/level"); // 1
+                Type type = parseCacheType(FileUtil.getStringFromFile(c + "/type")); // Data
+                int associativity = FileUtil.getIntFromFile(c + "/ways_of_associativity"); // 8
+                int lineSize = FileUtil.getIntFromFile(c + "/coherency_line_size"); // 64
+                long size = ParseUtil.parseDecimalMemorySizeToBinary(FileUtil.getStringFromFile(c + "/size")); // 32K
+                caches.add(new ProcessorCache(level, associativity, lineSize, size, type));
+            });
+        } catch (IOException e) {
+            // ignore
+        }
         return new LogicalProcessor(processor, coreId, pkgId, nodeId);
+    }
+
+    private static ProcessorCache.Type parseCacheType(String type) {
+        try {
+            return ProcessorCache.Type.valueOf(type.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ProcessorCache.Type.UNIFIED;
+        }
     }
 
     @Override
