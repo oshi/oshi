@@ -95,8 +95,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /*
-     * This method is for initilizing the connector server and bound the MBeanServer
-     * with the JMXConnector
+     * This method is for initilizing the connector server and bound the MBeanServer with the JMXConnector
      */
     private void initilizeMbeanServer() throws IOException, NotCompliantMBeanException, InstanceAlreadyExistsException,
             MBeanRegistrationException, MalformedObjectNameException {
@@ -112,8 +111,8 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /*
-     * This method implmenet an startegy pattern to choose wich platform is and
-     * execute the corresponding strategy for registering the corresponding MBeans
+     * This method implmenet an startegy pattern to choose wich platform is and execute the corresponding strategy for
+     * registering the corresponding MBeans
      */
     private void initilizeMBeans() throws Exception {
 

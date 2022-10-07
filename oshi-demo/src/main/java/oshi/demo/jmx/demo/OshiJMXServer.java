@@ -24,14 +24,7 @@
 package oshi.demo.jmx.demo;
 
 import oshi.demo.jmx.CreateJmxOshiAgent;
-import oshi.demo.jmx.JMXOshiAgentServer;
 import oshi.demo.jmx.api.JMXOshiAgent;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import java.io.IOException;
 
 public class OshiJMXServer {
     public static void main(String[] args) throws Exception {

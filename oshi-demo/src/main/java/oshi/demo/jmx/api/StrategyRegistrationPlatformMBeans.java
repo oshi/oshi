@@ -23,13 +23,18 @@
  */
 package oshi.demo.jmx.api;
 
-import oshi.SystemInfo;
-
-import javax.management.*;
 import java.beans.IntrospectionException;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+
+import oshi.SystemInfo;
+
 public interface StrategyRegistrationPlatformMBeans {
-    public void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer)
+    void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer)
             throws NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException,
             MalformedObjectNameException, IntrospectionException, javax.management.IntrospectionException;
 }

@@ -1,12 +1,12 @@
 # How to use JMXOshiAgent
 
 All you need to do is to call the next Factory method from the following class
+  - Port: Specify the port desired in which you can run you server
+  - Host: IP Address String formatted where the server is going to be found
 
 ```java
 CreateJmxOshiAgent.createJmxOshiAgent(8888, "127.0.0.1");
 ```
- - Port: Specify the port desired in which you can run you server
- - Host: IP Address String formatted where the server is going to be found
 
 As an alternative you can use the second factory method to pass the desired set of properties in form of `HashMap props`, this will allow you to configure you server as desired, from a custom implementation of `RMISocketFacotry` to the use of `TSL`. For more information about the different configuration around security please refer to [MX4J Security](http://mx4j.sourceforge.net/docs/ch03s10.html).
 

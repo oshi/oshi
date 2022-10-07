@@ -21,20 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package oshi.demo.jmx;
-
-import oshi.demo.jmx.api.JMXOshiAgent;
-
-import java.util.HashMap;
-
-public class CreateJmxOshiAgent {
-    private static ContextRegistrationPlatform platform = new ContextRegistrationPlatform();
-
-    public static JMXOshiAgent createJmxOshiAgent(Integer port, String host) throws Exception {
-        return JMXOshiAgentServer.getInstance(host, port, null, platform);
-    }
-
-    public static JMXOshiAgent createJmxOshiAgent(Integer port, String host, HashMap properties) throws Exception {
-        return JMXOshiAgentServer.getInstance(host, port, properties, platform);
-    }
-}
+/**
+ * Contains JMX classes for the Oshi JMX demonstration class. Not intended for production use, but rather as an
+ * example/template to start with.
+ */
+package oshi.demo.jmx.strategiesplatform;

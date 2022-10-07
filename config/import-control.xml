@@ -99,4 +99,13 @@
     <!-- JDK7 Date is evil -->
     <disallow class="java.util.Date" />
 
+    <!-- JMX imports for jmx demo -->
+    <subpackage name="demo">
+        <subpackage name="jmx">
+            <allow pkg="javax.management" />
+            <allow pkg="java.beans" />
+            <allow pkg="java.rmi.registry" />
+        </subpackage>
+    </subpackage>
+
 </import-control>
