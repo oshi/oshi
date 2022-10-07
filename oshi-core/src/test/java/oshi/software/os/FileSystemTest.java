@@ -42,8 +42,7 @@ class FileSystemTest {
     /**
      * Test file system.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     void testFileSystem() throws IOException {

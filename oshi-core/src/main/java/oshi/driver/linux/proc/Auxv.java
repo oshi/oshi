@@ -48,8 +48,7 @@ public final class Auxv {
      * Retrieve the auxiliary vector for the current process
      *
      * @return A map of auxiliary vector keys to their respective values
-     * @see <a href=
-     *      "https://github.com/torvalds/linux/blob/v3.19/include/uapi/linux/auxvec.h">auxvec.h</a>
+     * @see <a href= "https://github.com/torvalds/linux/blob/v3.19/include/uapi/linux/auxvec.h">auxvec.h</a>
      */
     public static Map<Integer, Long> queryAuxv() {
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(ProcPath.AUXV);

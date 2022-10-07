@@ -56,10 +56,8 @@ public final class Xwininfo {
     /**
      * Gets windows on the operating system's GUI desktop.
      *
-     * @param visibleOnly
-     *            Whether to restrict the list to only windows visible to the user.
-     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects
-     *         representing the desktop windows.
+     * @param visibleOnly Whether to restrict the list to only windows visible to the user.
+     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects representing the desktop windows.
      */
     public static List<OSDesktopWindow> queryXWindows(boolean visibleOnly) {
         // Attempted to implement using native X11 code. However, this produced native X

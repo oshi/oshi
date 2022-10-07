@@ -35,8 +35,7 @@ import org.junit.jupiter.api.Test;
 class FileSystemUtilTest {
 
     /**
-     * If no configuration is provided (in oshi.properties) then file store is
-     * included by default.
+     * If no configuration is provided (in oshi.properties) then file store is included by default.
      */
     @Test
     void testIsFileStoreIncludedByDefault() {

@@ -67,22 +67,17 @@ public final class DeviceTree {
     }
 
     /**
-     * Queries devices matching the specified device interface and returns maps
-     * representing device tree relationships, name, device ID, and manufacturer
+     * Queries devices matching the specified device interface and returns maps representing device tree relationships,
+     * name, device ID, and manufacturer
      *
-     * @param guidDevInterface
-     *            The GUID of a device interface class for which the tree should be
-     *            collected.
+     * @param guidDevInterface The GUID of a device interface class for which the tree should be collected.
      *
-     * @return A {@link Quintet} of maps indexed by node ID, where the key set
-     *         represents node IDs for all devices matching the specified device
-     *         interface GUID. The first element is a set containing devices with no
-     *         parents, match the device interface requested.. The second element
-     *         maps each node ID to its parents, if any. This map's key set excludes
-     *         the no-parent devices returned in the first element. The third
-     *         element maps a node ID to a name or description. The fourth element
-     *         maps a node id to a device ID. The fifth element maps a node ID to a
-     *         manufacturer.
+     * @return A {@link Quintet} of maps indexed by node ID, where the key set represents node IDs for all devices
+     *         matching the specified device interface GUID. The first element is a set containing devices with no
+     *         parents, match the device interface requested.. The second element maps each node ID to its parents, if
+     *         any. This map's key set excludes the no-parent devices returned in the first element. The third element
+     *         maps a node ID to a name or description. The fourth element maps a node id to a device ID. The fifth
+     *         element maps a node ID to a manufacturer.
      */
     public static Quintet<Set<Integer>, Map<Integer, Integer>, Map<Integer, String>, Map<Integer, String>, Map<Integer, String>> queryDeviceTree(
             GUID guidDevInterface) {

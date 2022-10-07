@@ -50,9 +50,7 @@ public final class Win32DiskDrive {
     /**
      * Queries the disk drive name info
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
      * @return Information regarding each disk drive.
      */
     public static WmiResult<DiskDriveProperty> queryDiskDrive(WmiQueryHandler h) {

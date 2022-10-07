@@ -42,12 +42,9 @@ final class AixSoundCard extends AbstractSoundCard {
     /**
      * Constructor for AixSoundCard.
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     AixSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
@@ -56,8 +53,7 @@ final class AixSoundCard extends AbstractSoundCard {
     /**
      * Gets sound cards
      *
-     * @param lscfg
-     *            a memoized lscfg object
+     * @param lscfg a memoized lscfg object
      *
      * @return sound cards
      */

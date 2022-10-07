@@ -26,12 +26,11 @@ package oshi.software.os;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * Operating system services are responsible for the management of platform
- * resources, including the processor, memory, files, and input and output. They
- * generally shield applications from the implementation details of the machine.
+ * Operating system services are responsible for the management of platform resources, including the processor, memory,
+ * files, and input and output. They generally shield applications from the implementation details of the machine.
  * <p>
- * This class is provided for information purposes only. Interpretation of the
- * meaning of services is platform-dependent.
+ * This class is provided for information purposes only. Interpretation of the meaning of services is
+ * platform-dependent.
  */
 @Immutable
 public class OSService {
@@ -50,12 +49,9 @@ public class OSService {
     /**
      * Instantiate a new {@link OSService}.
      *
-     * @param name
-     *            The service name.
-     * @param processID
-     *            The process ID if running, or 0 if stopped.
-     * @param state
-     *            The service {@link State}.
+     * @param name      The service name.
+     * @param processID The process ID if running, or 0 if stopped.
+     * @param state     The service {@link State}.
      */
     public OSService(String name, int processID, State state) {
         this.name = name;

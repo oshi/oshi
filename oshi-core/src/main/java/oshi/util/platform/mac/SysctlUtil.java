@@ -51,10 +51,8 @@ public final class SysctlUtil {
     /**
      * Executes a sysctl call with an int result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default int value
+     * @param name name of the sysctl
+     * @param def  default int value
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
@@ -64,12 +62,9 @@ public final class SysctlUtil {
     /**
      * Executes a sysctl call with an int result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default int value
-     * @param logWarning
-     *            whether to log the warning if not available
+     * @param name       name of the sysctl
+     * @param def        default int value
+     * @param logWarning whether to log the warning if not available
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def, boolean logWarning) {
@@ -88,10 +83,8 @@ public final class SysctlUtil {
     /**
      * Executes a sysctl call with a long result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default long value
+     * @param name name of the sysctl
+     * @param def  default long value
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
@@ -109,10 +102,8 @@ public final class SysctlUtil {
     /**
      * Executes a sysctl call with a String result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default String value
+     * @param name name of the sysctl
+     * @param def  default String value
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
@@ -136,10 +127,8 @@ public final class SysctlUtil {
     /**
      * Executes a sysctl call with a Structure result
      *
-     * @param name
-     *            name of the sysctl
-     * @param struct
-     *            structure for the result
+     * @param name   name of the sysctl
+     * @param struct structure for the result
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(String name, Structure struct) {
@@ -156,10 +145,9 @@ public final class SysctlUtil {
     /**
      * Executes a sysctl call with a Pointer result
      *
-     * @param name
-     *            name of the sysctl
-     * @return An allocated memory buffer containing the result on success, null
-     *         otherwise. Its value on failure is undefined.
+     * @param name name of the sysctl
+     * @return An allocated memory buffer containing the result on success, null otherwise. Its value on failure is
+     *         undefined.
      */
     public static Memory sysctl(String name) {
         try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {

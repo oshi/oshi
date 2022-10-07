@@ -48,13 +48,10 @@ public final class Lspv {
     /**
      * Query {@code lspv} to get partition info
      *
-     * @param device
-     *            The disk to get the volumes from
-     * @param majMinMap
-     *            A map of device name to a pair with major and minor numbers.
+     * @param device    The disk to get the volumes from
+     * @param majMinMap A map of device name to a pair with major and minor numbers.
      *
-     * @return A pair containing the model and serial number for the device, or null
-     *         if not found
+     * @return A pair containing the model and serial number for the device, or null if not found
      */
     public static List<HWPartition> queryLogicalVolumes(String device, Map<String, Pair<Integer, Integer>> majMinMap) {
         /*-

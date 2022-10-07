@@ -49,18 +49,15 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing
-     * devices connected via a usb port (including internal devices).
+     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
+     * (including internal devices).
      * <p>
-     * If the value of {@code tree} is true, the top level devices returned from
-     * this method are the USB Controllers; connected hubs and devices in its device
-     * tree share that controller's bandwidth. If the value of {@code tree} is
+     * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
+     * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
      * false, USB devices (not controllers) are listed in a single flat list.
      *
-     * @param tree
-     *            If true, returns a list of controllers, which requires recursive
-     *            iteration of connected devices. If false, returns a flat list of
-     *            devices excluding controllers.
+     * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
+     *             false, returns a flat list of devices excluding controllers.
      * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
@@ -165,23 +162,15 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates SolarisUsbDevices by fetching information from maps to
-     * populate fields
+     * Recursively creates SolarisUsbDevices by fetching information from maps to populate fields
      *
-     * @param devPath
-     *            The device node path.
-     * @param vid
-     *            The default (parent) vendor ID
-     * @param pid
-     *            The default (parent) product ID
-     * @param nameMap
-     *            the map of names
-     * @param vendorIdMap
-     *            the map of vendorIds
-     * @param productIdMap
-     *            the map of productIds
-     * @param hubMap
-     *            the map of hubs
+     * @param devPath      The device node path.
+     * @param vid          The default (parent) vendor ID
+     * @param pid          The default (parent) product ID
+     * @param nameMap      the map of names
+     * @param vendorIdMap  the map of vendorIds
+     * @param productIdMap the map of productIds
+     * @param hubMap       the map of hubs
      * @return A SolarisUsbDevice corresponding to this device
      */
     private static SolarisUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,

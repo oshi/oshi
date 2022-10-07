@@ -28,8 +28,8 @@ import java.util.List;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * The GlobalMemory class tracks information about the use of a computer's
- * physical memory (RAM) as well as any available virtual memory.
+ * The GlobalMemory class tracks information about the use of a computer's physical memory (RAM) as well as any
+ * available virtual memory.
  */
 @ThreadSafe
 public interface GlobalMemory {
@@ -64,8 +64,7 @@ public interface GlobalMemory {
     /**
      * Physical memory, such as banks of memory.
      * <p>
-     * On Linux, requires elevated permissions. On FreeBSD and Solaris, requires
-     * installation of dmidecode.
+     * On Linux, requires elevated permissions. On FreeBSD and Solaris, requires installation of dmidecode.
      *
      * @return A list of PhysicalMemory objects.
      */

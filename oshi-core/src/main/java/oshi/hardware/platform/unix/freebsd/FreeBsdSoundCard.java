@@ -45,12 +45,9 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
     /**
      * Constructor for FreeBsdSoundCard.
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     FreeBsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);

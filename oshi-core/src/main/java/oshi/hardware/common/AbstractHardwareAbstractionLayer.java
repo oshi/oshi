@@ -37,8 +37,7 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.Sensors;
 
 /**
- * Common fields or methods used by platform-specific implementations of
- * HardwareAbstractionLayer
+ * Common fields or methods used by platform-specific implementations of HardwareAbstractionLayer
  */
 @ThreadSafe
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {

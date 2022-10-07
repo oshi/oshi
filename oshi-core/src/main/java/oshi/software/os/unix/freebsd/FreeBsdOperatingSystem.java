@@ -57,11 +57,10 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * FreeBSD is a free and open-source Unix-like operating system descended from
- * the Berkeley Software Distribution (BSD), which was based on Research Unix.
- * The first version of FreeBSD was released in 1993. In 2005, FreeBSD was the
- * most popular open-source BSD operating system, accounting for more than
- * three-quarters of all installed simply, permissively licensed BSD systems.
+ * FreeBSD is a free and open-source Unix-like operating system descended from the Berkeley Software Distribution (BSD),
+ * which was based on Research Unix. The first version of FreeBSD was released in 1993. In 2005, FreeBSD was the most
+ * popular open-source BSD operating system, accounting for more than three-quarters of all installed simply,
+ * permissively licensed BSD systems.
  */
 @ThreadSafe
 public class FreeBsdOperatingSystem extends AbstractOperatingSystem {

@@ -50,14 +50,13 @@ public interface GraphicsCard {
     /**
      * Retrieves the card's manufacturer/vendor
      *
-     * @return The vendor of the card as human-readable text if possible, or the
-     *         Vendor ID (VID) otherwise
+     * @return The vendor of the card as human-readable text if possible, or the Vendor ID (VID) otherwise
      */
     String getVendor();
 
     /**
-     * Retrieves a list of version/revision data from the card. Users may need to
-     * further parse this list to identify specific GPU capabilities.
+     * Retrieves a list of version/revision data from the card. Users may need to further parse this list to identify
+     * specific GPU capabilities.
      *
      * @return A comma-delimited list of version/revision data
      */

@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides information about hardware such as Memory, Power Sources, and
- * Processor on AIX systems
+ * Provides information about hardware such as Memory, Power Sources, and Processor on AIX systems
  */
 package oshi.hardware.platform.unix.aix;

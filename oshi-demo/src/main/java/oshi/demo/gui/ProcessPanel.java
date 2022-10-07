@@ -50,9 +50,8 @@ import oshi.software.os.OperatingSystem;
 import oshi.util.FormatUtil;
 
 /**
- * Displays a process list, such as ps or task manager. This performs more like
- * Windows Task Manger with current CPU as measured between polling intervals,
- * while PS uses a cumulative CPU value.
+ * Displays a process list, such as ps or task manager. This performs more like Windows Task Manger with current CPU as
+ * measured between polling intervals, while PS uses a cumulative CPU value.
  */
 public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 

@@ -523,7 +523,9 @@
                             </format>
                         </formats>
                         <java>
-                            <removeUnusedImports/>
+                            <removeUnusedImports />
+                            <trimTrailingWhitespace />
+                            <endWithNewline />
                             <eclipse>
                                 <file>${main.basedir}/config/OSHIJavaFormatConventions.xml</file>
                             </eclipse>

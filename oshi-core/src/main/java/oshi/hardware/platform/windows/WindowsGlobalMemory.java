@@ -120,8 +120,7 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
     /**
      * Convert memory type number to a human readable string
      *
-     * @param type
-     *            The memory type
+     * @param type The memory type
      * @return A string describing the type
      */
     private static String memoryType(int type) {
@@ -182,8 +181,7 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
     /**
      * Convert SMBIOS type number to a human readable string
      *
-     * @param type
-     *            The SMBIOS type
+     * @param type The SMBIOS type
      * @return A string describing the type
      */
     private static String smBiosMemoryType(int type) {

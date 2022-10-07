@@ -40,9 +40,8 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
- * The FreeBSD File System contains {@link oshi.software.os.OSFileStore}s which
- * are a storage pool, device, partition, volume, concrete file system or other
- * implementation specific means of file storage.
+ * The FreeBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
+ * volume, concrete file system or other implementation specific means of file storage.
  */
 @ThreadSafe
 public final class FreeBsdFileSystem extends AbstractFileSystem {

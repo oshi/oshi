@@ -41,8 +41,7 @@ public final class CFUtil {
     /**
      * /** Convert a pointer to a CFString into a String.
      *
-     * @param result
-     *            Pointer to the CFString
+     * @param result Pointer to the CFString
      * @return a CFString or "unknown" if it has no value
      */
     public static String cfPointerToString(Pointer result) {
@@ -52,12 +51,9 @@ public final class CFUtil {
     /**
      * Convert a pointer to a CFString into a String.
      *
-     * @param result
-     *            Pointer to the CFString
-     * @param returnUnknown
-     *            Whether to return the "unknown" string
-     * @return a CFString including a possible empty one if {@code returnUnknown} is
-     *         false, or "unknown" if it is true
+     * @param result        Pointer to the CFString
+     * @param returnUnknown Whether to return the "unknown" string
+     * @return a CFString including a possible empty one if {@code returnUnknown} is false, or "unknown" if it is true
      */
     public static String cfPointerToString(Pointer result, boolean returnUnknown) {
         String s = "";

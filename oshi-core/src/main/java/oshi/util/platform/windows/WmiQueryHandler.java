@@ -43,8 +43,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.GlobalConfig;
 
 /**
- * Utility to handle WMI Queries. Designed to be extended with user-customized
- * behavior.
+ * Utility to handle WMI Queries. Designed to be extended with user-customized behavior.
  */
 @ThreadSafe
 public class WmiQueryHandler {
@@ -78,12 +77,10 @@ public class WmiQueryHandler {
     private static Class<? extends WmiQueryHandler> customClass = null;
 
     /**
-     * Factory method to create an instance of this class. To override this class,
-     * use {@link #setInstanceClass(Class)} to define a subclass which extends
-     * {@link oshi.util.platform.windows.WmiQueryHandler}.
+     * Factory method to create an instance of this class. To override this class, use {@link #setInstanceClass(Class)}
+     * to define a subclass which extends {@link oshi.util.platform.windows.WmiQueryHandler}.
      *
-     * @return An instance of this class or a class defined by
-     *         {@link #setInstanceClass(Class)}
+     * @return An instance of this class or a class defined by {@link #setInstanceClass(Class)}
      */
     public static synchronized WmiQueryHandler createInstance() {
         if (customClass == null) {
@@ -101,26 +98,21 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Define a subclass to be instantiated by {@link #createInstance()}. The class
-     * must extend {@link oshi.util.platform.windows.WmiQueryHandler}.
+     * Define a subclass to be instantiated by {@link #createInstance()}. The class must extend
+     * {@link oshi.util.platform.windows.WmiQueryHandler}.
      *
-     * @param instanceClass
-     *            The class to instantiate with {@link #createInstance()}.
+     * @param instanceClass The class to instantiate with {@link #createInstance()}.
      */
     public static synchronized void setInstanceClass(Class<? extends WmiQueryHandler> instanceClass) {
         customClass = instanceClass;
     }
 
     /**
-     * Query WMI for values. Makes no assumptions on whether the user has previously
-     * initialized COM.
+     * Query WMI for values. Makes no assumptions on whether the user has previously initialized COM.
      *
-     * @param <T>
-     *            WMI queries use an Enum to identify the fields to query, and use
-     *            the enum values as keys to retrieve the results.
-     * @param query
-     *            A WmiQuery object encapsulating the namespace, class, and
-     *            properties
+     * @param <T>   WMI queries use an Enum to identify the fields to query, and use the enum values as keys to retrieve
+     *              the results.
+     * @param query A WmiQuery object encapsulating the namespace, class, and properties
      * @return a WmiResult object containing the query results, wrapping an EnumMap
      */
     public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query) {
@@ -130,17 +122,12 @@ public class WmiQueryHandler {
     /**
      * Query WMI for values.
      *
-     * @param <T>
-     *            WMI queries use an Enum to identify the fields to query, and use
-     *            the enum values as keys to retrieve the results.
-     * @param query
-     *            A WmiQuery object encapsulating the namespace, class, and
-     *            properties
-     * @param initCom
-     *            Whether to initialize COM. If {@code true}, initializes COM before
-     *            the query and uninitializes after. If {@code false}, assumes the
-     *            user has initialized COM separately. This can improve WMI query
-     *            performance.
+     * @param <T>     WMI queries use an Enum to identify the fields to query, and use the enum values as keys to
+     *                retrieve the results.
+     * @param query   A WmiQuery object encapsulating the namespace, class, and properties
+     * @param initCom Whether to initialize COM. If {@code true}, initializes COM before the query and uninitializes
+     *                after. If {@code false}, assumes the user has initialized COM separately. This can improve WMI
+     *                query performance.
      * @return a WmiResult object containing the query results, wrapping an EnumMap
      */
     public <T extends Enum<T>> WbemcliUtil.WmiResult<T> queryWMI(WbemcliUtil.WmiQuery<T> query, boolean initCom) {
@@ -187,11 +174,8 @@ public class WmiQueryHandler {
     /**
      * COM Exception handler. Logs a warning message.
      *
-     * @param query
-     *            a {@link com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery}
-     *            object.
-     * @param ex
-     *            a {@link com.sun.jna.platform.win32.COM.COMException} object.
+     * @param query a {@link com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery} object.
+     * @param ex    a {@link com.sun.jna.platform.win32.COM.COMException} object.
      */
     protected void handleComException(WbemcliUtil.WmiQuery<?> query, COMException ex) {
         LOG.warn(
@@ -202,8 +186,7 @@ public class WmiQueryHandler {
     /**
      * Initializes COM library and sets security to impersonate the local user
      *
-     * @return True if COM was initialized and needs to be uninitialized, false
-     *         otherwise
+     * @return True if COM was initialized and needs to be uninitialized, false otherwise
      */
     public boolean initCOM() {
         boolean comInit = false;
@@ -232,10 +215,8 @@ public class WmiQueryHandler {
     /**
      * Initializes COM with a specific threading model
      *
-     * @param coInitThreading
-     *            The threading model
-     * @return True if COM was initialized and needs to be uninitialized, false
-     *         otherwise
+     * @param coInitThreading The threading model
+     * @return True if COM was initialized and needs to be uninitialized, false otherwise
      */
     protected boolean initCOM(int coInitThreading) {
         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
@@ -255,16 +236,15 @@ public class WmiQueryHandler {
     }
 
     /**
-     * UnInitializes COM library. This should be called once for every successful
-     * call to initCOM.
+     * UnInitializes COM library. This should be called once for every successful call to initCOM.
      */
     public void unInitCOM() {
         Ole32.INSTANCE.CoUninitialize();
     }
 
     /**
-     * Returns the current threading model for COM initialization, as OSHI is
-     * required to match if an external program has COM initialized already.
+     * Returns the current threading model for COM initialization, as OSHI is required to match if an external program
+     * has COM initialized already.
      *
      * @return The current threading model
      */
@@ -273,8 +253,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Switches the current threading model for COM initialization, as OSHI is
-     * required to match if an external program has COM initialized already.
+     * Switches the current threading model for COM initialization, as OSHI is required to match if an external program
+     * has COM initialized already.
      *
      * @return The new threading model after switching
      */
@@ -288,8 +268,7 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Security only needs to be initialized once. This boolean identifies whether
-     * that has happened.
+     * Security only needs to be initialized once. This boolean identifies whether that has happened.
      *
      * @return Returns the securityInitialized.
      */
@@ -298,8 +277,8 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Gets the current WMI timeout. WMI queries will fail if they take longer than
-     * this number of milliseconds. A value of -1 is infinite (no timeout).
+     * Gets the current WMI timeout. WMI queries will fail if they take longer than this number of milliseconds. A value
+     * of -1 is infinite (no timeout).
      *
      * @return Returns the current value of wmiTimeout.
      */
@@ -308,12 +287,9 @@ public class WmiQueryHandler {
     }
 
     /**
-     * Sets the WMI timeout. WMI queries will fail if they take longer than this
-     * number of milliseconds.
+     * Sets the WMI timeout. WMI queries will fail if they take longer than this number of milliseconds.
      *
-     * @param wmiTimeout
-     *            The wmiTimeout to set, in milliseconds. To disable timeouts, set
-     *            timeout as -1 (infinite).
+     * @param wmiTimeout The wmiTimeout to set, in milliseconds. To disable timeouts, set timeout as -1 (infinite).
      */
     public void setWmiTimeout(int wmiTimeout) {
         this.wmiTimeout = wmiTimeout;

@@ -45,8 +45,8 @@ public final class Lshal {
     /**
      * Query lshal to get device major
      *
-     * @return A map with disk names as the key and block device major as the value
-     *         if lshal is installed; empty map otherwise
+     * @return A map with disk names as the key and block device major as the value if lshal is installed; empty map
+     *         otherwise
      */
     public static Map<String, Integer> queryDiskToMajorMap() {
         Map<String, Integer> majorMap = new HashMap<>();

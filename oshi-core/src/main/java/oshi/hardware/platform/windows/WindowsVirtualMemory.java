@@ -66,8 +66,7 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
     /**
      * Constructor for WindowsVirtualMemory.
      *
-     * @param windowsGlobalMemory
-     *            The parent global memory class instantiating this
+     * @param windowsGlobalMemory The parent global memory class instantiating this
      */
     WindowsVirtualMemory(WindowsGlobalMemory windowsGlobalMemory) {
         this.global = windowsGlobalMemory;

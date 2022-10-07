@@ -33,15 +33,13 @@ import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.util.Util;
 
 /**
- * The Core Graphics framework is based on the Quartz advanced drawing engine.
- * It provides low-level, lightweight 2D rendering with unmatched output
- * fidelity. You use this framework to handle path-based drawing,
- * transformations, color management, offscreen rendering, patterns, gradients
- * and shadings, image data management, image creation, and image masking, as
- * well as PDF document creation, display, and parsing.
+ * The Core Graphics framework is based on the Quartz advanced drawing engine. It provides low-level, lightweight 2D
+ * rendering with unmatched output fidelity. You use this framework to handle path-based drawing, transformations, color
+ * management, offscreen rendering, patterns, gradients and shadings, image data management, image creation, and image
+ * masking, as well as PDF document creation, display, and parsing.
  * <p>
- * In macOS, Core Graphics also includes services for working with display
- * hardware, low-level user input events, and the windowing system.
+ * In macOS, Core Graphics also includes services for working with display hardware, low-level user input events, and
+ * the windowing system.
  */
 public interface CoreGraphics extends Library {
 

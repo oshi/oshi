@@ -29,8 +29,8 @@ import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
 /**
- * C library. This class should be considered non-API as it may be removed
- * if/when its code is incorporated into the JNA project.
+ * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA
+ * project.
  */
 public interface OpenBsdLibc extends CLibrary {
     OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);

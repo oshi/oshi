@@ -44,8 +44,7 @@ public final class Util {
     /**
      * Sleeps for the specified number of milliseconds.
      *
-     * @param ms
-     *            How long to sleep
+     * @param ms How long to sleep
      */
     public static void sleep(long ms) {
         try {
@@ -60,16 +59,11 @@ public final class Util {
     /**
      * Tests if a String matches another String with a wildcard pattern.
      *
-     * @param text
-     *            The String to test
-     * @param pattern
-     *            The String containing a wildcard pattern where ? represents a
-     *            single character and * represents any number of characters. If the
-     *            first character of the pattern is a carat (^) the test is
-     *            performed against the remaining characters and the result of the
-     *            test is the opposite.
-     * @return True if the String matches or if the first character is ^ and the
-     *         remainder of the String does not match.
+     * @param text    The String to test
+     * @param pattern The String containing a wildcard pattern where ? represents a single character and * represents
+     *                any number of characters. If the first character of the pattern is a carat (^) the test is
+     *                performed against the remaining characters and the result of the test is the opposite.
+     * @return True if the String matches or if the first character is ^ and the remainder of the String does not match.
      */
     public static boolean wildcardMatch(String text, String pattern) {
         if (pattern.length() > 0 && pattern.charAt(0) == '^') {
@@ -81,8 +75,7 @@ public final class Util {
     /**
      * Tests if a String is either null or empty.
      *
-     * @param s
-     *            The string to test
+     * @param s The string to test
      * @return True if the String is either null or empty.
      */
     public static boolean isBlank(String s) {
@@ -92,8 +85,7 @@ public final class Util {
     /**
      * Tests if a String is either null or empty or the unknown constant.
      *
-     * @param s
-     *            The string to test
+     * @param s The string to test
      * @return True if the String is either null or empty or the unknown constant.
      */
     public static boolean isBlankOrUnknown(String s) {
@@ -101,11 +93,9 @@ public final class Util {
     }
 
     /**
-     * If the given Pointer is of class Memory, executes the close method on it to
-     * free its native allocation
+     * If the given Pointer is of class Memory, executes the close method on it to free its native allocation
      *
-     * @param p
-     *            A pointer
+     * @param p A pointer
      */
     public static void freeMemory(Pointer p) {
         if (p instanceof Memory) {

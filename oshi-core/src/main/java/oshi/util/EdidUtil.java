@@ -47,8 +47,7 @@ public final class EdidUtil {
     /**
      * Gets the Manufacturer ID from (up to) 3 5-bit characters in bytes 8 and 9
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The manufacturer ID
      */
     public static String getManufacturerID(byte[] edid) {
@@ -65,8 +64,7 @@ public final class EdidUtil {
     /**
      * Gets the Product ID, bytes 10 and 11
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The product ID
      */
     public static String getProductID(byte[] edid) {
@@ -78,10 +76,8 @@ public final class EdidUtil {
     /**
      * Gets the Serial number, bytes 12-15
      *
-     * @param edid
-     *            The EDID byte array
-     * @return If all 4 bytes represent alphanumeric characters, a 4-character
-     *         string, otherwise a hex string.
+     * @param edid The EDID byte array
+     * @return If all 4 bytes represent alphanumeric characters, a 4-character string, otherwise a hex string.
      */
     public static String getSerialNo(byte[] edid) {
         // Bytes 12-15 are Serial number (last 4 characters)
@@ -99,8 +95,7 @@ public final class EdidUtil {
     /**
      * Return the week of year of manufacture
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The week of year
      */
     public static byte getWeek(byte[] edid) {
@@ -111,8 +106,7 @@ public final class EdidUtil {
     /**
      * Return the year of manufacture
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The year of manufacture
      */
     public static int getYear(byte[] edid) {
@@ -125,8 +119,7 @@ public final class EdidUtil {
     /**
      * Return the EDID version
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The EDID version
      */
     public static String getVersion(byte[] edid) {
@@ -137,8 +130,7 @@ public final class EdidUtil {
     /**
      * Test if this EDID is a digital monitor based on byte 20
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return True if the EDID represents a digital monitor, false otherwise
      */
     public static boolean isDigital(byte[] edid) {
@@ -149,8 +141,7 @@ public final class EdidUtil {
     /**
      * Get monitor width in cm
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return Monitor width in cm
      */
     public static int getHcm(byte[] edid) {
@@ -161,8 +152,7 @@ public final class EdidUtil {
     /**
      * Get monitor height in cm
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return Monitor height in cm
      */
     public static int getVcm(byte[] edid) {
@@ -173,8 +163,7 @@ public final class EdidUtil {
     /**
      * Get the VESA descriptors
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return A 2D array with four 18-byte elements representing VESA descriptors
      */
     public static byte[][] getDescriptors(byte[] edid) {
@@ -188,8 +177,7 @@ public final class EdidUtil {
     /**
      * Get the VESA descriptor type
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return An integer representing the first four bytes of the VESA descriptor
      */
     public static int getDescriptorType(byte[] desc) {
@@ -199,8 +187,7 @@ public final class EdidUtil {
     /**
      * Parse a detailed timing descriptor
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return A string describing part of the detailed timing descriptor
      */
     public static String getTimingDescriptor(byte[] desc) {
@@ -213,8 +200,7 @@ public final class EdidUtil {
     /**
      * Parse descriptor range limits
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return A string describing some of the range limits
      */
     public static String getDescriptorRangeLimits(byte[] desc) {
@@ -225,8 +211,7 @@ public final class EdidUtil {
     /**
      * Parse descriptor text
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return Plain text starting at the 4th byte
      */
     public static String getDescriptorText(byte[] desc) {
@@ -236,8 +221,7 @@ public final class EdidUtil {
     /**
      * Parse an EDID byte array into user-readable information
      *
-     * @param edid
-     *            An EDID byte array
+     * @param edid An EDID byte array
      * @return User-readable text represented by the EDID
      */
     public static String toString(byte[] edid) {

@@ -26,8 +26,7 @@ package oshi.hardware;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * Display refers to the information regarding a video source and monitor
- * identified by the EDID standard.
+ * Display refers to the information regarding a video source and monitor identified by the EDID standard.
  */
 @Immutable
 public interface Display {

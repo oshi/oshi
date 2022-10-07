@@ -37,13 +37,9 @@ public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
     private final Set<String> pvSet;
 
     /**
-     * @param name
-     *            Name of the volume group
-     * @param lvMap
-     *            Logical volumes derived from this volume group and the physical
-     *            volumes its mapped to.
-     * @param pvSet
-     *            Set of physical volumes this volume group consists of.
+     * @param name  Name of the volume group
+     * @param lvMap Logical volumes derived from this volume group and the physical volumes its mapped to.
+     * @param pvSet Set of physical volumes this volume group consists of.
      */
     protected AbstractLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         this.name = name;

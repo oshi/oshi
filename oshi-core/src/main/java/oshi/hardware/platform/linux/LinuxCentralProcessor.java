@@ -467,20 +467,14 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fetches the ProcessorID from dmidecode (if possible with root permissions),
-     * the cpuid command (if installed) or by encoding the stepping, model, family,
-     * and feature flags.
+     * Fetches the ProcessorID from dmidecode (if possible with root permissions), the cpuid command (if installed) or
+     * by encoding the stepping, model, family, and feature flags.
      *
-     * @param vendor
-     *            The vendor
-     * @param stepping
-     *            The stepping
-     * @param model
-     *            The model
-     * @param family
-     *            The family
-     * @param flags
-     *            The flags
+     * @param vendor   The vendor
+     * @param stepping The stepping
+     * @param model    The model
+     * @param family   The family
+     * @param flags    The flags
      * @return The Processor ID string
      */
     private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
@@ -520,14 +514,10 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     /**
      * Creates the MIDR, the ARM equivalent of CPUID ProcessorID
      *
-     * @param vendor
-     *            the CPU implementer
-     * @param stepping
-     *            the "rnpn" variant and revision
-     * @param model
-     *            the partnum
-     * @param family
-     *            the architecture
+     * @param vendor   the CPU implementer
+     * @param stepping the "rnpn" variant and revision
+     * @param model    the partnum
+     * @param family   the architecture
      * @return A 32-bit hex string for the MIDR
      */
     private static String createMIDR(String vendor, String stepping, String model, String family) {

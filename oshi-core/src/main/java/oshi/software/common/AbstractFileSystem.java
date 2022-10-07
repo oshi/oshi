@@ -38,8 +38,7 @@ import oshi.util.GlobalConfig;
 public abstract class AbstractFileSystem implements FileSystem {
 
     /**
-     * FileSystem types which are network-based and should be excluded from
-     * local-only lists
+     * FileSystem types which are network-based and should be excluded from local-only lists
      */
     protected static final List<String> NETWORK_FS_TYPES = Arrays
             .asList(GlobalConfig.get(GlobalConfig.OSHI_NETWORK_FILESYSTEM_TYPES, "").split(","));

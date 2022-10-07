@@ -26,8 +26,7 @@ package oshi.hardware;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * The Baseboard represents the system board, also called motherboard, logic
- * board, etc.
+ * The Baseboard represents the system board, also called motherboard, logic board, etc.
  */
 @Immutable
 public interface Baseboard {

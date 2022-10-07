@@ -39,12 +39,9 @@ public abstract class AbstractSoundCard implements SoundCard {
     /**
      * Abstract Sound Card Constructor
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     protected AbstractSoundCard(String kernelVersion, String name, String codec) {
         this.kernelVersion = kernelVersion;

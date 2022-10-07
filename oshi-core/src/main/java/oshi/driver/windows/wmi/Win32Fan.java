@@ -52,8 +52,7 @@ public final class Win32Fan {
     /**
      * Queries the fan speed.
      *
-     * @return Currently requested fan speed, defined in revolutions per minute,
-     *         when a variable speed fan is supported.
+     * @return Currently requested fan speed, defined in revolutions per minute, when a variable speed fan is supported.
      */
     public static WmiResult<SpeedProperty> querySpeed() {
         WmiQuery<SpeedProperty> fanQuery = new WmiQuery<>(WIN32_FAN, SpeedProperty.class);

@@ -45,8 +45,7 @@ class DisksTest {
     /**
      * Test disks extraction.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     void testDisks() throws IOException {

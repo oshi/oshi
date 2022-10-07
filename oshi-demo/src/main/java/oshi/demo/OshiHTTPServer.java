@@ -47,9 +47,8 @@ import oshi.SystemInfo;
  * <p>
  * This is for demonstration only not to be used in production code.
  * <p>
- * Code based on tutorial found on SSaurel's Blog :
- * https://www.ssaurel.com/blog/create-a-simple-http-web-server-in-java Each
- * Client Connection will be managed in a dedicated Thread
+ * Code based on tutorial found on SSaurel's Blog : https://www.ssaurel.com/blog/create-a-simple-http-web-server-in-java
+ * Each Client Connection will be managed in a dedicated Thread
  */
 public class OshiHTTPServer implements Runnable {
     // port to listen connection

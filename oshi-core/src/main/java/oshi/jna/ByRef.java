@@ -37,9 +37,8 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.util.Util;
 
 /**
- * Wrapper classes for JNA clases which extend
- * {@link com.sun.jna.ptr.ByReference} intended for use in try-with-resources
- * blocks.
+ * Wrapper classes for JNA clases which extend {@link com.sun.jna.ptr.ByReference} intended for use in
+ * try-with-resources blocks.
  */
 public interface ByRef {
 

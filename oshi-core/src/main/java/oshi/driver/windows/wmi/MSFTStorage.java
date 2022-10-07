@@ -30,8 +30,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.platform.windows.WmiQueryHandler;
 
 /**
- * Utility to query WMI classes in Storage namespace assocaited with Storage
- * Pools
+ * Utility to query WMI classes in Storage namespace assocaited with Storage Pools
  */
 @ThreadSafe
 public final class MSFTStorage {
@@ -43,16 +42,15 @@ public final class MSFTStorage {
     private static final String MSFT_VIRTUAL_DISK = "MSFT_VirtualDisk";
 
     /**
-     * Properties to identify the storage pool. The Object ID uniquely defines the
-     * pool.
+     * Properties to identify the storage pool. The Object ID uniquely defines the pool.
      */
     public enum StoragePoolProperty {
         FRIENDLYNAME, OBJECTID;
     }
 
     /**
-     * Properties to link a storage pool with a physical disk. OSHI parses these
-     * references to strings that can match the object IDs.
+     * Properties to link a storage pool with a physical disk. OSHI parses these references to strings that can match
+     * the object IDs.
      */
     public enum StoragePoolToPhysicalDiskProperty {
         STORAGEPOOL, PHYSICALDISK;
@@ -78,11 +76,8 @@ public final class MSFTStorage {
     /**
      * Query the storage pools.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
-     * @return Storage pools that are not primordial (raw disks not added to a
-     *         storage space).
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
+     * @return Storage pools that are not primordial (raw disks not added to a storage space).
      */
     public static WmiResult<StoragePoolProperty> queryStoragePools(WmiQueryHandler h) {
         WmiQuery<StoragePoolProperty> storagePoolQuery = new WmiQuery<>(STORAGE_NAMESPACE,
@@ -93,12 +88,9 @@ public final class MSFTStorage {
     /**
      * Query the storage pool to physical disk connection.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
-     * @return Links between physical disks and storage pools. All raw disks will be
-     *         part of the primordial pool in addition to the storage space they are
-     *         a member of.
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
+     * @return Links between physical disks and storage pools. All raw disks will be part of the primordial pool in
+     *         addition to the storage space they are a member of.
      */
     public static WmiResult<StoragePoolToPhysicalDiskProperty> queryStoragePoolPhysicalDisks(WmiQueryHandler h) {
         WmiQuery<StoragePoolToPhysicalDiskProperty> storagePoolToPhysicalDiskQuery = new WmiQuery<>(STORAGE_NAMESPACE,
@@ -109,9 +101,7 @@ public final class MSFTStorage {
     /**
      * Query the physical disks.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
      * @return The physical disks.
      */
     public static WmiResult<PhysicalDiskProperty> queryPhysicalDisks(WmiQueryHandler h) {
@@ -123,9 +113,7 @@ public final class MSFTStorage {
     /**
      * Query the virtual disks.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
      * @return The virtual disks.
      */
     public static WmiResult<VirtualDiskProperty> queryVirtualDisks(WmiQueryHandler h) {

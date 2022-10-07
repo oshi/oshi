@@ -97,10 +97,8 @@ public final class Iostat {
     /**
      * Query iostat to map detailed drive information
      *
-     * @param diskSet
-     *            A set of valid disk names; others will be ignored
-     * @return A map with disk name as the key and a quintet of model, vendor,
-     *         product, serial, size as the value
+     * @param diskSet A set of valid disk names; others will be ignored
+     * @return A map with disk name as the key and a quintet of model, vendor, product, serial, size as the value
      */
     public static Map<String, Quintet<String, String, String, String, Long>> queryDeviceStrings(Set<String> diskSet) {
         Map<String, Quintet<String, String, String, String, Long>> deviceParamMap = new HashMap<>();

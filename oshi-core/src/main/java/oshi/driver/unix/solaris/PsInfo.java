@@ -66,8 +66,7 @@ public final class PsInfo {
     /**
      * Reads /proc/pid/psinfo and returns data in a structure
      *
-     * @param pid
-     *            The process ID
+     * @param pid The process ID
      * @return A structure containing information for the requested process
      */
     public static SolarisPsInfo queryPsInfo(int pid) {
@@ -77,10 +76,8 @@ public final class PsInfo {
     /**
      * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
      *
-     * @param pid
-     *            The process ID
-     * @param tid
-     *            The thread ID (lwpid)
+     * @param pid The process ID
+     * @param tid The thread ID (lwpid)
      * @return A structure containing information for the requested thread
      */
     public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
@@ -90,8 +87,7 @@ public final class PsInfo {
     /**
      * Reads /proc/pid/usage and returns data in a structure
      *
-     * @param pid
-     *            The process ID
+     * @param pid The process ID
      * @return A structure containing information for the requested process
      */
     public static SolarisPrUsage queryPrUsage(int pid) {
@@ -101,10 +97,8 @@ public final class PsInfo {
     /**
      * Reads /proc/pid/lwp/tid/usage and returns data in a structure
      *
-     * @param pid
-     *            The process ID
-     * @param tid
-     *            The thread ID (lwpid)
+     * @param pid The process ID
+     * @param tid The thread ID (lwpid)
      * @return A structure containing information for the requested thread
      */
     public static SolarisPrUsage queryPrUsage(int pid, int tid) {
@@ -112,16 +106,11 @@ public final class PsInfo {
     }
 
     /**
-     * Reads the pr_argc, pr_argv, pr_envp, and pr_dmodel fields from
-     * /proc/pid/psinfo
+     * Reads the pr_argc, pr_argv, pr_envp, and pr_dmodel fields from /proc/pid/psinfo
      *
-     * @param pid
-     *            The process ID
-     * @param psinfo
-     *            A populated {@link SolarisPsInfo} structure containing the offset
-     *            pointers for these fields
-     * @return A quartet containing the argc, argv, envp and dmodel values, or null
-     *         if unable to read
+     * @param pid    The process ID
+     * @param psinfo A populated {@link SolarisPsInfo} structure containing the offset pointers for these fields
+     * @return A quartet containing the argc, argv, envp and dmodel values, or null if unable to read
      */
     public static Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid, SolarisPsInfo psinfo) {
         if (psinfo != null) {
@@ -149,13 +138,9 @@ public final class PsInfo {
     /**
      * Read the argument and environment strings from process address space
      *
-     * @param pid
-     *            the process id
-     * @param psinfo
-     *            A populated {@link SolarisPsInfo} structure containing the offset
-     *            pointers for these fields
-     * @return A pair containing a list of the arguments and a map of environment
-     *         variables
+     * @param pid    the process id
+     * @param psinfo A populated {@link SolarisPsInfo} structure containing the offset pointers for these fields
+     * @return A pair containing a list of the arguments and a map of environment variables
      */
     public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, SolarisPsInfo psinfo) {
         List<String> args = new ArrayList<>();
@@ -239,20 +224,14 @@ public final class PsInfo {
     }
 
     /**
-     * Reads the page containing addr into buffer, unless the buffer already
-     * contains that page (as indicated by the bufStart address), in which case
-     * nothing is changed.
+     * Reads the page containing addr into buffer, unless the buffer already contains that page (as indicated by the
+     * bufStart address), in which case nothing is changed.
      *
-     * @param fd
-     *            The file descriptor for the address space
-     * @param buffer
-     *            An allocated buffer, possibly with data reread from bufStart
-     * @param bufSize
-     *            The size of the buffer
-     * @param bufStart
-     *            The start of data currently in bufStart, or 0 if uninitialized
-     * @param addr
-     *            THe address whose page to read into the buffer
+     * @param fd       The file descriptor for the address space
+     * @param buffer   An allocated buffer, possibly with data reread from bufStart
+     * @param bufSize  The size of the buffer
+     * @param bufStart The start of data currently in bufStart, or 0 if uninitialized
+     * @param addr     THe address whose page to read into the buffer
      * @return The new starting pointer for the buffer
      */
     private static long conditionallyReadBufferFromStartOfPage(int fd, Memory buffer, size_t bufSize, long bufStart,

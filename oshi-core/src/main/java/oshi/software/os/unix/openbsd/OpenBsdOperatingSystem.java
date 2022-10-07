@@ -56,8 +56,8 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * OpenBsd is a free and open-source Unix-like operating system descended from
- * the Berkeley Software Distribution (BSD), which was based on Research Unix.
+ * OpenBsd is a free and open-source Unix-like operating system descended from the Berkeley Software Distribution (BSD),
+ * which was based on Research Unix.
  */
 @ThreadSafe
 public class OpenBsdOperatingSystem extends AbstractOperatingSystem {

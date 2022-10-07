@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides information about hardware such as Memory, Power Sources, and
- * Processor on Linux systems
+ * Provides information about hardware such as Memory, Power Sources, and Processor on Linux systems
  */
 package oshi.hardware.platform.linux;

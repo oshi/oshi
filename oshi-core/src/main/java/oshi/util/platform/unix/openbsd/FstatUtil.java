@@ -40,8 +40,7 @@ public final class FstatUtil {
     /**
      * Gets current working directory info (using {@code ps} actually).
      *
-     * @param pid
-     *            a process ID
+     * @param pid a process ID
      * @return the current working directory for that process.
      */
     public static String getCwd(int pid) {
@@ -55,8 +54,7 @@ public final class FstatUtil {
     /**
      * Gets open number of files.
      *
-     * @param pid
-     *            The process ID
+     * @param pid The process ID
      * @return the number of open files.
      */
     public static long getOpenFiles(int pid) {

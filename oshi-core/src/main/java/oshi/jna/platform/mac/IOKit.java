@@ -32,8 +32,8 @@ import com.sun.jna.ptr.NativeLongByReference;
 import oshi.util.Util;
 
 /**
- * The I/O Kit framework implements non-kernel access to I/O Kit objects
- * (drivers and nubs) through the device-interface mechanism.
+ * The I/O Kit framework implements non-kernel access to I/O Kit objects (drivers and nubs) through the device-interface
+ * mechanism.
  */
 public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 

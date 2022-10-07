@@ -52,8 +52,7 @@ public final class Lscfg {
     /**
      * Parse the output of {@code lscfg -vp} to get backplane info
      *
-     * @param lscfg
-     *            The output of a previous call to {@code lscfg -vp}
+     * @param lscfg The output of a previous call to {@code lscfg -vp}
      * @return A triplet with backplane model, serial number, and version
      */
     public static Triplet<String, String, String> queryBackplaneModelSerialVersion(List<String> lscfg) {
@@ -98,10 +97,8 @@ public final class Lscfg {
     /**
      * Query {@code lscfg -vl device} to get hardware info
      *
-     * @param device
-     *            The disk to get the model and serial from
-     * @return A pair containing the model and serial number for the device, or null
-     *         if not found
+     * @param device The disk to get the model and serial from
+     * @return A pair containing the model and serial number for the device, or null if not found
      */
     public static Pair<String, String> queryModelSerial(String device) {
         String modelMarker = "Machine Type and Model";

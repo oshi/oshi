@@ -28,17 +28,14 @@ import java.util.List;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * A storage mechanism where data are recorded by various electronic, magnetic,
- * optical, or mechanical changes to a surface layer of one or more rotating
- * disks or or flash storage such as a removable or solid state drive. In
- * constrast to a File System, defining the way an Operating system uses the
- * storage, the Disk Store represents the hardware which a FileSystem uses for
- * its File Stores.
+ * A storage mechanism where data are recorded by various electronic, magnetic, optical, or mechanical changes to a
+ * surface layer of one or more rotating disks or or flash storage such as a removable or solid state drive. In
+ * constrast to a File System, defining the way an Operating system uses the storage, the Disk Store represents the
+ * hardware which a FileSystem uses for its File Stores.
  * <p>
- * Thread safe for the designed use of retrieving the most recent data. Users
- * should be aware that the {@link #updateAttributes()} method may update
- * attributes, including the time stamp, and should externally synchronize such
- * usage to ensure consistent calculations.
+ * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
+ * {@link #updateAttributes()} method may update attributes, including the time stamp, and should externally synchronize
+ * such usage to ensure consistent calculations.
  */
 @ThreadSafe
 public interface HWDiskStore {
@@ -100,9 +97,8 @@ public interface HWDiskStore {
     long getWriteBytes();
 
     /**
-     * The length of the disk queue (#I/O's in progress). Includes I/O requests that
-     * have been issued to the device driver but have not yet completed. Not
-     * supported on macOS.
+     * The length of the disk queue (#I/O's in progress). Includes I/O requests that have been issued to the device
+     * driver but have not yet completed. Not supported on macOS.
      *
      * @return the current disk queue length
      */
@@ -130,14 +126,12 @@ public interface HWDiskStore {
     long getTimeStamp();
 
     /**
-     * Make a best effort to update all the statistics about the drive without
-     * needing to recreate the drive list. This method provides for more frequent
-     * periodic updates of individual drive statistics but may be less efficient to
-     * use if updating all drives. It will not detect if a removable drive has been
-     * removed and replaced by a different drive in between method calls.
+     * Make a best effort to update all the statistics about the drive without needing to recreate the drive list. This
+     * method provides for more frequent periodic updates of individual drive statistics but may be less efficient to
+     * use if updating all drives. It will not detect if a removable drive has been removed and replaced by a different
+     * drive in between method calls.
      *
-     * @return True if the update was (probably) successful, false if the disk was
-     *         not found
+     * @return True if the update was (probably) successful, false if the disk was not found
      */
     boolean updateAttributes();
 }

@@ -43,16 +43,11 @@ final class AixGraphicsCard extends AbstractGraphicsCard {
     /**
      * Constructor for AixGraphicsCard
      *
-     * @param name
-     *            The name
-     * @param deviceId
-     *            The device ID
-     * @param vendor
-     *            The vendor
-     * @param versionInfo
-     *            The version info
-     * @param vram
-     *            The VRAM
+     * @param name        The name
+     * @param deviceId    The device ID
+     * @param vendor      The vendor
+     * @param versionInfo The version info
+     * @param vram        The VRAM
      */
     AixGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
@@ -61,8 +56,7 @@ final class AixGraphicsCard extends AbstractGraphicsCard {
     /**
      * Gets graphics cards
      *
-     * @param lscfg
-     *            A memoized lscfg list
+     * @param lscfg A memoized lscfg list
      *
      * @return List of graphics cards
      */

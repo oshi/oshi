@@ -67,8 +67,7 @@ public final class LogicalProcessorInformation {
     }
 
     /**
-     * Get a list of logical processors on this machine. Requires Windows 7 and
-     * higher.
+     * Get a list of logical processors on this machine. Requires Windows 7 and higher.
      *
      * @return A list of logical processors
      */
@@ -243,10 +242,8 @@ public final class LogicalProcessorInformation {
     /**
      * Iterate over the package mask list and find a matching mask index
      *
-     * @param packageMaskList
-     *            The list of bitmasks to iterate
-     * @param logProc
-     *            The bit to find matching mask
+     * @param packageMaskList The list of bitmasks to iterate
+     * @param logProc         The bit to find matching mask
      * @return The index of the list which matched the bit
      */
     private static int getBitMatchingPackageNumber(List<Long> packageMaskList, int logProc) {

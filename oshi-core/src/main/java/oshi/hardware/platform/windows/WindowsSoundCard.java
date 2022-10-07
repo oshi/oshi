@@ -46,24 +46,19 @@ final class WindowsSoundCard extends AbstractSoundCard {
     /**
      * Constructor for WindowsSoundCard.
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     WindowsSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     /**
-     * Returns Windows audio device driver information, which represents the closest
-     * proxy we have to sound cards.
+     * Returns Windows audio device driver information, which represents the closest proxy we have to sound cards.
      * <p>
-     * NOTE : The reason why the codec name is same as the card name is because
-     * windows does not provide the name of the codec chip but sometimes the name of
-     * the card returned is infact the name of the codec chip also. Example :
+     * NOTE : The reason why the codec name is same as the card name is because windows does not provide the name of the
+     * codec chip but sometimes the name of the card returned is infact the name of the codec chip also. Example :
      * Realtek ALC887 HD Audio Device
      *
      * @return List of sound cards

@@ -61,9 +61,8 @@ import oshi.util.Util;
 import oshi.util.tuples.Pair;
 
 /**
- * AIX (Advanced Interactive eXecutive) is a series of proprietary Unix
- * operating systems developed and sold by IBM for several of its computer
- * platforms.
+ * AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for
+ * several of its computer platforms.
  */
 @ThreadSafe
 public class AixOperatingSystem extends AbstractOperatingSystem {

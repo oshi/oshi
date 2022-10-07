@@ -353,11 +353,9 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     /***
-     * Returns Enum STATE for the state value obtained from status string of
-     * thread/process.
+     * Returns Enum STATE for the state value obtained from status string of thread/process.
      *
-     * @param stateValue
-     *            state value from the status string
+     * @param stateValue state value from the status string
      * @return The state
      */
     static State getStateFromOutput(char stateValue) {

@@ -38,9 +38,8 @@ import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
 
 /**
- * The AIX File System contains {@link oshi.software.os.OSFileStore}s which are
- * a storage pool, device, partition, volume, concrete file system or other
- * implementation specific means of file storage.
+ * The AIX File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
+ * volume, concrete file system or other implementation specific means of file storage.
  */
 @ThreadSafe
 public class AixFileSystem extends AbstractFileSystem {

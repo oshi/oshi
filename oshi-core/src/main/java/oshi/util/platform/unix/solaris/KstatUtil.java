@@ -69,15 +69,13 @@ public final class KstatUtil {
     }
 
     /**
-     * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
-     * one thread may actively use this object at any time.
+     * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only one thread may actively use this
+     * object at any time.
      * <p>
-     * The chain is created once calling {@link LibKstat#kstat_open} and then this
-     * object is instantiated using the {@link KstatUtil#openChain} method.
-     * Instantiating this object updates the chain using
-     * {@link LibKstat#kstat_chain_update}. The control object should be closed with
-     * {@link #close}, which releases the lock and allows another instance to be
-     * instantiated.
+     * The chain is created once calling {@link LibKstat#kstat_open} and then this object is instantiated using the
+     * {@link KstatUtil#openChain} method. Instantiating this object updates the chain using
+     * {@link LibKstat#kstat_chain_update}. The control object should be closed with {@link #close}, which releases the
+     * lock and allows another instance to be instantiated.
      */
     public static final class KstatChain implements AutoCloseable {
 
@@ -89,16 +87,13 @@ public final class KstatUtil {
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_read} which gets data from the
-         * kernel for the kstat pointed to by {@code ksp}. {@code ksp.ks_data} is
-         * automatically allocated (or reallocated) to be large enough to hold all of
-         * the data. {@code ksp.ks_ndata} is set to the number of data fields,
-         * {@code ksp.ks_data_size} is set to the total size of the data, and
-         * ksp.ks_snaptime is set to the high-resolution time at which the data snapshot
+         * Convenience method for {@link LibKstat#kstat_read} which gets data from the kernel for the kstat pointed to
+         * by {@code ksp}. {@code ksp.ks_data} is automatically allocated (or reallocated) to be large enough to hold
+         * all of the data. {@code ksp.ks_ndata} is set to the number of data fields, {@code ksp.ks_data_size} is set to
+         * the total size of the data, and ksp.ks_snaptime is set to the high-resolution time at which the data snapshot
          * was taken.
          *
-         * @param ksp
-         *            The kstat from which to retrieve data
+         * @param ksp The kstat from which to retrieve data
          * @return {@code true} if successful; {@code false} otherwise
          */
         @GuardedBy("CHAIN")
@@ -119,20 +114,15 @@ public final class KstatUtil {
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat
-         * chain, searching for a kstat with the same {@code module}, {@code instance},
-         * and {@code name} fields; this triplet uniquely identifies a kstat. If
-         * {@code module} is {@code null}, {@code instance} is -1, or {@code name} is
-         * {@code null}, then those fields will be ignored in the search.
+         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat chain, searching for a kstat with
+         * the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely identifies a kstat.
+         * If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is {@code null}, then those fields
+         * will be ignored in the search.
          *
-         * @param module
-         *            The module, or null to ignore
-         * @param instance
-         *            The instance, or -1 to ignore
-         * @param name
-         *            The name, or null to ignore
-         * @return The first match of the requested Kstat structure if found, or
-         *         {@code null}
+         * @param module   The module, or null to ignore
+         * @param instance The instance, or -1 to ignore
+         * @param name     The name, or null to ignore
+         * @return The first match of the requested Kstat structure if found, or {@code null}
          */
         @GuardedBy("CHAIN")
         public Kstat lookup(String module, int instance, String name) {
@@ -140,21 +130,15 @@ public final class KstatUtil {
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat
-         * chain, searching for all kstats with the same {@code module},
-         * {@code instance}, and {@code name} fields; this triplet uniquely identifies a
-         * kstat. If {@code module} is {@code null}, {@code instance} is -1, or
-         * {@code name} is {@code null}, then those fields will be ignored in the
-         * search.
+         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat chain, searching for all kstats
+         * with the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely identifies a
+         * kstat. If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is {@code null}, then those
+         * fields will be ignored in the search.
          *
-         * @param module
-         *            The module, or null to ignore
-         * @param instance
-         *            The instance, or -1 to ignore
-         * @param name
-         *            The name, or null to ignore
-         * @return All matches of the requested Kstat structure if found, or an empty
-         *         list otherwise
+         * @param module   The module, or null to ignore
+         * @param instance The instance, or -1 to ignore
+         * @param name     The name, or null to ignore
+         * @return All matches of the requested Kstat structure if found, or an empty list otherwise
          */
         @GuardedBy("CHAIN")
         public List<Kstat> lookupAll(String module, int instance, String name) {
@@ -171,14 +155,13 @@ public final class KstatUtil {
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_chain_update}. Brings this kstat
-         * header chain in sync with that of the kernel.
+         * Convenience method for {@link LibKstat#kstat_chain_update}. Brings this kstat header chain in sync with that
+         * of the kernel.
          * <p>
-         * This function compares the kernel's current kstat chain ID(KCID), which is
-         * incremented every time the kstat chain changes, to this object's KCID.
+         * This function compares the kernel's current kstat chain ID(KCID), which is incremented every time the kstat
+         * chain changes, to this object's KCID.
          *
-         * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on
-         *         failure.
+         * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on failure.
          */
         @GuardedBy("CHAIN")
         public int update() {
@@ -197,8 +180,8 @@ public final class KstatUtil {
     /**
      * Lock the Kstat chain for use by this object until it's closed.
      *
-     * @return A locked copy of the chain. It should be unlocked/released when you
-     *         are done with it with {@link KstatChain#close()}.
+     * @return A locked copy of the chain. It should be unlocked/released when you are done with it with
+     *         {@link KstatChain#close()}.
      */
     public static synchronized KstatChain openChain() {
         CHAIN.lock();
@@ -209,17 +192,12 @@ public final class KstatUtil {
     }
 
     /**
-     * Convenience method for {@link LibKstat#kstat_data_lookup} with String return
-     * values. Searches the kstat's data section for the record with the specified
-     * name. This operation is valid only for kstat types which have named data
-     * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
-     * have named data records.
+     * Convenience method for {@link LibKstat#kstat_data_lookup} with String return values. Searches the kstat's data
+     * section for the record with the specified name. This operation is valid only for kstat types which have named
+     * data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
      *
-     * @param ksp
-     *            The kstat to search
-     * @param name
-     *            The key for the name-value pair, or name of the timer as
-     *            applicable
+     * @param ksp  The kstat to search
+     * @param name The key for the name-value pair, or name of the timer as applicable
      * @return The value as a String.
      */
     public static String dataLookupString(Kstat ksp, String name) {
@@ -252,19 +230,13 @@ public final class KstatUtil {
     }
 
     /**
-     * Convenience method for {@link LibKstat#kstat_data_lookup} with numeric return
-     * values. Searches the kstat's data section for the record with the specified
-     * name. This operation is valid only for kstat types which have named data
-     * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
-     * have named data records.
+     * Convenience method for {@link LibKstat#kstat_data_lookup} with numeric return values. Searches the kstat's data
+     * section for the record with the specified name. This operation is valid only for kstat types which have named
+     * data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
      *
-     * @param ksp
-     *            The kstat to search
-     * @param name
-     *            The key for the name-value pair, or name of the timer as
-     *            applicable
-     * @return The value as a long. If the data type is a character or string type,
-     *         returns 0 and logs an error.
+     * @param ksp  The kstat to search
+     * @param name The key for the name-value pair, or name of the timer as applicable
+     * @return The value as a long. If the data type is a character or string type, returns 0 and logs an error.
      */
     public static long dataLookupLong(Kstat ksp, String name) {
         if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED && ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {
@@ -298,10 +270,8 @@ public final class KstatUtil {
     /**
      * Query Kstat2 with a single map
      *
-     * @param mapStr
-     *            The map to query
-     * @param names
-     *            Names of data to query
+     * @param mapStr The map to query
+     * @param names  Names of data to query
      * @return An object array with the data corresponding to the names
      */
     public static Object[] queryKstat2(String mapStr, String... names) {
@@ -333,15 +303,11 @@ public final class KstatUtil {
     }
 
     /**
-     * Query Kstat2 iterating over maps using a wildcard indicating a 0-indexed
-     * list, such as a cpu.
+     * Query Kstat2 iterating over maps using a wildcard indicating a 0-indexed list, such as a cpu.
      *
-     * @param beforeStr
-     *            The part of the string before the wildcard
-     * @param afterStr
-     *            The part of the string after the wildcard
-     * @param names
-     *            Names of data to query
+     * @param beforeStr The part of the string before the wildcard
+     * @param afterStr  The part of the string after the wildcard
+     * @param names     Names of data to query
      * @return A list of object arrays with the data corresponding to the names
      */
     public static List<Object[]> queryKstat2List(String beforeStr, String afterStr, String... names) {

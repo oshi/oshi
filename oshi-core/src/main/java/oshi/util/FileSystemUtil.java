@@ -46,27 +46,19 @@ public final class FileSystemUtil {
     }
 
     /**
-     * Evaluates if file store (identified by {@code path} and {@code volume})
-     * should be excluded or not based on configuration
-     * {@code pathIncludes, pathExcludes, volumeIncludes, volumeExcludes}.
+     * Evaluates if file store (identified by {@code path} and {@code volume}) should be excluded or not based on
+     * configuration {@code pathIncludes, pathExcludes, volumeIncludes, volumeExcludes}.
      *
-     * Inclusion has priority over exclusion. If no exclusion/inclusion pattern is
-     * specified, then filestore is not excluded.
+     * Inclusion has priority over exclusion. If no exclusion/inclusion pattern is specified, then filestore is not
+     * excluded.
      *
-     * @param path
-     *            Mountpoint of filestore.
-     * @param volume
-     *            Filestore volume.
-     * @param pathIncludes
-     *            List of patterns for path inclusions.
-     * @param pathExcludes
-     *            List of patterns for path exclusions.
-     * @param volumeIncludes
-     *            List of patterns for volume inclusions.
-     * @param volumeExcludes
-     *            List of patterns for volume exclusions.
-     * @return {@code true} if file store should be excluded or {@code false}
-     *         otherwise.
+     * @param path           Mountpoint of filestore.
+     * @param volume         Filestore volume.
+     * @param pathIncludes   List of patterns for path inclusions.
+     * @param pathExcludes   List of patterns for path exclusions.
+     * @param volumeIncludes List of patterns for volume inclusions.
+     * @param volumeExcludes List of patterns for volume exclusions.
+     * @return {@code true} if file store should be excluded or {@code false} otherwise.
      */
     public static boolean isFileStoreExcluded(String path, String volume, List<PathMatcher> pathIncludes,
             List<PathMatcher> pathExcludes, List<PathMatcher> volumeIncludes, List<PathMatcher> volumeExcludes) {
@@ -81,8 +73,7 @@ public final class FileSystemUtil {
     /**
      * Load from config and parse file system include/exclude line.
      *
-     * @param configPropertyName
-     *            The config property containing the line to be parsed.
+     * @param configPropertyName The config property containing the line to be parsed.
      * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List<PathMatcher> loadAndParseFileSystemConfig(String configPropertyName) {
@@ -93,8 +84,7 @@ public final class FileSystemUtil {
     /**
      * Parse file system include/exclude line.
      *
-     * @param config
-     *            The config line to be parsed.
+     * @param config The config line to be parsed.
      * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List<PathMatcher> parseFileSystemConfig(String config) {
@@ -116,14 +106,10 @@ public final class FileSystemUtil {
     /**
      * Checks if {@code text} matches any of @param patterns}.
      *
-     * @param text
-     *            The text to be matched.
-     * @param patterns
-     *            List of patterns.
-     * @return {@code true} if given text matches at least one glob pattern or
-     *         {@code false} otherwise.
-     * @see <a href="https://en.wikipedia.org/wiki/Glob_(programming)">Wikipedia -
-     *      glob (programming)</a>
+     * @param text     The text to be matched.
+     * @param patterns List of patterns.
+     * @return {@code true} if given text matches at least one glob pattern or {@code false} otherwise.
+     * @see <a href="https://en.wikipedia.org/wiki/Glob_(programming)">Wikipedia - glob (programming)</a>
      */
     public static boolean matches(Path text, List<PathMatcher> patterns) {
         for (PathMatcher pattern : patterns) {

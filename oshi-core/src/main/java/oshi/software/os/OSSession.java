@@ -31,8 +31,7 @@ import java.time.format.DateTimeFormatter;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * This class encapsulates information about users who are currently logged in
- * to an operating system.
+ * This class encapsulates information about users who are currently logged in to an operating system.
  */
 @Immutable
 public class OSSession {
@@ -80,8 +79,8 @@ public class OSSession {
     /**
      * Gets the remote host from which the user logged in
      *
-     * @return the host as either an IPv4 or IPv6 representation. If the host is
-     *         unspecified, may also be an empty string, depending on the platform.
+     * @return the host as either an IPv4 or IPv6 representation. If the host is unspecified, may also be an empty
+     *         string, depending on the platform.
      */
     public String getHost() {
         return host;

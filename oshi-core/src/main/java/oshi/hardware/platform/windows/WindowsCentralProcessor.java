@@ -66,8 +66,7 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * A CPU, representing all of a system's processors. It may contain multiple
- * individual Physical and Logical processors.
+ * A CPU, representing all of a system's processors. It may contain multiple individual Physical and Logical processors.
  */
 @ThreadSafe
 final class WindowsCentralProcessor extends AbstractCentralProcessor {
@@ -161,10 +160,8 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     /**
      * Parses identifier string
      *
-     * @param identifier
-     *            the full identifier string
-     * @param key
-     *            the key to retrieve
+     * @param identifier the full identifier string
+     * @param key        the key to retrieve
      * @return the string following id
      */
     private static String parseIdentifier(String identifier, String key) {
@@ -261,12 +258,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Call CallNTPowerInformation for Processor information and return an array of
-     * the specified index
+     * Call CallNTPowerInformation for Processor information and return an array of the specified index
      *
-     * @param fieldIndex
-     *            The field, in order as defined in the
-     *            {@link PowrProf#PROCESSOR_INFORMATION} structure.
+     * @param fieldIndex The field, in order as defined in the {@link PowrProf#PROCESSOR_INFORMATION} structure.
      * @return The array of values.
      */
     private long[] queryNTPower(int fieldIndex) {
@@ -444,10 +438,8 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     /**
      * Lazily calculate the capacity tick multiplier once.
      *
-     * @param deltaBase
-     *            The difference in base ticks.
-     * @param deltaT
-     *            The difference in elapsed 100NS time
+     * @param deltaBase The difference in base ticks.
+     * @param deltaT    The difference in elapsed 100NS time
      * @return The ratio of elapsed time to base ticks
      */
     private synchronized long lazilyCalculateMultiplier(long deltaBase, long deltaT) {

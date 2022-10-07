@@ -40,8 +40,7 @@ import com.sun.jna.Platform;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * A class for executing on the command line and returning the result of
- * execution.
+ * A class for executing on the command line and returning the result of execution.
  */
 @ThreadSafe
 public final class ExecutingCommand {
@@ -62,16 +61,13 @@ public final class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result. This is
-     * a convenience method to call {@link java.lang.Runtime#exec(String)} and
-     * capture the resulting output in a list of Strings. On Windows, built-in
-     * commands not associated with an executable program may require
-     * {@code cmd.exe /c} to be prepended to the command.
+     * Executes a command on the native command line and returns the result. This is a convenience method to call
+     * {@link java.lang.Runtime#exec(String)} and capture the resulting output in a list of Strings. On Windows,
+     * built-in commands not associated with an executable program may require {@code cmd.exe /c} to be prepended to the
+     * command.
      *
-     * @param cmdToRun
-     *            Command to run
-     * @return A list of Strings representing the result of the command, or empty
-     *         string if the command failed
+     * @param cmdToRun Command to run
+     * @return A list of Strings representing the result of the command, or empty string if the command failed
      */
     public static List<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
@@ -79,38 +75,29 @@ public final class ExecutingCommand {
     }
 
     /**
-     * Executes a command on the native command line and returns the result line by
-     * line. This is a convenience method to call
-     * {@link java.lang.Runtime#exec(String[])} and capture the resulting output in
-     * a list of Strings. On Windows, built-in commands not associated with an
-     * executable program may require the strings {@code cmd.exe} and {@code /c} to
-     * be prepended to the array.
+     * Executes a command on the native command line and returns the result line by line. This is a convenience method
+     * to call {@link java.lang.Runtime#exec(String[])} and capture the resulting output in a list of Strings. On
+     * Windows, built-in commands not associated with an executable program may require the strings {@code cmd.exe} and
+     * {@code /c} to be prepended to the array.
      *
-     * @param cmdToRunWithArgs
-     *            Command to run and args, in an array
-     * @return A list of Strings representing the result of the command, or empty
-     *         string if the command failed
+     * @param cmdToRunWithArgs Command to run and args, in an array
+     * @return A list of Strings representing the result of the command, or empty string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs) {
         return runNative(cmdToRunWithArgs, DEFAULT_ENV);
     }
 
     /**
-     * Executes a command on the native command line and returns the result line by
-     * line. This is a convenience method to call
-     * {@link java.lang.Runtime#exec(String[])} and capture the resulting output in
-     * a list of Strings. On Windows, built-in commands not associated with an
-     * executable program may require the strings {@code cmd.exe} and {@code /c} to
-     * be prepended to the array.
+     * Executes a command on the native command line and returns the result line by line. This is a convenience method
+     * to call {@link java.lang.Runtime#exec(String[])} and capture the resulting output in a list of Strings. On
+     * Windows, built-in commands not associated with an executable program may require the strings {@code cmd.exe} and
+     * {@code /c} to be prepended to the array.
      *
-     * @param cmdToRunWithArgs
-     *            Command to run and args, in an array
-     * @param envp
-     *            array of strings, each element of which has environment variable
-     *            settings in the format name=value, or null if the subprocess
-     *            should inherit the environment of the current process.
-     * @return A list of Strings representing the result of the command, or empty
-     *         string if the command failed
+     * @param cmdToRunWithArgs Command to run and args, in an array
+     * @param envp             array of strings, each element of which has environment variable settings in the format
+     *                         name=value, or null if the subprocess should inherit the environment of the current
+     *                         process.
+     * @return A list of Strings representing the result of the command, or empty string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs, String[] envp) {
         Process p = null;
@@ -168,8 +155,7 @@ public final class ExecutingCommand {
     /**
      * Return first line of response for selected command.
      *
-     * @param cmd2launch
-     *            String command to be launched
+     * @param cmd2launch String command to be launched
      * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
@@ -177,15 +163,11 @@ public final class ExecutingCommand {
     }
 
     /**
-     * Return response on selected line index (0-based) after running selected
-     * command.
+     * Return response on selected line index (0-based) after running selected command.
      *
-     * @param cmd2launch
-     *            String command to be launched
-     * @param answerIdx
-     *            int index of line in response of the command
-     * @return String whole line in response or empty string if invalid index or
-     *         running of command fails
+     * @param cmd2launch String command to be launched
+     * @param answerIdx  int index of line in response of the command
+     * @return String whole line in response or empty string if invalid index or running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
         List<String> sa = ExecutingCommand.runNative(cmd2launch);

@@ -46,8 +46,7 @@ import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
- * Utility to read process data from HKEY_PERFORMANCE_DATA information with
- * backup from Performance Counters or WMI
+ * Utility to read process data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
 public final class ProcessWtsData {
@@ -62,11 +61,8 @@ public final class ProcessWtsData {
     /**
      * Query the registry for process performance counters
      *
-     * @param pids
-     *            An optional collection of process IDs to filter the list to. May
-     *            be null for no filtering.
-     * @return A map with Process ID as the key and a {@link WtsInfo} object
-     *         populated with data.
+     * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @return A map with Process ID as the key and a {@link WtsInfo} object populated with data.
      */
     public static Map<Integer, WtsInfo> queryProcessWtsMap(Collection<Integer> pids) {
         if (IS_WINDOWS7_OR_GREATER) {

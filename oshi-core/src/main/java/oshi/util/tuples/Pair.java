@@ -28,10 +28,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * Convenience class for returning multiple objects from methods.
  *
- * @param <A>
- *            Type of the first element
- * @param <B>
- *            Type of the second element
+ * @param <A> Type of the first element
+ * @param <B> Type of the second element
  */
 @ThreadSafe
 public class Pair<A, B> {
@@ -42,10 +40,8 @@ public class Pair<A, B> {
     /**
      * Create a pair and store two objects.
      *
-     * @param a
-     *            the first object to store
-     * @param b
-     *            the second object to store
+     * @param a the first object to store
+     * @param b the second object to store
      */
     public Pair(A a, B b) {
         this.a = a;

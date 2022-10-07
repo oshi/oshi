@@ -409,11 +409,9 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
-     * Temporarily cache pointers to keys. The values from this map must be released
-     * after use.}
+     * Temporarily cache pointers to keys. The values from this map must be released after use.}
      *
-     * @return A map of keys in the {@link CFKey} enum to corresponding
-     *         {@link CFStringRef}.
+     * @return A map of keys in the {@link CFKey} enum to corresponding {@link CFStringRef}.
      */
     private static Map<CFKey, CFStringRef> mapCFKeys() {
         Map<CFKey, CFStringRef> keyMap = new EnumMap<>(CFKey.class);

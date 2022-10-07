@@ -62,9 +62,8 @@ import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * macOS, previously Mac OS X and later OS X) is a series of proprietary
- * graphical operating systems developed and marketed by Apple Inc. since 2001.
- * It is the primary operating system for Apple's Mac computers.
+ * macOS, previously Mac OS X and later OS X) is a series of proprietary graphical operating systems developed and
+ * marketed by Apple Inc. since 2001. It is the primary operating system for Apple's Mac computers.
  */
 @ThreadSafe
 public class MacOperatingSystem extends AbstractOperatingSystem {

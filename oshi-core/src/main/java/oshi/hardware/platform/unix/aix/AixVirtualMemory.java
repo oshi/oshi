@@ -46,8 +46,7 @@ final class AixVirtualMemory extends AbstractVirtualMemory {
     /**
      * Constructor for SolarisVirtualMemory.
      *
-     * @param perfstatMem
-     *            The memoized perfstat data from the global memory class
+     * @param perfstatMem The memoized perfstat data from the global memory class
      */
     AixVirtualMemory(Supplier<perfstat_memory_total_t> perfstatMem) {
         this.perfstatMem = perfstatMem;

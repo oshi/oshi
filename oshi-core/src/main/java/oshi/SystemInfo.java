@@ -49,9 +49,8 @@ import oshi.software.os.windows.WindowsOperatingSystem;
 /**
  * System information. This is the main entry point to OSHI.
  * <p>
- * This object provides getters which instantiate the appropriate
- * platform-specific implementations of {@link oshi.software.os.OperatingSystem}
- * (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
+ * This object provides getters which instantiate the appropriate platform-specific implementations of
+ * {@link oshi.software.os.OperatingSystem} (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
  */
 public class SystemInfo {
 
@@ -66,14 +65,13 @@ public class SystemInfo {
     private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfo::createHardware);
 
     /**
-     * Create a new instance of {@link SystemInfo}. This is the main entry point to
-     * OSHI and provides access to cross-platform code.
+     * Create a new instance of {@link SystemInfo}. This is the main entry point to OSHI and provides access to
+     * cross-platform code.
      * <p>
-     * Platform-specific Hardware and Software objects are retrieved via memoized
-     * suppliers. To conserve memory at the cost of additional processing time,
-     * create a new version of SystemInfo() for subsequent calls. To conserve
-     * processing time at the cost of additional memory usage, re-use the same
-     * {@link SystemInfo} object for future queries.
+     * Platform-specific Hardware and Software objects are retrieved via memoized suppliers. To conserve memory at the
+     * cost of additional processing time, create a new version of SystemInfo() for subsequent calls. To conserve
+     * processing time at the cost of additional memory usage, re-use the same {@link SystemInfo} object for future
+     * queries.
      */
     public SystemInfo() {
         // Intentionally empty, here to enable the constructor javadoc.
@@ -89,8 +87,7 @@ public class SystemInfo {
     }
 
     /**
-     * Creates a new instance of the appropriate platform-specific
-     * {@link oshi.software.os.OperatingSystem}.
+     * Creates a new instance of the appropriate platform-specific {@link oshi.software.os.OperatingSystem}.
      *
      * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
@@ -121,8 +118,7 @@ public class SystemInfo {
     }
 
     /**
-     * Creates a new instance of the appropriate platform-specific
-     * {@link oshi.hardware.HardwareAbstractionLayer}.
+     * Creates a new instance of the appropriate platform-specific {@link oshi.hardware.HardwareAbstractionLayer}.
      *
      * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */

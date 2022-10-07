@@ -62,8 +62,7 @@ final class SolarisVirtualMemory extends AbstractVirtualMemory {
     /**
      * Constructor for SolarisVirtualMemory.
      *
-     * @param solarisGlobalMemory
-     *            The parent global memory class instantiating this
+     * @param solarisGlobalMemory The parent global memory class instantiating this
      */
     SolarisVirtualMemory(SolarisGlobalMemory solarisGlobalMemory) {
         this.global = solarisGlobalMemory;

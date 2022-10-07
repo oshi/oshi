@@ -24,8 +24,8 @@
 package oshi.demo.gui;
 
 /**
- * Configuration for the GUI. Ideally would read this information from an
- * external config file, and more items should be added.
+ * Configuration for the GUI. Ideally would read this information from an external config file, and more items should be
+ * added.
  */
 public final class Config {
 

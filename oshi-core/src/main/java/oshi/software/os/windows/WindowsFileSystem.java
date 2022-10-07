@@ -47,9 +47,8 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
- * The Windows File System contains {@link oshi.software.os.OSFileStore}s which
- * are a storage pool, device, partition, volume, concrete file system or other
- * implementation specific means of file storage. In Windows, these are
+ * The Windows File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
+ * volume, concrete file system or other implementation specific means of file storage. In Windows, these are
  * represented by a drive letter, e.g., "A:\" and "C:\"
  */
 @ThreadSafe
@@ -156,10 +155,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
     /**
      * Package private method for getting all mounted local drives.
      *
-     * @param volumeToMatch
-     *            an optional string to filter match, null otherwise
-     * @return A list of {@link OSFileStore} objects representing all local mounted
-     *         volumes
+     * @param volumeToMatch an optional string to filter match, null otherwise
+     * @return A list of {@link OSFileStore} objects representing all local mounted volumes
      */
     static ArrayList<OSFileStore> getLocalVolumes(String volumeToMatch) {
         ArrayList<OSFileStore> fs;
@@ -227,12 +224,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
     /**
      * Package private method for getting logical drives listed in WMI.
      *
-     * @param nameToMatch
-     *            an optional string to filter match, null otherwise
-     * @param localOnly
-     *            Whether to only search local drives
-     * @return A list of {@link OSFileStore} objects representing all network
-     *         mounted volumes
+     * @param nameToMatch an optional string to filter match, null otherwise
+     * @param localOnly   Whether to only search local drives
+     * @return A list of {@link OSFileStore} objects representing all network mounted volumes
      */
     static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
         long free;
@@ -269,8 +263,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
     /**
      * Private method for getting mounted drive type.
      *
-     * @param drive
-     *            Mounted drive
+     * @param drive Mounted drive
      * @return A drive type description
      */
     private static String getDriveType(String drive) {

@@ -43,21 +43,16 @@ final class MacSoundCard extends AbstractSoundCard {
     /**
      * Constructor for MacSoundCard.
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     MacSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     /**
-     * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
-     * sound cards.
+     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the sound cards.
      *
      * @return List of {@link oshi.hardware.platform.mac.MacSoundCard} objects.
      */

@@ -30,8 +30,7 @@ import com.sun.jna.platform.win32.WinDef.HWND;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * This class encapsulates information about a window on the operating system's
- * GUI desktop
+ * This class encapsulates information about a window on the operating system's GUI desktop
  */
 @Immutable
 public class OSDesktopWindow {
@@ -56,12 +55,10 @@ public class OSDesktopWindow {
     }
 
     /**
-     * Gets the operating system's handle, window ID, or other unique identifier for
-     * this window.
+     * Gets the operating system's handle, window ID, or other unique identifier for this window.
      * <p>
-     * On Winodws, this can be converted to a {@link HWND} using
-     * {@code new HWND(new Pointer(windowId))}. On macOS, this is the Core Graphics
-     * Window ID. On Unix-like systems, this is the X11 Window ID.
+     * On Winodws, this can be converted to a {@link HWND} using {@code new HWND(new Pointer(windowId))}. On macOS, this
+     * is the Core Graphics Window ID. On Unix-like systems, this is the X11 Window ID.
      *
      * @return the windowId
      */
@@ -79,8 +76,7 @@ public class OSDesktopWindow {
     }
 
     /**
-     * Gets the command name (possibly the full file path) of the window's
-     * executable program, if known.
+     * Gets the command name (possibly the full file path) of the window's executable program, if known.
      *
      * @return the command
      */
@@ -107,30 +103,28 @@ public class OSDesktopWindow {
     }
 
     /**
-     * Makes a best effort to get the order in which this window appears on the
-     * desktop. Higher values are more in the foreground.
+     * Makes a best effort to get the order in which this window appears on the desktop. Higher values are more in the
+     * foreground.
      * <p>
-     * On Windows, this represents the Z Order of the window, and is not guaranteed
-     * to be atomic, as it could be impacted by race conditions.
+     * On Windows, this represents the Z Order of the window, and is not guaranteed to be atomic, as it could be
+     * impacted by race conditions.
      * <p>
-     * On macOS this is the window layer. Note that multiple windows may share the
-     * same layer.
+     * On macOS this is the window layer. Note that multiple windows may share the same layer.
      * <p>
      * On X11 this represents the stacking order of the windows.
      *
-     * @return a best effort identification of the window's Z order relative to
-     *         other windows
+     * @return a best effort identification of the window's Z order relative to other windows
      */
     public int getOrder() {
         return order;
     }
 
     /**
-     * Makes a best effort to report whether the window is visible to the user. A
-     * "visible" window may be completely transparent.
+     * Makes a best effort to report whether the window is visible to the user. A "visible" window may be completely
+     * transparent.
      *
-     * @return {@code true} if the window is visible to users or if visibility can
-     *         not be determined, {@code false} otherwise.
+     * @return {@code true} if the window is visible to users or if visibility can not be determined, {@code false}
+     *         otherwise.
      */
     public boolean isVisible() {
         return visible;

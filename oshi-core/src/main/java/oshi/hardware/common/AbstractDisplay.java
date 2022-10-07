@@ -40,8 +40,7 @@ public abstract class AbstractDisplay implements Display {
     /**
      * Constructor for AbstractDisplay.
      *
-     * @param edid
-     *            a byte array representing a display EDID
+     * @param edid a byte array representing a display EDID
      */
     protected AbstractDisplay(byte[] edid) {
         this.edid = Arrays.copyOf(edid, edid.length);

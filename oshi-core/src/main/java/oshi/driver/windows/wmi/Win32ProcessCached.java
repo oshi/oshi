@@ -55,8 +55,7 @@ public final class Win32ProcessCached {
     }
 
     /**
-     * Get the singleton instance of this class, instantiating the map which caches
-     * command lines.
+     * Get the singleton instance of this class, instantiating the map which caches command lines.
      *
      * @return the singleton instance
      */
@@ -69,29 +68,24 @@ public final class Win32ProcessCached {
     }
 
     /**
-     * Gets the process command line, while also querying and caching command lines
-     * for all running processes if the specified process is not in the cache.
+     * Gets the process command line, while also querying and caching command lines for all running processes if the
+     * specified process is not in the cache.
      * <p>
-     * When iterating over a process list, the WMI overhead of querying each single
-     * command line can quickly exceed the time it takes to query all command lines.
-     * This method permits access to cached queries from a previous call,
+     * When iterating over a process list, the WMI overhead of querying each single command line can quickly exceed the
+     * time it takes to query all command lines. This method permits access to cached queries from a previous call,
      * significantly improving aggregate performance.
      *
-     * @param processId
-     *            The process ID for which to return the command line.
-     * @param startTime
-     *            The start time of the process, in milliseconds since the 1970
-     *            epoch. If this start time is after the time this process was
-     *            previously queried, the prior entry will be deemed invalid and the
-     *            cache refreshed.
-     * @return The command line of the specified process. If the command line is
-     *         cached from a previous call and the start time is prior to the time
-     *         it was cached, this method will quickly return the cached value.
-     *         Otherwise, will refresh the cache with all running processes prior to
-     *         returning, which may incur some latency.
+     * @param processId The process ID for which to return the command line.
+     * @param startTime The start time of the process, in milliseconds since the 1970 epoch. If this start time is after
+     *                  the time this process was previously queried, the prior entry will be deemed invalid and the
+     *                  cache refreshed.
+     * @return The command line of the specified process. If the command line is cached from a previous call and the
+     *         start time is prior to the time it was cached, this method will quickly return the cached value.
+     *         Otherwise, will refresh the cache with all running processes prior to returning, which may incur some
+     *         latency.
      *         <p>
-     *         May return a command line from the cache even after a process has
-     *         terminated. Otherwise will return the empty string.
+     *         May return a command line from the cache even after a process has terminated. Otherwise will return the
+     *         empty string.
      */
     public String getCommandLine(int processId, long startTime) {
         // We could use synchronized method but this is more clear

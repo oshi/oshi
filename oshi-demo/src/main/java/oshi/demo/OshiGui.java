@@ -46,8 +46,8 @@ import oshi.demo.gui.ProcessorPanel;
 import oshi.demo.gui.UsbPanel;
 
 /**
- * Basic Swing class to demonstrate potential uses for OSHI in a monitoring GUI.
- * Not ready for production use and intended as inspiration/examples.
+ * Basic Swing class to demonstrate potential uses for OSHI in a monitoring GUI. Not ready for production use and
+ * intended as inspiration/examples.
  */
 public class OshiGui {
 

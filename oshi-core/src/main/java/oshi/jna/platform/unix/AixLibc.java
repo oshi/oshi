@@ -30,8 +30,8 @@ import com.sun.jna.Native;
 import oshi.util.FileUtil;
 
 /**
- * C library. This class should be considered non-API as it may be removed
- * if/when its code is incorporated into the JNA project.
+ * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA
+ * project.
  */
 public interface AixLibc extends CLibrary {
 

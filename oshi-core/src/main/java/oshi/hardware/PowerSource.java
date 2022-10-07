@@ -28,8 +28,7 @@ import java.time.LocalDate;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * The Power Source is one or more batteries with some capacity, and some state
- * of charge/discharge
+ * The Power Source is one or more batteries with some capacity, and some state of charge/discharge
  */
 @ThreadSafe
 public interface PowerSource {
@@ -48,9 +47,8 @@ public interface PowerSource {
         MAH,
 
         /**
-         * Relative units. The specific units are not defined. The ratio of current/max
-         * capacity still represents state of charge and the ratio of max/design
-         * capacity still represents state of health.
+         * Relative units. The specific units are not defined. The ratio of current/max capacity still represents state
+         * of charge and the ratio of max/design capacity still represents state of health.
          */
         RELATIVE;
     }
@@ -72,36 +70,30 @@ public interface PowerSource {
     /**
      * Estimated remaining capacity as a fraction of max capacity.
      * <p>
-     * This is an estimated/smoothed value which should correspond to the Operating
-     * System's "percent power" display, and may not directly correspond to the
-     * ratio of {@link #getCurrentCapacity()} to {@link #getMaxCapacity()}.
+     * This is an estimated/smoothed value which should correspond to the Operating System's "percent power" display,
+     * and may not directly correspond to the ratio of {@link #getCurrentCapacity()} to {@link #getMaxCapacity()}.
      *
      * @return A value between 0.0 (fully drained) and 1.0 (fully charged)
      */
     double getRemainingCapacityPercent();
 
     /**
-     * Estimated time remaining on the power source, in seconds, as reported by the
-     * operating system.
+     * Estimated time remaining on the power source, in seconds, as reported by the operating system.
      * <p>
-     * This is an estimated/smoothed value which should correspond to the Operating
-     * System's "battery time remaining" display, and will react slowly to changes
-     * in power consumption.
+     * This is an estimated/smoothed value which should correspond to the Operating System's "battery time remaining"
+     * display, and will react slowly to changes in power consumption.
      *
-     * @return If positive, seconds remaining. If negative, -1.0 (calculating) or
-     *         -2.0 (unlimited)
+     * @return If positive, seconds remaining. If negative, -1.0 (calculating) or -2.0 (unlimited)
      */
     double getTimeRemainingEstimated();
 
     /**
-     * Estimated time remaining on the power source, in seconds, as reported by the
-     * battery. If the battery is charging, this value may represent time remaining
-     * to fully charge the battery.
+     * Estimated time remaining on the power source, in seconds, as reported by the battery. If the battery is charging,
+     * this value may represent time remaining to fully charge the battery.
      * <p>
-     * Note that this value is not very accurate on some battery systems. The value
-     * may vary widely depending on present power usage, which could be affected by
-     * disk activity and other factors. This value will often be a higher value than
-     * {@link #getTimeRemainingEstimated()}.
+     * Note that this value is not very accurate on some battery systems. The value may vary widely depending on present
+     * power usage, which could be affected by disk activity and other factors. This value will often be a higher value
+     * than {@link #getTimeRemainingEstimated()}.
      *
      * @return Seconds remaining to fully discharge or fully charge the battery.
      */
@@ -124,8 +116,7 @@ public interface PowerSource {
     /**
      * Amperage of the battery, in milliAmperes (mA).
      *
-     * @return the battery amperage. If positive, charging the battery. If negative,
-     *         discharging the battery.
+     * @return the battery amperage. If positive, charging the battery. If negative, discharging the battery.
      */
     double getAmperage();
 
@@ -151,8 +142,7 @@ public interface PowerSource {
     boolean isDischarging();
 
     /**
-     * Reports =the units of {@link #getCurrentCapacity()},
-     * {@link #getMaxCapacity()}, and {@link #getDesignCapacity()}
+     * Reports =the units of {@link #getCurrentCapacity()}, {@link #getMaxCapacity()}, and {@link #getDesignCapacity()}
      *
      * @return The units of battery capacity.
      */
@@ -161,28 +151,23 @@ public interface PowerSource {
     /**
      * The current (remaining) capacity of the battery.
      *
-     * @return The current capacity. Units are defined by
-     *         {@link #getCapacityUnits()}.
+     * @return The current capacity. Units are defined by {@link #getCapacityUnits()}.
      */
     int getCurrentCapacity();
 
     /**
-     * The maximum capacity of the battery. When compared to design capacity,
-     * permits a measure of battery state of health. It is possible for max capacity
-     * to exceed design capacity.
+     * The maximum capacity of the battery. When compared to design capacity, permits a measure of battery state of
+     * health. It is possible for max capacity to exceed design capacity.
      *
-     * @return The maximum capacity. Units are defined by
-     *         {@link #getCapacityUnits()}.
+     * @return The maximum capacity. Units are defined by {@link #getCapacityUnits()}.
      */
     int getMaxCapacity();
 
     /**
-     * The design (original) capacity of the battery. When compared to maximum
-     * capacity, permits a measure of battery state of health. It is possible for
-     * max capacity to exceed design capacity.
+     * The design (original) capacity of the battery. When compared to maximum capacity, permits a measure of battery
+     * state of health. It is possible for max capacity to exceed design capacity.
      *
-     * @return The design capacity. Units are defined by
-     *         {@link #getCapacityUnits()}.
+     * @return The design capacity. Units are defined by {@link #getCapacityUnits()}.
      */
     int getDesignCapacity();
 
@@ -203,9 +188,8 @@ public interface PowerSource {
     /**
      * The battery's date of manufacture.
      * <p>
-     * Some battery manufacturers encode the manufacture date in the serial number.
-     * Parsing this value is operating system and battery manufacturer dependent,
-     * and is left to the user.
+     * Some battery manufacturers encode the manufacture date in the serial number. Parsing this value is operating
+     * system and battery manufacturer dependent, and is left to the user.
      *
      * @return the manufacture date, if available. May be {@code null}.
      */
@@ -221,9 +205,8 @@ public interface PowerSource {
     /**
      * The battery's serial number.
      * <p>
-     * Some battery manufacturers encode the manufacture date in the serial number.
-     * Parsing this value is operating system and battery manufacturer dependent,
-     * and is left to the user.
+     * Some battery manufacturers encode the manufacture date in the serial number. Parsing this value is operating
+     * system and battery manufacturer dependent, and is left to the user.
      *
      * @return the serial number.
      */
@@ -239,8 +222,7 @@ public interface PowerSource {
     /**
      * Updates statistics on this battery.
      *
-     * @return {@code true} if the update was successful. If {@code false} the
-     *         battery statistics are unchanged.
+     * @return {@code true} if the update was successful. If {@code false} the battery statistics are unchanged.
      */
     boolean updateAttributes();
 }

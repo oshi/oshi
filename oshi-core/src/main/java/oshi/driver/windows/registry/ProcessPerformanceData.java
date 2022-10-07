@@ -39,8 +39,7 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Utility to read process data from HKEY_PERFORMANCE_DATA information with
- * backup from Performance Counters or WMI
+ * Utility to read process data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
 public final class ProcessPerformanceData {
@@ -54,12 +53,9 @@ public final class ProcessPerformanceData {
     /**
      * Query the registry for process performance counters
      *
-     * @param pids
-     *            An optional collection of process IDs to filter the list to. May
-     *            be null for no filtering.
-     * @return A map with Process ID as the key and a {@link PerfCounterBlock}
-     *         object populated with performance counter information if successful,
-     *         or null otherwise.
+     * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @return A map with Process ID as the key and a {@link PerfCounterBlock} object populated with performance counter
+     *         information if successful, or null otherwise.
      */
     public static Map<Integer, PerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids) {
         // Grab the data from the registry.
@@ -107,11 +103,9 @@ public final class ProcessPerformanceData {
     /**
      * Query PerfMon for process performance counters
      *
-     * @param pids
-     *            An optional collection of process IDs to filter the list to. May
-     *            be null for no filtering.
-     * @return A map with Process ID as the key and a {@link PerfCounterBlock}
-     *         object populated with performance counter information.
+     * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @return A map with Process ID as the key and a {@link PerfCounterBlock} object populated with performance counter
+     *         information.
      */
     public static Map<Integer, PerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
         Map<Integer, PerfCounterBlock> processMap = new HashMap<>();

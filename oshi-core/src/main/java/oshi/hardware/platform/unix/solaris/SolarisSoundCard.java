@@ -46,12 +46,9 @@ final class SolarisSoundCard extends AbstractSoundCard {
     /**
      * Constructor for SolarisSoundCard.
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     SolarisSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);

@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 /**
- * [oshi-core API] Provides cross-platform implementation to retrieve hardware
- * information such as CPU, Memory, Display, Disks, Network Interfaces, Power
- * Sources, Sensors, and USB Devices
+ * [oshi-core API] Provides cross-platform implementation to retrieve hardware information such as CPU, Memory, Display,
+ * Disks, Network Interfaces, Power Sources, Sensors, and USB Devices
  */
 package oshi.hardware;

@@ -37,8 +37,8 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 /**
  * Utility to handle Performance Counter Queries
  * <p>
- * This class is not thread safe. Each query handler instance should only be
- * used in a single thread, preferably in a try-with-resources block.
+ * This class is not thread safe. Each query handler instance should only be used in a single thread, preferably in a
+ * try-with-resources block.
  */
 @NotThreadSafe
 public final class PerfCounterQueryHandler implements AutoCloseable {
@@ -53,8 +53,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     /**
      * Begin monitoring a Performance Data counter.
      *
-     * @param counter
-     *            A PerfCounter object.
+     * @param counter A PerfCounter object.
      * @return True if the counter was successfully added to the query.
      */
     public boolean addCounterToQuery(PerfCounter counter) {
@@ -82,8 +81,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     /**
      * Stop monitoring a Performance Data counter.
      *
-     * @param counter
-     *            A PerfCounter object
+     * @param counter A PerfCounter object
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter) {
@@ -123,8 +121,8 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     /**
      * Update all counters on this query.
      *
-     * @return The timestamp for the update of all the counters, in milliseconds
-     *         since the epoch, or 0 if the update failed
+     * @return The timestamp for the update of all the counters, in milliseconds since the epoch, or 0 if the update
+     *         failed
      */
     public long updateQuery() {
         if (this.queryHandle == null) {
@@ -135,11 +133,10 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     }
 
     /**
-     * Query the raw counter value of a Performance Data counter. Further
-     * mathematical manipulation/conversion is left to the caller.
+     * Query the raw counter value of a Performance Data counter. Further mathematical manipulation/conversion is left
+     * to the caller.
      *
-     * @param counter
-     *            The counter to query
+     * @param counter The counter to query
      * @return The raw value of the counter
      */
     public long queryCounter(PerfCounter counter) {

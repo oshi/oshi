@@ -79,8 +79,7 @@ final class LinuxSensors extends AbstractSensors {
     }
 
     /*
-     * Iterate over all hwmon* directories and look for sensor files, e.g.,
-     * /sys/class/hwmon/hwmon0/temp1_input
+     * Iterate over all hwmon* directories and look for sensor files, e.g., /sys/class/hwmon/hwmon0/temp1_input
      */
     private void populateSensorsMapFromHwmon() {
         for (String sensor : SENSORS) {
@@ -99,8 +98,7 @@ final class LinuxSensors extends AbstractSensors {
     }
 
     /*
-     * Iterate over all thermal_zone* directories and look for sensor files, e.g.,
-     * /sys/class/thermal/thermal_zone0/temp
+     * Iterate over all thermal_zone* directories and look for sensor files, e.g., /sys/class/thermal/thermal_zone0/temp
      */
     private void populateSensorsMapFromThermalZone() {
         getSensorFilesFromPath(THERMAL_ZONE_PATH, TEMP, f -> f.getName().equals(TEMP));
@@ -109,12 +107,9 @@ final class LinuxSensors extends AbstractSensors {
     /**
      * Find all sensor files in a specific path and adds them to the hwmonMap
      *
-     * @param sensorPath
-     *            A string containing the sensor path
-     * @param sensor
-     *            A string containing the sensor
-     * @param sensorFileFilter
-     *            A FileFilter for detecting valid sensor files
+     * @param sensorPath       A string containing the sensor path
+     * @param sensor           A string containing the sensor
+     * @param sensorFileFilter A FileFilter for detecting valid sensor files
      */
     private void getSensorFilesFromPath(String sensorPath, String sensor, FileFilter sensorFileFilter) {
         int i = 0;

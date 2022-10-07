@@ -50,9 +50,7 @@ public final class Win32DiskDriveToDiskPartition {
     /**
      * Queries the association between disk drive and partition.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
      * @return Antecedent-dependent pairs of disk and partition.
      */
     public static WmiResult<DriveToPartitionProperty> queryDriveToPartition(WmiQueryHandler h) {

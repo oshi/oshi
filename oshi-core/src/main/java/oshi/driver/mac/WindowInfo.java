@@ -58,10 +58,8 @@ public final class WindowInfo {
     /**
      * Gets windows on the operating system's GUI desktop.
      *
-     * @param visibleOnly
-     *            Whether to restrict the list to only windows visible to the user.
-     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects
-     *         representing the desktop windows.
+     * @param visibleOnly Whether to restrict the list to only windows visible to the user.
+     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects representing the desktop windows.
      */
     public static List<OSDesktopWindow> queryDesktopWindows(boolean visibleOnly) {
         CFArrayRef windowInfo = CoreGraphics.INSTANCE.CGWindowListCopyWindowInfo(

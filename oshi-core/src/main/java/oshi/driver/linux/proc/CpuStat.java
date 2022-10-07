@@ -75,9 +75,8 @@ public final class CpuStat {
     /**
      * Gets an arrya of Processor CPU ticks array from /proc/stat
      *
-     * @param logicalProcessorCount
-     *            The number of logical processors, which corresponds to the number
-     *            of lines to read from the file.
+     * @param logicalProcessorCount The number of logical processors, which corresponds to the number of lines to read
+     *                              from the file.
      * @return Array of CPU ticks for each processor
      */
     public static long[][] getProcessorCpuLoadTicks(int logicalProcessorCount) {

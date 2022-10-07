@@ -26,8 +26,7 @@ package oshi.software.os;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * NetworkParams presents network parameters of running OS, such as DNS, host
- * name etc.
+ * NetworkParams presents network parameters of running OS, such as DNS, host name etc.
  */
 @ThreadSafe
 public interface NetworkParams {
@@ -54,8 +53,7 @@ public interface NetworkParams {
     String[] getDnsServers();
 
     /**
-     * Gets the default gateway(routing destination for 0.0.0.0/0) for IPv4
-     * connections.
+     * Gets the default gateway(routing destination for 0.0.0.0/0) for IPv4 connections.
      *
      * @return default gateway for IPv4, or empty string if not defined.
      */

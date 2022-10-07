@@ -43,8 +43,7 @@ class NetworksTest {
     /**
      * Test inet network interfaces extraction.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     void testAllNetworkInterfaces() throws IOException {
@@ -117,8 +116,7 @@ class NetworksTest {
     /**
      * Test all network interfaces extraction.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     void testNonLocalNetworkInterfaces() throws IOException {

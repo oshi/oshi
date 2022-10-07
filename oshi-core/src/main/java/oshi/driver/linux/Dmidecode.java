@@ -109,8 +109,7 @@ public final class Dmidecode {
     /**
      * Query the name and revision from dmidecode
      *
-     * @return The a pair containing the name and revision if available, null values
-     *         in the pair otherwise
+     * @return The a pair containing the name and revision if available, null values in the pair otherwise
      */
     public static Pair<String, String> queryBiosNameRev() {
         String biosName = null;

@@ -348,11 +348,10 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fetches the ProcessorID from dmidecode (if possible with root permissions),
-     * otherwise uses the values from /var/run/dmesg.boot
+     * Fetches the ProcessorID from dmidecode (if possible with root permissions), otherwise uses the values from
+     * /var/run/dmesg.boot
      *
-     * @param processorID
-     *            The processorID as a long
+     * @param processorID The processorID as a long
      * @return The ProcessorID string
      */
     private static String getProcessorIDfromDmiDecode(long processorID) {

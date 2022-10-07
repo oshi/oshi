@@ -142,8 +142,7 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
     /**
      * Gets the disks on this machine
      *
-     * @param diskStats
-     *            Memoized supplier of disk statistics
+     * @param diskStats Memoized supplier of disk statistics
      *
      * @return a list of {@link HWDiskStore} objects representing the disks
      */

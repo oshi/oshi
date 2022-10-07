@@ -50,9 +50,7 @@ public final class Win32DiskPartition {
     /**
      * Queries the partition.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
      * @return Information regarding each disk partition.
      */
     public static WmiResult<DiskPartitionProperty> queryPartition(WmiQueryHandler h) {

@@ -279,17 +279,12 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
-     * Creates a Processor ID by encoding the stepping, model, family, and feature
-     * flags.
+     * Creates a Processor ID by encoding the stepping, model, family, and feature flags.
      *
-     * @param stepping
-     *            The CPU stepping
-     * @param model
-     *            The CPU model
-     * @param family
-     *            The CPU family
-     * @param flags
-     *            A space-delimited list of CPU feature flags
+     * @param stepping The CPU stepping
+     * @param model    The CPU model
+     * @param family   The CPU family
+     * @param flags    A space-delimited list of CPU feature flags
      * @return The Processor ID string
      */
     protected static String createProcessorID(String stepping, String model, String family, String[] flags) {
@@ -446,8 +441,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     /**
      * Filters a set of processor caches to an ordered list
      *
-     * @param caches
-     *            A set of unique caches.
+     * @param caches A set of unique caches.
      * @return A list sorted by level (desc), type, and size (desc)
      */
     public static List<ProcessorCache> orderedProcCaches(Set<ProcessorCache> caches) {

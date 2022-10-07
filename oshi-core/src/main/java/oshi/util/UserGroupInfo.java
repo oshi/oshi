@@ -36,8 +36,8 @@ import com.sun.jna.Platform;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * Utility class to temporarily cache the userID and group maps in *nix, for
- * parsing process ownership. Cache expires after one minute.
+ * Utility class to temporarily cache the userID and group maps in *nix, for parsing process ownership. Cache expires
+ * after one minute.
  */
 @ThreadSafe
 public final class UserGroupInfo {
@@ -54,10 +54,8 @@ public final class UserGroupInfo {
     /**
      * Gets a user from their ID
      *
-     * @param userId
-     *            a user ID
-     * @return a pair containing that user id as the first element and the user name
-     *         as the second
+     * @param userId a user ID
+     * @return a pair containing that user id as the first element and the user name as the second
      */
     public static String getUser(String userId) {
         return USERS_ID_MAP.get().getOrDefault(userId, Constants.UNKNOWN);
@@ -66,8 +64,7 @@ public final class UserGroupInfo {
     /**
      * Gets the group name for a given ID
      *
-     * @param groupId
-     *            a {@link java.lang.String} object.
+     * @param groupId a {@link java.lang.String} object.
      * @return a {@link java.lang.String} object.
      */
     public static String getGroupName(String groupId) {

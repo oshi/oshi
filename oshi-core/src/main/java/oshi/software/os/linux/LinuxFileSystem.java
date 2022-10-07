@@ -50,10 +50,9 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
 /**
- * The Linux File System contains {@link oshi.software.os.OSFileStore}s which
- * are a storage pool, device, partition, volume, concrete file system or other
- * implementation specific means of file storage. In Linux, these are found in
- * the /proc/mount filesystem, excluding temporary and kernel mounts.
+ * The Linux File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
+ * volume, concrete file system or other implementation specific means of file storage. In Linux, these are found in the
+ * /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 @ThreadSafe
 public class LinuxFileSystem extends AbstractFileSystem {
@@ -253,12 +252,9 @@ public class LinuxFileSystem extends AbstractFileSystem {
     /**
      * Returns a value from the Linux system file /proc/sys/fs/file-nr.
      *
-     * @param index
-     *            The index of the value to retrieve. 0 returns the total allocated
-     *            file descriptors. 1 returns the number of used file descriptors
-     *            for kernel 2.4, or the number of unused file descriptors for
-     *            kernel 2.6. 2 returns the maximum number of file descriptors that
-     *            can be allocated.
+     * @param index The index of the value to retrieve. 0 returns the total allocated file descriptors. 1 returns the
+     *              number of used file descriptors for kernel 2.4, or the number of unused file descriptors for kernel
+     *              2.6. 2 returns the maximum number of file descriptors that can be allocated.
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private static long getFileDescriptors(int index) {

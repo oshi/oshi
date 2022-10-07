@@ -31,10 +31,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * A network interface in the machine, including statistics.
  * <p>
- * Thread safe for the designed use of retrieving the most recent data. Users
- * should be aware that the {@link #updateAttributes()} method may update
- * attributes, including the time stamp, and should externally synchronize such
- * usage to ensure consistent calculations.
+ * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
+ * {@link #updateAttributes()} method may update attributes, including the time stamp, and should externally synchronize
+ * such usage to ensure consistent calculations.
  */
 @ThreadSafe
 public interface NetworkIF {
@@ -42,8 +41,7 @@ public interface NetworkIF {
     /**
      * Gets the {@link java.net.NetworkInterface} object.
      *
-     * @return the network interface, an instance of
-     *         {@link java.net.NetworkInterface}.
+     * @return the network interface, an instance of {@link java.net.NetworkInterface}.
      */
     NetworkInterface queryNetworkInterface();
 
@@ -64,24 +62,20 @@ public interface NetworkIF {
     /**
      * Interface description.
      *
-     * @return The description of the network interface. On some platforms, this is
-     *         identical to the name.
+     * @return The description of the network interface. On some platforms, this is identical to the name.
      */
     String getDisplayName();
 
     /**
      * The {@code ifAlias} as described in RFC 2863.
      * <p>
-     * The ifAlias object allows a network manager to give one or more interfaces
-     * their own unique names, irrespective of any interface-stack relationship.
-     * Further, the ifAlias name is non-volatile, and thus an interface must retain
-     * its assigned ifAlias value across reboots, even if an agent chooses a new
-     * ifIndex value for the interface.
+     * The ifAlias object allows a network manager to give one or more interfaces their own unique names, irrespective
+     * of any interface-stack relationship. Further, the ifAlias name is non-volatile, and thus an interface must retain
+     * its assigned ifAlias value across reboots, even if an agent chooses a new ifIndex value for the interface.
      * <p>
      * Only implemented for Windows (Vista and newer) and Linux.
      *
-     * @return The {@code ifAlias} of the interface if available, otherwise the
-     *         empty string.
+     * @return The {@code ifAlias} of the interface if available, otherwise the empty string.
      */
     default String getIfAlias() {
         return "";
@@ -103,13 +97,11 @@ public interface NetworkIF {
      *
      * @return The MTU of the network interface.
      *         <p>
-     *         The value is a 32-bit integer which may be unsigned on some operating
-     *         systems. On Windows, some non-physical interfaces (e.g., loopback)
-     *         may return a value of -1 which is equivalent to the maximum unsigned
-     *         integer value.
+     *         The value is a 32-bit integer which may be unsigned on some operating systems. On Windows, some
+     *         non-physical interfaces (e.g., loopback) may return a value of -1 which is equivalent to the maximum
+     *         unsigned integer value.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date.
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date.
      */
     long getMTU();
 
@@ -118,8 +110,7 @@ public interface NetworkIF {
      *
      * @return The MAC Address.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date.
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date.
      */
     String getMacaddr();
 
@@ -128,19 +119,17 @@ public interface NetworkIF {
      *
      * @return An array of IPv4 Addresses.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date.
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date.
      */
     String[] getIPv4addr();
 
     /**
      * The Internet Protocol (IP) v4 subnet masks.
      *
-     * @return An array of IPv4 subnet mask lengths, corresponding to the IPv4
-     *         addresses from {@link #getIPv4addr()}. Ranges between 0-32.
+     * @return An array of IPv4 subnet mask lengths, corresponding to the IPv4 addresses from {@link #getIPv4addr()}.
+     *         Ranges between 0-32.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date.
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date.
      *
      */
     Short[] getSubnetMasks();
@@ -150,31 +139,26 @@ public interface NetworkIF {
      *
      * @return An array of IPv6 Addresses.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date.
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date.
      */
     String[] getIPv6addr();
 
     /**
      * The Internet Protocol (IP) v6 address.
      *
-     * @return The IPv6 address prefix lengths, corresponding to the IPv6 addresses
-     *         from {@link #getIPv6addr()}. Ranges between 0-128.
+     * @return The IPv6 address prefix lengths, corresponding to the IPv6 addresses from {@link #getIPv6addr()}. Ranges
+     *         between 0-128.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date.
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date.
      */
     Short[] getPrefixLengths();
 
     /**
-     * (Windows, macOS) The NDIS Interface Type. NDIS interface types are registered
-     * with the Internet Assigned Numbers Authority (IANA), which publishes a list
-     * of interface types periodically in the Assigned Numbers RFC, or in a
-     * derivative of it that is specific to Internet network management number
-     * assignments.
+     * (Windows, macOS) The NDIS Interface Type. NDIS interface types are registered with the Internet Assigned Numbers
+     * Authority (IANA), which publishes a list of interface types periodically in the Assigned Numbers RFC, or in a
+     * derivative of it that is specific to Internet network management number assignments.
      * <p>
-     * (Linux) ARP Protocol hardware identifiers defined in
-     * {@code include/uapi/linux/if_arp.h}
+     * (Linux) ARP Protocol hardware identifiers defined in {@code include/uapi/linux/if_arp.h}
      *
      * @return the ifType
      */
@@ -183,9 +167,8 @@ public interface NetworkIF {
     }
 
     /**
-     * (Windows Vista and higher only) The NDIS physical medium type. This member
-     * can be one of the values from the {@code NDIS_PHYSICAL_MEDIUM} enumeration
-     * type defined in the {@code Ntddndis.h} header file.
+     * (Windows Vista and higher only) The NDIS physical medium type. This member can be one of the values from the
+     * {@code NDIS_PHYSICAL_MEDIUM} enumeration type defined in the {@code Ntddndis.h} header file.
      *
      * @return the ndisPhysicalMediumType
      */
@@ -194,13 +177,12 @@ public interface NetworkIF {
     }
 
     /**
-     * (Windows Vista and higher) Set if a connector is present on the network
-     * interface.
+     * (Windows Vista and higher) Set if a connector is present on the network interface.
      * <p>
      * (Linux) Indicates the current physical link state of the interface.
      *
-     * @return {@code true} if there is a physical network adapter (Windows) or a
-     *         connected cable (Linux), false otherwise
+     * @return {@code true} if there is a physical network adapter (Windows) or a connected cable (Linux), false
+     *         otherwise
      */
     default boolean isConnectorPresent() {
         return false;
@@ -213,9 +195,8 @@ public interface NetworkIF {
      *
      * @return The Bytes Received.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getBytesRecv();
 
@@ -226,9 +207,8 @@ public interface NetworkIF {
      *
      * @return The Bytes Sent.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getBytesSent();
 
@@ -239,9 +219,8 @@ public interface NetworkIF {
      *
      * @return The Packets Received.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getPacketsRecv();
 
@@ -252,9 +231,8 @@ public interface NetworkIF {
      *
      * @return The Packets Sent.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getPacketsSent();
 
@@ -265,9 +243,8 @@ public interface NetworkIF {
      *
      * @return Input Errors.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getInErrors();
 
@@ -278,9 +255,8 @@ public interface NetworkIF {
      *
      * @return The Output Errors.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getOutErrors();
 
@@ -289,12 +265,10 @@ public interface NetworkIF {
      * Getter for the field <code>inDrops</code>.
      * </p>
      *
-     * @return Incoming/Received dropped packets. On Windows, returns discarded
-     *         incoming packets.
+     * @return Incoming/Received dropped packets. On Windows, returns discarded incoming packets.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getInDrops();
 
@@ -305,9 +279,8 @@ public interface NetworkIF {
      *
      * @return Packet collisions. On Windows, returns discarded outgoing packets.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getCollisions();
 
@@ -318,9 +291,8 @@ public interface NetworkIF {
      *
      * @return The speed of the network interface in bits per second.
      *         <p>
-     *         This value is set when the {@link oshi.hardware.NetworkIF} is
-     *         instantiated and may not be up to date. To update this value, execute
-     *         the {@link #updateAttributes()} method
+     *         This value is set when the {@link oshi.hardware.NetworkIF} is instantiated and may not be up to date. To
+     *         update this value, execute the {@link #updateAttributes()} method
      */
     long getSpeed();
 
@@ -334,17 +306,15 @@ public interface NetworkIF {
     long getTimeStamp();
 
     /**
-     * Determines if the MAC address on this interface corresponds to a known
-     * Virtual Machine.
+     * Determines if the MAC address on this interface corresponds to a known Virtual Machine.
      *
-     * @return {@code true} if the MAC address corresponds to a known virtual
-     *         machine.
+     * @return {@code true} if the MAC address corresponds to a known virtual machine.
      */
     boolean isKnownVmMacAddr();
 
     /**
-     * Updates interface network statistics on this interface. Statistics include
-     * packets and bytes sent and received, and interface speed.
+     * Updates interface network statistics on this interface. Statistics include packets and bytes sent and received,
+     * and interface speed.
      *
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
@@ -373,8 +343,7 @@ public interface NetworkIF {
          */
         UNKNOWN(4),
         /**
-         * The interface is not up, but is in a pending state, waiting for some external
-         * event.
+         * The interface is not up, but is in a pending state, waiting for some external event.
          */
         DORMANT(5),
         /**
@@ -402,10 +371,8 @@ public interface NetworkIF {
         /**
          * Find IfOperStatus by the integer value.
          *
-         * @param value
-         *            Integer value specified in RFC 2863
-         * @return the matching IfOperStatu or UNKNOWN if no matching IfOperStatus can
-         *         be found
+         * @param value Integer value specified in RFC 2863
+         * @return the matching IfOperStatu or UNKNOWN if no matching IfOperStatus can be found
          */
         public static IfOperStatus byValue(int value) {
             return Arrays.stream(IfOperStatus.values()).filter(st -> st.getValue() == value).findFirst()

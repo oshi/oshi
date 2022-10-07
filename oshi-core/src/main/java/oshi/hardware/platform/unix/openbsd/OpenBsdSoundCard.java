@@ -51,12 +51,9 @@ final class OpenBsdSoundCard extends AbstractSoundCard {
     /**
      * Constructor for OpenBsdSoundCard.
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     OpenBsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);

@@ -60,8 +60,7 @@ final class MacVirtualMemory extends AbstractVirtualMemory {
     /**
      * Constructor for MacVirtualMemory.
      *
-     * @param macGlobalMemory
-     *            The parent global memory class instantiating this
+     * @param macGlobalMemory The parent global memory class instantiating this
      */
     MacVirtualMemory(MacGlobalMemory macGlobalMemory) {
         this.global = macGlobalMemory;

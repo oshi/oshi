@@ -72,29 +72,21 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private final Supplier<Properties> vmMacAddrProps = memoize(AbstractNetworkIF::queryVmMacAddrProps);
 
     /**
-     * Construct a {@link NetworkIF} object backed by the specified
-     * {@link NetworkInterface}.
+     * Construct a {@link NetworkIF} object backed by the specified {@link NetworkInterface}.
      *
-     * @param netint
-     *            The core java {@link NetworkInterface} backing this object.
-     * @throws InstantiationException
-     *             If a socket exception prevents access to the backing interface.
+     * @param netint The core java {@link NetworkInterface} backing this object.
+     * @throws InstantiationException If a socket exception prevents access to the backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint) throws InstantiationException {
         this(netint, netint.getDisplayName());
     }
 
     /**
-     * Construct a {@link NetworkIF} object backed by the specified
-     * {@link NetworkInterface}.
+     * Construct a {@link NetworkIF} object backed by the specified {@link NetworkInterface}.
      *
-     * @param netint
-     *            The core java {@link NetworkInterface} backing this object.
-     * @param displayName
-     *            A string to use for the display name in preference to the
-     *            {@link NetworkInterface} value.
-     * @throws InstantiationException
-     *             If a socket exception prevents access to the backing interface.
+     * @param netint      The core java {@link NetworkInterface} backing this object.
+     * @param displayName A string to use for the display name in preference to the {@link NetworkInterface} value.
+     * @throws InstantiationException If a socket exception prevents access to the backing interface.
      */
     protected AbstractNetworkIF(NetworkInterface netint, String displayName) throws InstantiationException {
         this.networkInterface = netint;
@@ -146,8 +138,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     /**
      * Returns network interfaces on this machine.
      *
-     * @param includeLocalInterfaces
-     *            include local interfaces in the result
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return A list of network interfaces
      */
     protected static List<NetworkInterface> getNetworkInterfaces(boolean includeLocalInterfaces) {

@@ -44,8 +44,8 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
- * Helper class to centralize the boilerplate portions of PDH counter setup and
- * allow applications to easily add, query, and remove counters.
+ * Helper class to centralize the boilerplate portions of PDH counter setup and allow applications to easily add, query,
+ * and remove counters.
  */
 @ThreadSafe
 public final class PerfDataUtil {
@@ -131,12 +131,9 @@ public final class PerfDataUtil {
     /**
      * Create a Performance Counter
      *
-     * @param object
-     *            The object/path for the counter
-     * @param instance
-     *            The instance of the counter, or null if no instance
-     * @param counter
-     *            The counter name
+     * @param object   The object/path for the counter
+     * @param instance The instance of the counter, or null if no instance
+     * @param counter  The counter name
      * @return A PerfCounter object encapsulating the object, instance, and counter
      */
     public static PerfCounter createCounter(String object, String instance, String counter) {
@@ -146,8 +143,7 @@ public final class PerfDataUtil {
     /**
      * Update a query and get the timestamp
      *
-     * @param query
-     *            The query to update all counters in
+     * @param query The query to update all counters in
      * @return The update timestamp of the first counter in the query
      */
     public static long updateQueryTimestamp(HANDLEByReference query) {
@@ -177,8 +173,7 @@ public final class PerfDataUtil {
     /**
      * Open a pdh query
      *
-     * @param q
-     *            pointer to the query
+     * @param q pointer to the query
      * @return true if successful
      */
     public static boolean openQuery(HANDLEByReference q) {
@@ -195,8 +190,7 @@ public final class PerfDataUtil {
     /**
      * Close a pdh query
      *
-     * @param q
-     *            pointer to the query
+     * @param q pointer to the query
      * @return true if successful
      */
     public static boolean closeQuery(HANDLEByReference q) {
@@ -206,10 +200,8 @@ public final class PerfDataUtil {
     /**
      * Get value of pdh counter
      *
-     * @param counter
-     *            The counter to get the value of
-     * @return long value of the counter, or negative value representing an error
-     *         code
+     * @param counter The counter to get the value of
+     * @return long value of the counter, or negative value representing an error code
      */
     public static long queryCounter(HANDLEByReference counter) {
         try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {
@@ -227,10 +219,8 @@ public final class PerfDataUtil {
     /**
      * Get value of pdh counter's second value (base counters)
      *
-     * @param counter
-     *            The counter to get the value of
-     * @return long value of the counter's second value, or negative value
-     *         representing an error code
+     * @param counter The counter to get the value of
+     * @return long value of the counter's second value, or negative value representing an error code
      */
     public static long querySecondCounter(HANDLEByReference counter) {
         try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {
@@ -248,13 +238,10 @@ public final class PerfDataUtil {
     /**
      * Adds a pdh counter to a query
      *
-     * @param query
-     *            Pointer to the query to add the counter
-     * @param path
-     *            String name of the PerfMon counter. For Vista+, must be in
-     *            English. Must localize this path for pre-Vista.
-     * @param p
-     *            Pointer to the counter
+     * @param query Pointer to the query to add the counter
+     * @param path  String name of the PerfMon counter. For Vista+, must be in English. Must localize this path for
+     *              pre-Vista.
+     * @param p     Pointer to the counter
      * @return true if successful
      */
     public static boolean addCounter(HANDLEByReference query, String path, HANDLEByReference p) {
@@ -273,8 +260,7 @@ public final class PerfDataUtil {
     /**
      * Remove a pdh counter
      *
-     * @param p
-     *            pointer to the counter
+     * @param p pointer to the counter
      * @return true if successful
      */
     public static boolean removeCounter(HANDLEByReference p) {

@@ -53,8 +53,7 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
     /**
      * Constructor for LinuxVirtualMemory.
      *
-     * @param linuxGlobalMemory
-     *            The parent global memory class instantiating this
+     * @param linuxGlobalMemory The parent global memory class instantiating this
      */
     LinuxVirtualMemory(LinuxGlobalMemory linuxGlobalMemory) {
         this.global = linuxGlobalMemory;
@@ -144,8 +143,7 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
     /**
      * Parses lines from the display of /proc/meminfo
      *
-     * @param memorySplit
-     *            Array of Strings representing the 3 columns of /proc/meminfo
+     * @param memorySplit Array of Strings representing the 3 columns of /proc/meminfo
      * @return value, multiplied by 1024 if kB is specified
      */
     private static long parseMeminfo(String[] memorySplit) {

@@ -58,9 +58,8 @@ import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;
 
 /**
- * Solaris is a non-free Unix operating system originally developed by Sun
- * Microsystems. It superseded the company's earlier SunOS in 1993. In 2010,
- * after the Sun acquisition by Oracle, it was renamed Oracle Solaris.
+ * Solaris is a non-free Unix operating system originally developed by Sun Microsystems. It superseded the company's
+ * earlier SunOS in 1993. In 2010, after the Sun acquisition by Oracle, it was renamed Oracle Solaris.
  */
 @ThreadSafe
 public class SolarisOperatingSystem extends AbstractOperatingSystem {
@@ -74,8 +73,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * This static field identifies if the kstat2 library (available in Solaris 11.4
-     * or greater) can be loaded.
+     * This static field identifies if the kstat2 library (available in Solaris 11.4 or greater) can be loaded.
      */
     public static final boolean HAS_KSTAT2;
     static {

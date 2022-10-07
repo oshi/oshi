@@ -387,13 +387,10 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * If some details couldn't be read from ProcPath.PID_STATUS try reading it from
-     * ProcPath.PID_STAT
+     * If some details couldn't be read from ProcPath.PID_STATUS try reading it from ProcPath.PID_STAT
      *
-     * @param status
-     *            status map to fill.
-     * @param stat
-     *            string to read from.
+     * @param status status map to fill.
+     * @param stat   string to read from.
      */
     private static void getMissingDetails(Map<String, String> status, String stat) {
         if (status == null || stat == null) {
@@ -416,8 +413,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * Enum used to update attributes. The order field represents the 1-indexed
-     * numeric order of the stat in /proc/pid/stat per the man file.
+     * Enum used to update attributes. The order field represents the 1-indexed numeric order of the stat in
+     * /proc/pid/stat per the man file.
      */
     private enum ProcPidStat {
         // The parsing implementation in ParseUtil requires these to be declared

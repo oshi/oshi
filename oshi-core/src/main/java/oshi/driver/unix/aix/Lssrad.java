@@ -44,8 +44,7 @@ public final class Lssrad {
     /**
      * Query {@code lssrad} to get numa node and physical package info
      *
-     * @return A map of processor number to a pair containing the ref (NUMA
-     *         equivalent) and srad (package)
+     * @return A map of processor number to a pair containing the ref (NUMA equivalent) and srad (package)
      */
     public static Map<Integer, Pair<Integer, Integer>> queryNodesPackages() {
         /*-

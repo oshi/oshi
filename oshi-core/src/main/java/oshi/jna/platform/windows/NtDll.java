@@ -128,12 +128,10 @@ public interface NtDll extends com.sun.jna.platform.win32.NtDll {
     }
 
     /*
-     * Windows API docs say NtQueryInformationProcess may be altered or unavailable
-     * in future versions of Windows. Applications should use the alternate
-     * functions listed in this topic. However, there is no other way to get this
-     * information, it's been officially non-API for over a decade, and many many
-     * programs including windows sysinternal tools rely on this behavior, so the
-     * odds of it going away are small.
+     * Windows API docs say NtQueryInformationProcess may be altered or unavailable in future versions of Windows.
+     * Applications should use the alternate functions listed in this topic. However, there is no other way to get this
+     * information, it's been officially non-API for over a decade, and many many programs including windows sysinternal
+     * tools rely on this behavior, so the odds of it going away are small.
      */
     int NtQueryInformationProcess(HANDLE ProcessHandle, int ProcessInformationClass, Pointer ProcessInformation,
             int ProcessInformationLength, IntByReference ReturnLength);

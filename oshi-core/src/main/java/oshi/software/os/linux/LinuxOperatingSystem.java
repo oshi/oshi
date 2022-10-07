@@ -67,9 +67,8 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Linux is a family of open source Unix-like operating systems based on the
- * Linux kernel, an operating system kernel first released on September 17,
- * 1991, by Linus Torvalds. Linux is typically packaged in a Linux distribution.
+ * Linux is a family of open source Unix-like operating systems based on the Linux kernel, an operating system kernel
+ * first released on September 17, 1991, by Linus Torvalds. Linux is typically packaged in a Linux distribution.
  */
 @ThreadSafe
 public class LinuxOperatingSystem extends AbstractOperatingSystem {
@@ -366,8 +365,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/os-release
      *
-     * @return a triplet with the parsed family, versionID and codeName if file
-     *         successfully read and NAME= found, null otherwise
+     * @return a triplet with the parsed family, versionID and codeName if file successfully read and NAME= found, null
+     *         otherwise
      */
     private static Triplet<String, String, String> readOsRelease() {
         String family = null;
@@ -411,9 +410,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to execute `lsb_release -a`
      *
-     * @return a triplet with the parsed family, versionID and codeName if the
-     *         command successfully executed and Distributor ID: or Description:
-     *         found, null otherwise
+     * @return a triplet with the parsed family, versionID and codeName if the command successfully executed and
+     *         Distributor ID: or Description: found, null otherwise
      */
     private static Triplet<String, String, String> execLsbRelease() {
         String family = null;
@@ -453,9 +451,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/lsb-release
      *
-     * @return a triplet with the parsed family, versionID and codeName if file
-     *         successfully read and and DISTRIB_ID or DISTRIB_DESCRIPTION, null
-     *         otherwise
+     * @return a triplet with the parsed family, versionID and codeName if file successfully read and and DISTRIB_ID or
+     *         DISTRIB_DESCRIPTION, null otherwise
      */
     private static Triplet<String, String, String> readLsbRelease() {
         String family = null;
@@ -494,11 +491,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Attempts to read /etc/distrib-release (for some value of distrib)
      *
-     * @param filename
-     *            The /etc/distrib-release file
-     * @return a triplet with the parsed family, versionID and codeName if file
-     *         successfully read and " release " or " VERSION " found, null
-     *         otherwise
+     * @param filename The /etc/distrib-release file
+     * @return a triplet with the parsed family, versionID and codeName if file successfully read and " release " or "
+     *         VERSION " found, null otherwise
      */
     private static Triplet<String, String, String> readDistribRelease(String filename) {
         if (new File(filename).exists()) {
@@ -521,10 +516,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /**
      * Helper method to parse version description line style
      *
-     * @param line
-     *            a String of the form "Distributor release x.x (Codename)"
-     * @param splitLine
-     *            A regex to split on, e.g. " release "
+     * @param line      a String of the form "Distributor release x.x (Codename)"
+     * @param splitLine A regex to split on, e.g. " release "
      * @return a triplet with the parsed family, versionID and codeName
      */
     private static Triplet<String, String, String> parseRelease(String line, String splitLine) {
@@ -572,11 +565,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release)
-     * to a mixed case string representing the family (e.g., Red Hat)
+     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release) to a mixed case string representing
+     * the family (e.g., Red Hat)
      *
-     * @param name
-     *            Stripped version of filename after removing /etc and -release
+     * @param name Stripped version of filename after removing /etc and -release
      * @return Mixed case family
      */
     private static String filenameToFamily(String name) {
@@ -641,8 +633,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice
-     * versa.
+     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice versa.
      *
      * @return Jiffies per second.
      */

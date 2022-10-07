@@ -231,11 +231,9 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
-     * Gets disk stats for the specified index. If the index is null, populates all
-     * the maps
+     * Gets disk stats for the specified index. If the index is null, populates all the maps
      *
-     * @param index
-     *            The index to populate/update maps for
+     * @param index The index to populate/update maps for
      * @return An object encapsulating maps with the stats
      */
     private static DiskStats queryReadWriteStats(String index) {
@@ -347,8 +345,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     /**
      * Parse a drive name like "0 C:" to just the index "0"
      *
-     * @param s
-     *            A drive name to parse
+     * @param s A drive name to parse
      * @return The first space-delimited value
      */
     private static String getIndexFromName(String s) {

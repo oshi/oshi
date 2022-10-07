@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides classes encapsulating multiple objects, intended as return types
- * from methods
+ * Provides classes encapsulating multiple objects, intended as return types from methods
  */
 package oshi.util.tuples;

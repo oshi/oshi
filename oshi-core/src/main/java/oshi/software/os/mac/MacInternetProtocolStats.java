@@ -252,9 +252,8 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
     }
 
     /*
-     * There are multiple versions of some tcp/udp/ip stats structures in macOS.
-     * Since we only need a few of the hundreds of fields, we can improve
-     * performance by selectively reading the ints from the appropriate offsets,
+     * There are multiple versions of some tcp/udp/ip stats structures in macOS. Since we only need a few of the
+     * hundreds of fields, we can improve performance by selectively reading the ints from the appropriate offsets,
      * which are consistent across the structure.
      */
 

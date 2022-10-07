@@ -47,8 +47,7 @@ import oshi.util.EdidUtil;
 import oshi.util.FormatUtil;
 
 /**
- * Displays text in panes covering mostly-static information. Uptime is
- * refreshed every second.
+ * Displays text in panes covering mostly-static information. Uptime is refreshed every second.
  */
 public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
 

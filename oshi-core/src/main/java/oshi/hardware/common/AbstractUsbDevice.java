@@ -103,10 +103,8 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     /**
      * Helper method for indenting chained USB devices
      *
-     * @param usbDevice
-     *            A USB device to print
-     * @param indent
-     *            number of spaces to indent
+     * @param usbDevice A USB device to print
+     * @param indent    number of spaces to indent
      * @return The device toString, indented
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {

@@ -52,10 +52,8 @@ public final class Win32LogicalDisk {
     /**
      * Queries logical disk information
      *
-     * @param nameToMatch
-     *            an optional string to filter match, null otherwise
-     * @param localOnly
-     *            Whether to only search local drives
+     * @param nameToMatch an optional string to filter match, null otherwise
+     * @param localOnly   Whether to only search local drives
      * @return Logical Disk Information
      */
     public static WmiResult<LogicalDiskProperty> queryLogicalDisk(String nameToMatch, boolean localOnly) {

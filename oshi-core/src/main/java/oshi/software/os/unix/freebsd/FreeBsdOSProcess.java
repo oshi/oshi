@@ -33,7 +33,6 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

@@ -160,8 +160,7 @@ public final class ParseUtil {
     /**
      * Parse hertz from a string, eg. "2.00MHz" is 2000000L.
      *
-     * @param hertz
-     *            Hertz size.
+     * @param hertz Hertz size.
      * @return {@link java.lang.Long} Hertz value or -1 if not parseable.
      */
     public static long parseHertz(String hertz) {
@@ -179,10 +178,8 @@ public final class ParseUtil {
     /**
      * Parse the last element of a space-delimited string to a value
      *
-     * @param s
-     *            The string to parse
-     * @param i
-     *            Default integer if not parsable
+     * @param s The string to parse
+     * @param i Default integer if not parsable
      * @return value or the given default if not parsable
      */
     public static int parseLastInt(String s, int i) {
@@ -202,10 +199,8 @@ public final class ParseUtil {
     /**
      * Parse the last element of a space-delimited string to a value
      *
-     * @param s
-     *            The string to parse
-     * @param li
-     *            Default long integer if not parsable
+     * @param s  The string to parse
+     * @param li Default long integer if not parsable
      * @return value or the given default if not parsable
      */
     public static long parseLastLong(String s, long li) {
@@ -225,10 +220,8 @@ public final class ParseUtil {
     /**
      * Parse the last element of a space-delimited string to a value
      *
-     * @param s
-     *            The string to parse
-     * @param d
-     *            Default double if not parsable
+     * @param s The string to parse
+     * @param d Default double if not parsable
      * @return value or the given default if not parsable
      */
     public static double parseLastDouble(String s, double d) {
@@ -243,8 +236,7 @@ public final class ParseUtil {
     /**
      * Parse the last element of a space-delimited string to a string
      *
-     * @param s
-     *            The string to parse
+     * @param s The string to parse
      * @return last space-delimited element
      */
     public static String parseLastString(String s) {
@@ -254,13 +246,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a byte array into a string of hexadecimal digits including all array
-     * bytes as digits
+     * Parse a byte array into a string of hexadecimal digits including all array bytes as digits
      *
-     * @param bytes
-     *            The byte array to represent
-     * @return A string of hex characters corresponding to the bytes. The string is
-     *         upper case.
+     * @param bytes The byte array to represent
+     * @return A string of hex characters corresponding to the bytes. The string is upper case.
      */
     public static String byteArrayToHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
@@ -274,10 +263,9 @@ public final class ParseUtil {
     /**
      * Parse a string of hexadecimal digits into a byte array
      *
-     * @param digits
-     *            The string to be parsed
-     * @return a byte array with each pair of characters converted to a byte, or
-     *         empty array if the string is not valid hex
+     * @param digits The string to be parsed
+     * @return a byte array with each pair of characters converted to a byte, or empty array if the string is not valid
+     *         hex
      */
     public static byte[] hexStringToByteArray(String digits) {
         int len = digits.length();
@@ -295,33 +283,26 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a human readable ASCII string into a byte array, truncating or padding
-     * with zeros (if necessary) so the array has the specified length.
+     * Parse a human readable ASCII string into a byte array, truncating or padding with zeros (if necessary) so the
+     * array has the specified length.
      *
-     * @param text
-     *            The string to be parsed
-     * @param length
-     *            Length of the returned array.
-     * @return A byte array of specified length, with each of the first length
-     *         characters converted to a byte. If length is longer than the provided
-     *         string length, will be filled with zeroes.
+     * @param text   The string to be parsed
+     * @param length Length of the returned array.
+     * @return A byte array of specified length, with each of the first length characters converted to a byte. If length
+     *         is longer than the provided string length, will be filled with zeroes.
      */
     public static byte[] asciiStringToByteArray(String text, int length) {
         return Arrays.copyOf(text.getBytes(StandardCharsets.US_ASCII), length);
     }
 
     /**
-     * Convert a long value to a byte array using Big Endian, truncating or padding
-     * with zeros (if necessary) so the array has the specified length.
+     * Convert a long value to a byte array using Big Endian, truncating or padding with zeros (if necessary) so the
+     * array has the specified length.
      *
-     * @param value
-     *            The value to be converted
-     * @param valueSize
-     *            Number of bytes representing the value
-     * @param length
-     *            Number of bytes to return
-     * @return A byte array of specified length representing the long in the first
-     *         valueSize bytes
+     * @param value     The value to be converted
+     * @param valueSize Number of bytes representing the value
+     * @param length    Number of bytes to return
+     * @return A byte array of specified length representing the long in the first valueSize bytes
      */
     public static byte[] longToByteArray(long value, int valueSize, int length) {
         long val = value;
@@ -339,25 +320,19 @@ public final class ParseUtil {
     /**
      * Convert a string to an integer representation.
      *
-     * @param str
-     *            A human readable ASCII string
-     * @param size
-     *            Number of characters to convert to the long. May not exceed 8.
-     * @return An integer representing the string where each character is treated as
-     *         a byte
+     * @param str  A human readable ASCII string
+     * @param size Number of characters to convert to the long. May not exceed 8.
+     * @return An integer representing the string where each character is treated as a byte
      */
     public static long strToLong(String str, int size) {
         return byteArrayToLong(str.getBytes(StandardCharsets.US_ASCII), size);
     }
 
     /**
-     * Convert a byte array to its (long) integer representation assuming big endian
-     * ordering.
+     * Convert a byte array to its (long) integer representation assuming big endian ordering.
      *
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the long. May not exceed 8.
+     * @param bytes An array of bytes no smaller than the size to be converted
+     * @param size  Number of bytes to convert to the long. May not exceed 8.
      * @return A long integer representing the byte array
      */
     public static long byteArrayToLong(byte[] bytes, int size) {
@@ -365,15 +340,11 @@ public final class ParseUtil {
     }
 
     /**
-     * Convert a byte array to its (long) integer representation in the specified
-     * endianness.
+     * Convert a byte array to its (long) integer representation in the specified endianness.
      *
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the long. May not exceed 8.
-     * @param bigEndian
-     *            True to parse big-endian, false to parse little-endian
+     * @param bytes     An array of bytes no smaller than the size to be converted
+     * @param size      Number of bytes to convert to the long. May not exceed 8.
+     * @param bigEndian True to parse big-endian, false to parse little-endian
      * @return An long integer representing the byte array
      */
     public static long byteArrayToLong(byte[] bytes, int size, boolean bigEndian) {
@@ -397,30 +368,23 @@ public final class ParseUtil {
     /**
      * Convert a byte array to its floating point representation.
      *
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the float. May not exceed 8.
-     * @param fpBits
-     *            Number of bits representing the decimal
-     * @return A float; the integer portion representing the byte array as an
-     *         integer shifted by the bits specified in fpBits; with the remaining
-     *         bits used as a decimal
+     * @param bytes  An array of bytes no smaller than the size to be converted
+     * @param size   Number of bytes to convert to the float. May not exceed 8.
+     * @param fpBits Number of bits representing the decimal
+     * @return A float; the integer portion representing the byte array as an integer shifted by the bits specified in
+     *         fpBits; with the remaining bits used as a decimal
      */
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
         return byteArrayToLong(bytes, size) / (float) (1 << fpBits);
     }
 
     /**
-     * Convert an unsigned integer to a long value. The method assumes that all bits
-     * in the specified integer value are 'data' bits, including the
-     * most-significant bit which Java normally considers a sign bit. The method
-     * must be used only when it is certain that the integer value represents an
-     * unsigned integer, for example when the integer is returned by JNA library in
-     * a structure which holds unsigned integers.
+     * Convert an unsigned integer to a long value. The method assumes that all bits in the specified integer value are
+     * 'data' bits, including the most-significant bit which Java normally considers a sign bit. The method must be used
+     * only when it is certain that the integer value represents an unsigned integer, for example when the integer is
+     * returned by JNA library in a structure which holds unsigned integers.
      *
-     * @param unsignedValue
-     *            The unsigned integer value to convert.
+     * @param unsignedValue The unsigned integer value to convert.
      * @return The unsigned integer value widened to a long.
      */
     public static long unsignedIntToLong(int unsignedValue) {
@@ -433,12 +397,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Convert an unsigned long to a signed long value by stripping the sign bit.
-     * This method "rolls over" long values greater than the max value but ensures
-     * the result is never negative.
+     * Convert an unsigned long to a signed long value by stripping the sign bit. This method "rolls over" long values
+     * greater than the max value but ensures the result is never negative.
      *
-     * @param unsignedValue
-     *            The unsigned long value to convert.
+     * @param unsignedValue The unsigned long value to convert.
      * @return The signed long value.
      */
     public static long unsignedLongToSignedLong(long unsignedValue) {
@@ -446,13 +408,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a string of hex digits to a string where each pair of hex digits
-     * represents an ASCII character
+     * Parses a string of hex digits to a string where each pair of hex digits represents an ASCII character
      *
-     * @param hexString
-     *            A sequence of hex digits
-     * @return The corresponding string if valid hex; otherwise the original
-     *         hexString
+     * @param hexString A sequence of hex digits
+     * @return The corresponding string if valid hex; otherwise the original hexString
      */
     public static String hexStringToString(String hexString) {
         // Odd length strings won't parse, return
@@ -480,10 +439,8 @@ public final class ParseUtil {
     /**
      * Attempts to parse a string to an int. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultInt
-     *            The value to return if parsing fails
+     * @param s          The string to parse
+     * @param defaultInt The value to return if parsing fails
      * @return The parsed int, or the default if parsing failed
      */
     public static int parseIntOrDefault(String s, int defaultInt) {
@@ -498,10 +455,8 @@ public final class ParseUtil {
     /**
      * Attempts to parse a string to a long. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultLong
-     *            The value to return if parsing fails
+     * @param s           The string to parse
+     * @param defaultLong The value to return if parsing fails
      * @return The parsed long, or the default if parsing failed
      */
     public static long parseLongOrDefault(String s, long defaultLong) {
@@ -514,15 +469,12 @@ public final class ParseUtil {
     }
 
     /**
-     * Attempts to parse a string to an "unsigned" long. If it fails, returns the
-     * default
+     * Attempts to parse a string to an "unsigned" long. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultLong
-     *            The value to return if parsing fails
-     * @return The parsed long containing the same 64 bits that an unsigned long
-     *         would contain (which may produce a negative value)
+     * @param s           The string to parse
+     * @param defaultLong The value to return if parsing fails
+     * @return The parsed long containing the same 64 bits that an unsigned long would contain (which may produce a
+     *         negative value)
      */
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
@@ -536,10 +488,8 @@ public final class ParseUtil {
     /**
      * Attempts to parse a string to a double. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultDouble
-     *            The value to return if parsing fails
+     * @param s             The string to parse
+     * @param defaultDouble The value to return if parsing fails
      * @return The parsed double, or the default if parsing failed
      */
     public static double parseDoubleOrDefault(String s, double defaultDouble) {
@@ -552,13 +502,11 @@ public final class ParseUtil {
     }
 
     /**
-     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number of
-     * milliseconds. If it fails, returns the default.
+     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number of milliseconds. If it fails, returns
+     * the default.
      *
-     * @param s
-     *            The string to parse
-     * @param defaultLong
-     *            The value to return if parsing fails
+     * @param s           The string to parse
+     * @param defaultLong The value to return if parsing fails
      * @return The parsed number of seconds, or the default if parsing fails
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
@@ -586,10 +534,8 @@ public final class ParseUtil {
     /**
      * Attempts to parse a UUID. If it fails, returns the default.
      *
-     * @param s
-     *            The string to parse
-     * @param defaultStr
-     *            The value to return if parsing fails
+     * @param s          The string to parse
+     * @param defaultStr The value to return if parsing fails
      * @return The parsed UUID, or the default if parsing fails
      */
     public static String parseUuidOrDefault(String s, String defaultStr) {
@@ -603,8 +549,7 @@ public final class ParseUtil {
     /**
      * Parses a string key = 'value' (string)
      *
-     * @param line
-     *            The entire string
+     * @param line The entire string
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
@@ -614,8 +559,7 @@ public final class ParseUtil {
     /**
      * Parse a string key = "value" (string)
      *
-     * @param line
-     *            the entire string
+     * @param line the entire string
      * @return the value contained between double tick marks
      */
     public static String getDoubleQuoteStringValue(String line) {
@@ -623,18 +567,14 @@ public final class ParseUtil {
     }
 
     /**
-     * Gets a value between two characters having multiple same characters between
-     * them. <b>Examples : </b>
+     * Gets a value between two characters having multiple same characters between them. <b>Examples : </b>
      * <ul>
      * <li>"name = 'James Gosling's Java'" returns "James Gosling's Java"</li>
-     * <li>"pci.name = 'Realtek AC'97 Audio Device'" returns "Realtek AC'97 Audio
-     * Device"</li>
+     * <li>"pci.name = 'Realtek AC'97 Audio Device'" returns "Realtek AC'97 Audio Device"</li>
      * </ul>
      *
-     * @param line
-     *            The "key-value" pair line.
-     * @param c
-     *            The Trailing And Leading characters of the string line
+     * @param line The "key-value" pair line.
+     * @param c    The Trailing And Leading characters of the string line
      * @return : The value having the characters between them.
      */
     public static String getStringBetween(String line, char c) {
@@ -646,11 +586,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the
-     * integer value of the first set of one or more consecutive digits
+     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the integer value of the first set of one or
+     * more consecutive digits
      *
-     * @param line
-     *            The entire string
+     * @param line The entire string
      * @return the value of first integer if any; 0 otherwise
      */
     public static int getFirstIntValue(String line) {
@@ -658,13 +597,11 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the
-     * integer value of the nth set of one or more consecutive digits
+     * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the integer value of the nth set of one or
+     * more consecutive digits
      *
-     * @param line
-     *            The entire string
-     * @param n
-     *            Which set of integers to return
+     * @param line The entire string
+     * @param n    Which set of integers to return
      * @return the value of nth integer if any; 0 otherwise
      */
     public static int getNthIntValue(String line, int n) {
@@ -679,10 +616,8 @@ public final class ParseUtil {
     /**
      * Removes all matching sub strings from the string. More efficient than regexp.
      *
-     * @param original
-     *            source String to remove from
-     * @param toRemove
-     *            the sub string to be removed
+     * @param original source String to remove from
+     * @param toRemove the sub string to be removed
      * @return The string with all matching substrings removed
      */
     public static String removeMatchingString(final String original, final String toRemove) {
@@ -708,35 +643,25 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a delimited string to an array of longs. Optimized for processing
-     * predictable-length arrays such as outputs of reliably formatted Linux proc or
-     * sys filesystem, minimizing new object creation. Users should perform other
-     * sanity checks of data.
+     * Parses a delimited string to an array of longs. Optimized for processing predictable-length arrays such as
+     * outputs of reliably formatted Linux proc or sys filesystem, minimizing new object creation. Users should perform
+     * other sanity checks of data.
      *
-     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
-     * the list are ignored. Values greater than the max long value return the max
-     * long value.
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of the list are ignored. Values
+     * greater than the max long value return the max long value.
      *
-     * The indices parameters are referenced assuming the length as specified, and
-     * leading characters are ignored. For example, if the string is "foo 12 34 5"
-     * and the length is 3, then index 0 is 12, index 1 is 34, and index 2 is 5.
+     * The indices parameters are referenced assuming the length as specified, and leading characters are ignored. For
+     * example, if the string is "foo 12 34 5" and the length is 3, then index 0 is 12, index 1 is 34, and index 2 is 5.
      *
-     * @param s
-     *            The string to parse
-     * @param indices
-     *            An array indicating which indexes should be populated in the final
-     *            array; other values will be skipped. This idex is zero-referenced
-     *            assuming the rightmost delimited fields of the string contain the
-     *            array.
-     * @param length
-     *            The total number of elements in the string array. It is
-     *            permissible for the string to have more elements than this;
-     *            leading elements will be ignored. This should be calculated once
-     *            per text format by {@link #countStringToLongArray}.
-     * @param delimiter
-     *            The character to delimit by.
-     * @return If successful, an array of parsed longs. If parsing errors occurred,
-     *         will be an array of zeros.
+     * @param s         The string to parse
+     * @param indices   An array indicating which indexes should be populated in the final array; other values will be
+     *                  skipped. This idex is zero-referenced assuming the rightmost delimited fields of the string
+     *                  contain the array.
+     * @param length    The total number of elements in the string array. It is permissible for the string to have more
+     *                  elements than this; leading elements will be ignored. This should be calculated once per text
+     *                  format by {@link #countStringToLongArray}.
+     * @param delimiter The character to delimit by.
+     * @return If successful, an array of parsed longs. If parsing errors occurred, will be an array of zeros.
      */
     public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
         long[] parsed = new long[indices.length];
@@ -808,8 +733,7 @@ public final class ParseUtil {
     /**
      * Test whether to log this message
      *
-     * @param s
-     *            The string to log
+     * @param s The string to log
      * @return True if the string begins with {@code NOLOG}
      */
     private static boolean noLog(String s) {
@@ -817,19 +741,14 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a delimited string to count elements of an array of longs. Intended to
-     * be called once to calculate the {@code length} field for
-     * {@link #parseStringToLongArray}.
+     * Parses a delimited string to count elements of an array of longs. Intended to be called once to calculate the
+     * {@code length} field for {@link #parseStringToLongArray}.
      *
-     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
-     * the list are ignored.
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of the list are ignored.
      *
-     * @param s
-     *            The string to parse
-     * @param delimiter
-     *            The character to delimit by
-     * @return The number of parsable long values which follow the last unparsable
-     *         value.
+     * @param s         The string to parse
+     * @param delimiter The character to delimit by
+     * @return The number of parsable long values which follow the last unparsable value.
      */
     public static int countStringToLongArray(String s, char delimiter) {
         // Iterate from right-to-left of String
@@ -877,14 +796,10 @@ public final class ParseUtil {
     /**
      * Get a String in a line of text between two marker strings
      *
-     * @param text
-     *            Text to search for match
-     * @param before
-     *            Start matching after this text
-     * @param after
-     *            End matching before this text
-     * @return Text between the strings before and after, or empty string if either
-     *         marker does not exist
+     * @param text   Text to search for match
+     * @param before Start matching after this text
+     * @param after  End matching before this text
+     * @return Text between the strings before and after, or empty string if either marker does not exist
      */
     public static String getTextBetweenStrings(String text, String before, String after) {
 
@@ -898,14 +813,11 @@ public final class ParseUtil {
     }
 
     /**
-     * Convert a long representing filetime (100-ns since 1601 epoch) to ms since
-     * 1970 epoch
+     * Convert a long representing filetime (100-ns since 1601 epoch) to ms since 1970 epoch
      *
-     * @param filetime
-     *            A 64-bit value equivalent to FILETIME
-     * @param local
-     *            True if converting from a local filetime (PDH counter); false if
-     *            already UTC (WMI PerfRawData classes)
+     * @param filetime A 64-bit value equivalent to FILETIME
+     * @param local    True if converting from a local filetime (PDH counter); false if already UTC (WMI PerfRawData
+     *                 classes)
      * @return Equivalent milliseconds since the epoch
      */
     public static long filetimeToUtcMs(long filetime, boolean local) {
@@ -915,10 +827,8 @@ public final class ParseUtil {
     /**
      * Parse a date in MM-DD-YYYY or MM/DD/YYYY to YYYY-MM-DD
      *
-     * @param dateString
-     *            The date in MM DD YYYY format
-     * @return The date in ISO YYYY-MM-DD format if parseable, or the original
-     *         string
+     * @param dateString The date in MM DD YYYY format
+     * @return The date in ISO YYYY-MM-DD format if parseable, or the original string
      */
     public static String parseMmDdYyyyToYyyyMmDD(String dateString) {
         try {
@@ -931,14 +841,12 @@ public final class ParseUtil {
     }
 
     /**
-     * Converts a string in CIM Date Format, as returned by WMI for DateTime types,
-     * into a {@link java.time.OffsetDateTime}.
+     * Converts a string in CIM Date Format, as returned by WMI for DateTime types, into a
+     * {@link java.time.OffsetDateTime}.
      *
-     * @param cimDateTime
-     *            A non-null DateTime String in CIM date format, e.g.,
-     *            <code>20160513072950.782000-420</code>
-     * @return The parsed {@link java.time.OffsetDateTime} if the string is
-     *         parsable, otherwise {@link oshi.util.Constants#UNIX_EPOCH}.
+     * @param cimDateTime A non-null DateTime String in CIM date format, e.g., <code>20160513072950.782000-420</code>
+     * @return The parsed {@link java.time.OffsetDateTime} if the string is parsable, otherwise
+     *         {@link oshi.util.Constants#UNIX_EPOCH}.
      */
     public static OffsetDateTime parseCimDateTimeToOffset(String cimDateTime) {
         // Keep first 22 characters: digits, decimal, and + or - sign
@@ -962,12 +870,9 @@ public final class ParseUtil {
     /**
      * Checks if a file path equals or starts with an prefix in the given list
      *
-     * @param prefixList
-     *            A list of path prefixes
-     * @param path
-     *            a string path to check
-     * @return true if the path exactly equals, or starts with one of the strings in
-     *         prefixList
+     * @param prefixList A list of path prefixes
+     * @param path       a string path to check
+     * @return true if the path exactly equals, or starts with one of the strings in prefixList
      */
     public static boolean filePathStartsWith(List<String> prefixList, String path) {
         for (String match : prefixList) {
@@ -981,8 +886,7 @@ public final class ParseUtil {
     /**
      * Parses a string like "53G" or "54.904 M" to its long value.
      *
-     * @param count
-     *            A count with a multiplyer like "4096 M"
+     * @param count A count with a multiplyer like "4096 M"
      * @return the count parsed to a long
      */
     public static long parseMultipliedToLongs(String count) {
@@ -1019,12 +923,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a string such as "4096 MB" to its long. Used to parse macOS and *nix
-     * memory chip sizes. Although the units given are decimal they must parse to
-     * binary units.
+     * Parses a string such as "4096 MB" to its long. Used to parse macOS and *nix memory chip sizes. Although the units
+     * given are decimal they must parse to binary units.
      *
-     * @param size
-     *            A string of memory sizes like "4096 MB"
+     * @param size A string of memory sizes like "4096 MB"
      * @return the size parsed to a long
      */
     public static long parseDecimalMemorySizeToBinary(String size) {
@@ -1064,12 +966,10 @@ public final class ParseUtil {
     /**
      * Parse a Windows DeviceID to get the vendor ID, product ID, and Serial Number
      *
-     * @param deviceId
-     *            The DeviceID
-     * @return A {@link Triplet} where the first element is the vendor ID, the
-     *         second element is the product ID, and the third element is either a
-     *         serial number or empty string if parsing was successful, or
-     *         {@code null} otherwise
+     * @param deviceId The DeviceID
+     * @return A {@link Triplet} where the first element is the vendor ID, the second element is the product ID, and the
+     *         third element is either a serial number or empty string if parsing was successful, or {@code null}
+     *         otherwise
      */
     public static Triplet<String, String, String> parseDeviceIdToVendorProductSerial(String deviceId) {
         Matcher m = VENDOR_PRODUCT_ID_SERIAL.matcher(deviceId);
@@ -1085,11 +985,8 @@ public final class ParseUtil {
     /**
      * Parse a Linux lshw resources string to calculate the memory size
      *
-     * @param resources
-     *            A string containing one or more elements of the form
-     *            {@code memory:b00000000-bffffffff}
-     * @return The number of bytes consumed by the memory in the {@code resources}
-     *         string
+     * @param resources A string containing one or more elements of the form {@code memory:b00000000-bffffffff}
+     * @return The number of bytes consumed by the memory in the {@code resources} string
      */
     public static long parseLshwResourceString(String resources) {
         long bytes = 0L;
@@ -1116,10 +1013,8 @@ public final class ParseUtil {
     /**
      * Parse a Linux lspci machine readble line to its name and id
      *
-     * @param line
-     *            A string in the form Foo [bar]
-     * @return A pair separating the String before the square brackets and within
-     *         them if found, null otherwise
+     * @param line A string in the form Foo [bar]
+     * @return A pair separating the String before the square brackets and within them if found, null otherwise
      */
     public static Pair<String, String> parseLspciMachineReadable(String line) {
         Matcher matcher = LSPCI_MACHINE_READABLE.matcher(line);
@@ -1132,8 +1027,7 @@ public final class ParseUtil {
     /**
      * Parse a Linux lspci line containing memory size
      *
-     * @param line
-     *            A string in the form Foo [size=256M]
+     * @param line A string in the form Foo [size=256M]
      * @return A the memory size in bytes
      */
     public static long parseLspciMemorySize(String line) {
@@ -1145,13 +1039,10 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse a space-delimited list of integers which include hyphenated ranges to a
-     * list of just the integers. For example, 0 1 4-7 parses to a list containing
-     * 0, 1, 4, 5, 6, and 7.
+     * Parse a space-delimited list of integers which include hyphenated ranges to a list of just the integers. For
+     * example, 0 1 4-7 parses to a list containing 0, 1, 4, 5, 6, and 7.
      *
-     * @param str
-     *            A string containing space-delimited integers or ranges of integers
-     *            with a hyphen
+     * @param str A string containing space-delimited integers or ranges of integers with a hyphen
      * @return A list of integers representing the provided range(s).
      */
     public static List<Integer> parseHyphenatedIntList(String str) {
@@ -1174,11 +1065,9 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse an integer in big endian IP format to its component bytes representing
-     * an IPv4 address
+     * Parse an integer in big endian IP format to its component bytes representing an IPv4 address
      *
-     * @param ip
-     *            The address as an integer
+     * @param ip The address as an integer
      * @return The address as an array of four bytes
      */
     public static byte[] parseIntToIP(int ip) {
@@ -1186,11 +1075,9 @@ public final class ParseUtil {
     }
 
     /**
-     * Parse an integer array in big endian IP format to its component bytes
-     * representing an IPv6 address
+     * Parse an integer array in big endian IP format to its component bytes representing an IPv6 address
      *
-     * @param ip6
-     *            The address as an integer array
+     * @param ip6 The address as an integer array
      * @return The address as an array of sizteen bytes
      */
     public static byte[] parseIntArrayToIP(int[] ip6) {
@@ -1202,15 +1089,12 @@ public final class ParseUtil {
     }
 
     /**
-     * TCP network addresses and ports are in big endian format by definition. The
-     * order of the two bytes in the 16-bit unsigned short port value must be
-     * reversed
+     * TCP network addresses and ports are in big endian format by definition. The order of the two bytes in the 16-bit
+     * unsigned short port value must be reversed
      *
-     * @param port
-     *            The port number in big endian order
+     * @param port The port number in big endian order
      * @return The port number
-     * @see <a href=
-     *      "https://docs.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-ntohs">ntohs</a>
+     * @see <a href= "https://docs.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-ntohs">ntohs</a>
      */
     public static int bigEndian16ToLittleEndian(int port) {
         // 20480 = 0x5000 should be 0x0050 = 80
@@ -1223,9 +1107,7 @@ public final class ParseUtil {
      * <p>
      * Intended for use on Utmp structures's {@code ut_addr_v6} element.
      *
-     * @param utAddrV6
-     *            An array of 4 integers representing an IPv6 address. IPv4 address
-     *            uses just utAddrV6[0]
+     * @param utAddrV6 An array of 4 integers representing an IPv6 address. IPv4 address uses just utAddrV6[0]
      * @return A string representation of the IP address.
      */
     public static String parseUtAddrV6toIP(int[] utAddrV6) {
@@ -1262,10 +1144,8 @@ public final class ParseUtil {
     /**
      * Parses a string of hex digits to an int value.
      *
-     * @param hexString
-     *            A sequence of hex digits
-     * @param defaultValue
-     *            default value to return if parsefails
+     * @param hexString    A sequence of hex digits
+     * @param defaultValue default value to return if parsefails
      * @return The corresponding int value
      */
     public static int hexStringToInt(String hexString, int defaultValue) {
@@ -1287,10 +1167,8 @@ public final class ParseUtil {
     /**
      * Parses a string of hex digits to a long value.
      *
-     * @param hexString
-     *            A sequence of hex digits
-     * @param defaultValue
-     *            default value to return if parsefails
+     * @param hexString    A sequence of hex digits
+     * @param defaultValue default value to return if parsefails
      * @return The corresponding long value
      */
     public static long hexStringToLong(String hexString, long defaultValue) {
@@ -1312,8 +1190,7 @@ public final class ParseUtil {
     /**
      * Parses a String "....foo" to "foo"
      *
-     * @param dotPrefixedStr
-     *            A string with possibly leading dots
+     * @param dotPrefixedStr A string with possibly leading dots
      * @return The string without the dots
      */
     public static String removeLeadingDots(String dotPrefixedStr) {
@@ -1327,9 +1204,8 @@ public final class ParseUtil {
     /**
      * Parse a null-delimited byte array to a list of strings.
      *
-     * @param bytes
-     *            A byte array containing Strings delimited by null characters. Two
-     *            consecutive null characters mark the end of the list.
+     * @param bytes A byte array containing Strings delimited by null characters. Two consecutive null characters mark
+     *              the end of the list.
      * @return A list of Strings between the nulls.
      */
     public static List<String> parseByteArrayToStrings(byte[] bytes) {
@@ -1356,11 +1232,8 @@ public final class ParseUtil {
     /**
      * Parse a null-delimited byte array to a map of string keys and values.
      *
-     * @param bytes
-     *            A byte array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimited by null
-     *            characters. Two consecutive null characters mark the end of the
-     *            map.
+     * @param bytes A byte array containing String key-value pairs with keys and values delimited by {@code =} and pairs
+     *              delimited by null characters. Two consecutive null characters mark the end of the map.
      * @return A map of String key-value pairs between the nulls.
      */
     public static Map<String, String> parseByteArrayToStringMap(byte[] bytes) {
@@ -1394,11 +1267,8 @@ public final class ParseUtil {
     /**
      * Parse a null-delimited char array to a map of string keys and values.
      *
-     * @param chars
-     *            A char array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimited by null
-     *            characters. Two consecutive null characters mark the end of the
-     *            map.
+     * @param chars A char array containing String key-value pairs with keys and values delimited by {@code =} and pairs
+     *              delimited by null characters. Two consecutive null characters mark the end of the map.
      * @return A map of String key-value pairs between the nulls.
      */
     public static Map<String, String> parseCharArrayToStringMap(char[] chars) {
@@ -1430,21 +1300,15 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a delimited String into an enum map. Multiple consecutive delimiters
-     * are treated as one.
+     * Parses a delimited String into an enum map. Multiple consecutive delimiters are treated as one.
      *
-     * @param <K>
-     *            a type extending Enum
-     * @param clazz
-     *            The enum class
-     * @param values
-     *            A delimited String to be parsed into the map
-     * @param delim
-     *            the delimiter to use
-     * @return An EnumMap populated in order using the delimited String values. If
-     *         there are fewer String values than enum values, the later enum values
-     *         are not mapped. The final enum value will contain the remainder of
-     *         the String, including excess delimiters.
+     * @param <K>    a type extending Enum
+     * @param clazz  The enum class
+     * @param values A delimited String to be parsed into the map
+     * @param delim  the delimiter to use
+     * @return An EnumMap populated in order using the delimited String values. If there are fewer String values than
+     *         enum values, the later enum values are not mapped. The final enum value will contain the remainder of the
+     *         String, including excess delimiters.
      */
     public static <K extends Enum<K>> Map<K, String> stringToEnumMap(Class<K> clazz, String values, char delim) {
         EnumMap<K, String> map = new EnumMap<>(clazz);

@@ -315,18 +315,14 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Parse memory buffer returned from sysctl kern.cptime or kern.cptime2 to an
-     * array of 5 or 6 longs depending on version.
+     * Parse memory buffer returned from sysctl kern.cptime or kern.cptime2 to an array of 5 or 6 longs depending on
+     * version.
      * <p>
-     * Versions 6.4 and later have a 6-element array while earlier versions have
-     * only 5 elements. Additionally kern.cptime uses a native-sized long (32- or
-     * 64-bit) value while kern.cptime2 is always a 64-bit value.
+     * Versions 6.4 and later have a 6-element array while earlier versions have only 5 elements. Additionally
+     * kern.cptime uses a native-sized long (32- or 64-bit) value while kern.cptime2 is always a 64-bit value.
      *
-     * @param m
-     *            A buffer containing the array.
-     * @param force64bit
-     *            True if the buffer is filled with 64-bit longs, false if native
-     *            long sized values
+     * @param m          A buffer containing the array.
+     * @param force64bit True if the buffer is filled with 64-bit longs, false if native long sized values
      * @return The array
      */
     private static long[] cpTimeToTicks(Memory m, boolean force64bit) {
@@ -343,24 +339,19 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Returns the system load average for the number of elements specified, up to
-     * 3, representing 1, 5, and 15 minutes. The system load average is the sum of
-     * the number of runnable entities queued to the available processors and the
-     * number of runnable entities running on the available processors averaged over
-     * a period of time. The way in which the load average is calculated is
-     * operating system specific but is typically a damped time-dependent average.
-     * If the load average is not available, a negative value is returned. This
-     * method is designed to provide a hint about the system load and may be queried
-     * frequently.
+     * Returns the system load average for the number of elements specified, up to 3, representing 1, 5, and 15 minutes.
+     * The system load average is the sum of the number of runnable entities queued to the available processors and the
+     * number of runnable entities running on the available processors averaged over a period of time. The way in which
+     * the load average is calculated is operating system specific but is typically a damped time-dependent average. If
+     * the load average is not available, a negative value is returned. This method is designed to provide a hint about
+     * the system load and may be queried frequently.
      * <p>
-     * The load average may be unavailable on some platforms (e.g., Windows) where
-     * it is expensive to implement this method.
+     * The load average may be unavailable on some platforms (e.g., Windows) where it is expensive to implement this
+     * method.
      *
-     * @param nelem
-     *            Number of elements to return.
-     * @return an array of the system load averages for 1, 5, and 15 minutes with
-     *         the size of the array specified by nelem; or negative values if not
-     *         available.
+     * @param nelem Number of elements to return.
+     * @return an array of the system load averages for 1, 5, and 15 minutes with the size of the array specified by
+     *         nelem; or negative values if not available.
      */
     @Override
     public double[] getSystemLoadAverage(int nelem) {

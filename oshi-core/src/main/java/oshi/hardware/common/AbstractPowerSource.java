@@ -294,8 +294,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     /**
      * Estimated time remaining on power source, formatted as HH:mm
      *
-     * @param timeInSeconds
-     *            The time remaining, in seconds
+     * @param timeInSeconds The time remaining, in seconds
      * @return formatted String of time remaining
      */
     private static String formatTimeRemaining(double timeInSeconds) {

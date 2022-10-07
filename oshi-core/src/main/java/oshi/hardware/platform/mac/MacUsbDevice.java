@@ -59,18 +59,15 @@ public class MacUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing
-     * devices connected via a usb port (including internal devices).
+     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
+     * (including internal devices).
      * <p>
-     * If the value of {@code tree} is true, the top level devices returned from
-     * this method are the USB Controllers; connected hubs and devices in its device
-     * tree share that controller's bandwidth. If the value of {@code tree} is
+     * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
+     * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
      * false, USB devices (not controllers) are listed in a single flat list.
      *
-     * @param tree
-     *            If true, returns a list of controllers, which requires recursive
-     *            iteration of connected devices. If false, returns a flat list of
-     *            devices excluding controllers.
+     * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
+     *             false, returns a flat list of devices excluding controllers.
      * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
@@ -156,22 +153,14 @@ public class MacUsbDevice extends AbstractUsbDevice {
     /**
      * Recursively populate maps with information from a USB Device and its children
      *
-     * @param device
-     *            The device which, along with its children, should be added
-     * @param parentId
-     *            The id of the device's parent.
-     * @param nameMap
-     *            the map of names
-     * @param vendorMap
-     *            the map of vendors
-     * @param vendorIdMap
-     *            the map of vendorIds
-     * @param productIdMap
-     *            the map of productIds
-     * @param serialMap
-     *            the map of serial numbers
-     * @param hubMap
-     *            the map of hubs
+     * @param device       The device which, along with its children, should be added
+     * @param parentId     The id of the device's parent.
+     * @param nameMap      the map of names
+     * @param vendorMap    the map of vendors
+     * @param vendorIdMap  the map of vendorIds
+     * @param productIdMap the map of productIds
+     * @param serialMap    the map of serial numbers
+     * @param hubMap       the map of hubs
      */
     private static void addDeviceAndChildrenToMaps(IORegistryEntry device, long parentId, Map<Long, String> nameMap,
             Map<Long, String> vendorMap, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap,
@@ -227,22 +216,14 @@ public class MacUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Looks up vendor and product id information for a USB Host Controller by
-     * cross-referencing the location
+     * Looks up vendor and product id information for a USB Host Controller by cross-referencing the location
      *
-     * @param id
-     *            The global unique ID for the host controller used as a key for
-     *            maps
-     * @param locationId
-     *            The locationID of this controller returned from the registry
-     * @param locationIDKey
-     *            A pointer to the locationID string
-     * @param ioPropertyMatchKey
-     *            A pointer to the IOPropertyMatch string
-     * @param productIdMap
-     *            the map of productIds
-     * @param vendorIdMap
-     *            the map of vendorIds
+     * @param id                 The global unique ID for the host controller used as a key for maps
+     * @param locationId         The locationID of this controller returned from the registry
+     * @param locationIDKey      A pointer to the locationID string
+     * @param ioPropertyMatchKey A pointer to the IOPropertyMatch string
+     * @param productIdMap       the map of productIds
+     * @param vendorIdMap        the map of vendorIds
      */
     private static void getControllerIdByLocation(long id, CFTypeRef locationId, CFStringRef locationIDKey,
             CFStringRef ioPropertyMatchKey, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap) {
@@ -293,27 +274,17 @@ public class MacUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Recursively creates MacUsbDevices by fetching information from maps to
-     * populate fields
+     * Recursively creates MacUsbDevices by fetching information from maps to populate fields
      *
-     * @param registryEntryId
-     *            The device unique registry id.
-     * @param vid
-     *            The default (parent) vendor ID
-     * @param pid
-     *            The default (parent) product ID
-     * @param nameMap
-     *            the map of names
-     * @param vendorMap
-     *            the map of vendors
-     * @param vendorIdMap
-     *            the map of vendorIds
-     * @param productIdMap
-     *            the map of productIds
-     * @param serialMap
-     *            the map of serial numbers
-     * @param hubMap
-     *            the map of hubs
+     * @param registryEntryId The device unique registry id.
+     * @param vid             The default (parent) vendor ID
+     * @param pid             The default (parent) product ID
+     * @param nameMap         the map of names
+     * @param vendorMap       the map of vendors
+     * @param vendorIdMap     the map of vendorIds
+     * @param productIdMap    the map of productIds
+     * @param serialMap       the map of serial numbers
+     * @param hubMap          the map of hubs
      * @return A MacUsbDevice corresponding to this device
      */
     private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid,

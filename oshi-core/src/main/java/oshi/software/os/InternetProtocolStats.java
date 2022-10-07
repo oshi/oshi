@@ -40,16 +40,16 @@ public interface InternetProtocolStats {
     /**
      * Get the TCP stats for IPv4 connections.
      * <p>
-     * On macOS connection information requires elevated permissions. Without
-     * elevatd permissions, segment data is estimated.
+     * On macOS connection information requires elevated permissions. Without elevatd permissions, segment data is
+     * estimated.
      *
      * @return a {@link TcpStats} object encapsulating the stats.
      */
     TcpStats getTCPv4Stats();
 
     /**
-     * Get the TCP stats for IPv6 connections, if available. If not available
-     * separately, these may be 0 and included in IPv4 connections.
+     * Get the TCP stats for IPv6 connections, if available. If not available separately, these may be 0 and included in
+     * IPv4 connections.
      *
      * @return a {@link TcpStats} object encapsulating the stats.
      */
@@ -63,8 +63,8 @@ public interface InternetProtocolStats {
     UdpStats getUDPv4Stats();
 
     /**
-     * Get the UDP stats for IPv6 datagrams, if available. If not available
-     * separately, these may be 0 and included in IPv4 datagrams.
+     * Get the UDP stats for IPv6 datagrams, if available. If not available separately, these may be 0 and included in
+     * IPv4 datagrams.
      *
      * @return a {@link UdpStats} object encapsulating the stats.
      */
@@ -109,8 +109,8 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Connections Established is the number of TCP connections for which the
-         * current state is either ESTABLISHED or CLOSE-WAIT
+         * Connections Established is the number of TCP connections for which the current state is either ESTABLISHED or
+         * CLOSE-WAIT
          *
          * @return the connectionsEstablished
          */
@@ -119,10 +119,9 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Connections Active is the number of times TCP connections have made a direct
-         * transition to the SYN-SENT state from the CLOSED state. In other words, it
-         * shows a number of connections which are initiated by the local computer. The
-         * value is a cumulative total.
+         * Connections Active is the number of times TCP connections have made a direct transition to the SYN-SENT state
+         * from the CLOSED state. In other words, it shows a number of connections which are initiated by the local
+         * computer. The value is a cumulative total.
          *
          * @return the connectionsActive
          */
@@ -131,10 +130,9 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Connections Passive is the number of times TCP connections have made a direct
-         * transition to the SYN-RCVD state from the LISTEN state. In other words, it
-         * shows a number of connections to the local computer, which are initiated by
-         * remote computers. The value is a cumulative total.
+         * Connections Passive is the number of times TCP connections have made a direct transition to the SYN-RCVD
+         * state from the LISTEN state. In other words, it shows a number of connections to the local computer, which
+         * are initiated by remote computers. The value is a cumulative total.
          *
          * @return the connectionsPassive
          */
@@ -143,10 +141,9 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Connection Failures is the number of times TCP connections have made a direct
-         * transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state,
-         * plus the number of times TCP connections have made a direct transition to the
-         * LISTEN state from the SYN-RCVD state.
+         * Connection Failures is the number of times TCP connections have made a direct transition to the CLOSED state
+         * from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct
+         * transition to the LISTEN state from the SYN-RCVD state.
          *
          * @return the connectionFailures
          */
@@ -155,9 +152,8 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Connections Reset is the number of times TCP connections have made a direct
-         * transition to the CLOSED state from either the ESTABLISHED state or the
-         * CLOSE-WAIT state.
+         * Connections Reset is the number of times TCP connections have made a direct transition to the CLOSED state
+         * from either the ESTABLISHED state or the CLOSE-WAIT state.
          *
          * @return the connectionsReset
          */
@@ -166,8 +162,8 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Segments Sent is the number of segments sent, including those on current
-         * connections, but excluding those containing only retransmitted bytes.
+         * Segments Sent is the number of segments sent, including those on current connections, but excluding those
+         * containing only retransmitted bytes.
          *
          * @return the segmentsSent
          */
@@ -176,9 +172,8 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Segments Received is the number of segments received, including those
-         * received in error. This count includes segments received on currently
-         * established connections.
+         * Segments Received is the number of segments received, including those received in error. This count includes
+         * segments received on currently established connections.
          *
          * @return the segmentsReceived
          */
@@ -187,8 +182,8 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Segments Retransmitted is the number of segments retransmitted, that is,
-         * segments transmitted containing one or more previously transmitted bytes.
+         * Segments Retransmitted is the number of segments retransmitted, that is, segments transmitted containing one
+         * or more previously transmitted bytes.
          *
          * @return the segmentsRetransmitted
          */
@@ -261,8 +256,8 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Datagrams No Port is the number of received UDP datagrams for which there was
-         * no application at the destination port.
+         * Datagrams No Port is the number of received UDP datagrams for which there was no application at the
+         * destination port.
          *
          * @return the datagramsNoPort
          */
@@ -271,9 +266,8 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Datagrams Received Errors is the number of received UDP datagrams that could
-         * not be delivered for reasons other than the lack of an application at the
-         * destination port.
+         * Datagrams Received Errors is the number of received UDP datagrams that could not be delivered for reasons
+         * other than the lack of an application at the destination port.
          *
          * @return the datagramsReceivedErrors
          */
@@ -335,15 +329,13 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6
-         * addresses this is a 16-byte array.
+         * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6 addresses this is a 16-byte
+         * array.
          * <p>
-         * On Unix operating systems, the 16-bit value may be truncated, giving only the
-         * high order bytes. IPv6 addresses ending in zeroes should be considered
-         * suspect.
+         * On Unix operating systems, the 16-bit value may be truncated, giving only the high order bytes. IPv6
+         * addresses ending in zeroes should be considered suspect.
          *
-         * @return The local address, or an empty array if the listener can accept a
-         *         connection on any interface.
+         * @return The local address, or an empty array if the listener can accept a connection on any interface.
          */
         public byte[] getLocalAddress() {
             return Arrays.copyOf(localAddress, localAddress.length);
@@ -359,14 +351,13 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array.
-         * For IPv6 addresses this is a 16-byte array.
+         * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array. For IPv6 addresses this is a
+         * 16-byte array.
          * <p>
-         * On Unix operating systems, this value may be truncated. IPv6 addresses ending
-         * in zeroes should be considered suspect.
+         * On Unix operating systems, this value may be truncated. IPv6 addresses ending in zeroes should be considered
+         * suspect.
          *
-         * @return The foreign/remote address, or an empty array if unknown. An empty
-         *         array will also result if
+         * @return The foreign/remote address, or an empty array if unknown. An empty array will also result if
          */
         public byte[] getForeignAddress() {
             return Arrays.copyOf(foreignAddress, foreignAddress.length);
@@ -411,8 +402,7 @@ public interface InternetProtocolStats {
         /**
          * Gets the id of the process which holds this connection.
          *
-         * @return The process id of the process which holds this connection if known,
-         *         -1 otherwise.
+         * @return The process id of the process which holds this connection if known, -1 otherwise.
          */
         public int getowningProcessId() {
             return owningProcessId;

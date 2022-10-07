@@ -169,8 +169,8 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     /**
-     * Enum used to update attributes. The order field represents the 1-indexed
-     * numeric order of the stat in /proc/pid/task/tid/stat per the man file.
+     * Enum used to update attributes. The order field represents the 1-indexed numeric order of the stat in
+     * /proc/pid/task/tid/stat per the man file.
      */
     private enum ThreadPidStat {
         // The parsing implementation in ParseUtil requires these to be declared

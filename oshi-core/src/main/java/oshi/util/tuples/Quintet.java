@@ -28,16 +28,11 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * Convenience class for returning multiple objects from methods.
  *
- * @param <A>
- *            Type of the first element
- * @param <B>
- *            Type of the second element
- * @param <C>
- *            Type of the third element
- * @param <D>
- *            Type of the fourth element
- * @param <E>
- *            Type of the fifth element
+ * @param <A> Type of the first element
+ * @param <B> Type of the second element
+ * @param <C> Type of the third element
+ * @param <D> Type of the fourth element
+ * @param <E> Type of the fifth element
  */
 @ThreadSafe
 public class Quintet<A, B, C, D, E> {
@@ -51,16 +46,11 @@ public class Quintet<A, B, C, D, E> {
     /**
      * Create a quintet and store five objects.
      *
-     * @param a
-     *            the first object to store
-     * @param b
-     *            the second object to store
-     * @param c
-     *            the third object to store
-     * @param d
-     *            the fourth object to store
-     * @param e
-     *            the fifth object to store
+     * @param a the first object to store
+     * @param b the second object to store
+     * @param c the third object to store
+     * @param d the fourth object to store
+     * @param e the fifth object to store
      */
     public Quintet(A a, B b, C c, D d, E e) {
         this.a = a;

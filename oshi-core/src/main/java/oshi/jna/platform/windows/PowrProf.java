@@ -31,8 +31,8 @@ import com.sun.jna.Structure.FieldOrder;
 import oshi.util.Util;
 
 /**
- * Power profile stats. This class should be considered non-API as it may be
- * removed if/when its code is incorporated into the JNA project.
+ * Power profile stats. This class should be considered non-API as it may be removed if/when its code is incorporated
+ * into the JNA project.
  */
 public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
     /** Constant <code>INSTANCE</code> */

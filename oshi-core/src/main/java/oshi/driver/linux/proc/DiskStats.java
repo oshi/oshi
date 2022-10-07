@@ -88,8 +88,7 @@ public final class DiskStats {
          */
         WRITES_MS,
         /**
-         * Incremented as requests are given to appropriate struct request_queue and
-         * decremented as they finish.
+         * Incremented as requests are given to appropriate struct request_queue and decremented as they finish.
          */
         IO_QUEUE_LENGTH,
         /**
@@ -97,9 +96,9 @@ public final class DiskStats {
          */
         IO_MS,
         /**
-         * Incremented at each I/O start, I/O completion, I/O merge, or read of these
-         * stats by the number of I/Os in progress {@link #IO_QUEUE_LENGTH} times the
-         * number of milliseconds spent doing I/O since the last update of this field.
+         * Incremented at each I/O start, I/O completion, I/O merge, or read of these stats by the number of I/Os in
+         * progress {@link #IO_QUEUE_LENGTH} times the number of milliseconds spent doing I/O since the last update of
+         * this field.
          */
         IO_MS_WEIGHTED,
         /**
@@ -134,9 +133,8 @@ public final class DiskStats {
     /**
      * Reads the statistics in {@code /proc/diskstats} and returns the results.
      *
-     * @return A map with each disk's name as the key, and an EnumMap as the value,
-     *         where the numeric values in {@link IoStat} are mapped to a
-     *         {@link Long} value.
+     * @return A map with each disk's name as the key, and an EnumMap as the value, where the numeric values in
+     *         {@link IoStat} are mapped to a {@link Long} value.
      */
     public static Map<String, Map<IoStat, Long>> getDiskStats() {
         Map<String, Map<IoStat, Long>> diskStatMap = new HashMap<>();

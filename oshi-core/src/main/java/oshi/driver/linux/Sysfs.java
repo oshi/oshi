@@ -184,8 +184,7 @@ public final class Sysfs {
     /**
      * Query the bios version from sysfs
      *
-     * @param biosRevision
-     *            A revision string to append
+     * @param biosRevision A revision string to append
      * @return The bios version if available, null otherwise
      */
     public static String queryBiosVersion(String biosRevision) {

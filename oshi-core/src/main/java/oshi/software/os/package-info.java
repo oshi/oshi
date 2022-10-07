@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 /**
- * [oshi-core API] Provides cross-platform implementation to retrieve OS,
- * FileSystem, and Process information
+ * [oshi-core API] Provides cross-platform implementation to retrieve OS, FileSystem, and Process information
  */
 package oshi.software.os;

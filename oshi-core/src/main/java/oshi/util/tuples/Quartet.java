@@ -28,14 +28,10 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * Convenience class for returning multiple objects from methods.
  *
- * @param <A>
- *            Type of the first element
- * @param <B>
- *            Type of the second element
- * @param <C>
- *            Type of the third element
- * @param <D>
- *            Type of the fourth element
+ * @param <A> Type of the first element
+ * @param <B> Type of the second element
+ * @param <C> Type of the third element
+ * @param <D> Type of the fourth element
  */
 @ThreadSafe
 public class Quartet<A, B, C, D> {
@@ -48,14 +44,10 @@ public class Quartet<A, B, C, D> {
     /**
      * Create a quartet and store four objects.
      *
-     * @param a
-     *            the first object to store
-     * @param b
-     *            the second object to store
-     * @param c
-     *            the third object to store
-     * @param d
-     *            the fourth object to store
+     * @param a the first object to store
+     * @param b the second object to store
+     * @param c the third object to store
+     * @param d the fourth object to store
      */
     public Quartet(A a, B b, C c, D d) {
         this.a = a;

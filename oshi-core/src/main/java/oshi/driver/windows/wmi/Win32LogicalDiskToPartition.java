@@ -50,9 +50,7 @@ public final class Win32LogicalDiskToPartition {
     /**
      * Queries the association between logical disk and partition.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
+     * @param h An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
      * @return Antecedent-dependent pairs of disk and partition.
      */
     public static WmiResult<DiskToPartitionProperty> queryDiskToPartition(WmiQueryHandler h) {

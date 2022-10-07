@@ -36,8 +36,7 @@ import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.software.os.OSSession;
 
 /**
- * Utility to read process data from HKEY_PERFORMANCE_DATA information with
- * backup from Performance Counters or WMI
+ * Utility to read process data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
 public final class NetSessionData {

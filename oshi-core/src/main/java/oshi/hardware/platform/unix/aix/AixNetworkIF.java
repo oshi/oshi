@@ -73,8 +73,7 @@ public final class AixNetworkIF extends AbstractNetworkIF {
     /**
      * Gets all network interfaces on this machine
      *
-     * @param includeLocalInterfaces
-     *            include local interfaces in the result
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {

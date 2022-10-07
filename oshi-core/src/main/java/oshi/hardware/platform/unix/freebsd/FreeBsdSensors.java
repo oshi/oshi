@@ -43,8 +43,7 @@ final class FreeBsdSensors extends AbstractSensors {
     }
 
     /*
-     * If user has loaded coretemp module via kldload coretemp, sysctl call will
-     * return temperature
+     * If user has loaded coretemp module via kldload coretemp, sysctl call will return temperature
      *
      * @return Temperature if successful, otherwise NaN
      */

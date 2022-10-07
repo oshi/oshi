@@ -48,8 +48,8 @@ public final class AixPowerSource extends AbstractPowerSource {
     }
 
     /**
-     * Gets Battery Information. AIX does not provide any battery statistics, as
-     * most servers are not designed to be run on battery.
+     * Gets Battery Information. AIX does not provide any battery statistics, as most servers are not designed to be run
+     * on battery.
      *
      * @return An empty list.
      */

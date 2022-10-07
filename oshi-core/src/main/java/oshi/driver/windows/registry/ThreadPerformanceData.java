@@ -38,8 +38,7 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Utility to read thread data from HKEY_PERFORMANCE_DATA information with
- * backup from Performance Counters or WMI
+ * Utility to read thread data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
 public final class ThreadPerformanceData {
@@ -52,12 +51,9 @@ public final class ThreadPerformanceData {
     /**
      * Query the registry for thread performance counters
      *
-     * @param pids
-     *            An optional collection of thread IDs to filter the list to. May be
-     *            null for no filtering.
-     * @return A map with Thread ID as the key and a {@link PerfCounterBlock} object
-     *         populated with performance counter information if successful, or null
-     *         otherwise.
+     * @param pids An optional collection of thread IDs to filter the list to. May be null for no filtering.
+     * @return A map with Thread ID as the key and a {@link PerfCounterBlock} object populated with performance counter
+     *         information if successful, or null otherwise.
      */
     public static Map<Integer, PerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
         // Grab the data from the registry.
@@ -108,11 +104,9 @@ public final class ThreadPerformanceData {
     /**
      * Query PerfMon for thread performance counters
      *
-     * @param pids
-     *            An optional collection of process IDs to filter the list to. May
-     *            be null for no filtering.
-     * @return A map with Thread ID as the key and a {@link PerfCounterBlock} object
-     *         populated with performance counter information.
+     * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @return A map with Thread ID as the key and a {@link PerfCounterBlock} object populated with performance counter
+     *         information.
      */
     public static Map<Integer, PerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
         Map<Integer, PerfCounterBlock> threadMap = new HashMap<>();

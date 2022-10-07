@@ -61,8 +61,7 @@ final class WindowsDisplay extends AbstractDisplay {
     /**
      * Constructor for WindowsDisplay.
      *
-     * @param edid
-     *            a byte array representing a display EDID
+     * @param edid a byte array representing a display EDID
      */
     WindowsDisplay(byte[] edid) {
         super(edid);

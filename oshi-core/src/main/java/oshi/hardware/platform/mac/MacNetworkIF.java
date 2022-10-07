@@ -94,8 +94,7 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     /**
      * Gets all network interfaces on this machine
      *
-     * @param includeLocalInterfaces
-     *            include local interfaces in the result
+     * @param includeLocalInterfaces include local interfaces in the result
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
@@ -174,11 +173,10 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Updates interface network statistics on the given interface. Statistics
-     * include packets and bytes sent and received, and interface speed.
+     * Updates interface network statistics on the given interface. Statistics include packets and bytes sent and
+     * received, and interface speed.
      *
-     * @param data
-     *            A map of network interface statistics with the index as the key
+     * @param data A map of network interface statistics with the index as the key
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
     private boolean updateNetworkStats(Map<Integer, IFdata> data) {

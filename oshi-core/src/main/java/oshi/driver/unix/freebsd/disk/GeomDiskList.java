@@ -47,8 +47,7 @@ public final class GeomDiskList {
     /**
      * Queries disk data using geom
      *
-     * @return A map with disk name as the key and a Triplet of model, serial, and
-     *         size as the value
+     * @return A map with disk name as the key and a Triplet of model, serial, and size as the value
      */
     public static Map<String, Triplet<String, String, Long>> queryDisks() {
         // Map of device name to disk, to be returned

@@ -33,9 +33,8 @@ import oshi.driver.windows.perfmon.SystemInformation.ProcessorQueueLengthPropert
 import oshi.util.tuples.Pair;
 
 /**
- * Utility to calculate a load average equivalent metric on Windows. Starts a
- * daemon thread to collect the necessary counters and averages in 5-second
- * intervals.
+ * Utility to calculate a load average equivalent metric on Windows. Starts a daemon thread to collect the necessary
+ * counters and averages in 5-second intervals.
  */
 @ThreadSafe
 public final class LoadAverage {

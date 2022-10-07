@@ -52,8 +52,7 @@ final class MacDisplay extends AbstractDisplay {
     /**
      * Constructor for MacDisplay.
      *
-     * @param edid
-     *            a byte array representing a display EDID
+     * @param edid a byte array representing a display EDID
      */
     MacDisplay(byte[] edid) {
         super(edid);

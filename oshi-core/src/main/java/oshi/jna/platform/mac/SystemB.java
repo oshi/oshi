@@ -32,8 +32,8 @@ import oshi.jna.platform.unix.CLibrary;
 import oshi.util.Util;
 
 /**
- * System class. This class should be considered non-API as it may be removed
- * if/when its code is incorporated into the JNA project.
+ * System class. This class should be considered non-API as it may be removed if/when its code is incorporated into the
+ * JNA project.
  */
 public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
 
@@ -180,13 +180,12 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     }
 
     /**
-     * Reads a line from the current file position in the utmp file. It returns a
-     * pointer to a structure containing the fields of the line.
+     * Reads a line from the current file position in the utmp file. It returns a pointer to a structure containing the
+     * fields of the line.
      * <p>
      * Not thread safe
      *
-     * @return a {@link MacUtmpx} on success, and NULL on failure (which includes
-     *         the "record not found" case)
+     * @return a {@link MacUtmpx} on success, and NULL on failure (which includes the "record not found" case)
      */
     MacUtmpx getutxent();
 

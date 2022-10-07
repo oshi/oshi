@@ -94,8 +94,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
     /**
      * The main method, demonstrating use of classes.
      *
-     * @param args
-     *            the arguments (unused)
+     * @param args the arguments (unused)
      */
     public static void main(String[] args) {
 

@@ -52,20 +52,17 @@ final class LinuxSoundCard extends AbstractSoundCard {
     /**
      * Constructor for LinuxSoundCard.
      *
-     * @param kernelVersion
-     *            The version
-     * @param name
-     *            The name
-     * @param codec
-     *            The codec
+     * @param kernelVersion The version
+     * @param name          The name
+     * @param codec         The codec
      */
     LinuxSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     /**
-     * Method to find all the card folders contained in the <b>asound</b> folder
-     * denoting the cards currently contained in our machine.
+     * Method to find all the card folders contained in the <b>asound</b> folder denoting the cards currently contained
+     * in our machine.
      *
      * @return : A list of files starting with 'card'
      */
@@ -86,12 +83,10 @@ final class LinuxSoundCard extends AbstractSoundCard {
     }
 
     /**
-     * Reads the 'version' file in the asound folder that contains the complete name
-     * of the ALSA driver. Reads all the lines of the file and retrieves the first
-     * line.
+     * Reads the 'version' file in the asound folder that contains the complete name of the ALSA driver. Reads all the
+     * lines of the file and retrieves the first line.
      *
-     * @return The complete name of the ALSA driver currently residing in our
-     *         machine
+     * @return The complete name of the ALSA driver currently residing in our machine
      */
     private static String getSoundCardVersion() {
         String driverVersion = FileUtil.getStringFromFile(ProcPath.ASOUND + "version");
@@ -99,14 +94,13 @@ final class LinuxSoundCard extends AbstractSoundCard {
     }
 
     /**
-     * Retrieves the codec of the sound card contained in the <b>codec</b> file. The
-     * name of the codec is always the first line of that file. <br>
+     * Retrieves the codec of the sound card contained in the <b>codec</b> file. The name of the codec is always the
+     * first line of that file. <br>
      * <b>Working</b> <br>
-     * This converts the codec file into key value pairs using the {@link FileUtil}
-     * class and then returns the value of the <b>Codec</b> key.
+     * This converts the codec file into key value pairs using the {@link FileUtil} class and then returns the value of
+     * the <b>Codec</b> key.
      *
-     * @param cardDir
-     *            The sound card directory
+     * @param cardDir The sound card directory
      * @return The name of the codec
      */
     private static String getCardCodec(File cardDir) {
@@ -141,14 +135,11 @@ final class LinuxSoundCard extends AbstractSoundCard {
     /**
      * Retrieves the name of the sound card by :
      * <ol>
-     * <li>Reading the <b>id</b> file and comparing each id with the card id present
-     * in the <b>cards</b> file</li>
-     * <li>If the id and the card name matches , then it assigns that name to
-     * {@literal cardName}</li>
+     * <li>Reading the <b>id</b> file and comparing each id with the card id present in the <b>cards</b> file</li>
+     * <li>If the id and the card name matches , then it assigns that name to {@literal cardName}</li>
      * </ol>
      *
-     * @param file
-     *            The sound card File.
+     * @param file The sound card File.
      * @return The name of the sound card.
      */
     private static String getCardName(File file) {
@@ -165,9 +156,7 @@ final class LinuxSoundCard extends AbstractSoundCard {
     }
 
     /**
-     * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
-     * sound cards.
+     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the sound cards.
      *
      * @return List of {@link oshi.hardware.platform.linux.LinuxSoundCard} objects.
      */

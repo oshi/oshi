@@ -27,10 +27,9 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.util.FormatUtil;
 
 /**
- * A region on a hard disk or other secondary storage, so that an operating
- * system can manage information in each region separately. A partition appears
- * in the operating system as a distinct "logical" disk that uses part of the
- * actual disk.
+ * A region on a hard disk or other secondary storage, so that an operating system can manage information in each region
+ * separately. A partition appears in the operating system as a distinct "logical" disk that uses part of the actual
+ * disk.
  */
 @Immutable
 public class HWPartition {
@@ -47,22 +46,14 @@ public class HWPartition {
     /**
      * Creates a new HWPartition
      *
-     * @param identification
-     *            The unique partition id
-     * @param name
-     *            Friendly name of the partition
-     * @param type
-     *            Type or description of the partition
-     * @param uuid
-     *            UUID
-     * @param size
-     *            Size in bytes
-     * @param major
-     *            Device ID (Major)
-     * @param minor
-     *            Device ID (Minor)
-     * @param mountPoint
-     *            Where the partition is mounted
+     * @param identification The unique partition id
+     * @param name           Friendly name of the partition
+     * @param type           Type or description of the partition
+     * @param uuid           UUID
+     * @param size           Size in bytes
+     * @param major          Device ID (Major)
+     * @param minor          Device ID (Minor)
+     * @param mountPoint     Where the partition is mounted
      */
     public HWPartition(String identification, String name, String type, String uuid, long size, int major, int minor,
             String mountPoint) {

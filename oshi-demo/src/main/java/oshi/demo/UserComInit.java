@@ -31,8 +31,7 @@ import oshi.util.platform.windows.WmiQueryHandler;
 import java.util.Objects;
 
 /**
- * Class demonstrating WMI stat performance improvements if the user does COM
- * initialization so OSHI doesn't have to
+ * Class demonstrating WMI stat performance improvements if the user does COM initialization so OSHI doesn't have to
  */
 public class UserComInit {
 

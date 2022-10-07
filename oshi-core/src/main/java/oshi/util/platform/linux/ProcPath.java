@@ -31,9 +31,8 @@ import oshi.util.GlobalConfig;
 /**
  * Provides constants for paths in the {@code /proc} filesystem on Linux.
  * <p>
- * If the user desires to configure a custom {@code /proc} path, it must be
- * declared in the OSHI configuration file or updated in the
- * {@link GlobalConfig} class prior to initializing this class.
+ * If the user desires to configure a custom {@code /proc} path, it must be declared in the OSHI configuration file or
+ * updated in the {@link GlobalConfig} class prior to initializing this class.
  */
 @ThreadSafe
 public final class ProcPath {

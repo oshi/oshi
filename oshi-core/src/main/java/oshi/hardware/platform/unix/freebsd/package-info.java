@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides information about hardware such as Memory, Power Sources, and
- * Processor on FreeBSD systems
+ * Provides information about hardware such as Memory, Power Sources, and Processor on FreeBSD systems
  */
 package oshi.hardware.platform.unix.freebsd;

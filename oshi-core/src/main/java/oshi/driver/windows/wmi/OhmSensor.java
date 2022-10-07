@@ -51,13 +51,9 @@ public final class OhmSensor {
     /**
      * Queries the sensor value of an hardware identifier and sensor type.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
-     * @param identifier
-     *            The identifier whose value to query.
-     * @param sensorType
-     *            The type of sensor to query.
+     * @param h          An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
+     * @param identifier The identifier whose value to query.
+     * @param sensorType The type of sensor to query.
      * @return The sensor value.
      */
     public static WmiResult<ValueProperty> querySensorValue(WmiQueryHandler h, String identifier, String sensorType) {

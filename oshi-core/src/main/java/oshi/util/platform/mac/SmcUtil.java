@@ -58,8 +58,7 @@ public final class SmcUtil {
     private static final IOKit IO = IOKit.INSTANCE;
 
     /**
-     * Thread-safe map for caching info retrieved by a key necessary for subsequent
-     * calls.
+     * Thread-safe map for caching info retrieved by a key necessary for subsequent calls.
      */
     private static Map<Integer, SMCKeyDataKeyInfo> keyInfoCache = new ConcurrentHashMap<>();
 
@@ -109,8 +108,7 @@ public final class SmcUtil {
     /**
      * Close connection to SMC.
      *
-     * @param conn
-     *            The connection
+     * @param conn The connection
      *
      * @return 0 if successful, nonzero if failure
      */
@@ -121,10 +119,8 @@ public final class SmcUtil {
     /**
      * Get a value from SMC which is in a floating point datatype (SP78, FPE2, FLT)
      *
-     * @param conn
-     *            The connection
-     * @param key
-     *            The key to retrieve
+     * @param conn The connection
+     * @param key  The key to retrieve
      * @return Double representing the value
      */
     public static double smcGetFloat(IOConnect conn, String key) {
@@ -151,10 +147,8 @@ public final class SmcUtil {
     /**
      * Get a 64-bit integer value from SMC
      *
-     * @param conn
-     *            The connection
-     * @param key
-     *            The key to retrieve
+     * @param conn The connection
+     * @param key  The key to retrieve
      * @return Long representing the value
      */
     public static long smcGetLong(IOConnect conn, String key) {
@@ -171,12 +165,9 @@ public final class SmcUtil {
     /**
      * Get cached keyInfo if it exists, or generate new keyInfo
      *
-     * @param conn
-     *            The connection
-     * @param inputStructure
-     *            Key data input
-     * @param outputStructure
-     *            Key data output
+     * @param conn            The connection
+     * @param inputStructure  Key data input
+     * @param outputStructure Key data output
      * @return 0 if successful, nonzero if failure
      */
     public static int smcGetKeyInfo(IOConnect conn, SMCKeyData inputStructure, SMCKeyData outputStructure) {
@@ -203,12 +194,9 @@ public final class SmcUtil {
     /**
      * Read a key from SMC
      *
-     * @param conn
-     *            The connection
-     * @param key
-     *            Key to read
-     * @param val
-     *            Structure to receive the result
+     * @param conn The connection
+     * @param key  Key to read
+     * @param val  Structure to receive the result
      * @return 0 if successful, nonzero if failure
      */
     public static int smcReadKey(IOConnect conn, String key, SMCVal val) {
@@ -235,14 +223,10 @@ public final class SmcUtil {
     /**
      * Call SMC
      *
-     * @param conn
-     *            The connection
-     * @param index
-     *            Kernel index
-     * @param inputStructure
-     *            Key data input
-     * @param outputStructure
-     *            Key data output
+     * @param conn            The connection
+     * @param index           Kernel index
+     * @param inputStructure  Key data input
+     * @param outputStructure Key data output
      * @return 0 if successful, nonzero if failure
      */
     public static int smcCall(IOConnect conn, int index, SMCKeyData inputStructure, SMCKeyData outputStructure) {

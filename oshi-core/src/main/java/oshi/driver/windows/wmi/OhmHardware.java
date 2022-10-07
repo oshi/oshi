@@ -51,13 +51,9 @@ public final class OhmHardware {
     /**
      * Queries the hardware identifiers for a monitored type.
      *
-     * @param h
-     *            An instantiated {@link WmiQueryHandler}. User should have already
-     *            initialized COM.
-     * @param typeToQuery
-     *            which type to filter based on
-     * @param typeName
-     *            the name of the type
+     * @param h           An instantiated {@link WmiQueryHandler}. User should have already initialized COM.
+     * @param typeToQuery which type to filter based on
+     * @param typeName    the name of the type
      * @return The sensor value.
      */
     public static WmiResult<IdentifierProperty> queryHwIdentifier(WmiQueryHandler h, String typeToQuery,

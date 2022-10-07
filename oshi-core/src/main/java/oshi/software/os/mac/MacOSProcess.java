@@ -54,7 +54,6 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
-import oshi.driver.mac.ThreadInfo.ThreadStats;
 import oshi.jna.Struct.CloseableProcTaskAllInfo;
 import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;

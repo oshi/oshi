@@ -47,29 +47,20 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
     /**
      * Constructor for OpenBsdGraphicsCard
      *
-     * @param name
-     *            The name
-     * @param deviceId
-     *            The device ID
-     * @param vendor
-     *            The vendor
-     * @param versionInfo
-     *            The version info
-     * @param vram
-     *            The VRAM
+     * @param name        The name
+     * @param deviceId    The device ID
+     * @param vendor      The vendor
+     * @param versionInfo The version info
+     * @param vram        The VRAM
      */
     OpenBsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 
     /**
-     * public method used by
-     * {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the
-     * graphics cards.
+     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the graphics cards.
      *
-     * @return List of
-     *         {@link oshi.hardware.platform.unix.freebsd.OpenBsdGraphicsCard}
-     *         objects.
+     * @return List of {@link oshi.hardware.platform.unix.freebsd.OpenBsdGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
         List<GraphicsCard> cardList = new ArrayList<>();

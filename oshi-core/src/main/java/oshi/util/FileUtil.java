@@ -67,28 +67,25 @@ public final class FileUtil {
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
-     * @return A list of Strings representing each line of the file, or an empty
-     *         list if file could not be read or is empty
+     * @param filename The file to read
+     * @return A list of Strings representing each line of the file, or an empty list if file could not be read or is
+     *         empty
      */
     public static List<String> readFile(String filename) {
         return readFile(filename, true);
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
-     * @param reportError
-     *            Whether to log errors reading the file
-     * @return A list of Strings representing each line of the file, or an empty
-     *         list if file could not be read or is empty
+     * @param filename    The file to read
+     * @param reportError Whether to log errors reading the file
+     * @return A list of Strings representing each line of the file, or an empty list if file could not be read or is
+     *         empty
      */
     public static List<String> readFile(String filename, boolean reportError) {
         if (new File(filename).canRead()) {
@@ -111,11 +108,10 @@ public final class FileUtil {
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename) {
@@ -123,13 +119,11 @@ public final class FileUtil {
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
-     * @param reportError
-     *            Whether to log errors reading the file
+     * @param filename    The file to read
+     * @param reportError Whether to log errors reading the file
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename, boolean reportError) {
@@ -153,14 +147,12 @@ public final class FileUtil {
     }
 
     /**
-     * Read an entire file at one time. Intended for unix /proc binary files to
-     * avoid reading file contents on iterative reads.
+     * Read an entire file at one time. Intended for unix /proc binary files to avoid reading file contents on iterative
+     * reads.
      *
      *
-     * @param filename
-     *            The file to read
-     * @return A bytebuffer representing the file if read was successful; null
-     *         otherwise
+     * @param filename The file to read
+     * @return A bytebuffer representing the file if read was successful; null otherwise
      */
     public static ByteBuffer readAllBytesAsBuffer(String filename) {
         byte[] bytes = readAllBytes(filename, false);
@@ -176,8 +168,7 @@ public final class FileUtil {
     /**
      * Reads a byte value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next byte value
      */
     public static byte readByteFromBuffer(ByteBuffer buff) {
@@ -190,8 +181,7 @@ public final class FileUtil {
     /**
      * Reads a short value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next short value
      */
     public static short readShortFromBuffer(ByteBuffer buff) {
@@ -204,8 +194,7 @@ public final class FileUtil {
     /**
      * Reads an int value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next int value
      */
     public static int readIntFromBuffer(ByteBuffer buff) {
@@ -218,8 +207,7 @@ public final class FileUtil {
     /**
      * Reads a long value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next long value
      */
     public static long readLongFromBuffer(ByteBuffer buff) {
@@ -232,8 +220,7 @@ public final class FileUtil {
     /**
      * Reads a NativeLong value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next value
      */
     public static NativeLong readNativeLongFromBuffer(ByteBuffer buff) {
@@ -243,8 +230,7 @@ public final class FileUtil {
     /**
      * Reads a size_t value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next value
      */
     public static size_t readSizeTFromBuffer(ByteBuffer buff) {
@@ -254,10 +240,8 @@ public final class FileUtil {
     /**
      * Reads a byte array value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
-     * @param array
-     *            The array into which to read the data
+     * @param buff  The bytebuffer to read from
+     * @param array The array into which to read the data
      */
     public static void readByteArrayFromBuffer(ByteBuffer buff, byte[] array) {
         if (buff.position() <= buff.limit() - array.length) {
@@ -268,8 +252,7 @@ public final class FileUtil {
     /**
      * Reads a Pointer value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next value
      */
     public static Pointer readPointerFromBuffer(ByteBuffer buff) {
@@ -280,11 +263,9 @@ public final class FileUtil {
     }
 
     /**
-     * Read a file and return the long value contained therein. Intended primarily
-     * for Linux /sys filesystem
+     * Read a file and return the long value contained therein. Intended primarily for Linux /sys filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
@@ -302,11 +283,10 @@ public final class FileUtil {
     }
 
     /**
-     * Read a file and return the unsigned long value contained therein as a long.
-     * Intended primarily for Linux /sys filesystem
+     * Read a file and return the unsigned long value contained therein as a long. Intended primarily for Linux /sys
+     * filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getUnsignedLongFromFile(String filename) {
@@ -324,11 +304,9 @@ public final class FileUtil {
     }
 
     /**
-     * Read a file and return the int value contained therein. Intended primarily
-     * for Linux /sys filesystem
+     * Read a file and return the int value contained therein. Intended primarily for Linux /sys filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
@@ -350,11 +328,9 @@ public final class FileUtil {
     }
 
     /**
-     * Read a file and return the String value contained therein. Intended primarily
-     * for Linux /sys filesystem
+     * Read a file and return the String value contained therein. Intended primarily for Linux /sys filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise empty string
      */
     public static String getStringFromFile(String filename) {
@@ -372,19 +348,14 @@ public final class FileUtil {
     }
 
     /**
-     * Read a file and return a map of string keys to string values contained
-     * therein. Intended primarily for Linux {@code /proc/[pid]} files to provide
-     * more detailed or accurate information not available in the API.
+     * Read a file and return a map of string keys to string values contained therein. Intended primarily for Linux
+     * {@code /proc/[pid]} files to provide more detailed or accurate information not available in the API.
      *
-     * @param filename
-     *            The file to read
-     * @param separator
-     *            Character(s) in each line of the file that separate the key and
-     *            the value.
+     * @param filename  The file to read
+     * @param separator Character(s) in each line of the file that separate the key and the value.
      *
-     * @return The map contained in the file, delimited by the separator, with the
-     *         value whitespace trimmed. If keys and values are not parsed, an empty
-     *         map is returned.
+     * @return The map contained in the file, delimited by the separator, with the value whitespace trimmed. If keys and
+     *         values are not parsed, an empty map is returned.
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
         Map<String, String> map = new HashMap<>();
@@ -402,11 +373,10 @@ public final class FileUtil {
     }
 
     /**
-     * Read a configuration file from the sequence of context classloader, system
-     * classloader and classloader of the current class, and return its properties
+     * Read a configuration file from the sequence of context classloader, system classloader and classloader of the
+     * current class, and return its properties
      *
-     * @param propsFilename
-     *            The filename
+     * @param propsFilename The filename
      * @return A {@link Properties} object containing the properties.
      */
     public static Properties readPropertiesFromFilename(String propsFilename) {
@@ -454,8 +424,7 @@ public final class FileUtil {
     /**
      * Reads the target of a symbolic link
      *
-     * @param file
-     *            The file to read
+     * @param file The file to read
      * @return The symlink name, or null if the read failed
      */
     public static String readSymlinkTarget(File file) {

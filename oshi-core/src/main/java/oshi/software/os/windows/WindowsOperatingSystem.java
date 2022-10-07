@@ -98,9 +98,8 @@ import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * Microsoft Windows, commonly referred to as Windows, is a group of several
- * proprietary graphical operating system families, all of which are developed
- * and marketed by Microsoft.
+ * Microsoft Windows, commonly referred to as Windows, is a group of several proprietary graphical operating system
+ * families, all of which are developed and marketed by Microsoft.
  */
 @ThreadSafe
 public class WindowsOperatingSystem extends AbstractOperatingSystem {
@@ -133,16 +132,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final boolean WOW = isCurrentWow();
 
     /*
-     * Cache full process stats queries. Second query will only populate if first
-     * one returns null.
+     * Cache full process stats queries. Second query will only populate if first one returns null.
      */
     private Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromRegistry = memoize(
             WindowsOperatingSystem::queryProcessMapFromRegistry, defaultExpiration());
     private Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromPerfCounters = memoize(
             WindowsOperatingSystem::queryProcessMapFromPerfCounters, defaultExpiration());
     /*
-     * Cache full thread stats queries. Second query will only populate if first one
-     * returns null. Only used if USE_PROCSTATE_SUSPENDED is set true.
+     * Cache full thread stats queries. Second query will only populate if first one returns null. Only used if
+     * USE_PROCSTATE_SUSPENDED is set true.
      */
     private Supplier<Map<Integer, ThreadPerformanceData.PerfCounterBlock>> threadMapFromRegistry = memoize(
             WindowsOperatingSystem::queryThreadMapFromRegistry, defaultExpiration());
@@ -180,8 +178,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     /**
      * Gets suites available on the system and return as a codename
      *
-     * @param suiteMask
-     *            The suite mask bitmask
+     * @param suiteMask The suite mask bitmask
      *
      * @return Suites
      */
@@ -453,9 +450,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Attempts to enable debug privileges for this process, required for
-     * OpenProcess() to get processes other than the current user. Requires elevated
-     * permissions.
+     * Attempts to enable debug privileges for this process, required for OpenProcess() to get processes other than the
+     * current user. Requires elevated permissions.
      *
      * @return {@code true} if debug privileges were successfully enabled.
      */
@@ -543,8 +539,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     /*
-     * Package-private methods for use by WindowsOSProcess to limit process memory
-     * queries to processes with same bitness as the current one
+     * Package-private methods for use by WindowsOSProcess to limit process memory queries to processes with same
+     * bitness as the current one
      */
     /**
      * Is the processor architecture x86?
@@ -574,8 +570,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     /**
      * Is the specified process x86 or x86-compatibility mode?
      *
-     * @param h
-     *            The handle to the processs to check
+     * @param h The handle to the processs to check
      * @return true if the process is 32-bit
      */
     static boolean isWow(HANDLE h) {

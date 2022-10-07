@@ -130,8 +130,7 @@ public final class NetStat {
     /**
      * Gets TCP stats via {@code netstat -s}. Used for Linux and OpenBSD formats
      *
-     * @param netstatStr
-     *            The command string
+     * @param netstatStr The command string
      * @return The statistics
      */
     public static TcpStats queryTcpStats(String netstatStr) {
@@ -212,8 +211,7 @@ public final class NetStat {
     /**
      * Gets UDP stats via {@code netstat -s}. Used for Linux and OpenBSD formats
      *
-     * @param netstatStr
-     *            The command string
+     * @param netstatStr The command string
      * @return The statistics
      */
     public static UdpStats queryUdpStats(String netstatStr) {

@@ -32,8 +32,7 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 
 /**
- * Demonstrates the use of Jackson's ObjectMapper to create JSON from OSHI
- * objects
+ * Demonstrates the use of Jackson's ObjectMapper to create JSON from OSHI objects
  */
 public class Json {
     /**
@@ -41,8 +40,7 @@ public class Json {
      * main.
      * </p>
      *
-     * @param args
-     *            an array of {@link java.lang.String} objects.
+     * @param args an array of {@link java.lang.String} objects.
      */
     public static void main(String[] args) {
         // Jackson ObjectMapper

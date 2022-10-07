@@ -63,8 +63,7 @@ public class DetectVM {
     /**
      * The main method, executing the {@link #identifyVM} method.
      *
-     * @param args
-     *            Arguments, ignored.
+     * @param args Arguments, ignored.
      */
     public static void main(String[] args) {
         String vmString = identifyVM();
@@ -77,11 +76,11 @@ public class DetectVM {
     }
 
     /**
-     * The function attempts to identify which Virtual Machine (VM) based on common
-     * VM signatures in MAC address and computer model.
+     * The function attempts to identify which Virtual Machine (VM) based on common VM signatures in MAC address and
+     * computer model.
      *
-     * @return A string indicating the machine's virtualization info if it can be
-     *         determined, or an emptry string otherwise.
+     * @return A string indicating the machine's virtualization info if it can be determined, or an emptry string
+     *         otherwise.
      */
     public static String identifyVM() {
         SystemInfo si = new SystemInfo();

@@ -34,8 +34,8 @@ import com.sun.jna.Structure.FieldOrder;
 import oshi.util.FileUtil;
 
 /**
- * C library. This class should be considered non-API as it may be removed
- * if/when its code is incorporated into the JNA project.
+ * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA
+ * project.
  */
 public interface SolarisLibc extends CLibrary {
 
@@ -89,13 +89,12 @@ public interface SolarisLibc extends CLibrary {
     }
 
     /**
-     * Reads a line from the current file position in the utmp file. It returns a
-     * pointer to a structure containing the fields of the line.
+     * Reads a line from the current file position in the utmp file. It returns a pointer to a structure containing the
+     * fields of the line.
      * <p>
      * Not thread safe
      *
-     * @return a {@link SolarisUtmpx} on success, and NULL on failure (which
-     *         includes the "record not found" case)
+     * @return a {@link SolarisUtmpx} on success, and NULL on failure (which includes the "record not found" case)
      */
     SolarisUtmpx getutxent();
 

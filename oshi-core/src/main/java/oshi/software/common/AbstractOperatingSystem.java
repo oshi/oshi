@@ -95,8 +95,7 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     /**
      * Backup OS-specific query to determine bitness if previous checks fail
      *
-     * @param jvmBitness
-     *            The bitness of the JVM
+     * @param jvmBitness The bitness of the JVM
      * @return The operating system bitness
      */
     protected abstract int queryBitness(int jvmBitness);
@@ -147,17 +146,12 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected abstract List<OSProcess> queryDescendantProcesses(int parentPid);
 
     /**
-     * Utility method for subclasses to take a full process list as input and return
-     * the children or descendants of a particular process. The process itself is
-     * also returned to more efficiently extract its start time for filtering
+     * Utility method for subclasses to take a full process list as input and return the children or descendants of a
+     * particular process. The process itself is also returned to more efficiently extract its start time for filtering
      *
-     * @param allProcs
-     *            A collection of all processes
-     * @param parentPid
-     *            The process ID whose children or descendants to return
-     * @param allDescendants
-     *            If false, only gets immediate children of this process. If true,
-     *            gets all descendants.
+     * @param allProcs       A collection of all processes
+     * @param parentPid      The process ID whose children or descendants to return
+     * @param allDescendants If false, only gets immediate children of this process. If true, gets all descendants.
      * @return Set of children or descendants of parentPid
      */
     protected static Set<Integer> getChildrenOrDescendants(Collection<OSProcess> allProcs, int parentPid,
@@ -168,17 +162,12 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     }
 
     /**
-     * Utility method for subclasses to take a map of pid to parent as input and
-     * return the children or descendants of a particular process.
+     * Utility method for subclasses to take a map of pid to parent as input and return the children or descendants of a
+     * particular process.
      *
-     * @param parentPidMap
-     *            a map of all processes with processID as key and parentProcessID
-     *            as value
-     * @param parentPid
-     *            The process ID whose children or descendants to return
-     * @param allDescendants
-     *            If false, only gets immediate children of this process. If true,
-     *            gets all descendants.
+     * @param parentPidMap   a map of all processes with processID as key and parentProcessID as value
+     * @param parentPid      The process ID whose children or descendants to return
+     * @param allDescendants If false, only gets immediate children of this process. If true, gets all descendants.
      * @return Set of children or descendants of parentPid, including the parent
      */
     protected static Set<Integer> getChildrenOrDescendants(Map<Integer, Integer> parentPidMap, int parentPid,

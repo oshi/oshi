@@ -89,10 +89,8 @@ public final class Who {
     /**
      * Attempt to match Linux WHO format and add to the list
      *
-     * @param whoList
-     *            the list to add to
-     * @param s
-     *            the string to match
+     * @param whoList the list to add to
+     * @param s       the string to match
      * @return true if successful, false otherwise
      */
     private static boolean matchLinux(List<OSSession> whoList, String s) {
@@ -114,10 +112,8 @@ public final class Who {
     /**
      * Attempt to match Unix WHO format and add to the list
      *
-     * @param whoList
-     *            the list to add to
-     * @param s
-     *            the string to match
+     * @param whoList the list to add to
+     * @param s       the string to match
      * @return true if successful, false otherwise
      */
     private static boolean matchUnix(List<OSSession> whoList, String s) {

@@ -24,8 +24,8 @@
 package oshi;
 
 /**
- * An enumeration of supported operating systems. The order of declaration
- * matches the osType constants in the JNA Platform class.
+ * An enumeration of supported operating systems. The order of declaration matches the osType constants in the JNA
+ * Platform class.
  */
 public enum PlatformEnum {
     /**
@@ -99,9 +99,7 @@ public enum PlatformEnum {
     /**
      * Gets the friendly name of the specified JNA Platform type
      *
-     * @param osType
-     *            The constant returned from JNA's
-     *            {@link com.sun.jna.Platform#getOSType()} method.
+     * @param osType The constant returned from JNA's {@link com.sun.jna.Platform#getOSType()} method.
      * @return the friendly name of the specified JNA Platform type
      */
     public static String getName(int osType) {
@@ -111,9 +109,7 @@ public enum PlatformEnum {
     /**
      * Gets the value corresponding to the specified JNA Platform type
      *
-     * @param osType
-     *            The constant returned from JNA's
-     *            {@link com.sun.jna.Platform#getOSType()} method.
+     * @param osType The constant returned from JNA's {@link com.sun.jna.Platform#getOSType()} method.
      * @return the value corresponding to the specified JNA Platform type
      */
     public static PlatformEnum getValue(int osType) {

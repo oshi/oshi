@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 /**
- * Provides information about hardware such as Memory, Power Sources, and
- * Processor on Windows systems
+ * Provides information about hardware such as Memory, Power Sources, and Processor on Windows systems
  */
 package oshi.hardware.platform.windows;

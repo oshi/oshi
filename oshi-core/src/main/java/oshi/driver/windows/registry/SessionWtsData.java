@@ -49,8 +49,7 @@ import oshi.software.os.OSSession;
 import oshi.util.ParseUtil;
 
 /**
- * Utility to read process data from HKEY_PERFORMANCE_DATA information with
- * backup from Performance Counters or WMI
+ * Utility to read process data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
 public final class SessionWtsData {
@@ -134,14 +133,12 @@ public final class SessionWtsData {
     }
 
     /**
-     * Per WTS_INFO_CLASS docs, the IP address is offset by two bytes from the start
-     * of the Address member of the WTS_CLIENT_ADDRESS structure. Also contrary to
-     * docs, IPv4 is not a null terminated string.
+     * Per WTS_INFO_CLASS docs, the IP address is offset by two bytes from the start of the Address member of the
+     * WTS_CLIENT_ADDRESS structure. Also contrary to docs, IPv4 is not a null terminated string.
      * <p>
      * This method converts the byte[20] to an int[4] parseable by existing code
      *
-     * @param address
-     *            The 20-byte array from the WTS_CLIENT_ADDRESS structure
+     * @param address The 20-byte array from the WTS_CLIENT_ADDRESS structure
      * @return A 4-int array for {@link ParseUtil#parseUtAddrV6toIP}
      */
     private static int[] convertBytesToInts(byte[] address) {
