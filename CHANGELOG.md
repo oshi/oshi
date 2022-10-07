@@ -7,6 +7,7 @@
 * [#2204](https://github.com/oshi/oshi/pull/2204): Improve performance using parallel streams for processes and threads - [@adrian-kong](https://github.com/adrian-kong).
 
 ##### New Features
+* [#2129](https://github.com/oshi/oshi/pull/2129): Added JMX demo project - [@SalvadorRomo](https://github.com/SalvadorRomo).
 * [#2197](https://github.com/oshi/oshi/issues/2197): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).
 * [#2198](https://github.com/oshi/oshi/pull/2198): Added Processor Cache Information - [@dbwiddis](https://github.com/dbwiddis).
 
