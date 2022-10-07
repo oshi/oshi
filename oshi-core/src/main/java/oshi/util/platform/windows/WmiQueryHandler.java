@@ -59,10 +59,10 @@ public class WmiQueryHandler {
     }
 
     // Timeout for WMI queries
-    protected int wmiTimeout = globalTimeout;
+    private int wmiTimeout = globalTimeout;
 
     // Cache failed wmi classes
-    protected final Set<String> failedWmiClassNames = new HashSet<>();
+    private final Set<String> failedWmiClassNames = new HashSet<>();
 
     // Preferred threading model
     private int comThreading = Ole32.COINIT_MULTITHREADED;
@@ -75,6 +75,10 @@ public class WmiQueryHandler {
 
     // Factory to create this or a subclass
     private static Class<? extends WmiQueryHandler> customClass = null;
+
+    protected WmiQueryHandler() {
+        // Allow subclassing but not instantiation
+    }
 
     /**
      * Factory method to create an instance of this class. To override this class, use {@link #setInstanceClass(Class)}
