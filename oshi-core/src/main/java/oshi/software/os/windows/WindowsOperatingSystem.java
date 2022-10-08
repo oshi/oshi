@@ -569,13 +569,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             return true;
         }
         HANDLE h = Kernel32.INSTANCE.GetCurrentProcess();
-        if (h != null) {
-            try {
-                return isWow(h);
-            } finally {
-                Kernel32.INSTANCE.CloseHandle(h);
-            }
-        }
-        return false;
+        return (h == null) ? false : isWow(h);
     }
 }
