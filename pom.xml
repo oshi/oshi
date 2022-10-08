@@ -133,7 +133,6 @@
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <bind-api.version>2.3.3</bind-api.version>
-        <license-maven-plugin.version>4.2.rc3</license-maven-plugin.version>
         <sortpom-plugin.version>3.2.0</sortpom-plugin.version>
         <spotless-plugin.version>2.27.1</spotless-plugin.version>
         <!-- report only -->
@@ -455,43 +454,6 @@
                     <version>${coveralls-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>${license-maven-plugin.version}</version>
-                    <configuration>
-                        <licenseSets>
-                            <licenseSet>
-                                <header>${main.basedir}/config/MIT.txt</header>
-                                <excludes>
-                                    <exclude>**/MavenWrapperDownloader.java</exclude>
-                                    <exclude>mvnw</exclude>
-                                    <exclude>mvnw.cmd</exclude>
-                                    <exclude>mvnw11</exclude>
-                                    <exclude>.editorconfig</exclude>
-                                    <exclude>.gitattributes</exclude>
-                                    <exclude>**/module-info.*</exclude>
-                                    <exclude>**/*.PNG</exclude>
-                                    <exclude>*.xml</exclude>
-                                    <exclude>*.yml</exclude>
-                                    <exclude>**/*.properties</exclude>
-                                    <exclude>**/*.txt</exclude>
-                                    <exclude>**/*.xml</exclude>
-                                    <exclude>**/*.yml</exclude>
-                                    <exclude>**/*.yaml</exclude>
-                                    <exclude>**/cov-analysis*/**</exclude>
-                                </excludes>
-                            </licenseSet>
-                        </licenseSets>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.mycila</groupId>
-                            <artifactId>license-maven-plugin-git</artifactId>
-                            <version>${license-maven-plugin.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
                     <groupId>com.diffplug.spotless</groupId>
                     <artifactId>spotless-maven-plugin</artifactId>
                     <version>${spotless-plugin.version}</version>
@@ -523,9 +485,13 @@
                             </format>
                         </formats>
                         <java>
+                            <ratchetFrom>origin/master</ratchetFrom>
                             <removeUnusedImports />
                             <trimTrailingWhitespace />
                             <endWithNewline />
+                            <licenseHeader>
+                                <file>${main.basedir}/config/license-header.txt</file>
+                            </licenseHeader>
                             <eclipse>
                                 <file>${main.basedir}/config/OSHIJavaFormatConventions.xml</file>
                             </eclipse>
@@ -1090,14 +1056,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <!-- Skip license plugin during release as maven release is now shallow cloned -->
-                    <plugin>
-                        <groupId>com.mycila</groupId>
-                        <artifactId>license-maven-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
                     </plugin>
                     <!-- deploy site with maven-scm-publish-plugin -->
                     <plugin>

@@ -29,4 +29,4 @@ jobs:
             pkg install -y curl
             pkg install -y openjdk11
           run: |
-            ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true
+            ./mvnw clean test -B -Djacoco.skip=true

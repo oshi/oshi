@@ -31,7 +31,7 @@ jobs:
             mv jdk-11.0.15.1-lite /var/tmp
             export JAVA_HOME=/var/tmp/jdk-11.0.15.1-lite
             export PATH=$JAVA_HOME:$PATH
-            ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true -Dmaven.gitcommitid.skip=true
+            ./mvnw clean test -B -Djacoco.skip=true -Dmaven.gitcommitid.skip=true
 
   # Runs current branch on Solaris 11.3 on SPARC
   # Retries flaky test once, possible junit-platform-maven-test issue

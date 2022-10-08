@@ -6,10 +6,8 @@
     <suppress checks=".*" files="[\\/]demo[\\/].*"/>
 
     <!-- Intentional style breaks -->
-    <suppress checks="ConstantName" files="ParseUtil\.java" lines="115-135"/>
+    <suppress checks="ConstantName" files="ParseUtil\.java" lines="96-116"/>
     <suppress checks="VisibilityModifier" files="SmcUtil\.java"/>
-    <suppress checks="VisibilityModifier" files="WmiQueryHandler\.*" lines="63,66"/>
-    <suppress checks="VisibilityModifier" files="Memoizer\.*" lines="76-78"/>
 
     <!-- JNA convention  -->
     <suppress checks="InterfaceIsType" files="[\\/]jna[\\/].*"/>

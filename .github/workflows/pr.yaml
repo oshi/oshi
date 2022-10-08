@@ -35,9 +35,6 @@ jobs:
       - name: Checkstyle
         if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '11')
         run: ./mvnw checkstyle:check
-      - name: License check
-        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '17')
-        run: git fetch --unshallow && ./mvnw license:check
       - name: Test with Maven
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos') || contains(matrix.java, '11') || contains(matrix.java, '17')
-        run: ./mvnw test -B -D"license.skip=true"
+        run: ./mvnw test -B

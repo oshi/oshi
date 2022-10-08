@@ -26,4 +26,4 @@ jobs:
             pkg_add curl
             pkg_add maven
           run: |
-            mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
+            mvn clean test -B -Djacoco.skip=true

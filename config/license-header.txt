@@ -1,0 +1,4 @@
+/*
+ * Copyright $YEAR The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */

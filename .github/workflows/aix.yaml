@@ -42,4 +42,4 @@ jobs:
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
-          for i in {1..3}; do ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true && break || sleep 15; done
+          for i in {1..3}; do ./mvnw clean test -B -Djacoco.skip=true && break || sleep 15; done
