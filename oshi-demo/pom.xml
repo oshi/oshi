@@ -14,7 +14,7 @@
     <name>oshi-demo</name>
 
     <properties>
-        <jackson.version>2.14.0-rc1</jackson.version>
+        <jackson.version>2.14.0-rc2</jackson.version>
         <jfreechart.version>1.5.3</jfreechart.version>
     </properties>
 
