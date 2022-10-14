@@ -40,6 +40,7 @@ import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.util.GlobalConfig;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
@@ -52,6 +53,9 @@ public class MacOSProcess extends AbstractOSProcess {
     private static final Logger LOG = LoggerFactory.getLogger(MacOSProcess.class);
 
     private static final int ARGMAX = SysctlUtil.sysctl("kern.argmax", 0);
+
+    private static final boolean LOG_MAC_SYSCTL_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SYSCTL_LOGWARNING,
+            false);
 
     // 64-bit flag
     private static final int P_LP64 = 0x4;
@@ -191,7 +195,7 @@ public class MacOSProcess extends AbstractOSProcess {
                 }
             } else {
                 // Don't warn for pid 0
-                if (pid > 0) {
+                if (pid > 0 && LOG_MAC_SYSCTL_WARNING) {
                     LOG.warn(
                             "Failed sysctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
                             pid, Native.getLastError());
