@@ -60,7 +60,7 @@ public class MacOSProcess extends AbstractOSProcess {
     // 64-bit flag
     private static final int P_LP64 = 0x4;
     /*
-     * macOS States:    7
+     * macOS States: 
      */
     private static final int SSLEEP = 1; // sleeping on high priority
     private static final int SWAIT = 2; // sleeping on low priority
