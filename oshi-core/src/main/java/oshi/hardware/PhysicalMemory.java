@@ -51,7 +51,7 @@ public class PhysicalMemory {
      * <p>
      * For DDR memory, this is the data transfer rate, which is a multiple of the actual bus clock speed.
      *
-     * @return the clock speed
+     * @return the clock speed, if avaialable. If unknown, returns -1.
      */
     public long getClockSpeed() {
         return clockSpeed;
