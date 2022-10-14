@@ -34,12 +34,15 @@ git checkout -b my-feature-branch
 
 ### Build and Test
 
-Ensure that you can build the project and run tests.  After your change, the tests should still pass.
+Ensure that you can build the project and run tests.
 
 ```
-mvn clean test
+mvn test
 ```
-(Using `clean` is generally optional but works around an existing bug in the testing plugin, where running `mvn test` twice without `clean` will fail.)
+
+After your change, the tests should still pass.
+
+It is possible that some tests may fail on your operating system or hardware for conditions unrelated to your change. In this case, keep track of which test(s) failed and make sure your code does not make any additional tests fail. If you believe the test failure represents a bug elsewhere, submit an issue!
 
 ### Write Tests
 
@@ -69,7 +72,6 @@ Note that the change log will link to your pull request number, which you don't 
 
 Run the following commands to fix up your license header and align your code with OSHI's formatting conventions
 ```
-mvn license:format
 mvn spotless:apply
 ```
 
@@ -83,6 +85,7 @@ git config --global user.email "contributor@example.com"
 ```
 
 Add the changed files to the index using [git add](https://git-scm.com/docs/git-add).  Most IDEs make this easy for you to do, so you won't need this command line version.
+
 Writing [good commit logs](https://chris.beams.io/posts/git-commit/) is important. A commit log should describe what changed and why.
 
 ```
