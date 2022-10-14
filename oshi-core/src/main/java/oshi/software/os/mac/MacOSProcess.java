@@ -55,12 +55,12 @@ public class MacOSProcess extends AbstractOSProcess {
     private static final int ARGMAX = SysctlUtil.sysctl("kern.argmax", 0);
 
     private static final boolean LOG_MAC_SYSCTL_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SYSCTL_LOGWARNING,
-        false);
+            false);
 
     // 64-bit flag
     private static final int P_LP64 = 0x4;
     /*
-     * macOS States: 
+     * macOS States:
      */
     private static final int SSLEEP = 1; // sleeping on high priority
     private static final int SWAIT = 2; // sleeping on low priority
