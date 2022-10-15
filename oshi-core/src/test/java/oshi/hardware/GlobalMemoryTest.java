@@ -53,7 +53,7 @@ class GlobalMemoryTest {
         for (PhysicalMemory m : pm) {
             assertThat("Bank label shouldn't be null", m.getBankLabel(), is(notNullValue()));
             assertThat("Capacity should be nonnegative", m.getCapacity(), is(greaterThanOrEqualTo(0L)));
-            assertThat("Speed should be nonnegative", m.getClockSpeed(), is(greaterThanOrEqualTo(0L)));
+            assertThat("Speed should be nonnegative or -1", m.getClockSpeed(), is(greaterThanOrEqualTo(-1L)));
             assertThat("Manufacturer shouldn't be null", m.getManufacturer(), is(notNullValue()));
             assertThat("Memory type shouldn't be null", m.getMemoryType(), is(notNullValue()));
         }
