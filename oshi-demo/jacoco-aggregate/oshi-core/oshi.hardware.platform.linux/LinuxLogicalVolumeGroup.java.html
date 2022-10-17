@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxLogicalVolumeGroup.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.linux</a> &gt; <span class="el_source">LinuxLogicalVolumeGroup.java</span></div><h1>LinuxLogicalVolumeGroup.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
 
@@ -47,7 +28,7 @@ import oshi.util.Util;
 
 final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
-<span class="nc" id="L50">    private static final Logger LOG = LoggerFactory.getLogger(LinuxLogicalVolumeGroup.class);</span>
+<span class="nc" id="L31">    private static final Logger LOG = LoggerFactory.getLogger(LinuxLogicalVolumeGroup.class);</span>
 
     private static final String BLOCK = &quot;block&quot;;
     private static final String DM_UUID = &quot;DM_UUID&quot;;
@@ -56,80 +37,80 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final String DEV_LOCATION = &quot;/dev/&quot;;
 
     LinuxLogicalVolumeGroup(String name, Map&lt;String, Set&lt;String&gt;&gt; lvMap, Set&lt;String&gt; pvSet) {
-<span class="nc" id="L59">        super(name, lvMap, pvSet);</span>
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L40">        super(name, lvMap, pvSet);</span>
+<span class="nc" id="L41">    }</span>
 
     static List&lt;LogicalVolumeGroup&gt; getLogicalVolumeGroups() {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (!HAS_UDEV) {</span>
-<span class="nc" id="L64">            LOG.warn(&quot;Logical Volume Group information requires libudev, which is not present.&quot;);</span>
-<span class="nc" id="L65">            return Collections.emptyList();</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (!HAS_UDEV) {</span>
+<span class="nc" id="L45">            LOG.warn(&quot;Logical Volume Group information requires libudev, which is not present.&quot;);</span>
+<span class="nc" id="L46">            return Collections.emptyList();</span>
         }
-<span class="nc" id="L67">        Map&lt;String, Map&lt;String, Set&lt;String&gt;&gt;&gt; logicalVolumesMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L68">        Map&lt;String, Set&lt;String&gt;&gt; physicalVolumesMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L48">        Map&lt;String, Map&lt;String, Set&lt;String&gt;&gt;&gt; logicalVolumesMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L49">        Map&lt;String, Set&lt;String&gt;&gt; physicalVolumesMap = new HashMap&lt;&gt;();</span>
 
         // Populate pv map from pvs command
         // This requires elevated permissions and may fail
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;pvs -o vg_name,pv_name&quot;)) {</span>
-<span class="nc" id="L73">            String[] split = ParseUtil.whitespaces.split(s.trim());</span>
-<span class="nc bnc" id="L74" title="All 4 branches missed.">            if (split.length == 2 &amp;&amp; split[1].startsWith(DEV_LOCATION)) {</span>
-<span class="nc" id="L75">                physicalVolumesMap.computeIfAbsent(split[0], k -&gt; new HashSet&lt;&gt;()).add(split[1]);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (String s : ExecutingCommand.runNative(&quot;pvs -o vg_name,pv_name&quot;)) {</span>
+<span class="nc" id="L54">            String[] split = ParseUtil.whitespaces.split(s.trim());</span>
+<span class="nc bnc" id="L55" title="All 4 branches missed.">            if (split.length == 2 &amp;&amp; split[1].startsWith(DEV_LOCATION)) {</span>
+<span class="nc" id="L56">                physicalVolumesMap.computeIfAbsent(split[0], k -&gt; new HashSet&lt;&gt;()).add(split[1]);</span>
             }
-<span class="nc" id="L77">        }</span>
+<span class="nc" id="L58">        }</span>
 
         // Populate lv map from udev
-<span class="nc" id="L80">        Udev.UdevContext udev = Udev.INSTANCE.udev_new();</span>
+<span class="nc" id="L61">        Udev.UdevContext udev = Udev.INSTANCE.udev_new();</span>
         try {
-<span class="nc" id="L82">            Udev.UdevEnumerate enumerate = udev.enumerateNew();</span>
+<span class="nc" id="L63">            Udev.UdevEnumerate enumerate = udev.enumerateNew();</span>
             try {
-<span class="nc" id="L84">                enumerate.addMatchSubsystem(BLOCK);</span>
-<span class="nc" id="L85">                enumerate.scanDevices();</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">                for (Udev.UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {</span>
-<span class="nc" id="L87">                    String syspath = entry.getName();</span>
-<span class="nc" id="L88">                    Udev.UdevDevice device = udev.deviceNewFromSyspath(syspath);</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">                    if (device != null) {</span>
+<span class="nc" id="L65">                enumerate.addMatchSubsystem(BLOCK);</span>
+<span class="nc" id="L66">                enumerate.scanDevices();</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">                for (Udev.UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {</span>
+<span class="nc" id="L68">                    String syspath = entry.getName();</span>
+<span class="nc" id="L69">                    Udev.UdevDevice device = udev.deviceNewFromSyspath(syspath);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                    if (device != null) {</span>
                         try {
-<span class="nc" id="L91">                            String devnode = device.getDevnode();</span>
-<span class="nc bnc" id="L92" title="All 4 branches missed.">                            if (devnode != null &amp;&amp; devnode.startsWith(&quot;/dev/dm&quot;)) {</span>
-<span class="nc" id="L93">                                String uuid = device.getPropertyValue(DM_UUID);</span>
-<span class="nc bnc" id="L94" title="All 4 branches missed.">                                if (uuid != null &amp;&amp; uuid.startsWith(&quot;LVM-&quot;)) {</span>
-<span class="nc" id="L95">                                    String vgName = device.getPropertyValue(DM_VG_NAME);</span>
-<span class="nc" id="L96">                                    String lvName = device.getPropertyValue(DM_LV_NAME);</span>
-<span class="nc bnc" id="L97" title="All 4 branches missed.">                                    if (!Util.isBlank(vgName) &amp;&amp; !Util.isBlank(lvName)) {</span>
-<span class="nc" id="L98">                                        logicalVolumesMap.computeIfAbsent(vgName, k -&gt; new HashMap&lt;&gt;());</span>
-<span class="nc" id="L99">                                        Map&lt;String, Set&lt;String&gt;&gt; lvMapForGroup = logicalVolumesMap.get(vgName);</span>
+<span class="nc" id="L72">                            String devnode = device.getDevnode();</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">                            if (devnode != null &amp;&amp; devnode.startsWith(&quot;/dev/dm&quot;)) {</span>
+<span class="nc" id="L74">                                String uuid = device.getPropertyValue(DM_UUID);</span>
+<span class="nc bnc" id="L75" title="All 4 branches missed.">                                if (uuid != null &amp;&amp; uuid.startsWith(&quot;LVM-&quot;)) {</span>
+<span class="nc" id="L76">                                    String vgName = device.getPropertyValue(DM_VG_NAME);</span>
+<span class="nc" id="L77">                                    String lvName = device.getPropertyValue(DM_LV_NAME);</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">                                    if (!Util.isBlank(vgName) &amp;&amp; !Util.isBlank(lvName)) {</span>
+<span class="nc" id="L79">                                        logicalVolumesMap.computeIfAbsent(vgName, k -&gt; new HashMap&lt;&gt;());</span>
+<span class="nc" id="L80">                                        Map&lt;String, Set&lt;String&gt;&gt; lvMapForGroup = logicalVolumesMap.get(vgName);</span>
                                         // Backup to add to pv set if pvs command failed
-<span class="nc" id="L101">                                        physicalVolumesMap.computeIfAbsent(vgName, k -&gt; new HashSet&lt;&gt;());</span>
-<span class="nc" id="L102">                                        Set&lt;String&gt; pvSetForGroup = physicalVolumesMap.get(vgName);</span>
+<span class="nc" id="L82">                                        physicalVolumesMap.computeIfAbsent(vgName, k -&gt; new HashSet&lt;&gt;());</span>
+<span class="nc" id="L83">                                        Set&lt;String&gt; pvSetForGroup = physicalVolumesMap.get(vgName);</span>
 
-<span class="nc" id="L104">                                        File slavesDir = new File(syspath + &quot;/slaves&quot;);</span>
-<span class="nc" id="L105">                                        File[] slaves = slavesDir.listFiles();</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">                                        if (slaves != null) {</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">                                            for (File f : slaves) {</span>
-<span class="nc" id="L108">                                                String pvName = f.getName();</span>
-<span class="nc" id="L109">                                                lvMapForGroup.computeIfAbsent(lvName, k -&gt; new HashSet&lt;&gt;())</span>
-<span class="nc" id="L110">                                                        .add(DEV_LOCATION + pvName);</span>
+<span class="nc" id="L85">                                        File slavesDir = new File(syspath + &quot;/slaves&quot;);</span>
+<span class="nc" id="L86">                                        File[] slaves = slavesDir.listFiles();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                                        if (slaves != null) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                                            for (File f : slaves) {</span>
+<span class="nc" id="L89">                                                String pvName = f.getName();</span>
+<span class="nc" id="L90">                                                lvMapForGroup.computeIfAbsent(lvName, k -&gt; new HashSet&lt;&gt;())</span>
+<span class="nc" id="L91">                                                        .add(DEV_LOCATION + pvName);</span>
                                                 // Backup to add to pv set if pvs command failed
                                                 // Added /dev/ to remove duplicates like /dev/sda1 and sda1
-<span class="nc" id="L113">                                                pvSetForGroup.add(DEV_LOCATION + pvName);</span>
+<span class="nc" id="L94">                                                pvSetForGroup.add(DEV_LOCATION + pvName);</span>
                                             }
                                         }
                                     }
                                 }
                             }
                         } finally {
-<span class="nc" id="L120">                            device.unref();</span>
+<span class="nc" id="L101">                            device.unref();</span>
                         }
                     }
                 }
             } finally {
-<span class="nc" id="L125">                enumerate.unref();</span>
+<span class="nc" id="L106">                enumerate.unref();</span>
             }
         } finally {
-<span class="nc" id="L128">            udev.unref();</span>
+<span class="nc" id="L109">            udev.unref();</span>
         }
-<span class="nc" id="L130">        return logicalVolumesMap.entrySet().stream()</span>
-<span class="nc" id="L131">                .map(e -&gt; new LinuxLogicalVolumeGroup(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))</span>
-<span class="nc" id="L132">                .collect(Collectors.toList());</span>
+<span class="nc" id="L111">        return logicalVolumesMap.entrySet().stream()</span>
+<span class="nc" id="L112">                .map(e -&gt; new LinuxLogicalVolumeGroup(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))</span>
+<span class="nc" id="L113">                .collect(Collectors.toList());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

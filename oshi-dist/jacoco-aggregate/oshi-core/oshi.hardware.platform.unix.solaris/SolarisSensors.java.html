@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisSensors.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.solaris</a> &gt; <span class="el_source">SolarisSensors.java</span></div><h1>SolarisSensors.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
 
@@ -35,53 +16,53 @@ import oshi.util.ParseUtil;
  * Sensors from prtpicl
  */
 @ThreadSafe
-<span class="nc" id="L38">final class SolarisSensors extends AbstractSensors {</span>
+<span class="nc" id="L19">final class SolarisSensors extends AbstractSensors {</span>
 
     @Override
     public double queryCpuTemperature() {
-<span class="nc" id="L42">        double maxTemp = 0d;</span>
+<span class="nc" id="L23">        double maxTemp = 0d;</span>
         // Return max found temp
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c temperature-sensor&quot;)) {</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Temperature:&quot;)) {</span>
-<span class="nc" id="L46">                int temp = ParseUtil.parseLastInt(line, 0);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">                if (temp &gt; maxTemp) {</span>
-<span class="nc" id="L48">                    maxTemp = temp;</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c temperature-sensor&quot;)) {</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Temperature:&quot;)) {</span>
+<span class="nc" id="L27">                int temp = ParseUtil.parseLastInt(line, 0);</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">                if (temp &gt; maxTemp) {</span>
+<span class="nc" id="L29">                    maxTemp = temp;</span>
                 }
             }
-<span class="nc" id="L51">        }</span>
+<span class="nc" id="L32">        }</span>
         // If it's in millidegrees:
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (maxTemp &gt; 1000) {</span>
-<span class="nc" id="L54">            maxTemp /= 1000;</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (maxTemp &gt; 1000) {</span>
+<span class="nc" id="L35">            maxTemp /= 1000;</span>
         }
-<span class="nc" id="L56">        return maxTemp;</span>
+<span class="nc" id="L37">        return maxTemp;</span>
     }
 
     @Override
     public int[] queryFanSpeeds() {
-<span class="nc" id="L61">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L42">        List&lt;Integer&gt; speedList = new ArrayList&lt;&gt;();</span>
         // Return max found temp
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;)) {</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
-<span class="nc" id="L65">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c fan&quot;)) {</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Speed:&quot;)) {</span>
+<span class="nc" id="L46">                speedList.add(ParseUtil.parseLastInt(line, 0));</span>
             }
-<span class="nc" id="L67">        }</span>
-<span class="nc" id="L68">        int[] fans = new int[speedList.size()];</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
-<span class="nc" id="L70">            fans[i] = speedList.get(i);</span>
+<span class="nc" id="L48">        }</span>
+<span class="nc" id="L49">        int[] fans = new int[speedList.size()];</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        for (int i = 0; i &lt; speedList.size(); i++) {</span>
+<span class="nc" id="L51">            fans[i] = speedList.get(i);</span>
         }
-<span class="nc" id="L72">        return fans;</span>
+<span class="nc" id="L53">        return fans;</span>
     }
 
     @Override
     public double queryCpuVoltage() {
-<span class="nc" id="L77">        double voltage = 0d;</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
-<span class="nc" id="L80">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
-<span class="nc" id="L81">                break;</span>
+<span class="nc" id="L58">        double voltage = 0d;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(&quot;/usr/sbin/prtpicl -v -c voltage-sensor&quot;)) {</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (line.trim().startsWith(&quot;Voltage:&quot;)) {</span>
+<span class="nc" id="L61">                voltage = ParseUtil.parseDoubleOrDefault(line.replace(&quot;Voltage:&quot;, &quot;&quot;).trim(), 0d);</span>
+<span class="nc" id="L62">                break;</span>
             }
-<span class="nc" id="L83">        }</span>
-<span class="nc" id="L84">        return voltage;</span>
+<span class="nc" id="L64">        }</span>
+<span class="nc" id="L65">        return voltage;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

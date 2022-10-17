@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsGlobalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsGlobalMemory.java</span></div><h1>WindowsGlobalMemory.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
 
@@ -53,214 +34,212 @@ import oshi.util.tuples.Triplet;
  * Memory obtained by Performance Info.
  */
 @ThreadSafe
-<span class="nc" id="L56">final class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
+<span class="nc" id="L37">final class WindowsGlobalMemory extends AbstractGlobalMemory {</span>
 
-<span class="nc" id="L58">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
+<span class="nc" id="L39">    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);</span>
 
-<span class="nc" id="L60">    private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();</span>
+<span class="nc" id="L41">    private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();</span>
 
-<span class="nc" id="L62">    private final Supplier&lt;Triplet&lt;Long, Long, Long&gt;&gt; availTotalSize = memoize(WindowsGlobalMemory::readPerfInfo,</span>
-<span class="nc" id="L63">            defaultExpiration());</span>
+<span class="nc" id="L43">    private final Supplier&lt;Triplet&lt;Long, Long, Long&gt;&gt; availTotalSize = memoize(WindowsGlobalMemory::readPerfInfo,</span>
+<span class="nc" id="L44">            defaultExpiration());</span>
 
-<span class="nc" id="L65">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L46">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L69">        return availTotalSize.get().getA();</span>
+<span class="nc" id="L50">        return availTotalSize.get().getA();</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L74">        return availTotalSize.get().getB();</span>
+<span class="nc" id="L55">        return availTotalSize.get().getB();</span>
     }
 
     @Override
     public long getPageSize() {
-<span class="nc" id="L79">        return availTotalSize.get().getC();</span>
+<span class="nc" id="L60">        return availTotalSize.get().getC();</span>
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L84">        return vm.get();</span>
+<span class="nc" id="L65">        return vm.get();</span>
     }
 
     private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L88">        return new WindowsVirtualMemory(this);</span>
+<span class="nc" id="L69">        return new WindowsVirtualMemory(this);</span>
     }
 
     @Override
     public List&lt;PhysicalMemory&gt; getPhysicalMemory() {
-<span class="nc" id="L93">        List&lt;PhysicalMemory&gt; physicalMemoryList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (IS_WINDOWS10_OR_GREATER) {</span>
-<span class="nc" id="L95">            WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = Win32PhysicalMemory.queryphysicalMemory();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
-<span class="nc" id="L97">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
-<span class="nc" id="L98">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
-<span class="nc" id="L99">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;</span>
-<span class="nc" id="L100">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
-<span class="nc" id="L101">                String memoryType = smBiosMemoryType(</span>
-<span class="nc" id="L102">                        WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));</span>
-<span class="nc" id="L103">                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+<span class="nc" id="L74">        List&lt;PhysicalMemory&gt; physicalMemoryList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (IS_WINDOWS10_OR_GREATER) {</span>
+<span class="nc" id="L76">            WmiResult&lt;PhysicalMemoryProperty&gt; bankMap = Win32PhysicalMemory.queryphysicalMemory();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
+<span class="nc" id="L78">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);</span>
+<span class="nc" id="L79">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);</span>
+<span class="nc" id="L80">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;</span>
+<span class="nc" id="L81">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);</span>
+<span class="nc" id="L82">                String memoryType = smBiosMemoryType(</span>
+<span class="nc" id="L83">                        WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));</span>
+<span class="nc" id="L84">                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
             }
-<span class="nc" id="L105">        } else {</span>
-<span class="nc" id="L106">            WmiResult&lt;PhysicalMemoryPropertyWin8&gt; bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
-<span class="nc" id="L108">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);</span>
-<span class="nc" id="L109">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);</span>
-<span class="nc" id="L110">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryPropertyWin8.SPEED, index) * 1_000_000L;</span>
-<span class="nc" id="L111">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);</span>
-<span class="nc" id="L112">                String memoryType = memoryType(</span>
-<span class="nc" id="L113">                        WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));</span>
-<span class="nc" id="L114">                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
+<span class="nc" id="L86">        } else {</span>
+<span class="nc" id="L87">            WmiResult&lt;PhysicalMemoryPropertyWin8&gt; bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            for (int index = 0; index &lt; bankMap.getResultCount(); index++) {</span>
+<span class="nc" id="L89">                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);</span>
+<span class="nc" id="L90">                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);</span>
+<span class="nc" id="L91">                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryPropertyWin8.SPEED, index) * 1_000_000L;</span>
+<span class="nc" id="L92">                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);</span>
+<span class="nc" id="L93">                String memoryType = memoryType(</span>
+<span class="nc" id="L94">                        WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));</span>
+<span class="nc" id="L95">                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));</span>
             }
         }
-<span class="nc" id="L117">        return physicalMemoryList;</span>
+<span class="nc" id="L98">        return physicalMemoryList;</span>
     }
 
     /**
      * Convert memory type number to a human readable string
      *
-     * @param type
-     *            The memory type
+     * @param type The memory type
      * @return A string describing the type
      */
     private static String memoryType(int type) {
-<span class="nc bnc" id="L128" title="All 25 branches missed.">        switch (type) {</span>
+<span class="nc bnc" id="L108" title="All 25 branches missed.">        switch (type) {</span>
         case 1:
-<span class="nc" id="L130">            return &quot;Other&quot;;</span>
+<span class="nc" id="L110">            return &quot;Other&quot;;</span>
         case 2:
-<span class="nc" id="L132">            return &quot;DRAM&quot;;</span>
+<span class="nc" id="L112">            return &quot;DRAM&quot;;</span>
         case 3:
-<span class="nc" id="L134">            return &quot;Synchronous DRAM&quot;;</span>
+<span class="nc" id="L114">            return &quot;Synchronous DRAM&quot;;</span>
         case 4:
-<span class="nc" id="L136">            return &quot;Cache DRAM&quot;;</span>
+<span class="nc" id="L116">            return &quot;Cache DRAM&quot;;</span>
         case 5:
-<span class="nc" id="L138">            return &quot;EDO&quot;;</span>
+<span class="nc" id="L118">            return &quot;EDO&quot;;</span>
         case 6:
-<span class="nc" id="L140">            return &quot;EDRAM&quot;;</span>
+<span class="nc" id="L120">            return &quot;EDRAM&quot;;</span>
         case 7:
-<span class="nc" id="L142">            return &quot;VRAM&quot;;</span>
+<span class="nc" id="L122">            return &quot;VRAM&quot;;</span>
         case 8:
-<span class="nc" id="L144">            return &quot;SRAM&quot;;</span>
+<span class="nc" id="L124">            return &quot;SRAM&quot;;</span>
         case 9:
-<span class="nc" id="L146">            return &quot;RAM&quot;;</span>
+<span class="nc" id="L126">            return &quot;RAM&quot;;</span>
         case 10:
-<span class="nc" id="L148">            return &quot;ROM&quot;;</span>
+<span class="nc" id="L128">            return &quot;ROM&quot;;</span>
         case 11:
-<span class="nc" id="L150">            return &quot;Flash&quot;;</span>
+<span class="nc" id="L130">            return &quot;Flash&quot;;</span>
         case 12:
-<span class="nc" id="L152">            return &quot;EEPROM&quot;;</span>
+<span class="nc" id="L132">            return &quot;EEPROM&quot;;</span>
         case 13:
-<span class="nc" id="L154">            return &quot;FEPROM&quot;;</span>
+<span class="nc" id="L134">            return &quot;FEPROM&quot;;</span>
         case 14:
-<span class="nc" id="L156">            return &quot;EPROM&quot;;</span>
+<span class="nc" id="L136">            return &quot;EPROM&quot;;</span>
         case 15:
-<span class="nc" id="L158">            return &quot;CDRAM&quot;;</span>
+<span class="nc" id="L138">            return &quot;CDRAM&quot;;</span>
         case 16:
-<span class="nc" id="L160">            return &quot;3DRAM&quot;;</span>
+<span class="nc" id="L140">            return &quot;3DRAM&quot;;</span>
         case 17:
-<span class="nc" id="L162">            return &quot;SDRAM&quot;;</span>
+<span class="nc" id="L142">            return &quot;SDRAM&quot;;</span>
         case 18:
-<span class="nc" id="L164">            return &quot;SGRAM&quot;;</span>
+<span class="nc" id="L144">            return &quot;SGRAM&quot;;</span>
         case 19:
-<span class="nc" id="L166">            return &quot;RDRAM&quot;;</span>
+<span class="nc" id="L146">            return &quot;RDRAM&quot;;</span>
         case 20:
-<span class="nc" id="L168">            return &quot;DDR&quot;;</span>
+<span class="nc" id="L148">            return &quot;DDR&quot;;</span>
         case 21:
-<span class="nc" id="L170">            return &quot;DDR2&quot;;</span>
+<span class="nc" id="L150">            return &quot;DDR2&quot;;</span>
         case 22:
-<span class="nc" id="L172">            return &quot;DDR2-FB-DIMM&quot;;</span>
+<span class="nc" id="L152">            return &quot;DDR2-FB-DIMM&quot;;</span>
         case 24:
-<span class="nc" id="L174">            return &quot;DDR3&quot;;</span>
+<span class="nc" id="L154">            return &quot;DDR3&quot;;</span>
         case 25:
-<span class="nc" id="L176">            return &quot;FBD2&quot;;</span>
+<span class="nc" id="L156">            return &quot;FBD2&quot;;</span>
         default:
-<span class="nc" id="L178">            return &quot;Unknown&quot;;</span>
+<span class="nc" id="L158">            return &quot;Unknown&quot;;</span>
         }
     }
 
     /**
      * Convert SMBIOS type number to a human readable string
      *
-     * @param type
-     *            The SMBIOS type
+     * @param type The SMBIOS type
      * @return A string describing the type
      */
     private static String smBiosMemoryType(int type) {
         // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.2.0.pdf
         // table 76
-<span class="nc bnc" id="L192" title="All 28 branches missed.">        switch (type) {</span>
+<span class="nc bnc" id="L171" title="All 28 branches missed.">        switch (type) {</span>
         case 0x01:
-<span class="nc" id="L194">            return &quot;Other&quot;;</span>
+<span class="nc" id="L173">            return &quot;Other&quot;;</span>
         case 0x03:
-<span class="nc" id="L196">            return &quot;DRAM&quot;;</span>
+<span class="nc" id="L175">            return &quot;DRAM&quot;;</span>
         case 0x04:
-<span class="nc" id="L198">            return &quot;EDRAM&quot;;</span>
+<span class="nc" id="L177">            return &quot;EDRAM&quot;;</span>
         case 0x05:
-<span class="nc" id="L200">            return &quot;VRAM&quot;;</span>
+<span class="nc" id="L179">            return &quot;VRAM&quot;;</span>
         case 0x06:
-<span class="nc" id="L202">            return &quot;SRAM&quot;;</span>
+<span class="nc" id="L181">            return &quot;SRAM&quot;;</span>
         case 0x07:
-<span class="nc" id="L204">            return &quot;RAM&quot;;</span>
+<span class="nc" id="L183">            return &quot;RAM&quot;;</span>
         case 0x08:
-<span class="nc" id="L206">            return &quot;ROM&quot;;</span>
+<span class="nc" id="L185">            return &quot;ROM&quot;;</span>
         case 0x09:
-<span class="nc" id="L208">            return &quot;FLASH&quot;;</span>
+<span class="nc" id="L187">            return &quot;FLASH&quot;;</span>
         case 0x0A:
-<span class="nc" id="L210">            return &quot;EEPROM&quot;;</span>
+<span class="nc" id="L189">            return &quot;EEPROM&quot;;</span>
         case 0x0B:
-<span class="nc" id="L212">            return &quot;FEPROM&quot;;</span>
+<span class="nc" id="L191">            return &quot;FEPROM&quot;;</span>
         case 0x0C:
-<span class="nc" id="L214">            return &quot;EPROM&quot;;</span>
+<span class="nc" id="L193">            return &quot;EPROM&quot;;</span>
         case 0x0D:
-<span class="nc" id="L216">            return &quot;CDRAM&quot;;</span>
+<span class="nc" id="L195">            return &quot;CDRAM&quot;;</span>
         case 0x0E:
-<span class="nc" id="L218">            return &quot;3DRAM&quot;;</span>
+<span class="nc" id="L197">            return &quot;3DRAM&quot;;</span>
         case 0x0F:
-<span class="nc" id="L220">            return &quot;SDRAM&quot;;</span>
+<span class="nc" id="L199">            return &quot;SDRAM&quot;;</span>
         case 0x10:
-<span class="nc" id="L222">            return &quot;SGRAM&quot;;</span>
+<span class="nc" id="L201">            return &quot;SGRAM&quot;;</span>
         case 0x11:
-<span class="nc" id="L224">            return &quot;RDRAM&quot;;</span>
+<span class="nc" id="L203">            return &quot;RDRAM&quot;;</span>
         case 0x12:
-<span class="nc" id="L226">            return &quot;DDR&quot;;</span>
+<span class="nc" id="L205">            return &quot;DDR&quot;;</span>
         case 0x13:
-<span class="nc" id="L228">            return &quot;DDR2&quot;;</span>
+<span class="nc" id="L207">            return &quot;DDR2&quot;;</span>
         case 0x14:
-<span class="nc" id="L230">            return &quot;DDR2 FB-DIMM&quot;;</span>
+<span class="nc" id="L209">            return &quot;DDR2 FB-DIMM&quot;;</span>
         case 0x18:
-<span class="nc" id="L232">            return &quot;DDR3&quot;;</span>
+<span class="nc" id="L211">            return &quot;DDR3&quot;;</span>
         case 0x19:
-<span class="nc" id="L234">            return &quot;FBD2&quot;;</span>
+<span class="nc" id="L213">            return &quot;FBD2&quot;;</span>
         case 0x1A:
-<span class="nc" id="L236">            return &quot;DDR4&quot;;</span>
+<span class="nc" id="L215">            return &quot;DDR4&quot;;</span>
         case 0x1B:
-<span class="nc" id="L238">            return &quot;LPDDR&quot;;</span>
+<span class="nc" id="L217">            return &quot;LPDDR&quot;;</span>
         case 0x1C:
-<span class="nc" id="L240">            return &quot;LPDDR2&quot;;</span>
+<span class="nc" id="L219">            return &quot;LPDDR2&quot;;</span>
         case 0x1D:
-<span class="nc" id="L242">            return &quot;LPDDR3&quot;;</span>
+<span class="nc" id="L221">            return &quot;LPDDR3&quot;;</span>
         case 0x1E:
-<span class="nc" id="L244">            return &quot;LPDDR4&quot;;</span>
+<span class="nc" id="L223">            return &quot;LPDDR4&quot;;</span>
         case 0x1F:
-<span class="nc" id="L246">            return &quot;Logical non-volatile device&quot;;</span>
+<span class="nc" id="L225">            return &quot;Logical non-volatile device&quot;;</span>
         case 0x02:
         default:
-<span class="nc" id="L249">            return &quot;Unknown&quot;;</span>
+<span class="nc" id="L228">            return &quot;Unknown&quot;;</span>
         }
     }
 
     private static Triplet&lt;Long, Long, Long&gt; readPerfInfo() {
-<span class="nc" id="L254">        try (CloseablePerformanceInformation performanceInfo = new CloseablePerformanceInformation()) {</span>
-<span class="nc bnc" id="L255" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
-<span class="nc" id="L256">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
-<span class="nc" id="L257">                return new Triplet&lt;&gt;(0L, 0L, 4098L);</span>
+<span class="nc" id="L233">        try (CloseablePerformanceInformation performanceInfo = new CloseablePerformanceInformation()) {</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">            if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {</span>
+<span class="nc" id="L235">                LOG.error(&quot;Failed to get Performance Info. Error code: {}&quot;, Kernel32.INSTANCE.GetLastError());</span>
+<span class="nc" id="L236">                return new Triplet&lt;&gt;(0L, 0L, 4098L);</span>
             }
-<span class="nc" id="L259">            long pageSize = performanceInfo.PageSize.longValue();</span>
-<span class="nc" id="L260">            long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
-<span class="nc" id="L261">            long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
-<span class="nc" id="L262">            return new Triplet&lt;&gt;(memAvailable, memTotal, pageSize);</span>
-<span class="nc" id="L263">        }</span>
+<span class="nc" id="L238">            long pageSize = performanceInfo.PageSize.longValue();</span>
+<span class="nc" id="L239">            long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();</span>
+<span class="nc" id="L240">            long memTotal = pageSize * performanceInfo.PhysicalTotal.longValue();</span>
+<span class="nc" id="L241">            return new Triplet&lt;&gt;(memAvailable, memTotal, pageSize);</span>
+<span class="nc" id="L242">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

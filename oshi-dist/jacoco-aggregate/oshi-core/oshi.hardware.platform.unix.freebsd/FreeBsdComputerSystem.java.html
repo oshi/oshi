@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdComputerSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.freebsd</a> &gt; <span class="el_source">FreeBsdComputerSystem.java</span></div><h1>FreeBsdComputerSystem.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
 
@@ -43,48 +24,48 @@ import oshi.util.tuples.Quintet;
  * Hardware data obtained from dmidecode.
  */
 @Immutable
-<span class="nc" id="L46">final class FreeBsdComputerSystem extends AbstractComputerSystem {</span>
+<span class="nc" id="L27">final class FreeBsdComputerSystem extends AbstractComputerSystem {</span>
 
-<span class="nc" id="L48">    private final Supplier&lt;Quintet&lt;String, String, String, String, String&gt;&gt; manufModelSerialUuidVers = memoize(</span>
+<span class="nc" id="L29">    private final Supplier&lt;Quintet&lt;String, String, String, String, String&gt;&gt; manufModelSerialUuidVers = memoize(</span>
             FreeBsdComputerSystem::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-<span class="nc" id="L53">        return manufModelSerialUuidVers.get().getA();</span>
+<span class="nc" id="L34">        return manufModelSerialUuidVers.get().getA();</span>
     }
 
     @Override
     public String getModel() {
-<span class="nc" id="L58">        return manufModelSerialUuidVers.get().getB();</span>
+<span class="nc" id="L39">        return manufModelSerialUuidVers.get().getB();</span>
     }
 
     @Override
     public String getSerialNumber() {
-<span class="nc" id="L63">        return manufModelSerialUuidVers.get().getC();</span>
+<span class="nc" id="L44">        return manufModelSerialUuidVers.get().getC();</span>
     }
 
     @Override
     public String getHardwareUUID() {
-<span class="nc" id="L68">        return manufModelSerialUuidVers.get().getD();</span>
+<span class="nc" id="L49">        return manufModelSerialUuidVers.get().getD();</span>
     }
 
     @Override
     public Firmware createFirmware() {
-<span class="nc" id="L73">        return new FreeBsdFirmware();</span>
+<span class="nc" id="L54">        return new FreeBsdFirmware();</span>
     }
 
     @Override
     public Baseboard createBaseboard() {
-<span class="nc" id="L78">        return new UnixBaseboard(manufModelSerialUuidVers.get().getA(), manufModelSerialUuidVers.get().getB(),</span>
-<span class="nc" id="L79">                manufModelSerialUuidVers.get().getC(), manufModelSerialUuidVers.get().getE());</span>
+<span class="nc" id="L59">        return new UnixBaseboard(manufModelSerialUuidVers.get().getA(), manufModelSerialUuidVers.get().getB(),</span>
+<span class="nc" id="L60">                manufModelSerialUuidVers.get().getC(), manufModelSerialUuidVers.get().getE());</span>
     }
 
     private static Quintet&lt;String, String, String, String, String&gt; readDmiDecode() {
-<span class="nc" id="L83">        String manufacturer = null;</span>
-<span class="nc" id="L84">        String model = null;</span>
-<span class="nc" id="L85">        String serialNumber = null;</span>
-<span class="nc" id="L86">        String uuid = null;</span>
-<span class="nc" id="L87">        String version = null;</span>
+<span class="nc" id="L64">        String manufacturer = null;</span>
+<span class="nc" id="L65">        String model = null;</span>
+<span class="nc" id="L66">        String serialNumber = null;</span>
+<span class="nc" id="L67">        String uuid = null;</span>
+<span class="nc" id="L68">        String version = null;</span>
 
         // $ sudo dmidecode -t system
         // # dmidecode 3.0
@@ -107,47 +88,47 @@ import oshi.util.tuples.Quintet;
         // System Boot Information
         // Status: No errors detected
 
-<span class="nc" id="L110">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
-<span class="nc" id="L111">        final String productNameMarker = &quot;Product Name:&quot;;</span>
-<span class="nc" id="L112">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
-<span class="nc" id="L113">        final String uuidMarker = &quot;UUID:&quot;;</span>
-<span class="nc" id="L114">        final String versionMarker = &quot;Version:&quot;;</span>
+<span class="nc" id="L91">        final String manufacturerMarker = &quot;Manufacturer:&quot;;</span>
+<span class="nc" id="L92">        final String productNameMarker = &quot;Product Name:&quot;;</span>
+<span class="nc" id="L93">        final String serialNumMarker = &quot;Serial Number:&quot;;</span>
+<span class="nc" id="L94">        final String uuidMarker = &quot;UUID:&quot;;</span>
+<span class="nc" id="L95">        final String versionMarker = &quot;Version:&quot;;</span>
 
         // Only works with root permissions but it's all we've got
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
-<span class="nc" id="L119">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">            } else if (checkLine.contains(productNameMarker)) {</span>
-<span class="nc" id="L121">                model = checkLine.split(productNameMarker)[1].trim();</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">            } else if (checkLine.contains(serialNumMarker)) {</span>
-<span class="nc" id="L123">                serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            } else if (checkLine.contains(uuidMarker)) {</span>
-<span class="nc" id="L125">                uuid = checkLine.split(uuidMarker)[1].trim();</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">            } else if (checkLine.contains(versionMarker)) {</span>
-<span class="nc" id="L127">                version = checkLine.split(versionMarker)[1].trim();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (checkLine.contains(manufacturerMarker)) {</span>
+<span class="nc" id="L100">                manufacturer = checkLine.split(manufacturerMarker)[1].trim();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            } else if (checkLine.contains(productNameMarker)) {</span>
+<span class="nc" id="L102">                model = checkLine.split(productNameMarker)[1].trim();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            } else if (checkLine.contains(serialNumMarker)) {</span>
+<span class="nc" id="L104">                serialNumber = checkLine.split(serialNumMarker)[1].trim();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            } else if (checkLine.contains(uuidMarker)) {</span>
+<span class="nc" id="L106">                uuid = checkLine.split(uuidMarker)[1].trim();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            } else if (checkLine.contains(versionMarker)) {</span>
+<span class="nc" id="L108">                version = checkLine.split(versionMarker)[1].trim();</span>
             }
-<span class="nc" id="L129">        }</span>
+<span class="nc" id="L110">        }</span>
         // If we get to end and haven't assigned, use fallback
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (Util.isBlank(serialNumber)) {</span>
-<span class="nc" id="L132">            serialNumber = querySystemSerialNumber();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (Util.isBlank(serialNumber)) {</span>
+<span class="nc" id="L113">            serialNumber = querySystemSerialNumber();</span>
         }
-<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (Util.isBlank(uuid)) {</span>
-<span class="nc" id="L135">            uuid = BsdSysctlUtil.sysctl(&quot;kern.hostuuid&quot;, Constants.UNKNOWN);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (Util.isBlank(uuid)) {</span>
+<span class="nc" id="L116">            uuid = BsdSysctlUtil.sysctl(&quot;kern.hostuuid&quot;, Constants.UNKNOWN);</span>
         }
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        return new Quintet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model,</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,</span>
-<span class="nc bnc" id="L140" title="All 4 branches missed.">                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid, Util.isBlank(version) ? Constants.UNKNOWN : version);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        return new Quintet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                Util.isBlank(model) ? Constants.UNKNOWN : model,</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid, Util.isBlank(version) ? Constants.UNKNOWN : version);</span>
     }
 
     private static String querySystemSerialNumber() {
-<span class="nc" id="L144">        String marker = &quot;system.hardware.serial =&quot;;</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L147">                return ParseUtil.getSingleQuoteStringValue(checkLine);</span>
+<span class="nc" id="L125">        String marker = &quot;system.hardware.serial =&quot;;</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshal&quot;)) {</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L128">                return ParseUtil.getSingleQuoteStringValue(checkLine);</span>
             }
-<span class="nc" id="L149">        }</span>
-<span class="nc" id="L150">        return Constants.UNKNOWN;</span>
+<span class="nc" id="L130">        }</span>
+<span class="nc" id="L131">        return Constants.UNKNOWN;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

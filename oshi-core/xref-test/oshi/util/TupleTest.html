@@ -7,77 +7,58 @@
 <body>
 <div id="overview"><a href="../../../testapidocs/oshi/util/TupleTest.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2020-2021 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * in the Software without restriction, including without limitation the rights</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * copies of the Software, and to permit persons to whom the Software is</em>
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * furnished to do so, subject to the following conditions:</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * The above copyright notice and this permission notice shall be included in all</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * copies or substantial portions of the Software.</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_comment"> * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_comment"> * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> * SOFTWARE.</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_comment"> */</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.util;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.math.BigInteger;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quintet;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * Test object pair.</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">class</strong> <a name="TupleTest" href="../../oshi/util/TupleTest.html#TupleTest">TupleTest</a> {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Test
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">void</strong> testTuples() {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          Pair&lt;String, Integer&gt; pair = <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(<span class="jxr_string">"A"</span>, 1);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          Triplet&lt;String, Integer, Long&gt; triplet = <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">"B"</span>, 2, Long.MAX_VALUE);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          Quartet&lt;String, Integer, Long, Character&gt; quartet = <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(<span class="jxr_string">"C"</span>, 3, Long.MIN_VALUE, 'c');
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          Quintet&lt;String, Integer, Long, Character, BigInteger&gt; quintet = <strong class="jxr_keyword">new</strong> Quintet&lt;&gt;(<span class="jxr_string">"D"</span>, 4, Long.valueOf(<span class="jxr_string">"0"</span>), 'd',
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  BigInteger.ZERO);
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.math.BigInteger;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quintet;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * Test object pair.</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">class</strong> <a name="TupleTest" href="../../oshi/util/TupleTest.html#TupleTest">TupleTest</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      @Test
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">void</strong> testTuples() {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          Pair&lt;String, Integer&gt; pair = <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(<span class="jxr_string">"A"</span>, 1);
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          Triplet&lt;String, Integer, Long&gt; triplet = <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">"B"</span>, 2, Long.MAX_VALUE);
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          Quartet&lt;String, Integer, Long, Character&gt; quartet = <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(<span class="jxr_string">"C"</span>, 3, Long.MIN_VALUE, 'c');
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          Quintet&lt;String, Integer, Long, Character, BigInteger&gt; quintet = <strong class="jxr_keyword">new</strong> Quintet&lt;&gt;(<span class="jxr_string">"D"</span>, 4, Long.valueOf(<span class="jxr_string">"0"</span>), 'd',
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>                  BigInteger.ZERO);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          assertThat(<span class="jxr_string">"pair.getA() should be A"</span>, pair.getA(), is(<span class="jxr_string">"A"</span>));
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          assertThat(<span class="jxr_string">"triplet.getA() should be B"</span>, triplet.getA(), is(<span class="jxr_string">"B"</span>));
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          assertThat(<span class="jxr_string">"quartet.getA() should be C"</span>, quartet.getA(), is(<span class="jxr_string">"C"</span>));
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(<span class="jxr_string">"quintet.getA() should be D"</span>, quintet.getA(), is(<span class="jxr_string">"D"</span>));
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(<span class="jxr_string">"pair.getB().intValue() should be 1"</span>, pair.getB().intValue(), is(1));
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertThat(<span class="jxr_string">"triplet.getB().intValue() should be 2"</span>, triplet.getB().intValue(), is(2));
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          assertThat(<span class="jxr_string">"quartet.getB().intValue() should be 3"</span>, quartet.getB().intValue(), is(3));
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          assertThat(<span class="jxr_string">"quintet.getB().intValue() should be 4"</span>, quintet.getB().intValue(), is(4));
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          assertThat(<span class="jxr_string">"triplet.getC().longValue() should be Long.MAX_VALUE"</span>, triplet.getC().longValue(),
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  is(Long.MAX_VALUE));
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertThat(<span class="jxr_string">"quartet.getC().longValue() should be Long.MIN_VALUE"</span>, quartet.getC().longValue(),
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  is(Long.MIN_VALUE));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertThat(<span class="jxr_string">"quintet.getC().longValue() should be 0L"</span>, quintet.getC().longValue(), is(0L));
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertThat(<span class="jxr_string">"quartet.getD().charValue() should be c"</span>, quartet.getD().charValue(), is('c'));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertThat(<span class="jxr_string">"quintet.getD().charValue() should be d"</span>, quintet.getD().charValue(), is('d'));
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(<span class="jxr_string">"pair.getA() should be A"</span>, pair.getA(), is(<span class="jxr_string">"A"</span>));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertThat(<span class="jxr_string">"triplet.getA() should be B"</span>, triplet.getA(), is(<span class="jxr_string">"B"</span>));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(<span class="jxr_string">"quartet.getA() should be C"</span>, quartet.getA(), is(<span class="jxr_string">"C"</span>));
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(<span class="jxr_string">"quintet.getA() should be D"</span>, quintet.getA(), is(<span class="jxr_string">"D"</span>));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(<span class="jxr_string">"pair.getB().intValue() should be 1"</span>, pair.getB().intValue(), is(1));
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(<span class="jxr_string">"triplet.getB().intValue() should be 2"</span>, triplet.getB().intValue(), is(2));
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertThat(<span class="jxr_string">"quartet.getB().intValue() should be 3"</span>, quartet.getB().intValue(), is(3));
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertThat(<span class="jxr_string">"quintet.getB().intValue() should be 4"</span>, quintet.getB().intValue(), is(4));
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(<span class="jxr_string">"triplet.getC().longValue() should be Long.MAX_VALUE"</span>, triplet.getC().longValue(),
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  is(Long.MAX_VALUE));
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertThat(<span class="jxr_string">"quartet.getC().longValue() should be Long.MIN_VALUE"</span>, quartet.getC().longValue(),
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  is(Long.MIN_VALUE));
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(<span class="jxr_string">"quintet.getC().longValue() should be 0L"</span>, quintet.getC().longValue(), is(0L));
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(<span class="jxr_string">"quartet.getD().charValue() should be c"</span>, quartet.getD().charValue(), is('c'));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(<span class="jxr_string">"quintet.getD().charValue() should be d"</span>, quintet.getD().charValue(), is('d'));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertThat(<span class="jxr_string">"quintet.getE() should be BigInteger.ZERO"</span>, quintet.getE(), is(BigInteger.ZERO));
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(<span class="jxr_string">"quintet.getE() should be BigInteger.ZERO"</span>, quintet.getE(), is(BigInteger.ZERO));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

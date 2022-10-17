@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Memoizer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">Memoizer.java</span></div><h1>Memoizer.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2019-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2019-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
@@ -29,70 +10,63 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * A memoized function stores the output corresponding to some set of specific
- * inputs. Subsequent calls with remembered inputs return the remembered result
- * rather than recalculating it.
+ * A memoized function stores the output corresponding to some set of specific inputs. Subsequent calls with remembered
+ * inputs return the remembered result rather than recalculating it.
  */
 @ThreadSafe
 public final class Memoizer {
 
-<span class="nc" id="L39">    private static final Supplier&lt;Long&gt; DEFAULT_EXPIRATION_NANOS = memoize(Memoizer::queryExpirationConfig,</span>
-<span class="nc" id="L40">            TimeUnit.MINUTES.toNanos(1));</span>
+<span class="nc" id="L19">    private static final Supplier&lt;Long&gt; DEFAULT_EXPIRATION_NANOS = memoize(Memoizer::queryExpirationConfig,</span>
+<span class="nc" id="L20">            TimeUnit.MINUTES.toNanos(1));</span>
 
     private Memoizer() {
     }
 
     private static long queryExpirationConfig() {
-<span class="nc" id="L46">        return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 300));</span>
+<span class="nc" id="L26">        return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 300));</span>
     }
 
     /**
-     * Default exipiration of memoized values in nanoseconds, which will refresh
-     * after this time elapses. Update by setting {@link GlobalConfig} property
-     * &lt;code&gt;oshi.util.memoizer.expiration&lt;/code&gt; to a value in milliseconds.
+     * Default exipiration of memoized values in nanoseconds, which will refresh after this time elapses. Update by
+     * setting {@link GlobalConfig} property &lt;code&gt;oshi.util.memoizer.expiration&lt;/code&gt; to a value in milliseconds.
      *
      * @return The number of nanoseconds to keep memoized values before refreshing
      */
     public static long defaultExpiration() {
-<span class="nc" id="L57">        return DEFAULT_EXPIRATION_NANOS.get();</span>
+<span class="nc" id="L36">        return DEFAULT_EXPIRATION_NANOS.get();</span>
     }
 
     /**
-     * Store a supplier in a delegate function to be computed once, and only again
-     * after time to live (ttl) has expired.
+     * Store a supplier in a delegate function to be computed once, and only again after time to live (ttl) has expired.
      *
-     * @param &lt;T&gt;
-     *            The type of object supplied
-     * @param original
-     *            The {@link java.util.function.Supplier} to memoize
-     * @param ttlNanos
-     *            Time in nanoseconds to retain calculation. If negative, retain
-     *            indefinitely.
+     * @param &lt;T&gt;      The type of object supplied
+     * @param original The {@link java.util.function.Supplier} to memoize
+     * @param ttlNanos Time in nanoseconds to retain calculation. If negative, retain indefinitely.
      * @return A memoized version of the supplier
      */
     public static &lt;T&gt; Supplier&lt;T&gt; memoize(Supplier&lt;T&gt; original, long ttlNanos) {
         // Adapted from Guava's ExpiringMemoizingSupplier
-<span class="nc" id="L75">        return new Supplier&lt;T&gt;() {</span>
-<span class="nc" id="L76">            final Supplier&lt;T&gt; delegate = original;</span>
-            volatile T value; // NOSONAR squid:S3077
-            volatile long expirationNanos;
+<span class="nc" id="L49">        return new Supplier&lt;T&gt;() {</span>
+<span class="nc" id="L50">            private final Supplier&lt;T&gt; delegate = original;</span>
+            private volatile T value; // NOSONAR squid:S3077
+            private volatile long expirationNanos;
 
             @Override
             public T get() {
-<span class="nc" id="L82">                long nanos = expirationNanos;</span>
-<span class="nc" id="L83">                long now = System.nanoTime();</span>
-<span class="nc bnc" id="L84" title="All 6 branches missed.">                if (nanos == 0 || (ttlNanos &gt;= 0 &amp;&amp; now - nanos &gt;= 0)) {</span>
-<span class="nc" id="L85">                    synchronized (this) {</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">                        if (nanos == expirationNanos) { // recheck for lost race</span>
-<span class="nc" id="L87">                            T t = delegate.get();</span>
-<span class="nc" id="L88">                            value = t;</span>
-<span class="nc" id="L89">                            nanos = now + ttlNanos;</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">                            expirationNanos = (nanos == 0) ? 1 : nanos;</span>
-<span class="nc" id="L91">                            return t;</span>
+<span class="nc" id="L56">                long nanos = expirationNanos;</span>
+<span class="nc" id="L57">                long now = System.nanoTime();</span>
+<span class="nc bnc" id="L58" title="All 6 branches missed.">                if (nanos == 0 || (ttlNanos &gt;= 0 &amp;&amp; now - nanos &gt;= 0)) {</span>
+<span class="nc" id="L59">                    synchronized (this) {</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                        if (nanos == expirationNanos) { // recheck for lost race</span>
+<span class="nc" id="L61">                            T t = delegate.get();</span>
+<span class="nc" id="L62">                            value = t;</span>
+<span class="nc" id="L63">                            nanos = now + ttlNanos;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                            expirationNanos = (nanos == 0) ? 1 : nanos;</span>
+<span class="nc" id="L65">                            return t;</span>
                         }
-<span class="nc" id="L93">                    }</span>
+<span class="nc" id="L67">                    }</span>
                 }
-<span class="nc" id="L95">                return value;</span>
+<span class="nc" id="L69">                return value;</span>
             }
         };
     }
@@ -100,14 +74,12 @@ public final class Memoizer {
     /**
      * Store a supplier in a delegate function to be computed only once.
      *
-     * @param &lt;T&gt;
-     *            The type of object supplied
-     * @param original
-     *            The {@link java.util.function.Supplier} to memoize
+     * @param &lt;T&gt;      The type of object supplied
+     * @param original The {@link java.util.function.Supplier} to memoize
      * @return A memoized version of the supplier
      */
     public static &lt;T&gt; Supplier&lt;T&gt; memoize(Supplier&lt;T&gt; original) {
-<span class="nc" id="L110">        return memoize(original, -1L);</span>
+<span class="nc" id="L82">        return memoize(original, -1L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

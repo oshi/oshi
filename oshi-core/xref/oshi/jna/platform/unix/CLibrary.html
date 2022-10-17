@@ -7,297 +7,239 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/jna/platform/unix/CLibrary.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2017-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * in the Software without restriction, including without limitation the rights</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * copies of the Software, and to permit persons to whom the Software is</em>
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * furnished to do so, subject to the following conditions:</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * The above copyright notice and this permission notice shall be included in all</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * copies or substantial portions of the Software.</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_comment"> * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_comment"> * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> * SOFTWARE.</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_comment"> */</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.jna.platform.unix;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Library;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure.FieldOrder;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.LibCAPI;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2017-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.jna.platform.unix;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> com.sun.jna.Library;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> com.sun.jna.NativeLong;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Structure.FieldOrder;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.LibCAPI;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * C library with code common to all *nix-based operating systems. This class should be considered non-API as it may be</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * removed if/when its code is incorporated into the JNA project.</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="CLibrary" href="../../../../oshi/jna/platform/unix/CLibrary.html#CLibrary">CLibrary</a> <strong class="jxr_keyword">extends</strong> LibCAPI, Library {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">int</strong> AI_CANONNAME = 2;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">int</strong> UT_LINESIZE = 32;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">int</strong> UT_NAMESIZE = 32;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">int</strong> UT_HOSTSIZE = 256;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">int</strong> LOGIN_PROCESS = 6; <em class="jxr_comment">// Session leader of a logged in user.</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">int</strong> USER_PROCESS = 7; <em class="jxr_comment">// Normal process.</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      @FieldOrder({ <span class="jxr_string">"sa_family"</span>, <span class="jxr_string">"sa_data"</span> })
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">class</strong> Sockaddr <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> sa_family;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">public</strong> byte[] sa_data = <strong class="jxr_keyword">new</strong> byte[14];
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * C library with code common to all *nix-based operating systems. This class</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * should be considered non-API as it may be removed if/when its code is</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * incorporated into the JNA project.</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="CLibrary" href="../../../../oshi/jna/platform/unix/CLibrary.html#CLibrary">CLibrary</a> <strong class="jxr_keyword">extends</strong> LibCAPI, Library {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">int</strong> AI_CANONNAME = 2;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">int</strong> UT_LINESIZE = 32;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">int</strong> UT_NAMESIZE = 32;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">int</strong> UT_HOSTSIZE = 256;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">int</strong> LOGIN_PROCESS = 6; <em class="jxr_comment">// Session leader of a logged in user.</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">int</strong> USER_PROCESS = 7; <em class="jxr_comment">// Normal process.</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      @FieldOrder({ <span class="jxr_string">"sa_family"</span>, <span class="jxr_string">"sa_data"</span> })
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">class</strong> Sockaddr <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> sa_family;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">public</strong> byte[] sa_data = <strong class="jxr_keyword">new</strong> byte[14];
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Sockaddr <strong class="jxr_keyword">implements</strong> Structure.ByReference {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          }
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      @FieldOrder({ <span class="jxr_string">"ai_flags"</span>, <span class="jxr_string">"ai_family"</span>, <span class="jxr_string">"ai_socktype"</span>, <span class="jxr_string">"ai_protocol"</span>, <span class="jxr_string">"ai_addrlen"</span>, <span class="jxr_string">"ai_addr"</span>, <span class="jxr_string">"ai_canonname"</span>,
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <span class="jxr_string">"ai_next"</span> })
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">class</strong> Addrinfo <strong class="jxr_keyword">extends</strong> Structure <strong class="jxr_keyword">implements</strong> AutoCloseable {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_flags;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_family;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_socktype;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_protocol;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_addrlen;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">public</strong> Sockaddr.ByReference ai_addr;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> String ai_canonname;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">public</strong> ByReference ai_next;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Addrinfo <strong class="jxr_keyword">implements</strong> Structure.ByReference {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Sockaddr <strong class="jxr_keyword">implements</strong> Structure.ByReference {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @FieldOrder({ <span class="jxr_string">"ai_flags"</span>, <span class="jxr_string">"ai_family"</span>, <span class="jxr_string">"ai_socktype"</span>, <span class="jxr_string">"ai_protocol"</span>, <span class="jxr_string">"ai_addrlen"</span>, <span class="jxr_string">"ai_addr"</span>, <span class="jxr_string">"ai_canonname"</span>,
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              <span class="jxr_string">"ai_next"</span> })
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">class</strong> Addrinfo <strong class="jxr_keyword">extends</strong> Structure <strong class="jxr_keyword">implements</strong> AutoCloseable {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_flags;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_family;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_socktype;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_protocol;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ai_addrlen;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">public</strong> Sockaddr.ByReference ai_addr;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">public</strong> String ai_canonname;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">public</strong> ByReference ai_next;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> ByReference <strong class="jxr_keyword">extends</strong> Addrinfo <strong class="jxr_keyword">implements</strong> Structure.ByReference {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">public</strong> Addrinfo() {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">public</strong> Addrinfo(Pointer p) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">super</strong>(p);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              read();
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          @Override
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              Util.freeMemory(getPointer());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_comment">     * Between macOS and FreeBSD there are multiple versions of some tcp/udp/ip stats structures. Since we only need a</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_comment">     * few of the hundreds of fields, we can improve performance by selectively reading the ints from the appropriate</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_comment">     * offsets, which are consistent across the structure. These classes include the common fields and offsets.</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_comment">     */</em>
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">public</strong> Addrinfo() {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">public</strong> Addrinfo(Pointer p) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">super</strong>(p);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              read();
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          @Override
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              Util.freeMemory(getPointer());
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">class</strong> BsdTcpstat {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_connattempt; <em class="jxr_comment">// 0</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_accepts; <em class="jxr_comment">// 4</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_drops; <em class="jxr_comment">// 12</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_conndrops; <em class="jxr_comment">// 16</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndpack; <em class="jxr_comment">// 64</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndrexmitpack; <em class="jxr_comment">// 72</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpack; <em class="jxr_comment">// 104</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadsum; <em class="jxr_comment">// 112</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadoff; <em class="jxr_comment">// 116</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvmemdrop; <em class="jxr_comment">// 120</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvshort; <em class="jxr_comment">// 124</em>
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_comment">     * Between macOS and FreeBSD there are multiple versions of some tcp/udp/ip</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_comment">     * stats structures. Since we only need a few of the hundreds of fields, we can</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_comment">     * improve performance by selectively reading the ints from the appropriate</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_comment">     * offsets, which are consistent across the structure. These classes include the</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_comment">     * common fields and offsets.</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">class</strong> BsdTcpstat {
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_connattempt; <em class="jxr_comment">// 0</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_accepts; <em class="jxr_comment">// 4</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_drops; <em class="jxr_comment">// 12</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_conndrops; <em class="jxr_comment">// 16</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndpack; <em class="jxr_comment">// 64</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_sndrexmitpack; <em class="jxr_comment">// 72</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpack; <em class="jxr_comment">// 104</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadsum; <em class="jxr_comment">// 112</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadoff; <em class="jxr_comment">// 116</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvmemdrop; <em class="jxr_comment">// 120</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tcps_rcvshort; <em class="jxr_comment">// 124</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> 
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">class</strong> BsdUdpstat {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_ipackets; <em class="jxr_comment">// 0</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_hdrops; <em class="jxr_comment">// 4</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_badsum; <em class="jxr_comment">// 8</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_badlen; <em class="jxr_comment">// 12</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_opackets; <em class="jxr_comment">// 36</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_noportmcast; <em class="jxr_comment">// 48</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_rcv6_swcsum; <em class="jxr_comment">// 64</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_snd6_swcsum; <em class="jxr_comment">// 89</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">class</strong> BsdIpstat {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_total; <em class="jxr_comment">// 0</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badsum; <em class="jxr_comment">// 4</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_tooshort; <em class="jxr_comment">// 8</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_toosmall; <em class="jxr_comment">// 12</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badhlen; <em class="jxr_comment">// 16</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badlen; <em class="jxr_comment">// 20</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_delivered; <em class="jxr_comment">// 56</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">class</strong> BsdIp6stat {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_total; <em class="jxr_comment">// 0</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_localout; <em class="jxr_comment">// 88</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">class</strong> BsdUdpstat {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_ipackets; <em class="jxr_comment">// 0</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_hdrops; <em class="jxr_comment">// 4</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_badsum; <em class="jxr_comment">// 8</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_badlen; <em class="jxr_comment">// 12</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_opackets; <em class="jxr_comment">// 36</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_noportmcast; <em class="jxr_comment">// 48</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_rcv6_swcsum; <em class="jxr_comment">// 64</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> udps_snd6_swcsum; <em class="jxr_comment">// 89</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">class</strong> BsdIpstat {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_total; <em class="jxr_comment">// 0</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badsum; <em class="jxr_comment">// 4</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_tooshort; <em class="jxr_comment">// 8</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_toosmall; <em class="jxr_comment">// 12</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badhlen; <em class="jxr_comment">// 16</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_badlen; <em class="jxr_comment">// 20</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> ips_delivered; <em class="jxr_comment">// 56</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">class</strong> BsdIp6stat {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_total; <em class="jxr_comment">// 0</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> ip6s_localout; <em class="jxr_comment">// 88</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     }
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     * Returns the process ID of the calling process. The ID is guaranteed to be unique and is useful for constructing</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * temporary file names.</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">     * @return the process ID of the calling process.</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">int</strong> getpid();
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * Given node and service, which identify an Internet host and a service, getaddrinfo() returns one or more addrinfo</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     * structures, each of which contains an Internet address that can be specified in a call to bind(2) or connect(2).</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     * @param node    a numerical network address or a network hostname, whose network addresses are looked up and</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     *                resolved.</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     * @param service sets the port in each returned address structure.</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @param hints   specifies criteria for selecting the socket address structures returned in the list pointed to by</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     *                res.</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * @param res     returned address structure</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">int</strong> getaddrinfo(String node, String service, Addrinfo hints, PointerByReference res);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> 
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * Returns the process ID of the calling process. The ID is guaranteed to be</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * unique and is useful for constructing temporary file names.</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * @return the process ID of the calling process.</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">int</strong> getpid();
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     * Given node and service, which identify an Internet host and a service,</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * getaddrinfo() returns one or more addrinfo structures, each of which contains</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * an Internet address that can be specified in a call to bind(2) or connect(2).</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * @param node</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     *            a numerical network address or a network hostname, whose network</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     *            addresses are looked up and resolved.</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * @param service</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     *            sets the port in each returned address structure.</em>
-<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     * @param hints</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     *            specifies criteria for selecting the socket address structures</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     *            returned in the list pointed to by res.</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     * @param res</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     *            returned address structure</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">int</strong> getaddrinfo(String node, String service, Addrinfo hints, PointerByReference res);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     * Frees the memory that was allocated for the dynamically allocated linked list</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">     * res.</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     * @param res</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     *            Pointer to linked list returned by getaddrinfo</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">void</strong> freeaddrinfo(Pointer res);
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * Translates getaddrinfo error codes to a human readable string, suitable for</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * error reporting.</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * @param e</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     *            Error code from getaddrinfo</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * @return A human-readable version of the error code</em>
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     String gai_strerror(<strong class="jxr_keyword">int</strong> e);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a> 
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     * Rewinds the file pointer to the beginning of the utmp file. It is generally a</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">     * good idea to call it before any of the other functions.</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">void</strong> setutxent();
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     * Closes the utmp file. It should be called when the user code is done</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     * accessing the file with the other functions.</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <strong class="jxr_keyword">void</strong> endutxent();
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     * The sysctl() function retrieves system information and allows processes with</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">     * appropriate privileges to set system information. The information available</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">     * from sysctl() consists of integers, strings, and tables.</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * The state is described using a "Management Information Base" (MIB) style</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     * name, listed in name, which is a namelen length array of integers.</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * The information is copied into the buffer specified by oldp. The size of the</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * buffer is given by the location specified by oldlenp before the call, and</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     * that location gives the amount of data copied after a successful call and</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     * after a call that returns with the error code ENOMEM. If the amount of data</em>
-<a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     * available is greater than the size of the buffer supplied, the call supplies</em>
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * as much data as fits in the buffer provided and returns with the error code</em>
-<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     * ENOMEM. If the old value is not desired, oldp and oldlenp should be set to</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     * NULL.</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     * The size of the available data can be determined by calling sysctl() with the</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     * NULL argument for oldp. The size of the available data will be returned in</em>
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     * the location pointed to by oldlenp. For some operations, the amount of space</em>
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     * may change often. For these operations, the system attempts to round up so</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     * that the returned size is large enough for a call to return the data shortly</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">     * thereafter.</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * Frees the memory that was allocated for the dynamically allocated linked list res.</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * @param res Pointer to linked list returned by getaddrinfo</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">void</strong> freeaddrinfo(Pointer res);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     * Translates getaddrinfo error codes to a human readable string, suitable for error reporting.</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * @param e Error code from getaddrinfo</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * @return A human-readable version of the error code</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     String gai_strerror(<strong class="jxr_keyword">int</strong> e);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * Rewinds the file pointer to the beginning of the utmp file. It is generally a good idea to call it before any of</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     * the other functions.</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">void</strong> setutxent();
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     * Closes the utmp file. It should be called when the user code is done accessing the file with the other functions.</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">void</strong> endutxent();
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     * The sysctl() function retrieves system information and allows processes with appropriate privileges to set system</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     * information. The information available from sysctl() consists of integers, strings, and tables.</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     * The state is described using a "Management Information Base" (MIB) style name, listed in name, which is a namelen</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     * length array of integers.</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     * The information is copied into the buffer specified by oldp. The size of the buffer is given by the location</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * specified by oldlenp before the call, and that location gives the amount of data copied after a successful call</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * and after a call that returns with the error code ENOMEM. If the amount of data available is greater than the</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * size of the buffer supplied, the call supplies as much data as fits in the buffer provided and returns with the</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * error code ENOMEM. If the old value is not desired, oldp and oldlenp should be set to NULL.</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * The size of the available data can be determined by calling sysctl() with the NULL argument for oldp. The size of</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * the available data will be returned in the location pointed to by oldlenp. For some operations, the amount of</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     * space may change often. For these operations, the system attempts to round up so that the returned size is large</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * enough for a call to return the data shortly thereafter.</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     * To set a new value, newp is set to point to a buffer of length newlen from which the requested value is to be</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     * taken. If a new value is not to be set, newp should be set to NULL and newlen set to 0.</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     * @param name    MIB array of integers</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">     * @param namelen length of the MIB array</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">     * @param oldp    Information retrieved</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">     * @param oldlenp Size of information retrieved</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     * @param newp    Information to be written</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     * @param newlen  Size of information to be written</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">int</strong> sysctl(<strong class="jxr_keyword">int</strong>[] name, <strong class="jxr_keyword">int</strong> namelen, Pointer oldp, size_t.ByReference oldlenp, Pointer newp, size_t newlen);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">     * The sysctlbyname() function accepts an ASCII representation of the name and internally looks up the integer name</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     * vector. Apart from that, it behaves the same as the standard sysctl() function.</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">     * @param name    ASCII representation of the MIB name</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     * @param oldp    Information retrieved</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * @param oldlenp Size of information retrieved</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     * @param newp    Information to be written</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * @param newlen  Size of information to be written</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <strong class="jxr_keyword">int</strong> sysctlbyname(String name, Pointer oldp, size_t.ByReference oldlenp, Pointer newp, size_t newlen);
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * The sysctlnametomib() function accepts an ASCII representation of the name, looks up the integer name vector, and</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     * returns the numeric representation in the mib array pointed to by mibp. The number of elements in the mib array</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     * is given by the location specified by sizep before the call, and that location gives the number of entries copied</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> <em class="jxr_javadoccomment">     * after a successful call. The resulting mib and size may be used in subsequent sysctl() calls to get the data</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">     * associated with the requested ASCII name. This interface is intended for use by applications that want to</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">     * repeatedly request the same variable (the sysctl() function runs in about a third the time as the same request</em>
+<a class="jxr_linenumber" name="L214" href="#L214">214</a> <em class="jxr_javadoccomment">     * made via the sysctlbyname() function).</em>
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a> <em class="jxr_javadoccomment">     * The number of elements in the mib array can be determined by calling sysctlnametomib() with the NULL argument for</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> <em class="jxr_javadoccomment">     * mibp.</em>
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">     * To set a new value, newp is set to point to a buffer of length newlen from</em>
-<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">     * which the requested value is to be taken. If a new value is not to be set,</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     * newp should be set to NULL and newlen set to 0.</em>
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">     * The sysctlnametomib() function is also useful for fetching mib prefixes. If size on input is greater than the</em>
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">     * number of elements written, the array still contains the additional elements which may be written</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">     * programmatically.</em>
 <a class="jxr_linenumber" name="L222" href="#L222">222</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">     * @param name</em>
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">     *            MIB array of integers</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">     * @param namelen</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">     *            length of the MIB array</em>
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">     * @param oldp</em>
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     *            Information retrieved</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     * @param oldlenp</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     *            Size of information retrieved</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * @param newp</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     *            Information to be written</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * @param newlen</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     *            Size of information to be written</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">int</strong> sysctl(<strong class="jxr_keyword">int</strong>[] name, <strong class="jxr_keyword">int</strong> namelen, Pointer oldp, size_t.ByReference oldlenp, Pointer newp, size_t newlen);
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     * The sysctlbyname() function accepts an ASCII representation of the name and</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * internally looks up the integer name vector. Apart from that, it behaves the</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * same as the standard sysctl() function.</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     * @param name</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">     *            ASCII representation of the MIB name</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     * @param oldp</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">     *            Information retrieved</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     * @param oldlenp</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     *            Size of information retrieved</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     * @param newp</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">     *            Information to be written</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">     * @param newlen</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     *            Size of information to be written</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">int</strong> sysctlbyname(String name, Pointer oldp, size_t.ByReference oldlenp, Pointer newp, size_t newlen);
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * The sysctlnametomib() function accepts an ASCII representation of the name,</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     * looks up the integer name vector, and returns the numeric representation in</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * the mib array pointed to by mibp. The number of elements in the mib array is</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     * given by the location specified by sizep before the call, and that location</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * gives the number of entries copied after a successful call. The resulting mib</em>
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     * and size may be used in subsequent sysctl() calls to get the data associated</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * with the requested ASCII name. This interface is intended for use by</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     * applications that want to repeatedly request the same variable (the sysctl()</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     * function runs in about a third the time as the same request made via the</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     * sysctlbyname() function).</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     * The number of elements in the mib array can be determined by calling</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     * sysctlnametomib() with the NULL argument for mibp.</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     * The sysctlnametomib() function is also useful for fetching mib prefixes. If</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     * size on input is greater than the number of elements written, the array still</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     * contains the additional elements which may be written programmatically.</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">     * @param name</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     *            ASCII representation of the name</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     * @param mibp</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     *            Integer array containing the corresponding name vector.</em>
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     * @param sizep</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     *            On input, number of elements in the returned array; on output, the</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     *            number of entries copied.</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <strong class="jxr_keyword">int</strong> sysctlnametomib(String name, Pointer mibp, size_t.ByReference sizep);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">int</strong> open(String absolutePath, <strong class="jxr_keyword">int</strong> i);
-<a class="jxr_linenumber" name="L289" href="#L289">289</a> 
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>     <em class="jxr_comment">// Last argument is really off_t</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     ssize_t pread(<strong class="jxr_keyword">int</strong> fildes, Pointer buf, size_t nbyte, NativeLong offset);
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> }
+<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">     * @param name  ASCII representation of the name</em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">     * @param mibp  Integer array containing the corresponding name vector.</em>
+<a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">     * @param sizep On input, number of elements in the returned array; on output, the number of entries copied.</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">     * @return 0 on success; sets errno on failure</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">int</strong> sysctlnametomib(String name, Pointer mibp, size_t.ByReference sizep);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">int</strong> open(String absolutePath, <strong class="jxr_keyword">int</strong> i);
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <em class="jxr_comment">// Last argument is really off_t</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     ssize_t pread(<strong class="jxr_keyword">int</strong> fildes, Pointer buf, size_t nbyte, NativeLong offset);
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

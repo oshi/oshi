@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OSSession.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OSSession.java</span></div><h1>OSSession.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
 
@@ -31,24 +12,23 @@ import java.time.format.DateTimeFormatter;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * This class encapsulates information about users who are currently logged in
- * to an operating system.
+ * This class encapsulates information about users who are currently logged in to an operating system.
  */
 @Immutable
 public class OSSession {
-<span class="nc" id="L39">    private static final DateTimeFormatter LOGIN_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
+<span class="nc" id="L19">    private static final DateTimeFormatter LOGIN_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
 
     private final String userName;
     private final String terminalDevice;
     private final long loginTime;
     private final String host;
 
-<span class="nc" id="L46">    public OSSession(String userName, String terminalDevice, long loginTime, String host) {</span>
-<span class="nc" id="L47">        this.userName = userName;</span>
-<span class="nc" id="L48">        this.terminalDevice = terminalDevice;</span>
-<span class="nc" id="L49">        this.loginTime = loginTime;</span>
-<span class="nc" id="L50">        this.host = host;</span>
-<span class="nc" id="L51">    }</span>
+<span class="nc" id="L26">    public OSSession(String userName, String terminalDevice, long loginTime, String host) {</span>
+<span class="nc" id="L27">        this.userName = userName;</span>
+<span class="nc" id="L28">        this.terminalDevice = terminalDevice;</span>
+<span class="nc" id="L29">        this.loginTime = loginTime;</span>
+<span class="nc" id="L30">        this.host = host;</span>
+<span class="nc" id="L31">    }</span>
 
     /**
      * Gets the login name of the user
@@ -56,7 +36,7 @@ public class OSSession {
      * @return the userName
      */
     public String getUserName() {
-<span class="nc" id="L59">        return userName;</span>
+<span class="nc" id="L39">        return userName;</span>
     }
 
     /**
@@ -65,7 +45,7 @@ public class OSSession {
      * @return the terminalDevice
      */
     public String getTerminalDevice() {
-<span class="nc" id="L68">        return terminalDevice;</span>
+<span class="nc" id="L48">        return terminalDevice;</span>
     }
 
     /**
@@ -74,28 +54,28 @@ public class OSSession {
      * @return the loginTime, in milliseconds since the 1970 epoch
      */
     public long getLoginTime() {
-<span class="nc" id="L77">        return loginTime;</span>
+<span class="nc" id="L57">        return loginTime;</span>
     }
 
     /**
      * Gets the remote host from which the user logged in
      *
-     * @return the host as either an IPv4 or IPv6 representation. If the host is
-     *         unspecified, may also be an empty string, depending on the platform.
+     * @return the host as either an IPv4 or IPv6 representation. If the host is unspecified, may also be an empty
+     *         string, depending on the platform.
      */
     public String getHost() {
-<span class="nc" id="L87">        return host;</span>
+<span class="nc" id="L67">        return host;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        String loginStr = loginTime == 0 ? &quot;No login&quot;</span>
-<span class="nc" id="L93">                : LocalDateTime.ofInstant(Instant.ofEpochMilli(loginTime), ZoneId.systemDefault()).format(LOGIN_FORMAT);</span>
-<span class="nc" id="L94">        String hostStr = &quot;&quot;;</span>
-<span class="nc bnc" id="L95" title="All 6 branches missed.">        if (!host.isEmpty() &amp;&amp; !host.equals(&quot;::&quot;) &amp;&amp; !host.equals(&quot;0.0.0.0&quot;)) {</span>
-<span class="nc" id="L96">            hostStr = &quot;, (&quot; + host + &quot;)&quot;;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        String loginStr = loginTime == 0 ? &quot;No login&quot;</span>
+<span class="nc" id="L73">                : LocalDateTime.ofInstant(Instant.ofEpochMilli(loginTime), ZoneId.systemDefault()).format(LOGIN_FORMAT);</span>
+<span class="nc" id="L74">        String hostStr = &quot;&quot;;</span>
+<span class="nc bnc" id="L75" title="All 6 branches missed.">        if (!host.isEmpty() &amp;&amp; !host.equals(&quot;::&quot;) &amp;&amp; !host.equals(&quot;0.0.0.0&quot;)) {</span>
+<span class="nc" id="L76">            hostStr = &quot;, (&quot; + host + &quot;)&quot;;</span>
         }
-<span class="nc" id="L98">        return String.format(&quot;%s, %s, %s%s&quot;, userName, terminalDevice, loginStr, hostStr);</span>
+<span class="nc" id="L78">        return String.format(&quot;%s, %s, %s%s&quot;, userName, terminalDevice, loginStr, hostStr);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

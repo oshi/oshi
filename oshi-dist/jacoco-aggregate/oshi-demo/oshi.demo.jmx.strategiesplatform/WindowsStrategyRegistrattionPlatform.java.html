@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsStrategyRegistrattionPlatform.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.jmx.strategiesplatform</a> &gt; <span class="el_source">WindowsStrategyRegistrattionPlatform.java</span></div><h1>WindowsStrategyRegistrattionPlatform.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package oshi.demo.jmx.strategiesplatform;
+
+import oshi.SystemInfo;
+import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
+
+import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import java.beans.IntrospectionException;
+
+<span class="nc" id="L19">public class WindowsStrategyRegistrattionPlatform implements StrategyRegistrationPlatformMBeans {</span>
+    @Override
+    public void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer)
+            throws NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException,
+            MalformedObjectNameException, IntrospectionException, javax.management.IntrospectionException {
+        // here we can register all the MBeans reletad to windows. for this sample we
+        // are only gonna register one MBean with two Attribute
+
+<span class="nc" id="L27">        ObjectName objectName = new ObjectName(&quot;oshi:component=BaseBoard&quot;);</span>
+<span class="nc" id="L28">        oshi.demo.jmx.mbeans.Baseboard baseBoardMBean = new oshi.demo.jmx.mbeans.Baseboard(</span>
+<span class="nc" id="L29">                systemInfo.getHardware().getComputerSystem().getBaseboard());</span>
+
+<span class="nc" id="L31">        mBeanServer.registerMBean(baseBoardMBean, objectName);</span>
+<span class="nc" id="L32">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

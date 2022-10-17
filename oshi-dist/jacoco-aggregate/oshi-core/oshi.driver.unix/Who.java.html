@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Who.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.unix</a> &gt; <span class="el_source">Who.java</span></div><h1>Who.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix;
 
@@ -52,16 +33,16 @@ public final class Who {
 
     // sample format:
     // oshi pts/0 2020-05-14 21:23 (192.168.1.23)
-<span class="nc" id="L55">    private static final Pattern WHO_FORMAT_LINUX = Pattern</span>
-<span class="nc" id="L56">            .compile(&quot;(\\S+)\\s+(\\S+)\\s+(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2})\\s*(?:\\((.+)\\))?&quot;);</span>
-<span class="nc" id="L57">    private static final DateTimeFormatter WHO_DATE_FORMAT_LINUX = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
+<span class="nc" id="L36">    private static final Pattern WHO_FORMAT_LINUX = Pattern</span>
+<span class="nc" id="L37">            .compile(&quot;(\\S+)\\s+(\\S+)\\s+(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2})\\s*(?:\\((.+)\\))?&quot;);</span>
+<span class="nc" id="L38">    private static final DateTimeFormatter WHO_DATE_FORMAT_LINUX = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm&quot;);</span>
     // oshi ttys000 May 4 23:50 (192.168.1.23)
     // middle 12 characters from Thu Nov 24 18:22:48 1986
-<span class="nc" id="L60">    private static final Pattern WHO_FORMAT_UNIX = Pattern</span>
-<span class="nc" id="L61">            .compile(&quot;(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\d+)\\s+(\\d{2}:\\d{2})\\s*(?:\\((.+)\\))?&quot;);</span>
-<span class="nc" id="L62">    private static final DateTimeFormatter WHO_DATE_FORMAT_UNIX = new DateTimeFormatterBuilder()</span>
-<span class="nc" id="L63">            .appendPattern(&quot;MMM d HH:mm&quot;).parseDefaulting(ChronoField.YEAR, Year.now().getValue())</span>
-<span class="nc" id="L64">            .toFormatter(Locale.US);</span>
+<span class="nc" id="L41">    private static final Pattern WHO_FORMAT_UNIX = Pattern</span>
+<span class="nc" id="L42">            .compile(&quot;(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\d+)\\s+(\\d{2}:\\d{2})\\s*(?:\\((.+)\\))?&quot;);</span>
+<span class="nc" id="L43">    private static final DateTimeFormatter WHO_DATE_FORMAT_UNIX = new DateTimeFormatterBuilder()</span>
+<span class="nc" id="L44">            .appendPattern(&quot;MMM d HH:mm&quot;).parseDefaulting(ChronoField.YEAR, Year.now().getValue())</span>
+<span class="nc" id="L45">            .toFormatter(Locale.US);</span>
 
     private Who() {
     }
@@ -72,73 +53,69 @@ public final class Who {
      * @return A list of logged in user sessions
      */
     public static synchronized List&lt;OSSession&gt; queryWho() {
-<span class="nc" id="L75">        List&lt;OSSession&gt; whoList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L76">        List&lt;String&gt; who = ExecutingCommand.runNative(&quot;who&quot;);</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (String s : who) {</span>
-<span class="nc" id="L78">            boolean matched = false;</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (Platform.isLinux()) {</span>
-<span class="nc" id="L80">                matched = matchLinux(whoList, s);</span>
+<span class="nc" id="L56">        List&lt;OSSession&gt; whoList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L57">        List&lt;String&gt; who = ExecutingCommand.runNative(&quot;who&quot;);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (String s : who) {</span>
+<span class="nc" id="L59">            boolean matched = false;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (Platform.isLinux()) {</span>
+<span class="nc" id="L61">                matched = matchLinux(whoList, s);</span>
             }
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (!matched) {</span>
-<span class="nc" id="L83">                matchUnix(whoList, s);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (!matched) {</span>
+<span class="nc" id="L64">                matchUnix(whoList, s);</span>
             }
-<span class="nc" id="L85">        }</span>
-<span class="nc" id="L86">        return whoList;</span>
+<span class="nc" id="L66">        }</span>
+<span class="nc" id="L67">        return whoList;</span>
     }
 
     /**
      * Attempt to match Linux WHO format and add to the list
      *
-     * @param whoList
-     *            the list to add to
-     * @param s
-     *            the string to match
+     * @param whoList the list to add to
+     * @param s       the string to match
      * @return true if successful, false otherwise
      */
     private static boolean matchLinux(List&lt;OSSession&gt; whoList, String s) {
-<span class="nc" id="L99">        Matcher m = WHO_FORMAT_LINUX.matcher(s);</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc" id="L78">        Matcher m = WHO_FORMAT_LINUX.matcher(s);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (m.matches()) {</span>
             try {
-<span class="nc" id="L102">                whoList.add(new OSSession(m.group(1), m.group(2),</span>
-<span class="nc" id="L103">                        LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4), WHO_DATE_FORMAT_LINUX)</span>
-<span class="nc" id="L104">                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                        m.group(5) == null ? Constants.UNKNOWN : m.group(5)));</span>
-<span class="nc" id="L106">                return true;</span>
-<span class="nc" id="L107">            } catch (DateTimeParseException | NullPointerException e) {</span>
+<span class="nc" id="L81">                whoList.add(new OSSession(m.group(1), m.group(2),</span>
+<span class="nc" id="L82">                        LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4), WHO_DATE_FORMAT_LINUX)</span>
+<span class="nc" id="L83">                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                        m.group(5) == null ? Constants.UNKNOWN : m.group(5)));</span>
+<span class="nc" id="L85">                return true;</span>
+<span class="nc" id="L86">            } catch (DateTimeParseException | NullPointerException e) {</span>
                 // shouldn't happen if regex matches and OS is producing sensible dates
             }
         }
-<span class="nc" id="L111">        return false;</span>
+<span class="nc" id="L90">        return false;</span>
     }
 
     /**
      * Attempt to match Unix WHO format and add to the list
      *
-     * @param whoList
-     *            the list to add to
-     * @param s
-     *            the string to match
+     * @param whoList the list to add to
+     * @param s       the string to match
      * @return true if successful, false otherwise
      */
     private static boolean matchUnix(List&lt;OSSession&gt; whoList, String s) {
-<span class="nc" id="L124">        Matcher m = WHO_FORMAT_UNIX.matcher(s);</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc" id="L101">        Matcher m = WHO_FORMAT_UNIX.matcher(s);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (m.matches()) {</span>
             try {
                 // Missing year, parse date time with current year
-<span class="nc" id="L128">                LocalDateTime login = LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4) + &quot; &quot; + m.group(5),</span>
+<span class="nc" id="L105">                LocalDateTime login = LocalDateTime.parse(m.group(3) + &quot; &quot; + m.group(4) + &quot; &quot; + m.group(5),</span>
                         WHO_DATE_FORMAT_UNIX);
                 // If this date is in the future, subtract a year
-<span class="nc bnc" id="L131" title="All 2 branches missed.">                if (login.isAfter(LocalDateTime.now())) {</span>
-<span class="nc" id="L132">                    login = login.minus(1, ChronoUnit.YEARS);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (login.isAfter(LocalDateTime.now())) {</span>
+<span class="nc" id="L109">                    login = login.minus(1, ChronoUnit.YEARS);</span>
                 }
-<span class="nc" id="L134">                long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">                whoList.add(new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? &quot;&quot; : m.group(6)));</span>
-<span class="nc" id="L136">                return true;</span>
-<span class="nc" id="L137">            } catch (DateTimeParseException | NullPointerException e) {</span>
+<span class="nc" id="L111">                long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                whoList.add(new OSSession(m.group(1), m.group(2), millis, m.group(6) == null ? &quot;&quot; : m.group(6)));</span>
+<span class="nc" id="L113">                return true;</span>
+<span class="nc" id="L114">            } catch (DateTimeParseException | NullPointerException e) {</span>
                 // shouldn't happen if regex matches and OS is producing sensible dates
             }
         }
-<span class="nc" id="L141">        return false;</span>
+<span class="nc" id="L118">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OpenBsdOSThread.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.openbsd</a> &gt; <span class="el_source">OpenBsdOSThread.java</span></div><h1>OpenBsdOSThread.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.openbsd;
 
@@ -48,8 +29,8 @@ import oshi.util.ParseUtil;
 public class OpenBsdOSThread extends AbstractOSThread {
 
     private int threadId;
-<span class="nc" id="L51">    private String name = &quot;&quot;;</span>
-<span class="nc" id="L52">    private OSProcess.State state = INVALID;</span>
+<span class="nc" id="L32">    private String name = &quot;&quot;;</span>
+<span class="nc" id="L33">    private OSProcess.State state = INVALID;</span>
     private long minorFaults;
     private long majorFaults;
     private long startMemoryAddress;
@@ -61,129 +42,129 @@ public class OpenBsdOSThread extends AbstractOSThread {
     private int priority;
 
     public OpenBsdOSThread(int processId, Map&lt;PsThreadColumns, String&gt; threadMap) {
-<span class="nc" id="L64">        super(processId);</span>
-<span class="nc" id="L65">        updateAttributes(threadMap);</span>
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L45">        super(processId);</span>
+<span class="nc" id="L46">        updateAttributes(threadMap);</span>
+<span class="nc" id="L47">    }</span>
 
     @Override
     public int getThreadId() {
-<span class="nc" id="L70">        return this.threadId;</span>
+<span class="nc" id="L51">        return this.threadId;</span>
     }
 
     @Override
     public String getName() {
-<span class="nc" id="L75">        return this.name;</span>
+<span class="nc" id="L56">        return this.name;</span>
     }
 
     @Override
     public OSProcess.State getState() {
-<span class="nc" id="L80">        return this.state;</span>
+<span class="nc" id="L61">        return this.state;</span>
     }
 
     @Override
     public long getStartMemoryAddress() {
-<span class="nc" id="L85">        return this.startMemoryAddress;</span>
+<span class="nc" id="L66">        return this.startMemoryAddress;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L90">        return this.contextSwitches;</span>
+<span class="nc" id="L71">        return this.contextSwitches;</span>
     }
 
     @Override
     public long getMinorFaults() {
-<span class="nc" id="L95">        return this.minorFaults;</span>
+<span class="nc" id="L76">        return this.minorFaults;</span>
     }
 
     @Override
     public long getMajorFaults() {
-<span class="nc" id="L100">        return this.majorFaults;</span>
+<span class="nc" id="L81">        return this.majorFaults;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L105">        return this.kernelTime;</span>
+<span class="nc" id="L86">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L110">        return this.userTime;</span>
+<span class="nc" id="L91">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L115">        return this.upTime;</span>
+<span class="nc" id="L96">        return this.upTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L120">        return this.startTime;</span>
+<span class="nc" id="L101">        return this.startTime;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L125">        return this.priority;</span>
+<span class="nc" id="L106">        return this.priority;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L130">        String psCommand = &quot;ps -aHwwxo &quot; + OpenBsdOSProcess.PS_THREAD_COLUMNS + &quot; -p &quot; + getOwningProcessId();</span>
+<span class="nc" id="L111">        String psCommand = &quot;ps -aHwwxo &quot; + OpenBsdOSProcess.PS_THREAD_COLUMNS + &quot; -p &quot; + getOwningProcessId();</span>
         // there is no switch for thread in ps command, hence filtering.
-<span class="nc" id="L132">        List&lt;String&gt; threadList = ExecutingCommand.runNative(psCommand);</span>
-<span class="nc" id="L133">        String tidStr = Integer.toString(this.threadId);</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (String psOutput : threadList) {</span>
-<span class="nc" id="L135">            Map&lt;PsThreadColumns, String&gt; threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),</span>
+<span class="nc" id="L113">        List&lt;String&gt; threadList = ExecutingCommand.runNative(psCommand);</span>
+<span class="nc" id="L114">        String tidStr = Integer.toString(this.threadId);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        for (String psOutput : threadList) {</span>
+<span class="nc" id="L116">            Map&lt;PsThreadColumns, String&gt; threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),</span>
                     ' ');
-<span class="nc bnc" id="L137" title="All 4 branches missed.">            if (threadMap.containsKey(PsThreadColumns.ARGS) &amp;&amp; tidStr.equals(threadMap.get(PsThreadColumns.TID))) {</span>
-<span class="nc" id="L138">                return updateAttributes(threadMap);</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">            if (threadMap.containsKey(PsThreadColumns.ARGS) &amp;&amp; tidStr.equals(threadMap.get(PsThreadColumns.TID))) {</span>
+<span class="nc" id="L119">                return updateAttributes(threadMap);</span>
             }
-<span class="nc" id="L140">        }</span>
-<span class="nc" id="L141">        this.state = INVALID;</span>
-<span class="nc" id="L142">        return false;</span>
+<span class="nc" id="L121">        }</span>
+<span class="nc" id="L122">        this.state = INVALID;</span>
+<span class="nc" id="L123">        return false;</span>
     }
 
     private boolean updateAttributes(Map&lt;PsThreadColumns, String&gt; threadMap) {
-<span class="nc" id="L146">        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);</span>
-<span class="nc bnc" id="L147" title="All 6 branches missed.">        switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {</span>
+<span class="nc" id="L127">        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);</span>
+<span class="nc bnc" id="L128" title="All 6 branches missed.">        switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {</span>
         case 'R':
-<span class="nc" id="L149">            this.state = RUNNING;</span>
-<span class="nc" id="L150">            break;</span>
+<span class="nc" id="L130">            this.state = RUNNING;</span>
+<span class="nc" id="L131">            break;</span>
         case 'I':
         case 'S':
-<span class="nc" id="L153">            this.state = SLEEPING;</span>
-<span class="nc" id="L154">            break;</span>
+<span class="nc" id="L134">            this.state = SLEEPING;</span>
+<span class="nc" id="L135">            break;</span>
         case 'D':
         case 'L':
         case 'U':
-<span class="nc" id="L158">            this.state = WAITING;</span>
-<span class="nc" id="L159">            break;</span>
+<span class="nc" id="L139">            this.state = WAITING;</span>
+<span class="nc" id="L140">            break;</span>
         case 'Z':
-<span class="nc" id="L161">            this.state = ZOMBIE;</span>
-<span class="nc" id="L162">            break;</span>
+<span class="nc" id="L142">            this.state = ZOMBIE;</span>
+<span class="nc" id="L143">            break;</span>
         case 'T':
-<span class="nc" id="L164">            this.state = STOPPED;</span>
-<span class="nc" id="L165">            break;</span>
+<span class="nc" id="L145">            this.state = STOPPED;</span>
+<span class="nc" id="L146">            break;</span>
         default:
-<span class="nc" id="L167">            this.state = OTHER;</span>
+<span class="nc" id="L148">            this.state = OTHER;</span>
             break;
         }
         // Avoid divide by zero for processes up less than a second
-<span class="nc" id="L171">        long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIME), 0L);</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
-<span class="nc" id="L173">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L174">        this.startTime = now - this.upTime;</span>
+<span class="nc" id="L152">        long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIME), 0L);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
+<span class="nc" id="L154">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L155">        this.startTime = now - this.upTime;</span>
         // ps does not provide kerneltime on OpenBSD
-<span class="nc" id="L176">        this.kernelTime = 0L;</span>
-<span class="nc" id="L177">        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.CPUTIME), 0L);</span>
-<span class="nc" id="L178">        this.startMemoryAddress = 0L;</span>
-<span class="nc" id="L179">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);</span>
-<span class="nc" id="L180">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);</span>
-<span class="nc" id="L181">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
-<span class="nc" id="L182">        this.majorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MAJFLT), 0L);</span>
-<span class="nc" id="L183">        this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MINFLT), 0L);</span>
-<span class="nc" id="L184">        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);</span>
-<span class="nc" id="L185">        this.name = threadMap.get(PsThreadColumns.ARGS);</span>
-<span class="nc" id="L186">        return true;</span>
+<span class="nc" id="L157">        this.kernelTime = 0L;</span>
+<span class="nc" id="L158">        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.CPUTIME), 0L);</span>
+<span class="nc" id="L159">        this.startMemoryAddress = 0L;</span>
+<span class="nc" id="L160">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);</span>
+<span class="nc" id="L161">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);</span>
+<span class="nc" id="L162">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
+<span class="nc" id="L163">        this.majorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MAJFLT), 0L);</span>
+<span class="nc" id="L164">        this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MINFLT), 0L);</span>
+<span class="nc" id="L165">        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);</span>
+<span class="nc" id="L166">        this.name = threadMap.get(PsThreadColumns.ARGS);</span>
+<span class="nc" id="L167">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

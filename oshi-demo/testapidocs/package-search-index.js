@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"oshi.demo"},{"l":"oshi.demo.gui"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"oshi.demo"},{"l":"oshi.demo.gui"},{"l":"oshi.demo.jmx"},{"l":"oshi.demo.jmx.api"},{"l":"oshi.demo.jmx.demo"},{"l":"oshi.demo.jmx.mbeans"},{"l":"oshi.demo.jmx.strategiesplatform"}];updateSearchResults();

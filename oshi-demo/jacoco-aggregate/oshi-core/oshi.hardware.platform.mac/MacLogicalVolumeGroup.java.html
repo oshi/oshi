@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacLogicalVolumeGroup.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.mac</a> &gt; <span class="el_source">MacLogicalVolumeGroup.java</span></div><h1>MacLogicalVolumeGroup.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
 
@@ -43,48 +24,48 @@ final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final String LOGICAL_VOLUME = &quot;Logical Volume&quot;;
 
     MacLogicalVolumeGroup(String name, Map&lt;String, Set&lt;String&gt;&gt; lvMap, Set&lt;String&gt; pvSet) {
-<span class="nc" id="L46">        super(name, lvMap, pvSet);</span>
-<span class="nc" id="L47">    }</span>
+<span class="nc" id="L27">        super(name, lvMap, pvSet);</span>
+<span class="nc" id="L28">    }</span>
 
     static List&lt;LogicalVolumeGroup&gt; getLogicalVolumeGroups() {
-<span class="nc" id="L50">        Map&lt;String, Map&lt;String, Set&lt;String&gt;&gt;&gt; logicalVolumesMap = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L51">        Map&lt;String, Set&lt;String&gt;&gt; physicalVolumesMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L31">        Map&lt;String, Map&lt;String, Set&lt;String&gt;&gt;&gt; logicalVolumesMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L32">        Map&lt;String, Set&lt;String&gt;&gt; physicalVolumesMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L53">        String currentVolumeGroup = null;</span>
-<span class="nc" id="L54">        boolean lookForVGName = false;</span>
-<span class="nc" id="L55">        boolean lookForPVName = false;</span>
+<span class="nc" id="L34">        String currentVolumeGroup = null;</span>
+<span class="nc" id="L35">        boolean lookForVGName = false;</span>
+<span class="nc" id="L36">        boolean lookForPVName = false;</span>
         int indexOf;
         // Parse `diskutil cs list` to populate logical volume map
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(DISKUTIL_CS_LIST)) {</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (line.contains(LOGICAL_VOLUME_GROUP)) {</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        for (String line : ExecutingCommand.runNative(DISKUTIL_CS_LIST)) {</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">            if (line.contains(LOGICAL_VOLUME_GROUP)) {</span>
                 // Disks that follow should be attached to this VG
-<span class="nc" id="L61">                lookForVGName = true;</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            } else if (lookForVGName) {</span>
-<span class="nc" id="L63">                indexOf = line.indexOf(&quot;Name:&quot;);</span>
-<span class="nc bnc" id="L64" title="All 2 branches missed.">                if (indexOf &gt;= 0) {</span>
-<span class="nc" id="L65">                    currentVolumeGroup = line.substring(indexOf + 5).trim();</span>
-<span class="nc" id="L66">                    lookForVGName = false;</span>
+<span class="nc" id="L42">                lookForVGName = true;</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            } else if (lookForVGName) {</span>
+<span class="nc" id="L44">                indexOf = line.indexOf(&quot;Name:&quot;);</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">                if (indexOf &gt;= 0) {</span>
+<span class="nc" id="L46">                    currentVolumeGroup = line.substring(indexOf + 5).trim();</span>
+<span class="nc" id="L47">                    lookForVGName = false;</span>
                 }
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            } else if (line.contains(PHYSICAL_VOLUME)) {</span>
-<span class="nc" id="L69">                lookForPVName = true;</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">            } else if (line.contains(LOGICAL_VOLUME)) {</span>
-<span class="nc" id="L71">                lookForPVName = false;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            } else if (line.contains(PHYSICAL_VOLUME)) {</span>
+<span class="nc" id="L50">                lookForPVName = true;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            } else if (line.contains(LOGICAL_VOLUME)) {</span>
+<span class="nc" id="L52">                lookForPVName = false;</span>
             } else {
-<span class="nc" id="L73">                indexOf = line.indexOf(&quot;Disk:&quot;);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">                if (indexOf &gt;= 0) {</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">                    if (lookForPVName) {</span>
-<span class="nc" id="L76">                        physicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; new HashSet&lt;&gt;())</span>
-<span class="nc" id="L77">                                .add(line.substring(indexOf + 5).trim());</span>
+<span class="nc" id="L54">                indexOf = line.indexOf(&quot;Disk:&quot;);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">                if (indexOf &gt;= 0) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">                    if (lookForPVName) {</span>
+<span class="nc" id="L57">                        physicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; new HashSet&lt;&gt;())</span>
+<span class="nc" id="L58">                                .add(line.substring(indexOf + 5).trim());</span>
                     } else {
-<span class="nc" id="L79">                        logicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; new HashMap&lt;&gt;())</span>
-<span class="nc" id="L80">                                .put(line.substring(indexOf + 5).trim(), Collections.emptySet());</span>
+<span class="nc" id="L60">                        logicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; new HashMap&lt;&gt;())</span>
+<span class="nc" id="L61">                                .put(line.substring(indexOf + 5).trim(), Collections.emptySet());</span>
                     }
                 }
             }
-<span class="nc" id="L84">        }</span>
-<span class="nc" id="L85">        return logicalVolumesMap.entrySet().stream()</span>
-<span class="nc" id="L86">                .map(e -&gt; new MacLogicalVolumeGroup(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))</span>
-<span class="nc" id="L87">                .collect(Collectors.toList());</span>
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">        return logicalVolumesMap.entrySet().stream()</span>
+<span class="nc" id="L67">                .map(e -&gt; new MacLogicalVolumeGroup(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))</span>
+<span class="nc" id="L68">                .collect(Collectors.toList());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

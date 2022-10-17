@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AixGlobalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.unix.aix</a> &gt; <span class="el_source">AixGlobalMemory.java</span></div><h1>AixGlobalMemory.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
 
@@ -46,83 +27,83 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 final class AixGlobalMemory extends AbstractGlobalMemory {
 
-<span class="nc" id="L49">    private final Supplier&lt;perfstat_memory_total_t&gt; perfstatMem = memoize(AixGlobalMemory::queryPerfstat,</span>
-<span class="nc" id="L50">            defaultExpiration());</span>
+<span class="nc" id="L30">    private final Supplier&lt;perfstat_memory_total_t&gt; perfstatMem = memoize(AixGlobalMemory::queryPerfstat,</span>
+<span class="nc" id="L31">            defaultExpiration());</span>
     private final Supplier&lt;List&lt;String&gt;&gt; lscfg;
 
     // AIX has multiple page size units, but for purposes of &quot;pages&quot; in perfstat,
     // the docs specify 4KB pages so we hardcode this
     private static final long PAGESIZE = 4096L;
 
-<span class="nc" id="L57">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
+<span class="nc" id="L38">    private final Supplier&lt;VirtualMemory&gt; vm = memoize(this::createVirtualMemory);</span>
 
-<span class="nc" id="L59">    AixGlobalMemory(Supplier&lt;List&lt;String&gt;&gt; lscfg) {</span>
-<span class="nc" id="L60">        this.lscfg = lscfg;</span>
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L40">    AixGlobalMemory(Supplier&lt;List&lt;String&gt;&gt; lscfg) {</span>
+<span class="nc" id="L41">        this.lscfg = lscfg;</span>
+<span class="nc" id="L42">    }</span>
 
     @Override
     public long getAvailable() {
-<span class="nc" id="L65">        return perfstatMem.get().real_avail * PAGESIZE;</span>
+<span class="nc" id="L46">        return perfstatMem.get().real_avail * PAGESIZE;</span>
     }
 
     @Override
     public long getTotal() {
-<span class="nc" id="L70">        return perfstatMem.get().real_total * PAGESIZE;</span>
+<span class="nc" id="L51">        return perfstatMem.get().real_total * PAGESIZE;</span>
     }
 
     @Override
     public long getPageSize() {
-<span class="nc" id="L75">        return PAGESIZE;</span>
+<span class="nc" id="L56">        return PAGESIZE;</span>
     }
 
     @Override
     public VirtualMemory getVirtualMemory() {
-<span class="nc" id="L80">        return vm.get();</span>
+<span class="nc" id="L61">        return vm.get();</span>
     }
 
     @Override
     public List&lt;PhysicalMemory&gt; getPhysicalMemory() {
-<span class="nc" id="L85">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L86">        boolean isMemModule = false;</span>
-<span class="nc" id="L87">        String bankLabel = Constants.UNKNOWN;</span>
-<span class="nc" id="L88">        String locator = &quot;&quot;;</span>
-<span class="nc" id="L89">        long capacity = 0L;</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        for (String line : lscfg.get()) {</span>
-<span class="nc" id="L91">            String s = line.trim();</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (s.endsWith(&quot;memory-module&quot;)) {</span>
-<span class="nc" id="L93">                isMemModule = true;</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">            } else if (isMemModule) {</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                if (s.startsWith(&quot;Node:&quot;)) {</span>
-<span class="nc" id="L96">                    bankLabel = s.substring(5).trim();</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">                    if (bankLabel.startsWith(&quot;IBM,&quot;)) {</span>
-<span class="nc" id="L98">                        bankLabel = bankLabel.substring(4);</span>
+<span class="nc" id="L66">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L67">        boolean isMemModule = false;</span>
+<span class="nc" id="L68">        String bankLabel = Constants.UNKNOWN;</span>
+<span class="nc" id="L69">        String locator = &quot;&quot;;</span>
+<span class="nc" id="L70">        long capacity = 0L;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (String line : lscfg.get()) {</span>
+<span class="nc" id="L72">            String s = line.trim();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (s.endsWith(&quot;memory-module&quot;)) {</span>
+<span class="nc" id="L74">                isMemModule = true;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            } else if (isMemModule) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                if (s.startsWith(&quot;Node:&quot;)) {</span>
+<span class="nc" id="L77">                    bankLabel = s.substring(5).trim();</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                    if (bankLabel.startsWith(&quot;IBM,&quot;)) {</span>
+<span class="nc" id="L79">                        bankLabel = bankLabel.substring(4);</span>
                     }
-<span class="nc bnc" id="L100" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Physical Location:&quot;)) {</span>
-<span class="nc" id="L101">                    locator = &quot;/&quot; + s.substring(18).trim();</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Size&quot;)) {</span>
-<span class="nc" id="L103">                    capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()),</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Physical Location:&quot;)) {</span>
+<span class="nc" id="L82">                    locator = &quot;/&quot; + s.substring(18).trim();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Size&quot;)) {</span>
+<span class="nc" id="L84">                    capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()),</span>
                             0L) &lt;&lt; 20;
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Hardware Location Code&quot;)) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                } else if (s.startsWith(&quot;Hardware Location Code&quot;)) {</span>
                     // Save previous bank
-<span class="nc bnc" id="L107" title="All 2 branches missed.">                    if (capacity &gt; 0) {</span>
-<span class="nc" id="L108">                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, &quot;IBM&quot;, Constants.UNKNOWN));</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                    if (capacity &gt; 0) {</span>
+<span class="nc" id="L89">                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, &quot;IBM&quot;, Constants.UNKNOWN));</span>
                     }
-<span class="nc" id="L110">                    bankLabel = Constants.UNKNOWN;</span>
-<span class="nc" id="L111">                    locator = &quot;&quot;;</span>
-<span class="nc" id="L112">                    capacity = 0L;</span>
-<span class="nc" id="L113">                    isMemModule = false;</span>
+<span class="nc" id="L91">                    bankLabel = Constants.UNKNOWN;</span>
+<span class="nc" id="L92">                    locator = &quot;&quot;;</span>
+<span class="nc" id="L93">                    capacity = 0L;</span>
+<span class="nc" id="L94">                    isMemModule = false;</span>
                 }
             }
-<span class="nc" id="L116">        }</span>
-<span class="nc" id="L117">        return pmList;</span>
+<span class="nc" id="L97">        }</span>
+<span class="nc" id="L98">        return pmList;</span>
     }
 
     private static perfstat_memory_total_t queryPerfstat() {
-<span class="nc" id="L121">        return PerfstatMemory.queryMemoryTotal();</span>
+<span class="nc" id="L102">        return PerfstatMemory.queryMemoryTotal();</span>
     }
 
     private VirtualMemory createVirtualMemory() {
-<span class="nc" id="L125">        return new AixVirtualMemory(perfstatMem);</span>
+<span class="nc" id="L106">        return new AixVirtualMemory(perfstatMem);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

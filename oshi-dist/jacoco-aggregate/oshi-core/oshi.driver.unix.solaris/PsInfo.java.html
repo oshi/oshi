@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PsInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.unix.solaris</a> &gt; <span class="el_source">PsInfo.java</span></div><h1>PsInfo.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.solaris;
 
@@ -53,11 +34,11 @@ import oshi.util.tuples.Quartet;
  */
 @ThreadSafe
 public final class PsInfo {
-<span class="nc" id="L56">    private static final Logger LOG = LoggerFactory.getLogger(PsInfo.class);</span>
+<span class="nc" id="L37">    private static final Logger LOG = LoggerFactory.getLogger(PsInfo.class);</span>
 
-<span class="nc" id="L58">    private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;</span>
+<span class="nc" id="L39">    private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;</span>
 
-<span class="nc" id="L60">    private static final long PAGE_SIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;),</span>
+<span class="nc" id="L41">    private static final long PAGE_SIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(&quot;pagesize&quot;),</span>
             4096L);
 
     private PsInfo() {
@@ -66,213 +47,192 @@ public final class PsInfo {
     /**
      * Reads /proc/pid/psinfo and returns data in a structure
      *
-     * @param pid
-     *            The process ID
+     * @param pid The process ID
      * @return A structure containing information for the requested process
      */
     public static SolarisPsInfo queryPsInfo(int pid) {
-<span class="nc" id="L74">        return new SolarisPsInfo(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/psinfo&quot;, pid)));</span>
+<span class="nc" id="L54">        return new SolarisPsInfo(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/psinfo&quot;, pid)));</span>
     }
 
     /**
      * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
      *
-     * @param pid
-     *            The process ID
-     * @param tid
-     *            The thread ID (lwpid)
+     * @param pid The process ID
+     * @param tid The thread ID (lwpid)
      * @return A structure containing information for the requested thread
      */
     public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
-<span class="nc" id="L87">        return new SolarisLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/lwp/%d/lwpsinfo&quot;, pid, tid)));</span>
+<span class="nc" id="L65">        return new SolarisLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/lwp/%d/lwpsinfo&quot;, pid, tid)));</span>
     }
 
     /**
      * Reads /proc/pid/usage and returns data in a structure
      *
-     * @param pid
-     *            The process ID
+     * @param pid The process ID
      * @return A structure containing information for the requested process
      */
     public static SolarisPrUsage queryPrUsage(int pid) {
-<span class="nc" id="L98">        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/usage&quot;, pid)));</span>
+<span class="nc" id="L75">        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/usage&quot;, pid)));</span>
     }
 
     /**
      * Reads /proc/pid/lwp/tid/usage and returns data in a structure
      *
-     * @param pid
-     *            The process ID
-     * @param tid
-     *            The thread ID (lwpid)
+     * @param pid The process ID
+     * @param tid The thread ID (lwpid)
      * @return A structure containing information for the requested thread
      */
     public static SolarisPrUsage queryPrUsage(int pid, int tid) {
-<span class="nc" id="L111">        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/lwp/%d/usage&quot;, pid, tid)));</span>
+<span class="nc" id="L86">        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format(&quot;/proc/%d/lwp/%d/usage&quot;, pid, tid)));</span>
     }
 
     /**
-     * Reads the pr_argc, pr_argv, pr_envp, and pr_dmodel fields from
-     * /proc/pid/psinfo
+     * Reads the pr_argc, pr_argv, pr_envp, and pr_dmodel fields from /proc/pid/psinfo
      *
-     * @param pid
-     *            The process ID
-     * @param psinfo
-     *            A populated {@link SolarisPsInfo} structure containing the offset
-     *            pointers for these fields
-     * @return A quartet containing the argc, argv, envp and dmodel values, or null
-     *         if unable to read
+     * @param pid    The process ID
+     * @param psinfo A populated {@link SolarisPsInfo} structure containing the offset pointers for these fields
+     * @return A quartet containing the argc, argv, envp and dmodel values, or null if unable to read
      */
     public static Quartet&lt;Integer, Long, Long, Byte&gt; queryArgsEnvAddrs(int pid, SolarisPsInfo psinfo) {
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (psinfo != null) {</span>
-<span class="nc" id="L128">            int argc = psinfo.pr_argc;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (psinfo != null) {</span>
+<span class="nc" id="L98">            int argc = psinfo.pr_argc;</span>
             // Must have at least one argc (the command itself) so failure here means exit
-<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (argc &gt; 0) {</span>
-<span class="nc" id="L131">                long argv = Pointer.nativeValue(psinfo.pr_argv);</span>
-<span class="nc" id="L132">                long envp = Pointer.nativeValue(psinfo.pr_envp);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (argc &gt; 0) {</span>
+<span class="nc" id="L101">                long argv = Pointer.nativeValue(psinfo.pr_argv);</span>
+<span class="nc" id="L102">                long envp = Pointer.nativeValue(psinfo.pr_envp);</span>
                 // Process data model 1 = 32 bit, 2 = 64 bit
-<span class="nc" id="L134">                byte dmodel = psinfo.pr_dmodel;</span>
+<span class="nc" id="L104">                byte dmodel = psinfo.pr_dmodel;</span>
                 // Sanity check
-<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (dmodel * 4 == (envp - argv) / (argc + 1)) {</span>
-<span class="nc" id="L137">                    return new Quartet&lt;&gt;(argc, argv, envp, dmodel);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">                if (dmodel * 4 == (envp - argv) / (argc + 1)) {</span>
+<span class="nc" id="L107">                    return new Quartet&lt;&gt;(argc, argv, envp, dmodel);</span>
                 }
-<span class="nc" id="L139">                LOG.trace(&quot;Failed data model and offset increment sanity check: dm={} diff={}&quot;, dmodel, envp - argv);</span>
-<span class="nc" id="L140">                return null;</span>
+<span class="nc" id="L109">                LOG.trace(&quot;Failed data model and offset increment sanity check: dm={} diff={}&quot;, dmodel, envp - argv);</span>
+<span class="nc" id="L110">                return null;</span>
             }
-<span class="nc" id="L142">            LOG.trace(&quot;Failed argc sanity check: argc={}&quot;, argc);</span>
-<span class="nc" id="L143">            return null;</span>
+<span class="nc" id="L112">            LOG.trace(&quot;Failed argc sanity check: argc={}&quot;, argc);</span>
+<span class="nc" id="L113">            return null;</span>
         }
-<span class="nc" id="L145">        LOG.trace(&quot;Failed to read psinfo file for pid: {} &quot;, pid);</span>
-<span class="nc" id="L146">        return null;</span>
+<span class="nc" id="L115">        LOG.trace(&quot;Failed to read psinfo file for pid: {} &quot;, pid);</span>
+<span class="nc" id="L116">        return null;</span>
     }
 
     /**
      * Read the argument and environment strings from process address space
      *
-     * @param pid
-     *            the process id
-     * @param psinfo
-     *            A populated {@link SolarisPsInfo} structure containing the offset
-     *            pointers for these fields
-     * @return A pair containing a list of the arguments and a map of environment
-     *         variables
+     * @param pid    the process id
+     * @param psinfo A populated {@link SolarisPsInfo} structure containing the offset pointers for these fields
+     * @return A pair containing a list of the arguments and a map of environment variables
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt; queryArgsEnv(int pid, SolarisPsInfo psinfo) {
-<span class="nc" id="L161">        List&lt;String&gt; args = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L162">        Map&lt;String, String&gt; env = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L127">        List&lt;String&gt; args = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L128">        Map&lt;String, String&gt; env = new LinkedHashMap&lt;&gt;();</span>
 
         // Get the arg count and list of env vars
-<span class="nc" id="L165">        Quartet&lt;Integer, Long, Long, Byte&gt; addrs = queryArgsEnvAddrs(pid, psinfo);</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (addrs != null) {</span>
+<span class="nc" id="L131">        Quartet&lt;Integer, Long, Long, Byte&gt; addrs = queryArgsEnvAddrs(pid, psinfo);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (addrs != null) {</span>
             // Open a file descriptor to the address space
-<span class="nc" id="L168">            String procas = &quot;/proc/&quot; + pid + &quot;/as&quot;;</span>
-<span class="nc" id="L169">            int fd = LIBC.open(procas, 0);</span>
-<span class="nc bnc" id="L170" title="All 2 branches missed.">            if (fd &lt; 0) {</span>
-<span class="nc" id="L171">                LOG.trace(&quot;No permission to read file: {} &quot;, procas);</span>
-<span class="nc" id="L172">                return new Pair&lt;&gt;(args, env);</span>
+<span class="nc" id="L134">            String procas = &quot;/proc/&quot; + pid + &quot;/as&quot;;</span>
+<span class="nc" id="L135">            int fd = LIBC.open(procas, 0);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (fd &lt; 0) {</span>
+<span class="nc" id="L137">                LOG.trace(&quot;No permission to read file: {} &quot;, procas);</span>
+<span class="nc" id="L138">                return new Pair&lt;&gt;(args, env);</span>
             }
             try {
                 // Non-null addrs means argc &gt; 0
-<span class="nc" id="L176">                int argc = addrs.getA();</span>
-<span class="nc" id="L177">                long argv = addrs.getB();</span>
-<span class="nc" id="L178">                long envp = addrs.getC();</span>
-<span class="nc" id="L179">                long increment = addrs.getD() * 4L;</span>
+<span class="nc" id="L142">                int argc = addrs.getA();</span>
+<span class="nc" id="L143">                long argv = addrs.getB();</span>
+<span class="nc" id="L144">                long envp = addrs.getC();</span>
+<span class="nc" id="L145">                long increment = addrs.getD() * 4L;</span>
 
                 // Reusable buffer
-<span class="nc" id="L182">                long bufStart = 0;</span>
-<span class="nc" id="L183">                try (Memory buffer = new Memory(PAGE_SIZE * 2)) {</span>
-<span class="nc" id="L184">                    size_t bufSize = new size_t(buffer.size());</span>
+<span class="nc" id="L148">                long bufStart = 0;</span>
+<span class="nc" id="L149">                try (Memory buffer = new Memory(PAGE_SIZE * 2)) {</span>
+<span class="nc" id="L150">                    size_t bufSize = new size_t(buffer.size());</span>
 
                     // Read the pointers to the arg strings
                     // We know argc so we can count them
-<span class="nc" id="L188">                    long[] argp = new long[argc];</span>
-<span class="nc" id="L189">                    long offset = argv;</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                    for (int i = 0; i &lt; argc; i++) {</span>
-<span class="nc" id="L191">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
-<span class="nc bnc" id="L192" title="All 2 branches missed.">                        argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
-<span class="nc" id="L193">                        offset += increment;</span>
+<span class="nc" id="L154">                    long[] argp = new long[argc];</span>
+<span class="nc" id="L155">                    long offset = argv;</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">                    for (int i = 0; i &lt; argc; i++) {</span>
+<span class="nc" id="L157">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                        argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
+<span class="nc" id="L159">                        offset += increment;</span>
                     }
 
                     // Also read the pointers to the env strings
                     // We don't know how many, so stop when we get to null pointer
-<span class="nc" id="L198">                    List&lt;Long&gt; envPtrList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L199">                    offset = envp;</span>
-<span class="nc" id="L200">                    long addr = 0;</span>
-<span class="nc" id="L201">                    int limit = 500; // sane max env strings to stop at</span>
+<span class="nc" id="L164">                    List&lt;Long&gt; envPtrList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L165">                    offset = envp;</span>
+<span class="nc" id="L166">                    long addr = 0;</span>
+<span class="nc" id="L167">                    int limit = 500; // sane max env strings to stop at</span>
                     do {
-<span class="nc" id="L203">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">                        addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">                        if (addr != 0) {</span>
-<span class="nc" id="L206">                            envPtrList.add(addr);</span>
+<span class="nc" id="L169">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                        addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">                        if (addr != 0) {</span>
+<span class="nc" id="L172">                            envPtrList.add(addr);</span>
                         }
-<span class="nc" id="L208">                        offset += increment;</span>
-<span class="nc bnc" id="L209" title="All 4 branches missed.">                    } while (addr != 0 &amp;&amp; --limit &gt; 0);</span>
+<span class="nc" id="L174">                        offset += increment;</span>
+<span class="nc bnc" id="L175" title="All 4 branches missed.">                    } while (addr != 0 &amp;&amp; --limit &gt; 0);</span>
 
                     // Now read the arg strings from the buffer
-<span class="nc bnc" id="L212" title="All 4 branches missed.">                    for (int i = 0; i &lt; argp.length &amp;&amp; argp[i] != 0; i++) {</span>
-<span class="nc" id="L213">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">                        if (bufStart != 0) {</span>
-<span class="nc" id="L215">                            String argStr = buffer.getString(argp[i] - bufStart);</span>
-<span class="nc bnc" id="L216" title="All 2 branches missed.">                            if (!argStr.isEmpty()) {</span>
-<span class="nc" id="L217">                                args.add(argStr);</span>
+<span class="nc bnc" id="L178" title="All 4 branches missed.">                    for (int i = 0; i &lt; argp.length &amp;&amp; argp[i] != 0; i++) {</span>
+<span class="nc" id="L179">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">                        if (bufStart != 0) {</span>
+<span class="nc" id="L181">                            String argStr = buffer.getString(argp[i] - bufStart);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                            if (!argStr.isEmpty()) {</span>
+<span class="nc" id="L183">                                args.add(argStr);</span>
                             }
                         }
                     }
 
                     // And now read the env strings from the buffer
-<span class="nc bnc" id="L223" title="All 2 branches missed.">                    for (Long envPtr : envPtrList) {</span>
-<span class="nc" id="L224">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);</span>
-<span class="nc bnc" id="L225" title="All 2 branches missed.">                        if (bufStart != 0) {</span>
-<span class="nc" id="L226">                            String envStr = buffer.getString(envPtr - bufStart);</span>
-<span class="nc" id="L227">                            int idx = envStr.indexOf('=');</span>
-<span class="nc bnc" id="L228" title="All 2 branches missed.">                            if (idx &gt; 0) {</span>
-<span class="nc" id="L229">                                env.put(envStr.substring(0, idx), envStr.substring(idx + 1));</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">                    for (Long envPtr : envPtrList) {</span>
+<span class="nc" id="L190">                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                        if (bufStart != 0) {</span>
+<span class="nc" id="L192">                            String envStr = buffer.getString(envPtr - bufStart);</span>
+<span class="nc" id="L193">                            int idx = envStr.indexOf('=');</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">                            if (idx &gt; 0) {</span>
+<span class="nc" id="L195">                                env.put(envStr.substring(0, idx), envStr.substring(idx + 1));</span>
                             }
                         }
-<span class="nc" id="L232">                    }</span>
+<span class="nc" id="L198">                    }</span>
                 }
             } finally {
-<span class="nc" id="L235">                LIBC.close(fd);</span>
+<span class="nc" id="L201">                LIBC.close(fd);</span>
             }
         }
-<span class="nc" id="L238">        return new Pair&lt;&gt;(args, env);</span>
+<span class="nc" id="L204">        return new Pair&lt;&gt;(args, env);</span>
     }
 
     /**
-     * Reads the page containing addr into buffer, unless the buffer already
-     * contains that page (as indicated by the bufStart address), in which case
-     * nothing is changed.
+     * Reads the page containing addr into buffer, unless the buffer already contains that page (as indicated by the
+     * bufStart address), in which case nothing is changed.
      *
-     * @param fd
-     *            The file descriptor for the address space
-     * @param buffer
-     *            An allocated buffer, possibly with data reread from bufStart
-     * @param bufSize
-     *            The size of the buffer
-     * @param bufStart
-     *            The start of data currently in bufStart, or 0 if uninitialized
-     * @param addr
-     *            THe address whose page to read into the buffer
+     * @param fd       The file descriptor for the address space
+     * @param buffer   An allocated buffer, possibly with data reread from bufStart
+     * @param bufSize  The size of the buffer
+     * @param bufStart The start of data currently in bufStart, or 0 if uninitialized
+     * @param addr     THe address whose page to read into the buffer
      * @return The new starting pointer for the buffer
      */
     private static long conditionallyReadBufferFromStartOfPage(int fd, Memory buffer, size_t bufSize, long bufStart,
             long addr) {
         // If we don't have the right buffer, update it
-<span class="nc bnc" id="L261" title="All 4 branches missed.">        if (addr &lt; bufStart || addr - bufStart &gt; PAGE_SIZE) {</span>
-<span class="nc" id="L262">            long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;</span>
-<span class="nc" id="L263">            ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));</span>
+<span class="nc bnc" id="L221" title="All 4 branches missed.">        if (addr &lt; bufStart || addr - bufStart &gt; PAGE_SIZE) {</span>
+<span class="nc" id="L222">            long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;</span>
+<span class="nc" id="L223">            ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));</span>
             // May return less than asked but should be at least a full page
-<span class="nc bnc" id="L265" title="All 2 branches missed.">            if (result.longValue() &lt; PAGE_SIZE) {</span>
-<span class="nc" id="L266">                LOG.debug(&quot;Failed to read page from address space: {} bytes read&quot;, result.longValue());</span>
-<span class="nc" id="L267">                return 0;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">            if (result.longValue() &lt; PAGE_SIZE) {</span>
+<span class="nc" id="L226">                LOG.debug(&quot;Failed to read page from address space: {} bytes read&quot;, result.longValue());</span>
+<span class="nc" id="L227">                return 0;</span>
             }
-<span class="nc" id="L269">            return newStart;</span>
+<span class="nc" id="L229">            return newStart;</span>
         }
-<span class="nc" id="L271">        return bufStart;</span>
+<span class="nc" id="L231">        return bufStart;</span>
     }
 
     private static long getOffsetFromBuffer(Memory buffer, long offset, long increment) {
-<span class="nc bnc" id="L275" title="All 2 branches missed.">        return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">        return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Baseboard.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.jmx.mbeans</a> &gt; <span class="el_source">Baseboard.java</span></div><h1>Baseboard.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package oshi.demo.jmx.mbeans;
+
+import oshi.demo.jmx.demo.PropertiesAvailable;
+
+import javax.management.DynamicMBean;
+import javax.management.MBeanInfo;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanNotificationInfo;
+import javax.management.AttributeNotFoundException;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.AttributeList;
+import javax.management.Attribute;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Baseboard implements DynamicMBean, PropertiesAvailable {
+
+    private oshi.hardware.Baseboard baseboard;
+<span class="nc" id="L30">    private MBeanInfo dMBeanInfo = null;</span>
+<span class="nc" id="L31">    private List&lt;String&gt; propertiesAvailable = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L32">    private final String PROPERTIES = &quot;Properties&quot;;</span>
+<span class="nc" id="L33">    private final String GET_PREFIX = &quot;get&quot;;</span>
+
+    private void setUpMBean() throws IntrospectionException, javax.management.IntrospectionException {
+
+<span class="nc" id="L37">        PropertyDescriptor[] methods = Introspector.getBeanInfo(baseboard.getClass()).getPropertyDescriptors();</span>
+<span class="nc" id="L38">        MBeanAttributeInfo[] attributeInfos = new MBeanAttributeInfo[methods.length];</span>
+
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        for (int i = 0; i &lt; methods.length; i++) {</span>
+<span class="nc" id="L41">            attributeInfos[i] = new MBeanAttributeInfo(methods[i].getName(), methods[i].getShortDescription(),</span>
+<span class="nc" id="L42">                    methods[i].getReadMethod(), null);</span>
+<span class="nc" id="L43">            propertiesAvailable</span>
+<span class="nc" id="L44">                    .add(methods[i].getName().substring(0, 1).toUpperCase() + methods[i].getName().substring(1));</span>
+        }
+
+<span class="nc" id="L47">        dMBeanInfo = new MBeanInfo(baseboard.getClass().getName(), null, attributeInfos, null, null,</span>
+                new MBeanNotificationInfo[0]);
+<span class="nc" id="L49">    }</span>
+
+    public Baseboard(oshi.hardware.Baseboard baseboard)
+<span class="nc" id="L52">            throws IntrospectionException, javax.management.IntrospectionException {</span>
+<span class="nc" id="L53">        this.baseboard = baseboard;</span>
+<span class="nc" id="L54">        this.setUpMBean();</span>
+<span class="nc" id="L55">    }</span>
+
+    @Override
+    public Object getAttribute(String attribute)
+            throws AttributeNotFoundException, MBeanException, ReflectionException {
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (attribute.equals(PROPERTIES)) {</span>
+<span class="nc" id="L62">            return this.getProperties();</span>
+        }
+
+<span class="nc" id="L65">        Method method = null;</span>
+        try {
+<span class="nc" id="L67">            method = baseboard.getClass().getDeclaredMethod(GET_PREFIX + attribute, null);</span>
+<span class="nc" id="L68">            method.setAccessible(true);</span>
+<span class="nc" id="L69">            return method.invoke(baseboard, null);</span>
+<span class="nc" id="L70">        } catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L71">            throw new RuntimeException(e);</span>
+<span class="nc" id="L72">        } catch (InvocationTargetException e) {</span>
+<span class="nc" id="L73">            throw new RuntimeException(e);</span>
+<span class="nc" id="L74">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L75">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    @Override
+    public MBeanInfo getMBeanInfo() {
+<span class="nc" id="L81">        return dMBeanInfo;</span>
+    }
+
+    @Override
+    public List&lt;String&gt; getProperties() {
+<span class="nc" id="L86">        return propertiesAvailable;</span>
+    }
+
+    @Override
+    public void setAttribute(Attribute attribute)
+            throws AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
+
+<span class="nc" id="L93">    }</span>
+
+    @Override
+    public AttributeList getAttributes(String[] attributes) {
+<span class="nc" id="L97">        return null;</span>
+    }
+
+    @Override
+    public AttributeList setAttributes(AttributeList attributes) {
+<span class="nc" id="L102">        return null;</span>
+    }
+
+    @Override
+    public Object invoke(String actionName, Object[] params, String[] signature)
+            throws MBeanException, ReflectionException {
+<span class="nc" id="L108">        return null;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

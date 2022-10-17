@@ -7,158 +7,139 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/jna/platform/unix/AixLibc.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * MIT License</em>
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * Copyright (c) 2021-2022 The OSHI Project Contributors: <a href="https://github.com/oshi/oshi/graphs/contributors" target="alexandria_uri">https://github.com/oshi/oshi/graphs/contributors</a></em>
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * Permission is hereby granted, free of charge, to any person obtaining a copy</em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * of this software and associated documentation files (the "Software"), to deal</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * in the Software without restriction, including without limitation the rights</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * copies of the Software, and to permit persons to whom the Software is</em>
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * furnished to do so, subject to the following conditions:</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * The above copyright notice and this permission notice shall be included in all</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * copies or substantial portions of the Software.</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_comment"> * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_comment"> * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> * SOFTWARE.</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_comment"> */</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">package</strong> oshi.jna.platform.unix;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.nio.ByteBuffer;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * C library. This class should be considered non-API as it may be removed</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * if/when its code is incorporated into the JNA project.</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="AixLibc" href="../../../../oshi/jna/platform/unix/AixLibc.html#AixLibc">AixLibc</a> <strong class="jxr_keyword">extends</strong> <a name="CLibrary" href="../../../../oshi/jna/platform/unix/CLibrary.html#CLibrary">CLibrary</a> {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <a name="AixLibc" href="../../../../oshi/jna/platform/unix/AixLibc.html#AixLibc">AixLibc</a> INSTANCE = Native.load(<span class="jxr_string">"c"</span>, AixLibc.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">int</strong> PRCLSZ = 8;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">int</strong> PRFNSZ = 16;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">int</strong> PRARGSZ = 80;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">class</strong> AixPsInfo {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_flag; <em class="jxr_comment">// process flags from proc struct p_flag</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_flag2; <em class="jxr_comment">// process flags from proc struct p_flag2</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_nlwp; <em class="jxr_comment">// number of threads in process</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr__pad1; <em class="jxr_comment">// reserved for future use</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_uid; <em class="jxr_comment">// real user id</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_euid; <em class="jxr_comment">// effective user id</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_gid; <em class="jxr_comment">// real group id</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_egid; <em class="jxr_comment">// effective group id</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_pid; <em class="jxr_comment">// unique process id</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_ppid; <em class="jxr_comment">// process id of parent</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_pgid; <em class="jxr_comment">// pid of process group leader</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_sid; <em class="jxr_comment">// session id</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_ttydev; <em class="jxr_comment">// controlling tty device</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_addr; <em class="jxr_comment">// internal address of proc struct</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_size; <em class="jxr_comment">// size of process image in KB (1024) units</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_rssize; <em class="jxr_comment">// resident set size in KB (1024) units</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">public</strong> Timestruc pr_start; <em class="jxr_comment">// process start time, time since epoch</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">public</strong> Timestruc pr_time; <em class="jxr_comment">// usr+sys cpu time for this process</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> pr_cid; <em class="jxr_comment">// corral id</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> pr__pad2; <em class="jxr_comment">// reserved for future use</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_argc; <em class="jxr_comment">// initial argument count</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_argv; <em class="jxr_comment">// address of initial argument vector in user process</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_envp; <em class="jxr_comment">// address of initial environment vector in user process</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">public</strong> byte[] pr_fname = <strong class="jxr_keyword">new</strong> byte[PRFNSZ]; <em class="jxr_comment">// last component of exec()ed pathname</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> byte[] pr_psargs = <strong class="jxr_keyword">new</strong> byte[PRARGSZ]; <em class="jxr_comment">// initial characters of arg list</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] pr__pad = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[8]; <em class="jxr_comment">// reserved for future use</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">public</strong> AixLwpsInfo pr_lwp; <em class="jxr_comment">// "representative" thread info</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">public</strong> AixPsInfo(ByteBuffer buff) {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">this</strong>.pr_flag = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">this</strong>.pr_flag2 = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">this</strong>.pr_nlwp = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">this</strong>.pr__pad1 = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">this</strong>.pr_uid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">this</strong>.pr_euid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">this</strong>.pr_gid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              <strong class="jxr_keyword">this</strong>.pr_egid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">this</strong>.pr_pid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">this</strong>.pr_ppid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">this</strong>.pr_pgid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <strong class="jxr_keyword">this</strong>.pr_sid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">this</strong>.pr_ttydev = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">this</strong>.pr_addr = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">this</strong>.pr_size = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">this</strong>.pr_rssize = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">this</strong>.pr_start = <strong class="jxr_keyword">new</strong> Timestruc(buff);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">this</strong>.pr_time = <strong class="jxr_keyword">new</strong> Timestruc(buff);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">this</strong>.pr_cid = FileUtil.readShortFromBuffer(buff);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">this</strong>.pr__pad2 = FileUtil.readShortFromBuffer(buff);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <strong class="jxr_keyword">this</strong>.pr_argc = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">this</strong>.pr_argv = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">this</strong>.pr_envp = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_fname);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>              FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_psargs);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pr__pad.length; i++) {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                 <strong class="jxr_keyword">this</strong>.pr__pad[i] = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>             }
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">this</strong>.pr_lwp = <strong class="jxr_keyword">new</strong> AixLwpsInfo(buff);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">class</strong> AixLwpsInfo {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_lwpid; <em class="jxr_comment">// thread id</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_addr; <em class="jxr_comment">// internal address of thread</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_wchan; <em class="jxr_comment">// wait addr for sleeping thread</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_flag; <em class="jxr_comment">// thread flags</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">public</strong> byte pr_wtype; <em class="jxr_comment">// type of thread wait</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">public</strong> byte pr_state; <em class="jxr_comment">// numeric scheduling state</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">public</strong> byte pr_sname; <em class="jxr_comment">// printable character representing pr_state</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">public</strong> byte pr_nice; <em class="jxr_comment">// nice for cpu usage</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_pri; <em class="jxr_comment">// priority, high value = high priority</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_policy; <em class="jxr_comment">// scheduling policy</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">public</strong> byte[] pr_clname = <strong class="jxr_keyword">new</strong> byte[PRCLSZ]; <em class="jxr_comment">// printable character representing pr_policy</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_onpro; <em class="jxr_comment">// processor on which thread last ran</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_bindpro; <em class="jxr_comment">// processor to which thread is bound</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">public</strong> AixLwpsInfo(ByteBuffer buff) {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">this</strong>.pr_lwpid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>             <strong class="jxr_keyword">this</strong>.pr_addr = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">this</strong>.pr_wchan = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>             <strong class="jxr_keyword">this</strong>.pr_flag = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>             <strong class="jxr_keyword">this</strong>.pr_wtype = FileUtil.readByteFromBuffer(buff);
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>             <strong class="jxr_keyword">this</strong>.pr_state = FileUtil.readByteFromBuffer(buff);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">this</strong>.pr_sname = FileUtil.readByteFromBuffer(buff);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">this</strong>.pr_nice = FileUtil.readByteFromBuffer(buff);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">this</strong>.pr_pri = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">this</strong>.pr_policy = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_clname);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">this</strong>.pr_onpro = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">this</strong>.pr_bindpro = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * 64-bit timestruc required for psinfo structure</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">class</strong> Timestruc {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tv_sec; <em class="jxr_comment">// seconds</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tv_nsec; <em class="jxr_comment">// nanoseconds</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pad; <em class="jxr_comment">// nanoseconds</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">public</strong> Timestruc(ByteBuffer buff) {
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>             <strong class="jxr_keyword">this</strong>.tv_sec = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>             <strong class="jxr_keyword">this</strong>.tv_nsec = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             <strong class="jxr_keyword">this</strong>.pad = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> }
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2021-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.jna.platform.unix;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.nio.ByteBuffer;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> com.sun.jna.Native;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> * project.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="AixLibc" href="../../../../oshi/jna/platform/unix/AixLibc.html#AixLibc">AixLibc</a> <strong class="jxr_keyword">extends</strong> <a name="CLibrary" href="../../../../oshi/jna/platform/unix/CLibrary.html#CLibrary">CLibrary</a> {
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <a name="AixLibc" href="../../../../oshi/jna/platform/unix/AixLibc.html#AixLibc">AixLibc</a> INSTANCE = Native.load(<span class="jxr_string">"c"</span>, AixLibc.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">int</strong> PRCLSZ = 8;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">int</strong> PRFNSZ = 16;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">int</strong> PRARGSZ = 80;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">class</strong> AixPsInfo {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_flag; <em class="jxr_comment">// process flags from proc struct p_flag</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_flag2; <em class="jxr_comment">// process flags from proc struct p_flag2</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_nlwp; <em class="jxr_comment">// number of threads in process</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr__pad1; <em class="jxr_comment">// reserved for future use</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_uid; <em class="jxr_comment">// real user id</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_euid; <em class="jxr_comment">// effective user id</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_gid; <em class="jxr_comment">// real group id</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_egid; <em class="jxr_comment">// effective group id</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_pid; <em class="jxr_comment">// unique process id</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_ppid; <em class="jxr_comment">// process id of parent</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_pgid; <em class="jxr_comment">// pid of process group leader</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_sid; <em class="jxr_comment">// session id</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_ttydev; <em class="jxr_comment">// controlling tty device</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_addr; <em class="jxr_comment">// internal address of proc struct</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_size; <em class="jxr_comment">// size of process image in KB (1024) units</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_rssize; <em class="jxr_comment">// resident set size in KB (1024) units</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">public</strong> Timestruc pr_start; <em class="jxr_comment">// process start time, time since epoch</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">public</strong> Timestruc pr_time; <em class="jxr_comment">// usr+sys cpu time for this process</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> pr_cid; <em class="jxr_comment">// corral id</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> pr__pad2; <em class="jxr_comment">// reserved for future use</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_argc; <em class="jxr_comment">// initial argument count</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_argv; <em class="jxr_comment">// address of initial argument vector in user process</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_envp; <em class="jxr_comment">// address of initial environment vector in user process</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">public</strong> byte[] pr_fname = <strong class="jxr_keyword">new</strong> byte[PRFNSZ]; <em class="jxr_comment">// last component of exec()ed pathname</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">public</strong> byte[] pr_psargs = <strong class="jxr_keyword">new</strong> byte[PRARGSZ]; <em class="jxr_comment">// initial characters of arg list</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] pr__pad = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[8]; <em class="jxr_comment">// reserved for future use</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">public</strong> AixLwpsInfo pr_lwp; <em class="jxr_comment">// "representative" thread info</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">public</strong> AixPsInfo(ByteBuffer buff) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">this</strong>.pr_flag = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">this</strong>.pr_flag2 = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">this</strong>.pr_nlwp = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">this</strong>.pr__pad1 = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">this</strong>.pr_uid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">this</strong>.pr_euid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">this</strong>.pr_gid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">this</strong>.pr_egid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">this</strong>.pr_pid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">this</strong>.pr_ppid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">this</strong>.pr_pgid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">this</strong>.pr_sid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">this</strong>.pr_ttydev = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">this</strong>.pr_addr = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">this</strong>.pr_size = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">this</strong>.pr_rssize = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">this</strong>.pr_start = <strong class="jxr_keyword">new</strong> Timestruc(buff);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">this</strong>.pr_time = <strong class="jxr_keyword">new</strong> Timestruc(buff);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">this</strong>.pr_cid = FileUtil.readShortFromBuffer(buff);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">this</strong>.pr__pad2 = FileUtil.readShortFromBuffer(buff);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">this</strong>.pr_argc = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">this</strong>.pr_argv = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">this</strong>.pr_envp = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_fname);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_psargs);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pr__pad.length; i++) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <strong class="jxr_keyword">this</strong>.pr__pad[i] = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">this</strong>.pr_lwp = <strong class="jxr_keyword">new</strong> AixLwpsInfo(buff);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">class</strong> AixLwpsInfo {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_lwpid; <em class="jxr_comment">// thread id</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_addr; <em class="jxr_comment">// internal address of thread</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> pr_wchan; <em class="jxr_comment">// wait addr for sleeping thread</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_flag; <em class="jxr_comment">// thread flags</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">public</strong> byte pr_wtype; <em class="jxr_comment">// type of thread wait</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">public</strong> byte pr_state; <em class="jxr_comment">// numeric scheduling state</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">public</strong> byte pr_sname; <em class="jxr_comment">// printable character representing pr_state</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">public</strong> byte pr_nice; <em class="jxr_comment">// nice for cpu usage</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_pri; <em class="jxr_comment">// priority, high value = high priority</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_policy; <em class="jxr_comment">// scheduling policy</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">public</strong> byte[] pr_clname = <strong class="jxr_keyword">new</strong> byte[PRCLSZ]; <em class="jxr_comment">// printable character representing pr_policy</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_onpro; <em class="jxr_comment">// processor on which thread last ran</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pr_bindpro; <em class="jxr_comment">// processor to which thread is bound</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">public</strong> AixLwpsInfo(ByteBuffer buff) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">this</strong>.pr_lwpid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">this</strong>.pr_addr = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">this</strong>.pr_wchan = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             <strong class="jxr_keyword">this</strong>.pr_flag = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             <strong class="jxr_keyword">this</strong>.pr_wtype = FileUtil.readByteFromBuffer(buff);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">this</strong>.pr_state = FileUtil.readByteFromBuffer(buff);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">this</strong>.pr_sname = FileUtil.readByteFromBuffer(buff);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             <strong class="jxr_keyword">this</strong>.pr_nice = FileUtil.readByteFromBuffer(buff);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             <strong class="jxr_keyword">this</strong>.pr_pri = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">this</strong>.pr_policy = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>             FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_clname);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">this</strong>.pr_onpro = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">this</strong>.pr_bindpro = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     * 64-bit timestruc required for psinfo structure</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">class</strong> Timestruc {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> tv_sec; <em class="jxr_comment">// seconds</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> tv_nsec; <em class="jxr_comment">// nanoseconds</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> pad; <em class="jxr_comment">// nanoseconds</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">public</strong> Timestruc(ByteBuffer buff) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">this</strong>.tv_sec = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">this</strong>.tv_nsec = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">this</strong>.pad = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

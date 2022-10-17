@@ -1,2 +1,7 @@
 oshi.demo
 oshi.demo.gui
+oshi.demo.jmx
+oshi.demo.jmx.api
+oshi.demo.jmx.demo
+oshi.demo.jmx.mbeans
+oshi.demo.jmx.strategiesplatform

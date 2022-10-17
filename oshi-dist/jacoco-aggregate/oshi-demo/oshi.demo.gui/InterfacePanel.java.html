@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>InterfacePanel.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.gui</a> &gt; <span class="el_source">InterfacePanel.java</span></div><h1>InterfacePanel.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
 
@@ -60,106 +41,106 @@ public class InterfacePanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final String PARAMS = &quot;Network Parameters&quot;;
     private static final String INTERFACES = &quot;Network Interfaces&quot;;
-<span class="nc" id="L63">    private static final String[] COLUMNS = { &quot;Name&quot;, &quot;Index&quot;, &quot;Speed&quot;, &quot;IPv4 Address&quot;, &quot;IPv6 address&quot;, &quot;MAC address&quot; };</span>
-<span class="nc" id="L64">    private static final double[] COLUMN_WIDTH_PERCENT = { 0.02, 0.02, 0.1, 0.25, 0.45, 0.15 };</span>
+<span class="nc" id="L44">    private static final String[] COLUMNS = { &quot;Name&quot;, &quot;Index&quot;, &quot;Speed&quot;, &quot;IPv4 Address&quot;, &quot;IPv6 address&quot;, &quot;MAC address&quot; };</span>
+<span class="nc" id="L45">    private static final double[] COLUMN_WIDTH_PERCENT = { 0.02, 0.02, 0.1, 0.25, 0.45, 0.15 };</span>
 
     public InterfacePanel(SystemInfo si) {
-<span class="nc" id="L67">        super();</span>
-<span class="nc" id="L68">        init(si);</span>
-<span class="nc" id="L69">    }</span>
+<span class="nc" id="L48">        super();</span>
+<span class="nc" id="L49">        init(si);</span>
+<span class="nc" id="L50">    }</span>
 
     private void init(SystemInfo si) {
-<span class="nc" id="L72">        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
-<span class="nc" id="L73">        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L53">        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));</span>
+<span class="nc" id="L54">        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));</span>
 
-<span class="nc" id="L75">        JLabel paramsLabel = new JLabel(PARAMS);</span>
-<span class="nc" id="L76">        paramsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
-<span class="nc" id="L77">        add(paramsLabel);</span>
+<span class="nc" id="L56">        JLabel paramsLabel = new JLabel(PARAMS);</span>
+<span class="nc" id="L57">        paramsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+<span class="nc" id="L58">        add(paramsLabel);</span>
 
-<span class="nc" id="L79">        JTextArea paramsArea = new JTextArea(0, 0);</span>
-<span class="nc" id="L80">        paramsArea.setText(buildParamsText(si.getOperatingSystem()));</span>
-<span class="nc" id="L81">        add(paramsArea);</span>
+<span class="nc" id="L60">        JTextArea paramsArea = new JTextArea(0, 0);</span>
+<span class="nc" id="L61">        paramsArea.setText(buildParamsText(si.getOperatingSystem()));</span>
+<span class="nc" id="L62">        add(paramsArea);</span>
 
-<span class="nc" id="L83">        JLabel interfaceLabel = new JLabel(INTERFACES);</span>
-<span class="nc" id="L84">        interfaceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
-<span class="nc" id="L85">        add(interfaceLabel);</span>
+<span class="nc" id="L64">        JLabel interfaceLabel = new JLabel(INTERFACES);</span>
+<span class="nc" id="L65">        interfaceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+<span class="nc" id="L66">        add(interfaceLabel);</span>
 
-<span class="nc" id="L87">        List&lt;NetworkIF&gt; networkIfList = si.getHardware().getNetworkIFs(true);</span>
+<span class="nc" id="L68">        List&lt;NetworkIF&gt; networkIfList = si.getHardware().getNetworkIFs(true);</span>
 
-<span class="nc" id="L89">        TableModel model = new DefaultTableModel(parseInterfaces(networkIfList), COLUMNS);</span>
-<span class="nc" id="L90">        JTable intfTable = new JTable(model);</span>
-<span class="nc" id="L91">        JScrollPane scrollV = new JScrollPane(intfTable);</span>
-<span class="nc" id="L92">        scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span>
-<span class="nc" id="L93">        resizeColumns(intfTable.getColumnModel());</span>
-<span class="nc" id="L94">        add(scrollV);</span>
-<span class="nc" id="L95">    }</span>
+<span class="nc" id="L70">        TableModel model = new DefaultTableModel(parseInterfaces(networkIfList), COLUMNS);</span>
+<span class="nc" id="L71">        JTable intfTable = new JTable(model);</span>
+<span class="nc" id="L72">        JScrollPane scrollV = new JScrollPane(intfTable);</span>
+<span class="nc" id="L73">        scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span>
+<span class="nc" id="L74">        resizeColumns(intfTable.getColumnModel());</span>
+<span class="nc" id="L75">        add(scrollV);</span>
+<span class="nc" id="L76">    }</span>
 
     private static String buildParamsText(OperatingSystem os) {
-<span class="nc" id="L98">        NetworkParams params = os.getNetworkParams();</span>
-<span class="nc" id="L99">        StringBuilder sb = new StringBuilder(&quot;Host Name: &quot;).append(params.getHostName());</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (!params.getDomainName().isEmpty()) {</span>
-<span class="nc" id="L101">            sb.append(&quot;\nDomain Name: &quot;).append(params.getDomainName());</span>
+<span class="nc" id="L79">        NetworkParams params = os.getNetworkParams();</span>
+<span class="nc" id="L80">        StringBuilder sb = new StringBuilder(&quot;Host Name: &quot;).append(params.getHostName());</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (!params.getDomainName().isEmpty()) {</span>
+<span class="nc" id="L82">            sb.append(&quot;\nDomain Name: &quot;).append(params.getDomainName());</span>
         }
-<span class="nc" id="L103">        sb.append(&quot;\nIPv4 Default Gateway: &quot;).append(params.getIpv4DefaultGateway());</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (!params.getIpv6DefaultGateway().isEmpty()) {</span>
-<span class="nc" id="L105">            sb.append(&quot;\nIPv6 Default Gateway: &quot;).append(params.getIpv6DefaultGateway());</span>
+<span class="nc" id="L84">        sb.append(&quot;\nIPv4 Default Gateway: &quot;).append(params.getIpv4DefaultGateway());</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (!params.getIpv6DefaultGateway().isEmpty()) {</span>
+<span class="nc" id="L86">            sb.append(&quot;\nIPv6 Default Gateway: &quot;).append(params.getIpv6DefaultGateway());</span>
         }
-<span class="nc" id="L107">        sb.append(&quot;\nDNS Servers: &quot;).append(getIPAddressesString(params.getDnsServers()));</span>
-<span class="nc" id="L108">        return sb.toString();</span>
+<span class="nc" id="L88">        sb.append(&quot;\nDNS Servers: &quot;).append(getIPAddressesString(params.getDnsServers()));</span>
+<span class="nc" id="L89">        return sb.toString();</span>
     }
 
     private static Object[][] parseInterfaces(List&lt;NetworkIF&gt; list) {
-<span class="nc" id="L112">        Map&lt;NetworkIF, Integer&gt; intfSortValueMap = new HashMap&lt;&gt;(INIT_HASH_SIZE);</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        for (NetworkIF intf : list) {</span>
-<span class="nc" id="L114">            intfSortValueMap.put(intf, intf.getIndex());</span>
-<span class="nc" id="L115">        }</span>
-<span class="nc" id="L116">        List&lt;Entry&lt;NetworkIF, Integer&gt;&gt; intfList = new ArrayList&lt;&gt;(intfSortValueMap.entrySet());</span>
-<span class="nc" id="L117">        intfList.sort(Entry.comparingByValue());</span>
+<span class="nc" id="L93">        Map&lt;NetworkIF, Integer&gt; intfSortValueMap = new HashMap&lt;&gt;(INIT_HASH_SIZE);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (NetworkIF intf : list) {</span>
+<span class="nc" id="L95">            intfSortValueMap.put(intf, intf.getIndex());</span>
+<span class="nc" id="L96">        }</span>
+<span class="nc" id="L97">        List&lt;Entry&lt;NetworkIF, Integer&gt;&gt; intfList = new ArrayList&lt;&gt;(intfSortValueMap.entrySet());</span>
+<span class="nc" id="L98">        intfList.sort(Entry.comparingByValue());</span>
 
-<span class="nc" id="L119">        int i = 0;</span>
-<span class="nc" id="L120">        Object[][] intfArr = new Object[intfList.size()][COLUMNS.length];</span>
+<span class="nc" id="L100">        int i = 0;</span>
+<span class="nc" id="L101">        Object[][] intfArr = new Object[intfList.size()][COLUMNS.length];</span>
 
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        for (Entry&lt;NetworkIF, Integer&gt; e : intfList) {</span>
-<span class="nc" id="L123">            NetworkIF intf = e.getKey();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (Entry&lt;NetworkIF, Integer&gt; e : intfList) {</span>
+<span class="nc" id="L104">            NetworkIF intf = e.getKey();</span>
 
-<span class="nc" id="L125">            intfArr[i][0] = intf.getName();</span>
-<span class="nc" id="L126">            intfArr[i][1] = intf.getIndex();</span>
-<span class="nc" id="L127">            intfArr[i][2] = intf.getSpeed();</span>
-<span class="nc" id="L128">            intfArr[i][3] = getIPAddressesString(intf.getIPv4addr());</span>
-<span class="nc" id="L129">            intfArr[i][4] = getIPAddressesString(intf.getIPv6addr());</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">            intfArr[i][5] = Constants.UNKNOWN.equals(intf.getMacaddr()) ? &quot;&quot; : intf.getMacaddr();</span>
+<span class="nc" id="L106">            intfArr[i][0] = intf.getName();</span>
+<span class="nc" id="L107">            intfArr[i][1] = intf.getIndex();</span>
+<span class="nc" id="L108">            intfArr[i][2] = intf.getSpeed();</span>
+<span class="nc" id="L109">            intfArr[i][3] = getIPAddressesString(intf.getIPv4addr());</span>
+<span class="nc" id="L110">            intfArr[i][4] = getIPAddressesString(intf.getIPv6addr());</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            intfArr[i][5] = Constants.UNKNOWN.equals(intf.getMacaddr()) ? &quot;&quot; : intf.getMacaddr();</span>
 
-<span class="nc" id="L132">            i++;</span>
-<span class="nc" id="L133">        }</span>
+<span class="nc" id="L113">            i++;</span>
+<span class="nc" id="L114">        }</span>
 
-<span class="nc" id="L135">        return intfArr;</span>
+<span class="nc" id="L116">        return intfArr;</span>
     }
 
     private static void resizeColumns(TableColumnModel tableColumnModel) {
         TableColumn column;
-<span class="nc" id="L140">        int tW = tableColumnModel.getTotalColumnWidth();</span>
-<span class="nc" id="L141">        int cantCols = tableColumnModel.getColumnCount();</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        for (int i = 0; i &lt; cantCols; i++) {</span>
-<span class="nc" id="L143">            column = tableColumnModel.getColumn(i);</span>
-<span class="nc" id="L144">            int pWidth = (int) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);</span>
-<span class="nc" id="L145">            column.setPreferredWidth(pWidth);</span>
+<span class="nc" id="L121">        int tW = tableColumnModel.getTotalColumnWidth();</span>
+<span class="nc" id="L122">        int cantCols = tableColumnModel.getColumnCount();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (int i = 0; i &lt; cantCols; i++) {</span>
+<span class="nc" id="L124">            column = tableColumnModel.getColumn(i);</span>
+<span class="nc" id="L125">            int pWidth = (int) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);</span>
+<span class="nc" id="L126">            column.setPreferredWidth(pWidth);</span>
         }
-<span class="nc" id="L147">    }</span>
+<span class="nc" id="L128">    }</span>
 
     private static String getIPAddressesString(String[] ipAddressArr) {
-<span class="nc" id="L150">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L151">        boolean first = true;</span>
+<span class="nc" id="L131">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L132">        boolean first = true;</span>
 
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (String ipAddress : ipAddressArr) {</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (first) {</span>
-<span class="nc" id="L155">                first = false;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        for (String ipAddress : ipAddressArr) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            if (first) {</span>
+<span class="nc" id="L136">                first = false;</span>
             } else {
-<span class="nc" id="L157">                sb.append(IP_ADDRESS_SEPARATOR);</span>
+<span class="nc" id="L138">                sb.append(IP_ADDRESS_SEPARATOR);</span>
             }
-<span class="nc" id="L159">            sb.append(ipAddress);</span>
+<span class="nc" id="L140">            sb.append(ipAddress);</span>
         }
 
-<span class="nc" id="L162">        return sb.toString();</span>
+<span class="nc" id="L143">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>GeomDiskList.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.unix.freebsd.disk</a> &gt; <span class="el_source">GeomDiskList.java</span></div><h1>GeomDiskList.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.freebsd.disk;
 
@@ -47,54 +28,53 @@ public final class GeomDiskList {
     /**
      * Queries disk data using geom
      *
-     * @return A map with disk name as the key and a Triplet of model, serial, and
-     *         size as the value
+     * @return A map with disk name as the key and a Triplet of model, serial, and size as the value
      */
     public static Map&lt;String, Triplet&lt;String, String, Long&gt;&gt; queryDisks() {
         // Map of device name to disk, to be returned
-<span class="nc" id="L55">        Map&lt;String, Triplet&lt;String, String, Long&gt;&gt; diskMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L35">        Map&lt;String, Triplet&lt;String, String, Long&gt;&gt; diskMap = new HashMap&lt;&gt;();</span>
         // Parameters needed.
-<span class="nc" id="L57">        String diskName = null; // Non-null identifies a valid partition</span>
-<span class="nc" id="L58">        String descr = Constants.UNKNOWN;</span>
-<span class="nc" id="L59">        String ident = Constants.UNKNOWN;</span>
-<span class="nc" id="L60">        long mediaSize = 0L;</span>
+<span class="nc" id="L37">        String diskName = null; // Non-null identifies a valid partition</span>
+<span class="nc" id="L38">        String descr = Constants.UNKNOWN;</span>
+<span class="nc" id="L39">        String ident = Constants.UNKNOWN;</span>
+<span class="nc" id="L40">        long mediaSize = 0L;</span>
 
-<span class="nc" id="L62">        List&lt;String&gt; geom = ExecutingCommand.runNative(GEOM_DISK_LIST);</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (String line : geom) {</span>
-<span class="nc" id="L64">            line = line.trim();</span>
+<span class="nc" id="L42">        List&lt;String&gt; geom = ExecutingCommand.runNative(GEOM_DISK_LIST);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        for (String line : geom) {</span>
+<span class="nc" id="L44">            line = line.trim();</span>
             // Marks the DiskStore device
-<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (line.startsWith(&quot;Geom name:&quot;)) {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            if (line.startsWith(&quot;Geom name:&quot;)) {</span>
                 // Save any previous disk in the map
-<span class="nc bnc" id="L68" title="All 2 branches missed.">                if (diskName != null) {</span>
-<span class="nc" id="L69">                    diskMap.put(diskName, new Triplet&lt;&gt;(descr, ident, mediaSize));</span>
-<span class="nc" id="L70">                    descr = Constants.UNKNOWN;</span>
-<span class="nc" id="L71">                    ident = Constants.UNKNOWN;</span>
-<span class="nc" id="L72">                    mediaSize = 0L;</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                if (diskName != null) {</span>
+<span class="nc" id="L49">                    diskMap.put(diskName, new Triplet&lt;&gt;(descr, ident, mediaSize));</span>
+<span class="nc" id="L50">                    descr = Constants.UNKNOWN;</span>
+<span class="nc" id="L51">                    ident = Constants.UNKNOWN;</span>
+<span class="nc" id="L52">                    mediaSize = 0L;</span>
                 }
                 // Now use new diskName
-<span class="nc" id="L75">                diskName = line.substring(line.lastIndexOf(' ') + 1);</span>
+<span class="nc" id="L55">                diskName = line.substring(line.lastIndexOf(' ') + 1);</span>
             }
             // If we don't have a valid store, don't bother parsing anything
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (diskName != null) {</span>
-<span class="nc" id="L79">                line = line.trim();</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">                if (line.startsWith(&quot;Mediasize:&quot;)) {</span>
-<span class="nc" id="L81">                    String[] split = ParseUtil.whitespaces.split(line);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
-<span class="nc" id="L83">                        mediaSize = ParseUtil.parseLongOrDefault(split[1], 0L);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (diskName != null) {</span>
+<span class="nc" id="L59">                line = line.trim();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                if (line.startsWith(&quot;Mediasize:&quot;)) {</span>
+<span class="nc" id="L61">                    String[] split = ParseUtil.whitespaces.split(line);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                    if (split.length &gt; 1) {</span>
+<span class="nc" id="L63">                        mediaSize = ParseUtil.parseLongOrDefault(split[1], 0L);</span>
                     }
                 }
-<span class="nc bnc" id="L86" title="All 2 branches missed.">                if (line.startsWith(&quot;descr:&quot;)) {</span>
-<span class="nc" id="L87">                    descr = line.replace(&quot;descr:&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                if (line.startsWith(&quot;descr:&quot;)) {</span>
+<span class="nc" id="L67">                    descr = line.replace(&quot;descr:&quot;, &quot;&quot;).trim();</span>
                 }
-<span class="nc bnc" id="L89" title="All 2 branches missed.">                if (line.startsWith(&quot;ident:&quot;)) {</span>
-<span class="nc" id="L90">                    ident = line.replace(&quot;ident:&quot;, &quot;&quot;).replace(&quot;(null)&quot;, &quot;&quot;).trim();</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                if (line.startsWith(&quot;ident:&quot;)) {</span>
+<span class="nc" id="L70">                    ident = line.replace(&quot;ident:&quot;, &quot;&quot;).replace(&quot;(null)&quot;, &quot;&quot;).trim();</span>
                 }
             }
-<span class="nc" id="L93">        }</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (diskName != null) {</span>
-<span class="nc" id="L95">            diskMap.put(diskName, new Triplet&lt;&gt;(descr, ident, mediaSize));</span>
+<span class="nc" id="L73">        }</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (diskName != null) {</span>
+<span class="nc" id="L75">            diskMap.put(diskName, new Triplet&lt;&gt;(descr, ident, mediaSize));</span>
         }
-<span class="nc" id="L97">        return diskMap;</span>
+<span class="nc" id="L77">        return diskMap;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

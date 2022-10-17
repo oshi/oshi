@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FileSystemUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FileSystemUtil.java</span></div><h1>FileSystemUtil.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
@@ -46,92 +27,78 @@ public final class FileSystemUtil {
     }
 
     /**
-     * Evaluates if file store (identified by {@code path} and {@code volume})
-     * should be excluded or not based on configuration
-     * {@code pathIncludes, pathExcludes, volumeIncludes, volumeExcludes}.
+     * Evaluates if file store (identified by {@code path} and {@code volume}) should be excluded or not based on
+     * configuration {@code pathIncludes, pathExcludes, volumeIncludes, volumeExcludes}.
      *
-     * Inclusion has priority over exclusion. If no exclusion/inclusion pattern is
-     * specified, then filestore is not excluded.
+     * Inclusion has priority over exclusion. If no exclusion/inclusion pattern is specified, then filestore is not
+     * excluded.
      *
-     * @param path
-     *            Mountpoint of filestore.
-     * @param volume
-     *            Filestore volume.
-     * @param pathIncludes
-     *            List of patterns for path inclusions.
-     * @param pathExcludes
-     *            List of patterns for path exclusions.
-     * @param volumeIncludes
-     *            List of patterns for volume inclusions.
-     * @param volumeExcludes
-     *            List of patterns for volume exclusions.
-     * @return {@code true} if file store should be excluded or {@code false}
-     *         otherwise.
+     * @param path           Mountpoint of filestore.
+     * @param volume         Filestore volume.
+     * @param pathIncludes   List of patterns for path inclusions.
+     * @param pathExcludes   List of patterns for path exclusions.
+     * @param volumeIncludes List of patterns for volume inclusions.
+     * @param volumeExcludes List of patterns for volume exclusions.
+     * @return {@code true} if file store should be excluded or {@code false} otherwise.
      */
     public static boolean isFileStoreExcluded(String path, String volume, List&lt;PathMatcher&gt; pathIncludes,
             List&lt;PathMatcher&gt; pathExcludes, List&lt;PathMatcher&gt; volumeIncludes, List&lt;PathMatcher&gt; volumeExcludes) {
-<span class="nc" id="L73">        Path p = Paths.get(path);</span>
-<span class="nc" id="L74">        Path v = Paths.get(volume);</span>
-<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (matches(p, pathIncludes) || matches(v, volumeIncludes)) {</span>
-<span class="nc" id="L76">            return false;</span>
+<span class="nc" id="L46">        Path p = Paths.get(path);</span>
+<span class="nc" id="L47">        Path v = Paths.get(volume);</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">        if (matches(p, pathIncludes) || matches(v, volumeIncludes)) {</span>
+<span class="nc" id="L49">            return false;</span>
         }
-<span class="nc bnc" id="L78" title="All 4 branches missed.">        return matches(p, pathExcludes) || matches(v, volumeExcludes);</span>
+<span class="nc bnc" id="L51" title="All 4 branches missed.">        return matches(p, pathExcludes) || matches(v, volumeExcludes);</span>
     }
 
     /**
      * Load from config and parse file system include/exclude line.
      *
-     * @param configPropertyName
-     *            The config property containing the line to be parsed.
+     * @param configPropertyName The config property containing the line to be parsed.
      * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List&lt;PathMatcher&gt; loadAndParseFileSystemConfig(String configPropertyName) {
-<span class="nc" id="L89">        String config = GlobalConfig.get(configPropertyName, &quot;&quot;);</span>
-<span class="nc" id="L90">        return parseFileSystemConfig(config);</span>
+<span class="nc" id="L61">        String config = GlobalConfig.get(configPropertyName, &quot;&quot;);</span>
+<span class="nc" id="L62">        return parseFileSystemConfig(config);</span>
     }
 
     /**
      * Parse file system include/exclude line.
      *
-     * @param config
-     *            The config line to be parsed.
+     * @param config The config line to be parsed.
      * @return List of PathMatchers to be used to match filestore volume and path.
      */
     public static List&lt;PathMatcher&gt; parseFileSystemConfig(String config) {
-<span class="nc" id="L101">        FileSystem fs = FileSystems.getDefault(); // can't be closed</span>
-<span class="nc" id="L102">        List&lt;PathMatcher&gt; patterns = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (String item : config.split(&quot;,&quot;)) {</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (item.length() &gt; 0) {</span>
+<span class="nc" id="L72">        FileSystem fs = FileSystems.getDefault(); // can't be closed</span>
+<span class="nc" id="L73">        List&lt;PathMatcher&gt; patterns = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        for (String item : config.split(&quot;,&quot;)) {</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (item.length() &gt; 0) {</span>
                 // Using glob: prefix as the defult unless user has specified glob or regex. See
                 // https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-
-<span class="nc bnc" id="L107" title="All 4 branches missed.">                if (!(item.startsWith(GLOB_PREFIX) || item.startsWith(REGEX_PREFIX))) {</span>
-<span class="nc" id="L108">                    item = GLOB_PREFIX + item;</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">                if (!(item.startsWith(GLOB_PREFIX) || item.startsWith(REGEX_PREFIX))) {</span>
+<span class="nc" id="L79">                    item = GLOB_PREFIX + item;</span>
                 }
-<span class="nc" id="L110">                patterns.add(fs.getPathMatcher(item));</span>
+<span class="nc" id="L81">                patterns.add(fs.getPathMatcher(item));</span>
             }
         }
-<span class="nc" id="L113">        return patterns;</span>
+<span class="nc" id="L84">        return patterns;</span>
     }
 
     /**
      * Checks if {@code text} matches any of @param patterns}.
      *
-     * @param text
-     *            The text to be matched.
-     * @param patterns
-     *            List of patterns.
-     * @return {@code true} if given text matches at least one glob pattern or
-     *         {@code false} otherwise.
-     * @see &lt;a href=&quot;https://en.wikipedia.org/wiki/Glob_(programming)&quot;&gt;Wikipedia -
-     *      glob (programming)&lt;/a&gt;
+     * @param text     The text to be matched.
+     * @param patterns List of patterns.
+     * @return {@code true} if given text matches at least one glob pattern or {@code false} otherwise.
+     * @see &lt;a href=&quot;https://en.wikipedia.org/wiki/Glob_(programming)&quot;&gt;Wikipedia - glob (programming)&lt;/a&gt;
      */
     public static boolean matches(Path text, List&lt;PathMatcher&gt; patterns) {
-<span class="nc bnc" id="L129" title="All 2 branches missed.">        for (PathMatcher pattern : patterns) {</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (pattern.matches(text)) {</span>
-<span class="nc" id="L131">                return true;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        for (PathMatcher pattern : patterns) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (pattern.matches(text)) {</span>
+<span class="nc" id="L98">                return true;</span>
             }
-<span class="nc" id="L133">        }</span>
-<span class="nc" id="L134">        return false;</span>
+<span class="nc" id="L100">        }</span>
+<span class="nc" id="L101">        return false;</span>
     }
 
 }

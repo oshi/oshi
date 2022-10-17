@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractGlobalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractGlobalMemory.java</span></div><h1>AbstractGlobalMemory.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
 
@@ -38,75 +19,75 @@ import oshi.util.ParseUtil;
  * Memory info.
  */
 @ThreadSafe
-<span class="nc" id="L41">public abstract class AbstractGlobalMemory implements GlobalMemory {</span>
+<span class="nc" id="L22">public abstract class AbstractGlobalMemory implements GlobalMemory {</span>
 
     @Override
     public List&lt;PhysicalMemory&gt; getPhysicalMemory() {
         // dmidecode requires sudo permission but is the only option on Linux
         // and Unix
-<span class="nc" id="L47">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L48">        List&lt;String&gt; dmi = ExecutingCommand.runNative(&quot;dmidecode --type 17&quot;);</span>
-<span class="nc" id="L49">        int bank = 0;</span>
-<span class="nc" id="L50">        String bankLabel = Constants.UNKNOWN;</span>
-<span class="nc" id="L51">        String locator = &quot;&quot;;</span>
-<span class="nc" id="L52">        long capacity = 0L;</span>
-<span class="nc" id="L53">        long speed = 0L;</span>
-<span class="nc" id="L54">        String manufacturer = Constants.UNKNOWN;</span>
-<span class="nc" id="L55">        String memoryType = Constants.UNKNOWN;</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (String line : dmi) {</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (line.trim().contains(&quot;DMI type 17&quot;)) {</span>
+<span class="nc" id="L28">        List&lt;PhysicalMemory&gt; pmList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L29">        List&lt;String&gt; dmi = ExecutingCommand.runNative(&quot;dmidecode --type 17&quot;);</span>
+<span class="nc" id="L30">        int bank = 0;</span>
+<span class="nc" id="L31">        String bankLabel = Constants.UNKNOWN;</span>
+<span class="nc" id="L32">        String locator = &quot;&quot;;</span>
+<span class="nc" id="L33">        long capacity = 0L;</span>
+<span class="nc" id="L34">        long speed = 0L;</span>
+<span class="nc" id="L35">        String manufacturer = Constants.UNKNOWN;</span>
+<span class="nc" id="L36">        String memoryType = Constants.UNKNOWN;</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        for (String line : dmi) {</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">            if (line.trim().contains(&quot;DMI type 17&quot;)) {</span>
                 // Save previous bank
-<span class="nc bnc" id="L59" title="All 2 branches missed.">                if (bank++ &gt; 0) {</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">                    if (capacity &gt; 0) {</span>
-<span class="nc" id="L61">                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">                if (bank++ &gt; 0) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">                    if (capacity &gt; 0) {</span>
+<span class="nc" id="L42">                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));</span>
                     }
-<span class="nc" id="L63">                    bankLabel = Constants.UNKNOWN;</span>
-<span class="nc" id="L64">                    locator = &quot;&quot;;</span>
-<span class="nc" id="L65">                    capacity = 0L;</span>
-<span class="nc" id="L66">                    speed = 0L;</span>
+<span class="nc" id="L44">                    bankLabel = Constants.UNKNOWN;</span>
+<span class="nc" id="L45">                    locator = &quot;&quot;;</span>
+<span class="nc" id="L46">                    capacity = 0L;</span>
+<span class="nc" id="L47">                    speed = 0L;</span>
                 }
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            } else if (bank &gt; 0) {</span>
-<span class="nc" id="L69">                String[] split = line.trim().split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">                if (split.length == 2) {</span>
-<span class="nc bnc" id="L71" title="All 7 branches missed.">                    switch (split[0]) {</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            } else if (bank &gt; 0) {</span>
+<span class="nc" id="L50">                String[] split = line.trim().split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                if (split.length == 2) {</span>
+<span class="nc bnc" id="L52" title="All 7 branches missed.">                    switch (split[0]) {</span>
                     case &quot;Bank Locator&quot;:
-<span class="nc" id="L73">                        bankLabel = split[1].trim();</span>
-<span class="nc" id="L74">                        break;</span>
+<span class="nc" id="L54">                        bankLabel = split[1].trim();</span>
+<span class="nc" id="L55">                        break;</span>
                     case &quot;Locator&quot;:
-<span class="nc" id="L76">                        locator = &quot;/&quot; + split[1].trim();</span>
-<span class="nc" id="L77">                        break;</span>
+<span class="nc" id="L57">                        locator = &quot;/&quot; + split[1].trim();</span>
+<span class="nc" id="L58">                        break;</span>
                     case &quot;Size&quot;:
-<span class="nc" id="L79">                        capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());</span>
-<span class="nc" id="L80">                        break;</span>
+<span class="nc" id="L60">                        capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());</span>
+<span class="nc" id="L61">                        break;</span>
                     case &quot;Type&quot;:
-<span class="nc" id="L82">                        memoryType = split[1].trim();</span>
-<span class="nc" id="L83">                        break;</span>
+<span class="nc" id="L63">                        memoryType = split[1].trim();</span>
+<span class="nc" id="L64">                        break;</span>
                     case &quot;Speed&quot;:
-<span class="nc" id="L85">                        speed = ParseUtil.parseHertz(split[1]);</span>
-<span class="nc" id="L86">                        break;</span>
+<span class="nc" id="L66">                        speed = ParseUtil.parseHertz(split[1]);</span>
+<span class="nc" id="L67">                        break;</span>
                     case &quot;Manufacturer&quot;:
-<span class="nc" id="L88">                        manufacturer = split[1].trim();</span>
-<span class="nc" id="L89">                        break;</span>
+<span class="nc" id="L69">                        manufacturer = split[1].trim();</span>
+<span class="nc" id="L70">                        break;</span>
                     default:
                         break;
                     }
                 }
             }
-<span class="nc" id="L95">        }</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (capacity &gt; 0) {</span>
-<span class="nc" id="L97">            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (capacity &gt; 0) {</span>
+<span class="nc" id="L78">            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));</span>
         }
-<span class="nc" id="L99">        return pmList;</span>
+<span class="nc" id="L80">        return pmList;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L104">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L105">        sb.append(&quot;Available: &quot;);</span>
-<span class="nc" id="L106">        sb.append(FormatUtil.formatBytes(getAvailable()));</span>
-<span class="nc" id="L107">        sb.append(&quot;/&quot;);</span>
-<span class="nc" id="L108">        sb.append(FormatUtil.formatBytes(getTotal()));</span>
-<span class="nc" id="L109">        return sb.toString();</span>
+<span class="nc" id="L85">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L86">        sb.append(&quot;Available: &quot;);</span>
+<span class="nc" id="L87">        sb.append(FormatUtil.formatBytes(getAvailable()));</span>
+<span class="nc" id="L88">        sb.append(&quot;/&quot;);</span>
+<span class="nc" id="L89">        sb.append(FormatUtil.formatBytes(getTotal()));</span>
+<span class="nc" id="L90">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OpenBsdSysctlUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.unix.openbsd</a> &gt; <span class="el_source">OpenBsdSysctlUtil.java</span></div><h1>OpenBsdSysctlUtil.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.unix.openbsd;
 
@@ -45,7 +26,7 @@ public final class OpenBsdSysctlUtil {
 
     private static final String SYSCTL_N = &quot;sysctl -n &quot;;
 
-<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdSysctlUtil.class);</span>
+<span class="nc" id="L29">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdSysctlUtil.class);</span>
 
     private static final String SYSCTL_FAIL = &quot;Failed sysctl call: {}, Error code: {}&quot;;
 
@@ -55,113 +36,104 @@ public final class OpenBsdSysctlUtil {
     /**
      * Executes a sysctl call with an int result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default int value
+     * @param name name of the sysctl
+     * @param def  default int value
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(int[] name, int def) {
-<span class="nc" id="L65">        int intSize = OpenBsdLibc.INT_SIZE;</span>
-<span class="nc" id="L66">        try (Memory p = new Memory(intSize); CloseableSizeTByReference size = new CloseableSizeTByReference(intSize)) {</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L68">                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L69">                return def;</span>
+<span class="nc" id="L44">        int intSize = OpenBsdLibc.INT_SIZE;</span>
+<span class="nc" id="L45">        try (Memory p = new Memory(intSize); CloseableSizeTByReference size = new CloseableSizeTByReference(intSize)) {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L47">                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L48">                return def;</span>
             }
-<span class="nc" id="L71">            return p.getInt(0);</span>
-<span class="nc" id="L72">        }</span>
+<span class="nc" id="L50">            return p.getInt(0);</span>
+<span class="nc" id="L51">        }</span>
     }
 
     /**
      * Executes a sysctl call with a long result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default long value
+     * @param name name of the sysctl
+     * @param def  default long value
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(int[] name, long def) {
-<span class="nc" id="L85">        int uint64Size = OpenBsdLibc.UINT64_SIZE;</span>
-<span class="nc" id="L86">        try (Memory p = new Memory(uint64Size);</span>
-<span class="nc" id="L87">                CloseableSizeTByReference size = new CloseableSizeTByReference(uint64Size)) {</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L89">                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L90">                return def;</span>
+<span class="nc" id="L62">        int uint64Size = OpenBsdLibc.UINT64_SIZE;</span>
+<span class="nc" id="L63">        try (Memory p = new Memory(uint64Size);</span>
+<span class="nc" id="L64">                CloseableSizeTByReference size = new CloseableSizeTByReference(uint64Size)) {</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L66">                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L67">                return def;</span>
             }
-<span class="nc" id="L92">            return p.getLong(0);</span>
-<span class="nc" id="L93">        }</span>
+<span class="nc" id="L69">            return p.getLong(0);</span>
+<span class="nc" id="L70">        }</span>
     }
 
     /**
      * Executes a sysctl call with a String result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default String value
+     * @param name name of the sysctl
+     * @param def  default String value
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(int[] name, String def) {
         // Call first time with null pointer to get value of size
-<span class="nc" id="L107">        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L109">                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L110">                return def;</span>
+<span class="nc" id="L82">        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L84">                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L85">                return def;</span>
             }
             // Add 1 to size for null terminated string
-<span class="nc" id="L113">            try (Memory p = new Memory(size.longValue() + 1L)) {</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">                if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L115">                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L116">                    return def;</span>
+<span class="nc" id="L88">            try (Memory p = new Memory(size.longValue() + 1L)) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L90">                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L91">                    return def;</span>
                 }
-<span class="nc" id="L118">                return p.getString(0);</span>
-<span class="nc" id="L119">            }</span>
-<span class="nc" id="L120">        }</span>
+<span class="nc" id="L93">                return p.getString(0);</span>
+<span class="nc" id="L94">            }</span>
+<span class="nc" id="L95">        }</span>
     }
 
     /**
      * Executes a sysctl call with a Structure result
      *
-     * @param name
-     *            name of the sysctl
-     * @param struct
-     *            structure for the result
+     * @param name   name of the sysctl
+     * @param struct structure for the result
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(int[] name, Structure struct) {
-<span class="nc" id="L133">        try (CloseableSizeTByReference size = new CloseableSizeTByReference(struct.size())) {</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, struct.getPointer(), size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L135">                LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L136">                return false;</span>
+<span class="nc" id="L106">        try (CloseableSizeTByReference size = new CloseableSizeTByReference(struct.size())) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, struct.getPointer(), size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L108">                LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L109">                return false;</span>
             }
-<span class="nc" id="L138">        }</span>
-<span class="nc" id="L139">        struct.read();</span>
-<span class="nc" id="L140">        return true;</span>
+<span class="nc" id="L111">        }</span>
+<span class="nc" id="L112">        struct.read();</span>
+<span class="nc" id="L113">        return true;</span>
     }
 
     /**
      * Executes a sysctl call with a Pointer result
      *
-     * @param name
-     *            name of the sysctl
-     * @return An allocated memory buffer containing the result on success, null
-     *         otherwise. Its value on failure is undefined.
+     * @param name name of the sysctl
+     * @return An allocated memory buffer containing the result on success, null otherwise. Its value on failure is
+     *         undefined.
      */
     public static Memory sysctl(int[] name) {
-<span class="nc" id="L152">        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {</span>
-<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L154">                LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L155">                return null;</span>
+<span class="nc" id="L124">        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L126">                LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L127">                return null;</span>
             }
-<span class="nc" id="L157">            Memory m = new Memory(size.longValue());</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, m, size, null, size_t.ZERO)) {</span>
-<span class="nc" id="L159">                LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
-<span class="nc" id="L160">                m.close();</span>
-<span class="nc" id="L161">                return null;</span>
+<span class="nc" id="L129">            Memory m = new Memory(size.longValue());</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, m, size, null, size_t.ZERO)) {</span>
+<span class="nc" id="L131">                LOG.error(SYSCTL_FAIL, name, Native.getLastError());</span>
+<span class="nc" id="L132">                m.close();</span>
+<span class="nc" id="L133">                return null;</span>
             }
-<span class="nc" id="L163">            return m;</span>
-<span class="nc" id="L164">        }</span>
+<span class="nc" id="L135">            return m;</span>
+<span class="nc" id="L136">        }</span>
     }
 
     /*
@@ -171,44 +143,38 @@ public final class OpenBsdSysctlUtil {
     /**
      * Executes a sysctl call with an int result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default int value
+     * @param name name of the sysctl
+     * @param def  default int value
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
-<span class="nc" id="L181">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
+<span class="nc" id="L151">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
     }
 
     /**
      * Executes a sysctl call with a long result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default long value
+     * @param name name of the sysctl
+     * @param def  default long value
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
-<span class="nc" id="L194">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
+<span class="nc" id="L162">        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);</span>
     }
 
     /**
      * Executes a sysctl call with a String result
      *
-     * @param name
-     *            name of the sysctl
-     * @param def
-     *            default String value
+     * @param name name of the sysctl
+     * @param def  default String value
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
-<span class="nc" id="L207">        String v = ExecutingCommand.getFirstAnswer(SYSCTL_N + name);</span>
-<span class="nc bnc" id="L208" title="All 4 branches missed.">        if (null == v || v.isEmpty()) {</span>
-<span class="nc" id="L209">            return def;</span>
+<span class="nc" id="L173">        String v = ExecutingCommand.getFirstAnswer(SYSCTL_N + name);</span>
+<span class="nc bnc" id="L174" title="All 4 branches missed.">        if (null == v || v.isEmpty()) {</span>
+<span class="nc" id="L175">            return def;</span>
         }
-<span class="nc" id="L211">        return v;</span>
+<span class="nc" id="L177">        return v;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

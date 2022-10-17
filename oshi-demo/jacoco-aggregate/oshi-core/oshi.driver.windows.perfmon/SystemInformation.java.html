@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SystemInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">SystemInformation.java</span></div><h1>SystemInformation.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
 
@@ -42,50 +23,50 @@ public final class SystemInformation {
     /**
      * Context switch property
      */
-<span class="nc" id="L45">    public enum ContextSwitchProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L46">        CONTEXTSWITCHESPERSEC(null, &quot;Context Switches/sec&quot;);</span>
+<span class="nc" id="L26">    public enum ContextSwitchProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L27">        CONTEXTSWITCHESPERSEC(null, &quot;Context Switches/sec&quot;);</span>
 
         private final String instance;
         private final String counter;
 
-<span class="nc" id="L51">        ContextSwitchProperty(String instance, String counter) {</span>
-<span class="nc" id="L52">            this.instance = instance;</span>
-<span class="nc" id="L53">            this.counter = counter;</span>
-<span class="nc" id="L54">        }</span>
+<span class="nc" id="L32">        ContextSwitchProperty(String instance, String counter) {</span>
+<span class="nc" id="L33">            this.instance = instance;</span>
+<span class="nc" id="L34">            this.counter = counter;</span>
+<span class="nc" id="L35">        }</span>
 
         @Override
         public String getInstance() {
-<span class="nc" id="L58">            return instance;</span>
+<span class="nc" id="L39">            return instance;</span>
         }
 
         @Override
         public String getCounter() {
-<span class="nc" id="L63">            return counter;</span>
+<span class="nc" id="L44">            return counter;</span>
         }
     }
 
     /**
      * Processor Queue Length property
      */
-<span class="nc" id="L70">    public enum ProcessorQueueLengthProperty implements PdhCounterProperty {</span>
-<span class="nc" id="L71">        PROCESSORQUEUELENGTH(null, &quot;Processor Queue Length&quot;);</span>
+<span class="nc" id="L51">    public enum ProcessorQueueLengthProperty implements PdhCounterProperty {</span>
+<span class="nc" id="L52">        PROCESSORQUEUELENGTH(null, &quot;Processor Queue Length&quot;);</span>
 
         private final String instance;
         private final String counter;
 
-<span class="nc" id="L76">        ProcessorQueueLengthProperty(String instance, String counter) {</span>
-<span class="nc" id="L77">            this.instance = instance;</span>
-<span class="nc" id="L78">            this.counter = counter;</span>
-<span class="nc" id="L79">        }</span>
+<span class="nc" id="L57">        ProcessorQueueLengthProperty(String instance, String counter) {</span>
+<span class="nc" id="L58">            this.instance = instance;</span>
+<span class="nc" id="L59">            this.counter = counter;</span>
+<span class="nc" id="L60">        }</span>
 
         @Override
         public String getInstance() {
-<span class="nc" id="L83">            return instance;</span>
+<span class="nc" id="L64">            return instance;</span>
         }
 
         @Override
         public String getCounter() {
-<span class="nc" id="L88">            return counter;</span>
+<span class="nc" id="L69">            return counter;</span>
         }
     }
 
@@ -98,10 +79,10 @@ public final class SystemInformation {
      * @return Context switches counter for the total of all processors.
      */
     public static Map&lt;ContextSwitchProperty, Long&gt; queryContextSwitchCounters() {
-<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
-<span class="nc" id="L102">            return Collections.emptyMap();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L83">            return Collections.emptyMap();</span>
         }
-<span class="nc" id="L104">        return PerfCounterQuery.queryValues(ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);</span>
+<span class="nc" id="L85">        return PerfCounterQuery.queryValues(ContextSwitchProperty.class, SYSTEM, WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);</span>
     }
 
     /**
@@ -110,10 +91,10 @@ public final class SystemInformation {
      * @return Processor Queue Length.
      */
     public static Map&lt;ProcessorQueueLengthProperty, Long&gt; queryProcessorQueueLength() {
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
-<span class="nc" id="L114">            return Collections.emptyMap();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L95">            return Collections.emptyMap();</span>
         }
-<span class="nc" id="L116">        return PerfCounterQuery.queryValues(ProcessorQueueLengthProperty.class, SYSTEM,</span>
+<span class="nc" id="L97">        return PerfCounterQuery.queryValues(ProcessorQueueLengthProperty.class, SYSTEM,</span>
                 WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
     }
 }

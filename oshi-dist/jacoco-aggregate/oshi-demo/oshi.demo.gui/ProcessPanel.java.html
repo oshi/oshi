@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcessPanel.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.gui</a> &gt; <span class="el_source">ProcessPanel.java</span></div><h1>ProcessPanel.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
 
@@ -50,161 +31,160 @@ import oshi.software.os.OperatingSystem;
 import oshi.util.FormatUtil;
 
 /**
- * Displays a process list, such as ps or task manager. This performs more like
- * Windows Task Manger with current CPU as measured between polling intervals,
- * while PS uses a cumulative CPU value.
+ * Displays a process list, such as ps or task manager. This performs more like Windows Task Manger with current CPU as
+ * measured between polling intervals, while PS uses a cumulative CPU value.
  */
 public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;
 
     private static final String PROCESSES = &quot;Processes&quot;;
-<span class="nc" id="L62">    private static final String[] COLUMNS = { &quot;PID&quot;, &quot;PPID&quot;, &quot;Threads&quot;, &quot;% CPU&quot;, &quot;Cumulative&quot;, &quot;VSZ&quot;, &quot;RSS&quot;, &quot;% Memory&quot;,</span>
+<span class="nc" id="L42">    private static final String[] COLUMNS = { &quot;PID&quot;, &quot;PPID&quot;, &quot;Threads&quot;, &quot;% CPU&quot;, &quot;Cumulative&quot;, &quot;VSZ&quot;, &quot;RSS&quot;, &quot;% Memory&quot;,</span>
             &quot;Process Name&quot; };
-<span class="nc" id="L64">    private static final double[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35 };</span>
+<span class="nc" id="L44">    private static final double[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35 };</span>
 
-<span class="nc" id="L66">    private transient Map&lt;Integer, OSProcess&gt; priorSnapshotMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L46">    private transient Map&lt;Integer, OSProcess&gt; priorSnapshotMap = new HashMap&lt;&gt;();</span>
 
-<span class="nc" id="L68">    private transient ButtonGroup cpuOption = new ButtonGroup();</span>
-<span class="nc" id="L69">    private transient JRadioButton perProc = new JRadioButton(&quot;of one Processor&quot;);</span>
-<span class="nc" id="L70">    private transient JRadioButton perSystem = new JRadioButton(&quot;of System&quot;);</span>
+<span class="nc" id="L48">    private transient ButtonGroup cpuOption = new ButtonGroup();</span>
+<span class="nc" id="L49">    private transient JRadioButton perProc = new JRadioButton(&quot;of one Processor&quot;);</span>
+<span class="nc" id="L50">    private transient JRadioButton perSystem = new JRadioButton(&quot;of System&quot;);</span>
 
-<span class="nc" id="L72">    private transient ButtonGroup sortOption = new ButtonGroup();</span>
-<span class="nc" id="L73">    private transient JRadioButton cpuButton = new JRadioButton(&quot;CPU %&quot;);</span>
-<span class="nc" id="L74">    private transient JRadioButton cumulativeCpuButton = new JRadioButton(&quot;Cumulative CPU&quot;);</span>
-<span class="nc" id="L75">    private transient JRadioButton memButton = new JRadioButton(&quot;Memory %&quot;);</span>
+<span class="nc" id="L52">    private transient ButtonGroup sortOption = new ButtonGroup();</span>
+<span class="nc" id="L53">    private transient JRadioButton cpuButton = new JRadioButton(&quot;CPU %&quot;);</span>
+<span class="nc" id="L54">    private transient JRadioButton cumulativeCpuButton = new JRadioButton(&quot;Cumulative CPU&quot;);</span>
+<span class="nc" id="L55">    private transient JRadioButton memButton = new JRadioButton(&quot;Memory %&quot;);</span>
 
     public ProcessPanel(SystemInfo si) {
-<span class="nc" id="L78">        super();</span>
-<span class="nc" id="L79">        init(si);</span>
-<span class="nc" id="L80">    }</span>
+<span class="nc" id="L58">        super();</span>
+<span class="nc" id="L59">        init(si);</span>
+<span class="nc" id="L60">    }</span>
 
     private void init(SystemInfo si) {
-<span class="nc" id="L83">        OperatingSystem os = si.getOperatingSystem();</span>
-<span class="nc" id="L84">        JLabel procLabel = new JLabel(PROCESSES);</span>
-<span class="nc" id="L85">        add(procLabel, BorderLayout.NORTH);</span>
+<span class="nc" id="L63">        OperatingSystem os = si.getOperatingSystem();</span>
+<span class="nc" id="L64">        JLabel procLabel = new JLabel(PROCESSES);</span>
+<span class="nc" id="L65">        add(procLabel, BorderLayout.NORTH);</span>
 
-<span class="nc" id="L87">        JPanel settings = new JPanel();</span>
+<span class="nc" id="L67">        JPanel settings = new JPanel();</span>
 
-<span class="nc" id="L89">        JLabel cpuChoice = new JLabel(&quot;          CPU %:&quot;);</span>
-<span class="nc" id="L90">        settings.add(cpuChoice);</span>
-<span class="nc" id="L91">        cpuOption.add(perProc);</span>
-<span class="nc" id="L92">        settings.add(perProc);</span>
-<span class="nc" id="L93">        cpuOption.add(perSystem);</span>
-<span class="nc" id="L94">        settings.add(perSystem);</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {</span>
-<span class="nc" id="L96">            perSystem.setSelected(true);</span>
+<span class="nc" id="L69">        JLabel cpuChoice = new JLabel(&quot;          CPU %:&quot;);</span>
+<span class="nc" id="L70">        settings.add(cpuChoice);</span>
+<span class="nc" id="L71">        cpuOption.add(perProc);</span>
+<span class="nc" id="L72">        settings.add(perProc);</span>
+<span class="nc" id="L73">        cpuOption.add(perSystem);</span>
+<span class="nc" id="L74">        settings.add(perSystem);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {</span>
+<span class="nc" id="L76">            perSystem.setSelected(true);</span>
         } else {
-<span class="nc" id="L98">            perProc.setSelected(true);</span>
+<span class="nc" id="L78">            perProc.setSelected(true);</span>
         }
 
-<span class="nc" id="L101">        JLabel sortChoice = new JLabel(&quot;          Sort by:&quot;);</span>
-<span class="nc" id="L102">        settings.add(sortChoice);</span>
-<span class="nc" id="L103">        sortOption.add(cpuButton);</span>
-<span class="nc" id="L104">        settings.add(cpuButton);</span>
-<span class="nc" id="L105">        sortOption.add(cumulativeCpuButton);</span>
-<span class="nc" id="L106">        settings.add(cumulativeCpuButton);</span>
-<span class="nc" id="L107">        sortOption.add(memButton);</span>
-<span class="nc" id="L108">        settings.add(memButton);</span>
-<span class="nc" id="L109">        cpuButton.setSelected(true);</span>
+<span class="nc" id="L81">        JLabel sortChoice = new JLabel(&quot;          Sort by:&quot;);</span>
+<span class="nc" id="L82">        settings.add(sortChoice);</span>
+<span class="nc" id="L83">        sortOption.add(cpuButton);</span>
+<span class="nc" id="L84">        settings.add(cpuButton);</span>
+<span class="nc" id="L85">        sortOption.add(cumulativeCpuButton);</span>
+<span class="nc" id="L86">        settings.add(cumulativeCpuButton);</span>
+<span class="nc" id="L87">        sortOption.add(memButton);</span>
+<span class="nc" id="L88">        settings.add(memButton);</span>
+<span class="nc" id="L89">        cpuButton.setSelected(true);</span>
 
-<span class="nc" id="L111">        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);</span>
-<span class="nc" id="L112">        JTable procTable = new JTable(model);</span>
-<span class="nc" id="L113">        JScrollPane scrollV = new JScrollPane(procTable);</span>
-<span class="nc" id="L114">        scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span>
-<span class="nc" id="L115">        resizeColumns(procTable.getColumnModel());</span>
+<span class="nc" id="L91">        TableModel model = new DefaultTableModel(parseProcesses(os.getProcesses(null, null, 0), si), COLUMNS);</span>
+<span class="nc" id="L92">        JTable procTable = new JTable(model);</span>
+<span class="nc" id="L93">        JScrollPane scrollV = new JScrollPane(procTable);</span>
+<span class="nc" id="L94">        scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span>
+<span class="nc" id="L95">        resizeColumns(procTable.getColumnModel());</span>
 
-<span class="nc" id="L117">        add(scrollV, BorderLayout.CENTER);</span>
-<span class="nc" id="L118">        add(settings, BorderLayout.SOUTH);</span>
+<span class="nc" id="L97">        add(scrollV, BorderLayout.CENTER);</span>
+<span class="nc" id="L98">        add(settings, BorderLayout.SOUTH);</span>
 
-<span class="nc" id="L120">        Timer timer = new Timer(Config.REFRESH_SLOW, e -&gt; {</span>
-<span class="nc" id="L121">            DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();</span>
-<span class="nc" id="L122">            Object[][] newData = parseProcesses(os.getProcesses(null, null, 0), si);</span>
-<span class="nc" id="L123">            int rowCount = tableModel.getRowCount();</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            for (int row = 0; row &lt; newData.length; row++) {</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (row &lt; rowCount) {</span>
+<span class="nc" id="L100">        Timer timer = new Timer(Config.REFRESH_SLOW, e -&gt; {</span>
+<span class="nc" id="L101">            DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();</span>
+<span class="nc" id="L102">            Object[][] newData = parseProcesses(os.getProcesses(null, null, 0), si);</span>
+<span class="nc" id="L103">            int rowCount = tableModel.getRowCount();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            for (int row = 0; row &lt; newData.length; row++) {</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (row &lt; rowCount) {</span>
                     // Overwrite row
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                    for (int col = 0; col &lt; newData[row].length; col++) {</span>
-<span class="nc" id="L128">                        tableModel.setValueAt(newData[row][col], row, col);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                    for (int col = 0; col &lt; newData[row].length; col++) {</span>
+<span class="nc" id="L108">                        tableModel.setValueAt(newData[row][col], row, col);</span>
                     }
                 } else {
                     // Add row
-<span class="nc" id="L132">                    tableModel.addRow(newData[row]);</span>
+<span class="nc" id="L112">                    tableModel.addRow(newData[row]);</span>
                 }
             }
             // Delete any extra rows
-<span class="nc bnc" id="L136" title="All 2 branches missed.">            for (int row = rowCount - 1; row &gt;= newData.length; row--) {</span>
-<span class="nc" id="L137">                tableModel.removeRow(row);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            for (int row = rowCount - 1; row &gt;= newData.length; row--) {</span>
+<span class="nc" id="L117">                tableModel.removeRow(row);</span>
             }
-<span class="nc" id="L139">        });</span>
-<span class="nc" id="L140">        timer.start();</span>
-<span class="nc" id="L141">    }</span>
+<span class="nc" id="L119">        });</span>
+<span class="nc" id="L120">        timer.start();</span>
+<span class="nc" id="L121">    }</span>
 
     private Object[][] parseProcesses(List&lt;OSProcess&gt; list, SystemInfo si) {
-<span class="nc" id="L144">        long totalMem = si.getHardware().getMemory().getTotal();</span>
-<span class="nc" id="L145">        int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();</span>
+<span class="nc" id="L124">        long totalMem = si.getHardware().getMemory().getTotal();</span>
+<span class="nc" id="L125">        int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();</span>
         // Build a map with a value for each process to control the sort
-<span class="nc" id="L147">        Map&lt;OSProcess, Double&gt; processSortValueMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        for (OSProcess p : list) {</span>
-<span class="nc" id="L149">            int pid = p.getProcessID();</span>
+<span class="nc" id="L127">        Map&lt;OSProcess, Double&gt; processSortValueMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        for (OSProcess p : list) {</span>
+<span class="nc" id="L129">            int pid = p.getProcessID();</span>
             // Ignore the Idle process on Windows
-<span class="nc bnc" id="L151" title="All 4 branches missed.">            if (pid &gt; 0 || !SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">            if (pid &gt; 0 || !SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {</span>
                 // Set up for appropriate sort
-<span class="nc bnc" id="L153" title="All 2 branches missed.">                if (cpuButton.isSelected()) {</span>
-<span class="nc" id="L154">                    processSortValueMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">                } else if (cumulativeCpuButton.isSelected()) {</span>
-<span class="nc" id="L156">                    processSortValueMap.put(p, p.getProcessCpuLoadCumulative());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                if (cpuButton.isSelected()) {</span>
+<span class="nc" id="L134">                    processSortValueMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                } else if (cumulativeCpuButton.isSelected()) {</span>
+<span class="nc" id="L136">                    processSortValueMap.put(p, p.getProcessCpuLoadCumulative());</span>
                 } else {
-<span class="nc" id="L158">                    processSortValueMap.put(p, (double) p.getResidentSetSize());</span>
+<span class="nc" id="L138">                    processSortValueMap.put(p, (double) p.getResidentSetSize());</span>
                 }
             }
-<span class="nc" id="L161">        }</span>
+<span class="nc" id="L141">        }</span>
         // Now sort the list by the values
-<span class="nc" id="L163">        List&lt;Entry&lt;OSProcess, Double&gt;&gt; procList = new ArrayList&lt;&gt;(processSortValueMap.entrySet());</span>
-<span class="nc" id="L164">        procList.sort(Entry.comparingByValue());</span>
+<span class="nc" id="L143">        List&lt;Entry&lt;OSProcess, Double&gt;&gt; procList = new ArrayList&lt;&gt;(processSortValueMap.entrySet());</span>
+<span class="nc" id="L144">        procList.sort(Entry.comparingByValue());</span>
         // Insert into array in reverse order (lowest sort value last)
-<span class="nc" id="L166">        int i = procList.size();</span>
-<span class="nc" id="L167">        Object[][] procArr = new Object[i][COLUMNS.length];</span>
+<span class="nc" id="L146">        int i = procList.size();</span>
+<span class="nc" id="L147">        Object[][] procArr = new Object[i][COLUMNS.length];</span>
         // These are in descending CPU order
-<span class="nc bnc" id="L169" title="All 2 branches missed.">        for (Entry&lt;OSProcess, Double&gt; e : procList) {</span>
-<span class="nc" id="L170">            OSProcess p = e.getKey();</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        for (Entry&lt;OSProcess, Double&gt; e : procList) {</span>
+<span class="nc" id="L150">            OSProcess p = e.getKey();</span>
             // Matches order of COLUMNS field
-<span class="nc" id="L172">            i--;</span>
-<span class="nc" id="L173">            int pid = p.getProcessID();</span>
-<span class="nc" id="L174">            procArr[i][0] = pid;</span>
-<span class="nc" id="L175">            procArr[i][1] = p.getParentProcessID();</span>
-<span class="nc" id="L176">            procArr[i][2] = p.getThreadCount();</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">            if (perProc.isSelected()) {</span>
-<span class="nc" id="L178">                procArr[i][3] = String.format(&quot;%.1f&quot;,</span>
-<span class="nc" id="L179">                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) / cpuCount);</span>
-<span class="nc" id="L180">                procArr[i][4] = String.format(&quot;%.1f&quot;, 100d * p.getProcessCpuLoadCumulative() / cpuCount);</span>
+<span class="nc" id="L152">            i--;</span>
+<span class="nc" id="L153">            int pid = p.getProcessID();</span>
+<span class="nc" id="L154">            procArr[i][0] = pid;</span>
+<span class="nc" id="L155">            procArr[i][1] = p.getParentProcessID();</span>
+<span class="nc" id="L156">            procArr[i][2] = p.getThreadCount();</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (perProc.isSelected()) {</span>
+<span class="nc" id="L158">                procArr[i][3] = String.format(&quot;%.1f&quot;,</span>
+<span class="nc" id="L159">                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) / cpuCount);</span>
+<span class="nc" id="L160">                procArr[i][4] = String.format(&quot;%.1f&quot;, 100d * p.getProcessCpuLoadCumulative() / cpuCount);</span>
             } else {
-<span class="nc" id="L182">                procArr[i][3] = String.format(&quot;%.1f&quot;,</span>
-<span class="nc" id="L183">                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));</span>
-<span class="nc" id="L184">                procArr[i][4] = String.format(&quot;%.1f&quot;, 100d * p.getProcessCpuLoadCumulative());</span>
+<span class="nc" id="L162">                procArr[i][3] = String.format(&quot;%.1f&quot;,</span>
+<span class="nc" id="L163">                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));</span>
+<span class="nc" id="L164">                procArr[i][4] = String.format(&quot;%.1f&quot;, 100d * p.getProcessCpuLoadCumulative());</span>
             }
-<span class="nc" id="L186">            procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());</span>
-<span class="nc" id="L187">            procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());</span>
-<span class="nc" id="L188">            procArr[i][7] = String.format(&quot;%.1f&quot;, 100d * p.getResidentSetSize() / totalMem);</span>
-<span class="nc" id="L189">            procArr[i][8] = p.getName();</span>
-<span class="nc" id="L190">        }</span>
+<span class="nc" id="L166">            procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());</span>
+<span class="nc" id="L167">            procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());</span>
+<span class="nc" id="L168">            procArr[i][7] = String.format(&quot;%.1f&quot;, 100d * p.getResidentSetSize() / totalMem);</span>
+<span class="nc" id="L169">            procArr[i][8] = p.getName();</span>
+<span class="nc" id="L170">        }</span>
         // Re-populate snapshot map
-<span class="nc" id="L192">        priorSnapshotMap.clear();</span>
-<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (OSProcess p : list) {</span>
-<span class="nc" id="L194">            priorSnapshotMap.put(p.getProcessID(), p);</span>
-<span class="nc" id="L195">        }</span>
-<span class="nc" id="L196">        return procArr;</span>
+<span class="nc" id="L172">        priorSnapshotMap.clear();</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        for (OSProcess p : list) {</span>
+<span class="nc" id="L174">            priorSnapshotMap.put(p.getProcessID(), p);</span>
+<span class="nc" id="L175">        }</span>
+<span class="nc" id="L176">        return procArr;</span>
     }
 
     private static void resizeColumns(TableColumnModel tableColumnModel) {
         TableColumn column;
-<span class="nc" id="L201">        int tW = tableColumnModel.getTotalColumnWidth();</span>
-<span class="nc" id="L202">        int cantCols = tableColumnModel.getColumnCount();</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">        for (int i = 0; i &lt; cantCols; i++) {</span>
-<span class="nc" id="L204">            column = tableColumnModel.getColumn(i);</span>
-<span class="nc" id="L205">            int pWidth = (int) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);</span>
-<span class="nc" id="L206">            column.setPreferredWidth(pWidth);</span>
+<span class="nc" id="L181">        int tW = tableColumnModel.getTotalColumnWidth();</span>
+<span class="nc" id="L182">        int cantCols = tableColumnModel.getColumnCount();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (int i = 0; i &lt; cantCols; i++) {</span>
+<span class="nc" id="L184">            column = tableColumnModel.getColumn(i);</span>
+<span class="nc" id="L185">            int pWidth = (int) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);</span>
+<span class="nc" id="L186">            column.setPreferredWidth(pWidth);</span>
         }
-<span class="nc" id="L208">    }</span>
+<span class="nc" id="L188">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

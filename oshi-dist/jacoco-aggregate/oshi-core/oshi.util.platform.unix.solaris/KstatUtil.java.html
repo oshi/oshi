@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>KstatUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.unix.solaris</a> &gt; <span class="el_source">KstatUtil.java</span></div><h1>KstatUtil.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.unix.solaris;
 
@@ -57,132 +38,115 @@ import oshi.util.Util;
 @ThreadSafe
 public final class KstatUtil {
 
-<span class="nc" id="L60">    private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);</span>
+<span class="nc" id="L41">    private static final Logger LOG = LoggerFactory.getLogger(KstatUtil.class);</span>
 
-<span class="nc" id="L62">    private static final Lock CHAIN = new ReentrantLock();</span>
+<span class="nc" id="L43">    private static final Lock CHAIN = new ReentrantLock();</span>
     // Only one thread may access the chain at any time, so we wrap this object in
     // the KstatChain class locked until the lock is released on auto-close.
     @GuardedBy(&quot;CHAIN&quot;)
-<span class="nc" id="L66">    private static KstatCtl kstatCtl = null;</span>
+<span class="nc" id="L47">    private static KstatCtl kstatCtl = null;</span>
 
     private KstatUtil() {
     }
 
     /**
-     * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only
-     * one thread may actively use this object at any time.
+     * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only one thread may actively use this
+     * object at any time.
      * &lt;p&gt;
-     * The chain is created once calling {@link LibKstat#kstat_open} and then this
-     * object is instantiated using the {@link KstatUtil#openChain} method.
-     * Instantiating this object updates the chain using
-     * {@link LibKstat#kstat_chain_update}. The control object should be closed with
-     * {@link #close}, which releases the lock and allows another instance to be
-     * instantiated.
+     * The chain is created once calling {@link LibKstat#kstat_open} and then this object is instantiated using the
+     * {@link KstatUtil#openChain} method. Instantiating this object updates the chain using
+     * {@link LibKstat#kstat_chain_update}. The control object should be closed with {@link #close}, which releases the
+     * lock and allows another instance to be instantiated.
      */
     public static final class KstatChain implements AutoCloseable {
 
         private final KstatCtl localCtlRef;
 
-<span class="nc" id="L86">        private KstatChain(KstatCtl ctl) {</span>
-<span class="nc" id="L87">            this.localCtlRef = ctl;</span>
-<span class="nc" id="L88">            update();</span>
-<span class="nc" id="L89">        }</span>
+<span class="nc" id="L65">        private KstatChain(KstatCtl ctl) {</span>
+<span class="nc" id="L66">            this.localCtlRef = ctl;</span>
+<span class="nc" id="L67">            update();</span>
+<span class="nc" id="L68">        }</span>
 
         /**
-         * Convenience method for {@link LibKstat#kstat_read} which gets data from the
-         * kernel for the kstat pointed to by {@code ksp}. {@code ksp.ks_data} is
-         * automatically allocated (or reallocated) to be large enough to hold all of
-         * the data. {@code ksp.ks_ndata} is set to the number of data fields,
-         * {@code ksp.ks_data_size} is set to the total size of the data, and
-         * ksp.ks_snaptime is set to the high-resolution time at which the data snapshot
+         * Convenience method for {@link LibKstat#kstat_read} which gets data from the kernel for the kstat pointed to
+         * by {@code ksp}. {@code ksp.ks_data} is automatically allocated (or reallocated) to be large enough to hold
+         * all of the data. {@code ksp.ks_ndata} is set to the number of data fields, {@code ksp.ks_data_size} is set to
+         * the total size of the data, and ksp.ks_snaptime is set to the high-resolution time at which the data snapshot
          * was taken.
          *
-         * @param ksp
-         *            The kstat from which to retrieve data
+         * @param ksp The kstat from which to retrieve data
          * @return {@code true} if successful; {@code false} otherwise
          */
         @GuardedBy(&quot;CHAIN&quot;)
         public boolean read(Kstat ksp) {
-<span class="nc" id="L106">            int retry = 0;</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            while (0 &gt; LibKstat.INSTANCE.kstat_read(localCtlRef, ksp, null)) {</span>
-<span class="nc bnc" id="L108" title="All 4 branches missed.">                if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">                    if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L110">                        LOG.debug(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
-<span class="nc" id="L111">                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
-<span class="nc" id="L112">                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));</span>
+<span class="nc" id="L82">            int retry = 0;</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            while (0 &gt; LibKstat.INSTANCE.kstat_read(localCtlRef, ksp, null)) {</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">                if (LibKstat.EAGAIN != Native.getLastError() || 5 &lt;= ++retry) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                    if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L86">                        LOG.debug(&quot;Failed to read kstat {}:{}:{}&quot;,</span>
+<span class="nc" id="L87">                                Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
+<span class="nc" id="L88">                                Native.toString(ksp.ks_name, StandardCharsets.US_ASCII));</span>
                     }
-<span class="nc" id="L114">                    return false;</span>
+<span class="nc" id="L90">                    return false;</span>
                 }
-<span class="nc" id="L116">                Util.sleep(8 &lt;&lt; retry);</span>
+<span class="nc" id="L92">                Util.sleep(8 &lt;&lt; retry);</span>
             }
-<span class="nc" id="L118">            return true;</span>
+<span class="nc" id="L94">            return true;</span>
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat
-         * chain, searching for a kstat with the same {@code module}, {@code instance},
-         * and {@code name} fields; this triplet uniquely identifies a kstat. If
-         * {@code module} is {@code null}, {@code instance} is -1, or {@code name} is
-         * {@code null}, then those fields will be ignored in the search.
+         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat chain, searching for a kstat with
+         * the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely identifies a kstat.
+         * If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is {@code null}, then those fields
+         * will be ignored in the search.
          *
-         * @param module
-         *            The module, or null to ignore
-         * @param instance
-         *            The instance, or -1 to ignore
-         * @param name
-         *            The name, or null to ignore
-         * @return The first match of the requested Kstat structure if found, or
-         *         {@code null}
+         * @param module   The module, or null to ignore
+         * @param instance The instance, or -1 to ignore
+         * @param name     The name, or null to ignore
+         * @return The first match of the requested Kstat structure if found, or {@code null}
          */
         @GuardedBy(&quot;CHAIN&quot;)
         public Kstat lookup(String module, int instance, String name) {
-<span class="nc" id="L139">            return LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name);</span>
+<span class="nc" id="L110">            return LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name);</span>
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat
-         * chain, searching for all kstats with the same {@code module},
-         * {@code instance}, and {@code name} fields; this triplet uniquely identifies a
-         * kstat. If {@code module} is {@code null}, {@code instance} is -1, or
-         * {@code name} is {@code null}, then those fields will be ignored in the
-         * search.
+         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat chain, searching for all kstats
+         * with the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely identifies a
+         * kstat. If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is {@code null}, then those
+         * fields will be ignored in the search.
          *
-         * @param module
-         *            The module, or null to ignore
-         * @param instance
-         *            The instance, or -1 to ignore
-         * @param name
-         *            The name, or null to ignore
-         * @return All matches of the requested Kstat structure if found, or an empty
-         *         list otherwise
+         * @param module   The module, or null to ignore
+         * @param instance The instance, or -1 to ignore
+         * @param name     The name, or null to ignore
+         * @return All matches of the requested Kstat structure if found, or an empty list otherwise
          */
         @GuardedBy(&quot;CHAIN&quot;)
         public List&lt;Kstat&gt; lookupAll(String module, int instance, String name) {
-<span class="nc" id="L161">            List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name); ksp != null; ksp = ksp</span>
-<span class="nc" id="L163">                    .next()) {</span>
-<span class="nc bnc" id="L164" title="All 10 branches missed.">                if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))</span>
+<span class="nc" id="L126">            List&lt;Kstat&gt; kstats = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name); ksp != null; ksp = ksp</span>
+<span class="nc" id="L128">                    .next()) {</span>
+<span class="nc bnc" id="L129" title="All 10 branches missed.">                if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))</span>
                         &amp;&amp; (instance &lt; 0 || instance == ksp.ks_instance)
-<span class="nc bnc" id="L166" title="All 2 branches missed.">                        &amp;&amp; (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {</span>
-<span class="nc" id="L167">                    kstats.add(ksp);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                        &amp;&amp; (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {</span>
+<span class="nc" id="L132">                    kstats.add(ksp);</span>
                 }
             }
-<span class="nc" id="L170">            return kstats;</span>
+<span class="nc" id="L135">            return kstats;</span>
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_chain_update}. Brings this kstat
-         * header chain in sync with that of the kernel.
+         * Convenience method for {@link LibKstat#kstat_chain_update}. Brings this kstat header chain in sync with that
+         * of the kernel.
          * &lt;p&gt;
-         * This function compares the kernel's current kstat chain ID(KCID), which is
-         * incremented every time the kstat chain changes, to this object's KCID.
+         * This function compares the kernel's current kstat chain ID(KCID), which is incremented every time the kstat
+         * chain changes, to this object's KCID.
          *
-         * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on
-         *         failure.
+         * @return the new KCID if the kstat chain has changed, 0 if it hasn't, or -1 on failure.
          */
         @GuardedBy(&quot;CHAIN&quot;)
         public int update() {
-<span class="nc" id="L185">            return LibKstat.INSTANCE.kstat_chain_update(localCtlRef);</span>
+<span class="nc" id="L149">            return LibKstat.INSTANCE.kstat_chain_update(localCtlRef);</span>
         }
 
         /**
@@ -190,193 +154,176 @@ public final class KstatUtil {
          */
         @Override
         public void close() {
-<span class="nc" id="L193">            CHAIN.unlock();</span>
-<span class="nc" id="L194">        }</span>
+<span class="nc" id="L157">            CHAIN.unlock();</span>
+<span class="nc" id="L158">        }</span>
     }
 
     /**
      * Lock the Kstat chain for use by this object until it's closed.
      *
-     * @return A locked copy of the chain. It should be unlocked/released when you
-     *         are done with it with {@link KstatChain#close()}.
+     * @return A locked copy of the chain. It should be unlocked/released when you are done with it with
+     *         {@link KstatChain#close()}.
      */
     public static synchronized KstatChain openChain() {
-<span class="nc" id="L204">        CHAIN.lock();</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (kstatCtl == null) {</span>
-<span class="nc" id="L206">            kstatCtl = LibKstat.INSTANCE.kstat_open();</span>
+<span class="nc" id="L168">        CHAIN.lock();</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (kstatCtl == null) {</span>
+<span class="nc" id="L170">            kstatCtl = LibKstat.INSTANCE.kstat_open();</span>
         }
-<span class="nc" id="L208">        return new KstatChain(kstatCtl);</span>
+<span class="nc" id="L172">        return new KstatChain(kstatCtl);</span>
     }
 
     /**
-     * Convenience method for {@link LibKstat#kstat_data_lookup} with String return
-     * values. Searches the kstat's data section for the record with the specified
-     * name. This operation is valid only for kstat types which have named data
-     * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
-     * have named data records.
+     * Convenience method for {@link LibKstat#kstat_data_lookup} with String return values. Searches the kstat's data
+     * section for the record with the specified name. This operation is valid only for kstat types which have named
+     * data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
      *
-     * @param ksp
-     *            The kstat to search
-     * @param name
-     *            The key for the name-value pair, or name of the timer as
-     *            applicable
+     * @param ksp  The kstat to search
+     * @param name The key for the name-value pair, or name of the timer as applicable
      * @return The value as a String.
      */
     public static String dataLookupString(Kstat ksp, String name) {
-<span class="nc bnc" id="L226" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
-<span class="nc" id="L227">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
+<span class="nc bnc" id="L185" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
+<span class="nc" id="L186">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
         }
-<span class="nc" id="L229">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
-<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc" id="L231">            LOG.debug(&quot;Failed to lookup kstat value for key {}&quot;, name);</span>
-<span class="nc" id="L232">            return &quot;&quot;;</span>
+<span class="nc" id="L188">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L190">            LOG.debug(&quot;Failed to lookup kstat value for key {}&quot;, name);</span>
+<span class="nc" id="L191">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L234">        KstatNamed data = new KstatNamed(p);</span>
-<span class="nc bnc" id="L235" title="All 7 branches missed.">        switch (data.data_type) {</span>
+<span class="nc" id="L193">        KstatNamed data = new KstatNamed(p);</span>
+<span class="nc bnc" id="L194" title="All 7 branches missed.">        switch (data.data_type) {</span>
         case LibKstat.KSTAT_DATA_CHAR:
-<span class="nc" id="L237">            return Native.toString(data.value.charc, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L196">            return Native.toString(data.value.charc, StandardCharsets.UTF_8);</span>
         case LibKstat.KSTAT_DATA_INT32:
-<span class="nc" id="L239">            return Integer.toString(data.value.i32);</span>
+<span class="nc" id="L198">            return Integer.toString(data.value.i32);</span>
         case LibKstat.KSTAT_DATA_UINT32:
-<span class="nc" id="L241">            return FormatUtil.toUnsignedString(data.value.ui32);</span>
+<span class="nc" id="L200">            return FormatUtil.toUnsignedString(data.value.ui32);</span>
         case LibKstat.KSTAT_DATA_INT64:
-<span class="nc" id="L243">            return Long.toString(data.value.i64);</span>
+<span class="nc" id="L202">            return Long.toString(data.value.i64);</span>
         case LibKstat.KSTAT_DATA_UINT64:
-<span class="nc" id="L245">            return FormatUtil.toUnsignedString(data.value.ui64);</span>
+<span class="nc" id="L204">            return FormatUtil.toUnsignedString(data.value.ui64);</span>
         case LibKstat.KSTAT_DATA_STRING:
-<span class="nc" id="L247">            return data.value.str.addr.getString(0);</span>
+<span class="nc" id="L206">            return data.value.str.addr.getString(0);</span>
         default:
-<span class="nc" id="L249">            LOG.error(&quot;Unimplemented kstat data type {}&quot;, data.data_type);</span>
-<span class="nc" id="L250">            return &quot;&quot;;</span>
+<span class="nc" id="L208">            LOG.error(&quot;Unimplemented kstat data type {}&quot;, data.data_type);</span>
+<span class="nc" id="L209">            return &quot;&quot;;</span>
         }
     }
 
     /**
-     * Convenience method for {@link LibKstat#kstat_data_lookup} with numeric return
-     * values. Searches the kstat's data section for the record with the specified
-     * name. This operation is valid only for kstat types which have named data
-     * records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats
-     * have named data records.
+     * Convenience method for {@link LibKstat#kstat_data_lookup} with numeric return values. Searches the kstat's data
+     * section for the record with the specified name. This operation is valid only for kstat types which have named
+     * data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
      *
-     * @param ksp
-     *            The kstat to search
-     * @param name
-     *            The key for the name-value pair, or name of the timer as
-     *            applicable
-     * @return The value as a long. If the data type is a character or string type,
-     *         returns 0 and logs an error.
+     * @param ksp  The kstat to search
+     * @param name The key for the name-value pair, or name of the timer as applicable
+     * @return The value as a long. If the data type is a character or string type, returns 0 and logs an error.
      */
     public static long dataLookupLong(Kstat ksp, String name) {
-<span class="nc bnc" id="L270" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
-<span class="nc" id="L271">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
+<span class="nc bnc" id="L223" title="All 4 branches missed.">        if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED &amp;&amp; ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {</span>
+<span class="nc" id="L224">            throw new IllegalArgumentException(&quot;Not a kstat_named or kstat_timer kstat.&quot;);</span>
         }
-<span class="nc" id="L273">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
-<span class="nc bnc" id="L274" title="All 2 branches missed.">        if (p == null) {</span>
-<span class="nc bnc" id="L275" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L276">                LOG.debug(&quot;Failed lo lookup kstat value on {}:{}:{} for key {}&quot;,</span>
-<span class="nc" id="L277">                        Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
-<span class="nc" id="L278">                        Native.toString(ksp.ks_name, StandardCharsets.US_ASCII), name);</span>
+<span class="nc" id="L226">        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L229">                LOG.debug(&quot;Failed lo lookup kstat value on {}:{}:{} for key {}&quot;,</span>
+<span class="nc" id="L230">                        Native.toString(ksp.ks_module, StandardCharsets.US_ASCII), ksp.ks_instance,</span>
+<span class="nc" id="L231">                        Native.toString(ksp.ks_name, StandardCharsets.US_ASCII), name);</span>
             }
-<span class="nc" id="L280">            return 0L;</span>
+<span class="nc" id="L233">            return 0L;</span>
         }
-<span class="nc" id="L282">        KstatNamed data = new KstatNamed(p);</span>
-<span class="nc bnc" id="L283" title="All 5 branches missed.">        switch (data.data_type) {</span>
+<span class="nc" id="L235">        KstatNamed data = new KstatNamed(p);</span>
+<span class="nc bnc" id="L236" title="All 5 branches missed.">        switch (data.data_type) {</span>
         case LibKstat.KSTAT_DATA_INT32:
-<span class="nc" id="L285">            return data.value.i32;</span>
+<span class="nc" id="L238">            return data.value.i32;</span>
         case LibKstat.KSTAT_DATA_UINT32:
-<span class="nc" id="L287">            return FormatUtil.getUnsignedInt(data.value.ui32);</span>
+<span class="nc" id="L240">            return FormatUtil.getUnsignedInt(data.value.ui32);</span>
         case LibKstat.KSTAT_DATA_INT64:
-<span class="nc" id="L289">            return data.value.i64;</span>
+<span class="nc" id="L242">            return data.value.i64;</span>
         case LibKstat.KSTAT_DATA_UINT64:
-<span class="nc" id="L291">            return data.value.ui64;</span>
+<span class="nc" id="L244">            return data.value.ui64;</span>
         default:
-<span class="nc" id="L293">            LOG.error(&quot;Unimplemented or non-numeric kstat data type {}&quot;, data.data_type);</span>
-<span class="nc" id="L294">            return 0L;</span>
+<span class="nc" id="L246">            LOG.error(&quot;Unimplemented or non-numeric kstat data type {}&quot;, data.data_type);</span>
+<span class="nc" id="L247">            return 0L;</span>
         }
     }
 
     /**
      * Query Kstat2 with a single map
      *
-     * @param mapStr
-     *            The map to query
-     * @param names
-     *            Names of data to query
+     * @param mapStr The map to query
+     * @param names  Names of data to query
      * @return An object array with the data corresponding to the names
      */
     public static Object[] queryKstat2(String mapStr, String... names) {
-<span class="nc bnc" id="L308" title="All 2 branches missed.">        if (!SolarisOperatingSystem.HAS_KSTAT2) {</span>
-<span class="nc" id="L309">            throw new UnsupportedOperationException(</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (!SolarisOperatingSystem.HAS_KSTAT2) {</span>
+<span class="nc" id="L260">            throw new UnsupportedOperationException(</span>
                     &quot;Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this.&quot;);
         }
-<span class="nc" id="L312">        Object[] result = new Object[names.length];</span>
-<span class="nc" id="L313">        Kstat2MatcherList matchers = new Kstat2MatcherList();</span>
-<span class="nc" id="L314">        KstatUtil.CHAIN.lock();</span>
+<span class="nc" id="L263">        Object[] result = new Object[names.length];</span>
+<span class="nc" id="L264">        Kstat2MatcherList matchers = new Kstat2MatcherList();</span>
+<span class="nc" id="L265">        KstatUtil.CHAIN.lock();</span>
         try {
-<span class="nc" id="L316">            matchers.addMatcher(Kstat2.KSTAT2_M_STRING, mapStr);</span>
-<span class="nc" id="L317">            Kstat2Handle handle = new Kstat2Handle();</span>
+<span class="nc" id="L267">            matchers.addMatcher(Kstat2.KSTAT2_M_STRING, mapStr);</span>
+<span class="nc" id="L268">            Kstat2Handle handle = new Kstat2Handle();</span>
             try {
-<span class="nc" id="L319">                Kstat2Map map = handle.lookupMap(mapStr);</span>
-<span class="nc bnc" id="L320" title="All 2 branches missed.">                for (int i = 0; i &lt; names.length; i++) {</span>
-<span class="nc" id="L321">                    result[i] = map.getValue(names[i]);</span>
+<span class="nc" id="L270">                Kstat2Map map = handle.lookupMap(mapStr);</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">                for (int i = 0; i &lt; names.length; i++) {</span>
+<span class="nc" id="L272">                    result[i] = map.getValue(names[i]);</span>
                 }
             } finally {
-<span class="nc" id="L324">                handle.close();</span>
+<span class="nc" id="L275">                handle.close();</span>
             }
-<span class="nc" id="L326">        } catch (Kstat2StatusException e) {</span>
-<span class="nc" id="L327">            LOG.debug(&quot;Failed to get stats on {} for names {}: {}&quot;, mapStr, Arrays.toString(names), e.getMessage());</span>
+<span class="nc" id="L277">        } catch (Kstat2StatusException e) {</span>
+<span class="nc" id="L278">            LOG.debug(&quot;Failed to get stats on {} for names {}: {}&quot;, mapStr, Arrays.toString(names), e.getMessage());</span>
         } finally {
-<span class="nc" id="L329">            KstatUtil.CHAIN.unlock();</span>
-<span class="nc" id="L330">            matchers.free();</span>
+<span class="nc" id="L280">            KstatUtil.CHAIN.unlock();</span>
+<span class="nc" id="L281">            matchers.free();</span>
         }
-<span class="nc" id="L332">        return result;</span>
+<span class="nc" id="L283">        return result;</span>
     }
 
     /**
-     * Query Kstat2 iterating over maps using a wildcard indicating a 0-indexed
-     * list, such as a cpu.
+     * Query Kstat2 iterating over maps using a wildcard indicating a 0-indexed list, such as a cpu.
      *
-     * @param beforeStr
-     *            The part of the string before the wildcard
-     * @param afterStr
-     *            The part of the string after the wildcard
-     * @param names
-     *            Names of data to query
+     * @param beforeStr The part of the string before the wildcard
+     * @param afterStr  The part of the string after the wildcard
+     * @param names     Names of data to query
      * @return A list of object arrays with the data corresponding to the names
      */
     public static List&lt;Object[]&gt; queryKstat2List(String beforeStr, String afterStr, String... names) {
-<span class="nc bnc" id="L348" title="All 2 branches missed.">        if (!SolarisOperatingSystem.HAS_KSTAT2) {</span>
-<span class="nc" id="L349">            throw new UnsupportedOperationException(</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">        if (!SolarisOperatingSystem.HAS_KSTAT2) {</span>
+<span class="nc" id="L296">            throw new UnsupportedOperationException(</span>
                     &quot;Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this.&quot;);
         }
-<span class="nc" id="L352">        List&lt;Object[]&gt; results = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L353">        int s = 0;</span>
-<span class="nc" id="L354">        Kstat2MatcherList matchers = new Kstat2MatcherList();</span>
-<span class="nc" id="L355">        KstatUtil.CHAIN.lock();</span>
+<span class="nc" id="L299">        List&lt;Object[]&gt; results = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L300">        int s = 0;</span>
+<span class="nc" id="L301">        Kstat2MatcherList matchers = new Kstat2MatcherList();</span>
+<span class="nc" id="L302">        KstatUtil.CHAIN.lock();</span>
         try {
-<span class="nc" id="L357">            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + &quot;*&quot; + afterStr);</span>
-<span class="nc" id="L358">            Kstat2Handle handle = new Kstat2Handle();</span>
+<span class="nc" id="L304">            matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + &quot;*&quot; + afterStr);</span>
+<span class="nc" id="L305">            Kstat2Handle handle = new Kstat2Handle();</span>
             try {
-<span class="nc bnc" id="L360" title="All 2 branches missed.">                for (s = 0; s &lt; Integer.MAX_VALUE; s++) {</span>
-<span class="nc" id="L361">                    Object[] result = new Object[names.length];</span>
-<span class="nc" id="L362">                    Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);</span>
-<span class="nc bnc" id="L363" title="All 2 branches missed.">                    for (int i = 0; i &lt; names.length; i++) {</span>
-<span class="nc" id="L364">                        result[i] = map.getValue(names[i]);</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">                for (s = 0; s &lt; Integer.MAX_VALUE; s++) {</span>
+<span class="nc" id="L308">                    Object[] result = new Object[names.length];</span>
+<span class="nc" id="L309">                    Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">                    for (int i = 0; i &lt; names.length; i++) {</span>
+<span class="nc" id="L311">                        result[i] = map.getValue(names[i]);</span>
                     }
-<span class="nc" id="L366">                    results.add(result);</span>
+<span class="nc" id="L313">                    results.add(result);</span>
                 }
             } finally {
-<span class="nc" id="L369">                handle.close();</span>
+<span class="nc" id="L316">                handle.close();</span>
             }
-<span class="nc" id="L371">        } catch (Kstat2StatusException e) {</span>
+<span class="nc" id="L318">        } catch (Kstat2StatusException e) {</span>
             // Expected to end iteration
-<span class="nc" id="L373">            LOG.debug(&quot;Failed to get stats on {}{}{} for names {}: {}&quot;, beforeStr, s, afterStr, Arrays.toString(names),</span>
-<span class="nc" id="L374">                    e.getMessage());</span>
+<span class="nc" id="L320">            LOG.debug(&quot;Failed to get stats on {}{}{} for names {}: {}&quot;, beforeStr, s, afterStr, Arrays.toString(names),</span>
+<span class="nc" id="L321">                    e.getMessage());</span>
         } finally {
-<span class="nc" id="L376">            KstatUtil.CHAIN.unlock();</span>
-<span class="nc" id="L377">            matchers.free();</span>
+<span class="nc" id="L323">            KstatUtil.CHAIN.unlock();</span>
+<span class="nc" id="L324">            matchers.free();</span>
         }
-<span class="nc" id="L379">        return results;</span>
+<span class="nc" id="L326">        return results;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

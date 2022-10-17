@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FileUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">FileUtil.java</span></div><h1>FileUtil.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
@@ -58,7 +39,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class FileUtil {
 
-<span class="nc" id="L61">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
+<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);</span>
 
     private static final String READING_LOG = &quot;Reading file {}&quot;;
     private static final String READ_LOG = &quot;Read {}&quot;;
@@ -67,402 +48,371 @@ public final class FileUtil {
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
-     * @return A list of Strings representing each line of the file, or an empty
-     *         list if file could not be read or is empty
+     * @param filename The file to read
+     * @return A list of Strings representing each line of the file, or an empty list if file could not be read or is
+     *         empty
      */
     public static List&lt;String&gt; readFile(String filename) {
-<span class="nc" id="L79">        return readFile(filename, true);</span>
+<span class="nc" id="L59">        return readFile(filename, true);</span>
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
-     * @param reportError
-     *            Whether to log errors reading the file
-     * @return A list of Strings representing each line of the file, or an empty
-     *         list if file could not be read or is empty
+     * @param filename    The file to read
+     * @param reportError Whether to log errors reading the file
+     * @return A list of Strings representing each line of the file, or an empty list if file could not be read or is
+     *         empty
      */
     public static List&lt;String&gt; readFile(String filename, boolean reportError) {
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (new File(filename).canRead()) {</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L96">                LOG.debug(READING_LOG, filename);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (new File(filename).canRead()) {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L74">                LOG.debug(READING_LOG, filename);</span>
             }
             try {
-<span class="nc" id="L99">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
-<span class="nc" id="L100">            } catch (IOException e) {</span>
-<span class="nc bnc" id="L101" title="All 2 branches missed.">                if (reportError) {</span>
-<span class="nc" id="L102">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
+<span class="nc" id="L77">                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L78">            } catch (IOException e) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                if (reportError) {</span>
+<span class="nc" id="L80">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
                 } else {
-<span class="nc" id="L104">                    LOG.debug(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
+<span class="nc" id="L82">                    LOG.debug(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
                 }
-<span class="nc" id="L106">            }</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        } else if (reportError) {</span>
-<span class="nc" id="L108">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
+<span class="nc" id="L84">            }</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        } else if (reportError) {</span>
+<span class="nc" id="L86">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
         }
-<span class="nc" id="L110">        return new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L88">        return new ArrayList&lt;&gt;();</span>
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename) {
-<span class="nc" id="L122">        return readAllBytes(filename, true);</span>
+<span class="nc" id="L99">        return readAllBytes(filename, true);</span>
     }
 
     /**
-     * Read an entire file at one time. Intended primarily for Linux /proc
-     * filesystem to avoid recalculating file contents on iterative reads.
+     * Read an entire file at one time. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
      *
-     * @param filename
-     *            The file to read
-     * @param reportError
-     *            Whether to log errors reading the file
+     * @param filename    The file to read
+     * @param reportError Whether to log errors reading the file
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename, boolean reportError) {
-<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (new File(filename).canRead()) {</span>
-<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L138">                LOG.debug(READING_LOG, filename);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (new File(filename).canRead()) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L113">                LOG.debug(READING_LOG, filename);</span>
             }
             try {
-<span class="nc" id="L141">                return Files.readAllBytes(Paths.get(filename));</span>
-<span class="nc" id="L142">            } catch (IOException e) {</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">                if (reportError) {</span>
-<span class="nc" id="L144">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
+<span class="nc" id="L116">                return Files.readAllBytes(Paths.get(filename));</span>
+<span class="nc" id="L117">            } catch (IOException e) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                if (reportError) {</span>
+<span class="nc" id="L119">                    LOG.error(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
                 } else {
-<span class="nc" id="L146">                    LOG.debug(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
+<span class="nc" id="L121">                    LOG.debug(&quot;Error reading file {}. {}&quot;, filename, e.getMessage());</span>
                 }
-<span class="nc" id="L148">            }</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">        } else if (reportError) {</span>
-<span class="nc" id="L150">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
+<span class="nc" id="L123">            }</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        } else if (reportError) {</span>
+<span class="nc" id="L125">            LOG.warn(&quot;File not found or not readable: {}&quot;, filename);</span>
         }
-<span class="nc" id="L152">        return new byte[0];</span>
+<span class="nc" id="L127">        return new byte[0];</span>
     }
 
     /**
-     * Read an entire file at one time. Intended for unix /proc binary files to
-     * avoid reading file contents on iterative reads.
+     * Read an entire file at one time. Intended for unix /proc binary files to avoid reading file contents on iterative
+     * reads.
      *
      *
-     * @param filename
-     *            The file to read
-     * @return A bytebuffer representing the file if read was successful; null
-     *         otherwise
+     * @param filename The file to read
+     * @return A bytebuffer representing the file if read was successful; null otherwise
      */
     public static ByteBuffer readAllBytesAsBuffer(String filename) {
-<span class="nc" id="L166">        byte[] bytes = readAllBytes(filename, false);</span>
-<span class="nc" id="L167">        ByteBuffer buff = ByteBuffer.allocate(bytes.length);</span>
-<span class="nc" id="L168">        buff.order(ByteOrder.nativeOrder());</span>
-<span class="nc bnc" id="L169" title="All 2 branches missed.">        for (byte b : bytes) {</span>
-<span class="nc" id="L170">            buff.put(b);</span>
+<span class="nc" id="L139">        byte[] bytes = readAllBytes(filename, false);</span>
+<span class="nc" id="L140">        ByteBuffer buff = ByteBuffer.allocate(bytes.length);</span>
+<span class="nc" id="L141">        buff.order(ByteOrder.nativeOrder());</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        for (byte b : bytes) {</span>
+<span class="nc" id="L143">            buff.put(b);</span>
         }
-<span class="nc" id="L172">        buff.flip();</span>
-<span class="nc" id="L173">        return buff;</span>
+<span class="nc" id="L145">        buff.flip();</span>
+<span class="nc" id="L146">        return buff;</span>
     }
 
     /**
      * Reads a byte value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next byte value
      */
     public static byte readByteFromBuffer(ByteBuffer buff) {
-<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (buff.position() &lt; buff.limit()) {</span>
-<span class="nc" id="L185">            return buff.get();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (buff.position() &lt; buff.limit()) {</span>
+<span class="nc" id="L157">            return buff.get();</span>
         }
-<span class="nc" id="L187">        return 0;</span>
+<span class="nc" id="L159">        return 0;</span>
     }
 
     /**
      * Reads a short value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next short value
      */
     public static short readShortFromBuffer(ByteBuffer buff) {
-<span class="nc bnc" id="L198" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - 2) {</span>
-<span class="nc" id="L199">            return buff.getShort();</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - 2) {</span>
+<span class="nc" id="L170">            return buff.getShort();</span>
         }
-<span class="nc" id="L201">        return 0;</span>
+<span class="nc" id="L172">        return 0;</span>
     }
 
     /**
      * Reads an int value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next int value
      */
     public static int readIntFromBuffer(ByteBuffer buff) {
-<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - 4) {</span>
-<span class="nc" id="L213">            return buff.getInt();</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - 4) {</span>
+<span class="nc" id="L183">            return buff.getInt();</span>
         }
-<span class="nc" id="L215">        return 0;</span>
+<span class="nc" id="L185">        return 0;</span>
     }
 
     /**
      * Reads a long value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next long value
      */
     public static long readLongFromBuffer(ByteBuffer buff) {
-<span class="nc bnc" id="L226" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - 8) {</span>
-<span class="nc" id="L227">            return buff.getLong();</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - 8) {</span>
+<span class="nc" id="L196">            return buff.getLong();</span>
         }
-<span class="nc" id="L229">        return 0L;</span>
+<span class="nc" id="L198">        return 0L;</span>
     }
 
     /**
      * Reads a NativeLong value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next value
      */
     public static NativeLong readNativeLongFromBuffer(ByteBuffer buff) {
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        return new NativeLong(Native.LONG_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        return new NativeLong(Native.LONG_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));</span>
     }
 
     /**
      * Reads a size_t value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next value
      */
     public static size_t readSizeTFromBuffer(ByteBuffer buff) {
-<span class="nc bnc" id="L251" title="All 2 branches missed.">        return new size_t(Native.SIZE_T_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        return new size_t(Native.SIZE_T_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));</span>
     }
 
     /**
      * Reads a byte array value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
-     * @param array
-     *            The array into which to read the data
+     * @param buff  The bytebuffer to read from
+     * @param array The array into which to read the data
      */
     public static void readByteArrayFromBuffer(ByteBuffer buff, byte[] array) {
-<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - array.length) {</span>
-<span class="nc" id="L264">            buff.get(array);</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - array.length) {</span>
+<span class="nc" id="L229">            buff.get(array);</span>
         }
-<span class="nc" id="L266">    }</span>
+<span class="nc" id="L231">    }</span>
 
     /**
      * Reads a Pointer value from a ByteBuffer
      *
-     * @param buff
-     *            The bytebuffer to read from
+     * @param buff The bytebuffer to read from
      * @return The next value
      */
     public static Pointer readPointerFromBuffer(ByteBuffer buff) {
-<span class="nc bnc" id="L276" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - Native.POINTER_SIZE) {</span>
-<span class="nc bnc" id="L277" title="All 2 branches missed.">            return Native.POINTER_SIZE == 4 ? new Pointer(buff.getInt()) : new Pointer(buff.getLong());</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (buff.position() &lt;= buff.limit() - Native.POINTER_SIZE) {</span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">            return Native.POINTER_SIZE == 4 ? new Pointer(buff.getInt()) : new Pointer(buff.getLong());</span>
         }
-<span class="nc" id="L279">        return Pointer.NULL;</span>
+<span class="nc" id="L243">        return Pointer.NULL;</span>
     }
 
     /**
-     * Read a file and return the long value contained therein. Intended primarily
-     * for Linux /sys filesystem
+     * Read a file and return the long value contained therein. Intended primarily for Linux /sys filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
-<span class="nc bnc" id="L291" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L292">            LOG.debug(READING_LOG, filename);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L254">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="nc" id="L294">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L295" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc bnc" id="L296" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L297">                LOG.trace(READ_LOG, read.get(0));</span>
+<span class="nc" id="L256">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L259">                LOG.trace(READ_LOG, read.get(0));</span>
             }
-<span class="nc" id="L299">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
+<span class="nc" id="L261">            return ParseUtil.parseLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="nc" id="L301">        return 0L;</span>
+<span class="nc" id="L263">        return 0L;</span>
     }
 
     /**
-     * Read a file and return the unsigned long value contained therein as a long.
-     * Intended primarily for Linux /sys filesystem
+     * Read a file and return the unsigned long value contained therein as a long. Intended primarily for Linux /sys
+     * filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getUnsignedLongFromFile(String filename) {
-<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L314">            LOG.debug(READING_LOG, filename);</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L275">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="nc" id="L316">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc bnc" id="L318" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L319">                LOG.trace(READ_LOG, read.get(0));</span>
+<span class="nc" id="L277">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L280">                LOG.trace(READ_LOG, read.get(0));</span>
             }
-<span class="nc" id="L321">            return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);</span>
+<span class="nc" id="L282">            return ParseUtil.parseUnsignedLongOrDefault(read.get(0), 0L);</span>
         }
-<span class="nc" id="L323">        return 0L;</span>
+<span class="nc" id="L284">        return 0L;</span>
     }
 
     /**
-     * Read a file and return the int value contained therein. Intended primarily
-     * for Linux /sys filesystem
+     * Read a file and return the int value contained therein. Intended primarily for Linux /sys filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
-<span class="nc bnc" id="L335" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L336">            LOG.debug(READING_LOG, filename);</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L295">            LOG.debug(READING_LOG, filename);</span>
         }
         try {
-<span class="nc" id="L339">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L340" title="All 2 branches missed.">            if (!read.isEmpty()) {</span>
-<span class="nc bnc" id="L341" title="All 2 branches missed.">                if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L342">                    LOG.trace(READ_LOG, read.get(0));</span>
+<span class="nc" id="L298">            List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">            if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">                if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L301">                    LOG.trace(READ_LOG, read.get(0));</span>
                 }
-<span class="nc" id="L344">                return Integer.parseInt(read.get(0));</span>
+<span class="nc" id="L303">                return Integer.parseInt(read.get(0));</span>
             }
-<span class="nc" id="L346">        } catch (NumberFormatException ex) {</span>
-<span class="nc" id="L347">            LOG.warn(&quot;Unable to read value from {}. {}&quot;, filename, ex.getMessage());</span>
-<span class="nc" id="L348">        }</span>
-<span class="nc" id="L349">        return 0;</span>
+<span class="nc" id="L305">        } catch (NumberFormatException ex) {</span>
+<span class="nc" id="L306">            LOG.warn(&quot;Unable to read value from {}. {}&quot;, filename, ex.getMessage());</span>
+<span class="nc" id="L307">        }</span>
+<span class="nc" id="L308">        return 0;</span>
     }
 
     /**
-     * Read a file and return the String value contained therein. Intended primarily
-     * for Linux /sys filesystem
+     * Read a file and return the String value contained therein. Intended primarily for Linux /sys filesystem
      *
-     * @param filename
-     *            The file to read
+     * @param filename The file to read
      * @return The value contained in the file, if any; otherwise empty string
      */
     public static String getStringFromFile(String filename) {
-<span class="nc bnc" id="L361" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L362">            LOG.debug(READING_LOG, filename);</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L319">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="nc" id="L364">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L365" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
-<span class="nc bnc" id="L366" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
-<span class="nc" id="L367">                LOG.trace(READ_LOG, read.get(0));</span>
+<span class="nc" id="L321">        List&lt;String&gt; read = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">        if (!read.isEmpty()) {</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">            if (LOG.isTraceEnabled()) {</span>
+<span class="nc" id="L324">                LOG.trace(READ_LOG, read.get(0));</span>
             }
-<span class="nc" id="L369">            return read.get(0);</span>
+<span class="nc" id="L326">            return read.get(0);</span>
         }
-<span class="nc" id="L371">        return &quot;&quot;;</span>
+<span class="nc" id="L328">        return &quot;&quot;;</span>
     }
 
     /**
-     * Read a file and return a map of string keys to string values contained
-     * therein. Intended primarily for Linux {@code /proc/[pid]} files to provide
-     * more detailed or accurate information not available in the API.
+     * Read a file and return a map of string keys to string values contained therein. Intended primarily for Linux
+     * {@code /proc/[pid]} files to provide more detailed or accurate information not available in the API.
      *
-     * @param filename
-     *            The file to read
-     * @param separator
-     *            Character(s) in each line of the file that separate the key and
-     *            the value.
+     * @param filename  The file to read
+     * @param separator Character(s) in each line of the file that separate the key and the value.
      *
-     * @return The map contained in the file, delimited by the separator, with the
-     *         value whitespace trimmed. If keys and values are not parsed, an empty
-     *         map is returned.
+     * @return The map contained in the file, delimited by the separator, with the value whitespace trimmed. If keys and
+     *         values are not parsed, an empty map is returned.
      */
     public static Map&lt;String, String&gt; getKeyValueMapFromFile(String filename, String separator) {
-<span class="nc" id="L390">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L391" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L392">            LOG.debug(READING_LOG, filename);</span>
+<span class="nc" id="L342">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L344">            LOG.debug(READING_LOG, filename);</span>
         }
-<span class="nc" id="L394">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
-<span class="nc bnc" id="L395" title="All 2 branches missed.">        for (String line : lines) {</span>
-<span class="nc" id="L396">            String[] parts = line.split(separator);</span>
-<span class="nc bnc" id="L397" title="All 2 branches missed.">            if (parts.length == 2) {</span>
-<span class="nc" id="L398">                map.put(parts[0], parts[1].trim());</span>
+<span class="nc" id="L346">        List&lt;String&gt; lines = FileUtil.readFile(filename, false);</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">        for (String line : lines) {</span>
+<span class="nc" id="L348">            String[] parts = line.split(separator);</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">            if (parts.length == 2) {</span>
+<span class="nc" id="L350">                map.put(parts[0], parts[1].trim());</span>
             }
-<span class="nc" id="L400">        }</span>
-<span class="nc" id="L401">        return map;</span>
+<span class="nc" id="L352">        }</span>
+<span class="nc" id="L353">        return map;</span>
     }
 
     /**
-     * Read a configuration file from the sequence of context classloader, system
-     * classloader and classloader of the current class, and return its properties
+     * Read a configuration file from the sequence of context classloader, system classloader and classloader of the
+     * current class, and return its properties
      *
-     * @param propsFilename
-     *            The filename
+     * @param propsFilename The filename
      * @return A {@link Properties} object containing the properties.
      */
     public static Properties readPropertiesFromFilename(String propsFilename) {
-<span class="nc" id="L413">        Properties archProps = new Properties();</span>
+<span class="nc" id="L364">        Properties archProps = new Properties();</span>
         // Load the configuration file from at least one of multiple possible
         // ClassLoaders, evaluated in order, eliminating duplicates
-<span class="nc" id="L416">        for (ClassLoader loader : Stream.of(Thread.currentThread().getContextClassLoader(),</span>
-<span class="nc" id="L417">                ClassLoader.getSystemClassLoader(), FileUtil.class.getClassLoader())</span>
-<span class="nc bnc" id="L418" title="All 2 branches missed.">                .collect(Collectors.toCollection(LinkedHashSet::new))) {</span>
-<span class="nc bnc" id="L419" title="All 2 branches missed.">            if (readPropertiesFromClassLoader(propsFilename, archProps, loader)) {</span>
-<span class="nc" id="L420">                return archProps;</span>
+<span class="nc" id="L367">        for (ClassLoader loader : Stream.of(Thread.currentThread().getContextClassLoader(),</span>
+<span class="nc" id="L368">                ClassLoader.getSystemClassLoader(), FileUtil.class.getClassLoader())</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">                .collect(Collectors.toCollection(LinkedHashSet::new))) {</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">            if (readPropertiesFromClassLoader(propsFilename, archProps, loader)) {</span>
+<span class="nc" id="L371">                return archProps;</span>
             }
-<span class="nc" id="L422">        }</span>
-<span class="nc" id="L423">        LOG.warn(&quot;Failed to load configuration file from classloader: {}&quot;, propsFilename);</span>
-<span class="nc" id="L424">        return archProps;</span>
+<span class="nc" id="L373">        }</span>
+<span class="nc" id="L374">        LOG.warn(&quot;Failed to load configuration file from classloader: {}&quot;, propsFilename);</span>
+<span class="nc" id="L375">        return archProps;</span>
     }
 
     private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps,
             ClassLoader loader) {
-<span class="nc bnc" id="L429" title="All 2 branches missed.">        if (loader == null) {</span>
-<span class="nc" id="L430">            return false;</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">        if (loader == null) {</span>
+<span class="nc" id="L381">            return false;</span>
         }
         // Load the configuration file from the classLoader
         try {
-<span class="nc" id="L434">            List&lt;URL&gt; resources = Collections.list(loader.getResources(propsFilename));</span>
-<span class="nc bnc" id="L435" title="All 2 branches missed.">            if (resources.isEmpty()) {</span>
-<span class="nc" id="L436">                LOG.debug(&quot;No {} file found from ClassLoader {}&quot;, propsFilename, loader);</span>
-<span class="nc" id="L437">                return false;</span>
+<span class="nc" id="L385">            List&lt;URL&gt; resources = Collections.list(loader.getResources(propsFilename));</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">            if (resources.isEmpty()) {</span>
+<span class="nc" id="L387">                LOG.debug(&quot;No {} file found from ClassLoader {}&quot;, propsFilename, loader);</span>
+<span class="nc" id="L388">                return false;</span>
             }
-<span class="nc bnc" id="L439" title="All 2 branches missed.">            if (resources.size() &gt; 1) {</span>
-<span class="nc" id="L440">                LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath: {}&quot;, propsFilename,</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">            if (resources.size() &gt; 1) {</span>
+<span class="nc" id="L391">                LOG.warn(&quot;Configuration conflict: there is more than one {} file on the classpath: {}&quot;, propsFilename,</span>
                         resources);
             }
-<span class="nc" id="L443">            try (InputStream in = resources.get(0).openStream()) {</span>
-<span class="nc bnc" id="L444" title="All 2 branches missed.">                if (in != null) {</span>
-<span class="nc" id="L445">                    archProps.load(in);</span>
+<span class="nc" id="L394">            try (InputStream in = resources.get(0).openStream()) {</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">                if (in != null) {</span>
+<span class="nc" id="L396">                    archProps.load(in);</span>
                 }
             }
-<span class="nc" id="L448">            return true;</span>
-<span class="nc" id="L449">        } catch (IOException e) {</span>
-<span class="nc" id="L450">            return false;</span>
+<span class="nc" id="L399">            return true;</span>
+<span class="nc" id="L400">        } catch (IOException e) {</span>
+<span class="nc" id="L401">            return false;</span>
         }
     }
 
     /**
      * Reads the target of a symbolic link
      *
-     * @param file
-     *            The file to read
+     * @param file The file to read
      * @return The symlink name, or null if the read failed
      */
     public static String readSymlinkTarget(File file) {
         try {
-<span class="nc" id="L463">            return Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();</span>
-<span class="nc" id="L464">        } catch (IOException e) {</span>
-<span class="nc" id="L465">            return null;</span>
+<span class="nc" id="L413">            return Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();</span>
+<span class="nc" id="L414">        } catch (IOException e) {</span>
+<span class="nc" id="L415">            return null;</span>
         }
     }
 }

@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Quintet.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.tuples</a> &gt; <span class="el_source">Quintet.java</span></div><h1>Quintet.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util.tuples;
 
@@ -28,16 +9,11 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * Convenience class for returning multiple objects from methods.
  *
- * @param &lt;A&gt;
- *            Type of the first element
- * @param &lt;B&gt;
- *            Type of the second element
- * @param &lt;C&gt;
- *            Type of the third element
- * @param &lt;D&gt;
- *            Type of the fourth element
- * @param &lt;E&gt;
- *            Type of the fifth element
+ * @param &lt;A&gt; Type of the first element
+ * @param &lt;B&gt; Type of the second element
+ * @param &lt;C&gt; Type of the third element
+ * @param &lt;D&gt; Type of the fourth element
+ * @param &lt;E&gt; Type of the fifth element
  */
 @ThreadSafe
 public class Quintet&lt;A, B, C, D, E&gt; {
@@ -51,24 +27,19 @@ public class Quintet&lt;A, B, C, D, E&gt; {
     /**
      * Create a quintet and store five objects.
      *
-     * @param a
-     *            the first object to store
-     * @param b
-     *            the second object to store
-     * @param c
-     *            the third object to store
-     * @param d
-     *            the fourth object to store
-     * @param e
-     *            the fifth object to store
+     * @param a the first object to store
+     * @param b the second object to store
+     * @param c the third object to store
+     * @param d the fourth object to store
+     * @param e the fifth object to store
      */
-<span class="nc" id="L65">    public Quintet(A a, B b, C c, D d, E e) {</span>
-<span class="nc" id="L66">        this.a = a;</span>
-<span class="nc" id="L67">        this.b = b;</span>
-<span class="nc" id="L68">        this.c = c;</span>
-<span class="nc" id="L69">        this.d = d;</span>
-<span class="nc" id="L70">        this.e = e;</span>
-<span class="nc" id="L71">    }</span>
+<span class="nc" id="L36">    public Quintet(A a, B b, C c, D d, E e) {</span>
+<span class="nc" id="L37">        this.a = a;</span>
+<span class="nc" id="L38">        this.b = b;</span>
+<span class="nc" id="L39">        this.c = c;</span>
+<span class="nc" id="L40">        this.d = d;</span>
+<span class="nc" id="L41">        this.e = e;</span>
+<span class="nc" id="L42">    }</span>
 
     /**
      * Returns the first stored object.
@@ -76,7 +47,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return first object stored
      */
     public final A getA() {
-<span class="nc" id="L79">        return a;</span>
+<span class="nc" id="L50">        return a;</span>
     }
 
     /**
@@ -85,7 +56,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return second object stored
      */
     public final B getB() {
-<span class="nc" id="L88">        return b;</span>
+<span class="nc" id="L59">        return b;</span>
     }
 
     /**
@@ -94,7 +65,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return third object stored
      */
     public final C getC() {
-<span class="nc" id="L97">        return c;</span>
+<span class="nc" id="L68">        return c;</span>
     }
 
     /**
@@ -103,7 +74,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return fourth object stored
      */
     public final D getD() {
-<span class="nc" id="L106">        return d;</span>
+<span class="nc" id="L77">        return d;</span>
     }
 
     /**
@@ -112,7 +83,7 @@ public class Quintet&lt;A, B, C, D, E&gt; {
      * @return fifth object stored
      */
     public final E getE() {
-<span class="nc" id="L115">        return e;</span>
+<span class="nc" id="L86">        return e;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

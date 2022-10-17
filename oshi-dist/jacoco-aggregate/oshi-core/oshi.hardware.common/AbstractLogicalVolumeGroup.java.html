@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractLogicalVolumeGroup.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.common</a> &gt; <span class="el_source">AbstractLogicalVolumeGroup.java</span></div><h1>AbstractLogicalVolumeGroup.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
 
@@ -37,51 +18,47 @@ public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
     private final Set&lt;String&gt; pvSet;
 
     /**
-     * @param name
-     *            Name of the volume group
-     * @param lvMap
-     *            Logical volumes derived from this volume group and the physical
-     *            volumes its mapped to.
-     * @param pvSet
-     *            Set of physical volumes this volume group consists of.
+     * @param name  Name of the volume group
+     * @param lvMap Logical volumes derived from this volume group and the physical volumes its mapped to.
+     * @param pvSet Set of physical volumes this volume group consists of.
      */
-<span class="nc" id="L48">    protected AbstractLogicalVolumeGroup(String name, Map&lt;String, Set&lt;String&gt;&gt; lvMap, Set&lt;String&gt; pvSet) {</span>
-<span class="nc" id="L49">        this.name = name;</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        for (Entry&lt;String, Set&lt;String&gt;&gt; entry : lvMap.entrySet()) {</span>
-<span class="nc" id="L51">            lvMap.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));</span>
-<span class="nc" id="L52">        }</span>
-<span class="nc" id="L53">        this.lvMap = Collections.unmodifiableMap(lvMap);</span>
-<span class="nc" id="L54">        this.pvSet = Collections.unmodifiableSet(pvSet);</span>
-<span class="nc" id="L55">    }</span>
+<span class="nc" id="L25">    protected AbstractLogicalVolumeGroup(String name, Map&lt;String, Set&lt;String&gt;&gt; lvMap, Set&lt;String&gt; pvSet) {</span>
+<span class="nc" id="L26">        this.name = name;</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        for (Entry&lt;String, Set&lt;String&gt;&gt; entry : lvMap.entrySet()) {</span>
+<span class="nc" id="L28">            lvMap.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));</span>
+<span class="nc" id="L29">        }</span>
+<span class="nc" id="L30">        this.lvMap = Collections.unmodifiableMap(lvMap);</span>
+<span class="nc" id="L31">        this.pvSet = Collections.unmodifiableSet(pvSet);</span>
+<span class="nc" id="L32">    }</span>
 
     @Override
     public String getName() {
-<span class="nc" id="L59">        return name;</span>
+<span class="nc" id="L36">        return name;</span>
     }
 
     @Override
     public Map&lt;String, Set&lt;String&gt;&gt; getLogicalVolumes() {
-<span class="nc" id="L64">        return lvMap;</span>
+<span class="nc" id="L41">        return lvMap;</span>
     }
 
     @Override
     public Set&lt;String&gt; getPhysicalVolumes() {
-<span class="nc" id="L69">        return pvSet;</span>
+<span class="nc" id="L46">        return pvSet;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L74">        StringBuilder sb = new StringBuilder(&quot;Logical Volume Group: &quot;);</span>
-<span class="nc" id="L75">        sb.append(name).append(&quot;\n |-- PVs: &quot;);</span>
-<span class="nc" id="L76">        sb.append(pvSet.toString());</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (Entry&lt;String, Set&lt;String&gt;&gt; entry : lvMap.entrySet()) {</span>
-<span class="nc" id="L78">            sb.append(&quot;\n |-- LV: &quot;).append(entry.getKey());</span>
-<span class="nc" id="L79">            Set&lt;String&gt; mappedPVs = entry.getValue();</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (!mappedPVs.isEmpty()) {</span>
-<span class="nc" id="L81">                sb.append(&quot; --&gt; &quot;).append(mappedPVs);</span>
+<span class="nc" id="L51">        StringBuilder sb = new StringBuilder(&quot;Logical Volume Group: &quot;);</span>
+<span class="nc" id="L52">        sb.append(name).append(&quot;\n |-- PVs: &quot;);</span>
+<span class="nc" id="L53">        sb.append(pvSet.toString());</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        for (Entry&lt;String, Set&lt;String&gt;&gt; entry : lvMap.entrySet()) {</span>
+<span class="nc" id="L55">            sb.append(&quot;\n |-- LV: &quot;).append(entry.getKey());</span>
+<span class="nc" id="L56">            Set&lt;String&gt; mappedPVs = entry.getValue();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (!mappedPVs.isEmpty()) {</span>
+<span class="nc" id="L58">                sb.append(&quot; --&gt; &quot;).append(mappedPVs);</span>
             }
-<span class="nc" id="L83">        }</span>
-<span class="nc" id="L84">        return sb.toString();</span>
+<span class="nc" id="L60">        }</span>
+<span class="nc" id="L61">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

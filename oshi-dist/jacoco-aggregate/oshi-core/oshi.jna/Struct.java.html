@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Struct.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna</a> &gt; <span class="el_source">Struct.java</span></div><h1>Struct.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.jna;
 
@@ -45,145 +26,145 @@ import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 import oshi.util.Util;
 
 /**
- * Wrapper classes for JNA clases which extend {@link com.sun.jna.Structure}
- * intended for use in try-with-resources blocks.
+ * Wrapper classes for JNA clases which extend {@link com.sun.jna.Structure} intended for use in try-with-resources
+ * blocks.
  */
 public interface Struct {
     /*
      * Linux
      */
-<span class="nc" id="L55">    class CloseableSysinfo extends Sysinfo implements AutoCloseable {</span>
+<span class="nc" id="L36">    class CloseableSysinfo extends Sysinfo implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L58">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L59">        }</span>
+<span class="nc" id="L39">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L40">        }</span>
     }
 
     /*
      * macOS
      */
 
-<span class="nc" id="L66">    class CloseableHostCpuLoadInfo extends HostCpuLoadInfo implements AutoCloseable {</span>
+<span class="nc" id="L47">    class CloseableHostCpuLoadInfo extends HostCpuLoadInfo implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L69">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L70">        }</span>
+<span class="nc" id="L50">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L51">        }</span>
     }
 
-<span class="nc" id="L73">    class CloseableProcTaskInfo extends ProcTaskInfo implements AutoCloseable {</span>
+<span class="nc" id="L54">    class CloseableProcTaskInfo extends ProcTaskInfo implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L76">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L77">        }</span>
+<span class="nc" id="L57">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L58">        }</span>
     }
 
-<span class="nc" id="L80">    class CloseableProcTaskAllInfo extends ProcTaskAllInfo implements AutoCloseable {</span>
+<span class="nc" id="L61">    class CloseableProcTaskAllInfo extends ProcTaskAllInfo implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L83">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L84">        }</span>
+<span class="nc" id="L64">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L65">        }</span>
     }
 
-<span class="nc" id="L87">    class CloseableRUsageInfoV2 extends RUsageInfoV2 implements AutoCloseable {</span>
+<span class="nc" id="L68">    class CloseableRUsageInfoV2 extends RUsageInfoV2 implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L90">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L91">        }</span>
+<span class="nc" id="L71">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L72">        }</span>
     }
 
-<span class="nc" id="L94">    class CloseableTimeval extends Timeval implements AutoCloseable {</span>
+<span class="nc" id="L75">    class CloseableTimeval extends Timeval implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L97">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L98">        }</span>
+<span class="nc" id="L78">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L79">        }</span>
     }
 
-<span class="nc" id="L101">    class CloseableVMStatistics extends VMStatistics implements AutoCloseable {</span>
+<span class="nc" id="L82">    class CloseableVMStatistics extends VMStatistics implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L104">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L105">        }</span>
+<span class="nc" id="L85">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L86">        }</span>
     }
 
-<span class="nc" id="L108">    class CloseableVnodePathInfo extends VnodePathInfo implements AutoCloseable {</span>
+<span class="nc" id="L89">    class CloseableVnodePathInfo extends VnodePathInfo implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L111">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L112">        }</span>
+<span class="nc" id="L92">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L93">        }</span>
     }
 
-<span class="nc" id="L115">    class CloseableXswUsage extends XswUsage implements AutoCloseable {</span>
+<span class="nc" id="L96">    class CloseableXswUsage extends XswUsage implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L118">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L119">        }</span>
+<span class="nc" id="L99">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L100">        }</span>
     }
 
     /*
      * Windows
      */
 
-<span class="nc" id="L126">    class CloseableMibIfRow extends MIB_IFROW implements AutoCloseable {</span>
+<span class="nc" id="L107">    class CloseableMibIfRow extends MIB_IFROW implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L129">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L130">        }</span>
+<span class="nc" id="L110">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L111">        }</span>
     }
 
-<span class="nc" id="L133">    class CloseableMibIfRow2 extends MIB_IF_ROW2 implements AutoCloseable {</span>
+<span class="nc" id="L114">    class CloseableMibIfRow2 extends MIB_IF_ROW2 implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L136">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L137">        }</span>
+<span class="nc" id="L117">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L118">        }</span>
     }
 
-<span class="nc" id="L140">    class CloseableMibTcpStats extends MIB_TCPSTATS implements AutoCloseable {</span>
+<span class="nc" id="L121">    class CloseableMibTcpStats extends MIB_TCPSTATS implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L143">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L144">        }</span>
+<span class="nc" id="L124">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L125">        }</span>
     }
 
-<span class="nc" id="L147">    class CloseableMibUdpStats extends MIB_UDPSTATS implements AutoCloseable {</span>
+<span class="nc" id="L128">    class CloseableMibUdpStats extends MIB_UDPSTATS implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L150">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L151">        }</span>
+<span class="nc" id="L131">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L132">        }</span>
     }
 
-<span class="nc" id="L154">    class CloseablePdhRawCounter extends PDH_RAW_COUNTER implements AutoCloseable {</span>
+<span class="nc" id="L135">    class CloseablePdhRawCounter extends PDH_RAW_COUNTER implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L157">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L158">        }</span>
+<span class="nc" id="L138">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L139">        }</span>
     }
 
-<span class="nc" id="L161">    class CloseablePerformanceInformation extends PERFORMANCE_INFORMATION implements AutoCloseable {</span>
+<span class="nc" id="L142">    class CloseablePerformanceInformation extends PERFORMANCE_INFORMATION implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L164">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L165">        }</span>
+<span class="nc" id="L145">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L146">        }</span>
     }
 
-<span class="nc" id="L168">    class CloseableSpDeviceInterfaceData extends SP_DEVICE_INTERFACE_DATA implements AutoCloseable {</span>
+<span class="nc" id="L149">    class CloseableSpDeviceInterfaceData extends SP_DEVICE_INTERFACE_DATA implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L171">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L172">        }</span>
+<span class="nc" id="L152">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L153">        }</span>
     }
 
-<span class="nc" id="L175">    class CloseableSpDevinfoData extends SP_DEVINFO_DATA implements AutoCloseable {</span>
+<span class="nc" id="L156">    class CloseableSpDevinfoData extends SP_DEVINFO_DATA implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L178">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L179">        }</span>
+<span class="nc" id="L159">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L160">        }</span>
     }
 
-<span class="nc" id="L182">    class CloseableSystemInfo extends SYSTEM_INFO implements AutoCloseable {</span>
+<span class="nc" id="L163">    class CloseableSystemInfo extends SYSTEM_INFO implements AutoCloseable {</span>
         @Override
         public void close() {
-<span class="nc" id="L185">            Util.freeMemory(getPointer());</span>
-<span class="nc" id="L186">        }</span>
+<span class="nc" id="L166">            Util.freeMemory(getPointer());</span>
+<span class="nc" id="L167">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

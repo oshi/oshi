@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PhysicalMemory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">PhysicalMemory.java</span></div><h1>PhysicalMemory.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2019-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2019-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
 
@@ -27,8 +8,8 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.util.FormatUtil;
 
 /**
- * The PhysicalMemory class represents a physical memory device located on a
- * computer system and available to the operating system.
+ * The PhysicalMemory class represents a physical memory device located on a computer system and available to the
+ * operating system.
  */
 @Immutable
 public class PhysicalMemory {
@@ -39,13 +20,13 @@ public class PhysicalMemory {
     private final String manufacturer;
     private final String memoryType;
 
-<span class="nc" id="L42">    public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType) {</span>
-<span class="nc" id="L43">        this.bankLabel = bankLabel;</span>
-<span class="nc" id="L44">        this.capacity = capacity;</span>
-<span class="nc" id="L45">        this.clockSpeed = clockSpeed;</span>
-<span class="nc" id="L46">        this.manufacturer = manufacturer;</span>
-<span class="nc" id="L47">        this.memoryType = memoryType;</span>
-<span class="nc" id="L48">    }</span>
+<span class="nc" id="L23">    public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType) {</span>
+<span class="nc" id="L24">        this.bankLabel = bankLabel;</span>
+<span class="nc" id="L25">        this.capacity = capacity;</span>
+<span class="nc" id="L26">        this.clockSpeed = clockSpeed;</span>
+<span class="nc" id="L27">        this.manufacturer = manufacturer;</span>
+<span class="nc" id="L28">        this.memoryType = memoryType;</span>
+<span class="nc" id="L29">    }</span>
 
     /**
      * The bank and/or slot label.
@@ -53,7 +34,7 @@ public class PhysicalMemory {
      * @return the bank label
      */
     public String getBankLabel() {
-<span class="nc" id="L56">        return bankLabel;</span>
+<span class="nc" id="L37">        return bankLabel;</span>
     }
 
     /**
@@ -62,19 +43,18 @@ public class PhysicalMemory {
      * @return the capacity
      */
     public long getCapacity() {
-<span class="nc" id="L65">        return capacity;</span>
+<span class="nc" id="L46">        return capacity;</span>
     }
 
     /**
      * The configured memory clock speed in hertz.
      * &lt;p&gt;
-     * For DDR memory, this is the data transfer rate, which is a multiple of the
-     * actual bus clock speed.
+     * For DDR memory, this is the data transfer rate, which is a multiple of the actual bus clock speed.
      *
-     * @return the clock speed
+     * @return the clock speed, if avaialable. If unknown, returns -1.
      */
     public long getClockSpeed() {
-<span class="nc" id="L77">        return clockSpeed;</span>
+<span class="nc" id="L57">        return clockSpeed;</span>
     }
 
     /**
@@ -83,7 +63,7 @@ public class PhysicalMemory {
      * @return the manufacturer
      */
     public String getManufacturer() {
-<span class="nc" id="L86">        return manufacturer;</span>
+<span class="nc" id="L66">        return manufacturer;</span>
     }
 
     /**
@@ -92,18 +72,18 @@ public class PhysicalMemory {
      * @return the memory type
      */
     public String getMemoryType() {
-<span class="nc" id="L95">        return memoryType;</span>
+<span class="nc" id="L75">        return memoryType;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L100">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L101">        sb.append(&quot;Bank label: &quot; + getBankLabel());</span>
-<span class="nc" id="L102">        sb.append(&quot;, Capacity: &quot; + FormatUtil.formatBytes(getCapacity()));</span>
-<span class="nc" id="L103">        sb.append(&quot;, Clock speed: &quot; + FormatUtil.formatHertz(getClockSpeed()));</span>
-<span class="nc" id="L104">        sb.append(&quot;, Manufacturer: &quot; + getManufacturer());</span>
-<span class="nc" id="L105">        sb.append(&quot;, Memory type: &quot; + getMemoryType());</span>
-<span class="nc" id="L106">        return sb.toString();</span>
+<span class="nc" id="L80">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L81">        sb.append(&quot;Bank label: &quot; + getBankLabel());</span>
+<span class="nc" id="L82">        sb.append(&quot;, Capacity: &quot; + FormatUtil.formatBytes(getCapacity()));</span>
+<span class="nc" id="L83">        sb.append(&quot;, Clock speed: &quot; + FormatUtil.formatHertz(getClockSpeed()));</span>
+<span class="nc" id="L84">        sb.append(&quot;, Manufacturer: &quot; + getManufacturer());</span>
+<span class="nc" id="L85">        sb.append(&quot;, Memory type: &quot; + getMemoryType());</span>
+<span class="nc" id="L86">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

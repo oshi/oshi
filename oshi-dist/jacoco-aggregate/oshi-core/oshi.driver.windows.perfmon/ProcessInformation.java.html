@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcessInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">ProcessInformation.java</span></div><h1>ProcessInformation.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
 
@@ -47,71 +28,71 @@ public final class ProcessInformation {
     /**
      * Process performance counters
      */
-<span class="nc" id="L50">    public enum ProcessPerformanceProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L31">    public enum ProcessPerformanceProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L52">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+<span class="nc" id="L33">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
         // Remaining elements define counters
-<span class="nc" id="L54">        PRIORITYBASE(&quot;Priority Base&quot;), //</span>
-<span class="nc" id="L55">        ELAPSEDTIME(&quot;Elapsed Time&quot;), //</span>
-<span class="nc" id="L56">        IDPROCESS(&quot;ID Process&quot;), //</span>
-<span class="nc" id="L57">        CREATINGPROCESSID(&quot;Creating Process ID&quot;), //</span>
-<span class="nc" id="L58">        IOREADBYTESPERSEC(&quot;IO Read Bytes/sec&quot;), //</span>
-<span class="nc" id="L59">        IOWRITEBYTESPERSEC(&quot;IO Write Bytes/sec&quot;), //</span>
-<span class="nc" id="L60">        PRIVATEBYTES(&quot;Working Set - Private&quot;), //</span>
-<span class="nc" id="L61">        PAGEFAULTSPERSEC(&quot;Page Faults/sec&quot;);</span>
+<span class="nc" id="L35">        PRIORITYBASE(&quot;Priority Base&quot;), //</span>
+<span class="nc" id="L36">        ELAPSEDTIME(&quot;Elapsed Time&quot;), //</span>
+<span class="nc" id="L37">        IDPROCESS(&quot;ID Process&quot;), //</span>
+<span class="nc" id="L38">        CREATINGPROCESSID(&quot;Creating Process ID&quot;), //</span>
+<span class="nc" id="L39">        IOREADBYTESPERSEC(&quot;IO Read Bytes/sec&quot;), //</span>
+<span class="nc" id="L40">        IOWRITEBYTESPERSEC(&quot;IO Write Bytes/sec&quot;), //</span>
+<span class="nc" id="L41">        PRIVATEBYTES(&quot;Working Set - Private&quot;), //</span>
+<span class="nc" id="L42">        PAGEFAULTSPERSEC(&quot;Page Faults/sec&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L65">        ProcessPerformanceProperty(String counter) {</span>
-<span class="nc" id="L66">            this.counter = counter;</span>
-<span class="nc" id="L67">        }</span>
+<span class="nc" id="L46">        ProcessPerformanceProperty(String counter) {</span>
+<span class="nc" id="L47">            this.counter = counter;</span>
+<span class="nc" id="L48">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L71">            return counter;</span>
+<span class="nc" id="L52">            return counter;</span>
         }
     }
 
     /**
      * Handle performance counters
      */
-<span class="nc" id="L78">    public enum HandleCountProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L59">    public enum HandleCountProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L80">        NAME(PerfCounterQuery.TOTAL_INSTANCE),</span>
+<span class="nc" id="L61">        NAME(PerfCounterQuery.TOTAL_INSTANCE),</span>
         // Remaining elements define counters
-<span class="nc" id="L82">        HANDLECOUNT(&quot;Handle Count&quot;);</span>
+<span class="nc" id="L63">        HANDLECOUNT(&quot;Handle Count&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L86">        HandleCountProperty(String counter) {</span>
-<span class="nc" id="L87">            this.counter = counter;</span>
-<span class="nc" id="L88">        }</span>
+<span class="nc" id="L67">        HandleCountProperty(String counter) {</span>
+<span class="nc" id="L68">            this.counter = counter;</span>
+<span class="nc" id="L69">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L92">            return counter;</span>
+<span class="nc" id="L73">            return counter;</span>
         }
     }
 
     /**
      * Processor performance counters
      */
-<span class="nc" id="L99">    public enum IdleProcessorTimeProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L80">    public enum IdleProcessorTimeProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L101">        NAME(PerfCounterQuery.TOTAL_OR_IDLE_INSTANCES),</span>
+<span class="nc" id="L82">        NAME(PerfCounterQuery.TOTAL_OR_IDLE_INSTANCES),</span>
         // Remaining elements define counters
-<span class="nc" id="L103">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
-<span class="nc" id="L104">        ELAPSEDTIME(&quot;Elapsed Time&quot;);</span>
+<span class="nc" id="L84">        PERCENTPROCESSORTIME(&quot;% Processor Time&quot;), //</span>
+<span class="nc" id="L85">        ELAPSEDTIME(&quot;Elapsed Time&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L108">        IdleProcessorTimeProperty(String counter) {</span>
-<span class="nc" id="L109">            this.counter = counter;</span>
-<span class="nc" id="L110">        }</span>
+<span class="nc" id="L89">        IdleProcessorTimeProperty(String counter) {</span>
+<span class="nc" id="L90">            this.counter = counter;</span>
+<span class="nc" id="L91">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L114">            return counter;</span>
+<span class="nc" id="L95">            return counter;</span>
         }
     }
 
@@ -124,10 +105,10 @@ public final class ProcessInformation {
      * @return Process counters for each process.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ProcessPerformanceProperty, List&lt;Long&gt;&gt;&gt; queryProcessCounters() {
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_PROC_DISABLED) {</span>
-<span class="nc" id="L128">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_PROC_DISABLED) {</span>
+<span class="nc" id="L109">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
         }
-<span class="nc" id="L130">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessPerformanceProperty.class, PROCESS,</span>
+<span class="nc" id="L111">        return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessPerformanceProperty.class, PROCESS,</span>
                 WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 
@@ -137,10 +118,10 @@ public final class ProcessInformation {
      * @return Process handle counters for each process.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;HandleCountProperty, List&lt;Long&gt;&gt;&gt; queryHandles() {
-<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_PROC_DISABLED) {</span>
-<span class="nc" id="L141">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_PROC_DISABLED) {</span>
+<span class="nc" id="L122">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
         }
-<span class="nc" id="L143">        return PerfCounterWildcardQuery.queryInstancesAndValues(HandleCountProperty.class, PROCESS,</span>
+<span class="nc" id="L124">        return PerfCounterWildcardQuery.queryInstancesAndValues(HandleCountProperty.class, PROCESS,</span>
                 WIN32_PERFPROC_PROCESS);
     }
 
@@ -150,10 +131,10 @@ public final class ProcessInformation {
      * @return Cooked performance counters for idle process.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;IdleProcessorTimeProperty, List&lt;Long&gt;&gt;&gt; queryIdleProcessCounters() {
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
-<span class="nc" id="L154">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_OS_DISABLED) {</span>
+<span class="nc" id="L135">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
         }
-<span class="nc" id="L156">        return PerfCounterWildcardQuery.queryInstancesAndValues(IdleProcessorTimeProperty.class, PROCESS,</span>
+<span class="nc" id="L137">        return PerfCounterWildcardQuery.queryInstancesAndValues(IdleProcessorTimeProperty.class, PROCESS,</span>
                 WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0);
     }
 }

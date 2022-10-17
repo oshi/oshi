@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Who.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.mac</a> &gt; <span class="el_source">Who.java</span></div><h1>Who.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.mac;
 
@@ -43,7 +24,7 @@ import oshi.software.os.OSSession;
 @ThreadSafe
 public final class Who {
 
-<span class="nc" id="L46">    private static final SystemB SYS = SystemB.INSTANCE;</span>
+<span class="nc" id="L27">    private static final SystemB SYS = SystemB.INSTANCE;</span>
 
     private Who() {
     }
@@ -54,29 +35,29 @@ public final class Who {
      * @return A list of logged in user sessions
      */
     public static synchronized List&lt;OSSession&gt; queryUtxent() {
-<span class="nc" id="L57">        List&lt;OSSession&gt; whoList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L38">        List&lt;OSSession&gt; whoList = new ArrayList&lt;&gt;();</span>
         MacUtmpx ut;
         // Rewind
-<span class="nc" id="L60">        SYS.setutxent();</span>
+<span class="nc" id="L41">        SYS.setutxent();</span>
         try { // Iterate
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            while ((ut = SYS.getutxent()) != null) {</span>
-<span class="nc bnc" id="L63" title="All 4 branches missed.">                if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {</span>
-<span class="nc" id="L64">                    String user = Native.toString(ut.ut_user, StandardCharsets.US_ASCII);</span>
-<span class="nc" id="L65">                    String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);</span>
-<span class="nc" id="L66">                    String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);</span>
-<span class="nc" id="L67">                    long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec / 1000L;</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            while ((ut = SYS.getutxent()) != null) {</span>
+<span class="nc bnc" id="L44" title="All 4 branches missed.">                if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {</span>
+<span class="nc" id="L45">                    String user = Native.toString(ut.ut_user, StandardCharsets.US_ASCII);</span>
+<span class="nc" id="L46">                    String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);</span>
+<span class="nc" id="L47">                    String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);</span>
+<span class="nc" id="L48">                    long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec / 1000L;</span>
                     // Sanity check. If errors, default to who command line
-<span class="nc bnc" id="L69" title="All 8 branches missed.">                    if (user.isEmpty() || device.isEmpty() || loginTime &lt; 0 || loginTime &gt; System.currentTimeMillis()) {</span>
-<span class="nc" id="L70">                        return oshi.driver.unix.Who.queryWho();</span>
+<span class="nc bnc" id="L50" title="All 8 branches missed.">                    if (user.isEmpty() || device.isEmpty() || loginTime &lt; 0 || loginTime &gt; System.currentTimeMillis()) {</span>
+<span class="nc" id="L51">                        return oshi.driver.unix.Who.queryWho();</span>
                     }
-<span class="nc" id="L72">                    whoList.add(new OSSession(user, device, loginTime, host));</span>
-<span class="nc" id="L73">                }</span>
+<span class="nc" id="L53">                    whoList.add(new OSSession(user, device, loginTime, host));</span>
+<span class="nc" id="L54">                }</span>
             }
         } finally {
             // Close
-<span class="nc" id="L77">            SYS.endutxent();</span>
+<span class="nc" id="L58">            SYS.endutxent();</span>
         }
-<span class="nc" id="L79">        return whoList;</span>
+<span class="nc" id="L60">        return whoList;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

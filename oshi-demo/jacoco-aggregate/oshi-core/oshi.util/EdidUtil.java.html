@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>EdidUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">EdidUtil.java</span></div><h1>EdidUtil.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
@@ -39,7 +20,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class EdidUtil {
 
-<span class="nc" id="L42">    private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);</span>
+<span class="nc" id="L23">    private static final Logger LOG = LoggerFactory.getLogger(EdidUtil.class);</span>
 
     private EdidUtil() {
     }
@@ -47,242 +28,226 @@ public final class EdidUtil {
     /**
      * Gets the Manufacturer ID from (up to) 3 5-bit characters in bytes 8 and 9
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The manufacturer ID
      */
     public static String getManufacturerID(byte[] edid) {
         // Bytes 8-9 are manufacturer ID in 3 5-bit characters.
-<span class="nc" id="L56">        String temp = String</span>
-<span class="nc" id="L57">                .format(&quot;%8s%8s&quot;, Integer.toBinaryString(edid[8] &amp; 0xFF), Integer.toBinaryString(edid[9] &amp; 0xFF))</span>
-<span class="nc" id="L58">                .replace(' ', '0');</span>
-<span class="nc" id="L59">        LOG.debug(&quot;Manufacurer ID: {}&quot;, temp);</span>
-<span class="nc" id="L60">        return String.format(&quot;%s%s%s&quot;, (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),</span>
-<span class="nc" id="L61">                (char) (64 + Integer.parseInt(temp.substring(7, 11), 2)),</span>
-<span class="nc" id="L62">                (char) (64 + Integer.parseInt(temp.substring(12, 16), 2))).replace(&quot;@&quot;, &quot;&quot;);</span>
+<span class="nc" id="L36">        String temp = String</span>
+<span class="nc" id="L37">                .format(&quot;%8s%8s&quot;, Integer.toBinaryString(edid[8] &amp; 0xFF), Integer.toBinaryString(edid[9] &amp; 0xFF))</span>
+<span class="nc" id="L38">                .replace(' ', '0');</span>
+<span class="nc" id="L39">        LOG.debug(&quot;Manufacurer ID: {}&quot;, temp);</span>
+<span class="nc" id="L40">        return String.format(&quot;%s%s%s&quot;, (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),</span>
+<span class="nc" id="L41">                (char) (64 + Integer.parseInt(temp.substring(7, 11), 2)),</span>
+<span class="nc" id="L42">                (char) (64 + Integer.parseInt(temp.substring(12, 16), 2))).replace(&quot;@&quot;, &quot;&quot;);</span>
     }
 
     /**
      * Gets the Product ID, bytes 10 and 11
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The product ID
      */
     public static String getProductID(byte[] edid) {
         // Bytes 10-11 are product ID expressed in hex characters
-<span class="nc" id="L74">        return Integer.toHexString(</span>
-<span class="nc" id="L75">                ByteBuffer.wrap(Arrays.copyOfRange(edid, 10, 12)).order(ByteOrder.LITTLE_ENDIAN).getShort() &amp; 0xffff);</span>
+<span class="nc" id="L53">        return Integer.toHexString(</span>
+<span class="nc" id="L54">                ByteBuffer.wrap(Arrays.copyOfRange(edid, 10, 12)).order(ByteOrder.LITTLE_ENDIAN).getShort() &amp; 0xffff);</span>
     }
 
     /**
      * Gets the Serial number, bytes 12-15
      *
-     * @param edid
-     *            The EDID byte array
-     * @return If all 4 bytes represent alphanumeric characters, a 4-character
-     *         string, otherwise a hex string.
+     * @param edid The EDID byte array
+     * @return If all 4 bytes represent alphanumeric characters, a 4-character string, otherwise a hex string.
      */
     public static String getSerialNo(byte[] edid) {
         // Bytes 12-15 are Serial number (last 4 characters)
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L89">            LOG.debug(&quot;Serial number: {}&quot;, Arrays.toString(Arrays.copyOfRange(edid, 12, 16)));</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L66">            LOG.debug(&quot;Serial number: {}&quot;, Arrays.toString(Arrays.copyOfRange(edid, 12, 16)));</span>
         }
-<span class="nc" id="L91">        return String.format(&quot;%s%s%s%s&quot;, getAlphaNumericOrHex(edid[15]), getAlphaNumericOrHex(edid[14]),</span>
-<span class="nc" id="L92">                getAlphaNumericOrHex(edid[13]), getAlphaNumericOrHex(edid[12]));</span>
+<span class="nc" id="L68">        return String.format(&quot;%s%s%s%s&quot;, getAlphaNumericOrHex(edid[15]), getAlphaNumericOrHex(edid[14]),</span>
+<span class="nc" id="L69">                getAlphaNumericOrHex(edid[13]), getAlphaNumericOrHex(edid[12]));</span>
     }
 
     private static String getAlphaNumericOrHex(byte b) {
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        return Character.isLetterOrDigit((char) b) ? String.format(&quot;%s&quot;, (char) b) : String.format(&quot;%02X&quot;, b);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        return Character.isLetterOrDigit((char) b) ? String.format(&quot;%s&quot;, (char) b) : String.format(&quot;%02X&quot;, b);</span>
     }
 
     /**
      * Return the week of year of manufacture
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The week of year
      */
     public static byte getWeek(byte[] edid) {
         // Byte 16 is manufacture week
-<span class="nc" id="L108">        return edid[16];</span>
+<span class="nc" id="L84">        return edid[16];</span>
     }
 
     /**
      * Return the year of manufacture
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The year of manufacture
      */
     public static int getYear(byte[] edid) {
         // Byte 17 is manufacture year-1990
-<span class="nc" id="L120">        byte temp = edid[17];</span>
-<span class="nc" id="L121">        LOG.debug(&quot;Year-1990: {}&quot;, temp);</span>
-<span class="nc" id="L122">        return temp + 1990;</span>
+<span class="nc" id="L95">        byte temp = edid[17];</span>
+<span class="nc" id="L96">        LOG.debug(&quot;Year-1990: {}&quot;, temp);</span>
+<span class="nc" id="L97">        return temp + 1990;</span>
     }
 
     /**
      * Return the EDID version
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return The EDID version
      */
     public static String getVersion(byte[] edid) {
         // Bytes 18-19 are EDID version
-<span class="nc" id="L134">        return edid[18] + &quot;.&quot; + edid[19];</span>
+<span class="nc" id="L108">        return edid[18] + &quot;.&quot; + edid[19];</span>
     }
 
     /**
      * Test if this EDID is a digital monitor based on byte 20
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return True if the EDID represents a digital monitor, false otherwise
      */
     public static boolean isDigital(byte[] edid) {
         // Byte 20 is Video input params
-<span class="nc bnc" id="L146" title="All 2 branches missed.">        return 1 == (edid[20] &amp; 0xff) &gt;&gt; 7;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        return 1 == (edid[20] &amp; 0xff) &gt;&gt; 7;</span>
     }
 
     /**
      * Get monitor width in cm
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return Monitor width in cm
      */
     public static int getHcm(byte[] edid) {
         // Byte 21 is horizontal size in cm
-<span class="nc" id="L158">        return edid[21];</span>
+<span class="nc" id="L130">        return edid[21];</span>
     }
 
     /**
      * Get monitor height in cm
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return Monitor height in cm
      */
     public static int getVcm(byte[] edid) {
         // Byte 22 is vertical size in cm
-<span class="nc" id="L170">        return edid[22];</span>
+<span class="nc" id="L141">        return edid[22];</span>
     }
 
     /**
      * Get the VESA descriptors
      *
-     * @param edid
-     *            The EDID byte array
+     * @param edid The EDID byte array
      * @return A 2D array with four 18-byte elements representing VESA descriptors
      */
     public static byte[][] getDescriptors(byte[] edid) {
-<span class="nc" id="L181">        byte[][] desc = new byte[4][18];</span>
-<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (int i = 0; i &lt; desc.length; i++) {</span>
-<span class="nc" id="L183">            System.arraycopy(edid, 54 + 18 * i, desc[i], 0, 18);</span>
+<span class="nc" id="L151">        byte[][] desc = new byte[4][18];</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        for (int i = 0; i &lt; desc.length; i++) {</span>
+<span class="nc" id="L153">            System.arraycopy(edid, 54 + 18 * i, desc[i], 0, 18);</span>
         }
-<span class="nc" id="L185">        return desc;</span>
+<span class="nc" id="L155">        return desc;</span>
     }
 
     /**
      * Get the VESA descriptor type
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return An integer representing the first four bytes of the VESA descriptor
      */
     public static int getDescriptorType(byte[] desc) {
-<span class="nc" id="L196">        return ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 4)).getInt();</span>
+<span class="nc" id="L165">        return ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 4)).getInt();</span>
     }
 
     /**
      * Parse a detailed timing descriptor
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return A string describing part of the detailed timing descriptor
      */
     public static String getTimingDescriptor(byte[] desc) {
-<span class="nc" id="L207">        int clock = ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort() / 100;</span>
-<span class="nc" id="L208">        int hActive = (desc[2] &amp; 0xff) + ((desc[4] &amp; 0xf0) &lt;&lt; 4);</span>
-<span class="nc" id="L209">        int vActive = (desc[5] &amp; 0xff) + ((desc[7] &amp; 0xf0) &lt;&lt; 4);</span>
-<span class="nc" id="L210">        return String.format(&quot;Clock %dMHz, Active Pixels %dx%d &quot;, clock, hActive, vActive);</span>
+<span class="nc" id="L175">        int clock = ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort() / 100;</span>
+<span class="nc" id="L176">        int hActive = (desc[2] &amp; 0xff) + ((desc[4] &amp; 0xf0) &lt;&lt; 4);</span>
+<span class="nc" id="L177">        int vActive = (desc[5] &amp; 0xff) + ((desc[7] &amp; 0xf0) &lt;&lt; 4);</span>
+<span class="nc" id="L178">        return String.format(&quot;Clock %dMHz, Active Pixels %dx%d &quot;, clock, hActive, vActive);</span>
     }
 
     /**
      * Parse descriptor range limits
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return A string describing some of the range limits
      */
     public static String getDescriptorRangeLimits(byte[] desc) {
-<span class="nc" id="L221">        return String.format(&quot;Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz&quot;, desc[5], desc[6],</span>
-<span class="nc" id="L222">                desc[7], desc[8], desc[9] * 10);</span>
+<span class="nc" id="L188">        return String.format(&quot;Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz&quot;, desc[5], desc[6],</span>
+<span class="nc" id="L189">                desc[7], desc[8], desc[9] * 10);</span>
     }
 
     /**
      * Parse descriptor text
      *
-     * @param desc
-     *            An 18-byte VESA descriptor
+     * @param desc An 18-byte VESA descriptor
      * @return Plain text starting at the 4th byte
      */
     public static String getDescriptorText(byte[] desc) {
-<span class="nc" id="L233">        return new String(Arrays.copyOfRange(desc, 4, 18), StandardCharsets.US_ASCII).trim();</span>
+<span class="nc" id="L199">        return new String(Arrays.copyOfRange(desc, 4, 18), StandardCharsets.US_ASCII).trim();</span>
     }
 
     /**
      * Parse an EDID byte array into user-readable information
      *
-     * @param edid
-     *            An EDID byte array
+     * @param edid An EDID byte array
      * @return User-readable text represented by the EDID
      */
     public static String toString(byte[] edid) {
-<span class="nc" id="L244">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L245">        sb.append(&quot;  Manuf. ID=&quot;).append(EdidUtil.getManufacturerID(edid));</span>
-<span class="nc" id="L246">        sb.append(&quot;, Product ID=&quot;).append(EdidUtil.getProductID(edid));</span>
-<span class="nc bnc" id="L247" title="All 2 branches missed.">        sb.append(&quot;, &quot;).append(EdidUtil.isDigital(edid) ? &quot;Digital&quot; : &quot;Analog&quot;);</span>
-<span class="nc" id="L248">        sb.append(&quot;, Serial=&quot;).append(EdidUtil.getSerialNo(edid));</span>
-<span class="nc" id="L249">        sb.append(&quot;, ManufDate=&quot;).append(EdidUtil.getWeek(edid) * 12 / 52 + 1).append('/')</span>
-<span class="nc" id="L250">                .append(EdidUtil.getYear(edid));</span>
-<span class="nc" id="L251">        sb.append(&quot;, EDID v&quot;).append(EdidUtil.getVersion(edid));</span>
-<span class="nc" id="L252">        int hSize = EdidUtil.getHcm(edid);</span>
-<span class="nc" id="L253">        int vSize = EdidUtil.getVcm(edid);</span>
-<span class="nc" id="L254">        sb.append(String.format(&quot;%n  %d x %d cm (%.1f x %.1f in)&quot;, hSize, vSize, hSize / 2.54, vSize / 2.54));</span>
-<span class="nc" id="L255">        byte[][] desc = EdidUtil.getDescriptors(edid);</span>
-<span class="nc bnc" id="L256" title="All 2 branches missed.">        for (byte[] b : desc) {</span>
-<span class="nc bnc" id="L257" title="All 7 branches missed.">            switch (EdidUtil.getDescriptorType(b)) {</span>
+<span class="nc" id="L209">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L210">        sb.append(&quot;  Manuf. ID=&quot;).append(EdidUtil.getManufacturerID(edid));</span>
+<span class="nc" id="L211">        sb.append(&quot;, Product ID=&quot;).append(EdidUtil.getProductID(edid));</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        sb.append(&quot;, &quot;).append(EdidUtil.isDigital(edid) ? &quot;Digital&quot; : &quot;Analog&quot;);</span>
+<span class="nc" id="L213">        sb.append(&quot;, Serial=&quot;).append(EdidUtil.getSerialNo(edid));</span>
+<span class="nc" id="L214">        sb.append(&quot;, ManufDate=&quot;).append(EdidUtil.getWeek(edid) * 12 / 52 + 1).append('/')</span>
+<span class="nc" id="L215">                .append(EdidUtil.getYear(edid));</span>
+<span class="nc" id="L216">        sb.append(&quot;, EDID v&quot;).append(EdidUtil.getVersion(edid));</span>
+<span class="nc" id="L217">        int hSize = EdidUtil.getHcm(edid);</span>
+<span class="nc" id="L218">        int vSize = EdidUtil.getVcm(edid);</span>
+<span class="nc" id="L219">        sb.append(String.format(&quot;%n  %d x %d cm (%.1f x %.1f in)&quot;, hSize, vSize, hSize / 2.54, vSize / 2.54));</span>
+<span class="nc" id="L220">        byte[][] desc = EdidUtil.getDescriptors(edid);</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        for (byte[] b : desc) {</span>
+<span class="nc bnc" id="L222" title="All 7 branches missed.">            switch (EdidUtil.getDescriptorType(b)) {</span>
             case 0xff:
-<span class="nc" id="L259">                sb.append(&quot;\n  Serial Number: &quot;).append(EdidUtil.getDescriptorText(b));</span>
-<span class="nc" id="L260">                break;</span>
+<span class="nc" id="L224">                sb.append(&quot;\n  Serial Number: &quot;).append(EdidUtil.getDescriptorText(b));</span>
+<span class="nc" id="L225">                break;</span>
             case 0xfe:
-<span class="nc" id="L262">                sb.append(&quot;\n  Unspecified Text: &quot;).append(EdidUtil.getDescriptorText(b));</span>
-<span class="nc" id="L263">                break;</span>
+<span class="nc" id="L227">                sb.append(&quot;\n  Unspecified Text: &quot;).append(EdidUtil.getDescriptorText(b));</span>
+<span class="nc" id="L228">                break;</span>
             case 0xfd:
-<span class="nc" id="L265">                sb.append(&quot;\n  Range Limits: &quot;).append(EdidUtil.getDescriptorRangeLimits(b));</span>
-<span class="nc" id="L266">                break;</span>
+<span class="nc" id="L230">                sb.append(&quot;\n  Range Limits: &quot;).append(EdidUtil.getDescriptorRangeLimits(b));</span>
+<span class="nc" id="L231">                break;</span>
             case 0xfc:
-<span class="nc" id="L268">                sb.append(&quot;\n  Monitor Name: &quot;).append(EdidUtil.getDescriptorText(b));</span>
-<span class="nc" id="L269">                break;</span>
+<span class="nc" id="L233">                sb.append(&quot;\n  Monitor Name: &quot;).append(EdidUtil.getDescriptorText(b));</span>
+<span class="nc" id="L234">                break;</span>
             case 0xfb:
-<span class="nc" id="L271">                sb.append(&quot;\n  White Point Data: &quot;).append(ParseUtil.byteArrayToHexString(b));</span>
-<span class="nc" id="L272">                break;</span>
+<span class="nc" id="L236">                sb.append(&quot;\n  White Point Data: &quot;).append(ParseUtil.byteArrayToHexString(b));</span>
+<span class="nc" id="L237">                break;</span>
             case 0xfa:
-<span class="nc" id="L274">                sb.append(&quot;\n  Standard Timing ID: &quot;).append(ParseUtil.byteArrayToHexString(b));</span>
-<span class="nc" id="L275">                break;</span>
+<span class="nc" id="L239">                sb.append(&quot;\n  Standard Timing ID: &quot;).append(ParseUtil.byteArrayToHexString(b));</span>
+<span class="nc" id="L240">                break;</span>
             default:
-<span class="nc bnc" id="L277" title="All 4 branches missed.">                if (EdidUtil.getDescriptorType(b) &lt;= 0x0f &amp;&amp; EdidUtil.getDescriptorType(b) &gt;= 0x00) {</span>
-<span class="nc" id="L278">                    sb.append(&quot;\n  Manufacturer Data: &quot;).append(ParseUtil.byteArrayToHexString(b));</span>
+<span class="nc bnc" id="L242" title="All 4 branches missed.">                if (EdidUtil.getDescriptorType(b) &lt;= 0x0f &amp;&amp; EdidUtil.getDescriptorType(b) &gt;= 0x00) {</span>
+<span class="nc" id="L243">                    sb.append(&quot;\n  Manufacturer Data: &quot;).append(ParseUtil.byteArrayToHexString(b));</span>
                 } else {
-<span class="nc" id="L280">                    sb.append(&quot;\n  Preferred Timing: &quot;).append(EdidUtil.getTimingDescriptor(b));</span>
+<span class="nc" id="L245">                    sb.append(&quot;\n  Preferred Timing: &quot;).append(EdidUtil.getTimingDescriptor(b));</span>
                 }
                 break;
             }
         }
-<span class="nc" id="L285">        return sb.toString();</span>
+<span class="nc" id="L250">        return sb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

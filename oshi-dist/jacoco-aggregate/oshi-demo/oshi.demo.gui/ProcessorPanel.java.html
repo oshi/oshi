@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcessorPanel.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.gui</a> &gt; <span class="el_source">ProcessorPanel.java</span></div><h1>ProcessorPanel.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
 
@@ -54,75 +35,75 @@ public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
     private long[][] oldProcTicks;
 
     public ProcessorPanel(SystemInfo si) {
-<span class="nc" id="L57">        super();</span>
-<span class="nc" id="L58">        CentralProcessor cpu = si.getHardware().getProcessor();</span>
-<span class="nc" id="L59">        oldTicks = new long[TickType.values().length];</span>
-<span class="nc" id="L60">        oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];</span>
-<span class="nc" id="L61">        init(cpu);</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L38">        super();</span>
+<span class="nc" id="L39">        CentralProcessor cpu = si.getHardware().getProcessor();</span>
+<span class="nc" id="L40">        oldTicks = new long[TickType.values().length];</span>
+<span class="nc" id="L41">        oldProcTicks = new long[cpu.getLogicalProcessorCount()][TickType.values().length];</span>
+<span class="nc" id="L42">        init(cpu);</span>
+<span class="nc" id="L43">    }</span>
 
     private void init(CentralProcessor processor) {
 
-<span class="nc" id="L66">        GridBagConstraints sysConstraints = new GridBagConstraints();</span>
-<span class="nc" id="L67">        sysConstraints.weightx = 1d;</span>
-<span class="nc" id="L68">        sysConstraints.weighty = 1d;</span>
-<span class="nc" id="L69">        sysConstraints.fill = GridBagConstraints.BOTH;</span>
+<span class="nc" id="L47">        GridBagConstraints sysConstraints = new GridBagConstraints();</span>
+<span class="nc" id="L48">        sysConstraints.weightx = 1d;</span>
+<span class="nc" id="L49">        sysConstraints.weighty = 1d;</span>
+<span class="nc" id="L50">        sysConstraints.fill = GridBagConstraints.BOTH;</span>
 
-<span class="nc" id="L71">        GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();</span>
-<span class="nc" id="L72">        procConstraints.gridx = 1;</span>
+<span class="nc" id="L52">        GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();</span>
+<span class="nc" id="L53">        procConstraints.gridx = 1;</span>
 
-<span class="nc" id="L74">        Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());</span>
-<span class="nc" id="L75">        DynamicTimeSeriesCollection sysData = new DynamicTimeSeriesCollection(1, 60, new Second());</span>
-<span class="nc" id="L76">        sysData.setTimeBase(new Second(date));</span>
-<span class="nc" id="L77">        sysData.addSeries(floatArrayPercent(cpuData(processor)), 0, &quot;All cpus&quot;);</span>
-<span class="nc" id="L78">        JFreeChart systemCpu = ChartFactory.createTimeSeriesChart(&quot;System CPU Usage&quot;, &quot;Time&quot;, &quot;% CPU&quot;, sysData, true,</span>
+<span class="nc" id="L55">        Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());</span>
+<span class="nc" id="L56">        DynamicTimeSeriesCollection sysData = new DynamicTimeSeriesCollection(1, 60, new Second());</span>
+<span class="nc" id="L57">        sysData.setTimeBase(new Second(date));</span>
+<span class="nc" id="L58">        sysData.addSeries(floatArrayPercent(cpuData(processor)), 0, &quot;All cpus&quot;);</span>
+<span class="nc" id="L59">        JFreeChart systemCpu = ChartFactory.createTimeSeriesChart(&quot;System CPU Usage&quot;, &quot;Time&quot;, &quot;% CPU&quot;, sysData, true,</span>
                 true, false);
 
-<span class="nc" id="L81">        double[] procUsage = procData(processor);</span>
-<span class="nc" id="L82">        DynamicTimeSeriesCollection procData = new DynamicTimeSeriesCollection(procUsage.length, 60, new Second());</span>
-<span class="nc" id="L83">        procData.setTimeBase(new Second(date));</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (int i = 0; i &lt; procUsage.length; i++) {</span>
-<span class="nc" id="L85">            procData.addSeries(floatArrayPercent(procUsage[i]), i, &quot;cpu&quot; + i);</span>
+<span class="nc" id="L62">        double[] procUsage = procData(processor);</span>
+<span class="nc" id="L63">        DynamicTimeSeriesCollection procData = new DynamicTimeSeriesCollection(procUsage.length, 60, new Second());</span>
+<span class="nc" id="L64">        procData.setTimeBase(new Second(date));</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (int i = 0; i &lt; procUsage.length; i++) {</span>
+<span class="nc" id="L66">            procData.addSeries(floatArrayPercent(procUsage[i]), i, &quot;cpu&quot; + i);</span>
         }
-<span class="nc" id="L87">        JFreeChart procCpu = ChartFactory.createTimeSeriesChart(&quot;Processor CPU Usage&quot;, &quot;Time&quot;, &quot;% CPU&quot;, procData, true,</span>
+<span class="nc" id="L68">        JFreeChart procCpu = ChartFactory.createTimeSeriesChart(&quot;Processor CPU Usage&quot;, &quot;Time&quot;, &quot;% CPU&quot;, procData, true,</span>
                 true, false);
 
-<span class="nc" id="L90">        JPanel cpuPanel = new JPanel();</span>
-<span class="nc" id="L91">        cpuPanel.setLayout(new GridBagLayout());</span>
-<span class="nc" id="L92">        cpuPanel.add(new ChartPanel(systemCpu), sysConstraints);</span>
-<span class="nc" id="L93">        cpuPanel.add(new ChartPanel(procCpu), procConstraints);</span>
+<span class="nc" id="L71">        JPanel cpuPanel = new JPanel();</span>
+<span class="nc" id="L72">        cpuPanel.setLayout(new GridBagLayout());</span>
+<span class="nc" id="L73">        cpuPanel.add(new ChartPanel(systemCpu), sysConstraints);</span>
+<span class="nc" id="L74">        cpuPanel.add(new ChartPanel(procCpu), procConstraints);</span>
 
-<span class="nc" id="L95">        add(cpuPanel, BorderLayout.CENTER);</span>
+<span class="nc" id="L76">        add(cpuPanel, BorderLayout.CENTER);</span>
 
-<span class="nc" id="L97">        Timer timer = new Timer(Config.REFRESH_FAST, e -&gt; {</span>
-<span class="nc" id="L98">            sysData.advanceTime();</span>
-<span class="nc" id="L99">            sysData.appendData(floatArrayPercent(cpuData(processor)));</span>
-<span class="nc" id="L100">            procData.advanceTime();</span>
-<span class="nc" id="L101">            int newest = procData.getNewestIndex();</span>
-<span class="nc" id="L102">            double[] procUsageData = procData(processor);</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">            for (int i = 0; i &lt; procUsageData.length; i++) {</span>
-<span class="nc" id="L104">                procData.addValue(i, newest, (float) (100 * procUsageData[i]));</span>
+<span class="nc" id="L78">        Timer timer = new Timer(Config.REFRESH_FAST, e -&gt; {</span>
+<span class="nc" id="L79">            sysData.advanceTime();</span>
+<span class="nc" id="L80">            sysData.appendData(floatArrayPercent(cpuData(processor)));</span>
+<span class="nc" id="L81">            procData.advanceTime();</span>
+<span class="nc" id="L82">            int newest = procData.getNewestIndex();</span>
+<span class="nc" id="L83">            double[] procUsageData = procData(processor);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            for (int i = 0; i &lt; procUsageData.length; i++) {</span>
+<span class="nc" id="L85">                procData.addValue(i, newest, (float) (100 * procUsageData[i]));</span>
             }
-<span class="nc" id="L106">        });</span>
-<span class="nc" id="L107">        timer.start();</span>
-<span class="nc" id="L108">    }</span>
+<span class="nc" id="L87">        });</span>
+<span class="nc" id="L88">        timer.start();</span>
+<span class="nc" id="L89">    }</span>
 
     private static float[] floatArrayPercent(double d) {
-<span class="nc" id="L111">        float[] f = new float[1];</span>
-<span class="nc" id="L112">        f[0] = (float) (100d * d);</span>
-<span class="nc" id="L113">        return f;</span>
+<span class="nc" id="L92">        float[] f = new float[1];</span>
+<span class="nc" id="L93">        f[0] = (float) (100d * d);</span>
+<span class="nc" id="L94">        return f;</span>
     }
 
     private double cpuData(CentralProcessor proc) {
-<span class="nc" id="L117">        double d = proc.getSystemCpuLoadBetweenTicks(oldTicks);</span>
-<span class="nc" id="L118">        oldTicks = proc.getSystemCpuLoadTicks();</span>
-<span class="nc" id="L119">        return d;</span>
+<span class="nc" id="L98">        double d = proc.getSystemCpuLoadBetweenTicks(oldTicks);</span>
+<span class="nc" id="L99">        oldTicks = proc.getSystemCpuLoadTicks();</span>
+<span class="nc" id="L100">        return d;</span>
     }
 
     private double[] procData(CentralProcessor proc) {
-<span class="nc" id="L123">        double[] p = proc.getProcessorCpuLoadBetweenTicks(oldProcTicks);</span>
-<span class="nc" id="L124">        oldProcTicks = proc.getProcessorCpuLoadTicks();</span>
-<span class="nc" id="L125">        return p;</span>
+<span class="nc" id="L104">        double[] p = proc.getProcessorCpuLoadBetweenTicks(oldProcTicks);</span>
+<span class="nc" id="L105">        oldProcTicks = proc.getProcessorCpuLoadTicks();</span>
+<span class="nc" id="L106">        return p;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

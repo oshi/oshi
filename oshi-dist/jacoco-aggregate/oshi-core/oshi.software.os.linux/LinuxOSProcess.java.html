@@ -1,29 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>LinuxOSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.linux</a> &gt; <span class="el_source">LinuxOSProcess.java</span></div><h1>LinuxOSProcess.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
 
 import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -51,6 +33,7 @@ import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.UserGroupInfo;
 import oshi.util.Util;
@@ -62,30 +45,33 @@ import oshi.util.platform.linux.ProcPath;
 @ThreadSafe
 public class LinuxOSProcess extends AbstractOSProcess {
 
-<span class="nc" id="L65">    private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcess.class);</span>
+<span class="nc" id="L48">    private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcess.class);</span>
+
+<span class="nc" id="L50">    private static final boolean LOG_PROCFS_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_PROCFS_LOGWARNING,</span>
+            false);
 
     // Get a list of orders to pass to ParseUtil
-<span class="nc" id="L68">    private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];</span>
+<span class="nc" id="L54">    private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];</span>
     static {
-<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (ProcPidStat stat : ProcPidStat.values()) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (ProcPidStat stat : ProcPidStat.values()) {</span>
             // The PROC_PID_STAT enum indices are 1-indexed.
             // Subtract one to get a zero-based index
-<span class="nc" id="L73">            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;</span>
+<span class="nc" id="L59">            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;</span>
         }
-<span class="nc" id="L75">    }</span>
+<span class="nc" id="L61">    }</span>
 
-<span class="nc" id="L77">    private Supplier&lt;Integer&gt; bitness = memoize(this::queryBitness);</span>
-<span class="nc" id="L78">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
-<span class="nc" id="L79">    private Supplier&lt;List&lt;String&gt;&gt; arguments = memoize(this::queryArguments);</span>
-<span class="nc" id="L80">    private Supplier&lt;Map&lt;String, String&gt;&gt; environmentVariables = memoize(this::queryEnvironmentVariables);</span>
+<span class="nc" id="L63">    private Supplier&lt;Integer&gt; bitness = memoize(this::queryBitness);</span>
+<span class="nc" id="L64">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
+<span class="nc" id="L65">    private Supplier&lt;List&lt;String&gt;&gt; arguments = memoize(this::queryArguments);</span>
+<span class="nc" id="L66">    private Supplier&lt;Map&lt;String, String&gt;&gt; environmentVariables = memoize(this::queryEnvironmentVariables);</span>
 
     private String name;
-<span class="nc" id="L83">    private String path = &quot;&quot;;</span>
+<span class="nc" id="L69">    private String path = &quot;&quot;;</span>
     private String user;
     private String userID;
     private String group;
     private String groupID;
-<span class="nc" id="L88">    private State state = INVALID;</span>
+<span class="nc" id="L74">    private State state = INVALID;</span>
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -102,333 +88,330 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private long contextSwitches;
 
     public LinuxOSProcess(int pid) {
-<span class="nc" id="L105">        super(pid);</span>
-<span class="nc" id="L106">        updateAttributes();</span>
-<span class="nc" id="L107">    }</span>
+<span class="nc" id="L91">        super(pid);</span>
+<span class="nc" id="L92">        updateAttributes();</span>
+<span class="nc" id="L93">    }</span>
 
     @Override
     public String getName() {
-<span class="nc" id="L111">        return this.name;</span>
+<span class="nc" id="L97">        return this.name;</span>
     }
 
     @Override
     public String getPath() {
-<span class="nc" id="L116">        return this.path;</span>
+<span class="nc" id="L102">        return this.path;</span>
     }
 
     @Override
     public String getCommandLine() {
-<span class="nc" id="L121">        return commandLine.get();</span>
+<span class="nc" id="L107">        return commandLine.get();</span>
     }
 
     private String queryCommandLine() {
-<span class="nc" id="L125">        return Arrays</span>
-<span class="nc" id="L126">                .stream(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID())).split(&quot;\0&quot;))</span>
-<span class="nc" id="L127">                .collect(Collectors.joining(&quot; &quot;));</span>
+<span class="nc" id="L111">        return Arrays</span>
+<span class="nc" id="L112">                .stream(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID())).split(&quot;\0&quot;))</span>
+<span class="nc" id="L113">                .collect(Collectors.joining(&quot; &quot;));</span>
     }
 
     @Override
     public List&lt;String&gt; getArguments() {
-<span class="nc" id="L132">        return arguments.get();</span>
+<span class="nc" id="L118">        return arguments.get();</span>
     }
 
     private List&lt;String&gt; queryArguments() {
-<span class="nc" id="L136">        return Collections.unmodifiableList(ParseUtil</span>
-<span class="nc" id="L137">                .parseByteArrayToStrings(FileUtil.readAllBytes(String.format(ProcPath.PID_CMDLINE, getProcessID()))));</span>
+<span class="nc" id="L122">        return Collections.unmodifiableList(ParseUtil</span>
+<span class="nc" id="L123">                .parseByteArrayToStrings(FileUtil.readAllBytes(String.format(ProcPath.PID_CMDLINE, getProcessID()))));</span>
     }
 
     @Override
     public Map&lt;String, String&gt; getEnvironmentVariables() {
-<span class="nc" id="L142">        return environmentVariables.get();</span>
+<span class="nc" id="L128">        return environmentVariables.get();</span>
     }
 
     private Map&lt;String, String&gt; queryEnvironmentVariables() {
-<span class="nc" id="L146">        return Collections.unmodifiableMap(ParseUtil</span>
-<span class="nc" id="L147">                .parseByteArrayToStringMap(FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, getProcessID()))));</span>
+<span class="nc" id="L132">        return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(</span>
+<span class="nc" id="L133">                FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, getProcessID()), LOG_PROCFS_WARNING)));</span>
     }
 
     @Override
     public String getCurrentWorkingDirectory() {
         try {
-<span class="nc" id="L153">            String cwdLink = String.format(ProcPath.PID_CWD, getProcessID());</span>
-<span class="nc" id="L154">            String cwd = new File(cwdLink).getCanonicalPath();</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (!cwd.equals(cwdLink)) {</span>
-<span class="nc" id="L156">                return cwd;</span>
+<span class="nc" id="L139">            String cwdLink = String.format(ProcPath.PID_CWD, getProcessID());</span>
+<span class="nc" id="L140">            String cwd = new File(cwdLink).getCanonicalPath();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            if (!cwd.equals(cwdLink)) {</span>
+<span class="nc" id="L142">                return cwd;</span>
             }
-<span class="nc" id="L158">        } catch (IOException e) {</span>
-<span class="nc" id="L159">            LOG.trace(&quot;Couldn't find cwd for pid {}: {}&quot;, getProcessID(), e.getMessage());</span>
-<span class="nc" id="L160">        }</span>
-<span class="nc" id="L161">        return &quot;&quot;;</span>
+<span class="nc" id="L144">        } catch (IOException e) {</span>
+<span class="nc" id="L145">            LOG.trace(&quot;Couldn't find cwd for pid {}: {}&quot;, getProcessID(), e.getMessage());</span>
+<span class="nc" id="L146">        }</span>
+<span class="nc" id="L147">        return &quot;&quot;;</span>
     }
 
     @Override
     public String getUser() {
-<span class="nc" id="L166">        return this.user;</span>
+<span class="nc" id="L152">        return this.user;</span>
     }
 
     @Override
     public String getUserID() {
-<span class="nc" id="L171">        return this.userID;</span>
+<span class="nc" id="L157">        return this.userID;</span>
     }
 
     @Override
     public String getGroup() {
-<span class="nc" id="L176">        return this.group;</span>
+<span class="nc" id="L162">        return this.group;</span>
     }
 
     @Override
     public String getGroupID() {
-<span class="nc" id="L181">        return this.groupID;</span>
+<span class="nc" id="L167">        return this.groupID;</span>
     }
 
     @Override
     public State getState() {
-<span class="nc" id="L186">        return this.state;</span>
+<span class="nc" id="L172">        return this.state;</span>
     }
 
     @Override
     public int getParentProcessID() {
-<span class="nc" id="L191">        return this.parentProcessID;</span>
+<span class="nc" id="L177">        return this.parentProcessID;</span>
     }
 
     @Override
     public int getThreadCount() {
-<span class="nc" id="L196">        return this.threadCount;</span>
+<span class="nc" id="L182">        return this.threadCount;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L201">        return this.priority;</span>
+<span class="nc" id="L187">        return this.priority;</span>
     }
 
     @Override
     public long getVirtualSize() {
-<span class="nc" id="L206">        return this.virtualSize;</span>
+<span class="nc" id="L192">        return this.virtualSize;</span>
     }
 
     @Override
     public long getResidentSetSize() {
-<span class="nc" id="L211">        return this.residentSetSize;</span>
+<span class="nc" id="L197">        return this.residentSetSize;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L216">        return this.kernelTime;</span>
+<span class="nc" id="L202">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L221">        return this.userTime;</span>
+<span class="nc" id="L207">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L226">        return this.upTime;</span>
+<span class="nc" id="L212">        return this.upTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L231">        return this.startTime;</span>
+<span class="nc" id="L217">        return this.startTime;</span>
     }
 
     @Override
     public long getBytesRead() {
-<span class="nc" id="L236">        return this.bytesRead;</span>
+<span class="nc" id="L222">        return this.bytesRead;</span>
     }
 
     @Override
     public long getBytesWritten() {
-<span class="nc" id="L241">        return this.bytesWritten;</span>
+<span class="nc" id="L227">        return this.bytesWritten;</span>
     }
 
     @Override
     public List&lt;OSThread&gt; getThreadDetails() {
-<span class="nc" id="L246">        return ProcessStat.getThreadIds(getProcessID()).stream().map(id -&gt; new LinuxOSThread(getProcessID(), id))</span>
-<span class="nc" id="L247">                .collect(Collectors.toList());</span>
+<span class="nc" id="L232">        return ProcessStat.getThreadIds(getProcessID()).stream().parallel()</span>
+<span class="nc" id="L233">                .map(id -&gt; new LinuxOSThread(getProcessID(), id)).filter(VALID_THREAD).collect(Collectors.toList());</span>
     }
 
     @Override
     public long getMinorFaults() {
-<span class="nc" id="L252">        return this.minorFaults;</span>
+<span class="nc" id="L238">        return this.minorFaults;</span>
     }
 
     @Override
     public long getMajorFaults() {
-<span class="nc" id="L257">        return this.majorFaults;</span>
+<span class="nc" id="L243">        return this.majorFaults;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L262">        return this.contextSwitches;</span>
+<span class="nc" id="L248">        return this.contextSwitches;</span>
     }
 
     @Override
     public long getOpenFiles() {
-<span class="nc" id="L267">        return ProcessStat.getFileDescriptorFiles(getProcessID()).length;</span>
+<span class="nc" id="L253">        return ProcessStat.getFileDescriptorFiles(getProcessID()).length;</span>
     }
 
     @Override
     public int getBitness() {
-<span class="nc" id="L272">        return this.bitness.get();</span>
+<span class="nc" id="L258">        return this.bitness.get();</span>
     }
 
     private int queryBitness() {
         // get 5th byte of file for 64-bit check
         // https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#File_header
-<span class="nc" id="L278">        byte[] buffer = new byte[5];</span>
-<span class="nc bnc" id="L279" title="All 2 branches missed.">        if (!path.isEmpty()) {</span>
-<span class="nc" id="L280">            try (InputStream is = new FileInputStream(path)) {</span>
-<span class="nc bnc" id="L281" title="All 2 branches missed.">                if (is.read(buffer) == buffer.length) {</span>
-<span class="nc bnc" id="L282" title="All 2 branches missed.">                    return buffer[4] == 1 ? 32 : 64;</span>
+<span class="nc" id="L264">        byte[] buffer = new byte[5];</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (!path.isEmpty()) {</span>
+<span class="nc" id="L266">            try (InputStream is = new FileInputStream(path)) {</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">                if (is.read(buffer) == buffer.length) {</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                    return buffer[4] == 1 ? 32 : 64;</span>
                 }
-<span class="nc" id="L284">            } catch (IOException e) {</span>
-<span class="nc" id="L285">                LOG.warn(&quot;Failed to read process file: {}&quot;, path);</span>
-<span class="nc" id="L286">            }</span>
+<span class="nc" id="L270">            } catch (IOException e) {</span>
+<span class="nc" id="L271">                LOG.warn(&quot;Failed to read process file: {}&quot;, path);</span>
+<span class="nc" id="L272">            }</span>
         }
-<span class="nc" id="L288">        return 0;</span>
+<span class="nc" id="L274">        return 0;</span>
     }
 
     @Override
     public long getAffinityMask() {
         // Would prefer to use native sched_getaffinity call but variable sizing is
         // kernel-dependent and requires C macros, so we use command line instead.
-<span class="nc" id="L295">        String mask = ExecutingCommand.getFirstAnswer(&quot;taskset -p &quot; + getProcessID());</span>
+<span class="nc" id="L281">        String mask = ExecutingCommand.getFirstAnswer(&quot;taskset -p &quot; + getProcessID());</span>
         // Output:
         // pid 3283's current affinity mask: 3
         // pid 9726's current affinity mask: f
-<span class="nc" id="L299">        String[] split = ParseUtil.whitespaces.split(mask);</span>
+<span class="nc" id="L285">        String[] split = ParseUtil.whitespaces.split(mask);</span>
         try {
-<span class="nc" id="L301">            return new BigInteger(split[split.length - 1], 16).longValue();</span>
-<span class="nc" id="L302">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L303">            return 0;</span>
+<span class="nc" id="L287">            return new BigInteger(split[split.length - 1], 16).longValue();</span>
+<span class="nc" id="L288">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L289">            return 0;</span>
         }
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L309">        String procPidExe = String.format(ProcPath.PID_EXE, getProcessID());</span>
+<span class="nc" id="L295">        String procPidExe = String.format(ProcPath.PID_EXE, getProcessID());</span>
         try {
-<span class="nc" id="L311">            Path link = Paths.get(procPidExe);</span>
-<span class="nc" id="L312">            this.path = Files.readSymbolicLink(link).toString();</span>
+<span class="nc" id="L297">            Path link = Paths.get(procPidExe);</span>
+<span class="nc" id="L298">            this.path = Files.readSymbolicLink(link).toString();</span>
             // For some services the symbolic link process has terminated
-<span class="nc" id="L314">            int index = path.indexOf(&quot; (deleted)&quot;);</span>
-<span class="nc bnc" id="L315" title="All 2 branches missed.">            if (index != -1) {</span>
-<span class="nc" id="L316">                path = path.substring(0, index);</span>
+<span class="nc" id="L300">            int index = path.indexOf(&quot; (deleted)&quot;);</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">            if (index != -1) {</span>
+<span class="nc" id="L302">                path = path.substring(0, index);</span>
             }
-<span class="nc" id="L318">        } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {</span>
-<span class="nc" id="L319">            LOG.debug(&quot;Unable to open symbolic link {}&quot;, procPidExe);</span>
-<span class="nc" id="L320">        }</span>
+<span class="nc" id="L304">        } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {</span>
+<span class="nc" id="L305">            LOG.debug(&quot;Unable to open symbolic link {}&quot;, procPidExe);</span>
+<span class="nc" id="L306">        }</span>
         // Fetch all the values here
         // check for terminated process race condition after last one.
-<span class="nc" id="L323">        Map&lt;String, String&gt; io = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_IO, getProcessID()), &quot;:&quot;);</span>
-<span class="nc" id="L324">        Map&lt;String, String&gt; status = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_STATUS, getProcessID()),</span>
+<span class="nc" id="L309">        Map&lt;String, String&gt; io = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_IO, getProcessID()), &quot;:&quot;);</span>
+<span class="nc" id="L310">        Map&lt;String, String&gt; status = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_STATUS, getProcessID()),</span>
                 &quot;:&quot;);
-<span class="nc" id="L326">        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, getProcessID()));</span>
-<span class="nc bnc" id="L327" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
-<span class="nc" id="L328">            this.state = INVALID;</span>
-<span class="nc" id="L329">            return false;</span>
+<span class="nc" id="L312">        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, getProcessID()));</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (stat.isEmpty()) {</span>
+<span class="nc" id="L314">            this.state = INVALID;</span>
+<span class="nc" id="L315">            return false;</span>
         }
         // If some details couldn't be read from ProcPath.PID_STATUS try reading it from
         // ProcPath.PID_STAT
-<span class="nc" id="L333">        getMissingDetails(status, stat);</span>
+<span class="nc" id="L319">        getMissingDetails(status, stat);</span>
 
-<span class="nc" id="L335">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L321">        long now = System.currentTimeMillis();</span>
 
         // We can get name and status more easily from /proc/pid/status which we
         // call later, so just get the numeric bits here
         // See man proc for how to parse /proc/[pid]/stat
-<span class="nc" id="L340">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS,</span>
+<span class="nc" id="L326">        long[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS,</span>
                 ProcessStat.PROC_PID_STAT_LENGTH, ' ');
 
         // BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.
         // Combine units to jiffies and convert to millijiffies before hz division to
         // avoid precision loss without having to cast
-<span class="nc" id="L346">        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()</span>
-<span class="nc" id="L347">                + statArray[ProcPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();</span>
+<span class="nc" id="L332">        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()</span>
+<span class="nc" id="L333">                + statArray[ProcPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();</span>
         // BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process
         // that has started within last 505ms could produce a future start time/negative
         // up time, so insert a sanity check.
-<span class="nc bnc" id="L351" title="All 2 branches missed.">        if (startTime &gt;= now) {</span>
-<span class="nc" id="L352">            startTime = now - 1;</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">        if (startTime &gt;= now) {</span>
+<span class="nc" id="L338">            startTime = now - 1;</span>
         }
-<span class="nc" id="L354">        this.parentProcessID = (int) statArray[ProcPidStat.PPID.ordinal()];</span>
-<span class="nc" id="L355">        this.threadCount = (int) statArray[ProcPidStat.THREAD_COUNT.ordinal()];</span>
-<span class="nc" id="L356">        this.priority = (int) statArray[ProcPidStat.PRIORITY.ordinal()];</span>
-<span class="nc" id="L357">        this.virtualSize = statArray[ProcPidStat.VSZ.ordinal()];</span>
-<span class="nc" id="L358">        this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * LinuxOperatingSystem.getPageSize();</span>
-<span class="nc" id="L359">        this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
-<span class="nc" id="L360">        this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
-<span class="nc" id="L361">        this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];</span>
-<span class="nc" id="L362">        this.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];</span>
-<span class="nc" id="L363">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;nonvoluntary_ctxt_switches&quot;), 0L);</span>
-<span class="nc" id="L364">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;voluntary_ctxt_switches&quot;), 0L);</span>
-<span class="nc" id="L365">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
+<span class="nc" id="L340">        this.parentProcessID = (int) statArray[ProcPidStat.PPID.ordinal()];</span>
+<span class="nc" id="L341">        this.threadCount = (int) statArray[ProcPidStat.THREAD_COUNT.ordinal()];</span>
+<span class="nc" id="L342">        this.priority = (int) statArray[ProcPidStat.PRIORITY.ordinal()];</span>
+<span class="nc" id="L343">        this.virtualSize = statArray[ProcPidStat.VSZ.ordinal()];</span>
+<span class="nc" id="L344">        this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * LinuxOperatingSystem.getPageSize();</span>
+<span class="nc" id="L345">        this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
+<span class="nc" id="L346">        this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();</span>
+<span class="nc" id="L347">        this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];</span>
+<span class="nc" id="L348">        this.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];</span>
+<span class="nc" id="L349">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;nonvoluntary_ctxt_switches&quot;), 0L);</span>
+<span class="nc" id="L350">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(&quot;voluntary_ctxt_switches&quot;), 0L);</span>
+<span class="nc" id="L351">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
 
-<span class="nc" id="L367">        this.upTime = now - startTime;</span>
+<span class="nc" id="L353">        this.upTime = now - startTime;</span>
 
         // See man proc for how to parse /proc/[pid]/io
-<span class="nc" id="L370">        this.bytesRead = ParseUtil.parseLongOrDefault(io.getOrDefault(&quot;read_bytes&quot;, &quot;&quot;), 0L);</span>
-<span class="nc" id="L371">        this.bytesWritten = ParseUtil.parseLongOrDefault(io.getOrDefault(&quot;write_bytes&quot;, &quot;&quot;), 0L);</span>
+<span class="nc" id="L356">        this.bytesRead = ParseUtil.parseLongOrDefault(io.getOrDefault(&quot;read_bytes&quot;, &quot;&quot;), 0L);</span>
+<span class="nc" id="L357">        this.bytesWritten = ParseUtil.parseLongOrDefault(io.getOrDefault(&quot;write_bytes&quot;, &quot;&quot;), 0L);</span>
 
         // Don't set open files or bitness or currentWorkingDirectory; fetch on demand.
 
-<span class="nc" id="L375">        this.userID = ParseUtil.whitespaces.split(status.getOrDefault(&quot;Uid&quot;, &quot;&quot;))[0];</span>
-<span class="nc" id="L376">        this.user = UserGroupInfo.getUser(userID);</span>
-<span class="nc" id="L377">        this.groupID = ParseUtil.whitespaces.split(status.getOrDefault(&quot;Gid&quot;, &quot;&quot;))[0];</span>
-<span class="nc" id="L378">        this.group = UserGroupInfo.getGroupName(groupID);</span>
-<span class="nc" id="L379">        this.name = status.getOrDefault(&quot;Name&quot;, &quot;&quot;);</span>
-<span class="nc" id="L380">        this.state = ProcessStat.getState(status.getOrDefault(&quot;State&quot;, &quot;U&quot;).charAt(0));</span>
-<span class="nc" id="L381">        return true;</span>
+<span class="nc" id="L361">        this.userID = ParseUtil.whitespaces.split(status.getOrDefault(&quot;Uid&quot;, &quot;&quot;))[0];</span>
+<span class="nc" id="L362">        this.user = UserGroupInfo.getUser(userID);</span>
+<span class="nc" id="L363">        this.groupID = ParseUtil.whitespaces.split(status.getOrDefault(&quot;Gid&quot;, &quot;&quot;))[0];</span>
+<span class="nc" id="L364">        this.group = UserGroupInfo.getGroupName(groupID);</span>
+<span class="nc" id="L365">        this.name = status.getOrDefault(&quot;Name&quot;, &quot;&quot;);</span>
+<span class="nc" id="L366">        this.state = ProcessStat.getState(status.getOrDefault(&quot;State&quot;, &quot;U&quot;).charAt(0));</span>
+<span class="nc" id="L367">        return true;</span>
     }
 
     /**
-     * If some details couldn't be read from ProcPath.PID_STATUS try reading it from
-     * ProcPath.PID_STAT
+     * If some details couldn't be read from ProcPath.PID_STATUS try reading it from ProcPath.PID_STAT
      *
-     * @param status
-     *            status map to fill.
-     * @param stat
-     *            string to read from.
+     * @param status status map to fill.
+     * @param stat   string to read from.
      */
     private static void getMissingDetails(Map&lt;String, String&gt; status, String stat) {
-<span class="nc bnc" id="L394" title="All 4 branches missed.">        if (status == null || stat == null) {</span>
-<span class="nc" id="L395">            return;</span>
+<span class="nc bnc" id="L377" title="All 4 branches missed.">        if (status == null || stat == null) {</span>
+<span class="nc" id="L378">            return;</span>
         }
 
-<span class="nc" id="L398">        int nameStart = stat.indexOf('(');</span>
-<span class="nc" id="L399">        int nameEnd = stat.indexOf(')');</span>
-<span class="nc bnc" id="L400" title="All 6 branches missed.">        if (Util.isBlank(status.get(&quot;Name&quot;)) &amp;&amp; nameStart &gt; 0 &amp;&amp; nameStart &lt; nameEnd) {</span>
+<span class="nc" id="L381">        int nameStart = stat.indexOf('(');</span>
+<span class="nc" id="L382">        int nameEnd = stat.indexOf(')');</span>
+<span class="nc bnc" id="L383" title="All 6 branches missed.">        if (Util.isBlank(status.get(&quot;Name&quot;)) &amp;&amp; nameStart &gt; 0 &amp;&amp; nameStart &lt; nameEnd) {</span>
             // remove leading and trailing parentheses
-<span class="nc" id="L402">            String statName = stat.substring(nameStart + 1, nameEnd);</span>
-<span class="nc" id="L403">            status.put(&quot;Name&quot;, statName);</span>
+<span class="nc" id="L385">            String statName = stat.substring(nameStart + 1, nameEnd);</span>
+<span class="nc" id="L386">            status.put(&quot;Name&quot;, statName);</span>
         }
 
         // As per man, the next item after the name is the state
-<span class="nc bnc" id="L407" title="All 6 branches missed.">        if (Util.isBlank(status.get(&quot;State&quot;)) &amp;&amp; nameEnd &gt; 0 &amp;&amp; stat.length() &gt; nameEnd + 2) {</span>
-<span class="nc" id="L408">            String statState = String.valueOf(stat.charAt(nameEnd + 2));</span>
-<span class="nc" id="L409">            status.put(&quot;State&quot;, statState);</span>
+<span class="nc bnc" id="L390" title="All 6 branches missed.">        if (Util.isBlank(status.get(&quot;State&quot;)) &amp;&amp; nameEnd &gt; 0 &amp;&amp; stat.length() &gt; nameEnd + 2) {</span>
+<span class="nc" id="L391">            String statState = String.valueOf(stat.charAt(nameEnd + 2));</span>
+<span class="nc" id="L392">            status.put(&quot;State&quot;, statState);</span>
         }
-<span class="nc" id="L411">    }</span>
+<span class="nc" id="L394">    }</span>
 
     /**
-     * Enum used to update attributes. The order field represents the 1-indexed
-     * numeric order of the stat in /proc/pid/stat per the man file.
+     * Enum used to update attributes. The order field represents the 1-indexed numeric order of the stat in
+     * /proc/pid/stat per the man file.
      */
-<span class="nc" id="L417">    private enum ProcPidStat {</span>
+<span class="nc" id="L400">    private enum ProcPidStat {</span>
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-<span class="nc" id="L420">        PPID(4), MINOR_FAULTS(10), MAJOR_FAULTS(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20),</span>
-<span class="nc" id="L421">        START_TIME(22), VSZ(23), RSS(24);</span>
+<span class="nc" id="L403">        PPID(4), MINOR_FAULTS(10), MAJOR_FAULTS(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20),</span>
+<span class="nc" id="L404">        START_TIME(22), VSZ(23), RSS(24);</span>
 
         private final int order;
 
         public int getOrder() {
-<span class="nc" id="L426">            return this.order;</span>
+<span class="nc" id="L409">            return this.order;</span>
         }
 
-<span class="nc" id="L429">        ProcPidStat(int order) {</span>
-<span class="nc" id="L430">            this.order = order;</span>
-<span class="nc" id="L431">        }</span>
+<span class="nc" id="L412">        ProcPidStat(int order) {</span>
+<span class="nc" id="L413">            this.order = order;</span>
+<span class="nc" id="L414">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

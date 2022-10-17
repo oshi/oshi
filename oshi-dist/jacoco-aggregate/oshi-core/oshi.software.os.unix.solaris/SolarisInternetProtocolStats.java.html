@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisInternetProtocolStats.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.solaris</a> &gt; <span class="el_source">SolarisInternetProtocolStats.java</span></div><h1>SolarisInternetProtocolStats.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
 
@@ -34,135 +15,135 @@ import oshi.util.ParseUtil;
  * Internet Protocol Stats implementation
  */
 @ThreadSafe
-<span class="nc" id="L37">public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats {</span>
+<span class="nc" id="L18">public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats {</span>
 
     @Override
     public TcpStats getTCPv4Stats() {
-<span class="nc" id="L41">        return getTcpStats();</span>
+<span class="nc" id="L22">        return getTcpStats();</span>
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-<span class="nc" id="L46">        return getUdpStats();</span>
+<span class="nc" id="L27">        return getUdpStats();</span>
     }
 
     private static TcpStats getTcpStats() {
-<span class="nc" id="L50">        long connectionsEstablished = 0;</span>
-<span class="nc" id="L51">        long connectionsActive = 0;</span>
-<span class="nc" id="L52">        long connectionsPassive = 0;</span>
-<span class="nc" id="L53">        long connectionFailures = 0;</span>
-<span class="nc" id="L54">        long connectionsReset = 0;</span>
-<span class="nc" id="L55">        long segmentsSent = 0;</span>
-<span class="nc" id="L56">        long segmentsReceived = 0;</span>
-<span class="nc" id="L57">        long segmentsRetransmitted = 0;</span>
-<span class="nc" id="L58">        long inErrors = 0;</span>
-<span class="nc" id="L59">        long outResets = 0;</span>
-<span class="nc" id="L60">        List&lt;String&gt; netstat = ExecutingCommand.runNative(&quot;netstat -s -P tcp&quot;);</span>
+<span class="nc" id="L31">        long connectionsEstablished = 0;</span>
+<span class="nc" id="L32">        long connectionsActive = 0;</span>
+<span class="nc" id="L33">        long connectionsPassive = 0;</span>
+<span class="nc" id="L34">        long connectionFailures = 0;</span>
+<span class="nc" id="L35">        long connectionsReset = 0;</span>
+<span class="nc" id="L36">        long segmentsSent = 0;</span>
+<span class="nc" id="L37">        long segmentsReceived = 0;</span>
+<span class="nc" id="L38">        long segmentsRetransmitted = 0;</span>
+<span class="nc" id="L39">        long inErrors = 0;</span>
+<span class="nc" id="L40">        long outResets = 0;</span>
+<span class="nc" id="L41">        List&lt;String&gt; netstat = ExecutingCommand.runNative(&quot;netstat -s -P tcp&quot;);</span>
         // append IP
-<span class="nc" id="L62">        netstat.addAll(ExecutingCommand.runNative(&quot;netstat -s -P ip&quot;));</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (String s : netstat) {</span>
+<span class="nc" id="L43">        netstat.addAll(ExecutingCommand.runNative(&quot;netstat -s -P ip&quot;));</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        for (String s : netstat) {</span>
             // Two stats per line. Split the strings by index of &quot;tcp&quot;
-<span class="nc" id="L65">            String[] stats = splitOnPrefix(s, &quot;tcp&quot;);</span>
+<span class="nc" id="L46">            String[] stats = splitOnPrefix(s, &quot;tcp&quot;);</span>
             // Now of form tcpXX = 123
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            for (String stat : stats) {</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">                if (stat != null) {</span>
-<span class="nc" id="L69">                    String[] split = stat.split(&quot;=&quot;);</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">                    if (split.length == 2) {</span>
-<span class="nc bnc" id="L71" title="All 11 branches missed.">                        switch (split[0].trim()) {</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            for (String stat : stats) {</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">                if (stat != null) {</span>
+<span class="nc" id="L50">                    String[] split = stat.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                    if (split.length == 2) {</span>
+<span class="nc bnc" id="L52" title="All 11 branches missed.">                        switch (split[0].trim()) {</span>
                         case &quot;tcpCurrEstab&quot;:
-<span class="nc" id="L73">                            connectionsEstablished = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L74">                            break;</span>
+<span class="nc" id="L54">                            connectionsEstablished = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L55">                            break;</span>
                         case &quot;tcpActiveOpens&quot;:
-<span class="nc" id="L76">                            connectionsActive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L77">                            break;</span>
+<span class="nc" id="L57">                            connectionsActive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L58">                            break;</span>
                         case &quot;tcpPassiveOpens&quot;:
-<span class="nc" id="L79">                            connectionsPassive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L80">                            break;</span>
+<span class="nc" id="L60">                            connectionsPassive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L61">                            break;</span>
                         case &quot;tcpAttemptFails&quot;:
-<span class="nc" id="L82">                            connectionFailures = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L83">                            break;</span>
+<span class="nc" id="L63">                            connectionFailures = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L64">                            break;</span>
                         case &quot;tcpEstabResets&quot;:
-<span class="nc" id="L85">                            connectionsReset = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L86">                            break;</span>
+<span class="nc" id="L66">                            connectionsReset = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L67">                            break;</span>
                         case &quot;tcpOutSegs&quot;:
-<span class="nc" id="L88">                            segmentsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L89">                            break;</span>
+<span class="nc" id="L69">                            segmentsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L70">                            break;</span>
                         case &quot;tcpInSegs&quot;:
-<span class="nc" id="L91">                            segmentsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L92">                            break;</span>
+<span class="nc" id="L72">                            segmentsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L73">                            break;</span>
                         case &quot;tcpRetransSegs&quot;:
-<span class="nc" id="L94">                            segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L95">                            break;</span>
+<span class="nc" id="L75">                            segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L76">                            break;</span>
                         case &quot;tcpInErr&quot;:
                             // doesn't have tcp in second column
-<span class="nc" id="L98">                            inErrors = ParseUtil.getFirstIntValue(split[1].trim());</span>
-<span class="nc" id="L99">                            break;</span>
+<span class="nc" id="L79">                            inErrors = ParseUtil.getFirstIntValue(split[1].trim());</span>
+<span class="nc" id="L80">                            break;</span>
                         case &quot;tcpOutRsts&quot;:
-<span class="nc" id="L101">                            outResets = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L102">                            break;</span>
+<span class="nc" id="L82">                            outResets = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L83">                            break;</span>
                         default:
                             break;
                         }
                     }
                 }
             }
-<span class="nc" id="L109">        }</span>
-<span class="nc" id="L110">        return new TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,</span>
+<span class="nc" id="L90">        }</span>
+<span class="nc" id="L91">        return new TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,</span>
                 connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
     }
 
     private static UdpStats getUdpStats() {
-<span class="nc" id="L115">        long datagramsSent = 0;</span>
-<span class="nc" id="L116">        long datagramsReceived = 0;</span>
-<span class="nc" id="L117">        long datagramsNoPort = 0;</span>
-<span class="nc" id="L118">        long datagramsReceivedErrors = 0;</span>
-<span class="nc" id="L119">        List&lt;String&gt; netstat = ExecutingCommand.runNative(&quot;netstat -s -P udp&quot;);</span>
+<span class="nc" id="L96">        long datagramsSent = 0;</span>
+<span class="nc" id="L97">        long datagramsReceived = 0;</span>
+<span class="nc" id="L98">        long datagramsNoPort = 0;</span>
+<span class="nc" id="L99">        long datagramsReceivedErrors = 0;</span>
+<span class="nc" id="L100">        List&lt;String&gt; netstat = ExecutingCommand.runNative(&quot;netstat -s -P udp&quot;);</span>
         // append IP
-<span class="nc" id="L121">        netstat.addAll(ExecutingCommand.runNative(&quot;netstat -s -P ip&quot;));</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        for (String s : netstat) {</span>
+<span class="nc" id="L102">        netstat.addAll(ExecutingCommand.runNative(&quot;netstat -s -P ip&quot;));</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (String s : netstat) {</span>
             // Two stats per line. Split the strings by index of &quot;udp&quot;
-<span class="nc" id="L124">            String[] stats = splitOnPrefix(s, &quot;udp&quot;);</span>
+<span class="nc" id="L105">            String[] stats = splitOnPrefix(s, &quot;udp&quot;);</span>
             // Now of form udpXX = 123
-<span class="nc bnc" id="L126" title="All 2 branches missed.">            for (String stat : stats) {</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                if (stat != null) {</span>
-<span class="nc" id="L128">                    String[] split = stat.split(&quot;=&quot;);</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">                    if (split.length == 2) {</span>
-<span class="nc bnc" id="L130" title="All 5 branches missed.">                        switch (split[0].trim()) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (String stat : stats) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if (stat != null) {</span>
+<span class="nc" id="L109">                    String[] split = stat.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                    if (split.length == 2) {</span>
+<span class="nc bnc" id="L111" title="All 5 branches missed.">                        switch (split[0].trim()) {</span>
                         case &quot;udpOutDatagrams&quot;:
-<span class="nc" id="L132">                            datagramsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L133">                            break;</span>
+<span class="nc" id="L113">                            datagramsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L114">                            break;</span>
                         case &quot;udpInDatagrams&quot;:
-<span class="nc" id="L135">                            datagramsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L136">                            break;</span>
+<span class="nc" id="L116">                            datagramsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L117">                            break;</span>
                         case &quot;udpNoPorts&quot;:
-<span class="nc" id="L138">                            datagramsNoPort = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L139">                            break;</span>
+<span class="nc" id="L119">                            datagramsNoPort = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L120">                            break;</span>
                         case &quot;udpInErrors&quot;:
-<span class="nc" id="L141">                            datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
-<span class="nc" id="L142">                            break;</span>
+<span class="nc" id="L122">                            datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);</span>
+<span class="nc" id="L123">                            break;</span>
                         default:
                             break;
                         }
                     }
                 }
             }
-<span class="nc" id="L149">        }</span>
-<span class="nc" id="L150">        return new UdpStats(datagramsSent, datagramsReceived, datagramsNoPort, datagramsReceivedErrors);</span>
+<span class="nc" id="L130">        }</span>
+<span class="nc" id="L131">        return new UdpStats(datagramsSent, datagramsReceived, datagramsNoPort, datagramsReceivedErrors);</span>
     }
 
     private static String[] splitOnPrefix(String s, String prefix) {
-<span class="nc" id="L154">        String[] stats = new String[2];</span>
-<span class="nc" id="L155">        int first = s.indexOf(prefix);</span>
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (first &gt;= 0) {</span>
-<span class="nc" id="L157">            int second = s.indexOf(prefix, first + 1);</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (second &gt;= 0) {</span>
-<span class="nc" id="L159">                stats[0] = s.substring(first, second).trim();</span>
-<span class="nc" id="L160">                stats[1] = s.substring(second).trim();</span>
+<span class="nc" id="L135">        String[] stats = new String[2];</span>
+<span class="nc" id="L136">        int first = s.indexOf(prefix);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (first &gt;= 0) {</span>
+<span class="nc" id="L138">            int second = s.indexOf(prefix, first + 1);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (second &gt;= 0) {</span>
+<span class="nc" id="L140">                stats[0] = s.substring(first, second).trim();</span>
+<span class="nc" id="L141">                stats[1] = s.substring(second).trim();</span>
             } else {
-<span class="nc" id="L162">                stats[0] = s.substring(first).trim();</span>
+<span class="nc" id="L143">                stats[0] = s.substring(first).trim();</span>
             }
         }
-<span class="nc" id="L165">        return stats;</span>
+<span class="nc" id="L146">        return stats;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

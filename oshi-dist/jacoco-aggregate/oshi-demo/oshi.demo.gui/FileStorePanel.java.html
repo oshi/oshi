@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FileStorePanel.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.gui</a> &gt; <span class="el_source">FileStorePanel.java</span></div><h1>FileStorePanel.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
 
@@ -60,85 +41,85 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String AVAILABLE = &quot;Available&quot;;
 
     public FileStorePanel(SystemInfo si) {
-<span class="nc" id="L63">        super();</span>
-<span class="nc" id="L64">        init(si.getOperatingSystem().getFileSystem());</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L44">        super();</span>
+<span class="nc" id="L45">        init(si.getOperatingSystem().getFileSystem());</span>
+<span class="nc" id="L46">    }</span>
 
     private void init(FileSystem fs) {
-<span class="nc" id="L68">        List&lt;OSFileStore&gt; fileStores = fs.getFileStores();</span>
+<span class="nc" id="L49">        List&lt;OSFileStore&gt; fileStores = fs.getFileStores();</span>
         @SuppressWarnings(&quot;unchecked&quot;)
-<span class="nc" id="L70">        DefaultPieDataset&lt;String&gt;[] fsData = new DefaultPieDataset[fileStores.size()];</span>
-<span class="nc" id="L71">        JFreeChart[] fsCharts = new JFreeChart[fsData.length];</span>
+<span class="nc" id="L51">        DefaultPieDataset&lt;String&gt;[] fsData = new DefaultPieDataset[fileStores.size()];</span>
+<span class="nc" id="L52">        JFreeChart[] fsCharts = new JFreeChart[fsData.length];</span>
 
-<span class="nc" id="L73">        JPanel fsPanel = new JPanel();</span>
-<span class="nc" id="L74">        fsPanel.setLayout(new GridBagLayout());</span>
-<span class="nc" id="L75">        GridBagConstraints fsConstraints = new GridBagConstraints();</span>
-<span class="nc" id="L76">        fsConstraints.weightx = 1d;</span>
-<span class="nc" id="L77">        fsConstraints.weighty = 1d;</span>
-<span class="nc" id="L78">        fsConstraints.fill = GridBagConstraints.BOTH;</span>
+<span class="nc" id="L54">        JPanel fsPanel = new JPanel();</span>
+<span class="nc" id="L55">        fsPanel.setLayout(new GridBagLayout());</span>
+<span class="nc" id="L56">        GridBagConstraints fsConstraints = new GridBagConstraints();</span>
+<span class="nc" id="L57">        fsConstraints.weightx = 1d;</span>
+<span class="nc" id="L58">        fsConstraints.weighty = 1d;</span>
+<span class="nc" id="L59">        fsConstraints.fill = GridBagConstraints.BOTH;</span>
 
-<span class="nc" id="L80">        int modBase = (int) (fileStores.size() * (Config.GUI_HEIGHT + Config.GUI_WIDTH)</span>
-<span class="nc" id="L81">                / (Config.GUI_WIDTH * Math.sqrt(fileStores.size())));</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (int i = 0; i &lt; fileStores.size(); i++) {</span>
-<span class="nc" id="L83">            fsData[i] = new DefaultPieDataset&lt;&gt;();</span>
-<span class="nc" id="L84">            fsCharts[i] = ChartFactory.createPieChart(null, fsData[i], true, true, false);</span>
-<span class="nc" id="L85">            configurePlot(fsCharts[i]);</span>
-<span class="nc" id="L86">            fsConstraints.gridx = i % modBase;</span>
-<span class="nc" id="L87">            fsConstraints.gridy = i / modBase;</span>
-<span class="nc" id="L88">            fsPanel.add(new ChartPanel(fsCharts[i]), fsConstraints);</span>
+<span class="nc" id="L61">        int modBase = (int) (fileStores.size() * (Config.GUI_HEIGHT + Config.GUI_WIDTH)</span>
+<span class="nc" id="L62">                / (Config.GUI_WIDTH * Math.sqrt(fileStores.size())));</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (int i = 0; i &lt; fileStores.size(); i++) {</span>
+<span class="nc" id="L64">            fsData[i] = new DefaultPieDataset&lt;&gt;();</span>
+<span class="nc" id="L65">            fsCharts[i] = ChartFactory.createPieChart(null, fsData[i], true, true, false);</span>
+<span class="nc" id="L66">            configurePlot(fsCharts[i]);</span>
+<span class="nc" id="L67">            fsConstraints.gridx = i % modBase;</span>
+<span class="nc" id="L68">            fsConstraints.gridy = i / modBase;</span>
+<span class="nc" id="L69">            fsPanel.add(new ChartPanel(fsCharts[i]), fsConstraints);</span>
         }
-<span class="nc" id="L90">        updateDatasets(fs, fsData, fsCharts);</span>
+<span class="nc" id="L71">        updateDatasets(fs, fsData, fsCharts);</span>
 
-<span class="nc" id="L92">        add(fsPanel, BorderLayout.CENTER);</span>
+<span class="nc" id="L73">        add(fsPanel, BorderLayout.CENTER);</span>
 
-<span class="nc" id="L94">        Timer timer = new Timer(Config.REFRESH_SLOWER, e -&gt; {</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">            if (!updateDatasets(fs, fsData, fsCharts)) {</span>
-<span class="nc" id="L96">                ((Timer) e.getSource()).stop();</span>
-<span class="nc" id="L97">                fsPanel.removeAll();</span>
-<span class="nc" id="L98">                init(fs);</span>
-<span class="nc" id="L99">                fsPanel.revalidate();</span>
-<span class="nc" id="L100">                fsPanel.repaint();</span>
+<span class="nc" id="L75">        Timer timer = new Timer(Config.REFRESH_SLOWER, e -&gt; {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (!updateDatasets(fs, fsData, fsCharts)) {</span>
+<span class="nc" id="L77">                ((Timer) e.getSource()).stop();</span>
+<span class="nc" id="L78">                fsPanel.removeAll();</span>
+<span class="nc" id="L79">                init(fs);</span>
+<span class="nc" id="L80">                fsPanel.revalidate();</span>
+<span class="nc" id="L81">                fsPanel.repaint();</span>
             }
-<span class="nc" id="L102">        });</span>
-<span class="nc" id="L103">        timer.start();</span>
-<span class="nc" id="L104">    }</span>
+<span class="nc" id="L83">        });</span>
+<span class="nc" id="L84">        timer.start();</span>
+<span class="nc" id="L85">    }</span>
 
     private static boolean updateDatasets(FileSystem fs, DefaultPieDataset&lt;String&gt;[] fsData, JFreeChart[] fsCharts) {
-<span class="nc" id="L107">        List&lt;OSFileStore&gt; fileStores = fs.getFileStores();</span>
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (fileStores.size() != fsData.length) {</span>
-<span class="nc" id="L109">            return false;</span>
+<span class="nc" id="L88">        List&lt;OSFileStore&gt; fileStores = fs.getFileStores();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (fileStores.size() != fsData.length) {</span>
+<span class="nc" id="L90">            return false;</span>
         }
-<span class="nc" id="L111">        int i = 0;</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        for (OSFileStore store : fileStores) {</span>
-<span class="nc" id="L113">            fsCharts[i].setTitle(store.getName());</span>
-<span class="nc" id="L114">            List&lt;TextTitle&gt; subtitles = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {</span>
-<span class="nc" id="L116">                subtitles.add(new TextTitle(store.getLabel()));</span>
+<span class="nc" id="L92">        int i = 0;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (OSFileStore store : fileStores) {</span>
+<span class="nc" id="L94">            fsCharts[i].setTitle(store.getName());</span>
+<span class="nc" id="L95">            List&lt;TextTitle&gt; subtitles = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {</span>
+<span class="nc" id="L97">                subtitles.add(new TextTitle(store.getLabel()));</span>
             }
-<span class="nc" id="L118">            long usable = store.getUsableSpace();</span>
-<span class="nc" id="L119">            long total = store.getTotalSpace();</span>
-<span class="nc" id="L120">            subtitles.add(new TextTitle(</span>
-<span class="nc" id="L121">                    &quot;Available: &quot; + FormatUtil.formatBytes(usable) + &quot;/&quot; + FormatUtil.formatBytes(total)));</span>
-<span class="nc" id="L122">            fsCharts[i].setSubtitles(subtitles);</span>
-<span class="nc" id="L123">            fsData[i].setValue(USED, (double) total - usable);</span>
-<span class="nc" id="L124">            fsData[i].setValue(AVAILABLE, usable);</span>
-<span class="nc" id="L125">            i++;</span>
-<span class="nc" id="L126">        }</span>
-<span class="nc" id="L127">        return true;</span>
+<span class="nc" id="L99">            long usable = store.getUsableSpace();</span>
+<span class="nc" id="L100">            long total = store.getTotalSpace();</span>
+<span class="nc" id="L101">            subtitles.add(new TextTitle(</span>
+<span class="nc" id="L102">                    &quot;Available: &quot; + FormatUtil.formatBytes(usable) + &quot;/&quot; + FormatUtil.formatBytes(total)));</span>
+<span class="nc" id="L103">            fsCharts[i].setSubtitles(subtitles);</span>
+<span class="nc" id="L104">            fsData[i].setValue(USED, (double) total - usable);</span>
+<span class="nc" id="L105">            fsData[i].setValue(AVAILABLE, usable);</span>
+<span class="nc" id="L106">            i++;</span>
+<span class="nc" id="L107">        }</span>
+<span class="nc" id="L108">        return true;</span>
     }
 
     private static void configurePlot(JFreeChart chart) {
         @SuppressWarnings(&quot;unchecked&quot;)
-<span class="nc" id="L132">        PiePlot&lt;String&gt; plot = (PiePlot&lt;String&gt;) chart.getPlot();</span>
-<span class="nc" id="L133">        plot.setSectionPaint(USED, Color.red);</span>
-<span class="nc" id="L134">        plot.setSectionPaint(AVAILABLE, Color.green);</span>
-<span class="nc" id="L135">        plot.setExplodePercent(USED, 0.10);</span>
-<span class="nc" id="L136">        plot.setSimpleLabels(true);</span>
+<span class="nc" id="L113">        PiePlot&lt;String&gt; plot = (PiePlot&lt;String&gt;) chart.getPlot();</span>
+<span class="nc" id="L114">        plot.setSectionPaint(USED, Color.red);</span>
+<span class="nc" id="L115">        plot.setSectionPaint(AVAILABLE, Color.green);</span>
+<span class="nc" id="L116">        plot.setExplodePercent(USED, 0.10);</span>
+<span class="nc" id="L117">        plot.setSimpleLabels(true);</span>
 
-<span class="nc" id="L138">        PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator(&quot;{0}: {1} ({2})&quot;,</span>
+<span class="nc" id="L119">        PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator(&quot;{0}: {1} ({2})&quot;,</span>
                 new DecimalFormat(&quot;0&quot;), new DecimalFormat(&quot;0%&quot;));
-<span class="nc" id="L140">        plot.setLabelGenerator(labelGenerator);</span>
-<span class="nc" id="L141">    }</span>
+<span class="nc" id="L121">        plot.setLabelGenerator(labelGenerator);</span>
+<span class="nc" id="L122">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

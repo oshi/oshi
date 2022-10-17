@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ParseUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ParseUtil.java</span></div><h1>ParseUtil.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
@@ -59,48 +40,48 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class ParseUtil {
 
-<span class="nc" id="L62">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
+<span class="nc" id="L43">    private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);</span>
 
     private static final String DEFAULT_LOG_MSG = &quot;{} didn't parse. Returning default. {}&quot;;
 
     /*
      * Used for matching
      */
-<span class="nc" id="L69">    private static final Pattern HERTZ_PATTERN = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kMGT]?Hz).*&quot;);</span>
-<span class="nc" id="L70">    private static final Pattern BYTES_PATTERN = Pattern.compile(&quot;(\\d+) ?([kMGT]?B).*&quot;);</span>
-<span class="nc" id="L71">    private static final Pattern UNITS_PATTERN = Pattern.compile(&quot;(\\d+(.\\d+)?)[\\s]?([kKMGT])?&quot;);</span>
+<span class="nc" id="L50">    private static final Pattern HERTZ_PATTERN = Pattern.compile(&quot;(\\d+(.\\d+)?) ?([kKMGT]?Hz).*&quot;);</span>
+<span class="nc" id="L51">    private static final Pattern BYTES_PATTERN = Pattern.compile(&quot;(\\d+) ?([kKMGT]?B?).*&quot;);</span>
+<span class="nc" id="L52">    private static final Pattern UNITS_PATTERN = Pattern.compile(&quot;(\\d+(.\\d+)?)[\\s]?([kKMGT])?&quot;);</span>
 
     /*
      * Used to check validity of a hexadecimal string
      */
-<span class="nc" id="L76">    private static final Pattern VALID_HEX = Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
+<span class="nc" id="L57">    private static final Pattern VALID_HEX = Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
 
     /*
      * Pattern for [dd-[hh:[mm:[ss[.sss]]]]]
      */
-<span class="nc" id="L81">    private static final Pattern DHMS = Pattern.compile(&quot;(?:(\\d+)-)?(?:(\\d+):)??(?:(\\d+):)?(\\d+)(?:\\.(\\d+))?&quot;);</span>
+<span class="nc" id="L62">    private static final Pattern DHMS = Pattern.compile(&quot;(?:(\\d+)-)?(?:(\\d+):)??(?:(\\d+):)?(\\d+)(?:\\.(\\d+))?&quot;);</span>
 
     /*
      * Pattern for a UUID
      */
-<span class="nc" id="L86">    private static final Pattern UUID_PATTERN = Pattern</span>
-<span class="nc" id="L87">            .compile(&quot;.*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*&quot;);</span>
+<span class="nc" id="L67">    private static final Pattern UUID_PATTERN = Pattern</span>
+<span class="nc" id="L68">            .compile(&quot;.*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}).*&quot;);</span>
 
     /*
      * Pattern for Windows DeviceID vendor and product ID and serial
      */
-<span class="nc" id="L92">    private static final Pattern VENDOR_PRODUCT_ID_SERIAL = Pattern</span>
-<span class="nc" id="L93">            .compile(&quot;.*(?:VID|VEN)_(\\p{XDigit}{4})&amp;(?:PID|DEV)_(\\p{XDigit}{4})(.*)\\\\(.*)&quot;);</span>
+<span class="nc" id="L73">    private static final Pattern VENDOR_PRODUCT_ID_SERIAL = Pattern</span>
+<span class="nc" id="L74">            .compile(&quot;.*(?:VID|VEN)_(\\p{XDigit}{4})&amp;(?:PID|DEV)_(\\p{XDigit}{4})(.*)\\\\(.*)&quot;);</span>
 
     /*
      * Pattern for Linux lspci machine readable
      */
-<span class="nc" id="L98">    private static final Pattern LSPCI_MACHINE_READABLE = Pattern.compile(&quot;(.+)\\s\\[(.*?)\\]&quot;);</span>
+<span class="nc" id="L79">    private static final Pattern LSPCI_MACHINE_READABLE = Pattern.compile(&quot;(.+)\\s\\[(.*?)\\]&quot;);</span>
 
     /*
      * Pattern for Linux lspci memory
      */
-<span class="nc" id="L103">    private static final Pattern LSPCI_MEMORY_SIZE = Pattern.compile(&quot;.+\\s\\[size=(\\d+)([kKMGT])\\]&quot;);</span>
+<span class="nc" id="L84">    private static final Pattern LSPCI_MEMORY_SIZE = Pattern.compile(&quot;.+\\s\\[size=(\\d+)([kKMGT])\\]&quot;);</span>
 
     /*
      * Hertz related variables.
@@ -117,41 +98,41 @@ public final class ParseUtil {
     // PDH timestamps are 1601 epoch, local time
     // Constants to convert to UTC millis
     private static final long EPOCH_DIFF = 11_644_473_600_000L;
-<span class="nc" id="L120">    private static final int TZ_OFFSET = TimeZone.getDefault().getOffset(System.currentTimeMillis());</span>
+<span class="nc" id="L101">    private static final int TZ_OFFSET = TimeZone.getDefault().getOffset(System.currentTimeMillis());</span>
 
     /** Constant &lt;code&gt;whitespacesColonWhitespace&lt;/code&gt; */
-<span class="nc" id="L123">    public static final Pattern whitespacesColonWhitespace = Pattern.compile(&quot;\\s+:\\s&quot;);</span>
+<span class="nc" id="L104">    public static final Pattern whitespacesColonWhitespace = Pattern.compile(&quot;\\s+:\\s&quot;);</span>
 
     /** Constant &lt;code&gt;whitespaces&lt;/code&gt; */
-<span class="nc" id="L126">    public static final Pattern whitespaces = Pattern.compile(&quot;\\s+&quot;);</span>
+<span class="nc" id="L107">    public static final Pattern whitespaces = Pattern.compile(&quot;\\s+&quot;);</span>
 
     /** Constant &lt;code&gt;notDigits&lt;/code&gt; */
-<span class="nc" id="L129">    public static final Pattern notDigits = Pattern.compile(&quot;[^0-9]+&quot;);</span>
+<span class="nc" id="L110">    public static final Pattern notDigits = Pattern.compile(&quot;[^0-9]+&quot;);</span>
 
     /** Constant &lt;code&gt;startWithNotDigits&lt;/code&gt; */
-<span class="nc" id="L132">    public static final Pattern startWithNotDigits = Pattern.compile(&quot;^[^0-9]*&quot;);</span>
+<span class="nc" id="L113">    public static final Pattern startWithNotDigits = Pattern.compile(&quot;^[^0-9]*&quot;);</span>
 
     /** Constant &lt;code&gt;forwardSlash&lt;/code&gt; */
-<span class="nc" id="L135">    public static final Pattern slash = Pattern.compile(&quot;\\/&quot;);</span>
+<span class="nc" id="L116">    public static final Pattern slash = Pattern.compile(&quot;\\/&quot;);</span>
 
     static {
-<span class="nc" id="L138">        multipliers = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L139">        multipliers.put(HZ, 1L);</span>
-<span class="nc" id="L140">        multipliers.put(KHZ, 1_000L);</span>
-<span class="nc" id="L141">        multipliers.put(MHZ, 1_000_000L);</span>
-<span class="nc" id="L142">        multipliers.put(GHZ, 1_000_000_000L);</span>
-<span class="nc" id="L143">        multipliers.put(THZ, 1_000_000_000_000L);</span>
-<span class="nc" id="L144">        multipliers.put(PHZ, 1_000_000_000_000_000L);</span>
+<span class="nc" id="L119">        multipliers = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L120">        multipliers.put(HZ, 1L);</span>
+<span class="nc" id="L121">        multipliers.put(KHZ, 1_000L);</span>
+<span class="nc" id="L122">        multipliers.put(MHZ, 1_000_000L);</span>
+<span class="nc" id="L123">        multipliers.put(GHZ, 1_000_000_000L);</span>
+<span class="nc" id="L124">        multipliers.put(THZ, 1_000_000_000_000L);</span>
+<span class="nc" id="L125">        multipliers.put(PHZ, 1_000_000_000_000_000L);</span>
     }
 
     // Fast decimal exponentiation: pow(10,y) --&gt; POWERS_OF_10[y]
-<span class="nc" id="L148">    private static final long[] POWERS_OF_TEN = { 1L, 10L, 100L, 1_000L, 10_000L, 100_000L, 1_000_000L, 10_000_000L,</span>
+<span class="nc" id="L129">    private static final long[] POWERS_OF_TEN = { 1L, 10L, 100L, 1_000L, 10_000L, 100_000L, 1_000_000L, 10_000_000L,</span>
             100_000_000L, 1_000_000_000L, 10_000_000_000L, 100_000_000_000L, 1_000_000_000_000L, 10_000_000_000_000L,
             100_000_000_000_000L, 1_000_000_000_000_000L, 10_000_000_000_000_000L, 100_000_000_000_000_000L,
             1_000_000_000_000_000_000L };
 
     // Format returned by WMI for DateTime
-<span class="nc" id="L154">    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;,</span>
+<span class="nc" id="L135">    private static final DateTimeFormatter CIM_FORMAT = DateTimeFormatter.ofPattern(&quot;yyyyMMddHHmmss.SSSSSSZZZZZ&quot;,</span>
             Locale.US);
 
     private ParseUtil() {
@@ -160,267 +141,231 @@ public final class ParseUtil {
     /**
      * Parse hertz from a string, eg. &quot;2.00MHz&quot; is 2000000L.
      *
-     * @param hertz
-     *            Hertz size.
+     * @param hertz Hertz size.
      * @return {@link java.lang.Long} Hertz value or -1 if not parseable.
      */
     public static long parseHertz(String hertz) {
-<span class="nc" id="L168">        Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());</span>
-<span class="nc bnc" id="L169" title="All 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
+<span class="nc" id="L148">        Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());</span>
+<span class="nc bnc" id="L149" title="All 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
             // Regexp enforces #(.#) format so no test for NFE required
-<span class="nc" id="L171">            double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (value &gt;= 0d) {</span>
-<span class="nc" id="L173">                return (long) value;</span>
+<span class="nc" id="L151">            double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (value &gt;= 0d) {</span>
+<span class="nc" id="L153">                return (long) value;</span>
             }
         }
-<span class="nc" id="L176">        return -1L;</span>
+<span class="nc" id="L156">        return -1L;</span>
     }
 
     /**
      * Parse the last element of a space-delimited string to a value
      *
-     * @param s
-     *            The string to parse
-     * @param i
-     *            Default integer if not parsable
+     * @param s The string to parse
+     * @param i Default integer if not parsable
      * @return value or the given default if not parsable
      */
     public static int parseLastInt(String s, int i) {
         try {
-<span class="nc" id="L190">            String ls = parseLastString(s);</span>
-<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (ls.toLowerCase().startsWith(&quot;0x&quot;)) {</span>
-<span class="nc" id="L192">                return Integer.decode(ls);</span>
+<span class="nc" id="L168">            String ls = parseLastString(s);</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (ls.toLowerCase().startsWith(&quot;0x&quot;)) {</span>
+<span class="nc" id="L170">                return Integer.decode(ls);</span>
             } else {
-<span class="nc" id="L194">                return Integer.parseInt(ls);</span>
+<span class="nc" id="L172">                return Integer.parseInt(ls);</span>
             }
-<span class="nc" id="L196">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L197">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="nc" id="L198">            return i;</span>
+<span class="nc" id="L174">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L175">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="nc" id="L176">            return i;</span>
         }
     }
 
     /**
      * Parse the last element of a space-delimited string to a value
      *
-     * @param s
-     *            The string to parse
-     * @param li
-     *            Default long integer if not parsable
+     * @param s  The string to parse
+     * @param li Default long integer if not parsable
      * @return value or the given default if not parsable
      */
     public static long parseLastLong(String s, long li) {
         try {
-<span class="nc" id="L213">            String ls = parseLastString(s);</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (ls.toLowerCase().startsWith(&quot;0x&quot;)) {</span>
-<span class="nc" id="L215">                return Long.decode(ls);</span>
+<span class="nc" id="L189">            String ls = parseLastString(s);</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">            if (ls.toLowerCase().startsWith(&quot;0x&quot;)) {</span>
+<span class="nc" id="L191">                return Long.decode(ls);</span>
             } else {
-<span class="nc" id="L217">                return Long.parseLong(ls);</span>
+<span class="nc" id="L193">                return Long.parseLong(ls);</span>
             }
-<span class="nc" id="L219">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L220">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="nc" id="L221">            return li;</span>
+<span class="nc" id="L195">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L196">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="nc" id="L197">            return li;</span>
         }
     }
 
     /**
      * Parse the last element of a space-delimited string to a value
      *
-     * @param s
-     *            The string to parse
-     * @param d
-     *            Default double if not parsable
+     * @param s The string to parse
+     * @param d Default double if not parsable
      * @return value or the given default if not parsable
      */
     public static double parseLastDouble(String s, double d) {
         try {
-<span class="nc" id="L236">            return Double.parseDouble(parseLastString(s));</span>
-<span class="nc" id="L237">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L238">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="nc" id="L239">            return d;</span>
+<span class="nc" id="L210">            return Double.parseDouble(parseLastString(s));</span>
+<span class="nc" id="L211">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L212">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="nc" id="L213">            return d;</span>
         }
     }
 
     /**
      * Parse the last element of a space-delimited string to a string
      *
-     * @param s
-     *            The string to parse
+     * @param s The string to parse
      * @return last space-delimited element
      */
     public static String parseLastString(String s) {
-<span class="nc" id="L251">        String[] ss = whitespaces.split(s);</span>
+<span class="nc" id="L224">        String[] ss = whitespaces.split(s);</span>
         // guaranteed at least one element
-<span class="nc" id="L253">        return ss[ss.length - 1];</span>
+<span class="nc" id="L226">        return ss[ss.length - 1];</span>
     }
 
     /**
-     * Parse a byte array into a string of hexadecimal digits including all array
-     * bytes as digits
+     * Parse a byte array into a string of hexadecimal digits including all array bytes as digits
      *
-     * @param bytes
-     *            The byte array to represent
-     * @return A string of hex characters corresponding to the bytes. The string is
-     *         upper case.
+     * @param bytes The byte array to represent
+     * @return A string of hex characters corresponding to the bytes. The string is upper case.
      */
     public static String byteArrayToHexString(byte[] bytes) {
-<span class="nc" id="L266">        StringBuilder sb = new StringBuilder(bytes.length * 2);</span>
-<span class="nc bnc" id="L267" title="All 2 branches missed.">        for (byte b : bytes) {</span>
-<span class="nc" id="L268">            sb.append(Character.forDigit((b &amp; 0xf0) &gt;&gt;&gt; 4, 16));</span>
-<span class="nc" id="L269">            sb.append(Character.forDigit(b &amp; 0x0f, 16));</span>
+<span class="nc" id="L236">        StringBuilder sb = new StringBuilder(bytes.length * 2);</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        for (byte b : bytes) {</span>
+<span class="nc" id="L238">            sb.append(Character.forDigit((b &amp; 0xf0) &gt;&gt;&gt; 4, 16));</span>
+<span class="nc" id="L239">            sb.append(Character.forDigit(b &amp; 0x0f, 16));</span>
         }
-<span class="nc" id="L271">        return sb.toString().toUpperCase();</span>
+<span class="nc" id="L241">        return sb.toString().toUpperCase();</span>
     }
 
     /**
      * Parse a string of hexadecimal digits into a byte array
      *
-     * @param digits
-     *            The string to be parsed
-     * @return a byte array with each pair of characters converted to a byte, or
-     *         empty array if the string is not valid hex
+     * @param digits The string to be parsed
+     * @return a byte array with each pair of characters converted to a byte, or empty array if the string is not valid
+     *         hex
      */
     public static byte[] hexStringToByteArray(String digits) {
-<span class="nc" id="L283">        int len = digits.length();</span>
+<span class="nc" id="L252">        int len = digits.length();</span>
         // Check if string is valid hex
-<span class="nc bnc" id="L285" title="All 4 branches missed.">        if (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {</span>
-<span class="nc" id="L286">            LOG.warn(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
-<span class="nc" id="L287">            return new byte[0];</span>
+<span class="nc bnc" id="L254" title="All 4 branches missed.">        if (!VALID_HEX.matcher(digits).matches() || (len &amp; 0x1) != 0) {</span>
+<span class="nc" id="L255">            LOG.warn(&quot;Invalid hexadecimal string: {}&quot;, digits);</span>
+<span class="nc" id="L256">            return new byte[0];</span>
         }
-<span class="nc" id="L289">        byte[] data = new byte[len / 2];</span>
-<span class="nc bnc" id="L290" title="All 2 branches missed.">        for (int i = 0; i &lt; len; i += 2) {</span>
-<span class="nc" id="L291">            data[i / 2] = (byte) (Character.digit(digits.charAt(i), 16) &lt;&lt; 4</span>
-<span class="nc" id="L292">                    | Character.digit(digits.charAt(i + 1), 16));</span>
+<span class="nc" id="L258">        byte[] data = new byte[len / 2];</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        for (int i = 0; i &lt; len; i += 2) {</span>
+<span class="nc" id="L260">            data[i / 2] = (byte) (Character.digit(digits.charAt(i), 16) &lt;&lt; 4</span>
+<span class="nc" id="L261">                    | Character.digit(digits.charAt(i + 1), 16));</span>
         }
-<span class="nc" id="L294">        return data;</span>
+<span class="nc" id="L263">        return data;</span>
     }
 
     /**
-     * Parse a human readable ASCII string into a byte array, truncating or padding
-     * with zeros (if necessary) so the array has the specified length.
+     * Parse a human readable ASCII string into a byte array, truncating or padding with zeros (if necessary) so the
+     * array has the specified length.
      *
-     * @param text
-     *            The string to be parsed
-     * @param length
-     *            Length of the returned array.
-     * @return A byte array of specified length, with each of the first length
-     *         characters converted to a byte. If length is longer than the provided
-     *         string length, will be filled with zeroes.
+     * @param text   The string to be parsed
+     * @param length Length of the returned array.
+     * @return A byte array of specified length, with each of the first length characters converted to a byte. If length
+     *         is longer than the provided string length, will be filled with zeroes.
      */
     public static byte[] asciiStringToByteArray(String text, int length) {
-<span class="nc" id="L310">        return Arrays.copyOf(text.getBytes(StandardCharsets.US_ASCII), length);</span>
+<span class="nc" id="L276">        return Arrays.copyOf(text.getBytes(StandardCharsets.US_ASCII), length);</span>
     }
 
     /**
-     * Convert a long value to a byte array using Big Endian, truncating or padding
-     * with zeros (if necessary) so the array has the specified length.
+     * Convert a long value to a byte array using Big Endian, truncating or padding with zeros (if necessary) so the
+     * array has the specified length.
      *
-     * @param value
-     *            The value to be converted
-     * @param valueSize
-     *            Number of bytes representing the value
-     * @param length
-     *            Number of bytes to return
-     * @return A byte array of specified length representing the long in the first
-     *         valueSize bytes
+     * @param value     The value to be converted
+     * @param valueSize Number of bytes representing the value
+     * @param length    Number of bytes to return
+     * @return A byte array of specified length representing the long in the first valueSize bytes
      */
     public static byte[] longToByteArray(long value, int valueSize, int length) {
-<span class="nc" id="L327">        long val = value;</span>
+<span class="nc" id="L289">        long val = value;</span>
         // Convert the long to 8-byte BE representation
-<span class="nc" id="L329">        byte[] b = new byte[8];</span>
-<span class="nc bnc" id="L330" title="All 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; val != 0L; i--) {</span>
-<span class="nc" id="L331">            b[i] = (byte) val;</span>
-<span class="nc" id="L332">            val &gt;&gt;&gt;= 8;</span>
+<span class="nc" id="L291">        byte[] b = new byte[8];</span>
+<span class="nc bnc" id="L292" title="All 4 branches missed.">        for (int i = 7; i &gt;= 0 &amp;&amp; val != 0L; i--) {</span>
+<span class="nc" id="L293">            b[i] = (byte) val;</span>
+<span class="nc" id="L294">            val &gt;&gt;&gt;= 8;</span>
         }
         // Then copy the rightmost valueSize bytes
         // e.g., for an integer we want rightmost 4 bytes
-<span class="nc" id="L336">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
+<span class="nc" id="L298">        return Arrays.copyOfRange(b, 8 - valueSize, 8 + length - valueSize);</span>
     }
 
     /**
      * Convert a string to an integer representation.
      *
-     * @param str
-     *            A human readable ASCII string
-     * @param size
-     *            Number of characters to convert to the long. May not exceed 8.
-     * @return An integer representing the string where each character is treated as
-     *         a byte
+     * @param str  A human readable ASCII string
+     * @param size Number of characters to convert to the long. May not exceed 8.
+     * @return An integer representing the string where each character is treated as a byte
      */
     public static long strToLong(String str, int size) {
-<span class="nc" id="L350">        return byteArrayToLong(str.getBytes(StandardCharsets.US_ASCII), size);</span>
+<span class="nc" id="L309">        return byteArrayToLong(str.getBytes(StandardCharsets.US_ASCII), size);</span>
     }
 
     /**
-     * Convert a byte array to its (long) integer representation assuming big endian
-     * ordering.
+     * Convert a byte array to its (long) integer representation assuming big endian ordering.
      *
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the long. May not exceed 8.
+     * @param bytes An array of bytes no smaller than the size to be converted
+     * @param size  Number of bytes to convert to the long. May not exceed 8.
      * @return A long integer representing the byte array
      */
     public static long byteArrayToLong(byte[] bytes, int size) {
-<span class="nc" id="L364">        return byteArrayToLong(bytes, size, true);</span>
+<span class="nc" id="L320">        return byteArrayToLong(bytes, size, true);</span>
     }
 
     /**
-     * Convert a byte array to its (long) integer representation in the specified
-     * endianness.
+     * Convert a byte array to its (long) integer representation in the specified endianness.
      *
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the long. May not exceed 8.
-     * @param bigEndian
-     *            True to parse big-endian, false to parse little-endian
+     * @param bytes     An array of bytes no smaller than the size to be converted
+     * @param size      Number of bytes to convert to the long. May not exceed 8.
+     * @param bigEndian True to parse big-endian, false to parse little-endian
      * @return An long integer representing the byte array
      */
     public static long byteArrayToLong(byte[] bytes, int size, boolean bigEndian) {
-<span class="nc bnc" id="L380" title="All 2 branches missed.">        if (size &gt; 8) {</span>
-<span class="nc" id="L381">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        if (size &gt; 8) {</span>
+<span class="nc" id="L333">            throw new IllegalArgumentException(&quot;Can't convert more than 8 bytes.&quot;);</span>
         }
-<span class="nc bnc" id="L383" title="All 2 branches missed.">        if (size &gt; bytes.length) {</span>
-<span class="nc" id="L384">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">        if (size &gt; bytes.length) {</span>
+<span class="nc" id="L336">            throw new IllegalArgumentException(&quot;Size can't be larger than array length.&quot;);</span>
         }
-<span class="nc" id="L386">        long total = 0L;</span>
-<span class="nc bnc" id="L387" title="All 2 branches missed.">        for (int i = 0; i &lt; size; i++) {</span>
-<span class="nc bnc" id="L388" title="All 2 branches missed.">            if (bigEndian) {</span>
-<span class="nc" id="L389">                total = total &lt;&lt; 8 | bytes[i] &amp; 0xff;</span>
+<span class="nc" id="L338">        long total = 0L;</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">            if (bigEndian) {</span>
+<span class="nc" id="L341">                total = total &lt;&lt; 8 | bytes[i] &amp; 0xff;</span>
             } else {
-<span class="nc" id="L391">                total = total &lt;&lt; 8 | bytes[size - i - 1] &amp; 0xff;</span>
+<span class="nc" id="L343">                total = total &lt;&lt; 8 | bytes[size - i - 1] &amp; 0xff;</span>
             }
         }
-<span class="nc" id="L394">        return total;</span>
+<span class="nc" id="L346">        return total;</span>
     }
 
     /**
      * Convert a byte array to its floating point representation.
      *
-     * @param bytes
-     *            An array of bytes no smaller than the size to be converted
-     * @param size
-     *            Number of bytes to convert to the float. May not exceed 8.
-     * @param fpBits
-     *            Number of bits representing the decimal
-     * @return A float; the integer portion representing the byte array as an
-     *         integer shifted by the bits specified in fpBits; with the remaining
-     *         bits used as a decimal
+     * @param bytes  An array of bytes no smaller than the size to be converted
+     * @param size   Number of bytes to convert to the float. May not exceed 8.
+     * @param fpBits Number of bits representing the decimal
+     * @return A float; the integer portion representing the byte array as an integer shifted by the bits specified in
+     *         fpBits; with the remaining bits used as a decimal
      */
     public static float byteArrayToFloat(byte[] bytes, int size, int fpBits) {
-<span class="nc" id="L411">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
+<span class="nc" id="L359">        return byteArrayToLong(bytes, size) / (float) (1 &lt;&lt; fpBits);</span>
     }
 
     /**
-     * Convert an unsigned integer to a long value. The method assumes that all bits
-     * in the specified integer value are 'data' bits, including the
-     * most-significant bit which Java normally considers a sign bit. The method
-     * must be used only when it is certain that the integer value represents an
-     * unsigned integer, for example when the integer is returned by JNA library in
-     * a structure which holds unsigned integers.
+     * Convert an unsigned integer to a long value. The method assumes that all bits in the specified integer value are
+     * 'data' bits, including the most-significant bit which Java normally considers a sign bit. The method must be used
+     * only when it is certain that the integer value represents an unsigned integer, for example when the integer is
+     * returned by JNA library in a structure which holds unsigned integers.
      *
-     * @param unsignedValue
-     *            The unsigned integer value to convert.
+     * @param unsignedValue The unsigned integer value to convert.
      * @return The unsigned integer value widened to a long.
      */
     public static long unsignedIntToLong(int unsignedValue) {
@@ -428,794 +373,714 @@ public final class ParseUtil {
         // sign-extension,
         // then drop any copies of the sign bit, to prevent the value being
         // considered a negative one by Java if it is set
-<span class="nc" id="L431">        long longValue = unsignedValue;</span>
-<span class="nc" id="L432">        return longValue &amp; 0xffff_ffffL;</span>
+<span class="nc" id="L376">        long longValue = unsignedValue;</span>
+<span class="nc" id="L377">        return longValue &amp; 0xffff_ffffL;</span>
     }
 
     /**
-     * Convert an unsigned long to a signed long value by stripping the sign bit.
-     * This method &quot;rolls over&quot; long values greater than the max value but ensures
-     * the result is never negative.
+     * Convert an unsigned long to a signed long value by stripping the sign bit. This method &quot;rolls over&quot; long values
+     * greater than the max value but ensures the result is never negative.
      *
-     * @param unsignedValue
-     *            The unsigned long value to convert.
+     * @param unsignedValue The unsigned long value to convert.
      * @return The signed long value.
      */
     public static long unsignedLongToSignedLong(long unsignedValue) {
-<span class="nc" id="L445">        return unsignedValue &amp; 0x7fff_ffff_ffff_ffffL;</span>
+<span class="nc" id="L388">        return unsignedValue &amp; 0x7fff_ffff_ffff_ffffL;</span>
     }
 
     /**
-     * Parses a string of hex digits to a string where each pair of hex digits
-     * represents an ASCII character
+     * Parses a string of hex digits to a string where each pair of hex digits represents an ASCII character
      *
-     * @param hexString
-     *            A sequence of hex digits
-     * @return The corresponding string if valid hex; otherwise the original
-     *         hexString
+     * @param hexString A sequence of hex digits
+     * @return The corresponding string if valid hex; otherwise the original hexString
      */
     public static String hexStringToString(String hexString) {
         // Odd length strings won't parse, return
-<span class="nc bnc" id="L459" title="All 2 branches missed.">        if (hexString.length() % 2 &gt; 0) {</span>
-<span class="nc" id="L460">            return hexString;</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">        if (hexString.length() % 2 &gt; 0) {</span>
+<span class="nc" id="L400">            return hexString;</span>
         }
         int charAsInt;
-<span class="nc" id="L463">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L403">        StringBuilder sb = new StringBuilder();</span>
         try {
-<span class="nc bnc" id="L465" title="All 2 branches missed.">            for (int pos = 0; pos &lt; hexString.length(); pos += 2) {</span>
-<span class="nc" id="L466">                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);</span>
-<span class="nc bnc" id="L467" title="All 4 branches missed.">                if (charAsInt &lt; 32 || charAsInt &gt; 127) {</span>
-<span class="nc" id="L468">                    return hexString;</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">            for (int pos = 0; pos &lt; hexString.length(); pos += 2) {</span>
+<span class="nc" id="L406">                charAsInt = Integer.parseInt(hexString.substring(pos, pos + 2), 16);</span>
+<span class="nc bnc" id="L407" title="All 4 branches missed.">                if (charAsInt &lt; 32 || charAsInt &gt; 127) {</span>
+<span class="nc" id="L408">                    return hexString;</span>
                 }
-<span class="nc" id="L470">                sb.append((char) charAsInt);</span>
+<span class="nc" id="L410">                sb.append((char) charAsInt);</span>
             }
-<span class="nc" id="L472">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L473">            LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
+<span class="nc" id="L412">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L413">            LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
             // Hex failed to parse, just return the existing string
-<span class="nc" id="L475">            return hexString;</span>
-<span class="nc" id="L476">        }</span>
-<span class="nc" id="L477">        return sb.toString();</span>
+<span class="nc" id="L415">            return hexString;</span>
+<span class="nc" id="L416">        }</span>
+<span class="nc" id="L417">        return sb.toString();</span>
     }
 
     /**
      * Attempts to parse a string to an int. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultInt
-     *            The value to return if parsing fails
+     * @param s          The string to parse
+     * @param defaultInt The value to return if parsing fails
      * @return The parsed int, or the default if parsing failed
      */
     public static int parseIntOrDefault(String s, int defaultInt) {
         try {
-<span class="nc" id="L491">            return Integer.parseInt(s);</span>
-<span class="nc" id="L492">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L493">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="nc" id="L494">            return defaultInt;</span>
+<span class="nc" id="L429">            return Integer.parseInt(s);</span>
+<span class="nc" id="L430">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L431">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="nc" id="L432">            return defaultInt;</span>
         }
     }
 
     /**
      * Attempts to parse a string to a long. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultLong
-     *            The value to return if parsing fails
+     * @param s           The string to parse
+     * @param defaultLong The value to return if parsing fails
      * @return The parsed long, or the default if parsing failed
      */
     public static long parseLongOrDefault(String s, long defaultLong) {
         try {
-<span class="nc" id="L509">            return Long.parseLong(s);</span>
-<span class="nc" id="L510">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L511">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="nc" id="L512">            return defaultLong;</span>
+<span class="nc" id="L445">            return Long.parseLong(s);</span>
+<span class="nc" id="L446">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L447">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="nc" id="L448">            return defaultLong;</span>
         }
     }
 
     /**
-     * Attempts to parse a string to an &quot;unsigned&quot; long. If it fails, returns the
-     * default
+     * Attempts to parse a string to an &quot;unsigned&quot; long. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultLong
-     *            The value to return if parsing fails
-     * @return The parsed long containing the same 64 bits that an unsigned long
-     *         would contain (which may produce a negative value)
+     * @param s           The string to parse
+     * @param defaultLong The value to return if parsing fails
+     * @return The parsed long containing the same 64 bits that an unsigned long would contain (which may produce a
+     *         negative value)
      */
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
-<span class="nc" id="L529">            return new BigInteger(s).longValue();</span>
-<span class="nc" id="L530">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L531">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="nc" id="L532">            return defaultLong;</span>
+<span class="nc" id="L462">            return new BigInteger(s).longValue();</span>
+<span class="nc" id="L463">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L464">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="nc" id="L465">            return defaultLong;</span>
         }
     }
 
     /**
      * Attempts to parse a string to a double. If it fails, returns the default
      *
-     * @param s
-     *            The string to parse
-     * @param defaultDouble
-     *            The value to return if parsing fails
+     * @param s             The string to parse
+     * @param defaultDouble The value to return if parsing fails
      * @return The parsed double, or the default if parsing failed
      */
     public static double parseDoubleOrDefault(String s, double defaultDouble) {
         try {
-<span class="nc" id="L547">            return Double.parseDouble(s);</span>
-<span class="nc" id="L548">        } catch (NumberFormatException e) {</span>
-<span class="nc" id="L549">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
-<span class="nc" id="L550">            return defaultDouble;</span>
+<span class="nc" id="L478">            return Double.parseDouble(s);</span>
+<span class="nc" id="L479">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L480">            LOG.trace(DEFAULT_LOG_MSG, s, e);</span>
+<span class="nc" id="L481">            return defaultDouble;</span>
         }
     }
 
     /**
-     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number of
-     * milliseconds. If it fails, returns the default.
+     * Attempts to parse a string of the form [DD-[hh:]]mm:ss[.ddd] to a number of milliseconds. If it fails, returns
+     * the default.
      *
-     * @param s
-     *            The string to parse
-     * @param defaultLong
-     *            The value to return if parsing fails
+     * @param s           The string to parse
+     * @param defaultLong The value to return if parsing fails
      * @return The parsed number of seconds, or the default if parsing fails
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
-<span class="nc" id="L565">        Matcher m = DHMS.matcher(s);</span>
-<span class="nc bnc" id="L566" title="All 2 branches missed.">        if (m.matches()) {</span>
-<span class="nc" id="L567">            long milliseconds = 0L;</span>
-<span class="nc bnc" id="L568" title="All 2 branches missed.">            if (m.group(1) != null) {</span>
-<span class="nc" id="L569">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86_400_000L;</span>
+<span class="nc" id="L494">        Matcher m = DHMS.matcher(s);</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc" id="L496">            long milliseconds = 0L;</span>
+<span class="nc bnc" id="L497" title="All 2 branches missed.">            if (m.group(1) != null) {</span>
+<span class="nc" id="L498">                milliseconds += parseLongOrDefault(m.group(1), 0L) * 86_400_000L;</span>
             }
-<span class="nc bnc" id="L571" title="All 2 branches missed.">            if (m.group(2) != null) {</span>
-<span class="nc" id="L572">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3_600_000L;</span>
+<span class="nc bnc" id="L500" title="All 2 branches missed.">            if (m.group(2) != null) {</span>
+<span class="nc" id="L501">                milliseconds += parseLongOrDefault(m.group(2), 0L) * 3_600_000L;</span>
             }
-<span class="nc bnc" id="L574" title="All 2 branches missed.">            if (m.group(3) != null) {</span>
-<span class="nc" id="L575">                milliseconds += parseLongOrDefault(m.group(3), 0L) * 60_000L;</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">            if (m.group(3) != null) {</span>
+<span class="nc" id="L504">                milliseconds += parseLongOrDefault(m.group(3), 0L) * 60_000L;</span>
             }
-<span class="nc" id="L577">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
-<span class="nc bnc" id="L578" title="All 2 branches missed.">            if (m.group(5) != null) {</span>
-<span class="nc" id="L579">                milliseconds += (long) (1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d));</span>
+<span class="nc" id="L506">            milliseconds += parseLongOrDefault(m.group(4), 0L) * 1000L;</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">            if (m.group(5) != null) {</span>
+<span class="nc" id="L508">                milliseconds += (long) (1000 * parseDoubleOrDefault(&quot;0.&quot; + m.group(5), 0d));</span>
             }
-<span class="nc" id="L581">            return milliseconds;</span>
+<span class="nc" id="L510">            return milliseconds;</span>
         }
-<span class="nc" id="L583">        return defaultLong;</span>
+<span class="nc" id="L512">        return defaultLong;</span>
     }
 
     /**
      * Attempts to parse a UUID. If it fails, returns the default.
      *
-     * @param s
-     *            The string to parse
-     * @param defaultStr
-     *            The value to return if parsing fails
+     * @param s          The string to parse
+     * @param defaultStr The value to return if parsing fails
      * @return The parsed UUID, or the default if parsing fails
      */
     public static String parseUuidOrDefault(String s, String defaultStr) {
-<span class="nc" id="L596">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
-<span class="nc bnc" id="L597" title="All 2 branches missed.">        if (m.matches()) {</span>
-<span class="nc" id="L598">            return m.group(1);</span>
+<span class="nc" id="L523">        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());</span>
+<span class="nc bnc" id="L524" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc" id="L525">            return m.group(1);</span>
         }
-<span class="nc" id="L600">        return defaultStr;</span>
+<span class="nc" id="L527">        return defaultStr;</span>
     }
 
     /**
      * Parses a string key = 'value' (string)
      *
-     * @param line
-     *            The entire string
+     * @param line The entire string
      * @return the value contained between single tick marks
      */
     public static String getSingleQuoteStringValue(String line) {
-<span class="nc" id="L611">        return getStringBetween(line, '\'');</span>
+<span class="nc" id="L537">        return getStringBetween(line, '\'');</span>
     }
 
     /**
      * Parse a string key = &quot;value&quot; (string)
      *
-     * @param line
-     *            the entire string
+     * @param line the entire string
      * @return the value contained between double tick marks
      */
     public static String getDoubleQuoteStringValue(String line) {
-<span class="nc" id="L622">        return getStringBetween(line, '&quot;');</span>
+<span class="nc" id="L547">        return getStringBetween(line, '&quot;');</span>
     }
 
     /**
-     * Gets a value between two characters having multiple same characters between
-     * them. &lt;b&gt;Examples : &lt;/b&gt;
+     * Gets a value between two characters having multiple same characters between them. &lt;b&gt;Examples : &lt;/b&gt;
      * &lt;ul&gt;
      * &lt;li&gt;&quot;name = 'James Gosling's Java'&quot; returns &quot;James Gosling's Java&quot;&lt;/li&gt;
-     * &lt;li&gt;&quot;pci.name = 'Realtek AC'97 Audio Device'&quot; returns &quot;Realtek AC'97 Audio
-     * Device&quot;&lt;/li&gt;
+     * &lt;li&gt;&quot;pci.name = 'Realtek AC'97 Audio Device'&quot; returns &quot;Realtek AC'97 Audio Device&quot;&lt;/li&gt;
      * &lt;/ul&gt;
      *
-     * @param line
-     *            The &quot;key-value&quot; pair line.
-     * @param c
-     *            The Trailing And Leading characters of the string line
+     * @param line The &quot;key-value&quot; pair line.
+     * @param c    The Trailing And Leading characters of the string line
      * @return : The value having the characters between them.
      */
     public static String getStringBetween(String line, char c) {
-<span class="nc" id="L641">        int firstOcc = line.indexOf(c);</span>
-<span class="nc bnc" id="L642" title="All 2 branches missed.">        if (firstOcc &lt; 0) {</span>
-<span class="nc" id="L643">            return &quot;&quot;;</span>
+<span class="nc" id="L562">        int firstOcc = line.indexOf(c);</span>
+<span class="nc bnc" id="L563" title="All 2 branches missed.">        if (firstOcc &lt; 0) {</span>
+<span class="nc" id="L564">            return &quot;&quot;;</span>
         }
-<span class="nc" id="L645">        return line.substring(firstOcc + 1, line.lastIndexOf(c)).trim();</span>
+<span class="nc" id="L566">        return line.substring(firstOcc + 1, line.lastIndexOf(c)).trim();</span>
     }
 
     /**
-     * Parses a string such as &quot;10.12.2&quot; or &quot;key = 1 (0x1) (int)&quot; to find the
-     * integer value of the first set of one or more consecutive digits
+     * Parses a string such as &quot;10.12.2&quot; or &quot;key = 1 (0x1) (int)&quot; to find the integer value of the first set of one or
+     * more consecutive digits
      *
-     * @param line
-     *            The entire string
+     * @param line The entire string
      * @return the value of first integer if any; 0 otherwise
      */
     public static int getFirstIntValue(String line) {
-<span class="nc" id="L657">        return getNthIntValue(line, 1);</span>
+<span class="nc" id="L577">        return getNthIntValue(line, 1);</span>
     }
 
     /**
-     * Parses a string such as &quot;10.12.2&quot; or &quot;key = 1 (0x1) (int)&quot; to find the
-     * integer value of the nth set of one or more consecutive digits
+     * Parses a string such as &quot;10.12.2&quot; or &quot;key = 1 (0x1) (int)&quot; to find the integer value of the nth set of one or
+     * more consecutive digits
      *
-     * @param line
-     *            The entire string
-     * @param n
-     *            Which set of integers to return
+     * @param line The entire string
+     * @param n    Which set of integers to return
      * @return the value of nth integer if any; 0 otherwise
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-<span class="nc" id="L672">        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(&quot;&quot;));</span>
-<span class="nc bnc" id="L673" title="All 2 branches missed.">        if (split.length &gt;= n) {</span>
-<span class="nc" id="L674">            return parseIntOrDefault(split[n - 1], 0);</span>
+<span class="nc" id="L590">        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(&quot;&quot;));</span>
+<span class="nc bnc" id="L591" title="All 2 branches missed.">        if (split.length &gt;= n) {</span>
+<span class="nc" id="L592">            return parseIntOrDefault(split[n - 1], 0);</span>
         }
-<span class="nc" id="L676">        return 0;</span>
+<span class="nc" id="L594">        return 0;</span>
     }
 
     /**
      * Removes all matching sub strings from the string. More efficient than regexp.
      *
-     * @param original
-     *            source String to remove from
-     * @param toRemove
-     *            the sub string to be removed
+     * @param original source String to remove from
+     * @param toRemove the sub string to be removed
      * @return The string with all matching substrings removed
      */
     public static String removeMatchingString(final String original, final String toRemove) {
-<span class="nc bnc" id="L689" title="All 8 branches missed.">        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty()) {</span>
-<span class="nc" id="L690">            return original;</span>
+<span class="nc bnc" id="L605" title="All 8 branches missed.">        if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty()) {</span>
+<span class="nc" id="L606">            return original;</span>
         }
 
-<span class="nc" id="L693">        int matchIndex = original.indexOf(toRemove, 0);</span>
-<span class="nc bnc" id="L694" title="All 2 branches missed.">        if (matchIndex == -1) {</span>
-<span class="nc" id="L695">            return original;</span>
+<span class="nc" id="L609">        int matchIndex = original.indexOf(toRemove, 0);</span>
+<span class="nc bnc" id="L610" title="All 2 branches missed.">        if (matchIndex == -1) {</span>
+<span class="nc" id="L611">            return original;</span>
         }
 
-<span class="nc" id="L698">        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());</span>
-<span class="nc" id="L699">        int currIndex = 0;</span>
+<span class="nc" id="L614">        StringBuilder buffer = new StringBuilder(original.length() - toRemove.length());</span>
+<span class="nc" id="L615">        int currIndex = 0;</span>
         do {
-<span class="nc" id="L701">            buffer.append(original.substring(currIndex, matchIndex));</span>
-<span class="nc" id="L702">            currIndex = matchIndex + toRemove.length();</span>
-<span class="nc" id="L703">            matchIndex = original.indexOf(toRemove, currIndex);</span>
-<span class="nc bnc" id="L704" title="All 2 branches missed.">        } while (matchIndex != -1);</span>
+<span class="nc" id="L617">            buffer.append(original.substring(currIndex, matchIndex));</span>
+<span class="nc" id="L618">            currIndex = matchIndex + toRemove.length();</span>
+<span class="nc" id="L619">            matchIndex = original.indexOf(toRemove, currIndex);</span>
+<span class="nc bnc" id="L620" title="All 2 branches missed.">        } while (matchIndex != -1);</span>
 
-<span class="nc" id="L706">        buffer.append(original.substring(currIndex));</span>
-<span class="nc" id="L707">        return buffer.toString();</span>
+<span class="nc" id="L622">        buffer.append(original.substring(currIndex));</span>
+<span class="nc" id="L623">        return buffer.toString();</span>
     }
 
     /**
-     * Parses a delimited string to an array of longs. Optimized for processing
-     * predictable-length arrays such as outputs of reliably formatted Linux proc or
-     * sys filesystem, minimizing new object creation. Users should perform other
-     * sanity checks of data.
+     * Parses a delimited string to an array of longs. Optimized for processing predictable-length arrays such as
+     * outputs of reliably formatted Linux proc or sys filesystem, minimizing new object creation. Users should perform
+     * other sanity checks of data.
      *
-     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
-     * the list are ignored. Values greater than the max long value return the max
-     * long value.
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of the list are ignored. Values
+     * greater than the max long value return the max long value.
      *
-     * The indices parameters are referenced assuming the length as specified, and
-     * leading characters are ignored. For example, if the string is &quot;foo 12 34 5&quot;
-     * and the length is 3, then index 0 is 12, index 1 is 34, and index 2 is 5.
+     * The indices parameters are referenced assuming the length as specified, and leading characters are ignored. For
+     * example, if the string is &quot;foo 12 34 5&quot; and the length is 3, then index 0 is 12, index 1 is 34, and index 2 is 5.
      *
-     * @param s
-     *            The string to parse
-     * @param indices
-     *            An array indicating which indexes should be populated in the final
-     *            array; other values will be skipped. This idex is zero-referenced
-     *            assuming the rightmost delimited fields of the string contain the
-     *            array.
-     * @param length
-     *            The total number of elements in the string array. It is
-     *            permissible for the string to have more elements than this;
-     *            leading elements will be ignored. This should be calculated once
-     *            per text format by {@link #countStringToLongArray}.
-     * @param delimiter
-     *            The character to delimit by.
-     * @return If successful, an array of parsed longs. If parsing errors occurred,
-     *         will be an array of zeros.
+     * @param s         The string to parse
+     * @param indices   An array indicating which indexes should be populated in the final array; other values will be
+     *                  skipped. This idex is zero-referenced assuming the rightmost delimited fields of the string
+     *                  contain the array.
+     * @param length    The total number of elements in the string array. It is permissible for the string to have more
+     *                  elements than this; leading elements will be ignored. This should be calculated once per text
+     *                  format by {@link #countStringToLongArray}.
+     * @param delimiter The character to delimit by.
+     * @return If successful, an array of parsed longs. If parsing errors occurred, will be an array of zeros.
      */
     public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
-<span class="nc" id="L742">        long[] parsed = new long[indices.length];</span>
+<span class="nc" id="L648">        long[] parsed = new long[indices.length];</span>
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
-<span class="nc" id="L745">        int charIndex = s.length();</span>
-<span class="nc" id="L746">        int parsedIndex = indices.length - 1;</span>
-<span class="nc" id="L747">        int stringIndex = length - 1;</span>
+<span class="nc" id="L651">        int charIndex = s.length();</span>
+<span class="nc" id="L652">        int parsedIndex = indices.length - 1;</span>
+<span class="nc" id="L653">        int stringIndex = length - 1;</span>
 
-<span class="nc" id="L749">        int power = 0;</span>
+<span class="nc" id="L655">        int power = 0;</span>
         int c;
-<span class="nc" id="L751">        boolean delimCurrent = false;</span>
-<span class="nc" id="L752">        boolean numeric = true;</span>
-<span class="nc" id="L753">        boolean numberFound = false; // ignore nonnumeric at end</span>
-<span class="nc" id="L754">        boolean dashSeen = false; // to flag uuids as nonnumeric</span>
-<span class="nc bnc" id="L755" title="All 4 branches missed.">        while (--charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
-<span class="nc" id="L756">            c = s.charAt(charIndex);</span>
-<span class="nc bnc" id="L757" title="All 2 branches missed.">            if (c == delimiter) {</span>
+<span class="nc" id="L657">        boolean delimCurrent = false;</span>
+<span class="nc" id="L658">        boolean numeric = true;</span>
+<span class="nc" id="L659">        boolean numberFound = false; // ignore nonnumeric at end</span>
+<span class="nc" id="L660">        boolean dashSeen = false; // to flag uuids as nonnumeric</span>
+<span class="nc bnc" id="L661" title="All 4 branches missed.">        while (--charIndex &gt; 0 &amp;&amp; parsedIndex &gt;= 0) {</span>
+<span class="nc" id="L662">            c = s.charAt(charIndex);</span>
+<span class="nc bnc" id="L663" title="All 2 branches missed.">            if (c == delimiter) {</span>
                 // first parseable number?
-<span class="nc bnc" id="L759" title="All 4 branches missed.">                if (!numberFound &amp;&amp; numeric) {</span>
-<span class="nc" id="L760">                    numberFound = true;</span>
+<span class="nc bnc" id="L665" title="All 4 branches missed.">                if (!numberFound &amp;&amp; numeric) {</span>
+<span class="nc" id="L666">                    numberFound = true;</span>
                 }
-<span class="nc bnc" id="L762" title="All 2 branches missed.">                if (!delimCurrent) {</span>
-<span class="nc bnc" id="L763" title="All 4 branches missed.">                    if (numberFound &amp;&amp; indices[parsedIndex] == stringIndex--) {</span>
-<span class="nc" id="L764">                        parsedIndex--;</span>
+<span class="nc bnc" id="L668" title="All 2 branches missed.">                if (!delimCurrent) {</span>
+<span class="nc bnc" id="L669" title="All 4 branches missed.">                    if (numberFound &amp;&amp; indices[parsedIndex] == stringIndex--) {</span>
+<span class="nc" id="L670">                        parsedIndex--;</span>
                     }
-<span class="nc" id="L766">                    delimCurrent = true;</span>
-<span class="nc" id="L767">                    power = 0;</span>
-<span class="nc" id="L768">                    dashSeen = false;</span>
-<span class="nc" id="L769">                    numeric = true;</span>
+<span class="nc" id="L672">                    delimCurrent = true;</span>
+<span class="nc" id="L673">                    power = 0;</span>
+<span class="nc" id="L674">                    dashSeen = false;</span>
+<span class="nc" id="L675">                    numeric = true;</span>
                 }
-<span class="nc bnc" id="L771" title="All 6 branches missed.">            } else if (indices[parsedIndex] != stringIndex || c == '+' || !numeric) {</span>
+<span class="nc bnc" id="L677" title="All 6 branches missed.">            } else if (indices[parsedIndex] != stringIndex || c == '+' || !numeric) {</span>
                 // Doesn't impact parsing, ignore
-<span class="nc" id="L773">                delimCurrent = false;</span>
-<span class="nc bnc" id="L774" title="All 6 branches missed.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' &amp;&amp; !dashSeen) {</span>
-<span class="nc bnc" id="L775" title="All 8 branches missed.">                if (power &gt; 18 || power == 17 &amp;&amp; c == '9' &amp;&amp; parsed[parsedIndex] &gt; 223_372_036_854_775_807L) {</span>
-<span class="nc" id="L776">                    parsed[parsedIndex] = Long.MAX_VALUE;</span>
+<span class="nc" id="L679">                delimCurrent = false;</span>
+<span class="nc bnc" id="L680" title="All 6 branches missed.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' &amp;&amp; !dashSeen) {</span>
+<span class="nc bnc" id="L681" title="All 8 branches missed.">                if (power &gt; 18 || power == 17 &amp;&amp; c == '9' &amp;&amp; parsed[parsedIndex] &gt; 223_372_036_854_775_807L) {</span>
+<span class="nc" id="L682">                    parsed[parsedIndex] = Long.MAX_VALUE;</span>
                 } else {
-<span class="nc" id="L778">                    parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
+<span class="nc" id="L684">                    parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];</span>
                 }
-<span class="nc" id="L780">                delimCurrent = false;</span>
-<span class="nc bnc" id="L781" title="All 2 branches missed.">            } else if (c == '-') {</span>
-<span class="nc" id="L782">                parsed[parsedIndex] *= -1L;</span>
-<span class="nc" id="L783">                delimCurrent = false;</span>
-<span class="nc" id="L784">                dashSeen = true;</span>
+<span class="nc" id="L686">                delimCurrent = false;</span>
+<span class="nc bnc" id="L687" title="All 2 branches missed.">            } else if (c == '-') {</span>
+<span class="nc" id="L688">                parsed[parsedIndex] *= -1L;</span>
+<span class="nc" id="L689">                delimCurrent = false;</span>
+<span class="nc" id="L690">                dashSeen = true;</span>
             } else {
                 // Flag as nonnumeric and continue unless we've seen a numeric
                 // error on everything else
-<span class="nc bnc" id="L788" title="All 2 branches missed.">                if (numberFound) {</span>
-<span class="nc bnc" id="L789" title="All 2 branches missed.">                    if (!noLog(s)) {</span>
-<span class="nc" id="L790">                        LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
+<span class="nc bnc" id="L694" title="All 2 branches missed.">                if (numberFound) {</span>
+<span class="nc bnc" id="L695" title="All 2 branches missed.">                    if (!noLog(s)) {</span>
+<span class="nc" id="L696">                        LOG.error(&quot;Illegal character parsing string '{}' to long array: {}&quot;, s, s.charAt(charIndex));</span>
                     }
-<span class="nc" id="L792">                    return new long[indices.length];</span>
+<span class="nc" id="L698">                    return new long[indices.length];</span>
                 }
-<span class="nc" id="L794">                parsed[parsedIndex] = 0;</span>
-<span class="nc" id="L795">                numeric = false;</span>
+<span class="nc" id="L700">                parsed[parsedIndex] = 0;</span>
+<span class="nc" id="L701">                numeric = false;</span>
             }
         }
-<span class="nc bnc" id="L798" title="All 2 branches missed.">        if (parsedIndex &gt; 0) {</span>
-<span class="nc bnc" id="L799" title="All 2 branches missed.">            if (!noLog(s)) {</span>
-<span class="nc" id="L800">                LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s,</span>
-<span class="nc" id="L801">                        indices.length - parsedIndex);</span>
+<span class="nc bnc" id="L704" title="All 2 branches missed.">        if (parsedIndex &gt; 0) {</span>
+<span class="nc bnc" id="L705" title="All 2 branches missed.">            if (!noLog(s)) {</span>
+<span class="nc" id="L706">                LOG.error(&quot;Not enough fields in string '{}' parsing to long array: {}&quot;, s,</span>
+<span class="nc" id="L707">                        indices.length - parsedIndex);</span>
             }
-<span class="nc" id="L803">            return new long[indices.length];</span>
+<span class="nc" id="L709">            return new long[indices.length];</span>
         }
-<span class="nc" id="L805">        return parsed;</span>
+<span class="nc" id="L711">        return parsed;</span>
     }
 
     /**
      * Test whether to log this message
      *
-     * @param s
-     *            The string to log
+     * @param s The string to log
      * @return True if the string begins with {@code NOLOG}
      */
     private static boolean noLog(String s) {
-<span class="nc" id="L816">        return s.startsWith(&quot;NOLOG: &quot;);</span>
+<span class="nc" id="L721">        return s.startsWith(&quot;NOLOG: &quot;);</span>
     }
 
     /**
-     * Parses a delimited string to count elements of an array of longs. Intended to
-     * be called once to calculate the {@code length} field for
-     * {@link #parseStringToLongArray}.
+     * Parses a delimited string to count elements of an array of longs. Intended to be called once to calculate the
+     * {@code length} field for {@link #parseStringToLongArray}.
      *
-     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of
-     * the list are ignored.
+     * As a special case, non-numeric fields (such as UUIDs in OpenVZ) at the end of the list are ignored.
      *
-     * @param s
-     *            The string to parse
-     * @param delimiter
-     *            The character to delimit by
-     * @return The number of parsable long values which follow the last unparsable
-     *         value.
+     * @param s         The string to parse
+     * @param delimiter The character to delimit by
+     * @return The number of parsable long values which follow the last unparsable value.
      */
     public static int countStringToLongArray(String s, char delimiter) {
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
-<span class="nc" id="L837">        int charIndex = s.length();</span>
-<span class="nc" id="L838">        int numbers = 0;</span>
+<span class="nc" id="L737">        int charIndex = s.length();</span>
+<span class="nc" id="L738">        int numbers = 0;</span>
 
         int c;
-<span class="nc" id="L841">        boolean delimCurrent = false;</span>
-<span class="nc" id="L842">        boolean numeric = true;</span>
-<span class="nc" id="L843">        boolean dashSeen = false; // to flag uuids as nonnumeric</span>
-<span class="nc bnc" id="L844" title="All 2 branches missed.">        while (--charIndex &gt; 0) {</span>
-<span class="nc" id="L845">            c = s.charAt(charIndex);</span>
-<span class="nc bnc" id="L846" title="All 2 branches missed.">            if (c == delimiter) {</span>
-<span class="nc bnc" id="L847" title="All 2 branches missed.">                if (!delimCurrent) {</span>
-<span class="nc bnc" id="L848" title="All 2 branches missed.">                    if (numeric) {</span>
-<span class="nc" id="L849">                        numbers++;</span>
+<span class="nc" id="L741">        boolean delimCurrent = false;</span>
+<span class="nc" id="L742">        boolean numeric = true;</span>
+<span class="nc" id="L743">        boolean dashSeen = false; // to flag uuids as nonnumeric</span>
+<span class="nc bnc" id="L744" title="All 2 branches missed.">        while (--charIndex &gt; 0) {</span>
+<span class="nc" id="L745">            c = s.charAt(charIndex);</span>
+<span class="nc bnc" id="L746" title="All 2 branches missed.">            if (c == delimiter) {</span>
+<span class="nc bnc" id="L747" title="All 2 branches missed.">                if (!delimCurrent) {</span>
+<span class="nc bnc" id="L748" title="All 2 branches missed.">                    if (numeric) {</span>
+<span class="nc" id="L749">                        numbers++;</span>
                     }
-<span class="nc" id="L851">                    delimCurrent = true;</span>
-<span class="nc" id="L852">                    dashSeen = false;</span>
-<span class="nc" id="L853">                    numeric = true;</span>
+<span class="nc" id="L751">                    delimCurrent = true;</span>
+<span class="nc" id="L752">                    dashSeen = false;</span>
+<span class="nc" id="L753">                    numeric = true;</span>
                 }
-<span class="nc bnc" id="L855" title="All 4 branches missed.">            } else if (c == '+' || !numeric) {</span>
+<span class="nc bnc" id="L755" title="All 4 branches missed.">            } else if (c == '+' || !numeric) {</span>
                 // Doesn't impact parsing, ignore
-<span class="nc" id="L857">                delimCurrent = false;</span>
-<span class="nc bnc" id="L858" title="All 6 branches missed.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' &amp;&amp; !dashSeen) {</span>
-<span class="nc" id="L859">                delimCurrent = false;</span>
-<span class="nc bnc" id="L860" title="All 2 branches missed.">            } else if (c == '-') {</span>
-<span class="nc" id="L861">                delimCurrent = false;</span>
-<span class="nc" id="L862">                dashSeen = true;</span>
+<span class="nc" id="L757">                delimCurrent = false;</span>
+<span class="nc bnc" id="L758" title="All 6 branches missed.">            } else if (c &gt;= '0' &amp;&amp; c &lt;= '9' &amp;&amp; !dashSeen) {</span>
+<span class="nc" id="L759">                delimCurrent = false;</span>
+<span class="nc bnc" id="L760" title="All 2 branches missed.">            } else if (c == '-') {</span>
+<span class="nc" id="L761">                delimCurrent = false;</span>
+<span class="nc" id="L762">                dashSeen = true;</span>
             } else {
                 // we found non-digit or delimiter. If not last field, exit
-<span class="nc bnc" id="L865" title="All 2 branches missed.">                if (numbers &gt; 0) {</span>
-<span class="nc" id="L866">                    return numbers;</span>
+<span class="nc bnc" id="L765" title="All 2 branches missed.">                if (numbers &gt; 0) {</span>
+<span class="nc" id="L766">                    return numbers;</span>
                 }
                 // Else flag as nonnumeric and continue
-<span class="nc" id="L869">                numeric = false;</span>
+<span class="nc" id="L769">                numeric = false;</span>
             }
         }
         // We got to beginning of string with only numbers, count start as a delimiter
         // and exit
-<span class="nc" id="L874">        return numbers + 1;</span>
+<span class="nc" id="L774">        return numbers + 1;</span>
     }
 
     /**
      * Get a String in a line of text between two marker strings
      *
-     * @param text
-     *            Text to search for match
-     * @param before
-     *            Start matching after this text
-     * @param after
-     *            End matching before this text
-     * @return Text between the strings before and after, or empty string if either
-     *         marker does not exist
+     * @param text   Text to search for match
+     * @param before Start matching after this text
+     * @param after  End matching before this text
+     * @return Text between the strings before and after, or empty string if either marker does not exist
      */
     public static String getTextBetweenStrings(String text, String before, String after) {
 
-<span class="nc" id="L891">        String result = &quot;&quot;;</span>
+<span class="nc" id="L787">        String result = &quot;&quot;;</span>
 
-<span class="nc bnc" id="L893" title="All 4 branches missed.">        if (text.indexOf(before) &gt;= 0 &amp;&amp; text.indexOf(after) &gt;= 0) {</span>
-<span class="nc" id="L894">            result = text.substring(text.indexOf(before) + before.length(), text.length());</span>
-<span class="nc" id="L895">            result = result.substring(0, result.indexOf(after));</span>
+<span class="nc bnc" id="L789" title="All 4 branches missed.">        if (text.indexOf(before) &gt;= 0 &amp;&amp; text.indexOf(after) &gt;= 0) {</span>
+<span class="nc" id="L790">            result = text.substring(text.indexOf(before) + before.length(), text.length());</span>
+<span class="nc" id="L791">            result = result.substring(0, result.indexOf(after));</span>
         }
-<span class="nc" id="L897">        return result;</span>
+<span class="nc" id="L793">        return result;</span>
     }
 
     /**
-     * Convert a long representing filetime (100-ns since 1601 epoch) to ms since
-     * 1970 epoch
+     * Convert a long representing filetime (100-ns since 1601 epoch) to ms since 1970 epoch
      *
-     * @param filetime
-     *            A 64-bit value equivalent to FILETIME
-     * @param local
-     *            True if converting from a local filetime (PDH counter); false if
-     *            already UTC (WMI PerfRawData classes)
+     * @param filetime A 64-bit value equivalent to FILETIME
+     * @param local    True if converting from a local filetime (PDH counter); false if already UTC (WMI PerfRawData
+     *                 classes)
      * @return Equivalent milliseconds since the epoch
      */
     public static long filetimeToUtcMs(long filetime, boolean local) {
-<span class="nc bnc" id="L912" title="All 2 branches missed.">        return filetime / 10_000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
+<span class="nc bnc" id="L805" title="All 2 branches missed.">        return filetime / 10_000L - EPOCH_DIFF - (local ? TZ_OFFSET : 0L);</span>
     }
 
     /**
      * Parse a date in MM-DD-YYYY or MM/DD/YYYY to YYYY-MM-DD
      *
-     * @param dateString
-     *            The date in MM DD YYYY format
-     * @return The date in ISO YYYY-MM-DD format if parseable, or the original
-     *         string
+     * @param dateString The date in MM DD YYYY format
+     * @return The date in ISO YYYY-MM-DD format if parseable, or the original string
      */
     public static String parseMmDdYyyyToYyyyMmDD(String dateString) {
         try {
             // Date is MM-DD-YYYY, convert to YYYY-MM-DD
-<span class="nc" id="L926">            return String.format(&quot;%s-%s-%s&quot;, dateString.substring(6, 10), dateString.substring(0, 2),</span>
-<span class="nc" id="L927">                    dateString.substring(3, 5));</span>
-<span class="nc" id="L928">        } catch (StringIndexOutOfBoundsException e) {</span>
-<span class="nc" id="L929">            return dateString;</span>
+<span class="nc" id="L817">            return String.format(&quot;%s-%s-%s&quot;, dateString.substring(6, 10), dateString.substring(0, 2),</span>
+<span class="nc" id="L818">                    dateString.substring(3, 5));</span>
+<span class="nc" id="L819">        } catch (StringIndexOutOfBoundsException e) {</span>
+<span class="nc" id="L820">            return dateString;</span>
         }
     }
 
     /**
-     * Converts a string in CIM Date Format, as returned by WMI for DateTime types,
-     * into a {@link java.time.OffsetDateTime}.
+     * Converts a string in CIM Date Format, as returned by WMI for DateTime types, into a
+     * {@link java.time.OffsetDateTime}.
      *
-     * @param cimDateTime
-     *            A non-null DateTime String in CIM date format, e.g.,
-     *            &lt;code&gt;20160513072950.782000-420&lt;/code&gt;
-     * @return The parsed {@link java.time.OffsetDateTime} if the string is
-     *         parsable, otherwise {@link oshi.util.Constants#UNIX_EPOCH}.
+     * @param cimDateTime A non-null DateTime String in CIM date format, e.g., &lt;code&gt;20160513072950.782000-420&lt;/code&gt;
+     * @return The parsed {@link java.time.OffsetDateTime} if the string is parsable, otherwise
+     *         {@link oshi.util.Constants#UNIX_EPOCH}.
      */
     public static OffsetDateTime parseCimDateTimeToOffset(String cimDateTime) {
         // Keep first 22 characters: digits, decimal, and + or - sign
         // But alter last 3 characters from a minute offset to hh:mm
         try {
             // From WMI as 20160513072950.782000-420,
-<span class="nc" id="L948">            int tzInMinutes = Integer.parseInt(cimDateTime.substring(22));</span>
+<span class="nc" id="L837">            int tzInMinutes = Integer.parseInt(cimDateTime.substring(22));</span>
             // modified to 20160513072950.782000-07:00 which can be parsed
-<span class="nc" id="L950">            LocalTime offsetAsLocalTime = LocalTime.MIDNIGHT.plusMinutes(tzInMinutes);</span>
-<span class="nc" id="L951">            return OffsetDateTime.parse(</span>
-<span class="nc" id="L952">                    cimDateTime.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME),</span>
+<span class="nc" id="L839">            LocalTime offsetAsLocalTime = LocalTime.MIDNIGHT.plusMinutes(tzInMinutes);</span>
+<span class="nc" id="L840">            return OffsetDateTime.parse(</span>
+<span class="nc" id="L841">                    cimDateTime.substring(0, 22) + offsetAsLocalTime.format(DateTimeFormatter.ISO_LOCAL_TIME),</span>
                     ParseUtil.CIM_FORMAT);
-<span class="nc" id="L954">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
+<span class="nc" id="L843">        } catch (IndexOutOfBoundsException // if cimDate not 22+ chars</span>
                 | NumberFormatException // if TZ minutes doesn't parse
                 | DateTimeParseException e) {
-<span class="nc" id="L957">            LOG.trace(&quot;Unable to parse {} to CIM DateTime.&quot;, cimDateTime);</span>
-<span class="nc" id="L958">            return Constants.UNIX_EPOCH;</span>
+<span class="nc" id="L846">            LOG.trace(&quot;Unable to parse {} to CIM DateTime.&quot;, cimDateTime);</span>
+<span class="nc" id="L847">            return Constants.UNIX_EPOCH;</span>
         }
     }
 
     /**
      * Checks if a file path equals or starts with an prefix in the given list
      *
-     * @param prefixList
-     *            A list of path prefixes
-     * @param path
-     *            a string path to check
-     * @return true if the path exactly equals, or starts with one of the strings in
-     *         prefixList
+     * @param prefixList A list of path prefixes
+     * @param path       a string path to check
+     * @return true if the path exactly equals, or starts with one of the strings in prefixList
      */
     public static boolean filePathStartsWith(List&lt;String&gt; prefixList, String path) {
-<span class="nc bnc" id="L973" title="All 2 branches missed.">        for (String match : prefixList) {</span>
-<span class="nc bnc" id="L974" title="All 4 branches missed.">            if (path.equals(match) || path.startsWith(match + &quot;/&quot;)) {</span>
-<span class="nc" id="L975">                return true;</span>
+<span class="nc bnc" id="L859" title="All 2 branches missed.">        for (String match : prefixList) {</span>
+<span class="nc bnc" id="L860" title="All 4 branches missed.">            if (path.equals(match) || path.startsWith(match + &quot;/&quot;)) {</span>
+<span class="nc" id="L861">                return true;</span>
             }
-<span class="nc" id="L977">        }</span>
-<span class="nc" id="L978">        return false;</span>
+<span class="nc" id="L863">        }</span>
+<span class="nc" id="L864">        return false;</span>
     }
 
     /**
      * Parses a string like &quot;53G&quot; or &quot;54.904 M&quot; to its long value.
      *
-     * @param count
-     *            A count with a multiplyer like &quot;4096 M&quot;
+     * @param count A count with a multiplyer like &quot;4096 M&quot;
      * @return the count parsed to a long
      */
     public static long parseMultipliedToLongs(String count) {
-<span class="nc" id="L989">        Matcher matcher = UNITS_PATTERN.matcher(count.trim());</span>
+<span class="nc" id="L874">        Matcher matcher = UNITS_PATTERN.matcher(count.trim());</span>
         String[] mem;
-<span class="nc bnc" id="L991" title="All 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
-<span class="nc" id="L992">            mem = new String[2];</span>
-<span class="nc" id="L993">            mem[0] = matcher.group(1);</span>
-<span class="nc" id="L994">            mem[1] = matcher.group(3);</span>
+<span class="nc bnc" id="L876" title="All 4 branches missed.">        if (matcher.find() &amp;&amp; matcher.groupCount() == 3) {</span>
+<span class="nc" id="L877">            mem = new String[2];</span>
+<span class="nc" id="L878">            mem[0] = matcher.group(1);</span>
+<span class="nc" id="L879">            mem[1] = matcher.group(3);</span>
         } else {
-<span class="nc" id="L996">            mem = new String[] { count };</span>
+<span class="nc" id="L881">            mem = new String[] { count };</span>
         }
 
-<span class="nc" id="L999">        double number = ParseUtil.parseDoubleOrDefault(mem[0], 0L);</span>
-<span class="nc bnc" id="L1000" title="All 6 branches missed.">        if (mem.length == 2 &amp;&amp; mem[1] != null &amp;&amp; mem[1].length() &gt;= 1) {</span>
-<span class="nc bnc" id="L1001" title="All 5 branches missed.">            switch (mem[1].charAt(0)) {</span>
+<span class="nc" id="L884">        double number = ParseUtil.parseDoubleOrDefault(mem[0], 0L);</span>
+<span class="nc bnc" id="L885" title="All 6 branches missed.">        if (mem.length == 2 &amp;&amp; mem[1] != null &amp;&amp; mem[1].length() &gt;= 1) {</span>
+<span class="nc bnc" id="L886" title="All 5 branches missed.">            switch (mem[1].charAt(0)) {</span>
             case 'T':
-<span class="nc" id="L1003">                number *= 1_000_000_000_000L;</span>
-<span class="nc" id="L1004">                break;</span>
+<span class="nc" id="L888">                number *= 1_000_000_000_000L;</span>
+<span class="nc" id="L889">                break;</span>
             case 'G':
-<span class="nc" id="L1006">                number *= 1_000_000_000L;</span>
-<span class="nc" id="L1007">                break;</span>
+<span class="nc" id="L891">                number *= 1_000_000_000L;</span>
+<span class="nc" id="L892">                break;</span>
             case 'M':
-<span class="nc" id="L1009">                number *= 1_000_000L;</span>
-<span class="nc" id="L1010">                break;</span>
+<span class="nc" id="L894">                number *= 1_000_000L;</span>
+<span class="nc" id="L895">                break;</span>
             case 'K':
             case 'k':
-<span class="nc" id="L1013">                number *= 1_000L;</span>
-<span class="nc" id="L1014">                break;</span>
+<span class="nc" id="L898">                number *= 1_000L;</span>
+<span class="nc" id="L899">                break;</span>
             default:
             }
         }
-<span class="nc" id="L1018">        return (long) number;</span>
+<span class="nc" id="L903">        return (long) number;</span>
     }
 
     /**
-     * Parses a string such as &quot;4096 MB&quot; to its long. Used to parse macOS and *nix
-     * memory chip sizes. Although the units given are decimal they must parse to
-     * binary units.
+     * Parses a string such as &quot;4096 MB&quot; to its long. Used to parse macOS and *nix memory chip sizes. Although the units
+     * given are decimal they must parse to binary units.
      *
-     * @param size
-     *            A string of memory sizes like &quot;4096 MB&quot;
+     * @param size A string of memory sizes like &quot;4096 MB&quot;
      * @return the size parsed to a long
      */
     public static long parseDecimalMemorySizeToBinary(String size) {
-<span class="nc" id="L1031">        String[] mem = ParseUtil.whitespaces.split(size);</span>
-<span class="nc bnc" id="L1032" title="All 2 branches missed.">        if (mem.length &lt; 2) {</span>
+<span class="nc" id="L914">        String[] mem = ParseUtil.whitespaces.split(size);</span>
+<span class="nc bnc" id="L915" title="All 2 branches missed.">        if (mem.length &lt; 2) {</span>
             // If no spaces, use regexp
-<span class="nc" id="L1034">            Matcher matcher = BYTES_PATTERN.matcher(size.trim());</span>
-<span class="nc bnc" id="L1035" title="All 4 branches missed.">            if (matcher.find() &amp;&amp; matcher.groupCount() == 2) {</span>
-<span class="nc" id="L1036">                mem = new String[2];</span>
-<span class="nc" id="L1037">                mem[0] = matcher.group(1);</span>
-<span class="nc" id="L1038">                mem[1] = matcher.group(2);</span>
+<span class="nc" id="L917">            Matcher matcher = BYTES_PATTERN.matcher(size.trim());</span>
+<span class="nc bnc" id="L918" title="All 4 branches missed.">            if (matcher.find() &amp;&amp; matcher.groupCount() == 2) {</span>
+<span class="nc" id="L919">                mem = new String[2];</span>
+<span class="nc" id="L920">                mem[0] = matcher.group(1);</span>
+<span class="nc" id="L921">                mem[1] = matcher.group(2);</span>
             }
         }
-<span class="nc" id="L1041">        long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);</span>
-<span class="nc bnc" id="L1042" title="All 4 branches missed.">        if (mem.length == 2 &amp;&amp; mem[1].length() &gt; 1) {</span>
-<span class="nc bnc" id="L1043" title="All 5 branches missed.">            switch (mem[1].charAt(0)) {</span>
+<span class="nc" id="L924">        long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);</span>
+<span class="nc bnc" id="L925" title="All 4 branches missed.">        if (mem.length == 2 &amp;&amp; mem[1].length() &gt; 1) {</span>
+<span class="nc bnc" id="L926" title="All 5 branches missed.">            switch (mem[1].charAt(0)) {</span>
             case 'T':
-<span class="nc" id="L1045">                capacity &lt;&lt;= 40;</span>
-<span class="nc" id="L1046">                break;</span>
+<span class="nc" id="L928">                capacity &lt;&lt;= 40;</span>
+<span class="nc" id="L929">                break;</span>
             case 'G':
-<span class="nc" id="L1048">                capacity &lt;&lt;= 30;</span>
-<span class="nc" id="L1049">                break;</span>
+<span class="nc" id="L931">                capacity &lt;&lt;= 30;</span>
+<span class="nc" id="L932">                break;</span>
             case 'M':
-<span class="nc" id="L1051">                capacity &lt;&lt;= 20;</span>
-<span class="nc" id="L1052">                break;</span>
+<span class="nc" id="L934">                capacity &lt;&lt;= 20;</span>
+<span class="nc" id="L935">                break;</span>
             case 'K':
             case 'k':
-<span class="nc" id="L1055">                capacity &lt;&lt;= 10;</span>
-<span class="nc" id="L1056">                break;</span>
+<span class="nc" id="L938">                capacity &lt;&lt;= 10;</span>
+<span class="nc" id="L939">                break;</span>
             default:
                 break;
             }
         }
-<span class="nc" id="L1061">        return capacity;</span>
+<span class="nc" id="L944">        return capacity;</span>
     }
 
     /**
      * Parse a Windows DeviceID to get the vendor ID, product ID, and Serial Number
      *
-     * @param deviceId
-     *            The DeviceID
-     * @return A {@link Triplet} where the first element is the vendor ID, the
-     *         second element is the product ID, and the third element is either a
-     *         serial number or empty string if parsing was successful, or
-     *         {@code null} otherwise
+     * @param deviceId The DeviceID
+     * @return A {@link Triplet} where the first element is the vendor ID, the second element is the product ID, and the
+     *         third element is either a serial number or empty string if parsing was successful, or {@code null}
+     *         otherwise
      */
     public static Triplet&lt;String, String, String&gt; parseDeviceIdToVendorProductSerial(String deviceId) {
-<span class="nc" id="L1075">        Matcher m = VENDOR_PRODUCT_ID_SERIAL.matcher(deviceId);</span>
-<span class="nc bnc" id="L1076" title="All 2 branches missed.">        if (m.matches()) {</span>
-<span class="nc" id="L1077">            String vendorId = &quot;0x&quot; + m.group(1).toLowerCase();</span>
-<span class="nc" id="L1078">            String productId = &quot;0x&quot; + m.group(2).toLowerCase();</span>
-<span class="nc" id="L1079">            String serial = m.group(4);</span>
-<span class="nc bnc" id="L1080" title="All 4 branches missed.">            return new Triplet&lt;&gt;(vendorId, productId, !m.group(3).isEmpty() || serial.contains(&quot;&amp;&quot;) ? &quot;&quot; : serial);</span>
+<span class="nc" id="L956">        Matcher m = VENDOR_PRODUCT_ID_SERIAL.matcher(deviceId);</span>
+<span class="nc bnc" id="L957" title="All 2 branches missed.">        if (m.matches()) {</span>
+<span class="nc" id="L958">            String vendorId = &quot;0x&quot; + m.group(1).toLowerCase();</span>
+<span class="nc" id="L959">            String productId = &quot;0x&quot; + m.group(2).toLowerCase();</span>
+<span class="nc" id="L960">            String serial = m.group(4);</span>
+<span class="nc bnc" id="L961" title="All 4 branches missed.">            return new Triplet&lt;&gt;(vendorId, productId, !m.group(3).isEmpty() || serial.contains(&quot;&amp;&quot;) ? &quot;&quot; : serial);</span>
         }
-<span class="nc" id="L1082">        return null;</span>
+<span class="nc" id="L963">        return null;</span>
     }
 
     /**
      * Parse a Linux lshw resources string to calculate the memory size
      *
-     * @param resources
-     *            A string containing one or more elements of the form
-     *            {@code memory:b00000000-bffffffff}
-     * @return The number of bytes consumed by the memory in the {@code resources}
-     *         string
+     * @param resources A string containing one or more elements of the form {@code memory:b00000000-bffffffff}
+     * @return The number of bytes consumed by the memory in the {@code resources} string
      */
     public static long parseLshwResourceString(String resources) {
-<span class="nc" id="L1095">        long bytes = 0L;</span>
+<span class="nc" id="L973">        long bytes = 0L;</span>
         // First split by whitespace
-<span class="nc" id="L1097">        String[] resourceArray = whitespaces.split(resources);</span>
-<span class="nc bnc" id="L1098" title="All 2 branches missed.">        for (String r : resourceArray) {</span>
+<span class="nc" id="L975">        String[] resourceArray = whitespaces.split(resources);</span>
+<span class="nc bnc" id="L976" title="All 2 branches missed.">        for (String r : resourceArray) {</span>
             // Remove prefix
-<span class="nc bnc" id="L1100" title="All 2 branches missed.">            if (r.startsWith(&quot;memory:&quot;)) {</span>
+<span class="nc bnc" id="L978" title="All 2 branches missed.">            if (r.startsWith(&quot;memory:&quot;)) {</span>
                 // Split to low and high
-<span class="nc" id="L1102">                String[] mem = r.substring(7).split(&quot;-&quot;);</span>
-<span class="nc bnc" id="L1103" title="All 2 branches missed.">                if (mem.length == 2) {</span>
+<span class="nc" id="L980">                String[] mem = r.substring(7).split(&quot;-&quot;);</span>
+<span class="nc bnc" id="L981" title="All 2 branches missed.">                if (mem.length == 2) {</span>
                     try {
                         // Parse the hex strings
-<span class="nc" id="L1106">                        bytes += Long.parseLong(mem[1], 16) - Long.parseLong(mem[0], 16) + 1;</span>
-<span class="nc" id="L1107">                    } catch (NumberFormatException e) {</span>
-<span class="nc" id="L1108">                        LOG.trace(DEFAULT_LOG_MSG, r, e);</span>
-<span class="nc" id="L1109">                    }</span>
+<span class="nc" id="L984">                        bytes += Long.parseLong(mem[1], 16) - Long.parseLong(mem[0], 16) + 1;</span>
+<span class="nc" id="L985">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L986">                        LOG.trace(DEFAULT_LOG_MSG, r, e);</span>
+<span class="nc" id="L987">                    }</span>
                 }
             }
         }
-<span class="nc" id="L1113">        return bytes;</span>
+<span class="nc" id="L991">        return bytes;</span>
     }
 
     /**
      * Parse a Linux lspci machine readble line to its name and id
      *
-     * @param line
-     *            A string in the form Foo [bar]
-     * @return A pair separating the String before the square brackets and within
-     *         them if found, null otherwise
+     * @param line A string in the form Foo [bar]
+     * @return A pair separating the String before the square brackets and within them if found, null otherwise
      */
     public static Pair&lt;String, String&gt; parseLspciMachineReadable(String line) {
-<span class="nc" id="L1125">        Matcher matcher = LSPCI_MACHINE_READABLE.matcher(line);</span>
-<span class="nc bnc" id="L1126" title="All 2 branches missed.">        if (matcher.matches()) {</span>
-<span class="nc" id="L1127">            return new Pair&lt;&gt;(matcher.group(1), matcher.group(2));</span>
+<span class="nc" id="L1001">        Matcher matcher = LSPCI_MACHINE_READABLE.matcher(line);</span>
+<span class="nc bnc" id="L1002" title="All 2 branches missed.">        if (matcher.matches()) {</span>
+<span class="nc" id="L1003">            return new Pair&lt;&gt;(matcher.group(1), matcher.group(2));</span>
         }
-<span class="nc" id="L1129">        return null;</span>
+<span class="nc" id="L1005">        return null;</span>
     }
 
     /**
      * Parse a Linux lspci line containing memory size
      *
-     * @param line
-     *            A string in the form Foo [size=256M]
+     * @param line A string in the form Foo [size=256M]
      * @return A the memory size in bytes
      */
     public static long parseLspciMemorySize(String line) {
-<span class="nc" id="L1140">        Matcher matcher = LSPCI_MEMORY_SIZE.matcher(line);</span>
-<span class="nc bnc" id="L1141" title="All 2 branches missed.">        if (matcher.matches()) {</span>
-<span class="nc" id="L1142">            return parseDecimalMemorySizeToBinary(matcher.group(1) + &quot; &quot; + matcher.group(2) + &quot;B&quot;);</span>
+<span class="nc" id="L1015">        Matcher matcher = LSPCI_MEMORY_SIZE.matcher(line);</span>
+<span class="nc bnc" id="L1016" title="All 2 branches missed.">        if (matcher.matches()) {</span>
+<span class="nc" id="L1017">            return parseDecimalMemorySizeToBinary(matcher.group(1) + &quot; &quot; + matcher.group(2) + &quot;B&quot;);</span>
         }
-<span class="nc" id="L1144">        return 0;</span>
+<span class="nc" id="L1019">        return 0;</span>
     }
 
     /**
-     * Parse a space-delimited list of integers which include hyphenated ranges to a
-     * list of just the integers. For example, 0 1 4-7 parses to a list containing
-     * 0, 1, 4, 5, 6, and 7.
+     * Parse a space-delimited list of integers which include hyphenated ranges to a list of just the integers. For
+     * example, 0 1 4-7 parses to a list containing 0, 1, 4, 5, 6, and 7.
      *
-     * @param str
-     *            A string containing space-delimited integers or ranges of integers
-     *            with a hyphen
+     * @param str A string containing space-delimited integers or ranges of integers with a hyphen
      * @return A list of integers representing the provided range(s).
      */
     public static List&lt;Integer&gt; parseHyphenatedIntList(String str) {
-<span class="nc" id="L1158">        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L1159" title="All 2 branches missed.">        for (String s : whitespaces.split(str)) {</span>
-<span class="nc bnc" id="L1160" title="All 2 branches missed.">            if (s.contains(&quot;-&quot;)) {</span>
-<span class="nc" id="L1161">                int first = getFirstIntValue(s);</span>
-<span class="nc" id="L1162">                int last = getNthIntValue(s, 2);</span>
-<span class="nc bnc" id="L1163" title="All 2 branches missed.">                for (int i = first; i &lt;= last; i++) {</span>
-<span class="nc" id="L1164">                    result.add(i);</span>
+<span class="nc" id="L1030">        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L1031" title="All 2 branches missed.">        for (String s : whitespaces.split(str)) {</span>
+<span class="nc bnc" id="L1032" title="All 2 branches missed.">            if (s.contains(&quot;-&quot;)) {</span>
+<span class="nc" id="L1033">                int first = getFirstIntValue(s);</span>
+<span class="nc" id="L1034">                int last = getNthIntValue(s, 2);</span>
+<span class="nc bnc" id="L1035" title="All 2 branches missed.">                for (int i = first; i &lt;= last; i++) {</span>
+<span class="nc" id="L1036">                    result.add(i);</span>
                 }
-<span class="nc" id="L1166">            } else {</span>
-<span class="nc" id="L1167">                int only = ParseUtil.parseIntOrDefault(s, -1);</span>
-<span class="nc bnc" id="L1168" title="All 2 branches missed.">                if (only &gt;= 0) {</span>
-<span class="nc" id="L1169">                    result.add(only);</span>
+<span class="nc" id="L1038">            } else {</span>
+<span class="nc" id="L1039">                int only = ParseUtil.parseIntOrDefault(s, -1);</span>
+<span class="nc bnc" id="L1040" title="All 2 branches missed.">                if (only &gt;= 0) {</span>
+<span class="nc" id="L1041">                    result.add(only);</span>
                 }
             }
         }
-<span class="nc" id="L1173">        return result;</span>
+<span class="nc" id="L1045">        return result;</span>
     }
 
     /**
-     * Parse an integer in big endian IP format to its component bytes representing
-     * an IPv4 address
+     * Parse an integer in big endian IP format to its component bytes representing an IPv4 address
      *
-     * @param ip
-     *            The address as an integer
+     * @param ip The address as an integer
      * @return The address as an array of four bytes
      */
     public static byte[] parseIntToIP(int ip) {
-<span class="nc" id="L1185">        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(ip).array();</span>
+<span class="nc" id="L1055">        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(ip).array();</span>
     }
 
     /**
-     * Parse an integer array in big endian IP format to its component bytes
-     * representing an IPv6 address
+     * Parse an integer array in big endian IP format to its component bytes representing an IPv6 address
      *
-     * @param ip6
-     *            The address as an integer array
+     * @param ip6 The address as an integer array
      * @return The address as an array of sizteen bytes
      */
     public static byte[] parseIntArrayToIP(int[] ip6) {
-<span class="nc" id="L1197">        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);</span>
-<span class="nc bnc" id="L1198" title="All 2 branches missed.">        for (int i : ip6) {</span>
-<span class="nc" id="L1199">            bb.putInt(i);</span>
+<span class="nc" id="L1065">        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);</span>
+<span class="nc bnc" id="L1066" title="All 2 branches missed.">        for (int i : ip6) {</span>
+<span class="nc" id="L1067">            bb.putInt(i);</span>
         }
-<span class="nc" id="L1201">        return bb.array();</span>
+<span class="nc" id="L1069">        return bb.array();</span>
     }
 
     /**
-     * TCP network addresses and ports are in big endian format by definition. The
-     * order of the two bytes in the 16-bit unsigned short port value must be
-     * reversed
+     * TCP network addresses and ports are in big endian format by definition. The order of the two bytes in the 16-bit
+     * unsigned short port value must be reversed
      *
-     * @param port
-     *            The port number in big endian order
+     * @param port The port number in big endian order
      * @return The port number
-     * @see &lt;a href=
-     *      &quot;https://docs.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-ntohs&quot;&gt;ntohs&lt;/a&gt;
+     * @see &lt;a href= &quot;https://docs.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-ntohs&quot;&gt;ntohs&lt;/a&gt;
      */
     public static int bigEndian16ToLittleEndian(int port) {
         // 20480 = 0x5000 should be 0x0050 = 80
         // 47873 = 0xBB01 should be 0x01BB = 443
-<span class="nc" id="L1218">        return port &gt;&gt; 8 &amp; 0xff | port &lt;&lt; 8 &amp; 0xff00;</span>
+<span class="nc" id="L1083">        return port &gt;&gt; 8 &amp; 0xff | port &lt;&lt; 8 &amp; 0xff00;</span>
     }
 
     /**
@@ -1223,251 +1088,231 @@ public final class ParseUtil {
      * &lt;p&gt;
      * Intended for use on Utmp structures's {@code ut_addr_v6} element.
      *
-     * @param utAddrV6
-     *            An array of 4 integers representing an IPv6 address. IPv4 address
-     *            uses just utAddrV6[0]
+     * @param utAddrV6 An array of 4 integers representing an IPv6 address. IPv4 address uses just utAddrV6[0]
      * @return A string representation of the IP address.
      */
     public static String parseUtAddrV6toIP(int[] utAddrV6) {
-<span class="nc bnc" id="L1232" title="All 2 branches missed.">        if (utAddrV6.length != 4) {</span>
-<span class="nc" id="L1233">            throw new IllegalArgumentException(&quot;ut_addr_v6 must have exactly 4 elements&quot;);</span>
+<span class="nc bnc" id="L1095" title="All 2 branches missed.">        if (utAddrV6.length != 4) {</span>
+<span class="nc" id="L1096">            throw new IllegalArgumentException(&quot;ut_addr_v6 must have exactly 4 elements&quot;);</span>
         }
         // IPv4 has only first element
-<span class="nc bnc" id="L1236" title="All 6 branches missed.">        if (utAddrV6[1] == 0 &amp;&amp; utAddrV6[2] == 0 &amp;&amp; utAddrV6[3] == 0) {</span>
+<span class="nc bnc" id="L1099" title="All 6 branches missed.">        if (utAddrV6[1] == 0 &amp;&amp; utAddrV6[2] == 0 &amp;&amp; utAddrV6[3] == 0) {</span>
             // Special case for all 0's
-<span class="nc bnc" id="L1238" title="All 2 branches missed.">            if (utAddrV6[0] == 0) {</span>
-<span class="nc" id="L1239">                return &quot;::&quot;;</span>
+<span class="nc bnc" id="L1101" title="All 2 branches missed.">            if (utAddrV6[0] == 0) {</span>
+<span class="nc" id="L1102">                return &quot;::&quot;;</span>
             }
             // Parse using InetAddress
-<span class="nc" id="L1242">            byte[] ipv4 = ByteBuffer.allocate(4).putInt(utAddrV6[0]).array();</span>
+<span class="nc" id="L1105">            byte[] ipv4 = ByteBuffer.allocate(4).putInt(utAddrV6[0]).array();</span>
             try {
-<span class="nc" id="L1244">                return InetAddress.getByAddress(ipv4).getHostAddress();</span>
-<span class="nc" id="L1245">            } catch (UnknownHostException e) {</span>
+<span class="nc" id="L1107">                return InetAddress.getByAddress(ipv4).getHostAddress();</span>
+<span class="nc" id="L1108">            } catch (UnknownHostException e) {</span>
                 // Shouldn't happen with length 4 or 16
-<span class="nc" id="L1247">                return Constants.UNKNOWN;</span>
+<span class="nc" id="L1110">                return Constants.UNKNOWN;</span>
             }
         }
         // Parse all 16 bytes
-<span class="nc" id="L1251">        byte[] ipv6 = ByteBuffer.allocate(16).putInt(utAddrV6[0]).putInt(utAddrV6[1]).putInt(utAddrV6[2])</span>
-<span class="nc" id="L1252">                .putInt(utAddrV6[3]).array();</span>
+<span class="nc" id="L1114">        byte[] ipv6 = ByteBuffer.allocate(16).putInt(utAddrV6[0]).putInt(utAddrV6[1]).putInt(utAddrV6[2])</span>
+<span class="nc" id="L1115">                .putInt(utAddrV6[3]).array();</span>
         try {
-<span class="nc" id="L1254">            return InetAddress.getByAddress(ipv6).getHostAddress()</span>
-<span class="nc" id="L1255">                    .replaceAll(&quot;((?:(?:^|:)0+\\b){2,8}):?(?!\\S*\\b\\1:0+\\b)(\\S*)&quot;, &quot;::$2&quot;);</span>
-<span class="nc" id="L1256">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L1117">            return InetAddress.getByAddress(ipv6).getHostAddress()</span>
+<span class="nc" id="L1118">                    .replaceAll(&quot;((?:(?:^|:)0+\\b){2,8}):?(?!\\S*\\b\\1:0+\\b)(\\S*)&quot;, &quot;::$2&quot;);</span>
+<span class="nc" id="L1119">        } catch (UnknownHostException e) {</span>
             // Shouldn't happen with length 4 or 16
-<span class="nc" id="L1258">            return Constants.UNKNOWN;</span>
+<span class="nc" id="L1121">            return Constants.UNKNOWN;</span>
         }
     }
 
     /**
      * Parses a string of hex digits to an int value.
      *
-     * @param hexString
-     *            A sequence of hex digits
-     * @param defaultValue
-     *            default value to return if parsefails
+     * @param hexString    A sequence of hex digits
+     * @param defaultValue default value to return if parsefails
      * @return The corresponding int value
      */
     public static int hexStringToInt(String hexString, int defaultValue) {
-<span class="nc bnc" id="L1272" title="All 2 branches missed.">        if (hexString != null) {</span>
+<span class="nc bnc" id="L1133" title="All 2 branches missed.">        if (hexString != null) {</span>
             try {
-<span class="nc bnc" id="L1274" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
-<span class="nc" id="L1275">                    return new BigInteger(hexString.substring(2), 16).intValue();</span>
+<span class="nc bnc" id="L1135" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
+<span class="nc" id="L1136">                    return new BigInteger(hexString.substring(2), 16).intValue();</span>
                 } else {
-<span class="nc" id="L1277">                    return new BigInteger(hexString, 16).intValue();</span>
+<span class="nc" id="L1138">                    return new BigInteger(hexString, 16).intValue();</span>
                 }
-<span class="nc" id="L1279">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L1280">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
+<span class="nc" id="L1140">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L1141">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
             }
         }
         // Hex failed to parse, just return the default long
-<span class="nc" id="L1284">        return defaultValue;</span>
+<span class="nc" id="L1145">        return defaultValue;</span>
     }
 
     /**
      * Parses a string of hex digits to a long value.
      *
-     * @param hexString
-     *            A sequence of hex digits
-     * @param defaultValue
-     *            default value to return if parsefails
+     * @param hexString    A sequence of hex digits
+     * @param defaultValue default value to return if parsefails
      * @return The corresponding long value
      */
     public static long hexStringToLong(String hexString, long defaultValue) {
-<span class="nc bnc" id="L1297" title="All 2 branches missed.">        if (hexString != null) {</span>
+<span class="nc bnc" id="L1156" title="All 2 branches missed.">        if (hexString != null) {</span>
             try {
-<span class="nc bnc" id="L1299" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
-<span class="nc" id="L1300">                    return new BigInteger(hexString.substring(2), 16).longValue();</span>
+<span class="nc bnc" id="L1158" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
+<span class="nc" id="L1159">                    return new BigInteger(hexString.substring(2), 16).longValue();</span>
                 } else {
-<span class="nc" id="L1302">                    return new BigInteger(hexString, 16).longValue();</span>
+<span class="nc" id="L1161">                    return new BigInteger(hexString, 16).longValue();</span>
                 }
-<span class="nc" id="L1304">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L1305">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
+<span class="nc" id="L1163">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L1164">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
             }
         }
         // Hex failed to parse, just return the default long
-<span class="nc" id="L1309">        return defaultValue;</span>
+<span class="nc" id="L1168">        return defaultValue;</span>
     }
 
     /**
      * Parses a String &quot;....foo&quot; to &quot;foo&quot;
      *
-     * @param dotPrefixedStr
-     *            A string with possibly leading dots
+     * @param dotPrefixedStr A string with possibly leading dots
      * @return The string without the dots
      */
     public static String removeLeadingDots(String dotPrefixedStr) {
-<span class="nc" id="L1320">        int pos = 0;</span>
-<span class="nc bnc" id="L1321" title="All 4 branches missed.">        while (pos &lt; dotPrefixedStr.length() &amp;&amp; dotPrefixedStr.charAt(pos) == '.') {</span>
-<span class="nc" id="L1322">            pos++;</span>
+<span class="nc" id="L1178">        int pos = 0;</span>
+<span class="nc bnc" id="L1179" title="All 4 branches missed.">        while (pos &lt; dotPrefixedStr.length() &amp;&amp; dotPrefixedStr.charAt(pos) == '.') {</span>
+<span class="nc" id="L1180">            pos++;</span>
         }
-<span class="nc bnc" id="L1324" title="All 2 branches missed.">        return pos &lt; dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : &quot;&quot;;</span>
+<span class="nc bnc" id="L1182" title="All 2 branches missed.">        return pos &lt; dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : &quot;&quot;;</span>
     }
 
     /**
      * Parse a null-delimited byte array to a list of strings.
      *
-     * @param bytes
-     *            A byte array containing Strings delimited by null characters. Two
-     *            consecutive null characters mark the end of the list.
+     * @param bytes A byte array containing Strings delimited by null characters. Two consecutive null characters mark
+     *              the end of the list.
      * @return A list of Strings between the nulls.
      */
     public static List&lt;String&gt; parseByteArrayToStrings(byte[] bytes) {
-<span class="nc" id="L1336">        List&lt;String&gt; strList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L1337">        int start = 0;</span>
-<span class="nc" id="L1338">        int end = 0;</span>
+<span class="nc" id="L1193">        List&lt;String&gt; strList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L1194">        int start = 0;</span>
+<span class="nc" id="L1195">        int end = 0;</span>
         // Iterate characters
         do {
             // If we've reached a delimiter or the end of the array, add to list
-<span class="nc bnc" id="L1342" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
+<span class="nc bnc" id="L1199" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
                 // Zero length string means two nulls, we're done
-<span class="nc bnc" id="L1344" title="All 2 branches missed.">                if (start == end) {</span>
-<span class="nc" id="L1345">                    break;</span>
+<span class="nc bnc" id="L1201" title="All 2 branches missed.">                if (start == end) {</span>
+<span class="nc" id="L1202">                    break;</span>
                 }
                 // Otherwise add string and reset start
                 // Intentionally using platform default charset
-<span class="nc" id="L1349">                strList.add(new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
-<span class="nc" id="L1350">                start = end + 1;</span>
+<span class="nc" id="L1206">                strList.add(new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L1207">                start = end + 1;</span>
             }
-<span class="nc bnc" id="L1352" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
-<span class="nc" id="L1353">        return strList;</span>
+<span class="nc bnc" id="L1209" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
+<span class="nc" id="L1210">        return strList;</span>
     }
 
     /**
      * Parse a null-delimited byte array to a map of string keys and values.
      *
-     * @param bytes
-     *            A byte array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimited by null
-     *            characters. Two consecutive null characters mark the end of the
-     *            map.
+     * @param bytes A byte array containing String key-value pairs with keys and values delimited by {@code =} and pairs
+     *              delimited by null characters. Two consecutive null characters mark the end of the map.
      * @return A map of String key-value pairs between the nulls.
      */
     public static Map&lt;String, String&gt; parseByteArrayToStringMap(byte[] bytes) {
         // API does not specify any particular order of entries, but it is reasonable to
         // maintain whatever order the OS provided to the end user
-<span class="nc" id="L1369">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
-<span class="nc" id="L1370">        int start = 0;</span>
-<span class="nc" id="L1371">        int end = 0;</span>
-<span class="nc" id="L1372">        String key = null;</span>
+<span class="nc" id="L1223">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L1224">        int start = 0;</span>
+<span class="nc" id="L1225">        int end = 0;</span>
+<span class="nc" id="L1226">        String key = null;</span>
         // Iterate characters
         do {
             // If we've reached a delimiter or the end of the array, add to list
-<span class="nc bnc" id="L1376" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
+<span class="nc bnc" id="L1230" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
                 // Zero length string with no key, we're done
-<span class="nc bnc" id="L1378" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
-<span class="nc" id="L1379">                    break;</span>
+<span class="nc bnc" id="L1232" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
+<span class="nc" id="L1233">                    break;</span>
                 }
                 // Otherwise add string (possibly empty) and reset start
                 // Intentionally using platform default charset
-<span class="nc" id="L1383">                strMap.put(key, new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
-<span class="nc" id="L1384">                key = null;</span>
-<span class="nc" id="L1385">                start = end + 1;</span>
-<span class="nc bnc" id="L1386" title="All 4 branches missed.">            } else if (bytes[end] == '=' &amp;&amp; key == null) {</span>
-<span class="nc" id="L1387">                key = new String(bytes, start, end - start, StandardCharsets.UTF_8);</span>
-<span class="nc" id="L1388">                start = end + 1;</span>
+<span class="nc" id="L1237">                strMap.put(key, new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L1238">                key = null;</span>
+<span class="nc" id="L1239">                start = end + 1;</span>
+<span class="nc bnc" id="L1240" title="All 4 branches missed.">            } else if (bytes[end] == '=' &amp;&amp; key == null) {</span>
+<span class="nc" id="L1241">                key = new String(bytes, start, end - start, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L1242">                start = end + 1;</span>
             }
-<span class="nc bnc" id="L1390" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
-<span class="nc" id="L1391">        return strMap;</span>
+<span class="nc bnc" id="L1244" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
+<span class="nc" id="L1245">        return strMap;</span>
     }
 
     /**
      * Parse a null-delimited char array to a map of string keys and values.
      *
-     * @param chars
-     *            A char array containing String key-value pairs with keys and
-     *            values delimited by {@code =} and pairs delimited by null
-     *            characters. Two consecutive null characters mark the end of the
-     *            map.
+     * @param chars A char array containing String key-value pairs with keys and values delimited by {@code =} and pairs
+     *              delimited by null characters. Two consecutive null characters mark the end of the map.
      * @return A map of String key-value pairs between the nulls.
      */
     public static Map&lt;String, String&gt; parseCharArrayToStringMap(char[] chars) {
         // API does not specify any particular order of entries, but it is reasonable to
         // maintain whatever order the OS provided to the end user
-<span class="nc" id="L1407">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
-<span class="nc" id="L1408">        int start = 0;</span>
-<span class="nc" id="L1409">        int end = 0;</span>
-<span class="nc" id="L1410">        String key = null;</span>
+<span class="nc" id="L1258">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L1259">        int start = 0;</span>
+<span class="nc" id="L1260">        int end = 0;</span>
+<span class="nc" id="L1261">        String key = null;</span>
         // Iterate characters
         do {
             // If we've reached a delimiter or the end of the array, add to list
-<span class="nc bnc" id="L1414" title="All 4 branches missed.">            if (end == chars.length || chars[end] == 0) {</span>
+<span class="nc bnc" id="L1265" title="All 4 branches missed.">            if (end == chars.length || chars[end] == 0) {</span>
                 // Zero length string with no key, we're done
-<span class="nc bnc" id="L1416" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
-<span class="nc" id="L1417">                    break;</span>
+<span class="nc bnc" id="L1267" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
+<span class="nc" id="L1268">                    break;</span>
                 }
                 // Otherwise add string (possibly empty) and reset start
                 // Intentionally using platform default charset
-<span class="nc" id="L1421">                strMap.put(key, new String(chars, start, end - start));</span>
-<span class="nc" id="L1422">                key = null;</span>
-<span class="nc" id="L1423">                start = end + 1;</span>
-<span class="nc bnc" id="L1424" title="All 4 branches missed.">            } else if (chars[end] == '=' &amp;&amp; key == null) {</span>
-<span class="nc" id="L1425">                key = new String(chars, start, end - start);</span>
-<span class="nc" id="L1426">                start = end + 1;</span>
+<span class="nc" id="L1272">                strMap.put(key, new String(chars, start, end - start));</span>
+<span class="nc" id="L1273">                key = null;</span>
+<span class="nc" id="L1274">                start = end + 1;</span>
+<span class="nc bnc" id="L1275" title="All 4 branches missed.">            } else if (chars[end] == '=' &amp;&amp; key == null) {</span>
+<span class="nc" id="L1276">                key = new String(chars, start, end - start);</span>
+<span class="nc" id="L1277">                start = end + 1;</span>
             }
-<span class="nc bnc" id="L1428" title="All 2 branches missed.">        } while (end++ &lt; chars.length);</span>
-<span class="nc" id="L1429">        return strMap;</span>
+<span class="nc bnc" id="L1279" title="All 2 branches missed.">        } while (end++ &lt; chars.length);</span>
+<span class="nc" id="L1280">        return strMap;</span>
     }
 
     /**
-     * Parses a delimited String into an enum map. Multiple consecutive delimiters
-     * are treated as one.
+     * Parses a delimited String into an enum map. Multiple consecutive delimiters are treated as one.
      *
-     * @param &lt;K&gt;
-     *            a type extending Enum
-     * @param clazz
-     *            The enum class
-     * @param values
-     *            A delimited String to be parsed into the map
-     * @param delim
-     *            the delimiter to use
-     * @return An EnumMap populated in order using the delimited String values. If
-     *         there are fewer String values than enum values, the later enum values
-     *         are not mapped. The final enum value will contain the remainder of
-     *         the String, including excess delimiters.
+     * @param &lt;K&gt;    a type extending Enum
+     * @param clazz  The enum class
+     * @param values A delimited String to be parsed into the map
+     * @param delim  the delimiter to use
+     * @return An EnumMap populated in order using the delimited String values. If there are fewer String values than
+     *         enum values, the later enum values are not mapped. The final enum value will contain the remainder of the
+     *         String, including excess delimiters.
      */
     public static &lt;K extends Enum&lt;K&gt;&gt; Map&lt;K, String&gt; stringToEnumMap(Class&lt;K&gt; clazz, String values, char delim) {
-<span class="nc" id="L1450">        EnumMap&lt;K, String&gt; map = new EnumMap&lt;&gt;(clazz);</span>
-<span class="nc" id="L1451">        int start = 0;</span>
-<span class="nc" id="L1452">        int len = values.length();</span>
-<span class="nc" id="L1453">        EnumSet&lt;K&gt; keys = EnumSet.allOf(clazz);</span>
-<span class="nc" id="L1454">        int keySize = keys.size();</span>
-<span class="nc bnc" id="L1455" title="All 2 branches missed.">        for (K key : keys) {</span>
+<span class="nc" id="L1295">        EnumMap&lt;K, String&gt; map = new EnumMap&lt;&gt;(clazz);</span>
+<span class="nc" id="L1296">        int start = 0;</span>
+<span class="nc" id="L1297">        int len = values.length();</span>
+<span class="nc" id="L1298">        EnumSet&lt;K&gt; keys = EnumSet.allOf(clazz);</span>
+<span class="nc" id="L1299">        int keySize = keys.size();</span>
+<span class="nc bnc" id="L1300" title="All 2 branches missed.">        for (K key : keys) {</span>
             // If this is the last enum, put the index at the end of the string, otherwise
             // put at delimiter
-<span class="nc bnc" id="L1458" title="All 2 branches missed.">            int idx = --keySize == 0 ? len : values.indexOf(delim, start);</span>
-<span class="nc bnc" id="L1459" title="All 2 branches missed.">            if (idx &gt;= 0) {</span>
-<span class="nc" id="L1460">                map.put(key, values.substring(start, idx));</span>
-<span class="nc" id="L1461">                start = idx;</span>
+<span class="nc bnc" id="L1303" title="All 2 branches missed.">            int idx = --keySize == 0 ? len : values.indexOf(delim, start);</span>
+<span class="nc bnc" id="L1304" title="All 2 branches missed.">            if (idx &gt;= 0) {</span>
+<span class="nc" id="L1305">                map.put(key, values.substring(start, idx));</span>
+<span class="nc" id="L1306">                start = idx;</span>
                 do {
-<span class="nc" id="L1463">                    start++;</span>
-<span class="nc bnc" id="L1464" title="All 4 branches missed.">                } while (start &lt; len &amp;&amp; values.charAt(start) == delim);</span>
+<span class="nc" id="L1308">                    start++;</span>
+<span class="nc bnc" id="L1309" title="All 4 branches missed.">                } while (start &lt; len &amp;&amp; values.charAt(start) == delim);</span>
             } else {
-<span class="nc" id="L1466">                map.put(key, values.substring(start));</span>
-<span class="nc" id="L1467">                break;</span>
+<span class="nc" id="L1311">                map.put(key, values.substring(start));</span>
+<span class="nc" id="L1312">                break;</span>
             }
-<span class="nc" id="L1469">        }</span>
-<span class="nc" id="L1470">        return map;</span>
+<span class="nc" id="L1314">        }</span>
+<span class="nc" id="L1315">        return map;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

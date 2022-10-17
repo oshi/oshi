@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FreeBsdLibc.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">FreeBsdLibc.java</span></div><h1>FreeBsdLibc.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.unix;
 
@@ -30,11 +11,11 @@ import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
 /**
- * C library. This class should be considered non-API as it may be removed
- * if/when its code is incorporated into the JNA project.
+ * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA
+ * project.
  */
 public interface FreeBsdLibc extends CLibrary {
-<span class="nc" id="L37">    FreeBsdLibc INSTANCE = Native.load(&quot;libc&quot;, FreeBsdLibc.class);</span>
+<span class="nc" id="L18">    FreeBsdLibc INSTANCE = Native.load(&quot;libc&quot;, FreeBsdLibc.class);</span>
 
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 16;
@@ -45,24 +26,24 @@ public interface FreeBsdLibc extends CLibrary {
      * Connection info
      */
     @FieldOrder({ &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_id&quot;, &quot;ut_pid&quot;, &quot;ut_user&quot;, &quot;ut_line&quot;, &quot;ut_host&quot;, &quot;ut_spare&quot; })
-<span class="nc" id="L48">    class FreeBsdUtmpx extends Structure {</span>
+<span class="nc" id="L29">    class FreeBsdUtmpx extends Structure {</span>
         public short ut_type; // type of entry
         public Timeval ut_tv; // time entry was made
-<span class="nc" id="L51">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
+<span class="nc" id="L32">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
         public int ut_pid; // process id
-<span class="nc" id="L53">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
-<span class="nc" id="L54">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
-<span class="nc" id="L55">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
-<span class="nc" id="L56">        public byte[] ut_spare = new byte[64];</span>
+<span class="nc" id="L34">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
+<span class="nc" id="L35">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
+<span class="nc" id="L36">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L37">        public byte[] ut_spare = new byte[64];</span>
     }
 
     /*
      * Data size
      */
     /** Constant &lt;code&gt;UINT64_SIZE=Native.getNativeSize(long.class)&lt;/code&gt; */
-<span class="nc" id="L63">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
+<span class="nc" id="L44">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
     /** Constant &lt;code&gt;INT_SIZE=Native.getNativeSize(int.class)&lt;/code&gt; */
-<span class="nc" id="L65">    int INT_SIZE = Native.getNativeSize(int.class);</span>
+<span class="nc" id="L46">    int INT_SIZE = Native.getNativeSize(int.class);</span>
 
     /*
      * CPU state indices
@@ -84,7 +65,7 @@ public interface FreeBsdLibc extends CLibrary {
      * Return type for BSD sysctl kern.boottime
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L87">    class Timeval extends Structure {</span>
+<span class="nc" id="L68">    class Timeval extends Structure {</span>
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
     }
@@ -93,26 +74,25 @@ public interface FreeBsdLibc extends CLibrary {
      * CPU Ticks
      */
     @FieldOrder({ &quot;cpu_ticks&quot; })
-<span class="nc" id="L96">    class CpTime extends Structure implements AutoCloseable {</span>
-<span class="nc" id="L97">        public long[] cpu_ticks = new long[CPUSTATES];</span>
+<span class="nc" id="L77">    class CpTime extends Structure implements AutoCloseable {</span>
+<span class="nc" id="L78">        public long[] cpu_ticks = new long[CPUSTATES];</span>
 
         @Override
         public void close() {
-<span class="nc" id="L101">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L103">                ((Memory) p).close();</span>
+<span class="nc" id="L82">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L84">                ((Memory) p).close();</span>
             }
-<span class="nc" id="L105">        }</span>
+<span class="nc" id="L86">        }</span>
     }
 
     /**
-     * Reads a line from the current file position in the utmp file. It returns a
-     * pointer to a structure containing the fields of the line.
+     * Reads a line from the current file position in the utmp file. It returns a pointer to a structure containing the
+     * fields of the line.
      * &lt;p&gt;
      * Not thread safe
      *
-     * @return a {@link FreeBsdUtmpx} on success, and NULL on failure (which
-     *         includes the &quot;record not found&quot; case)
+     * @return a {@link FreeBsdUtmpx} on success, and NULL on failure (which includes the &quot;record not found&quot; case)
      */
     FreeBsdUtmpx getutxent();
 }

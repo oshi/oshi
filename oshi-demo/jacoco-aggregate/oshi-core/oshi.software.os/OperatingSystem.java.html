@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OperatingSystem.java</span></div><h1>OperatingSystem.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
 
@@ -42,19 +23,16 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
- * An operating system (OS) is the software on a computer that manages the way
- * different programs use its hardware, and regulates the ways that a user
- * controls the computer.
+ * An operating system (OS) is the software on a computer that manages the way different programs use its hardware, and
+ * regulates the ways that a user controls the computer.
  * &lt;p&gt;
- * Considered thread safe, but see remarks for the {@link #getSessions()}
- * method.
+ * Considered thread safe, but see remarks for the {@link #getSessions()} method.
  */
 @ThreadSafe
 public interface OperatingSystem {
 
     /**
-     * Constants which may be used to filter Process lists in
-     * {@link #getProcesses(Predicate, Comparator, int)},
+     * Constants which may be used to filter Process lists in {@link #getProcesses(Predicate, Comparator, int)},
      * {@link #getChildProcesses(int, Predicate, Comparator, int)}, and
      * {@link #getDescendantProcesses(int, Predicate, Comparator, int)}.
      */
@@ -65,28 +43,27 @@ public interface OperatingSystem {
         /**
          * No filtering.
          */
-<span class="nc" id="L68">        public static final Predicate&lt;OSProcess&gt; ALL_PROCESSES = p -&gt; true;</span>
+<span class="nc" id="L46">        public static final Predicate&lt;OSProcess&gt; ALL_PROCESSES = p -&gt; true;</span>
         /**
          * Exclude processes with {@link State#INVALID} process state.
          */
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; VALID_PROCESS = p -&gt; !p.getState().equals(State.INVALID);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; VALID_PROCESS = p -&gt; !p.getState().equals(State.INVALID);</span>
         /**
          * Exclude child processes. Only include processes which are their own parent.
          */
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; NO_PARENT = p -&gt; p.getParentProcessID() == p.getProcessID();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; NO_PARENT = p -&gt; p.getParentProcessID() == p.getProcessID();</span>
         /**
          * Only incude 64-bit processes.
          */
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_64 = p -&gt; p.getBitness() == 64;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_64 = p -&gt; p.getBitness() == 64;</span>
         /**
          * Only include 32-bit processes.
          */
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_32 = p -&gt; p.getBitness() == 32;</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_32 = p -&gt; p.getBitness() == 32;</span>
     }
 
     /**
-     * Constants which may be used to sort Process lists in
-     * {@link #getProcesses(Predicate, Comparator, int)},
+     * Constants which may be used to sort Process lists in {@link #getProcesses(Predicate, Comparator, int)},
      * {@link #getChildProcesses(int, Predicate, Comparator, int)}, and
      * {@link #getDescendantProcesses(int, Predicate, Comparator, int)}.
      */
@@ -97,38 +74,38 @@ public interface OperatingSystem {
         /**
          * No sorting
          */
-<span class="nc" id="L100">        public static final Comparator&lt;OSProcess&gt; NO_SORTING = (p1, p2) -&gt; 0;</span>
+<span class="nc" id="L77">        public static final Comparator&lt;OSProcess&gt; NO_SORTING = (p1, p2) -&gt; 0;</span>
         /**
          * Sort by decreasing cumulative CPU percentage
          */
-<span class="nc" id="L104">        public static final Comparator&lt;OSProcess&gt; CPU_DESC = Comparator</span>
-<span class="nc" id="L105">                .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();</span>
+<span class="nc" id="L81">        public static final Comparator&lt;OSProcess&gt; CPU_DESC = Comparator</span>
+<span class="nc" id="L82">                .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();</span>
         /**
          * Sort by decreasing Resident Set Size (RSS)
          */
-<span class="nc" id="L109">        public static final Comparator&lt;OSProcess&gt; RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
-<span class="nc" id="L110">                .reversed();</span>
+<span class="nc" id="L86">        public static final Comparator&lt;OSProcess&gt; RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
+<span class="nc" id="L87">                .reversed();</span>
         /**
          * Sort by up time, newest processes first
          */
-<span class="nc" id="L114">        public static final Comparator&lt;OSProcess&gt; UPTIME_ASC = Comparator.comparingLong(OSProcess::getUpTime);</span>
+<span class="nc" id="L91">        public static final Comparator&lt;OSProcess&gt; UPTIME_ASC = Comparator.comparingLong(OSProcess::getUpTime);</span>
         /**
          * Sort by up time, oldest processes first
          */
-<span class="nc" id="L118">        public static final Comparator&lt;OSProcess&gt; UPTIME_DESC = UPTIME_ASC.reversed();</span>
+<span class="nc" id="L95">        public static final Comparator&lt;OSProcess&gt; UPTIME_DESC = UPTIME_ASC.reversed();</span>
         /**
          * Sort by Process Id
          */
-<span class="nc" id="L122">        public static final Comparator&lt;OSProcess&gt; PID_ASC = Comparator.comparingInt(OSProcess::getProcessID);</span>
+<span class="nc" id="L99">        public static final Comparator&lt;OSProcess&gt; PID_ASC = Comparator.comparingInt(OSProcess::getProcessID);</span>
         /**
          * Sort by Parent Process Id
          */
-<span class="nc" id="L126">        public static final Comparator&lt;OSProcess&gt; PARENTPID_ASC = Comparator</span>
-<span class="nc" id="L127">                .comparingInt(OSProcess::getParentProcessID);</span>
+<span class="nc" id="L103">        public static final Comparator&lt;OSProcess&gt; PARENTPID_ASC = Comparator</span>
+<span class="nc" id="L104">                .comparingInt(OSProcess::getParentProcessID);</span>
         /**
          * Sort by Process Name (case insensitive)
          */
-<span class="nc" id="L131">        public static final Comparator&lt;OSProcess&gt; NAME_ASC = Comparator.comparing(OSProcess::getName,</span>
+<span class="nc" id="L108">        public static final Comparator&lt;OSProcess&gt; NAME_ASC = Comparator.comparing(OSProcess::getName,</span>
                 String.CASE_INSENSITIVE_ORDER);
     }
 
@@ -170,114 +147,85 @@ public interface OperatingSystem {
     /**
      * Gets currently running processes. No order is guaranteed.
      *
-     * @return A list of {@link oshi.software.os.OSProcess} objects for the
-     *         specified number (or all) of currently running processes, sorted as
-     *         specified. The list may contain null elements or processes with a
-     *         state of {@link OSProcess.State#INVALID} if a process terminates
-     *         during iteration.
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the specified number (or all) of currently
+     *         running processes, sorted as specified. The list may contain null elements or processes with a state of
+     *         {@link OSProcess.State#INVALID} if a process terminates during iteration.
      */
     default List&lt;OSProcess&gt; getProcesses() {
-<span class="nc" id="L180">        return getProcesses(null, null, 0);</span>
+<span class="nc" id="L155">        return getProcesses(null, null, 0);</span>
     }
 
     /**
-     * Gets currently running processes, optionally filtering, sorting, and limited
-     * to the top &quot;N&quot;.
+     * Gets currently running processes, optionally filtering, sorting, and limited to the top &quot;N&quot;.
      *
-     * @param filter
-     *            An optional {@link Predicate} limiting the results to the
-     *            specified filter. Some common predicates are available in
-     *            {@link ProcessSorting}. May be {@code null} for no filtering.
-     * @param sort
-     *            An optional {@link Comparator} specifying the sorting order. Some
-     *            common comparators are available in {@link ProcessSorting}. May be
-     *            {@code null} for no sorting.
-     * @param limit
-     *            Max number of results to return, or 0 to return all results
-     * @return A list of {@link oshi.software.os.OSProcess} objects, optionally
-     *         filtered, sorted, and limited to the specified number.
+     * @param filter An optional {@link Predicate} limiting the results to the specified filter. Some common predicates
+     *               are available in {@link ProcessSorting}. May be {@code null} for no filtering.
+     * @param sort   An optional {@link Comparator} specifying the sorting order. Some common comparators are available
+     *               in {@link ProcessSorting}. May be {@code null} for no sorting.
+     * @param limit  Max number of results to return, or 0 to return all results
+     * @return A list of {@link oshi.software.os.OSProcess} objects, optionally filtered, sorted, and limited to the
+     *         specified number.
      *         &lt;p&gt;
-     *         The list may contain processes with a state of
-     *         {@link OSProcess.State#INVALID} if a process terminates during
-     *         iteration.
+     *         The list may contain processes with a state of {@link OSProcess.State#INVALID} if a process terminates
+     *         during iteration.
      */
     List&lt;OSProcess&gt; getProcesses(Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort, int limit);
 
     /**
-     * Gets information on a {@link Collection} of currently running processes. This
-     * has potentially improved performance vs. iterating individual processes.
+     * Gets information on a {@link Collection} of currently running processes. This has potentially improved
+     * performance vs. iterating individual processes.
      *
-     * @param pids
-     *            A collection of process IDs
-     * @return A list of {@link oshi.software.os.OSProcess} objects for the
-     *         specified process ids if it is running
+     * @param pids A collection of process IDs
+     * @return A list of {@link oshi.software.os.OSProcess} objects for the specified process ids if it is running
      */
     default List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids) {
-<span class="nc" id="L216">        return pids.stream().map(this::getProcess).filter(Objects::nonNull).filter(ProcessFiltering.VALID_PROCESS)</span>
-<span class="nc" id="L217">                .collect(Collectors.toList());</span>
+<span class="nc" id="L182">        return pids.stream().map(this::getProcess).filter(Objects::nonNull).filter(ProcessFiltering.VALID_PROCESS)</span>
+<span class="nc" id="L183">                .collect(Collectors.toList());</span>
     }
 
     /**
      * Gets information on a currently running process
      *
-     * @param pid
-     *            A process ID
-     * @return An {@link oshi.software.os.OSProcess} object for the specified
-     *         process id if it is running; null otherwise
+     * @param pid A process ID
+     * @return An {@link oshi.software.os.OSProcess} object for the specified process id if it is running; null
+     *         otherwise
      */
     OSProcess getProcess(int pid);
 
     /**
-     * Gets currently running child processes of provided parent PID, optionally
-     * filtering, sorting, and limited to the top &quot;N&quot;.
+     * Gets currently running child processes of provided parent PID, optionally filtering, sorting, and limited to the
+     * top &quot;N&quot;.
      *
-     * @param parentPid
-     *            The Process ID whose children to list.
-     * @param filter
-     *            An optional {@link Predicate} limiting the results to the
-     *            specified filter. Some common predicates are available in
-     *            {@link ProcessSorting}. May be {@code null} for no filtering.
-     * @param sort
-     *            An optional {@link Comparator} specifying the sorting order. Some
-     *            common comparators are available in {@link ProcessSorting}. May be
-     *            {@code null} for no sorting.
-     * @param limit
-     *            Max number of results to return, or 0 to return all results
-     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
-     *         currently running child processes of the provided PID, optionally
-     *         filtered, sorted, and limited to the specified number.
+     * @param parentPid The Process ID whose children to list.
+     * @param filter    An optional {@link Predicate} limiting the results to the specified filter. Some common
+     *                  predicates are available in {@link ProcessSorting}. May be {@code null} for no filtering.
+     * @param sort      An optional {@link Comparator} specifying the sorting order. Some common comparators are
+     *                  available in {@link ProcessSorting}. May be {@code null} for no sorting.
+     * @param limit     Max number of results to return, or 0 to return all results
+     * @return A list of {@link oshi.software.os.OSProcess} objects representing the currently running child processes
+     *         of the provided PID, optionally filtered, sorted, and limited to the specified number.
      *         &lt;p&gt;
-     *         The list may contain processes with a state of
-     *         {@link OSProcess.State#INVALID} if a process terminates during
-     *         iteration.
+     *         The list may contain processes with a state of {@link OSProcess.State#INVALID} if a process terminates
+     *         during iteration.
      */
     List&lt;OSProcess&gt; getChildProcesses(int parentPid, Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort,
             int limit);
 
     /**
-     * Gets currently running processes of provided parent PID's descendants,
-     * including their children, the children's children, etc., optionally
-     * filtering, sorting, and limited to the top &quot;N&quot;.
+     * Gets currently running processes of provided parent PID's descendants, including their children, the children's
+     * children, etc., optionally filtering, sorting, and limited to the top &quot;N&quot;.
      *
-     * @param parentPid
-     *            The Process ID whose children to list.
-     * @param filter
-     *            An optional {@link Predicate} limiting the results to the
-     *            specified filter. Some common predicates are available in
-     *            {@link ProcessSorting}. May be {@code null} for no filtering.
-     * @param sort
-     *            An optional {@link Comparator} specifying the sorting order. Some
-     *            common comparators are available in {@link ProcessSorting}. May be
-     *            {@code null} for no sorting.
-     * @param limit
-     *            Max number of results to return, or 0 to return all results
-     * @return A list of {@link oshi.software.os.OSProcess} objects representing the
-     *         currently running descendant processes of the provided PID,
-     *         optionally filtered, sorted, and limited to the specified number.
+     * @param parentPid The Process ID whose children to list.
+     * @param filter    An optional {@link Predicate} limiting the results to the specified filter. Some common
+     *                  predicates are available in {@link ProcessSorting}. May be {@code null} for no filtering.
+     * @param sort      An optional {@link Comparator} specifying the sorting order. Some common comparators are
+     *                  available in {@link ProcessSorting}. May be {@code null} for no sorting.
+     * @param limit     Max number of results to return, or 0 to return all results
+     * @return A list of {@link oshi.software.os.OSProcess} objects representing the currently running descendant
+     *         processes of the provided PID, optionally filtered, sorted, and limited to the specified number.
      *         &lt;p&gt;
-     *         The list may contain processes with a state of
-     *         {@link OSProcess.State#INVALID} if a process terminates during
-     *         iteration.
+     *         The list may contain processes with a state of {@link OSProcess.State#INVALID} if a process terminates
+     *         during iteration.
      */
     List&lt;OSProcess&gt; getDescendantProcesses(int parentPid, Predicate&lt;OSProcess&gt; filter, Comparator&lt;OSProcess&gt; sort,
             int limit);
@@ -320,19 +268,17 @@ public interface OperatingSystem {
     /**
      * Get Unix time of boot.
      *
-     * @return The approximate time at which the system booted, in seconds since the
-     *         Unix epoch.
+     * @return The approximate time at which the system booted, in seconds since the Unix epoch.
      */
     long getSystemBootTime();
 
     /**
-     * Determine whether the current process has elevated permissions such as sudo /
-     * Administrator
+     * Determine whether the current process has elevated permissions such as sudo / Administrator
      *
      * @return True if this process has elevated permissions
      */
     default boolean isElevated() {
-<span class="nc bnc" id="L335" title="All 2 branches missed.">        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;), -1);</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;), -1);</span>
     }
 
     /**
@@ -343,60 +289,51 @@ public interface OperatingSystem {
     NetworkParams getNetworkParams();
 
     /**
-     * Gets the all services on the system. The definition of what is a service is
-     * platform-dependent.
+     * Gets the all services on the system. The definition of what is a service is platform-dependent.
      *
      * @return An array of {@link OSService} objects
      */
     default List&lt;OSService&gt; getServices() {
-<span class="nc" id="L352">        return new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L297">        return new ArrayList&lt;&gt;();</span>
     }
 
     /**
      * Gets currently logged in users.
      * &lt;p&gt;
-     * On macOS, Linux, and Unix systems, the default implementation uses native
-     * code (see {@code man getutxent}) that is not thread safe. OSHI's use of this
-     * code is synchronized and may be used in a multi-threaded environment without
-     * introducing any additional conflicts. Users should note, however, that other
-     * operating system code may access the same native code.
+     * On macOS, Linux, and Unix systems, the default implementation uses native code (see {@code man getutxent}) that
+     * is not thread safe. OSHI's use of this code is synchronized and may be used in a multi-threaded environment
+     * without introducing any additional conflicts. Users should note, however, that other operating system code may
+     * access the same native code.
      * &lt;p&gt;
-     * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output
-     * parsing the output of the Posix-standard {@code who} command, and may
-     * internally employ reentrant code on some platforms. Users may opt to use this
-     * command-line variant by default using the {@code oshi.os.unix.whoCommand}
-     * configuration property.
+     * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output parsing the output of the
+     * Posix-standard {@code who} command, and may internally employ reentrant code on some platforms. Users may opt to
+     * use this command-line variant by default using the {@code oshi.os.unix.whoCommand} configuration property.
      *
-     * @return A list of {@link oshi.software.os.OSSession} objects representing
-     *         logged-in users
+     * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users
      */
     default List&lt;OSSession&gt; getSessions() {
-<span class="nc" id="L374">        return Who.queryWho();</span>
+<span class="nc" id="L315">        return Who.queryWho();</span>
     }
 
     /**
      * Gets windows on the operating system's GUI desktop.
      * &lt;p&gt;
-     * On Unix-like systems, reports X11 windows only, which may be limited to the
-     * current display and will not report windows used by other window managers.
+     * On Unix-like systems, reports X11 windows only, which may be limited to the current display and will not report
+     * windows used by other window managers.
      * &lt;p&gt;
-     * While not a guarantee, a best effort is made to return windows in
-     * foreground-to-background order. This ordering may be used along with
-     * {@link OSDesktopWindow#getOrder()} to (probably) determine the frontmost
-     * window.
+     * While not a guarantee, a best effort is made to return windows in foreground-to-background order. This ordering
+     * may be used along with {@link OSDesktopWindow#getOrder()} to (probably) determine the frontmost window.
      *
-     * @param visibleOnly
-     *            Whether to restrict the list to only windows visible to the user.
-     *            &lt;p&gt;
-     *            This is a best effort attempt at a reasonable definition of
-     *            visibility. Visible windows may be completely transparent.
-     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects
-     *         representing the desktop windows.
+     * @param visibleOnly Whether to restrict the list to only windows visible to the user.
+     *                    &lt;p&gt;
+     *                    This is a best effort attempt at a reasonable definition of visibility. Visible windows may be
+     *                    completely transparent.
+     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects representing the desktop windows.
      */
     default List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly) {
         // Default X11 implementation for Unix-like operating systems.
         // Overridden on Windows and macOS
-<span class="nc" id="L399">        return Xwininfo.queryXWindows(visibleOnly);</span>
+<span class="nc" id="L336">        return Xwininfo.queryXWindows(visibleOnly);</span>
     }
 
     /**
@@ -409,26 +346,26 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="nc" id="L412">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="nc" id="L349">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
             // Insider Preview Windows 11 is marked as Windows 10 build 22000
             // Temporary code until JDK os.name matches up
-<span class="nc bnc" id="L415" title="All 4 branches missed.">            if (&quot;10&quot;.equals(version) &amp;&amp; buildNumber.compareTo(&quot;22000&quot;) &gt;= 0) {</span>
-<span class="nc" id="L416">                this.version = &quot;11&quot;;</span>
+<span class="nc bnc" id="L352" title="All 4 branches missed.">            if (&quot;10&quot;.equals(version) &amp;&amp; buildNumber.compareTo(&quot;22000&quot;) &gt;= 0) {</span>
+<span class="nc" id="L353">                this.version = &quot;11&quot;;</span>
             } else {
-<span class="nc" id="L418">                this.version = version;</span>
+<span class="nc" id="L355">                this.version = version;</span>
             }
-<span class="nc" id="L420">            this.codeName = codeName;</span>
-<span class="nc" id="L421">            this.buildNumber = buildNumber;</span>
+<span class="nc" id="L357">            this.codeName = codeName;</span>
+<span class="nc" id="L358">            this.buildNumber = buildNumber;</span>
 
-<span class="nc bnc" id="L423" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="nc bnc" id="L424" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="nc" id="L425">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="nc" id="L362">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="nc bnc" id="L427" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="nc" id="L428">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="nc" id="L365">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="nc" id="L430">            this.versionStr = sb.toString();</span>
-<span class="nc" id="L431">        }</span>
+<span class="nc" id="L367">            this.versionStr = sb.toString();</span>
+<span class="nc" id="L368">        }</span>
 
         /**
          * Gets the operating system version.
@@ -436,7 +373,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="nc" id="L439">            return version;</span>
+<span class="nc" id="L376">            return version;</span>
         }
 
         /**
@@ -445,7 +382,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="nc" id="L448">            return codeName;</span>
+<span class="nc" id="L385">            return codeName;</span>
         }
 
         /**
@@ -454,12 +391,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="nc" id="L457">            return buildNumber;</span>
+<span class="nc" id="L394">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L462">            return this.versionStr;</span>
+<span class="nc" id="L399">            return this.versionStr;</span>
         }
     }
 }

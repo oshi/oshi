@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>MacOSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.mac</a> &gt; <span class="el_source">MacOSProcess.java</span></div><h1>MacOSProcess.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
 
@@ -40,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,12 +35,12 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
-import oshi.driver.mac.ThreadInfo.ThreadStats;
 import oshi.jna.Struct.CloseableProcTaskAllInfo;
 import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.util.GlobalConfig;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
@@ -68,9 +50,12 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class MacOSProcess extends AbstractOSProcess {
 
-<span class="nc" id="L71">    private static final Logger LOG = LoggerFactory.getLogger(MacOSProcess.class);</span>
+<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(MacOSProcess.class);</span>
 
-<span class="nc" id="L73">    private static final int ARGMAX = SysctlUtil.sysctl(&quot;kern.argmax&quot;, 0);</span>
+<span class="nc" id="L55">    private static final int ARGMAX = SysctlUtil.sysctl(&quot;kern.argmax&quot;, 0);</span>
+
+<span class="nc" id="L57">    private static final boolean LOG_MAC_SYSCTL_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SYSCTL_LOGWARNING,</span>
+            false);
 
     // 64-bit flag
     private static final int P_LP64 = 0x4;
@@ -87,17 +72,17 @@ public class MacOSProcess extends AbstractOSProcess {
     private int majorVersion;
     private int minorVersion;
 
-<span class="nc" id="L90">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
-<span class="nc" id="L91">    private Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; argsEnviron = memoize(this::queryArgsAndEnvironment);</span>
+<span class="nc" id="L75">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
+<span class="nc" id="L76">    private Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; argsEnviron = memoize(this::queryArgsAndEnvironment);</span>
 
-<span class="nc" id="L93">    private String name = &quot;&quot;;</span>
-<span class="nc" id="L94">    private String path = &quot;&quot;;</span>
+<span class="nc" id="L78">    private String name = &quot;&quot;;</span>
+<span class="nc" id="L79">    private String path = &quot;&quot;;</span>
     private String currentWorkingDirectory;
     private String user;
     private String userID;
     private String group;
     private String groupID;
-<span class="nc" id="L100">    private State state = INVALID;</span>
+<span class="nc" id="L85">    private State state = INVALID;</span>
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -116,331 +101,325 @@ public class MacOSProcess extends AbstractOSProcess {
     private long contextSwitches;
 
     public MacOSProcess(int pid, int major, int minor) {
-<span class="nc" id="L119">        super(pid);</span>
-<span class="nc" id="L120">        this.majorVersion = major;</span>
-<span class="nc" id="L121">        this.minorVersion = minor;</span>
-<span class="nc" id="L122">        updateAttributes();</span>
-<span class="nc" id="L123">    }</span>
+<span class="nc" id="L104">        super(pid);</span>
+<span class="nc" id="L105">        this.majorVersion = major;</span>
+<span class="nc" id="L106">        this.minorVersion = minor;</span>
+<span class="nc" id="L107">        updateAttributes();</span>
+<span class="nc" id="L108">    }</span>
 
     @Override
     public String getName() {
-<span class="nc" id="L127">        return this.name;</span>
+<span class="nc" id="L112">        return this.name;</span>
     }
 
     @Override
     public String getPath() {
-<span class="nc" id="L132">        return this.path;</span>
+<span class="nc" id="L117">        return this.path;</span>
     }
 
     @Override
     public String getCommandLine() {
-<span class="nc" id="L137">        return this.commandLine.get();</span>
+<span class="nc" id="L122">        return this.commandLine.get();</span>
     }
 
     private String queryCommandLine() {
-<span class="nc" id="L141">        return String.join(&quot; &quot;, getArguments());</span>
+<span class="nc" id="L126">        return String.join(&quot; &quot;, getArguments());</span>
     }
 
     @Override
     public List&lt;String&gt; getArguments() {
-<span class="nc" id="L146">        return argsEnviron.get().getA();</span>
+<span class="nc" id="L131">        return argsEnviron.get().getA();</span>
     }
 
     @Override
     public Map&lt;String, String&gt; getEnvironmentVariables() {
-<span class="nc" id="L151">        return argsEnviron.get().getB();</span>
+<span class="nc" id="L136">        return argsEnviron.get().getB();</span>
     }
 
     private Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt; queryArgsAndEnvironment() {
-<span class="nc" id="L155">        int pid = getProcessID();</span>
+<span class="nc" id="L140">        int pid = getProcessID();</span>
         // Set up return objects
-<span class="nc" id="L157">        List&lt;String&gt; args = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L142">        List&lt;String&gt; args = new ArrayList&lt;&gt;();</span>
         // API does not specify any particular order of entries, but it is reasonable to
         // maintain whatever order the OS provided to the end user
-<span class="nc" id="L160">        Map&lt;String, String&gt; env = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L145">        Map&lt;String, String&gt; env = new LinkedHashMap&lt;&gt;();</span>
 
         // Get command line via sysctl
-<span class="nc" id="L163">        int[] mib = new int[3];</span>
-<span class="nc" id="L164">        mib[0] = 1; // CTL_KERN</span>
-<span class="nc" id="L165">        mib[1] = 49; // KERN_PROCARGS2</span>
-<span class="nc" id="L166">        mib[2] = pid;</span>
+<span class="nc" id="L148">        int[] mib = new int[3];</span>
+<span class="nc" id="L149">        mib[0] = 1; // CTL_KERN</span>
+<span class="nc" id="L150">        mib[1] = 49; // KERN_PROCARGS2</span>
+<span class="nc" id="L151">        mib[2] = pid;</span>
         // Allocate memory for arguments
-<span class="nc" id="L168">        try (Memory procargs = new Memory(ARGMAX)) {</span>
-<span class="nc" id="L169">            procargs.clear();</span>
-<span class="nc" id="L170">            size_t.ByReference size = new size_t.ByReference(ARGMAX);</span>
+<span class="nc" id="L153">        try (Memory procargs = new Memory(ARGMAX)) {</span>
+<span class="nc" id="L154">            procargs.clear();</span>
+<span class="nc" id="L155">            size_t.ByReference size = new size_t.ByReference(ARGMAX);</span>
             // Fetch arguments
-<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO)) {</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (0 == SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO)) {</span>
                 // Procargs contains an int representing total # of args, followed by a
                 // null-terminated execpath string and then the arguments, each
                 // null-terminated (possible multiple consecutive nulls),
                 // The execpath string is also the first arg.
                 // Following this is an int representing total # of env, followed by
                 // null-terminated envs in similar format
-<span class="nc" id="L179">                int nargs = procargs.getInt(0);</span>
+<span class="nc" id="L164">                int nargs = procargs.getInt(0);</span>
                 // Sanity check
-<span class="nc bnc" id="L181" title="All 4 branches missed.">                if (nargs &gt; 0 &amp;&amp; nargs &lt;= 1024) {</span>
+<span class="nc bnc" id="L166" title="All 4 branches missed.">                if (nargs &gt; 0 &amp;&amp; nargs &lt;= 1024) {</span>
                     // Skip first int (containing value of nargs)
-<span class="nc" id="L183">                    long offset = SystemB.INT_SIZE;</span>
+<span class="nc" id="L168">                    long offset = SystemB.INT_SIZE;</span>
                     // Skip exec_command, as
-<span class="nc" id="L185">                    offset += procargs.getString(offset).length();</span>
+<span class="nc" id="L170">                    offset += procargs.getString(offset).length();</span>
                     // Iterate character by character using offset
                     // Build each arg and add to list
-<span class="nc bnc" id="L188" title="All 2 branches missed.">                    while (offset &lt; size.longValue()) {</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                    while (offset &lt; size.longValue()) {</span>
                         // Advance through additional nulls
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                        while (procargs.getByte(offset) == 0) {</span>
-<span class="nc bnc" id="L191" title="All 2 branches missed.">                            if (++offset &gt;= size.longValue()) {</span>
-<span class="nc" id="L192">                                break;</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                        while (procargs.getByte(offset) == 0) {</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">                            if (++offset &gt;= size.longValue()) {</span>
+<span class="nc" id="L177">                                break;</span>
                             }
                         }
                         // Grab a string. This should go until the null terminator
-<span class="nc" id="L196">                        String arg = procargs.getString(offset);</span>
-<span class="nc bnc" id="L197" title="All 2 branches missed.">                        if (nargs-- &gt; 0) {</span>
+<span class="nc" id="L181">                        String arg = procargs.getString(offset);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                        if (nargs-- &gt; 0) {</span>
                             // If we havent found nargs yet, it's an arg
-<span class="nc" id="L199">                            args.add(arg);</span>
+<span class="nc" id="L184">                            args.add(arg);</span>
                         } else {
                             // otherwise it's an env
-<span class="nc" id="L202">                            int idx = arg.indexOf('=');</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">                            if (idx &gt; 0) {</span>
-<span class="nc" id="L204">                                env.put(arg.substring(0, idx), arg.substring(idx + 1));</span>
+<span class="nc" id="L187">                            int idx = arg.indexOf('=');</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                            if (idx &gt; 0) {</span>
+<span class="nc" id="L189">                                env.put(arg.substring(0, idx), arg.substring(idx + 1));</span>
                             }
                         }
                         // Advance offset to next null
-<span class="nc" id="L208">                        offset += arg.length();</span>
-<span class="nc" id="L209">                    }</span>
+<span class="nc" id="L193">                        offset += arg.length();</span>
+<span class="nc" id="L194">                    }</span>
                 }
-<span class="nc" id="L211">            } else {</span>
+<span class="nc" id="L196">            } else {</span>
                 // Don't warn for pid 0
-<span class="nc bnc" id="L213" title="All 2 branches missed.">                if (pid &gt; 0) {</span>
-<span class="nc" id="L214">                    LOG.warn(</span>
+<span class="nc bnc" id="L198" title="All 4 branches missed.">                if (pid &gt; 0 &amp;&amp; LOG_MAC_SYSCTL_WARNING) {</span>
+<span class="nc" id="L199">                    LOG.warn(</span>
                             &quot;Failed sysctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}&quot;,
-<span class="nc" id="L216">                            pid, Native.getLastError());</span>
+<span class="nc" id="L201">                            pid, Native.getLastError());</span>
                 }
             }
         }
-<span class="nc" id="L220">        return new Pair&lt;&gt;(Collections.unmodifiableList(args), Collections.unmodifiableMap(env));</span>
+<span class="nc" id="L205">        return new Pair&lt;&gt;(Collections.unmodifiableList(args), Collections.unmodifiableMap(env));</span>
     }
 
     @Override
     public String getCurrentWorkingDirectory() {
-<span class="nc" id="L225">        return this.currentWorkingDirectory;</span>
+<span class="nc" id="L210">        return this.currentWorkingDirectory;</span>
     }
 
     @Override
     public String getUser() {
-<span class="nc" id="L230">        return this.user;</span>
+<span class="nc" id="L215">        return this.user;</span>
     }
 
     @Override
     public String getUserID() {
-<span class="nc" id="L235">        return this.userID;</span>
+<span class="nc" id="L220">        return this.userID;</span>
     }
 
     @Override
     public String getGroup() {
-<span class="nc" id="L240">        return this.group;</span>
+<span class="nc" id="L225">        return this.group;</span>
     }
 
     @Override
     public String getGroupID() {
-<span class="nc" id="L245">        return this.groupID;</span>
+<span class="nc" id="L230">        return this.groupID;</span>
     }
 
     @Override
     public State getState() {
-<span class="nc" id="L250">        return this.state;</span>
+<span class="nc" id="L235">        return this.state;</span>
     }
 
     @Override
     public int getParentProcessID() {
-<span class="nc" id="L255">        return this.parentProcessID;</span>
+<span class="nc" id="L240">        return this.parentProcessID;</span>
     }
 
     @Override
     public int getThreadCount() {
-<span class="nc" id="L260">        return this.threadCount;</span>
+<span class="nc" id="L245">        return this.threadCount;</span>
     }
 
     @Override
     public List&lt;OSThread&gt; getThreadDetails() {
-<span class="nc" id="L265">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L266">        List&lt;OSThread&gt; details = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L267">        List&lt;ThreadStats&gt; stats = ThreadInfo.queryTaskThreads(getProcessID());</span>
-<span class="nc bnc" id="L268" title="All 2 branches missed.">        for (ThreadStats stat : stats) {</span>
+<span class="nc" id="L250">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L251">        return ThreadInfo.queryTaskThreads(getProcessID()).stream().parallel().map(stat -&gt; {</span>
             // For long running threads the start time calculation can overestimate
-<span class="nc" id="L270">            long start = now - stat.getUpTime();</span>
-<span class="nc bnc" id="L271" title="All 2 branches missed.">            if (start &lt; this.getStartTime()) {</span>
-<span class="nc" id="L272">                start = this.getStartTime();</span>
-            }
-<span class="nc" id="L274">            details.add(new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),</span>
-<span class="nc" id="L275">                    stat.getUserTime(), start, now - start, stat.getPriority()));</span>
-<span class="nc" id="L276">        }</span>
-<span class="nc" id="L277">        return details;</span>
+<span class="nc" id="L253">            long start = Math.max(now - stat.getUpTime(), getStartTime());</span>
+<span class="nc" id="L254">            return new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),</span>
+<span class="nc" id="L255">                    stat.getUserTime(), start, now - start, stat.getPriority());</span>
+<span class="nc" id="L256">        }).collect(Collectors.toList());</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L282">        return this.priority;</span>
+<span class="nc" id="L261">        return this.priority;</span>
     }
 
     @Override
     public long getVirtualSize() {
-<span class="nc" id="L287">        return this.virtualSize;</span>
+<span class="nc" id="L266">        return this.virtualSize;</span>
     }
 
     @Override
     public long getResidentSetSize() {
-<span class="nc" id="L292">        return this.residentSetSize;</span>
+<span class="nc" id="L271">        return this.residentSetSize;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L297">        return this.kernelTime;</span>
+<span class="nc" id="L276">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L302">        return this.userTime;</span>
+<span class="nc" id="L281">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L307">        return this.upTime;</span>
+<span class="nc" id="L286">        return this.upTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L312">        return this.startTime;</span>
+<span class="nc" id="L291">        return this.startTime;</span>
     }
 
     @Override
     public long getBytesRead() {
-<span class="nc" id="L317">        return this.bytesRead;</span>
+<span class="nc" id="L296">        return this.bytesRead;</span>
     }
 
     @Override
     public long getBytesWritten() {
-<span class="nc" id="L322">        return this.bytesWritten;</span>
+<span class="nc" id="L301">        return this.bytesWritten;</span>
     }
 
     @Override
     public long getOpenFiles() {
-<span class="nc" id="L327">        return this.openFiles;</span>
+<span class="nc" id="L306">        return this.openFiles;</span>
     }
 
     @Override
     public int getBitness() {
-<span class="nc" id="L332">        return this.bitness;</span>
+<span class="nc" id="L311">        return this.bitness;</span>
     }
 
     @Override
     public long getAffinityMask() {
         // macOS doesn't do affinity. Return a bitmask of the current processors.
-<span class="nc" id="L338">        int logicalProcessorCount = SysctlUtil.sysctl(&quot;hw.logicalcpu&quot;, 1);</span>
-<span class="nc bnc" id="L339" title="All 2 branches missed.">        return logicalProcessorCount &lt; 64 ? (1L &lt;&lt; logicalProcessorCount) - 1 : -1L;</span>
+<span class="nc" id="L317">        int logicalProcessorCount = SysctlUtil.sysctl(&quot;hw.logicalcpu&quot;, 1);</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">        return logicalProcessorCount &lt; 64 ? (1L &lt;&lt; logicalProcessorCount) - 1 : -1L;</span>
     }
 
     @Override
     public long getMinorFaults() {
-<span class="nc" id="L344">        return this.minorFaults;</span>
+<span class="nc" id="L323">        return this.minorFaults;</span>
     }
 
     @Override
     public long getMajorFaults() {
-<span class="nc" id="L349">        return this.majorFaults;</span>
+<span class="nc" id="L328">        return this.majorFaults;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L354">        return this.contextSwitches;</span>
+<span class="nc" id="L333">        return this.contextSwitches;</span>
     }
 
     @Override
     public boolean updateAttributes() {
-<span class="nc" id="L359">        long now = System.currentTimeMillis();</span>
-<span class="nc" id="L360">        try (CloseableProcTaskAllInfo taskAllInfo = new CloseableProcTaskAllInfo()) {</span>
-<span class="nc bnc" id="L361" title="All 4 branches missed.">            if (0 &gt; SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo,</span>
-<span class="nc" id="L362">                    taskAllInfo.size()) || taskAllInfo.ptinfo.pti_threadnum &lt; 1) {</span>
-<span class="nc" id="L363">                this.state = INVALID;</span>
-<span class="nc" id="L364">                return false;</span>
+<span class="nc" id="L338">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L339">        try (CloseableProcTaskAllInfo taskAllInfo = new CloseableProcTaskAllInfo()) {</span>
+<span class="nc bnc" id="L340" title="All 4 branches missed.">            if (0 &gt; SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo,</span>
+<span class="nc" id="L341">                    taskAllInfo.size()) || taskAllInfo.ptinfo.pti_threadnum &lt; 1) {</span>
+<span class="nc" id="L342">                this.state = INVALID;</span>
+<span class="nc" id="L343">                return false;</span>
             }
-<span class="nc" id="L366">            try (Memory buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE)) {</span>
-<span class="nc bnc" id="L367" title="All 2 branches missed.">                if (0 &lt; SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {</span>
-<span class="nc" id="L368">                    this.path = buf.getString(0).trim();</span>
+<span class="nc" id="L345">            try (Memory buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE)) {</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">                if (0 &lt; SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {</span>
+<span class="nc" id="L347">                    this.path = buf.getString(0).trim();</span>
                     // Overwrite name with last part of path
-<span class="nc" id="L370">                    String[] pathSplit = this.path.split(&quot;/&quot;);</span>
-<span class="nc bnc" id="L371" title="All 2 branches missed.">                    if (pathSplit.length &gt; 0) {</span>
-<span class="nc" id="L372">                        this.name = pathSplit[pathSplit.length - 1];</span>
+<span class="nc" id="L349">                    String[] pathSplit = this.path.split(&quot;/&quot;);</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">                    if (pathSplit.length &gt; 0) {</span>
+<span class="nc" id="L351">                        this.name = pathSplit[pathSplit.length - 1];</span>
                     }
                 }
             }
-<span class="nc bnc" id="L376" title="All 2 branches missed.">            if (this.name.isEmpty()) {</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">            if (this.name.isEmpty()) {</span>
                 // pbi_comm contains first 16 characters of name
-<span class="nc" id="L378">                this.name = Native.toString(taskAllInfo.pbsd.pbi_comm, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L357">                this.name = Native.toString(taskAllInfo.pbsd.pbi_comm, StandardCharsets.UTF_8);</span>
             }
 
-<span class="nc bnc" id="L381" title="All 7 branches missed.">            switch (taskAllInfo.pbsd.pbi_status) {</span>
+<span class="nc bnc" id="L360" title="All 7 branches missed.">            switch (taskAllInfo.pbsd.pbi_status) {</span>
             case SSLEEP:
-<span class="nc" id="L383">                this.state = SLEEPING;</span>
-<span class="nc" id="L384">                break;</span>
+<span class="nc" id="L362">                this.state = SLEEPING;</span>
+<span class="nc" id="L363">                break;</span>
             case SWAIT:
-<span class="nc" id="L386">                this.state = WAITING;</span>
-<span class="nc" id="L387">                break;</span>
+<span class="nc" id="L365">                this.state = WAITING;</span>
+<span class="nc" id="L366">                break;</span>
             case SRUN:
-<span class="nc" id="L389">                this.state = RUNNING;</span>
-<span class="nc" id="L390">                break;</span>
+<span class="nc" id="L368">                this.state = RUNNING;</span>
+<span class="nc" id="L369">                break;</span>
             case SIDL:
-<span class="nc" id="L392">                this.state = NEW;</span>
-<span class="nc" id="L393">                break;</span>
+<span class="nc" id="L371">                this.state = NEW;</span>
+<span class="nc" id="L372">                break;</span>
             case SZOMB:
-<span class="nc" id="L395">                this.state = ZOMBIE;</span>
-<span class="nc" id="L396">                break;</span>
+<span class="nc" id="L374">                this.state = ZOMBIE;</span>
+<span class="nc" id="L375">                break;</span>
             case SSTOP:
-<span class="nc" id="L398">                this.state = STOPPED;</span>
-<span class="nc" id="L399">                break;</span>
+<span class="nc" id="L377">                this.state = STOPPED;</span>
+<span class="nc" id="L378">                break;</span>
             default:
-<span class="nc" id="L401">                this.state = OTHER;</span>
+<span class="nc" id="L380">                this.state = OTHER;</span>
                 break;
             }
-<span class="nc" id="L404">            this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;</span>
-<span class="nc" id="L405">            this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);</span>
-<span class="nc" id="L406">            Passwd pwuid = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);</span>
-<span class="nc bnc" id="L407" title="All 2 branches missed.">            if (pwuid != null) {</span>
-<span class="nc" id="L408">                this.user = pwuid.pw_name;</span>
+<span class="nc" id="L383">            this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;</span>
+<span class="nc" id="L384">            this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);</span>
+<span class="nc" id="L385">            Passwd pwuid = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">            if (pwuid != null) {</span>
+<span class="nc" id="L387">                this.user = pwuid.pw_name;</span>
             }
-<span class="nc" id="L410">            this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);</span>
-<span class="nc" id="L411">            Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);</span>
-<span class="nc bnc" id="L412" title="All 2 branches missed.">            if (grgid != null) {</span>
-<span class="nc" id="L413">                this.group = grgid.gr_name;</span>
+<span class="nc" id="L389">            this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);</span>
+<span class="nc" id="L390">            Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">            if (grgid != null) {</span>
+<span class="nc" id="L392">                this.group = grgid.gr_name;</span>
             }
-<span class="nc" id="L415">            this.threadCount = taskAllInfo.ptinfo.pti_threadnum;</span>
-<span class="nc" id="L416">            this.priority = taskAllInfo.ptinfo.pti_priority;</span>
-<span class="nc" id="L417">            this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;</span>
-<span class="nc" id="L418">            this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;</span>
-<span class="nc" id="L419">            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / 1_000_000L;</span>
-<span class="nc" id="L420">            this.userTime = taskAllInfo.ptinfo.pti_total_user / 1_000_000L;</span>
-<span class="nc" id="L421">            this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;</span>
-<span class="nc" id="L422">            this.upTime = now - this.startTime;</span>
-<span class="nc" id="L423">            this.openFiles = taskAllInfo.pbsd.pbi_nfiles;</span>
-<span class="nc bnc" id="L424" title="All 2 branches missed.">            this.bitness = (taskAllInfo.pbsd.pbi_flags &amp; P_LP64) == 0 ? 32 : 64;</span>
-<span class="nc" id="L425">            this.majorFaults = taskAllInfo.ptinfo.pti_pageins;</span>
+<span class="nc" id="L394">            this.threadCount = taskAllInfo.ptinfo.pti_threadnum;</span>
+<span class="nc" id="L395">            this.priority = taskAllInfo.ptinfo.pti_priority;</span>
+<span class="nc" id="L396">            this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;</span>
+<span class="nc" id="L397">            this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;</span>
+<span class="nc" id="L398">            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / 1_000_000L;</span>
+<span class="nc" id="L399">            this.userTime = taskAllInfo.ptinfo.pti_total_user / 1_000_000L;</span>
+<span class="nc" id="L400">            this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;</span>
+<span class="nc" id="L401">            this.upTime = now - this.startTime;</span>
+<span class="nc" id="L402">            this.openFiles = taskAllInfo.pbsd.pbi_nfiles;</span>
+<span class="nc bnc" id="L403" title="All 2 branches missed.">            this.bitness = (taskAllInfo.pbsd.pbi_flags &amp; P_LP64) == 0 ? 32 : 64;</span>
+<span class="nc" id="L404">            this.majorFaults = taskAllInfo.ptinfo.pti_pageins;</span>
             // testing using getrusage confirms pti_faults includes both major and minor
-<span class="nc" id="L427">            this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184</span>
-<span class="nc" id="L428">            this.contextSwitches = taskAllInfo.ptinfo.pti_csw;</span>
-<span class="nc" id="L429">        }</span>
-<span class="nc bnc" id="L430" title="All 4 branches missed.">        if (this.majorVersion &gt; 10 || this.minorVersion &gt;= 9) {</span>
-<span class="nc" id="L431">            try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {</span>
-<span class="nc bnc" id="L432" title="All 2 branches missed.">                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {</span>
-<span class="nc" id="L433">                    this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;</span>
-<span class="nc" id="L434">                    this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;</span>
+<span class="nc" id="L406">            this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184</span>
+<span class="nc" id="L407">            this.contextSwitches = taskAllInfo.ptinfo.pti_csw;</span>
+<span class="nc" id="L408">        }</span>
+<span class="nc bnc" id="L409" title="All 4 branches missed.">        if (this.majorVersion &gt; 10 || this.minorVersion &gt;= 9) {</span>
+<span class="nc" id="L410">            try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {</span>
+<span class="nc" id="L412">                    this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;</span>
+<span class="nc" id="L413">                    this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;</span>
                 }
             }
         }
-<span class="nc" id="L438">        try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {</span>
-<span class="nc bnc" id="L439" title="All 2 branches missed.">            if (0 &lt; SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {</span>
-<span class="nc" id="L440">                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);</span>
+<span class="nc" id="L417">        try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">            if (0 &lt; SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {</span>
+<span class="nc" id="L419">                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);</span>
             }
         }
-<span class="nc" id="L443">        return true;</span>
+<span class="nc" id="L422">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

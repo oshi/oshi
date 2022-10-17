@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsCentralProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware.platform.windows</a> &gt; <span class="el_source">WindowsCentralProcessor.java</span></div><h1>WindowsCentralProcessor.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2016-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2016-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
 
@@ -63,148 +44,146 @@ import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
- * A CPU, representing all of a system's processors. It may contain multiple
- * individual Physical and Logical processors.
+ * A CPU, representing all of a system's processors. It may contain multiple individual Physical and Logical processors.
  */
 @ThreadSafe
-<span class="nc" id="L72">final class WindowsCentralProcessor extends AbstractCentralProcessor {</span>
+<span class="nc" id="L53">final class WindowsCentralProcessor extends AbstractCentralProcessor {</span>
 
-<span class="nc" id="L74">    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);</span>
+<span class="nc" id="L55">    private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessor.class);</span>
 
     // populated by initProcessorCounts called by the parent constructor
     private Map&lt;String, Integer&gt; numaNodeProcToLogicalProcMap;
 
     // Whether to start a daemon thread ot calculate load average
-<span class="nc" id="L80">    private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);</span>
+<span class="nc" id="L61">    private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);</span>
     static {
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (USE_LOAD_AVERAGE) {</span>
-<span class="nc" id="L83">            LoadAverage.startDaemon();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (USE_LOAD_AVERAGE) {</span>
+<span class="nc" id="L64">            LoadAverage.startDaemon();</span>
         }
     }
 
     // Whether to match task manager using Processor Utility ticks
-<span class="nc bnc" id="L88" title="All 2 branches missed.">    private static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            &amp;&amp; GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">    private static final boolean USE_CPU_UTILITY = VersionHelpers.IsWindows8OrGreater()</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            &amp;&amp; GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);</span>
 
     // This tick query is memoized to enforce a minimum elapsed time for determining
     // the capacity base multiplier
-<span class="nc bnc" id="L93" title="All 2 branches missed.">    private final Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt;&gt; processorUtilityCounters = USE_CPU_UTILITY</span>
-<span class="nc" id="L94">            ? memoize(WindowsCentralProcessor::queryProcessorUtilityCounters, TimeUnit.MILLISECONDS.toNanos(300L))</span>
-<span class="nc" id="L95">            : null;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">    private final Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt;&gt; processorUtilityCounters = USE_CPU_UTILITY</span>
+<span class="nc" id="L75">            ? memoize(WindowsCentralProcessor::queryProcessorUtilityCounters, TimeUnit.MILLISECONDS.toNanos(300L))</span>
+<span class="nc" id="L76">            : null;</span>
     // Store the initial query and start the memoizer expiration
-<span class="nc bnc" id="L97" title="All 2 branches missed.">    private Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; initialUtilityCounters = USE_CPU_UTILITY</span>
-<span class="nc" id="L98">            ? processorUtilityCounters.get().getB()</span>
-<span class="nc" id="L99">            : null;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">    private Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; initialUtilityCounters = USE_CPU_UTILITY</span>
+<span class="nc" id="L79">            ? processorUtilityCounters.get().getB()</span>
+<span class="nc" id="L80">            : null;</span>
     // Lazily initialized
-<span class="nc" id="L101">    private Long utilityBaseMultiplier = null;</span>
+<span class="nc" id="L82">    private Long utilityBaseMultiplier = null;</span>
 
     /**
      * Initializes Class variables
      */
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-<span class="nc" id="L108">        String cpuVendor = &quot;&quot;;</span>
-<span class="nc" id="L109">        String cpuName = &quot;&quot;;</span>
-<span class="nc" id="L110">        String cpuIdentifier = &quot;&quot;;</span>
-<span class="nc" id="L111">        String cpuFamily = &quot;&quot;;</span>
-<span class="nc" id="L112">        String cpuModel = &quot;&quot;;</span>
-<span class="nc" id="L113">        String cpuStepping = &quot;&quot;;</span>
-<span class="nc" id="L114">        long cpuVendorFreq = 0L;</span>
+<span class="nc" id="L89">        String cpuVendor = &quot;&quot;;</span>
+<span class="nc" id="L90">        String cpuName = &quot;&quot;;</span>
+<span class="nc" id="L91">        String cpuIdentifier = &quot;&quot;;</span>
+<span class="nc" id="L92">        String cpuFamily = &quot;&quot;;</span>
+<span class="nc" id="L93">        String cpuModel = &quot;&quot;;</span>
+<span class="nc" id="L94">        String cpuStepping = &quot;&quot;;</span>
+<span class="nc" id="L95">        long cpuVendorFreq = 0L;</span>
         String processorID;
-<span class="nc" id="L116">        boolean cpu64bit = false;</span>
+<span class="nc" id="L97">        boolean cpu64bit = false;</span>
 
-<span class="nc" id="L118">        final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\&quot;;</span>
-<span class="nc" id="L119">        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (processorIds.length &gt; 0) {</span>
-<span class="nc" id="L121">            String cpuRegistryPath = cpuRegistryRoot + processorIds[0];</span>
-<span class="nc" id="L122">            cpuVendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="nc" id="L99">        final String cpuRegistryRoot = &quot;HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\&quot;;</span>
+<span class="nc" id="L100">        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (processorIds.length &gt; 0) {</span>
+<span class="nc" id="L102">            String cpuRegistryPath = cpuRegistryRoot + processorIds[0];</span>
+<span class="nc" id="L103">            cpuVendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
                     &quot;VendorIdentifier&quot;);
-<span class="nc" id="L124">            cpuName = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="nc" id="L105">            cpuName = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
                     &quot;ProcessorNameString&quot;);
-<span class="nc" id="L126">            cpuIdentifier = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
+<span class="nc" id="L107">            cpuIdentifier = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,</span>
                     &quot;Identifier&quot;);
             try {
-<span class="nc" id="L129">                cpuVendorFreq = Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, &quot;~MHz&quot;)</span>
+<span class="nc" id="L110">                cpuVendorFreq = Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, &quot;~MHz&quot;)</span>
                         * 1_000_000L;
-<span class="nc" id="L131">            } catch (Win32Exception e) {</span>
+<span class="nc" id="L112">            } catch (Win32Exception e) {</span>
                 // Leave as 0, parse the identifier as backup
-<span class="nc" id="L133">            }</span>
+<span class="nc" id="L114">            }</span>
         }
-<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (!cpuIdentifier.isEmpty()) {</span>
-<span class="nc" id="L136">            cpuFamily = parseIdentifier(cpuIdentifier, &quot;Family&quot;);</span>
-<span class="nc" id="L137">            cpuModel = parseIdentifier(cpuIdentifier, &quot;Model&quot;);</span>
-<span class="nc" id="L138">            cpuStepping = parseIdentifier(cpuIdentifier, &quot;Stepping&quot;);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (!cpuIdentifier.isEmpty()) {</span>
+<span class="nc" id="L117">            cpuFamily = parseIdentifier(cpuIdentifier, &quot;Family&quot;);</span>
+<span class="nc" id="L118">            cpuModel = parseIdentifier(cpuIdentifier, &quot;Model&quot;);</span>
+<span class="nc" id="L119">            cpuStepping = parseIdentifier(cpuIdentifier, &quot;Stepping&quot;);</span>
         }
-<span class="nc" id="L140">        try (CloseableSystemInfo sysinfo = new CloseableSystemInfo()) {</span>
-<span class="nc" id="L141">            Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);</span>
-<span class="nc" id="L142">            int processorArchitecture = sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue();</span>
-<span class="nc bnc" id="L143" title="All 6 branches missed.">            if (processorArchitecture == 9 // PROCESSOR_ARCHITECTURE_AMD64</span>
+<span class="nc" id="L121">        try (CloseableSystemInfo sysinfo = new CloseableSystemInfo()) {</span>
+<span class="nc" id="L122">            Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);</span>
+<span class="nc" id="L123">            int processorArchitecture = sysinfo.processorArchitecture.pi.wProcessorArchitecture.intValue();</span>
+<span class="nc bnc" id="L124" title="All 6 branches missed.">            if (processorArchitecture == 9 // PROCESSOR_ARCHITECTURE_AMD64</span>
                     || processorArchitecture == 12 // PROCESSOR_ARCHITECTURE_ARM64
                     || processorArchitecture == 6) { // PROCESSOR_ARCHITECTURE_IA64
-<span class="nc" id="L146">                cpu64bit = true;</span>
+<span class="nc" id="L127">                cpu64bit = true;</span>
             }
         }
-<span class="nc" id="L149">        WmiResult&lt;ProcessorIdProperty&gt; processorId = Win32Processor.queryProcessorId();</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (processorId.getResultCount() &gt; 0) {</span>
-<span class="nc" id="L151">            processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);</span>
+<span class="nc" id="L130">        WmiResult&lt;ProcessorIdProperty&gt; processorId = Win32Processor.queryProcessorId();</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (processorId.getResultCount() &gt; 0) {</span>
+<span class="nc" id="L132">            processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);</span>
         } else {
-<span class="nc" id="L153">            processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">                    cpu64bit ? new String[] { &quot;ia64&quot; } : new String[0]);</span>
+<span class="nc" id="L134">            processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                    cpu64bit ? new String[] { &quot;ia64&quot; } : new String[0]);</span>
         }
-<span class="nc" id="L156">        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,</span>
+<span class="nc" id="L137">        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,</span>
                 cpuVendorFreq);
     }
 
     /**
      * Parses identifier string
      *
-     * @param identifier
-     *            the full identifier string
-     * @param key
-     *            the key to retrieve
+     * @param identifier the full identifier string
+     * @param key        the key to retrieve
      * @return the string following id
      */
     private static String parseIdentifier(String identifier, String key) {
-<span class="nc" id="L170">        String[] idSplit = ParseUtil.whitespaces.split(identifier);</span>
-<span class="nc" id="L171">        boolean found = false;</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (String s : idSplit) {</span>
+<span class="nc" id="L149">        String[] idSplit = ParseUtil.whitespaces.split(identifier);</span>
+<span class="nc" id="L150">        boolean found = false;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        for (String s : idSplit) {</span>
             // If key string found, return next value
-<span class="nc bnc" id="L174" title="All 2 branches missed.">            if (found) {</span>
-<span class="nc" id="L175">                return s;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (found) {</span>
+<span class="nc" id="L154">                return s;</span>
             }
-<span class="nc" id="L177">            found = s.equals(key);</span>
+<span class="nc" id="L156">            found = s.equals(key);</span>
         }
         // If key string not found, return empty string
-<span class="nc" id="L180">        return &quot;&quot;;</span>
+<span class="nc" id="L159">        return &quot;&quot;;</span>
     }
 
     @Override
-    protected Pair&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;&gt; initProcessorCounts() {
-<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
-            Pair&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;&gt; procs = LogicalProcessorInformation
-<span class="nc" id="L187">                    .getLogicalProcessorInformationEx();</span>
+    protected Triplet&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;, List&lt;ProcessorCache&gt;&gt; initProcessorCounts() {
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
+            Triplet&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;, List&lt;ProcessorCache&gt;&gt; procs = LogicalProcessorInformation
+<span class="nc" id="L166">                    .getLogicalProcessorInformationEx();</span>
             // Save numaNode,Processor lookup for future PerfCounter instance lookup
             // The processor number is based on the Processor Group, so we keep a separate
             // index by NUMA node.
-<span class="nc" id="L191">            int curNode = -1;</span>
-<span class="nc" id="L192">            int procNum = 0;</span>
+<span class="nc" id="L170">            int curNode = -1;</span>
+<span class="nc" id="L171">            int procNum = 0;</span>
             // 0-indexed list of all lps for array lookup
-<span class="nc" id="L194">            int lp = 0;</span>
-<span class="nc" id="L195">            this.numaNodeProcToLogicalProcMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">            for (LogicalProcessor logProc : procs.getA()) {</span>
-<span class="nc" id="L197">                int node = logProc.getNumaNode();</span>
+<span class="nc" id="L173">            int lp = 0;</span>
+<span class="nc" id="L174">            this.numaNodeProcToLogicalProcMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            for (LogicalProcessor logProc : procs.getA()) {</span>
+<span class="nc" id="L176">                int node = logProc.getNumaNode();</span>
                 // This list is grouped by NUMA node so a change in node will reset this counter
-<span class="nc bnc" id="L199" title="All 2 branches missed.">                if (node != curNode) {</span>
-<span class="nc" id="L200">                    curNode = node;</span>
-<span class="nc" id="L201">                    procNum = 0;</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                if (node != curNode) {</span>
+<span class="nc" id="L179">                    curNode = node;</span>
+<span class="nc" id="L180">                    procNum = 0;</span>
                 }
-<span class="nc" id="L203">                numaNodeProcToLogicalProcMap.put(String.format(&quot;%d,%d&quot;, logProc.getNumaNode(), procNum++), lp++);</span>
-<span class="nc" id="L204">            }</span>
-<span class="nc" id="L205">            return procs;</span>
+<span class="nc" id="L182">                numaNodeProcToLogicalProcMap.put(String.format(&quot;%d,%d&quot;, logProc.getNumaNode(), procNum++), lp++);</span>
+<span class="nc" id="L183">            }</span>
+<span class="nc" id="L184">            return procs;</span>
         } else {
-<span class="nc" id="L207">            return LogicalProcessorInformation.getLogicalProcessorInformation();</span>
+<span class="nc" id="L186">            return LogicalProcessorInformation.getLogicalProcessorInformation();</span>
         }
     }
 
@@ -216,86 +195,83 @@ import oshi.util.tuples.Pair;
         // ticks and add them up. Calling the get() method gains the benefit of
         // synchronizing this output with the memoized result of per-processor ticks as
         // well.
-<span class="nc" id="L219">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L198">        long[] ticks = new long[TickType.values().length];</span>
         // Sum processor ticks
-<span class="nc" id="L221">        long[][] procTicks = getProcessorCpuLoadTicks();</span>
-<span class="nc bnc" id="L222" title="All 2 branches missed.">        for (int i = 0; i &lt; ticks.length; i++) {</span>
-<span class="nc bnc" id="L223" title="All 2 branches missed.">            for (long[] procTick : procTicks) {</span>
-<span class="nc" id="L224">                ticks[i] += procTick[i];</span>
+<span class="nc" id="L200">        long[][] procTicks = getProcessorCpuLoadTicks();</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        for (int i = 0; i &lt; ticks.length; i++) {</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            for (long[] procTick : procTicks) {</span>
+<span class="nc" id="L203">                ticks[i] += procTick[i];</span>
             }
         }
-<span class="nc" id="L227">        return ticks;</span>
+<span class="nc" id="L206">        return ticks;</span>
     }
 
     @Override
     public long[] queryCurrentFreq() {
-<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        if (VersionHelpers.IsWindows7OrGreater()) {</span>
             Pair&lt;List&lt;String&gt;, Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = ProcessorInformation
-<span class="nc" id="L234">                    .queryFrequencyCounters();</span>
-<span class="nc" id="L235">            List&lt;String&gt; instances = instanceValuePair.getA();</span>
-<span class="nc" id="L236">            Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
-<span class="nc" id="L237">            List&lt;Long&gt; percentMaxList = valueMap.get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);</span>
-<span class="nc bnc" id="L238" title="All 2 branches missed.">            if (!instances.isEmpty()) {</span>
-<span class="nc" id="L239">                long maxFreq = this.getMaxFreq();</span>
-<span class="nc" id="L240">                long[] freqs = new long[getLogicalProcessorCount()];</span>
-<span class="nc bnc" id="L241" title="All 2 branches missed.">                for (String instance : instances) {</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">                    int cpu = instance.contains(&quot;,&quot;) ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)</span>
-<span class="nc" id="L243">                            : ParseUtil.parseIntOrDefault(instance, 0);</span>
-<span class="nc bnc" id="L244" title="All 2 branches missed.">                    if (cpu &gt;= getLogicalProcessorCount()) {</span>
-<span class="nc" id="L245">                        continue;</span>
+<span class="nc" id="L213">                    .queryFrequencyCounters();</span>
+<span class="nc" id="L214">            List&lt;String&gt; instances = instanceValuePair.getA();</span>
+<span class="nc" id="L215">            Map&lt;ProcessorFrequencyProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
+<span class="nc" id="L216">            List&lt;Long&gt; percentMaxList = valueMap.get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if (!instances.isEmpty()) {</span>
+<span class="nc" id="L218">                long maxFreq = this.getMaxFreq();</span>
+<span class="nc" id="L219">                long[] freqs = new long[getLogicalProcessorCount()];</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">                for (String instance : instances) {</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                    int cpu = instance.contains(&quot;,&quot;) ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)</span>
+<span class="nc" id="L222">                            : ParseUtil.parseIntOrDefault(instance, 0);</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">                    if (cpu &gt;= getLogicalProcessorCount()) {</span>
+<span class="nc" id="L224">                        continue;</span>
                     }
-<span class="nc" id="L247">                    freqs[cpu] = percentMaxList.get(cpu) * maxFreq / 100L;</span>
-<span class="nc" id="L248">                }</span>
-<span class="nc" id="L249">                return freqs;</span>
+<span class="nc" id="L226">                    freqs[cpu] = percentMaxList.get(cpu) * maxFreq / 100L;</span>
+<span class="nc" id="L227">                }</span>
+<span class="nc" id="L228">                return freqs;</span>
             }
         }
         // If &lt;Win7 or anything failed in PDH/WMI, use the native call
-<span class="nc" id="L253">        return queryNTPower(2); // Current is field index 2</span>
+<span class="nc" id="L232">        return queryNTPower(2); // Current is field index 2</span>
     }
 
     @Override
     public long queryMaxFreq() {
-<span class="nc" id="L258">        long[] freqs = queryNTPower(1); // Max is field index 1</span>
-<span class="nc" id="L259">        return Arrays.stream(freqs).max().orElse(-1L);</span>
+<span class="nc" id="L237">        long[] freqs = queryNTPower(1); // Max is field index 1</span>
+<span class="nc" id="L238">        return Arrays.stream(freqs).max().orElse(-1L);</span>
     }
 
     /**
-     * Call CallNTPowerInformation for Processor information and return an array of
-     * the specified index
+     * Call CallNTPowerInformation for Processor information and return an array of the specified index
      *
-     * @param fieldIndex
-     *            The field, in order as defined in the
-     *            {@link PowrProf#PROCESSOR_INFORMATION} structure.
+     * @param fieldIndex The field, in order as defined in the {@link PowrProf#PROCESSOR_INFORMATION} structure.
      * @return The array of values.
      */
     private long[] queryNTPower(int fieldIndex) {
-<span class="nc" id="L272">        ProcessorPowerInformation ppi = new ProcessorPowerInformation();</span>
-<span class="nc" id="L273">        ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) ppi.toArray(getLogicalProcessorCount());</span>
-<span class="nc" id="L274">        long[] freqs = new long[getLogicalProcessorCount()];</span>
-<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null, 0,</span>
-<span class="nc" id="L276">                ppiArray[0].getPointer(), ppi.size() * ppiArray.length)) {</span>
-<span class="nc" id="L277">            LOG.error(&quot;Unable to get Processor Information&quot;);</span>
-<span class="nc" id="L278">            Arrays.fill(freqs, -1L);</span>
-<span class="nc" id="L279">            return freqs;</span>
+<span class="nc" id="L248">        ProcessorPowerInformation ppi = new ProcessorPowerInformation();</span>
+<span class="nc" id="L249">        ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) ppi.toArray(getLogicalProcessorCount());</span>
+<span class="nc" id="L250">        long[] freqs = new long[getLogicalProcessorCount()];</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        if (0 != PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.ProcessorInformation, null, 0,</span>
+<span class="nc" id="L252">                ppiArray[0].getPointer(), ppi.size() * ppiArray.length)) {</span>
+<span class="nc" id="L253">            LOG.error(&quot;Unable to get Processor Information&quot;);</span>
+<span class="nc" id="L254">            Arrays.fill(freqs, -1L);</span>
+<span class="nc" id="L255">            return freqs;</span>
         }
-<span class="nc bnc" id="L281" title="All 2 branches missed.">        for (int i = 0; i &lt; freqs.length; i++) {</span>
-<span class="nc bnc" id="L282" title="All 2 branches missed.">            if (fieldIndex == 1) { // Max</span>
-<span class="nc" id="L283">                freqs[i] = ppiArray[i].maxMhz * 1_000_000L;</span>
-<span class="nc bnc" id="L284" title="All 2 branches missed.">            } else if (fieldIndex == 2) { // Current</span>
-<span class="nc" id="L285">                freqs[i] = ppiArray[i].currentMhz * 1_000_000L;</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        for (int i = 0; i &lt; freqs.length; i++) {</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">            if (fieldIndex == 1) { // Max</span>
+<span class="nc" id="L259">                freqs[i] = ppiArray[i].maxMhz * 1_000_000L;</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">            } else if (fieldIndex == 2) { // Current</span>
+<span class="nc" id="L261">                freqs[i] = ppiArray[i].currentMhz * 1_000_000L;</span>
             } else {
-<span class="nc" id="L287">                freqs[i] = -1L;</span>
+<span class="nc" id="L263">                freqs[i] = -1L;</span>
             }
         }
-<span class="nc" id="L290">        return freqs;</span>
+<span class="nc" id="L266">        return freqs;</span>
     }
 
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L295" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L296">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L271" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L272">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L298">        return LoadAverage.queryLoadAverage(nelem);</span>
+<span class="nc" id="L274">        return LoadAverage.queryLoadAverage(nelem);</span>
     }
 
     @Override
@@ -308,79 +284,79 @@ import oshi.util.tuples.Pair;
         List&lt;Long&gt; softIrqList;
         List&lt;Long&gt; idleList;
         // These are only used with USE_CPU_UTILITY
-<span class="nc" id="L311">        List&lt;Long&gt; baseList = null;</span>
-<span class="nc" id="L312">        List&lt;Long&gt; systemUtility = null;</span>
-<span class="nc" id="L313">        List&lt;Long&gt; processorUtility = null;</span>
-<span class="nc" id="L314">        List&lt;Long&gt; processorUtilityBase = null;</span>
-<span class="nc" id="L315">        List&lt;Long&gt; initSystemList = null;</span>
-<span class="nc" id="L316">        List&lt;Long&gt; initUserList = null;</span>
-<span class="nc" id="L317">        List&lt;Long&gt; initBase = null;</span>
-<span class="nc" id="L318">        List&lt;Long&gt; initSystemUtility = null;</span>
-<span class="nc" id="L319">        List&lt;Long&gt; initProcessorUtility = null;</span>
-<span class="nc" id="L320">        List&lt;Long&gt; initProcessorUtilityBase = null;</span>
-<span class="nc bnc" id="L321" title="All 2 branches missed.">        if (USE_CPU_UTILITY) {</span>
-<span class="nc" id="L322">            Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = processorUtilityCounters</span>
-<span class="nc" id="L323">                    .get();</span>
-<span class="nc" id="L324">            instances = instanceValuePair.getA();</span>
-<span class="nc" id="L325">            Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
-<span class="nc" id="L326">            systemList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
-<span class="nc" id="L327">            userList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);</span>
-<span class="nc" id="L328">            irqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTINTERRUPTTIME);</span>
-<span class="nc" id="L329">            softIrqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTDPCTIME);</span>
+<span class="nc" id="L287">        List&lt;Long&gt; baseList = null;</span>
+<span class="nc" id="L288">        List&lt;Long&gt; systemUtility = null;</span>
+<span class="nc" id="L289">        List&lt;Long&gt; processorUtility = null;</span>
+<span class="nc" id="L290">        List&lt;Long&gt; processorUtilityBase = null;</span>
+<span class="nc" id="L291">        List&lt;Long&gt; initSystemList = null;</span>
+<span class="nc" id="L292">        List&lt;Long&gt; initUserList = null;</span>
+<span class="nc" id="L293">        List&lt;Long&gt; initBase = null;</span>
+<span class="nc" id="L294">        List&lt;Long&gt; initSystemUtility = null;</span>
+<span class="nc" id="L295">        List&lt;Long&gt; initProcessorUtility = null;</span>
+<span class="nc" id="L296">        List&lt;Long&gt; initProcessorUtilityBase = null;</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        if (USE_CPU_UTILITY) {</span>
+<span class="nc" id="L298">            Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = processorUtilityCounters</span>
+<span class="nc" id="L299">                    .get();</span>
+<span class="nc" id="L300">            instances = instanceValuePair.getA();</span>
+<span class="nc" id="L301">            Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
+<span class="nc" id="L302">            systemList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
+<span class="nc" id="L303">            userList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);</span>
+<span class="nc" id="L304">            irqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTINTERRUPTTIME);</span>
+<span class="nc" id="L305">            softIrqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTDPCTIME);</span>
             // % Processor Time is actually Idle time
-<span class="nc" id="L331">            idleList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORTIME);</span>
-<span class="nc" id="L332">            baseList = valueMap.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);</span>
+<span class="nc" id="L307">            idleList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORTIME);</span>
+<span class="nc" id="L308">            baseList = valueMap.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);</span>
             // Utility ticks, if configured
-<span class="nc" id="L334">            systemUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);</span>
-<span class="nc" id="L335">            processorUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);</span>
-<span class="nc" id="L336">            processorUtilityBase = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);</span>
+<span class="nc" id="L310">            systemUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);</span>
+<span class="nc" id="L311">            processorUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);</span>
+<span class="nc" id="L312">            processorUtilityBase = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);</span>
 
-<span class="nc" id="L338">            initSystemList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
-<span class="nc" id="L339">            initUserList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);</span>
-<span class="nc" id="L340">            initBase = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);</span>
+<span class="nc" id="L314">            initSystemList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
+<span class="nc" id="L315">            initUserList = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);</span>
+<span class="nc" id="L316">            initBase = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);</span>
             // Utility ticks, if configured
-<span class="nc" id="L342">            initSystemUtility = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);</span>
-<span class="nc" id="L343">            initProcessorUtility = initialUtilityCounters</span>
-<span class="nc" id="L344">                    .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);</span>
-<span class="nc" id="L345">            initProcessorUtilityBase = initialUtilityCounters</span>
-<span class="nc" id="L346">                    .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);</span>
-<span class="nc" id="L347">        } else {</span>
+<span class="nc" id="L318">            initSystemUtility = initialUtilityCounters.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);</span>
+<span class="nc" id="L319">            initProcessorUtility = initialUtilityCounters</span>
+<span class="nc" id="L320">                    .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);</span>
+<span class="nc" id="L321">            initProcessorUtilityBase = initialUtilityCounters</span>
+<span class="nc" id="L322">                    .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);</span>
+<span class="nc" id="L323">        } else {</span>
             Pair&lt;List&lt;String&gt;, Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt;&gt; instanceValuePair = ProcessorInformation
-<span class="nc" id="L349">                    .queryProcessorCounters();</span>
-<span class="nc" id="L350">            instances = instanceValuePair.getA();</span>
-<span class="nc" id="L351">            Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
-<span class="nc" id="L352">            systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
-<span class="nc" id="L353">            userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);</span>
-<span class="nc" id="L354">            irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);</span>
-<span class="nc" id="L355">            softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);</span>
+<span class="nc" id="L325">                    .queryProcessorCounters();</span>
+<span class="nc" id="L326">            instances = instanceValuePair.getA();</span>
+<span class="nc" id="L327">            Map&lt;ProcessorTickCountProperty, List&lt;Long&gt;&gt; valueMap = instanceValuePair.getB();</span>
+<span class="nc" id="L328">            systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);</span>
+<span class="nc" id="L329">            userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);</span>
+<span class="nc" id="L330">            irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);</span>
+<span class="nc" id="L331">            softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);</span>
             // % Processor Time is actually Idle time
-<span class="nc" id="L357">            idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);</span>
+<span class="nc" id="L333">            idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);</span>
         }
 
-<span class="nc" id="L360">        int ncpu = getLogicalProcessorCount();</span>
-<span class="nc" id="L361">        long[][] ticks = new long[ncpu][TickType.values().length];</span>
-<span class="nc bnc" id="L362" title="All 34 branches missed.">        if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null</span>
+<span class="nc" id="L336">        int ncpu = getLogicalProcessorCount();</span>
+<span class="nc" id="L337">        long[][] ticks = new long[ncpu][TickType.values().length];</span>
+<span class="nc bnc" id="L338" title="All 34 branches missed.">        if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null</span>
                 || idleList == null
                 || (USE_CPU_UTILITY &amp;&amp; (baseList == null || systemUtility == null || processorUtility == null
                         || processorUtilityBase == null || initSystemList == null || initUserList == null
                         || initBase == null || initSystemUtility == null || initProcessorUtility == null
                         || initProcessorUtilityBase == null))) {
-<span class="nc" id="L368">            return ticks;</span>
+<span class="nc" id="L344">            return ticks;</span>
         }
-<span class="nc bnc" id="L370" title="All 2 branches missed.">        for (String instance : instances) {</span>
-<span class="nc bnc" id="L371" title="All 2 branches missed.">            int cpu = instance.contains(&quot;,&quot;) ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)</span>
-<span class="nc" id="L372">                    : ParseUtil.parseIntOrDefault(instance, 0);</span>
-<span class="nc bnc" id="L373" title="All 2 branches missed.">            if (cpu &gt;= ncpu) {</span>
-<span class="nc" id="L374">                continue;</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">        for (String instance : instances) {</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">            int cpu = instance.contains(&quot;,&quot;) ? numaNodeProcToLogicalProcMap.getOrDefault(instance, 0)</span>
+<span class="nc" id="L348">                    : ParseUtil.parseIntOrDefault(instance, 0);</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">            if (cpu &gt;= ncpu) {</span>
+<span class="nc" id="L350">                continue;</span>
             }
-<span class="nc" id="L376">            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);</span>
-<span class="nc" id="L377">            ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);</span>
-<span class="nc" id="L378">            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);</span>
-<span class="nc" id="L379">            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);</span>
-<span class="nc" id="L380">            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);</span>
+<span class="nc" id="L352">            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);</span>
+<span class="nc" id="L353">            ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);</span>
+<span class="nc" id="L354">            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);</span>
+<span class="nc" id="L355">            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);</span>
+<span class="nc" id="L356">            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);</span>
 
             // If users want Task Manager output we have to do some math to get there
-<span class="nc bnc" id="L383" title="All 2 branches missed.">            if (USE_CPU_UTILITY) {</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">            if (USE_CPU_UTILITY) {</span>
                 // We have two new capacity numbers, processor (all but idle) and system
                 // (included in processor). To further complicate matters, these are in percent
                 // units so must be divided by 100.
@@ -391,102 +367,100 @@ import oshi.util.tuples.Pair;
                 // recalculate it
 
                 // Get elapsed time in 100NS
-<span class="nc" id="L394">                long deltaT = baseList.get(cpu) - initBase.get(cpu);</span>
-<span class="nc bnc" id="L395" title="All 2 branches missed.">                if (deltaT &gt; 0) {</span>
+<span class="nc" id="L370">                long deltaT = baseList.get(cpu) - initBase.get(cpu);</span>
+<span class="nc bnc" id="L371" title="All 2 branches missed.">                if (deltaT &gt; 0) {</span>
                     // Get elapsed utility base
-<span class="nc" id="L397">                    long deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);</span>
+<span class="nc" id="L373">                    long deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);</span>
                     // The ratio of elapsed clock to elapsed utility base is an integer constant.
                     // We can calculate a conversion factor to ensure a consistent application of
                     // the correction. Since Utility is in percent, this is actually 100x the true
                     // multiplier but is at the level where the integer calculation is precise
-<span class="nc" id="L402">                    long multiplier = lazilyCalculateMultiplier(deltaBase, deltaT);</span>
+<span class="nc" id="L378">                    long multiplier = lazilyCalculateMultiplier(deltaBase, deltaT);</span>
 
                     // 0 multiplier means we just re-initialized ticks
-<span class="nc bnc" id="L405" title="All 2 branches missed.">                    if (multiplier &gt; 0) {</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">                    if (multiplier &gt; 0) {</span>
                         // Get utility delta
-<span class="nc" id="L407">                        long deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);</span>
-<span class="nc" id="L408">                        long deltaSys = systemUtility.get(cpu) - initSystemUtility.get(cpu);</span>
+<span class="nc" id="L383">                        long deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);</span>
+<span class="nc" id="L384">                        long deltaSys = systemUtility.get(cpu) - initSystemUtility.get(cpu);</span>
 
                         // Calculate new target ticks
                         // Correct for the 100x multiplier at the end
-<span class="nc" id="L412">                        long newUser = initUserList.get(cpu) + multiplier * (deltaProc - deltaSys) / 100;</span>
-<span class="nc" id="L413">                        long newSystem = initSystemList.get(cpu) + multiplier * deltaSys / 100;</span>
+<span class="nc" id="L388">                        long newUser = initUserList.get(cpu) + multiplier * (deltaProc - deltaSys) / 100;</span>
+<span class="nc" id="L389">                        long newSystem = initSystemList.get(cpu) + multiplier * deltaSys / 100;</span>
 
                         // Adjust user to new, saving the delta
-<span class="nc" id="L416">                        long delta = newUser - ticks[cpu][TickType.USER.getIndex()];</span>
-<span class="nc" id="L417">                        ticks[cpu][TickType.USER.getIndex()] = newUser;</span>
+<span class="nc" id="L392">                        long delta = newUser - ticks[cpu][TickType.USER.getIndex()];</span>
+<span class="nc" id="L393">                        ticks[cpu][TickType.USER.getIndex()] = newUser;</span>
                         // Do the same for system
-<span class="nc" id="L419">                        delta += newSystem - ticks[cpu][TickType.SYSTEM.getIndex()];</span>
-<span class="nc" id="L420">                        ticks[cpu][TickType.SYSTEM.getIndex()] = newSystem;</span>
+<span class="nc" id="L395">                        delta += newSystem - ticks[cpu][TickType.SYSTEM.getIndex()];</span>
+<span class="nc" id="L396">                        ticks[cpu][TickType.SYSTEM.getIndex()] = newSystem;</span>
                         // Subtract delta from idle
-<span class="nc" id="L422">                        ticks[cpu][TickType.IDLE.getIndex()] -= delta;</span>
+<span class="nc" id="L398">                        ticks[cpu][TickType.IDLE.getIndex()] -= delta;</span>
                     }
                 }
             }
 
             // Decrement IRQ from system to avoid double counting in the total array
-<span class="nc" id="L428">            ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
-<span class="nc" id="L429">                    + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
+<span class="nc" id="L404">            ticks[cpu][TickType.SYSTEM.getIndex()] -= ticks[cpu][TickType.IRQ.getIndex()]</span>
+<span class="nc" id="L405">                    + ticks[cpu][TickType.SOFTIRQ.getIndex()];</span>
 
             // Raw value is cumulative 100NS-ticks
             // Divide by 10_000 to get milliseconds
-<span class="nc" id="L433">            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L434">            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L435">            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L436">            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L437">            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;</span>
-<span class="nc" id="L438">        }</span>
+<span class="nc" id="L409">            ticks[cpu][TickType.SYSTEM.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L410">            ticks[cpu][TickType.USER.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L411">            ticks[cpu][TickType.IRQ.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L412">            ticks[cpu][TickType.SOFTIRQ.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L413">            ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;</span>
+<span class="nc" id="L414">        }</span>
         // Skipping nice and IOWait, they'll stay 0
-<span class="nc" id="L440">        return ticks;</span>
+<span class="nc" id="L416">        return ticks;</span>
     }
 
     /**
      * Lazily calculate the capacity tick multiplier once.
      *
-     * @param deltaBase
-     *            The difference in base ticks.
-     * @param deltaT
-     *            The difference in elapsed 100NS time
+     * @param deltaBase The difference in base ticks.
+     * @param deltaT    The difference in elapsed 100NS time
      * @return The ratio of elapsed time to base ticks
      */
     private synchronized long lazilyCalculateMultiplier(long deltaBase, long deltaT) {
-<span class="nc bnc" id="L453" title="All 2 branches missed.">        if (utilityBaseMultiplier == null) {</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">        if (utilityBaseMultiplier == null) {</span>
             // If too much time has elapsed from class instantiation, re-initialize the
             // ticks and return without calculating. Approx 7 minutes for 100NS counter to
             // exceed max unsigned int.
-<span class="nc bnc" id="L457" title="All 2 branches missed.">            if (deltaT &gt;&gt; 32 &gt; 0) {</span>
-<span class="nc" id="L458">                initialUtilityCounters = processorUtilityCounters.get().getB();</span>
-<span class="nc" id="L459">                return 0L;</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">            if (deltaT &gt;&gt; 32 &gt; 0) {</span>
+<span class="nc" id="L432">                initialUtilityCounters = processorUtilityCounters.get().getB();</span>
+<span class="nc" id="L433">                return 0L;</span>
             }
             // Base counter wraps approximately every 115 minutes
             // If deltaBase is nonpositive assume it has wrapped
-<span class="nc bnc" id="L463" title="All 2 branches missed.">            if (deltaBase &lt;= 0) {</span>
-<span class="nc" id="L464">                deltaBase += 1L &lt;&lt; 32;</span>
+<span class="nc bnc" id="L437" title="All 2 branches missed.">            if (deltaBase &lt;= 0) {</span>
+<span class="nc" id="L438">                deltaBase += 1L &lt;&lt; 32;</span>
             }
-<span class="nc" id="L466">            long multiplier = Math.round((double) deltaT / deltaBase);</span>
+<span class="nc" id="L440">            long multiplier = Math.round((double) deltaT / deltaBase);</span>
             // If not enough time has elapsed, return the value this one time but don't
             // persist. 5000 ms = 50 million 100NS ticks
-<span class="nc bnc" id="L469" title="All 2 branches missed.">            if (deltaT &lt; 50_000_000L) {</span>
-<span class="nc" id="L470">                return multiplier;</span>
+<span class="nc bnc" id="L443" title="All 2 branches missed.">            if (deltaT &lt; 50_000_000L) {</span>
+<span class="nc" id="L444">                return multiplier;</span>
             }
-<span class="nc" id="L472">            utilityBaseMultiplier = multiplier;</span>
+<span class="nc" id="L446">            utilityBaseMultiplier = multiplier;</span>
         }
-<span class="nc" id="L474">        return utilityBaseMultiplier;</span>
+<span class="nc" id="L448">        return utilityBaseMultiplier;</span>
     }
 
     private static Pair&lt;List&lt;String&gt;, Map&lt;ProcessorUtilityTickCountProperty, List&lt;Long&gt;&gt;&gt; queryProcessorUtilityCounters() {
-<span class="nc" id="L478">        return ProcessorInformation.queryProcessorCapacityCounters();</span>
+<span class="nc" id="L452">        return ProcessorInformation.queryProcessorCapacityCounters();</span>
     }
 
     @Override
     public long queryContextSwitches() {
-<span class="nc" id="L483">        return SystemInformation.queryContextSwitchCounters().getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC,</span>
-<span class="nc" id="L484">                0L);</span>
+<span class="nc" id="L457">        return SystemInformation.queryContextSwitchCounters().getOrDefault(ContextSwitchProperty.CONTEXTSWITCHESPERSEC,</span>
+<span class="nc" id="L458">                0L);</span>
     }
 
     @Override
     public long queryInterrupts() {
-<span class="nc" id="L489">        return ProcessorInformation.queryInterruptCounters().getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);</span>
+<span class="nc" id="L463">        return ProcessorInformation.queryInterruptCounters().getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

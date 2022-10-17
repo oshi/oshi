@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OsHwTextPanel.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.gui</a> &gt; <span class="el_source">OsHwTextPanel.java</span></div><h1>OsHwTextPanel.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
 
@@ -47,8 +28,7 @@ import oshi.util.EdidUtil;
 import oshi.util.FormatUtil;
 
 /**
- * Displays text in panes covering mostly-static information. Uptime is
- * refreshed every second.
+ * Displays text in panes covering mostly-static information. Uptime is refreshed every second.
  */
 public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
 
@@ -61,127 +41,127 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
     private String osPrefix;
 
     public OsHwTextPanel(SystemInfo si) {
-<span class="nc" id="L64">        super();</span>
-<span class="nc" id="L65">        init(si);</span>
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L44">        super();</span>
+<span class="nc" id="L45">        init(si);</span>
+<span class="nc" id="L46">    }</span>
 
     private void init(SystemInfo si) {
-<span class="nc" id="L69">        osPrefix = getOsPrefix(si);</span>
+<span class="nc" id="L49">        osPrefix = getOsPrefix(si);</span>
 
-<span class="nc" id="L71">        GridBagConstraints osLabel = new GridBagConstraints();</span>
-<span class="nc" id="L72">        GridBagConstraints osConstraints = new GridBagConstraints();</span>
-<span class="nc" id="L73">        osConstraints.gridy = 1;</span>
-<span class="nc" id="L74">        osConstraints.fill = GridBagConstraints.BOTH;</span>
-<span class="nc" id="L75">        osConstraints.insets = new Insets(0, 0, 15, 15); // T,L,B,R</span>
+<span class="nc" id="L51">        GridBagConstraints osLabel = new GridBagConstraints();</span>
+<span class="nc" id="L52">        GridBagConstraints osConstraints = new GridBagConstraints();</span>
+<span class="nc" id="L53">        osConstraints.gridy = 1;</span>
+<span class="nc" id="L54">        osConstraints.fill = GridBagConstraints.BOTH;</span>
+<span class="nc" id="L55">        osConstraints.insets = new Insets(0, 0, 15, 15); // T,L,B,R</span>
 
-<span class="nc" id="L77">        GridBagConstraints procLabel = (GridBagConstraints) osLabel.clone();</span>
-<span class="nc" id="L78">        procLabel.gridy = 2;</span>
-<span class="nc" id="L79">        GridBagConstraints procConstraints = (GridBagConstraints) osConstraints.clone();</span>
-<span class="nc" id="L80">        procConstraints.gridy = 3;</span>
+<span class="nc" id="L57">        GridBagConstraints procLabel = (GridBagConstraints) osLabel.clone();</span>
+<span class="nc" id="L58">        procLabel.gridy = 2;</span>
+<span class="nc" id="L59">        GridBagConstraints procConstraints = (GridBagConstraints) osConstraints.clone();</span>
+<span class="nc" id="L60">        procConstraints.gridy = 3;</span>
 
-<span class="nc" id="L82">        GridBagConstraints displayLabel = (GridBagConstraints) procLabel.clone();</span>
-<span class="nc" id="L83">        displayLabel.gridy = 4;</span>
-<span class="nc" id="L84">        GridBagConstraints displayConstraints = (GridBagConstraints) osConstraints.clone();</span>
-<span class="nc" id="L85">        displayConstraints.gridy = 5;</span>
-<span class="nc" id="L86">        displayConstraints.insets = new Insets(0, 0, 0, 15); // T,L,B,R</span>
+<span class="nc" id="L62">        GridBagConstraints displayLabel = (GridBagConstraints) procLabel.clone();</span>
+<span class="nc" id="L63">        displayLabel.gridy = 4;</span>
+<span class="nc" id="L64">        GridBagConstraints displayConstraints = (GridBagConstraints) osConstraints.clone();</span>
+<span class="nc" id="L65">        displayConstraints.gridy = 5;</span>
+<span class="nc" id="L66">        displayConstraints.insets = new Insets(0, 0, 0, 15); // T,L,B,R</span>
 
-<span class="nc" id="L88">        GridBagConstraints csLabel = (GridBagConstraints) osLabel.clone();</span>
-<span class="nc" id="L89">        csLabel.gridx = 1;</span>
-<span class="nc" id="L90">        GridBagConstraints csConstraints = new GridBagConstraints();</span>
-<span class="nc" id="L91">        csConstraints.gridx = 1;</span>
-<span class="nc" id="L92">        csConstraints.gridheight = 6;</span>
-<span class="nc" id="L93">        csConstraints.fill = GridBagConstraints.BOTH;</span>
+<span class="nc" id="L68">        GridBagConstraints csLabel = (GridBagConstraints) osLabel.clone();</span>
+<span class="nc" id="L69">        csLabel.gridx = 1;</span>
+<span class="nc" id="L70">        GridBagConstraints csConstraints = new GridBagConstraints();</span>
+<span class="nc" id="L71">        csConstraints.gridx = 1;</span>
+<span class="nc" id="L72">        csConstraints.gridheight = 6;</span>
+<span class="nc" id="L73">        csConstraints.fill = GridBagConstraints.BOTH;</span>
 
-<span class="nc" id="L95">        JPanel oshwPanel = new JPanel();</span>
-<span class="nc" id="L96">        oshwPanel.setLayout(new GridBagLayout());</span>
+<span class="nc" id="L75">        JPanel oshwPanel = new JPanel();</span>
+<span class="nc" id="L76">        oshwPanel.setLayout(new GridBagLayout());</span>
 
-<span class="nc" id="L98">        JTextArea osArea = new JTextArea(0, 0);</span>
-<span class="nc" id="L99">        osArea.setText(updateOsData(si));</span>
-<span class="nc" id="L100">        oshwPanel.add(new JLabel(OPERATING_SYSTEM), osLabel);</span>
-<span class="nc" id="L101">        oshwPanel.add(osArea, osConstraints);</span>
+<span class="nc" id="L78">        JTextArea osArea = new JTextArea(0, 0);</span>
+<span class="nc" id="L79">        osArea.setText(updateOsData(si));</span>
+<span class="nc" id="L80">        oshwPanel.add(new JLabel(OPERATING_SYSTEM), osLabel);</span>
+<span class="nc" id="L81">        oshwPanel.add(osArea, osConstraints);</span>
 
-<span class="nc" id="L103">        JTextArea procArea = new JTextArea(0, 0);</span>
-<span class="nc" id="L104">        procArea.setText(getProc(si));</span>
-<span class="nc" id="L105">        oshwPanel.add(new JLabel(PROCESSOR), procLabel);</span>
-<span class="nc" id="L106">        oshwPanel.add(procArea, procConstraints);</span>
+<span class="nc" id="L83">        JTextArea procArea = new JTextArea(0, 0);</span>
+<span class="nc" id="L84">        procArea.setText(getProc(si));</span>
+<span class="nc" id="L85">        oshwPanel.add(new JLabel(PROCESSOR), procLabel);</span>
+<span class="nc" id="L86">        oshwPanel.add(procArea, procConstraints);</span>
 
-<span class="nc" id="L108">        JTextArea displayArea = new JTextArea(0, 0);</span>
-<span class="nc" id="L109">        displayArea.setText(getDisplay(si));</span>
-<span class="nc" id="L110">        oshwPanel.add(new JLabel(DISPLAYS), displayLabel);</span>
-<span class="nc" id="L111">        oshwPanel.add(displayArea, displayConstraints);</span>
+<span class="nc" id="L88">        JTextArea displayArea = new JTextArea(0, 0);</span>
+<span class="nc" id="L89">        displayArea.setText(getDisplay(si));</span>
+<span class="nc" id="L90">        oshwPanel.add(new JLabel(DISPLAYS), displayLabel);</span>
+<span class="nc" id="L91">        oshwPanel.add(displayArea, displayConstraints);</span>
 
-<span class="nc" id="L113">        JTextArea csArea = new JTextArea(0, 0);</span>
-<span class="nc" id="L114">        csArea.setText(getHw(si));</span>
-<span class="nc" id="L115">        oshwPanel.add(new JLabel(HARDWARE_INFORMATION), csLabel);</span>
-<span class="nc" id="L116">        oshwPanel.add(csArea, csConstraints);</span>
+<span class="nc" id="L93">        JTextArea csArea = new JTextArea(0, 0);</span>
+<span class="nc" id="L94">        csArea.setText(getHw(si));</span>
+<span class="nc" id="L95">        oshwPanel.add(new JLabel(HARDWARE_INFORMATION), csLabel);</span>
+<span class="nc" id="L96">        oshwPanel.add(csArea, csConstraints);</span>
 
-<span class="nc" id="L118">        add(oshwPanel, BorderLayout.CENTER);</span>
+<span class="nc" id="L98">        add(oshwPanel, BorderLayout.CENTER);</span>
 
         // Update up time every second
-<span class="nc" id="L121">        Timer timer = new Timer(Config.REFRESH_FAST, e -&gt; osArea.setText(updateOsData(si)));</span>
-<span class="nc" id="L122">        timer.start();</span>
-<span class="nc" id="L123">    }</span>
+<span class="nc" id="L101">        Timer timer = new Timer(Config.REFRESH_FAST, e -&gt; osArea.setText(updateOsData(si)));</span>
+<span class="nc" id="L102">        timer.start();</span>
+<span class="nc" id="L103">    }</span>
 
     private static String getOsPrefix(SystemInfo si) {
-<span class="nc" id="L126">        StringBuilder sb = new StringBuilder(OPERATING_SYSTEM);</span>
+<span class="nc" id="L106">        StringBuilder sb = new StringBuilder(OPERATING_SYSTEM);</span>
 
-<span class="nc" id="L128">        OperatingSystem os = si.getOperatingSystem();</span>
-<span class="nc" id="L129">        sb.append(String.valueOf(os));</span>
-<span class="nc" id="L130">        sb.append(&quot;\n\n&quot;).append(&quot;Booted: &quot;).append(Instant.ofEpochSecond(os.getSystemBootTime())).append('\n')</span>
-<span class="nc" id="L131">                .append(&quot;Uptime: &quot;);</span>
-<span class="nc" id="L132">        return sb.toString();</span>
+<span class="nc" id="L108">        OperatingSystem os = si.getOperatingSystem();</span>
+<span class="nc" id="L109">        sb.append(String.valueOf(os));</span>
+<span class="nc" id="L110">        sb.append(&quot;\n\n&quot;).append(&quot;Booted: &quot;).append(Instant.ofEpochSecond(os.getSystemBootTime())).append('\n')</span>
+<span class="nc" id="L111">                .append(&quot;Uptime: &quot;);</span>
+<span class="nc" id="L112">        return sb.toString();</span>
     }
 
     private static String getHw(SystemInfo si) {
-<span class="nc" id="L136">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L137">        ObjectMapper mapper = new ObjectMapper();</span>
-<span class="nc" id="L138">        ComputerSystem computerSystem = si.getHardware().getComputerSystem();</span>
+<span class="nc" id="L116">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L117">        ObjectMapper mapper = new ObjectMapper();</span>
+<span class="nc" id="L118">        ComputerSystem computerSystem = si.getHardware().getComputerSystem();</span>
         try {
-<span class="nc" id="L140">            sb.append(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(computerSystem));</span>
-<span class="nc" id="L141">        } catch (JsonProcessingException e) {</span>
-<span class="nc" id="L142">            sb.append(e.getMessage());</span>
-<span class="nc" id="L143">        }</span>
-<span class="nc" id="L144">        return sb.toString();</span>
+<span class="nc" id="L120">            sb.append(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(computerSystem));</span>
+<span class="nc" id="L121">        } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L122">            sb.append(e.getMessage());</span>
+<span class="nc" id="L123">        }</span>
+<span class="nc" id="L124">        return sb.toString();</span>
     }
 
     private static String getProc(SystemInfo si) {
-<span class="nc" id="L148">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L149">        CentralProcessor proc = si.getHardware().getProcessor();</span>
-<span class="nc" id="L150">        sb.append(proc.toString());</span>
+<span class="nc" id="L128">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L129">        CentralProcessor proc = si.getHardware().getProcessor();</span>
+<span class="nc" id="L130">        sb.append(proc.toString());</span>
 
-<span class="nc" id="L152">        return sb.toString();</span>
+<span class="nc" id="L132">        return sb.toString();</span>
     }
 
     private static String getDisplay(SystemInfo si) {
-<span class="nc" id="L156">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L157">        List&lt;Display&gt; displays = si.getHardware().getDisplays();</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (displays.isEmpty()) {</span>
-<span class="nc" id="L159">            sb.append(&quot;None detected.&quot;);</span>
+<span class="nc" id="L136">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L137">        List&lt;Display&gt; displays = si.getHardware().getDisplays();</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (displays.isEmpty()) {</span>
+<span class="nc" id="L139">            sb.append(&quot;None detected.&quot;);</span>
         } else {
-<span class="nc" id="L161">            int i = 0;</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">            for (Display display : displays) {</span>
-<span class="nc" id="L163">                byte[] edid = display.getEdid();</span>
-<span class="nc" id="L164">                byte[][] desc = EdidUtil.getDescriptors(edid);</span>
-<span class="nc" id="L165">                String name = &quot;Display &quot; + i;</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">                for (byte[] b : desc) {</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">                    if (EdidUtil.getDescriptorType(b) == 0xfc) {</span>
-<span class="nc" id="L168">                        name = EdidUtil.getDescriptorText(b);</span>
+<span class="nc" id="L141">            int i = 0;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            for (Display display : displays) {</span>
+<span class="nc" id="L143">                byte[] edid = display.getEdid();</span>
+<span class="nc" id="L144">                byte[][] desc = EdidUtil.getDescriptors(edid);</span>
+<span class="nc" id="L145">                String name = &quot;Display &quot; + i;</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">                for (byte[] b : desc) {</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">                    if (EdidUtil.getDescriptorType(b) == 0xfc) {</span>
+<span class="nc" id="L148">                        name = EdidUtil.getDescriptorText(b);</span>
                     }
                 }
-<span class="nc bnc" id="L171" title="All 2 branches missed.">                if (i++ &gt; 0) {</span>
-<span class="nc" id="L172">                    sb.append('\n');</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">                if (i++ &gt; 0) {</span>
+<span class="nc" id="L152">                    sb.append('\n');</span>
                 }
-<span class="nc" id="L174">                sb.append(name).append(&quot;: &quot;);</span>
-<span class="nc" id="L175">                int hSize = EdidUtil.getHcm(edid);</span>
-<span class="nc" id="L176">                int vSize = EdidUtil.getVcm(edid);</span>
-<span class="nc" id="L177">                sb.append(String.format(&quot;%d x %d cm (%.1f x %.1f in)&quot;, hSize, vSize, hSize / 2.54, vSize / 2.54));</span>
-<span class="nc" id="L178">            }</span>
+<span class="nc" id="L154">                sb.append(name).append(&quot;: &quot;);</span>
+<span class="nc" id="L155">                int hSize = EdidUtil.getHcm(edid);</span>
+<span class="nc" id="L156">                int vSize = EdidUtil.getVcm(edid);</span>
+<span class="nc" id="L157">                sb.append(String.format(&quot;%d x %d cm (%.1f x %.1f in)&quot;, hSize, vSize, hSize / 2.54, vSize / 2.54));</span>
+<span class="nc" id="L158">            }</span>
         }
-<span class="nc" id="L180">        return sb.toString();</span>
+<span class="nc" id="L160">        return sb.toString();</span>
     }
 
     private String updateOsData(SystemInfo si) {
-<span class="nc" id="L184">        return osPrefix + FormatUtil.formatElapsedSecs(si.getOperatingSystem().getSystemUptime());</span>
+<span class="nc" id="L164">        return osPrefix + FormatUtil.formatElapsedSecs(si.getOperatingSystem().getSystemUptime());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

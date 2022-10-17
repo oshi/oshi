@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisLibc.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.jna.platform.unix</a> &gt; <span class="el_source">SolarisLibc.java</span></div><h1>SolarisLibc.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2021-2022 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2021-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.unix;
 
@@ -34,12 +15,12 @@ import com.sun.jna.Structure.FieldOrder;
 import oshi.util.FileUtil;
 
 /**
- * C library. This class should be considered non-API as it may be removed
- * if/when its code is incorporated into the JNA project.
+ * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA
+ * project.
  */
 public interface SolarisLibc extends CLibrary {
 
-<span class="nc" id="L42">    SolarisLibc INSTANCE = Native.load(&quot;c&quot;, SolarisLibc.class);</span>
+<span class="nc" id="L23">    SolarisLibc INSTANCE = Native.load(&quot;c&quot;, SolarisLibc.class);</span>
 
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 32;
@@ -56,25 +37,25 @@ public interface SolarisLibc extends CLibrary {
      */
     @FieldOrder({ &quot;ut_user&quot;, &quot;ut_id&quot;, &quot;ut_line&quot;, &quot;ut_pid&quot;, &quot;ut_type&quot;, &quot;ut_exit&quot;, &quot;ut_tv&quot;, &quot;ut_session&quot;, &quot;pad&quot;,
             &quot;ut_syslen&quot;, &quot;ut_host&quot; })
-<span class="nc" id="L59">    class SolarisUtmpx extends Structure {</span>
-<span class="nc" id="L60">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
-<span class="nc" id="L61">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
-<span class="nc" id="L62">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
+<span class="nc" id="L40">    class SolarisUtmpx extends Structure {</span>
+<span class="nc" id="L41">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
+<span class="nc" id="L42">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
+<span class="nc" id="L43">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
         public int ut_pid; // process id
         public short ut_type; // type of entry
         public Exit_status ut_exit; // process termination/exit status
         public Timeval ut_tv; // time entry was made
         public int ut_session; // session ID, used for windowing
-<span class="nc" id="L68">        public int[] pad = new int[5]; // reserved for future use</span>
+<span class="nc" id="L49">        public int[] pad = new int[5]; // reserved for future use</span>
         public short ut_syslen; // significant length of ut_host including terminating null
-<span class="nc" id="L70">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L51">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
     }
 
     /**
      * Part of utmpx structure
      */
     @FieldOrder({ &quot;e_termination&quot;, &quot;e_exit&quot; })
-<span class="nc" id="L77">    class Exit_status extends Structure {</span>
+<span class="nc" id="L58">    class Exit_status extends Structure {</span>
         public short e_termination; // Process termination status
         public short e_exit; // Process exit status
     }
@@ -83,19 +64,18 @@ public interface SolarisLibc extends CLibrary {
      * 32/64-bit timeval required for utmpx structure
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L86">    class Timeval extends Structure {</span>
+<span class="nc" id="L67">    class Timeval extends Structure {</span>
         public NativeLong tv_sec; // seconds
         public NativeLong tv_usec; // microseconds
     }
 
     /**
-     * Reads a line from the current file position in the utmp file. It returns a
-     * pointer to a structure containing the fields of the line.
+     * Reads a line from the current file position in the utmp file. It returns a pointer to a structure containing the
+     * fields of the line.
      * &lt;p&gt;
      * Not thread safe
      *
-     * @return a {@link SolarisUtmpx} on success, and NULL on failure (which
-     *         includes the &quot;record not found&quot; case)
+     * @return a {@link SolarisUtmpx} on success, and NULL on failure (which includes the &quot;record not found&quot; case)
      */
     SolarisUtmpx getutxent();
 
@@ -126,14 +106,14 @@ public interface SolarisLibc extends CLibrary {
         public Timestruc pr_start; // process start time, from the epoch
         public Timestruc pr_time; // usr+sys cpu time for this process
         public Timestruc pr_ctime; // usr+sys cpu time for reaped children
-<span class="nc" id="L129">        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file</span>
-<span class="nc" id="L130">        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list</span>
+<span class="nc" id="L109">        public byte[] pr_fname = new byte[PRFNSZ]; // name of exec'ed file</span>
+<span class="nc" id="L110">        public byte[] pr_psargs = new byte[PRARGSZ]; // initial characters of arg list</span>
         public int pr_wstat; // if zombie, the wait() status
         public int pr_argc; // initial argument count
         public Pointer pr_argv; // address of initial argument vector
         public Pointer pr_envp; // address of initial environment vector
         public byte pr_dmodel; // data model of the process
-<span class="nc" id="L136">        public byte[] pr_pad2 = new byte[3];</span>
+<span class="nc" id="L116">        public byte[] pr_pad2 = new byte[3];</span>
         public int pr_taskid; // task id
         public int pr_projid; // project id
         public int pr_nzomb; // number of zombie lwps in the process
@@ -143,48 +123,48 @@ public interface SolarisLibc extends CLibrary {
         public int pr_filler; // 4 bytes reserved for future use
         public SolarisLwpsInfo pr_lwp; // information for representative lwp
 
-<span class="nc" id="L146">        public SolarisPsInfo(ByteBuffer buff) {</span>
-<span class="nc" id="L147">            this.pr_flag = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L148">            this.pr_nlwp = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L149">            this.pr_pid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L150">            this.pr_ppid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L151">            this.pr_pgid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L152">            this.pr_sid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L153">            this.pr_uid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L154">            this.pr_euid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L155">            this.pr_gid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L156">            this.pr_egid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L157">            this.pr_addr = FileUtil.readPointerFromBuffer(buff);</span>
-<span class="nc" id="L158">            this.pr_size = FileUtil.readSizeTFromBuffer(buff);</span>
-<span class="nc" id="L159">            this.pr_rssize = FileUtil.readSizeTFromBuffer(buff);</span>
-<span class="nc" id="L160">            this.pr_rssizepriv = FileUtil.readSizeTFromBuffer(buff);</span>
-<span class="nc" id="L161">            this.pr_ttydev = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L162">            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);</span>
-<span class="nc" id="L163">            this.pr_pctmem = FileUtil.readShortFromBuffer(buff);</span>
+<span class="nc" id="L126">        public SolarisPsInfo(ByteBuffer buff) {</span>
+<span class="nc" id="L127">            this.pr_flag = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L128">            this.pr_nlwp = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L129">            this.pr_pid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L130">            this.pr_ppid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L131">            this.pr_pgid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L132">            this.pr_sid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L133">            this.pr_uid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L134">            this.pr_euid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L135">            this.pr_gid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L136">            this.pr_egid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L137">            this.pr_addr = FileUtil.readPointerFromBuffer(buff);</span>
+<span class="nc" id="L138">            this.pr_size = FileUtil.readSizeTFromBuffer(buff);</span>
+<span class="nc" id="L139">            this.pr_rssize = FileUtil.readSizeTFromBuffer(buff);</span>
+<span class="nc" id="L140">            this.pr_rssizepriv = FileUtil.readSizeTFromBuffer(buff);</span>
+<span class="nc" id="L141">            this.pr_ttydev = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L142">            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);</span>
+<span class="nc" id="L143">            this.pr_pctmem = FileUtil.readShortFromBuffer(buff);</span>
             // Force 8 byte alignment
-<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (Native.LONG_SIZE &gt; 4) {</span>
-<span class="nc" id="L166">                FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (Native.LONG_SIZE &gt; 4) {</span>
+<span class="nc" id="L146">                FileUtil.readIntFromBuffer(buff);</span>
             }
-<span class="nc" id="L168">            this.pr_start = new Timestruc(buff);</span>
-<span class="nc" id="L169">            this.pr_time = new Timestruc(buff);</span>
-<span class="nc" id="L170">            this.pr_ctime = new Timestruc(buff);</span>
-<span class="nc" id="L171">            FileUtil.readByteArrayFromBuffer(buff, this.pr_fname);</span>
-<span class="nc" id="L172">            FileUtil.readByteArrayFromBuffer(buff, this.pr_psargs);</span>
-<span class="nc" id="L173">            this.pr_wstat = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L174">            this.pr_argc = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L175">            this.pr_argv = FileUtil.readPointerFromBuffer(buff);</span>
-<span class="nc" id="L176">            this.pr_envp = FileUtil.readPointerFromBuffer(buff);</span>
-<span class="nc" id="L177">            this.pr_dmodel = FileUtil.readByteFromBuffer(buff);</span>
-<span class="nc" id="L178">            FileUtil.readByteArrayFromBuffer(buff, this.pr_pad2);</span>
-<span class="nc" id="L179">            this.pr_taskid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L180">            this.pr_projid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L181">            this.pr_nzomb = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L182">            this.pr_poolid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L183">            this.pr_zoneid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L184">            this.pr_contract = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L185">            this.pr_filler = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L186">            this.pr_lwp = new SolarisLwpsInfo(buff);</span>
-<span class="nc" id="L187">        }</span>
+<span class="nc" id="L148">            this.pr_start = new Timestruc(buff);</span>
+<span class="nc" id="L149">            this.pr_time = new Timestruc(buff);</span>
+<span class="nc" id="L150">            this.pr_ctime = new Timestruc(buff);</span>
+<span class="nc" id="L151">            FileUtil.readByteArrayFromBuffer(buff, this.pr_fname);</span>
+<span class="nc" id="L152">            FileUtil.readByteArrayFromBuffer(buff, this.pr_psargs);</span>
+<span class="nc" id="L153">            this.pr_wstat = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L154">            this.pr_argc = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L155">            this.pr_argv = FileUtil.readPointerFromBuffer(buff);</span>
+<span class="nc" id="L156">            this.pr_envp = FileUtil.readPointerFromBuffer(buff);</span>
+<span class="nc" id="L157">            this.pr_dmodel = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L158">            FileUtil.readByteArrayFromBuffer(buff, this.pr_pad2);</span>
+<span class="nc" id="L159">            this.pr_taskid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L160">            this.pr_projid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L161">            this.pr_nzomb = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L162">            this.pr_poolid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L163">            this.pr_zoneid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L164">            this.pr_contract = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L165">            this.pr_filler = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L166">            this.pr_lwp = new SolarisLwpsInfo(buff);</span>
+<span class="nc" id="L167">        }</span>
     }
 
     /**
@@ -210,41 +190,41 @@ public interface SolarisLibc extends CLibrary {
         public short pr_pad;
         public Timestruc pr_start; // lwp start time, from the epoch
         public Timestruc pr_time; // cpu time for this lwp
-<span class="nc" id="L213">        public byte[] pr_clname = new byte[PRCLSZ]; // scheduling class name</span>
-<span class="nc" id="L214">        public byte[] pr_oldname = new byte[PRFNSZ]; // binary compatibility -- unused</span>
+<span class="nc" id="L193">        public byte[] pr_clname = new byte[PRCLSZ]; // scheduling class name</span>
+<span class="nc" id="L194">        public byte[] pr_oldname = new byte[PRFNSZ]; // binary compatibility -- unused</span>
         public int pr_onpro; // processor which last ran this lwp
         public int pr_bindpro; // processor to which lwp is bound
         public int pr_bindpset; // processor set to which lwp is bound
         public int pr_lgrp; // home lgroup
         public long pr_last_onproc; // Timestamp of when thread last ran on a processor
-<span class="nc" id="L220">        public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp</span>
+<span class="nc" id="L200">        public byte[] pr_name = new byte[PRLNSZ]; // name of system lwp</span>
 
-<span class="nc" id="L222">        public SolarisLwpsInfo(ByteBuffer buff) {</span>
-<span class="nc" id="L223">            this.pr_flag = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L224">            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L225">            this.pr_addr = FileUtil.readPointerFromBuffer(buff);</span>
-<span class="nc" id="L226">            this.pr_wchan = FileUtil.readPointerFromBuffer(buff);</span>
-<span class="nc" id="L227">            this.pr_stype = FileUtil.readByteFromBuffer(buff);</span>
-<span class="nc" id="L228">            this.pr_state = FileUtil.readByteFromBuffer(buff);</span>
-<span class="nc" id="L229">            this.pr_sname = FileUtil.readByteFromBuffer(buff);</span>
-<span class="nc" id="L230">            this.pr_nice = FileUtil.readByteFromBuffer(buff);</span>
-<span class="nc" id="L231">            this.pr_syscall = FileUtil.readShortFromBuffer(buff);</span>
-<span class="nc" id="L232">            this.pr_oldpri = FileUtil.readByteFromBuffer(buff);</span>
-<span class="nc" id="L233">            this.pr_cpu = FileUtil.readByteFromBuffer(buff);</span>
-<span class="nc" id="L234">            this.pr_pri = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L235">            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);</span>
-<span class="nc" id="L236">            this.pr_pad = FileUtil.readShortFromBuffer(buff);</span>
-<span class="nc" id="L237">            this.pr_start = new Timestruc(buff);</span>
-<span class="nc" id="L238">            this.pr_time = new Timestruc(buff);</span>
-<span class="nc" id="L239">            FileUtil.readByteArrayFromBuffer(buff, this.pr_clname);</span>
-<span class="nc" id="L240">            FileUtil.readByteArrayFromBuffer(buff, this.pr_oldname);</span>
-<span class="nc" id="L241">            this.pr_onpro = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L242">            this.pr_bindpro = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L243">            this.pr_bindpset = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L244">            this.pr_lgrp = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L245">            this.pr_last_onproc = FileUtil.readLongFromBuffer(buff);</span>
-<span class="nc" id="L246">            FileUtil.readByteArrayFromBuffer(buff, this.pr_name);</span>
-<span class="nc" id="L247">        }</span>
+<span class="nc" id="L202">        public SolarisLwpsInfo(ByteBuffer buff) {</span>
+<span class="nc" id="L203">            this.pr_flag = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L204">            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L205">            this.pr_addr = FileUtil.readPointerFromBuffer(buff);</span>
+<span class="nc" id="L206">            this.pr_wchan = FileUtil.readPointerFromBuffer(buff);</span>
+<span class="nc" id="L207">            this.pr_stype = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L208">            this.pr_state = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L209">            this.pr_sname = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L210">            this.pr_nice = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L211">            this.pr_syscall = FileUtil.readShortFromBuffer(buff);</span>
+<span class="nc" id="L212">            this.pr_oldpri = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L213">            this.pr_cpu = FileUtil.readByteFromBuffer(buff);</span>
+<span class="nc" id="L214">            this.pr_pri = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L215">            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);</span>
+<span class="nc" id="L216">            this.pr_pad = FileUtil.readShortFromBuffer(buff);</span>
+<span class="nc" id="L217">            this.pr_start = new Timestruc(buff);</span>
+<span class="nc" id="L218">            this.pr_time = new Timestruc(buff);</span>
+<span class="nc" id="L219">            FileUtil.readByteArrayFromBuffer(buff, this.pr_clname);</span>
+<span class="nc" id="L220">            FileUtil.readByteArrayFromBuffer(buff, this.pr_oldname);</span>
+<span class="nc" id="L221">            this.pr_onpro = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L222">            this.pr_bindpro = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L223">            this.pr_bindpset = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L224">            this.pr_lgrp = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L225">            this.pr_last_onproc = FileUtil.readLongFromBuffer(buff);</span>
+<span class="nc" id="L226">            FileUtil.readByteArrayFromBuffer(buff, this.pr_name);</span>
+<span class="nc" id="L227">        }</span>
     }
 
     /**
@@ -267,7 +247,7 @@ public interface SolarisLibc extends CLibrary {
         public Timestruc pr_slptime; // all other sleep time
         public Timestruc pr_wtime; // wait-cpu (latency) time
         public Timestruc pr_stoptime; // stopped time
-<span class="nc" id="L270">        public Timestruc[] filltime = new Timestruc[6]; // filler for future expansion</span>
+<span class="nc" id="L250">        public Timestruc[] filltime = new Timestruc[6]; // filler for future expansion</span>
         public NativeLong pr_minf; // minor page faults
         public NativeLong pr_majf; // major page faults
         public NativeLong pr_nswap; // swaps
@@ -280,44 +260,44 @@ public interface SolarisLibc extends CLibrary {
         public NativeLong pr_ictx; // involuntary context switches
         public NativeLong pr_sysc; // system calls
         public NativeLong pr_ioch; // chars read and written
-<span class="nc" id="L283">        public NativeLong[] filler = new NativeLong[10]; // filler for future expansion</span>
+<span class="nc" id="L263">        public NativeLong[] filler = new NativeLong[10]; // filler for future expansion</span>
 
-<span class="nc" id="L285">        public SolarisPrUsage(ByteBuffer buff) {</span>
-<span class="nc" id="L286">            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L287">            this.pr_count = FileUtil.readIntFromBuffer(buff);</span>
-<span class="nc" id="L288">            this.pr_tstamp = new Timestruc(buff);</span>
-<span class="nc" id="L289">            this.pr_create = new Timestruc(buff);</span>
-<span class="nc" id="L290">            this.pr_term = new Timestruc(buff);</span>
-<span class="nc" id="L291">            this.pr_rtime = new Timestruc(buff);</span>
-<span class="nc" id="L292">            this.pr_utime = new Timestruc(buff);</span>
-<span class="nc" id="L293">            this.pr_stime = new Timestruc(buff);</span>
-<span class="nc" id="L294">            this.pr_ttime = new Timestruc(buff);</span>
-<span class="nc" id="L295">            this.pr_tftime = new Timestruc(buff);</span>
-<span class="nc" id="L296">            this.pr_dftime = new Timestruc(buff);</span>
-<span class="nc" id="L297">            this.pr_kftime = new Timestruc(buff);</span>
-<span class="nc" id="L298">            this.pr_ltime = new Timestruc(buff);</span>
-<span class="nc" id="L299">            this.pr_slptime = new Timestruc(buff);</span>
-<span class="nc" id="L300">            this.pr_wtime = new Timestruc(buff);</span>
-<span class="nc" id="L301">            this.pr_stoptime = new Timestruc(buff);</span>
-<span class="nc bnc" id="L302" title="All 2 branches missed.">            for (int i = 0; i &lt; filltime.length; i++) {</span>
-<span class="nc" id="L303">                this.filltime[i] = new Timestruc(buff);</span>
+<span class="nc" id="L265">        public SolarisPrUsage(ByteBuffer buff) {</span>
+<span class="nc" id="L266">            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L267">            this.pr_count = FileUtil.readIntFromBuffer(buff);</span>
+<span class="nc" id="L268">            this.pr_tstamp = new Timestruc(buff);</span>
+<span class="nc" id="L269">            this.pr_create = new Timestruc(buff);</span>
+<span class="nc" id="L270">            this.pr_term = new Timestruc(buff);</span>
+<span class="nc" id="L271">            this.pr_rtime = new Timestruc(buff);</span>
+<span class="nc" id="L272">            this.pr_utime = new Timestruc(buff);</span>
+<span class="nc" id="L273">            this.pr_stime = new Timestruc(buff);</span>
+<span class="nc" id="L274">            this.pr_ttime = new Timestruc(buff);</span>
+<span class="nc" id="L275">            this.pr_tftime = new Timestruc(buff);</span>
+<span class="nc" id="L276">            this.pr_dftime = new Timestruc(buff);</span>
+<span class="nc" id="L277">            this.pr_kftime = new Timestruc(buff);</span>
+<span class="nc" id="L278">            this.pr_ltime = new Timestruc(buff);</span>
+<span class="nc" id="L279">            this.pr_slptime = new Timestruc(buff);</span>
+<span class="nc" id="L280">            this.pr_wtime = new Timestruc(buff);</span>
+<span class="nc" id="L281">            this.pr_stoptime = new Timestruc(buff);</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">            for (int i = 0; i &lt; filltime.length; i++) {</span>
+<span class="nc" id="L283">                this.filltime[i] = new Timestruc(buff);</span>
             }
-<span class="nc" id="L305">            this.pr_minf = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L306">            this.pr_majf = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L307">            this.pr_nswap = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L308">            this.pr_inblk = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L309">            this.pr_oublk = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L310">            this.pr_msnd = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L311">            this.pr_mrcv = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L312">            this.pr_sigs = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L313">            this.pr_vctx = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L314">            this.pr_ictx = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L315">            this.pr_sysc = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L316">            this.pr_ioch = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc bnc" id="L317" title="All 2 branches missed.">            for (int i = 0; i &lt; filler.length; i++) {</span>
-<span class="nc" id="L318">                this.filler[i] = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L285">            this.pr_minf = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L286">            this.pr_majf = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L287">            this.pr_nswap = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L288">            this.pr_inblk = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L289">            this.pr_oublk = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L290">            this.pr_msnd = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L291">            this.pr_mrcv = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L292">            this.pr_sigs = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L293">            this.pr_vctx = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L294">            this.pr_ictx = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L295">            this.pr_sysc = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L296">            this.pr_ioch = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">            for (int i = 0; i &lt; filler.length; i++) {</span>
+<span class="nc" id="L298">                this.filler[i] = FileUtil.readNativeLongFromBuffer(buff);</span>
             }
-<span class="nc" id="L320">        }</span>
+<span class="nc" id="L300">        }</span>
     }
 
     /**
@@ -327,10 +307,10 @@ public interface SolarisLibc extends CLibrary {
         public NativeLong tv_sec; // seconds
         public NativeLong tv_nsec; // nanoseconds
 
-<span class="nc" id="L330">        public Timestruc(ByteBuffer buff) {</span>
-<span class="nc" id="L331">            this.tv_sec = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L332">            this.tv_nsec = FileUtil.readNativeLongFromBuffer(buff);</span>
-<span class="nc" id="L333">        }</span>
+<span class="nc" id="L310">        public Timestruc(ByteBuffer buff) {</span>
+<span class="nc" id="L311">            this.tv_sec = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L312">            this.tv_nsec = FileUtil.readNativeLongFromBuffer(buff);</span>
+<span class="nc" id="L313">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

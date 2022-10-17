@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Lshw.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.linux</a> &gt; <span class="el_source">Lshw.java</span></div><h1>Lshw.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux;
 
@@ -42,13 +23,13 @@ public final class Lshw {
      * @return The model if available, null otherwise
      */
     public static String queryModel() {
-<span class="nc" id="L45">        String modelMarker = &quot;product:&quot;;</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">            if (checkLine.contains(modelMarker)) {</span>
-<span class="nc" id="L48">                return checkLine.split(modelMarker)[1].trim();</span>
+<span class="nc" id="L26">        String modelMarker = &quot;product:&quot;;</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">            if (checkLine.contains(modelMarker)) {</span>
+<span class="nc" id="L29">                return checkLine.split(modelMarker)[1].trim();</span>
             }
-<span class="nc" id="L50">        }</span>
-<span class="nc" id="L51">        return null;</span>
+<span class="nc" id="L31">        }</span>
+<span class="nc" id="L32">        return null;</span>
     }
 
     /**
@@ -57,13 +38,13 @@ public final class Lshw {
      * @return The serial number if available, null otherwise
      */
     public static String querySerialNumber() {
-<span class="nc" id="L60">        String serialMarker = &quot;serial:&quot;;</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (checkLine.contains(serialMarker)) {</span>
-<span class="nc" id="L63">                return checkLine.split(serialMarker)[1].trim();</span>
+<span class="nc" id="L41">        String serialMarker = &quot;serial:&quot;;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (checkLine.contains(serialMarker)) {</span>
+<span class="nc" id="L44">                return checkLine.split(serialMarker)[1].trim();</span>
             }
-<span class="nc" id="L65">        }</span>
-<span class="nc" id="L66">        return null;</span>
+<span class="nc" id="L46">        }</span>
+<span class="nc" id="L47">        return null;</span>
     }
 
     /**
@@ -72,13 +53,13 @@ public final class Lshw {
      * @return The UUID if available, null otherwise
      */
     public static String queryUUID() {
-<span class="nc" id="L75">        String uuidMarker = &quot;uuid:&quot;;</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (checkLine.contains(uuidMarker)) {</span>
-<span class="nc" id="L78">                return checkLine.split(uuidMarker)[1].trim();</span>
+<span class="nc" id="L56">        String uuidMarker = &quot;uuid:&quot;;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -C system&quot;)) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if (checkLine.contains(uuidMarker)) {</span>
+<span class="nc" id="L59">                return checkLine.split(uuidMarker)[1].trim();</span>
             }
-<span class="nc" id="L80">        }</span>
-<span class="nc" id="L81">        return null;</span>
+<span class="nc" id="L61">        }</span>
+<span class="nc" id="L62">        return null;</span>
     }
 
     /**
@@ -87,13 +68,13 @@ public final class Lshw {
      * @return The CPU capacity (max frequency) if available, -1 otherwise
      */
     public static long queryCpuCapacity() {
-<span class="nc" id="L90">        String capacityMarker = &quot;capacity:&quot;;</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -class processor&quot;)) {</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (checkLine.contains(capacityMarker)) {</span>
-<span class="nc" id="L93">                return ParseUtil.parseHertz(checkLine.split(capacityMarker)[1].trim());</span>
+<span class="nc" id="L71">        String capacityMarker = &quot;capacity:&quot;;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;lshw -class processor&quot;)) {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (checkLine.contains(capacityMarker)) {</span>
+<span class="nc" id="L74">                return ParseUtil.parseHertz(checkLine.split(capacityMarker)[1].trim());</span>
             }
-<span class="nc" id="L95">        }</span>
-<span class="nc" id="L96">        return -1L;</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc" id="L77">        return -1L;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

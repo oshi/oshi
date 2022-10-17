@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ThreadInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.mac</a> &gt; <span class="el_source">ThreadInfo.java</span></div><h1>ThreadInfo.java</h1><pre class="source lang-java linenums">/*
- * MIT License
- *
- * Copyright (c) 2020-2021 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Copyright 2020-2022 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
  */
 package oshi.driver.mac;
 
@@ -48,32 +29,32 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class ThreadInfo {
 
-<span class="nc" id="L51">    private static final Pattern PS_M = Pattern.compile(</span>
+<span class="nc" id="L32">    private static final Pattern PS_M = Pattern.compile(</span>
             &quot;\\D+(\\d+).+(\\d+\\.\\d)\\s+(\\w)\\s+(\\d+)\\D+(\\d+:\\d{2}\\.\\d{2})\\s+(\\d+:\\d{2}\\.\\d{2}).+&quot;);
 
     private ThreadInfo() {
     }
 
     public static List&lt;ThreadStats&gt; queryTaskThreads(int pid) {
-<span class="nc" id="L58">        String pidStr = &quot; &quot; + pid + &quot; &quot;;</span>
-<span class="nc" id="L59">        List&lt;ThreadStats&gt; taskThreads = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L39">        String pidStr = &quot; &quot; + pid + &quot; &quot;;</span>
+<span class="nc" id="L40">        List&lt;ThreadStats&gt; taskThreads = new ArrayList&lt;&gt;();</span>
         // Only way to get thread info without root permissions
         // Using the M switch gives all threads with no possibility to filter
-<span class="nc" id="L62">        List&lt;String&gt; psThread = ExecutingCommand.runNative(&quot;ps -awwxM&quot;).stream().filter(s -&gt; s.contains(pidStr))</span>
-<span class="nc" id="L63">                .collect(Collectors.toList());</span>
-<span class="nc" id="L64">        int tid = 0;</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (String thread : psThread) {</span>
-<span class="nc" id="L66">            Matcher m = PS_M.matcher(thread);</span>
-<span class="nc bnc" id="L67" title="All 4 branches missed.">            if (m.matches() &amp;&amp; pid == ParseUtil.parseIntOrDefault(m.group(1), -1)) {</span>
-<span class="nc" id="L68">                double cpu = ParseUtil.parseDoubleOrDefault(m.group(2), 0d);</span>
-<span class="nc" id="L69">                char state = m.group(3).charAt(0);</span>
-<span class="nc" id="L70">                int pri = ParseUtil.parseIntOrDefault(m.group(4), 0);</span>
-<span class="nc" id="L71">                long sTime = ParseUtil.parseDHMSOrDefault(m.group(5), 0L);</span>
-<span class="nc" id="L72">                long uTime = ParseUtil.parseDHMSOrDefault(m.group(6), 0L);</span>
-<span class="nc" id="L73">                taskThreads.add(new ThreadStats(tid++, cpu, state, sTime, uTime, pri));</span>
+<span class="nc" id="L43">        List&lt;String&gt; psThread = ExecutingCommand.runNative(&quot;ps -awwxM&quot;).stream().filter(s -&gt; s.contains(pidStr))</span>
+<span class="nc" id="L44">                .collect(Collectors.toList());</span>
+<span class="nc" id="L45">        int tid = 0;</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        for (String thread : psThread) {</span>
+<span class="nc" id="L47">            Matcher m = PS_M.matcher(thread);</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">            if (m.matches() &amp;&amp; pid == ParseUtil.parseIntOrDefault(m.group(1), -1)) {</span>
+<span class="nc" id="L49">                double cpu = ParseUtil.parseDoubleOrDefault(m.group(2), 0d);</span>
+<span class="nc" id="L50">                char state = m.group(3).charAt(0);</span>
+<span class="nc" id="L51">                int pri = ParseUtil.parseIntOrDefault(m.group(4), 0);</span>
+<span class="nc" id="L52">                long sTime = ParseUtil.parseDHMSOrDefault(m.group(5), 0L);</span>
+<span class="nc" id="L53">                long uTime = ParseUtil.parseDHMSOrDefault(m.group(6), 0L);</span>
+<span class="nc" id="L54">                taskThreads.add(new ThreadStats(tid++, cpu, state, sTime, uTime, pri));</span>
             }
-<span class="nc" id="L75">        }</span>
-<span class="nc" id="L76">        return taskThreads;</span>
+<span class="nc" id="L56">        }</span>
+<span class="nc" id="L57">        return taskThreads;</span>
     }
 
     /**
@@ -88,77 +69,77 @@ public final class ThreadInfo {
         private final State state;
         private final int priority;
 
-<span class="nc" id="L91">        public ThreadStats(int tid, double cpu, char state, long sTime, long uTime, int pri) {</span>
-<span class="nc" id="L92">            this.threadId = tid;</span>
-<span class="nc" id="L93">            this.userTime = uTime;</span>
-<span class="nc" id="L94">            this.systemTime = sTime;</span>
+<span class="nc" id="L72">        public ThreadStats(int tid, double cpu, char state, long sTime, long uTime, int pri) {</span>
+<span class="nc" id="L73">            this.threadId = tid;</span>
+<span class="nc" id="L74">            this.userTime = uTime;</span>
+<span class="nc" id="L75">            this.systemTime = sTime;</span>
             // user + system / uptime = cpu/100
             // so: uptime = user+system / cpu/100
-<span class="nc" id="L97">            this.upTime = (long) ((uTime + sTime) / (cpu / 100d + 0.0005));</span>
-<span class="nc bnc" id="L98" title="All 6 branches missed.">            switch (state) {</span>
+<span class="nc" id="L78">            this.upTime = (long) ((uTime + sTime) / (cpu / 100d + 0.0005));</span>
+<span class="nc bnc" id="L79" title="All 6 branches missed.">            switch (state) {</span>
             case 'I':
             case 'S':
-<span class="nc" id="L101">                this.state = SLEEPING;</span>
-<span class="nc" id="L102">                break;</span>
+<span class="nc" id="L82">                this.state = SLEEPING;</span>
+<span class="nc" id="L83">                break;</span>
             case 'U':
-<span class="nc" id="L104">                this.state = WAITING;</span>
-<span class="nc" id="L105">                break;</span>
+<span class="nc" id="L85">                this.state = WAITING;</span>
+<span class="nc" id="L86">                break;</span>
             case 'R':
-<span class="nc" id="L107">                this.state = RUNNING;</span>
-<span class="nc" id="L108">                break;</span>
+<span class="nc" id="L88">                this.state = RUNNING;</span>
+<span class="nc" id="L89">                break;</span>
             case 'Z':
-<span class="nc" id="L110">                this.state = ZOMBIE;</span>
-<span class="nc" id="L111">                break;</span>
+<span class="nc" id="L91">                this.state = ZOMBIE;</span>
+<span class="nc" id="L92">                break;</span>
             case 'T':
-<span class="nc" id="L113">                this.state = STOPPED;</span>
-<span class="nc" id="L114">                break;</span>
+<span class="nc" id="L94">                this.state = STOPPED;</span>
+<span class="nc" id="L95">                break;</span>
             default:
-<span class="nc" id="L116">                this.state = OTHER;</span>
+<span class="nc" id="L97">                this.state = OTHER;</span>
                 break;
             }
-<span class="nc" id="L119">            this.priority = pri;</span>
-<span class="nc" id="L120">        }</span>
+<span class="nc" id="L100">            this.priority = pri;</span>
+<span class="nc" id="L101">        }</span>
 
         /**
          * @return the threadId
          */
         public int getThreadId() {
-<span class="nc" id="L126">            return threadId;</span>
+<span class="nc" id="L107">            return threadId;</span>
         }
 
         /**
          * @return the userTime
          */
         public long getUserTime() {
-<span class="nc" id="L133">            return userTime;</span>
+<span class="nc" id="L114">            return userTime;</span>
         }
 
         /**
          * @return the systemTime
          */
         public long getSystemTime() {
-<span class="nc" id="L140">            return systemTime;</span>
+<span class="nc" id="L121">            return systemTime;</span>
         }
 
         /**
          * @return the upTime
          */
         public long getUpTime() {
-<span class="nc" id="L147">            return upTime;</span>
+<span class="nc" id="L128">            return upTime;</span>
         }
 
         /**
          * @return the state
          */
         public State getState() {
-<span class="nc" id="L154">            return state;</span>
+<span class="nc" id="L135">            return state;</span>
         }
 
         /**
          * @return the priority
          */
         public int getPriority() {
-<span class="nc" id="L161">            return priority;</span>
+<span class="nc" id="L142">            return priority;</span>
         }
     }
 }
