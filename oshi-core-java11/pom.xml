@@ -83,6 +83,7 @@
         </testResources>
         <plugins>
             <!-- Work around https://github.com/sormuras/junit-platform-maven-plugin/issues/94 -->
+            <!-- temporarily disable for release due to javadoc plugin bug; put back after release
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -95,7 +96,7 @@
                         <phase>initialize</phase>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
