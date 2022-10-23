@@ -175,11 +175,8 @@ public class AixFileSystem extends AbstractFileSystem {
     public long getMaxFileDescriptorsPerProcess() {
         final List<String> lines = FileUtil.readFile("/etc/security/limits");
         for (final String line : lines) {
-            if (line.startsWith("nofiles(descriptors)")) {
-                final String[] split = line.split("\\w+");
-                if (split.length > 1) {
-                    return ParseUtil.parseLongOrDefault(split[1], Long.MAX_VALUE);
-                }
+            if (line.trim().startsWith("nofiles")) {
+                return ParseUtil.parseLastLong(line, Long.MAX_VALUE);
             }
         }
         return Long.MAX_VALUE;
