@@ -9,7 +9,9 @@ import oshi.PlatformEnum;
 import oshi.SystemInfo;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 /**
  * Test File System
@@ -30,6 +32,7 @@ class FileSystemTest {
                 greaterThanOrEqualTo(0L));
         assertThat("File system max open file descriptors per process should be 0 or higher",
                 filesystem.getMaxFileDescriptorsPerProcess() >= 0L, is(true));
+        filesystem.getMaxFileDescriptorsPerProcess();
         for (OSFileStore store : filesystem.getFileStores()) {
             assertThat("File store name shouldn't be null", store.getName(), is(notNullValue()));
             assertThat("File store volume shouldn't be null", store.getVolume(), is(notNullValue()));
