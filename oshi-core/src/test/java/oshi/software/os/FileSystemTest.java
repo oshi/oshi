@@ -31,7 +31,7 @@ class FileSystemTest {
         assertThat("File system max open file descriptors should be 0 or higher", filesystem.getMaxFileDescriptors(),
                 greaterThanOrEqualTo(0L));
         assertThat("File system max open file descriptors per process should be 0 or higher",
-                filesystem.getMaxFileDescriptorsPerProcess() >= 0L, is(true));
+                filesystem.getMaxFileDescriptorsPerProcess(), greaterThanOrEqualTo(0L));
         filesystem.getMaxFileDescriptorsPerProcess();
         for (OSFileStore store : filesystem.getFileStores()) {
             assertThat("File store name shouldn't be null", store.getName(), is(notNullValue()));
