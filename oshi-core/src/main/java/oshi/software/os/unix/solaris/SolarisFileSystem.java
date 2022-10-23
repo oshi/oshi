@@ -20,10 +20,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
-import oshi.util.ExecutingCommand;
-import oshi.util.FileSystemUtil;
-import oshi.util.Memoizer;
-import oshi.util.ParseUtil;
+import oshi.util.*;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;
@@ -180,6 +177,20 @@ public class SolarisFileSystem extends AbstractFileSystem {
             }
         }
         return 0L;
+    }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        final List<String> lines = FileUtil.readFile("/etc/system");
+        for (final String line : lines) {
+            if (line.matches("set.+rlim_fd_cur=\\d+")) {
+                final String[] split = line.split("set.+rlim_fd_cur=");
+                if (split.length == 2) {
+                    return ParseUtil.parseLongOrDefault(split[1], 65536L);
+                }
+            }
+        }
+        return 65536L; // 65536 is the default value for the process open file limit in Solaris
     }
 
     private static Pair<Long, Long> queryFileDescriptors() {

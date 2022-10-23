@@ -1,6 +1,6 @@
 # 6.3.1 (in progress)
 
-* Your contribution here!
+* [#2218](https://github.com/oshi/oshi/pull/2218): Added system-wide per-process file descriptor limits - [@gitseti](https://github.com/gitseti)
 
 # 6.3.0 (2022-10-16)
 

@@ -281,4 +281,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
     public long getMaxFileDescriptors() {
         return MAX_WINDOWS_HANDLES;
     }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        return MAX_WINDOWS_HANDLES;
+    }
 }

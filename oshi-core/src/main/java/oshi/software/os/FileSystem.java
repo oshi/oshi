@@ -61,4 +61,12 @@ public interface FileSystem {
      * @return The maximum number of file descriptors if available, 0 otherwise.
      */
     long getMaxFileDescriptors();
+
+    /**
+     * The maximum number of open file descriptors per process. This returns the system-wide limit. The actual limit of
+     * the calling process may be lower.
+     *
+     * @return The maximum number of file descriptors of every process if available, 0 otherwise.
+     */
+    long getMaxFileDescriptorsPerProcess();
 }
