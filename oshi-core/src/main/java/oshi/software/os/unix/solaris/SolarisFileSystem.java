@@ -187,11 +187,8 @@ public class SolarisFileSystem extends AbstractFileSystem {
     public long getMaxFileDescriptorsPerProcess() {
         final List<String> lines = FileUtil.readFile("/etc/system");
         for (final String line : lines) {
-            if (line.matches("set.+rlim_fd_cur=\\d+")) {
-                final String[] split = line.split("set.+rlim_fd_cur=");
-                if (split.length == 2) {
-                    return ParseUtil.parseLongOrDefault(split[1], 65536L);
-                }
+            if (line.startsWith("set rlim_fd_max")) {
+                return ParseUtil.parseLastLong(line, 65536L);
             }
         }
         return 65536L; // 65536 is the default value for the process open file limit in Solaris
