@@ -25,9 +25,9 @@ class FileSystemTest {
         SystemInfo si = new SystemInfo();
         FileSystem filesystem = si.getOperatingSystem().getFileSystem();
         assertThat("File system open file descriptors should be 0 or higher", filesystem.getOpenFileDescriptors(),
-            greaterThanOrEqualTo(0L));
-        assertThat("File system max open file descriptors should be 0 or higher",
-                filesystem.getMaxFileDescriptors(), greaterThanOrEqualTo(0L));
+                greaterThanOrEqualTo(0L));
+        assertThat("File system max open file descriptors should be 0 or higher", filesystem.getMaxFileDescriptors(),
+                greaterThanOrEqualTo(0L));
         assertThat("File system max open file descriptors per process should be 0 or higher",
                 filesystem.getMaxFileDescriptorsPerProcess() >= 0L, is(true));
         for (OSFileStore store : filesystem.getFileStores()) {
