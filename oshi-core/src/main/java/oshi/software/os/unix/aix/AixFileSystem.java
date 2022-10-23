@@ -16,6 +16,7 @@ import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -168,5 +169,16 @@ public class AixFileSystem extends AbstractFileSystem {
     @Override
     public long getMaxFileDescriptors() {
         return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("ulimit -n"), 0L);
+    }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        final List<String> lines = FileUtil.readFile("/etc/security/limits");
+        for (final String line : lines) {
+            if (line.trim().startsWith("nofiles")) {
+                return ParseUtil.parseLastLong(line, Long.MAX_VALUE);
+            }
+        }
+        return Long.MAX_VALUE;
     }
 }

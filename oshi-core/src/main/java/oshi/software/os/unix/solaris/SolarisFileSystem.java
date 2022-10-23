@@ -22,6 +22,7 @@ import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
+import oshi.util.FileUtil;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -180,6 +181,17 @@ public class SolarisFileSystem extends AbstractFileSystem {
             }
         }
         return 0L;
+    }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        final List<String> lines = FileUtil.readFile("/etc/system");
+        for (final String line : lines) {
+            if (line.startsWith("set rlim_fd_max")) {
+                return ParseUtil.parseLastLong(line, 65536L);
+            }
+        }
+        return 65536L; // 65536 is the default value for the process open file limit in Solaris
     }
 
     private static Pair<Long, Long> queryFileDescriptors() {

@@ -148,4 +148,9 @@ public class OpenBsdFileSystem extends AbstractFileSystem {
     public long getMaxFileDescriptors() {
         return OpenBsdSysctlUtil.sysctl("kern.maxfiles", 0);
     }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        return OpenBsdSysctlUtil.sysctl("kern.maxfilesperproc", 0);
+    }
 }

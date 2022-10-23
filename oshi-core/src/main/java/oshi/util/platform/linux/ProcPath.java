@@ -43,6 +43,7 @@ public final class ProcPath {
     public static final String SELF_STAT = PROC + "/self/stat";
     public static final String STAT = PROC + "/stat";
     public static final String SYS_FS_FILE_NR = PROC + "/sys/fs/file-nr";
+    public static final String SYS_FS_FILE_MAX = PROC + "/sys/fs/file-max";
     public static final String TASK_PATH = PROC + "/%d/task";
     public static final String TASK_COMM = TASK_PATH + "/%d/comm";
     public static final String TASK_STATUS = TASK_PATH + "/%d/status";

@@ -4,16 +4,14 @@
  */
 package oshi.software.os;
 
+import org.junit.jupiter.api.Test;
+import oshi.PlatformEnum;
+import oshi.SystemInfo;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-
-import oshi.PlatformEnum;
-import oshi.SystemInfo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 /**
  * Test File System
@@ -23,16 +21,18 @@ class FileSystemTest {
     /**
      * Test file system.
      *
-     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
-    void testFileSystem() throws IOException {
+    void testFileSystem() {
         SystemInfo si = new SystemInfo();
         FileSystem filesystem = si.getOperatingSystem().getFileSystem();
-        assertThat("File system open file descriptors should be 0 or higher", filesystem.getOpenFileDescriptors() >= 0L,
-                is(true));
-        assertThat("File system max open file descriptors should be 0 or higher",
-                filesystem.getMaxFileDescriptors() >= 0L, is(true));
+        assertThat("File system open file descriptors should be 0 or higher", filesystem.getOpenFileDescriptors(),
+                greaterThanOrEqualTo(0L));
+        assertThat("File system max open file descriptors should be 0 or higher", filesystem.getMaxFileDescriptors(),
+                greaterThanOrEqualTo(0L));
+        assertThat("File system max open file descriptors per process should be 0 or higher",
+                filesystem.getMaxFileDescriptorsPerProcess(), greaterThanOrEqualTo(0L));
+        filesystem.getMaxFileDescriptorsPerProcess();
         for (OSFileStore store : filesystem.getFileStores()) {
             assertThat("File store name shouldn't be null", store.getName(), is(notNullValue()));
             assertThat("File store volume shouldn't be null", store.getVolume(), is(notNullValue()));

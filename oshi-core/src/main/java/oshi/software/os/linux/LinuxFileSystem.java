@@ -230,6 +230,11 @@ public class LinuxFileSystem extends AbstractFileSystem {
         return getFileDescriptors(2);
     }
 
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        return getFileDescriptorsPerProcess();
+    }
+
     /**
      * Returns a value from the Linux system file /proc/sys/fs/file-nr.
      *
@@ -249,5 +254,9 @@ public class LinuxFileSystem extends AbstractFileSystem {
             return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;
+    }
+
+    private static long getFileDescriptorsPerProcess() {
+        return FileUtil.getLongFromFile(ProcPath.SYS_FS_FILE_MAX);
     }
 }
