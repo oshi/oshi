@@ -257,11 +257,6 @@ public class LinuxFileSystem extends AbstractFileSystem {
     }
 
     private static long getFileDescriptorsPerProcess() {
-        final String filename = ProcPath.SYS_FS_FILE_MAX;
-        final List<String> fileContent = FileUtil.readFile(filename);
-        if (!fileContent.isEmpty()) {
-            return ParseUtil.parseLongOrDefault(fileContent.get(0), 0L);
-        }
-        return 0L;
+        return FileUtil.getLongFromFile(ProcPath.SYS_FS_FILE_MAX);
     }
 }
