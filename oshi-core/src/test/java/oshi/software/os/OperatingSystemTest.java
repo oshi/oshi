@@ -152,6 +152,14 @@ class OperatingSystemTest {
         assertThat("Bitness must be 0, 32 or 64", proc.getBitness(), is(oneOf(0, 32, 64)));
         assertThat("Current process open file handles should be -1 or higher", proc.getOpenFiles(),
                 is(greaterThanOrEqualTo(-1L)));
+        assertThat("Soft open file limit should be 0 or higher", proc.getSoftOpenFileLimit(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Soft open file limit for process should be -1 or higher", proc.getSoftOpenFileLimit(proc),
+                is(greaterThanOrEqualTo(-1L)));
+        assertThat("Hard open file limit should be 0 or higher", proc.getHardOpenFileLimit(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Hard open file limit for process should be -1 or higher", proc.getHardOpenFileLimit(proc),
+                is(greaterThanOrEqualTo(-1L)));
     }
 
     @Test

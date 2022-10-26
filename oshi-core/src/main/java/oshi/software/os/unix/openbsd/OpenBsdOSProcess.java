@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
@@ -301,6 +303,30 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public long getOpenFiles() {
         return FstatUtil.getOpenFiles(getProcessID());
+    }
+
+    @Override
+    public long getSoftOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_cur;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit(OSProcess proc) {
+        return -1; // not supported
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_max;
+    }
+
+    @Override
+    public long getHardOpenFileLimit(OSProcess proc) {
+        return -1; // not supported
     }
 
     @Override

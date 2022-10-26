@@ -21,15 +21,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
+import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -52,6 +56,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     // Get a list of orders to pass to ParseUtil
     private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
+
     static {
         for (ProcPidStat stat : ProcPidStat.values()) {
             // The PROC_PID_STAT enum indices are 1-indexed.
@@ -254,6 +259,30 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getSoftOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_cur;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit(OSProcess proc) {
+        return getProcessOpenFileLimit(proc.getProcessID(), 1);
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_max;
+    }
+
+    @Override
+    public long getHardOpenFileLimit(OSProcess proc) {
+        return getProcessOpenFileLimit(proc.getProcessID(), 2);
+    }
+
+    @Override
     public int getBitness() {
         return this.bitness.get();
     }
@@ -412,5 +441,22 @@ public class LinuxOSProcess extends AbstractOSProcess {
         ProcPidStat(int order) {
             this.order = order;
         }
+    }
+
+    private long getProcessOpenFileLimit(long processId, int index) {
+        final String limitsPath = String.format("/proc/%d/limits", processId);
+        if (!Files.exists(Paths.get(limitsPath))) {
+            return -1; // not supported
+        }
+        final List<String> lines = FileUtil.readFile(limitsPath);
+        final Optional<String> maxOpenFilesLine = lines.stream().filter(line -> line.startsWith("Max open files"))
+                .findFirst();
+        if (!maxOpenFilesLine.isPresent()) {
+            return -1;
+        }
+
+        // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
+        final String[] split = maxOpenFilesLine.get().split("\\D+");
+        return Long.parseLong(split[index]);
     }
 }

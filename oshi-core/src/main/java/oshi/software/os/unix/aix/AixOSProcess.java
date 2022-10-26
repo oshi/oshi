@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +38,11 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
+import oshi.jna.platform.unix.AixLibc;
 import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -229,6 +232,30 @@ public class AixOSProcess extends AbstractOSProcess {
         } catch (IOException e) {
             return 0L;
         }
+    }
+
+    @Override
+    public long getSoftOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_cur;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit(final OSProcess proc) {
+        return -1; // not supported
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_max;
+    }
+
+    @Override
+    public long getHardOpenFileLimit(final OSProcess proc) {
+        return -1; // not supported
     }
 
     @Override

@@ -14,14 +14,18 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.memoize;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +37,11 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.platform.unix.freebsd.ProcstatUtil;
@@ -264,6 +270,30 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getSoftOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_cur;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit(OSProcess proc) {
+        return getProcessOpenFileLimit(proc.getProcessID(), 1);
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_max;
+    }
+
+    @Override
+    public long getHardOpenFileLimit(OSProcess proc) {
+        return getProcessOpenFileLimit(proc.getProcessID(), 2);
+    }
+
+    @Override
     public int getBitness() {
         return this.bitness.get();
     }
@@ -406,5 +436,22 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.commandLineBackup = psMap.get(PsKeywords.ARGS);
         return true;
+    }
+
+    private long getProcessOpenFileLimit(long processId, int index) {
+        final String limitsPath = String.format("/proc/%d/limits", processId);
+        if (!Files.exists(Paths.get(limitsPath))) {
+            return -1; // not supported
+        }
+        final List<String> lines = FileUtil.readFile(limitsPath);
+        final Optional<String> maxOpenFilesLine = lines.stream().filter(line -> line.startsWith("Max open files"))
+                .findFirst();
+        if (!maxOpenFilesLine.isPresent()) {
+            return -1;
+        }
+
+        // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
+        final String[] split = maxOpenFilesLine.get().split("\\D+");
+        return Long.parseLong(split[index]);
     }
 }

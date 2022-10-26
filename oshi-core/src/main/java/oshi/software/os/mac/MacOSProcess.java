@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ import oshi.jna.Struct.CloseableProcTaskAllInfo;
 import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.platform.mac.SysctlUtil;
@@ -56,6 +58,8 @@ public class MacOSProcess extends AbstractOSProcess {
 
     private static final boolean LOG_MAC_SYSCTL_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SYSCTL_LOGWARNING,
             false);
+
+    private static final int MAC_RLIMIT_NOFILE = 8;
 
     // 64-bit flag
     private static final int P_LP64 = 0x4;
@@ -304,6 +308,30 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public long getOpenFiles() {
         return this.openFiles;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_cur;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit(OSProcess proc) {
+        return -1; // not supported
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        final Resource.Rlimit rlimit = new Resource.Rlimit();
+        SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
+        return rlimit.rlim_max;
+    }
+
+    @Override
+    public long getHardOpenFileLimit(OSProcess proc) {
+        return -1; // not supported
     }
 
     @Override

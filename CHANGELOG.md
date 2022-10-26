@@ -1,7 +1,8 @@
 # 6.3.1 (in progress)
 
 ##### New Features
-* [#2218](https://github.com/oshi/oshi/pull/2218): Added system-wide per-process file descriptor limits - [@gitseti](https://github.com/gitseti)
+* [#2218](https://github.com/oshi/oshi/pull/2218): Added system-wide per-process open file descriptor limits - [@gitseti](https://github.com/gitseti)
+* [#2225](https://github.com/oshi/oshi/pull/2225): Added process specific open file descriptor limits - [@gitseti](https://github.com/gitseti)
 
 ##### Bug fixes / Improvements
 * [#2224](https://github.com/oshi/oshi/pull/2224): Detect Windows Server 2022 in older JDKs - [@dbwiddis](https://github.com/dbwiddis).

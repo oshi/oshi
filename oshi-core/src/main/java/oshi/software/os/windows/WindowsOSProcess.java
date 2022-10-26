@@ -36,6 +36,7 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData;
 import oshi.driver.windows.registry.ProcessWtsData;
@@ -50,6 +51,7 @@ import oshi.jna.ByRef.CloseableULONGptrByReference;
 import oshi.jna.platform.windows.NtDll;
 import oshi.jna.platform.windows.NtDll.UNICODE_STRING;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
@@ -228,6 +230,28 @@ public class WindowsOSProcess extends AbstractOSProcess {
     @Override
     public long getOpenFiles() {
         return this.openFiles;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit() {
+        // TODO how to execute _getmaxstdio
+        return new SystemInfo().getOperatingSystem().getFileSystem().getMaxFileDescriptorsPerProcess();
+    }
+
+    @Override
+    public long getSoftOpenFileLimit(OSProcess proc) {
+        return -1; // not supported
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        // FIXME how to execute _getmaxstdio
+        return new SystemInfo().getOperatingSystem().getFileSystem().getMaxFileDescriptorsPerProcess();
+    }
+
+    @Override
+    public long getHardOpenFileLimit(OSProcess proc) {
+        return -1; // not supported
     }
 
     @Override
