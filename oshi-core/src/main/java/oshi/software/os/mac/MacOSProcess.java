@@ -318,7 +318,7 @@ public class MacOSProcess extends AbstractOSProcess {
             SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_cur;
         } else {
-            return -1L; // Not supported
+            return -1L; // not supported
         }
     }
 
@@ -329,7 +329,7 @@ public class MacOSProcess extends AbstractOSProcess {
             SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_max;
         } else {
-            return -1L; // Not supported
+            return -1L; // not supported
         }
     }
 

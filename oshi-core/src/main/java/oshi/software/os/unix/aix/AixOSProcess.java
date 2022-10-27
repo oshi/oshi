@@ -243,7 +243,7 @@ public class AixOSProcess extends AbstractOSProcess {
             AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_cur;
         } else {
-            return -1L; // Not supported
+            return -1L; // not supported
         }
     }
 
@@ -254,7 +254,7 @@ public class AixOSProcess extends AbstractOSProcess {
             AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_max;
         } else {
-            return -1L;
+            return -1L; // not supported
         }
     }
 

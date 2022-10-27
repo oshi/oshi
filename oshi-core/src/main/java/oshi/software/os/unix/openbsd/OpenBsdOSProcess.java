@@ -326,7 +326,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_max;
         } else {
-            return -1L;
+            return -1L; // not supported
         }
     }
 
