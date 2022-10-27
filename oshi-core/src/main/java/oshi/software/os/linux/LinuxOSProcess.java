@@ -33,7 +33,6 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -65,6 +64,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
         }
     }
 
+    private final LinuxOperatingSystem os;
+
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<List<String>> arguments = memoize(this::queryArguments);
@@ -92,8 +93,9 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public LinuxOSProcess(int pid) {
+    public LinuxOSProcess(int pid, LinuxOperatingSystem os) {
         super(pid);
+        this.os = os;
         updateAttributes();
     }
 
@@ -260,26 +262,24 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
-    }
-
-    @Override
-    public long getSoftOpenFileLimit(OSProcess proc) {
-        return getProcessOpenFileLimit(proc.getProcessID(), 1);
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 1);
+        }
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
-    }
-
-    @Override
-    public long getHardOpenFileLimit(OSProcess proc) {
-        return getProcessOpenFileLimit(proc.getProcessID(), 2);
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 2);
+        }
     }
 
     @Override

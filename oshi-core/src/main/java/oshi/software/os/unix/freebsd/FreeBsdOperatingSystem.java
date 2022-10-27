@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.FreeBsdLibc;
@@ -134,11 +135,13 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             psCommand += " -p " + pid;
         }
 
+        final FreeBsdOperatingSystem os = (FreeBsdOperatingSystem) new SystemInfo().getOperatingSystem();
+
         Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
                 .map(psMap -> new FreeBsdOSProcess(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, os))
                 .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 

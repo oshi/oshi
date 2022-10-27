@@ -37,7 +37,6 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
@@ -63,6 +62,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private static final int ARGMAX;
+
     static {
         int[] mib = new int[2];
         mib[0] = 1; // CTL_KERN
@@ -78,6 +78,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             }
         }
     }
+
+    private final OpenBsdOperatingSystem os;
 
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<List<String>> arguments = memoize(this::queryArguments);
@@ -107,8 +109,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private int bitness;
     private String commandLineBackup;
 
-    public OpenBsdOSProcess(int pid, Map<PsKeywords, String> psMap) {
+    public OpenBsdOSProcess(int pid, Map<PsKeywords, String> psMap, OpenBsdOperatingSystem os) {
         super(pid);
+        this.os = os;
         // OpenBSD does not maintain a compatibility layer.
         // Process bitness is OS bitness
         this.bitness = Native.LONG_SIZE * 8;
@@ -307,26 +310,24 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
-    }
-
-    @Override
-    public long getSoftOpenFileLimit(OSProcess proc) {
-        return -1; // not supported
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return -1L; // not supported
+        }
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
-    }
-
-    @Override
-    public long getHardOpenFileLimit(OSProcess proc) {
-        return -1; // not supported
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return -1L;
+        }
     }
 
     @Override

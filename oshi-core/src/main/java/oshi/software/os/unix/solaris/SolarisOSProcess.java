@@ -41,7 +41,6 @@ import oshi.jna.platform.unix.SolarisLibc;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -56,6 +55,8 @@ import oshi.util.tuples.Pair;
 public class SolarisOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisOSProcess.class);
+
+    private final SolarisOperatingSystem os;
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
@@ -86,8 +87,9 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches = 0; // default
 
-    public SolarisOSProcess(int pid) {
+    public SolarisOSProcess(int pid, SolarisOperatingSystem os) {
         super(pid);
+        this.os = os;
         updateAttributes();
     }
 
@@ -253,26 +255,24 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
-    }
-
-    @Override
-    public long getSoftOpenFileLimit(OSProcess proc) {
-        return getProcessOpenFileLimit(proc.getProcessID(), 1);
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 1);
+        }
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
-    }
-
-    @Override
-    public long getHardOpenFileLimit(OSProcess proc) {
-        return getProcessOpenFileLimit(proc.getProcessID(), 2);
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 2);
+        }
     }
 
     @Override

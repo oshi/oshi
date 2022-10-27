@@ -37,7 +37,6 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
@@ -55,6 +54,8 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOSProcess.class);
 
     private static final int ARGMAX = BsdSysctlUtil.sysctl("kern.argmax", 0);
+
+    private final FreeBsdOperatingSystem os;
 
     /*
      * Package-private for use by FreeBsdOSThread
@@ -94,8 +95,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private long contextSwitches;
     private String commandLineBackup;
 
-    public FreeBsdOSProcess(int pid, Map<PsKeywords, String> psMap) {
+    public FreeBsdOSProcess(int pid, Map<PsKeywords, String> psMap, FreeBsdOperatingSystem os) {
         super(pid);
+        this.os = os;
         updateAttributes(psMap);
     }
 
@@ -271,26 +273,24 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
-    }
-
-    @Override
-    public long getSoftOpenFileLimit(OSProcess proc) {
-        return getProcessOpenFileLimit(proc.getProcessID(), 1);
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 1);
+        }
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
-    }
-
-    @Override
-    public long getHardOpenFileLimit(OSProcess proc) {
-        return getProcessOpenFileLimit(proc.getProcessID(), 2);
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 2);
+        }
     }
 
     @Override

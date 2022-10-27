@@ -42,7 +42,6 @@ import oshi.jna.platform.unix.AixLibc;
 import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -86,10 +85,13 @@ public class AixOSProcess extends AbstractOSProcess {
 
     // Memoized copy from OperatingSystem
     private Supplier<perfstat_process_t[]> procCpu;
+    private final AixOperatingSystem os;
 
-    public AixOSProcess(int pid, Pair<Long, Long> userSysCpuTime, Supplier<perfstat_process_t[]> procCpu) {
+    public AixOSProcess(int pid, Pair<Long, Long> userSysCpuTime, Supplier<perfstat_process_t[]> procCpu,
+            AixOperatingSystem os) {
         super(pid);
         this.procCpu = procCpu;
+        this.os = os;
         updateAttributes(userSysCpuTime);
     }
 
@@ -236,26 +238,24 @@ public class AixOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
-    }
-
-    @Override
-    public long getSoftOpenFileLimit(final OSProcess proc) {
-        return -1; // not supported
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return -1L; // Not supported
+        }
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
-    }
-
-    @Override
-    public long getHardOpenFileLimit(final OSProcess proc) {
-        return -1; // not supported
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return -1L;
+        }
     }
 
     @Override

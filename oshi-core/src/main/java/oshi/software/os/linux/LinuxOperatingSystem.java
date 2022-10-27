@@ -23,6 +23,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.Udev;
 
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Who;
 import oshi.driver.linux.proc.Auxv;
@@ -175,7 +176,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        OSProcess proc = new LinuxOSProcess(pid);
+        OSProcess proc = new LinuxOSProcess(pid, this);
         if (!proc.getState().equals(State.INVALID)) {
             return proc;
         }
@@ -213,8 +214,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     private static List<OSProcess> queryProcessList(Set<Integer> descendantPids) {
         List<OSProcess> procs = new ArrayList<>();
+        final LinuxOperatingSystem os = (LinuxOperatingSystem) new SystemInfo().getOperatingSystem();
         for (int pid : descendantPids) {
-            OSProcess proc = new LinuxOSProcess(pid);
+            OSProcess proc = new LinuxOSProcess(pid, os);
             if (!proc.getState().equals(State.INVALID)) {
                 procs.add(proc);
             }

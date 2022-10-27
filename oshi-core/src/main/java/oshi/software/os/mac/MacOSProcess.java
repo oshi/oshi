@@ -40,7 +40,6 @@ import oshi.jna.Struct.CloseableProcTaskAllInfo;
 import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.platform.mac.SysctlUtil;
@@ -75,6 +74,7 @@ public class MacOSProcess extends AbstractOSProcess {
 
     private int majorVersion;
     private int minorVersion;
+    private final MacOperatingSystem os;
 
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> argsEnviron = memoize(this::queryArgsAndEnvironment);
@@ -104,10 +104,11 @@ public class MacOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public MacOSProcess(int pid, int major, int minor) {
+    public MacOSProcess(int pid, int major, int minor, MacOperatingSystem os) {
         super(pid);
         this.majorVersion = major;
         this.minorVersion = minor;
+        this.os = os;
         updateAttributes();
     }
 
@@ -312,26 +313,24 @@ public class MacOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
-    }
-
-    @Override
-    public long getSoftOpenFileLimit(OSProcess proc) {
-        return -1; // not supported
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return -1L; // Not supported
+        }
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        final Resource.Rlimit rlimit = new Resource.Rlimit();
-        SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
-    }
-
-    @Override
-    public long getHardOpenFileLimit(OSProcess proc) {
-        return -1; // not supported
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return -1L; // Not supported
+        }
     }
 
     @Override

@@ -249,44 +249,24 @@ public interface OSProcess {
     long getOpenFiles();
 
     /**
-     * Gets the soft limit for open file handles (or network connections) that belong to the process.
+     * Gets the soft limit for open file handles (or network connections) of the given process.
      * <p>
-     * On Windows this returns the maximum number of open files for the process. The result is the same as
-     * {@link #getHardOpenFileLimit()} ()}.
+     * Retrieving the soft limit for processes other than the calling process is only supported on Linux, FreeBsd and
+     * Solaris.
      *
-     * @return the soft open file limit for the process.
+     * @return the soft open file limit for the process if available or -1 if not supported.
      */
     long getSoftOpenFileLimit();
 
     /**
-     * Gets the soft limit for open file handles (or network connections) that belong to the given process.
-     *
-     * This function is only supported on Linux, FreeBsd and Solaris.
-     *
-     * @param proc the process to retrieve the soft open file limit for.
-     * @return the soft open file limit for the process if available or -1 if not supported.
-     */
-    long getSoftOpenFileLimit(OSProcess proc);
-
-    /**
-     * Gets the hard limit for open file handles (or network connections) that belong to the process.
+     * Gets the hard limit for open file handles (or network connections) that belong to the given process.
      * <p>
-     * On Windows this returns the maximum number of open files for the process. The result is the same as
-     * {@link #getSoftOpenFileLimit()}.
+     * Retrieving the hard limit for processes other than the calling process is only supported on Linux, FreeBsd and
+     * Solaris.
      *
-     * @return the hard open file limit for the process.
+     * @return the soft open file limit for the process if available or -1 if not supported.
      */
     long getHardOpenFileLimit();
-
-    /**
-     * Gets the hard limit for open file handles (or network connections) that belong to the given process.
-     *
-     * This function is only supported on Linux, FreeBsd and Solaris.
-     *
-     * @param proc the process to retrieve the soft open file limit for.
-     * @return the soft open file limit for the process if available or -1 if not supported.
-     */
-    long getHardOpenFileLimit(OSProcess proc);
 
     /**
      * Gets cumulative CPU usage of this process.
@@ -311,7 +291,6 @@ public interface OSProcess {
      *
      * @param proc An {@link OSProcess} object containing statistics for this same process collected at a prior point in
      *             time. May be null.
-     *
      * @return If the prior snapshot is for the same process at a prior point in time, the proportion of elapsed up time
      *         between the current process snapshot and the previous one that the process was executing in kernel or
      *         user mode. Returns cumulative load otherwise.

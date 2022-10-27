@@ -51,7 +51,6 @@ import oshi.jna.ByRef.CloseableULONGptrByReference;
 import oshi.jna.platform.windows.NtDll;
 import oshi.jna.platform.windows.NtDll.UNICODE_STRING;
 import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
@@ -239,19 +238,9 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getSoftOpenFileLimit(OSProcess proc) {
-        return -1; // not supported
-    }
-
-    @Override
     public long getHardOpenFileLimit() {
         // FIXME how to execute _getmaxstdio
         return new SystemInfo().getOperatingSystem().getFileSystem().getMaxFileDescriptorsPerProcess();
-    }
-
-    @Override
-    public long getHardOpenFileLimit(OSProcess proc) {
-        return -1; // not supported
     }
 
     @Override

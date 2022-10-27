@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -136,6 +137,9 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         if (procList.isEmpty() || procList.size() < 2) {
             return procs;
         }
+
+        final OpenBsdOperatingSystem os = (OpenBsdOperatingSystem) new SystemInfo().getOperatingSystem();
+
         // remove header row
         procList.remove(0);
         // Fill list
@@ -144,7 +148,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
             // Check if last (thus all) value populated
             if (psMap.containsKey(PsKeywords.ARGS)) {
                 procs.add(new OpenBsdOSProcess(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap));
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, os));
             }
         }
         return procs;
