@@ -254,7 +254,9 @@ public interface OSProcess {
      * Retrieving the soft limit for processes other than the calling process is only supported on Linux, FreeBsd and
      * Solaris.
      *
-     * @return the soft open file limit for the process if available or -1 if not supported.
+     * @return the soft open file limit for the process if available. Returns -1 if the calling process is not the same
+     *         as this OSProcess instance and the underlying operating system does not support retrieving the soft limit
+     *         for other processes.
      */
     long getSoftOpenFileLimit();
 
@@ -264,7 +266,9 @@ public interface OSProcess {
      * Retrieving the hard limit for processes other than the calling process is only supported on Linux, FreeBsd and
      * Solaris.
      *
-     * @return the soft open file limit for the process if available or -1 if not supported.
+     * @return the hard open file limit for the process if available. Returns -1 if the calling process is not the same
+     *         as this OSProcess instance and the underlying operating system does not support retrieving the hard limit
+     *         for other processes.
      */
     long getHardOpenFileLimit();
 
