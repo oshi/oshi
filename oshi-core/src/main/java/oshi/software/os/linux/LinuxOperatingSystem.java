@@ -212,11 +212,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         return queryProcessList(getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, true));
     }
 
-    private static List<OSProcess> queryProcessList(Set<Integer> descendantPids) {
+    private List<OSProcess> queryProcessList(Set<Integer> descendantPids) {
         List<OSProcess> procs = new ArrayList<>();
-        final LinuxOperatingSystem os = (LinuxOperatingSystem) new SystemInfo().getOperatingSystem();
         for (int pid : descendantPids) {
-            OSProcess proc = new LinuxOSProcess(pid, os);
+            OSProcess proc = new LinuxOSProcess(pid, this);
             if (!proc.getState().equals(State.INVALID)) {
                 procs.add(proc);
             }

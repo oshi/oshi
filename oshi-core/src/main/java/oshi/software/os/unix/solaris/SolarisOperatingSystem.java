@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import com.sun.jna.platform.unix.solaris.Kstat2;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
-import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.solaris.Who;
@@ -134,11 +133,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
-    private static List<OSProcess> queryAllProcessesFromPrStat() {
+    private List<OSProcess> queryAllProcessesFromPrStat() {
         return getProcessListFromProcfs(-1);
     }
 
-    private static List<OSProcess> getProcessListFromProcfs(int pid) {
+    private List<OSProcess> getProcessListFromProcfs(int pid) {
         List<OSProcess> procs = new ArrayList<>();
 
         File[] numericFiles = null;
@@ -158,12 +157,10 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
             return procs;
         }
 
-        final SolarisOperatingSystem os = (SolarisOperatingSystem) new SystemInfo().getOperatingSystem();
-
         // Iterate files
         for (File pidFile : numericFiles) {
             int pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
-            OSProcess proc = new SolarisOSProcess(pidNum, os);
+            OSProcess proc = new SolarisOSProcess(pidNum, this);
             if (proc.getState() != INVALID) {
                 procs.add(proc);
             }

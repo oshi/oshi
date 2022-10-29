@@ -125,7 +125,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         return procs.get(0);
     }
 
-    private static List<OSProcess> getProcessListFromPS(int pid) {
+    private List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
         // https://man.openbsd.org/ps#KEYWORDS
         // missing are threadCount and kernelTime which is included in cputime
@@ -138,8 +138,6 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
             return procs;
         }
 
-        final OpenBsdOperatingSystem os = (OpenBsdOperatingSystem) new SystemInfo().getOperatingSystem();
-
         // remove header row
         procList.remove(0);
         // Fill list
@@ -148,7 +146,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
             // Check if last (thus all) value populated
             if (psMap.containsKey(PsKeywords.ARGS)) {
                 procs.add(new OpenBsdOSProcess(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, os));
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this));
             }
         }
         return procs;
