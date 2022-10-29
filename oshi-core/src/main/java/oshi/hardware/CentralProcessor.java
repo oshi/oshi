@@ -64,8 +64,11 @@ public interface CentralProcessor {
 
     /**
      * Returns an {@code UnmodifiableList} of the CPU's logical processors. The list will be sorted in order of
-     * increasing NUMA node number, and then processor number. This order is consistent with other methods providing
-     * per-processor results.
+     * increasing NUMA node number, and then processor number. This order is (usually) consistent with other methods
+     * providing per-processor results.
+     * <p>
+     * On some operating systems with variable numbers of logical processors, the size of this array could change and
+     * may not align with other per-processor methods.
      *
      * @return An {@code UnmodifiabeList} of logical processors.
      */
@@ -83,8 +86,9 @@ public interface CentralProcessor {
      * Makes a best-effort attempt to identify the CPU's processor caches. For hybrid processors, both performance and
      * efficiency core caches are shown. Only one instance of per-core caches is shown.
      * <p>
-     * Values are unreliable in a VM. Callers should conduct sanity checking of the returned objects. Not all values are
-     * available on all operating systems or architectures.
+     * Values are unreliable in virtual machines and rely in information made available by the VM or hypervisor. Callers
+     * should conduct sanity checking of the returned objects. Not all values are available on all operating systems or
+     * architectures.
      * <p>
      * Not available on Solaris.
      *
@@ -95,9 +99,14 @@ public interface CentralProcessor {
     /**
      * Returns the "recent cpu usage" for the whole system by counting ticks from {@link #getSystemCpuLoadTicks()}
      * between the user-provided value from a previous call.
+     * <p>
+     * On some operating systems with variable numbers of logical processors, the size of the array returned from a
+     * previous call to {@link #getSystemCpuLoadTicks()} could change and will throw an
+     * {@link IllegalArgumentException}. Calling code on these operating systems should handle this exception.
      *
      * @param oldTicks A tick array from a previous call to {@link #getSystemCpuLoadTicks()}
      * @return CPU load between 0 and 1 (100%)
+     * @throws IllegalArgumentException if the array sizes differ.
      */
     double getSystemCpuLoadBetweenTicks(long[] oldTicks);
 
@@ -107,6 +116,9 @@ public interface CentralProcessor {
      * (SoftIRQ) (6), or Steal (7) states. Use {@link oshi.hardware.CentralProcessor.TickType#getIndex()} to retrieve
      * the appropriate index. By measuring the difference between ticks across a time interval, CPU load over that
      * interval may be calculated.
+     * <p>
+     * On some operating systems with variable numbers of logical processors, the size of this array could change and
+     * may not align with other per-processor methods.
      * <p>
      * Note that while tick counters are in units of milliseconds, they may advance in larger increments along with
      * (platform dependent) clock ticks. For example, by default Windows clock ticks are 1/64 of a second (about 15 or
@@ -152,6 +164,7 @@ public interface CentralProcessor {
      * This is a convenience method which collects an initial set of ticks using {@link #getSystemCpuLoadTicks()} and
      * passes that result to {@link #getSystemCpuLoadBetweenTicks(long[])} after the specified delay.
      *
+     *
      * @param delay Milliseconds to wait.
      * @return value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
      */
@@ -169,9 +182,14 @@ public interface CentralProcessor {
     /**
      * This is a convenience method which collects an initial set of ticks using {@link #getProcessorCpuLoadTicks()} and
      * passes that result to {@link #getProcessorCpuLoadBetweenTicks(long[][])} after the specified delay.
+     * <p>
+     * On some operating systems with variable numbers of logical processors, the size of the array returned from the
+     * two calls could change and will throw an {@link IllegalArgumentException}. Calling code on these operating
+     * systems should handle this exception.
      *
      * @param delay Milliseconds to wait.
      * @return array of CPU load between 0 and 1 (100%) for each logical processor, for the provided time period.
+     * @throws IllegalArgumentException if the array sizes differ between calls.
      */
     default double[] getProcessorCpuLoad(long delay) {
         long start = System.nanoTime();
@@ -187,9 +205,14 @@ public interface CentralProcessor {
     /**
      * Returns the "recent cpu usage" for all logical processors by counting ticks from
      * {@link #getProcessorCpuLoadTicks()} between the user-provided value from a previous call.
+     * <p>
+     * On some operating systems with variable numbers of logical processors, the size of the array returned from the
+     * two calls could change and will throw an {@link IllegalArgumentException}. Calling code on these operating
+     * systems should handle this exception.
      *
      * @param oldTicks A tick array from a previous call to {@link #getProcessorCpuLoadTicks()}
      * @return array of CPU load between 0 and 1 (100%) for each logical processor
+     * @throws IllegalArgumentException if the array sizes differ between calls.
      */
     double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks);
 
@@ -220,6 +243,8 @@ public interface CentralProcessor {
     /**
      * Get the number of logical CPUs available for processing. This value may be higher than physical CPUs if
      * hyperthreading is enabled.
+     * <p>
+     * On some operating systems with variable numbers of logical processors, may return a max value.
      *
      * @return The number of logical CPUs available.
      */
@@ -227,6 +252,9 @@ public interface CentralProcessor {
 
     /**
      * Get the number of physical CPUs/cores available for processing.
+     * <p>
+     * On some operating systems with variable numbers of physical processors available to the OS, may return a max
+     * value.
      *
      * @return The number of physical CPUs available.
      */

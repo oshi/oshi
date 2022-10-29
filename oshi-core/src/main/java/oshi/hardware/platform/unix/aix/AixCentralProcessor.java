@@ -96,13 +96,18 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
         this.config = PerfstatConfig.queryConfig();
 
+        // Reporting "online" or "active" values can lead to nonsense so we go with max
         int physProcs = (int) config.numProcessors.max;
         if (physProcs < 1) {
             physProcs = 1;
         }
-        int lcpus = config.lcpus;
+        int lcpus = (int) config.vcpus.max;
         if (lcpus < 1) {
             lcpus = 1;
+        }
+        // Sanity check to ensure lp/pp ratio >= 1
+        if (physProcs > lcpus) {
+            physProcs = lcpus;
         }
         int lpPerPp = lcpus / physProcs;
         // Get node and package mapping
