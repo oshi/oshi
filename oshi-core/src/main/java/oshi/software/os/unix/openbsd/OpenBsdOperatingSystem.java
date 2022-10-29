@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;

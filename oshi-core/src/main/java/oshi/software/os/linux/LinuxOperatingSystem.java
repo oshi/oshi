@@ -23,7 +23,6 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.Udev;
 
-import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Who;
 import oshi.driver.linux.proc.Auxv;
