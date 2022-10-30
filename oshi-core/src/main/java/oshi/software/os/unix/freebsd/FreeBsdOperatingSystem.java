@@ -128,7 +128,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return procs.get(0);
     }
 
-    private static List<OSProcess> getProcessListFromPS(int pid) {
+    private List<OSProcess> getProcessListFromPS(int pid) {
         String psCommand = "ps -awwxo " + PS_COMMAND_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
@@ -138,7 +138,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
                 .map(psMap -> new FreeBsdOSProcess(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this))
                 .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 

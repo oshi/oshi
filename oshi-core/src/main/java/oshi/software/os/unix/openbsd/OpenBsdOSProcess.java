@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +62,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             .map(String::toLowerCase).collect(Collectors.joining(","));
 
     private static final int ARGMAX;
+
     static {
         int[] mib = new int[2];
         mib[0] = 1; // CTL_KERN
@@ -76,6 +78,8 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
             }
         }
     }
+
+    private final OpenBsdOperatingSystem os;
 
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<List<String>> arguments = memoize(this::queryArguments);
@@ -105,8 +109,9 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private int bitness;
     private String commandLineBackup;
 
-    public OpenBsdOSProcess(int pid, Map<PsKeywords, String> psMap) {
+    public OpenBsdOSProcess(int pid, Map<PsKeywords, String> psMap, OpenBsdOperatingSystem os) {
         super(pid);
+        this.os = os;
         // OpenBSD does not maintain a compatibility layer.
         // Process bitness is OS bitness
         this.bitness = Native.LONG_SIZE * 8;
@@ -301,6 +306,28 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     @Override
     public long getOpenFiles() {
         return FstatUtil.getOpenFiles(getProcessID());
+    }
+
+    @Override
+    public long getSoftOpenFileLimit() {
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return -1L; // not supported
+        }
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return -1L; // not supported
+        }
     }
 
     @Override

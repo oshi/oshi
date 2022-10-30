@@ -20,14 +20,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +37,7 @@ import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfo;
+import oshi.jna.platform.unix.SolarisLibc;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
 import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.software.common.AbstractOSProcess;
@@ -52,6 +55,8 @@ import oshi.util.tuples.Pair;
 public class SolarisOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisOSProcess.class);
+
+    private final SolarisOperatingSystem os;
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
@@ -82,8 +87,9 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches = 0; // default
 
-    public SolarisOSProcess(int pid) {
+    public SolarisOSProcess(int pid, SolarisOperatingSystem os) {
         super(pid);
+        this.os = os;
         updateAttributes();
     }
 
@@ -248,6 +254,28 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getSoftOpenFileLimit() {
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 1);
+        }
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return getProcessOpenFileLimit(getProcessID(), 2);
+        }
+    }
+
+    @Override
     public int getBitness() {
         return this.bitness.get();
     }
@@ -385,5 +413,22 @@ public class SolarisOSProcess extends AbstractOSProcess {
             break;
         }
         return state;
+    }
+
+    private long getProcessOpenFileLimit(final long processId, final int index) {
+        final List<String> output = ExecutingCommand.runNative("plimit " + processId);
+        if (output.isEmpty()) {
+            return -1; // not supported
+        }
+
+        final Optional<String> nofilesLine = output.stream().filter(line -> line.trim().startsWith("nofiles"))
+                .findFirst();
+        if (!nofilesLine.isPresent()) {
+            return -1;
+        }
+
+        // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
+        final String[] split = nofilesLine.get().split("\\D+");
+        return Long.parseLong(split[index]);
     }
 }

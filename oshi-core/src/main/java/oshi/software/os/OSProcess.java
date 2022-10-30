@@ -249,6 +249,30 @@ public interface OSProcess {
     long getOpenFiles();
 
     /**
+     * Gets the soft limit for open file handles (or network connections) of the given process.
+     * <p>
+     * Retrieving the soft limit for processes other than the calling process is only supported on Linux, FreeBsd and
+     * Solaris.
+     *
+     * @return the soft open file limit for the process if available. Returns -1 if the calling process is not the same
+     *         as this OSProcess instance and the underlying operating system does not support retrieving the soft limit
+     *         for other processes.
+     */
+    long getSoftOpenFileLimit();
+
+    /**
+     * Gets the hard limit for open file handles (or network connections) that belong to the given process.
+     * <p>
+     * Retrieving the hard limit for processes other than the calling process is only supported on Linux, FreeBsd and
+     * Solaris.
+     *
+     * @return the hard open file limit for the process if available. Returns -1 if the calling process is not the same
+     *         as this OSProcess instance and the underlying operating system does not support retrieving the hard limit
+     *         for other processes.
+     */
+    long getHardOpenFileLimit();
+
+    /**
      * Gets cumulative CPU usage of this process.
      * <p>
      * This calculation sums CPU ticks across all processors and may exceed 100% for multi-threaded processes. This is
@@ -271,7 +295,6 @@ public interface OSProcess {
      *
      * @param proc An {@link OSProcess} object containing statistics for this same process collected at a prior point in
      *             time. May be null.
-     *
      * @return If the prior snapshot is for the same process at a prior point in time, the proportion of elapsed up time
      *         between the current process snapshot and the previous one that the process was executing in kernel or
      *         user mode. Returns cumulative load otherwise.

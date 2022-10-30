@@ -133,11 +133,11 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
     }
 
-    private static List<OSProcess> queryAllProcessesFromPrStat() {
+    private List<OSProcess> queryAllProcessesFromPrStat() {
         return getProcessListFromProcfs(-1);
     }
 
-    private static List<OSProcess> getProcessListFromProcfs(int pid) {
+    private List<OSProcess> getProcessListFromProcfs(int pid) {
         List<OSProcess> procs = new ArrayList<>();
 
         File[] numericFiles = null;
@@ -160,7 +160,7 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         // Iterate files
         for (File pidFile : numericFiles) {
             int pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
-            OSProcess proc = new SolarisOSProcess(pidNum);
+            OSProcess proc = new SolarisOSProcess(pidNum, this);
             if (proc.getState() != INVALID) {
                 procs.add(proc);
             }

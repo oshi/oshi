@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,8 @@ public class MacOSProcess extends AbstractOSProcess {
     private static final boolean LOG_MAC_SYSCTL_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SYSCTL_LOGWARNING,
             false);
 
+    private static final int MAC_RLIMIT_NOFILE = 8;
+
     // 64-bit flag
     private static final int P_LP64 = 0x4;
     /*
@@ -71,6 +74,7 @@ public class MacOSProcess extends AbstractOSProcess {
 
     private int majorVersion;
     private int minorVersion;
+    private final MacOperatingSystem os;
 
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> argsEnviron = memoize(this::queryArgsAndEnvironment);
@@ -100,10 +104,11 @@ public class MacOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public MacOSProcess(int pid, int major, int minor) {
+    public MacOSProcess(int pid, int major, int minor, MacOperatingSystem os) {
         super(pid);
         this.majorVersion = major;
         this.minorVersion = minor;
+        this.os = os;
         updateAttributes();
     }
 
@@ -304,6 +309,28 @@ public class MacOSProcess extends AbstractOSProcess {
     @Override
     public long getOpenFiles() {
         return this.openFiles;
+    }
+
+    @Override
+    public long getSoftOpenFileLimit() {
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_cur;
+        } else {
+            return -1L; // not supported
+        }
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        if (getProcessID() == this.os.getProcessId()) {
+            final Resource.Rlimit rlimit = new Resource.Rlimit();
+            SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
+            return rlimit.rlim_max;
+        } else {
+            return -1L; // not supported
+        }
     }
 
     @Override

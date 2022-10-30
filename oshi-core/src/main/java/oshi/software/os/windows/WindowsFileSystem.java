@@ -77,7 +77,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
     }
 
-    private static final long MAX_WINDOWS_HANDLES;
+    static final long MAX_WINDOWS_HANDLES;
     static {
         // Determine whether 32-bit or 64-bit handle limit, although both are
         // essentially infinite for practical purposes. See

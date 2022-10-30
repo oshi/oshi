@@ -231,6 +231,16 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getSoftOpenFileLimit() {
+        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
+    }
+
+    @Override
     public int getBitness() {
         return this.bitness;
     }
