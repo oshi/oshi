@@ -77,7 +77,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
 <span class="nc" id="L77">        OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, &quot;quota&quot;);</span>
     }
 
-    private static final long MAX_WINDOWS_HANDLES;
+    static final long MAX_WINDOWS_HANDLES;
     static {
         // Determine whether 32-bit or 64-bit handle limit, although both are
         // essentially infinite for practical purposes. See
@@ -280,6 +280,11 @@ public class WindowsFileSystem extends AbstractFileSystem {
     @Override
     public long getMaxFileDescriptors() {
 <span class="nc" id="L282">        return MAX_WINDOWS_HANDLES;</span>
+    }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+<span class="nc" id="L287">        return MAX_WINDOWS_HANDLES;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -96,71 +96,76 @@ import oshi.util.tuples.Triplet;
     protected Triplet&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;, List&lt;ProcessorCache&gt;&gt; initProcessorCounts() {
 <span class="nc" id="L97">        this.config = PerfstatConfig.queryConfig();</span>
 
-<span class="nc" id="L99">        int physProcs = (int) config.numProcessors.max;</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (physProcs &lt; 1) {</span>
-<span class="nc" id="L101">            physProcs = 1;</span>
+        // Reporting &quot;online&quot; or &quot;active&quot; values can lead to nonsense so we go with max
+<span class="nc" id="L100">        int physProcs = (int) config.numProcessors.max;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (physProcs &lt; 1) {</span>
+<span class="nc" id="L102">            physProcs = 1;</span>
         }
-<span class="nc" id="L103">        int lcpus = config.lcpus;</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (lcpus &lt; 1) {</span>
-<span class="nc" id="L105">            lcpus = 1;</span>
+<span class="nc" id="L104">        int lcpus = (int) config.vcpus.max;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (lcpus &lt; 1) {</span>
+<span class="nc" id="L106">            lcpus = 1;</span>
         }
-<span class="nc" id="L107">        int lpPerPp = lcpus / physProcs;</span>
+        // Sanity check to ensure lp/pp ratio &gt;= 1
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (physProcs &gt; lcpus) {</span>
+<span class="nc" id="L110">            physProcs = lcpus;</span>
+        }
+<span class="nc" id="L112">        int lpPerPp = lcpus / physProcs;</span>
         // Get node and package mapping
-<span class="nc" id="L109">        Map&lt;Integer, Pair&lt;Integer, Integer&gt;&gt; nodePkgMap = Lssrad.queryNodesPackages();</span>
-<span class="nc" id="L110">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (int proc = 0; proc &lt; lcpus; proc++) {</span>
-<span class="nc" id="L112">            Pair&lt;Integer, Integer&gt; nodePkg = nodePkgMap.get(proc);</span>
-<span class="nc" id="L113">            int physProc = proc / lpPerPp;</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            logProcs.add(new LogicalProcessor(proc, physProc, nodePkg == null ? 0 : nodePkg.getB(),</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">                    nodePkg == null ? 0 : nodePkg.getA()));</span>
+<span class="nc" id="L114">        Map&lt;Integer, Pair&lt;Integer, Integer&gt;&gt; nodePkgMap = Lssrad.queryNodesPackages();</span>
+<span class="nc" id="L115">        List&lt;LogicalProcessor&gt; logProcs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (int proc = 0; proc &lt; lcpus; proc++) {</span>
+<span class="nc" id="L117">            Pair&lt;Integer, Integer&gt; nodePkg = nodePkgMap.get(proc);</span>
+<span class="nc" id="L118">            int physProc = proc / lpPerPp;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            logProcs.add(new LogicalProcessor(proc, physProc, nodePkg == null ? 0 : nodePkg.getB(),</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                    nodePkg == null ? 0 : nodePkg.getA()));</span>
         }
-<span class="nc" id="L117">        return new Triplet&lt;&gt;(logProcs, null, getCachesForModel(physProcs));</span>
+<span class="nc" id="L122">        return new Triplet&lt;&gt;(logProcs, null, getCachesForModel(physProcs));</span>
     }
 
     private List&lt;ProcessorCache&gt; getCachesForModel(int cores) {
         // The only info available in the OS is the L2 size
         // But we can hardcode POWER7, POWER8, and POWER9 configs
-<span class="nc" id="L123">        List&lt;ProcessorCache&gt; caches = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L124">        int powerVersion = ParseUtil.getFirstIntValue(ExecutingCommand.getFirstAnswer(&quot;uname -n&quot;));</span>
-<span class="nc bnc" id="L125" title="All 4 branches missed.">        switch (powerVersion) {</span>
+<span class="nc" id="L128">        List&lt;ProcessorCache&gt; caches = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L129">        int powerVersion = ParseUtil.getFirstIntValue(ExecutingCommand.getFirstAnswer(&quot;uname -n&quot;));</span>
+<span class="nc bnc" id="L130" title="All 4 branches missed.">        switch (powerVersion) {</span>
         case 7:
-<span class="nc" id="L127">            caches.add(new ProcessorCache(3, 8, 128, (2 * 32) &lt;&lt; 20, Type.UNIFIED));</span>
-<span class="nc" id="L128">            caches.add(new ProcessorCache(2, 8, 128, 256 &lt;&lt; 10, Type.UNIFIED));</span>
-<span class="nc" id="L129">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.DATA));</span>
-<span class="nc" id="L130">            caches.add(new ProcessorCache(1, 4, 128, 32 &lt;&lt; 10, Type.INSTRUCTION));</span>
-<span class="nc" id="L131">            break;</span>
+<span class="nc" id="L132">            caches.add(new ProcessorCache(3, 8, 128, (2 * 32) &lt;&lt; 20, Type.UNIFIED));</span>
+<span class="nc" id="L133">            caches.add(new ProcessorCache(2, 8, 128, 256 &lt;&lt; 10, Type.UNIFIED));</span>
+<span class="nc" id="L134">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.DATA));</span>
+<span class="nc" id="L135">            caches.add(new ProcessorCache(1, 4, 128, 32 &lt;&lt; 10, Type.INSTRUCTION));</span>
+<span class="nc" id="L136">            break;</span>
         case 8:
-<span class="nc" id="L133">            caches.add(new ProcessorCache(4, 8, 128, (16 * 16) &lt;&lt; 20, Type.UNIFIED));</span>
-<span class="nc" id="L134">            caches.add(new ProcessorCache(3, 8, 128, 40 &lt;&lt; 20, Type.UNIFIED));</span>
-<span class="nc" id="L135">            caches.add(new ProcessorCache(2, 8, 128, 512 &lt;&lt; 10, Type.UNIFIED));</span>
-<span class="nc" id="L136">            caches.add(new ProcessorCache(1, 8, 128, 64 &lt;&lt; 10, Type.DATA));</span>
-<span class="nc" id="L137">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.INSTRUCTION));</span>
-<span class="nc" id="L138">            break;</span>
+<span class="nc" id="L138">            caches.add(new ProcessorCache(4, 8, 128, (16 * 16) &lt;&lt; 20, Type.UNIFIED));</span>
+<span class="nc" id="L139">            caches.add(new ProcessorCache(3, 8, 128, 40 &lt;&lt; 20, Type.UNIFIED));</span>
+<span class="nc" id="L140">            caches.add(new ProcessorCache(2, 8, 128, 512 &lt;&lt; 10, Type.UNIFIED));</span>
+<span class="nc" id="L141">            caches.add(new ProcessorCache(1, 8, 128, 64 &lt;&lt; 10, Type.DATA));</span>
+<span class="nc" id="L142">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.INSTRUCTION));</span>
+<span class="nc" id="L143">            break;</span>
         case 9:
-<span class="nc" id="L140">            caches.add(new ProcessorCache(3, 20, 128, (cores * 10) &lt;&lt; 20, Type.UNIFIED));</span>
-<span class="nc" id="L141">            caches.add(new ProcessorCache(2, 8, 128, 512 &lt;&lt; 10, Type.UNIFIED));</span>
-<span class="nc" id="L142">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.DATA));</span>
-<span class="nc" id="L143">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.INSTRUCTION));</span>
-<span class="nc" id="L144">            break;</span>
+<span class="nc" id="L145">            caches.add(new ProcessorCache(3, 20, 128, (cores * 10) &lt;&lt; 20, Type.UNIFIED));</span>
+<span class="nc" id="L146">            caches.add(new ProcessorCache(2, 8, 128, 512 &lt;&lt; 10, Type.UNIFIED));</span>
+<span class="nc" id="L147">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.DATA));</span>
+<span class="nc" id="L148">            caches.add(new ProcessorCache(1, 8, 128, 32 &lt;&lt; 10, Type.INSTRUCTION));</span>
+<span class="nc" id="L149">            break;</span>
         default:
             // Don't guess
         }
-<span class="nc" id="L148">        return caches;</span>
+<span class="nc" id="L153">        return caches;</span>
     }
 
     @Override
     public long[] querySystemCpuLoadTicks() {
-<span class="nc" id="L153">        perfstat_cpu_total_t perfstat = cpuTotal.get();</span>
-<span class="nc" id="L154">        long[] ticks = new long[TickType.values().length];</span>
-<span class="nc" id="L155">        ticks[TickType.USER.ordinal()] = perfstat.user * 1000L / USER_HZ;</span>
+<span class="nc" id="L158">        perfstat_cpu_total_t perfstat = cpuTotal.get();</span>
+<span class="nc" id="L159">        long[] ticks = new long[TickType.values().length];</span>
+<span class="nc" id="L160">        ticks[TickType.USER.ordinal()] = perfstat.user * 1000L / USER_HZ;</span>
         // Skip NICE
-<span class="nc" id="L157">        ticks[TickType.SYSTEM.ordinal()] = perfstat.sys * 1000L / USER_HZ;</span>
-<span class="nc" id="L158">        ticks[TickType.IDLE.ordinal()] = perfstat.idle * 1000L / USER_HZ;</span>
-<span class="nc" id="L159">        ticks[TickType.IOWAIT.ordinal()] = perfstat.wait * 1000L / USER_HZ;</span>
-<span class="nc" id="L160">        ticks[TickType.IRQ.ordinal()] = perfstat.devintrs * 1000L / USER_HZ;</span>
-<span class="nc" id="L161">        ticks[TickType.SOFTIRQ.ordinal()] = perfstat.softintrs * 1000L / USER_HZ;</span>
-<span class="nc" id="L162">        ticks[TickType.STEAL.ordinal()] = (perfstat.idle_stolen_purr + perfstat.busy_stolen_purr) * 1000L / USER_HZ;</span>
-<span class="nc" id="L163">        return ticks;</span>
+<span class="nc" id="L162">        ticks[TickType.SYSTEM.ordinal()] = perfstat.sys * 1000L / USER_HZ;</span>
+<span class="nc" id="L163">        ticks[TickType.IDLE.ordinal()] = perfstat.idle * 1000L / USER_HZ;</span>
+<span class="nc" id="L164">        ticks[TickType.IOWAIT.ordinal()] = perfstat.wait * 1000L / USER_HZ;</span>
+<span class="nc" id="L165">        ticks[TickType.IRQ.ordinal()] = perfstat.devintrs * 1000L / USER_HZ;</span>
+<span class="nc" id="L166">        ticks[TickType.SOFTIRQ.ordinal()] = perfstat.softintrs * 1000L / USER_HZ;</span>
+<span class="nc" id="L167">        ticks[TickType.STEAL.ordinal()] = (perfstat.idle_stolen_purr + perfstat.busy_stolen_purr) * 1000L / USER_HZ;</span>
+<span class="nc" id="L168">        return ticks;</span>
     }
 
     @Override
@@ -172,77 +177,77 @@ import oshi.util.tuples.Triplet;
         // ~/git/oshi$ pmcycles -m
         // This machine runs at 1000 MHz
 
-<span class="nc" id="L175">        long[] freqs = new long[getLogicalProcessorCount()];</span>
-<span class="nc" id="L176">        Arrays.fill(freqs, -1);</span>
-<span class="nc" id="L177">        String freqMarker = &quot;runs at&quot;;</span>
-<span class="nc" id="L178">        int idx = 0;</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;pmcycles -m&quot;)) {</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">            if (checkLine.contains(freqMarker)) {</span>
-<span class="nc" id="L181">                freqs[idx++] = ParseUtil.parseHertz(checkLine.split(freqMarker)[1].trim());</span>
-<span class="nc bnc" id="L182" title="All 2 branches missed.">                if (idx &gt;= freqs.length) {</span>
-<span class="nc" id="L183">                    break;</span>
+<span class="nc" id="L180">        long[] freqs = new long[getLogicalProcessorCount()];</span>
+<span class="nc" id="L181">        Arrays.fill(freqs, -1);</span>
+<span class="nc" id="L182">        String freqMarker = &quot;runs at&quot;;</span>
+<span class="nc" id="L183">        int idx = 0;</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;pmcycles -m&quot;)) {</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (checkLine.contains(freqMarker)) {</span>
+<span class="nc" id="L186">                freqs[idx++] = ParseUtil.parseHertz(checkLine.split(freqMarker)[1].trim());</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">                if (idx &gt;= freqs.length) {</span>
+<span class="nc" id="L188">                    break;</span>
                 }
             }
-<span class="nc" id="L186">        }</span>
-<span class="nc" id="L187">        return freqs;</span>
+<span class="nc" id="L191">        }</span>
+<span class="nc" id="L192">        return freqs;</span>
     }
 
     @Override
     protected long queryMaxFreq() {
-<span class="nc" id="L192">        perfstat_cpu_total_t perfstat = cpuTotal.get();</span>
-<span class="nc" id="L193">        return perfstat.processorHZ;</span>
+<span class="nc" id="L197">        perfstat_cpu_total_t perfstat = cpuTotal.get();</span>
+<span class="nc" id="L198">        return perfstat.processorHZ;</span>
     }
 
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-<span class="nc bnc" id="L198" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
-<span class="nc" id="L199">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
+<span class="nc bnc" id="L203" title="All 4 branches missed.">        if (nelem &lt; 1 || nelem &gt; 3) {</span>
+<span class="nc" id="L204">            throw new IllegalArgumentException(&quot;Must include from one to three elements.&quot;);</span>
         }
-<span class="nc" id="L201">        double[] average = new double[nelem];</span>
-<span class="nc" id="L202">        long[] loadavg = cpuTotal.get().loadavg;</span>
-<span class="nc bnc" id="L203" title="All 2 branches missed.">        for (int i = 0; i &lt; nelem; i++) {</span>
-<span class="nc" id="L204">            average[i] = loadavg[i] / (double) (1L &lt;&lt; SBITS);</span>
+<span class="nc" id="L206">        double[] average = new double[nelem];</span>
+<span class="nc" id="L207">        long[] loadavg = cpuTotal.get().loadavg;</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        for (int i = 0; i &lt; nelem; i++) {</span>
+<span class="nc" id="L209">            average[i] = loadavg[i] / (double) (1L &lt;&lt; SBITS);</span>
         }
-<span class="nc" id="L206">        return average;</span>
+<span class="nc" id="L211">        return average;</span>
     }
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-<span class="nc" id="L211">        perfstat_cpu_t[] cpu = cpuProc.get();</span>
-<span class="nc" id="L212">        long[][] ticks = new long[cpu.length][TickType.values().length];</span>
-<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (int i = 0; i &lt; cpu.length; i++) {</span>
-<span class="nc" id="L214">            ticks[i] = new long[TickType.values().length];</span>
-<span class="nc" id="L215">            ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;</span>
+<span class="nc" id="L216">        perfstat_cpu_t[] cpu = cpuProc.get();</span>
+<span class="nc" id="L217">        long[][] ticks = new long[cpu.length][TickType.values().length];</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        for (int i = 0; i &lt; cpu.length; i++) {</span>
+<span class="nc" id="L219">            ticks[i] = new long[TickType.values().length];</span>
+<span class="nc" id="L220">            ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;</span>
             // Skip NICE
-<span class="nc" id="L217">            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys * 1000L / USER_HZ;</span>
-<span class="nc" id="L218">            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle * 1000L / USER_HZ;</span>
-<span class="nc" id="L219">            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait * 1000L / USER_HZ;</span>
-<span class="nc" id="L220">            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs * 1000L / USER_HZ;</span>
-<span class="nc" id="L221">            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs * 1000L / USER_HZ;</span>
-<span class="nc" id="L222">            ticks[i][TickType.STEAL.ordinal()] = (cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr) * 1000L / USER_HZ;</span>
+<span class="nc" id="L222">            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys * 1000L / USER_HZ;</span>
+<span class="nc" id="L223">            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle * 1000L / USER_HZ;</span>
+<span class="nc" id="L224">            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait * 1000L / USER_HZ;</span>
+<span class="nc" id="L225">            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs * 1000L / USER_HZ;</span>
+<span class="nc" id="L226">            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs * 1000L / USER_HZ;</span>
+<span class="nc" id="L227">            ticks[i][TickType.STEAL.ordinal()] = (cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr) * 1000L / USER_HZ;</span>
         }
-<span class="nc" id="L224">        return ticks;</span>
+<span class="nc" id="L229">        return ticks;</span>
     }
 
     @Override
     public long queryContextSwitches() {
-<span class="nc" id="L229">        return cpuTotal.get().pswitch;</span>
+<span class="nc" id="L234">        return cpuTotal.get().pswitch;</span>
     }
 
     @Override
     public long queryInterrupts() {
-<span class="nc" id="L234">        perfstat_cpu_total_t cpu = cpuTotal.get();</span>
-<span class="nc" id="L235">        return cpu.devintrs + cpu.softintrs;</span>
+<span class="nc" id="L239">        perfstat_cpu_total_t cpu = cpuTotal.get();</span>
+<span class="nc" id="L240">        return cpu.devintrs + cpu.softintrs;</span>
     }
 
     private static int querySbits() {
         // read from /usr/include/sys/proc.h
-<span class="nc bnc" id="L240" title="All 2 branches missed.">        for (String s : FileUtil.readFile(&quot;/usr/include/sys/proc.h&quot;)) {</span>
-<span class="nc bnc" id="L241" title="All 4 branches missed.">            if (s.contains(&quot;SBITS&quot;) &amp;&amp; s.contains(&quot;#define&quot;)) {</span>
-<span class="nc" id="L242">                return ParseUtil.parseLastInt(s, 16);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        for (String s : FileUtil.readFile(&quot;/usr/include/sys/proc.h&quot;)) {</span>
+<span class="nc bnc" id="L246" title="All 4 branches missed.">            if (s.contains(&quot;SBITS&quot;) &amp;&amp; s.contains(&quot;#define&quot;)) {</span>
+<span class="nc" id="L247">                return ParseUtil.parseLastInt(s, 16);</span>
             }
-<span class="nc" id="L244">        }</span>
-<span class="nc" id="L245">        return 16;</span>
+<span class="nc" id="L249">        }</span>
+<span class="nc" id="L250">        return 16;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

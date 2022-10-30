@@ -183,7 +183,7 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> 
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     @Override
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> getProcess(<strong class="jxr_keyword">int</strong> pid) {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="LinuxOSProcess" href="../../../../oshi/software/os/linux/LinuxOSProcess.html#LinuxOSProcess">LinuxOSProcess</a>(pid);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="LinuxOSProcess" href="../../../../oshi/software/os/linux/LinuxOSProcess.html#LinuxOSProcess">LinuxOSProcess</a>(pid, <strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">if</strong> (!proc.getState().equals(State.INVALID)) {
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">return</strong> proc;
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>         }
@@ -219,10 +219,10 @@
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">return</strong> queryProcessList(getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, <strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>     }
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> 
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;OSProcess&gt; queryProcessList(Set&lt;Integer&gt; descendantPids) {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">private</strong> List&lt;OSProcess&gt; queryProcessList(Set&lt;Integer&gt; descendantPids) {
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>         List&lt;OSProcess&gt; procs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> pid : descendantPids) {
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="LinuxOSProcess" href="../../../../oshi/software/os/linux/LinuxOSProcess.html#LinuxOSProcess">LinuxOSProcess</a>(pid);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <a name="OSProcess" href="../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="LinuxOSProcess" href="../../../../oshi/software/os/linux/LinuxOSProcess.html#LinuxOSProcess">LinuxOSProcess</a>(pid, <strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">if</strong> (!proc.getState().equals(State.INVALID)) {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                 procs.add(proc);
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             }

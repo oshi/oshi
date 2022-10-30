@@ -355,59 +355,53 @@
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String versionStr;
 <a class="jxr_linenumber" name="L348" href="#L348">348</a> 
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">public</strong> OSVersionInfo(String version, String codeName, String buildNumber) {
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>             <em class="jxr_comment">// Insider Preview Windows 11 is marked as Windows 10 build 22000</em>
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>             <em class="jxr_comment">// Temporary code until JDK os.name matches up</em>
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"10"</span>.equals(version) &amp;&amp; buildNumber.compareTo(<span class="jxr_string">"22000"</span>) &gt;= 0) {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 <strong class="jxr_keyword">this</strong>.version = <span class="jxr_string">"11"</span>;
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>                 <strong class="jxr_keyword">this</strong>.version = version;
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>             }
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>             <strong class="jxr_keyword">this</strong>.codeName = codeName;
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>             <strong class="jxr_keyword">this</strong>.buildNumber = buildNumber;
-<a class="jxr_linenumber" name="L359" href="#L359">359</a> 
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(getVersion() != <strong class="jxr_keyword">null</strong> ? getVersion() : Constants.UNKNOWN);
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getCodeName())) {
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>                 sb.append(<span class="jxr_string">" ("</span>).append(getCodeName()).append(')');
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>             }
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getBuildNumber())) {
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 sb.append(<span class="jxr_string">" build "</span>).append(getBuildNumber());
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>             }
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>             <strong class="jxr_keyword">this</strong>.versionStr = sb.toString();
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         }
-<a class="jxr_linenumber" name="L369" href="#L369">369</a> 
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">         * Gets the operating system version.</em>
-<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">         * @return The version, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <strong class="jxr_keyword">public</strong> String getVersion() {
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>             <strong class="jxr_keyword">return</strong> version;
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>         }
-<a class="jxr_linenumber" name="L378" href="#L378">378</a> 
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a> <em class="jxr_javadoccomment">         * Gets the operating system codename.</em>
-<a class="jxr_linenumber" name="L381" href="#L381">381</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">         * @return The code name, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         <strong class="jxr_keyword">public</strong> String getCodeName() {
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>             <strong class="jxr_keyword">return</strong> codeName;
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         }
-<a class="jxr_linenumber" name="L387" href="#L387">387</a> 
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_javadoccomment">         * Gets the operating system build number.</em>
-<a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L391" href="#L391">391</a> <em class="jxr_javadoccomment">         * @return The build number, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L392" href="#L392">392</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">public</strong> String getBuildNumber() {
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">return</strong> buildNumber;
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>         }
-<a class="jxr_linenumber" name="L396" href="#L396">396</a> 
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         @Override
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.versionStr;
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>         }
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>     }
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> }
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>             <strong class="jxr_keyword">this</strong>.version = version;
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             <strong class="jxr_keyword">this</strong>.codeName = codeName;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <strong class="jxr_keyword">this</strong>.buildNumber = buildNumber;
+<a class="jxr_linenumber" name="L353" href="#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(getVersion() != <strong class="jxr_keyword">null</strong> ? getVersion() : Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getCodeName())) {
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                 sb.append(<span class="jxr_string">" ("</span>).append(getCodeName()).append(')');
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>             }
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getBuildNumber())) {
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                 sb.append(<span class="jxr_string">" build "</span>).append(getBuildNumber());
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>             }
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>             <strong class="jxr_keyword">this</strong>.versionStr = sb.toString();
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         }
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">         * Gets the operating system version.</em>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">         * @return The version, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <strong class="jxr_keyword">public</strong> String getVersion() {
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>             <strong class="jxr_keyword">return</strong> version;
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         }
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">         * Gets the operating system codename.</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">         * @return The code name, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">public</strong> String getCodeName() {
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>             <strong class="jxr_keyword">return</strong> codeName;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         }
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">         * Gets the operating system build number.</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">         * @return The build number, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">public</strong> String getBuildNumber() {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             <strong class="jxr_keyword">return</strong> buildNumber;
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         }
+<a class="jxr_linenumber" name="L390" href="#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         @Override
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.versionStr;
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2022 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

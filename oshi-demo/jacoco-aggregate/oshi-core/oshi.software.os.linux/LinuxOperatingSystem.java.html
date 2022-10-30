@@ -175,7 +175,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L178">        OSProcess proc = new LinuxOSProcess(pid);</span>
+<span class="nc" id="L178">        OSProcess proc = new LinuxOSProcess(pid, this);</span>
 <span class="nc bnc" id="L179" title="All 2 branches missed.">        if (!proc.getState().equals(State.INVALID)) {</span>
 <span class="nc" id="L180">            return proc;</span>
         }
@@ -211,10 +211,10 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 <span class="nc" id="L211">        return queryProcessList(getChildrenOrDescendants(getParentPidsFromProcFiles(pidFiles), parentPid, true));</span>
     }
 
-    private static List&lt;OSProcess&gt; queryProcessList(Set&lt;Integer&gt; descendantPids) {
+    private List&lt;OSProcess&gt; queryProcessList(Set&lt;Integer&gt; descendantPids) {
 <span class="nc" id="L215">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L216" title="All 2 branches missed.">        for (int pid : descendantPids) {</span>
-<span class="nc" id="L217">            OSProcess proc = new LinuxOSProcess(pid);</span>
+<span class="nc" id="L217">            OSProcess proc = new LinuxOSProcess(pid, this);</span>
 <span class="nc bnc" id="L218" title="All 2 branches missed.">            if (!proc.getState().equals(State.INVALID)) {</span>
 <span class="nc" id="L219">                procs.add(proc);</span>
             }

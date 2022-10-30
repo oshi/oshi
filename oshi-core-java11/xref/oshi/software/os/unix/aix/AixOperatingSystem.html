@@ -151,7 +151,7 @@
 <a class="jxr_linenumber" name="L143" href="#L143">143</a> 
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         <em class="jxr_comment">// Keys of this map are pids</em>
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;Integer, Pair&lt;Long, Long&gt;&gt; entry : cpuMap.entrySet()) {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <a name="OSProcess" href="../../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="AixOSProcess" href="../../../../../oshi/software/os/unix/aix/AixOSProcess.html#AixOSProcess">AixOSProcess</a>(entry.getKey(), entry.getValue(), procCpu);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <a name="OSProcess" href="../../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="AixOSProcess" href="../../../../../oshi/software/os/unix/aix/AixOSProcess.html#AixOSProcess">AixOSProcess</a>(entry.getKey(), entry.getValue(), procCpu, <strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">if</strong> (proc.getState() != INVALID) {
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>                 procs.add(proc);
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>             }

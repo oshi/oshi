@@ -148,5 +148,10 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
     public long getMaxFileDescriptors() {
 <span class="nc" id="L149">        return OpenBsdSysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+<span class="nc" id="L154">        return OpenBsdSysctlUtil.sysctl(&quot;kern.maxfilesperproc&quot;, 0);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

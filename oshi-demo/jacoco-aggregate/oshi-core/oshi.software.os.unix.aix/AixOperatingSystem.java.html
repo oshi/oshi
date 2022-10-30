@@ -143,7 +143,7 @@ import oshi.util.tuples.Pair;
 
         // Keys of this map are pids
 <span class="nc bnc" id="L145" title="All 2 branches missed.">        for (Entry&lt;Integer, Pair&lt;Long, Long&gt;&gt; entry : cpuMap.entrySet()) {</span>
-<span class="nc" id="L146">            OSProcess proc = new AixOSProcess(entry.getKey(), entry.getValue(), procCpu);</span>
+<span class="nc" id="L146">            OSProcess proc = new AixOSProcess(entry.getKey(), entry.getValue(), procCpu, this);</span>
 <span class="nc bnc" id="L147" title="All 2 branches missed.">            if (proc.getState() != INVALID) {</span>
 <span class="nc" id="L148">                procs.add(proc);</span>
             }

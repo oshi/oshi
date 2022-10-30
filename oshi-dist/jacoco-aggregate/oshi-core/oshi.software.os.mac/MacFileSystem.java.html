@@ -252,5 +252,10 @@ import oshi.util.platform.mac.SysctlUtil;
     public long getMaxFileDescriptors() {
 <span class="nc" id="L253">        return SysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+<span class="nc" id="L258">        return SysctlUtil.sysctl(&quot;kern.maxfilesperproc&quot;, 0);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -141,11 +141,11 @@
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">return</strong> allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> 
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;OSProcess&gt; queryAllProcessesFromPrStat() {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">private</strong> List&lt;OSProcess&gt; queryAllProcessesFromPrStat() {
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">return</strong> getProcessListFromProcfs(-1);
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
 <a class="jxr_linenumber" name="L139" href="#L139">139</a> 
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;OSProcess&gt; getProcessListFromProcfs(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">private</strong> List&lt;OSProcess&gt; getProcessListFromProcfs(<strong class="jxr_keyword">int</strong> pid) {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>         List&lt;OSProcess&gt; procs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> 
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         File[] numericFiles = <strong class="jxr_keyword">null</strong>;
@@ -168,7 +168,7 @@
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         <em class="jxr_comment">// Iterate files</em>
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">for</strong> (File pidFile : numericFiles) {
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>             <strong class="jxr_keyword">int</strong> pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <a name="OSProcess" href="../../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="SolarisOSProcess" href="../../../../../oshi/software/os/unix/solaris/SolarisOSProcess.html#SolarisOSProcess">SolarisOSProcess</a>(pidNum);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <a name="OSProcess" href="../../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = <strong class="jxr_keyword">new</strong> <a name="SolarisOSProcess" href="../../../../../oshi/software/os/unix/solaris/SolarisOSProcess.html#SolarisOSProcess">SolarisOSProcess</a>(pidNum, <strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">if</strong> (proc.getState() != INVALID) {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>                 procs.add(proc);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>             }

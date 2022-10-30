@@ -230,6 +230,11 @@ import oshi.util.platform.linux.ProcPath;
 <span class="nc" id="L230">        return getFileDescriptors(2);</span>
     }
 
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+<span class="nc" id="L235">        return getFileDescriptorsPerProcess();</span>
+    }
+
     /**
      * Returns a value from the Linux system file /proc/sys/fs/file-nr.
      *
@@ -239,16 +244,20 @@ import oshi.util.platform.linux.ProcPath;
      * @return Corresponding file descriptor value from the Linux system file.
      */
     private static long getFileDescriptors(int index) {
-<span class="nc" id="L242">        String filename = ProcPath.SYS_FS_FILE_NR;</span>
-<span class="nc bnc" id="L243" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
-<span class="nc" id="L244">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
+<span class="nc" id="L247">        String filename = ProcPath.SYS_FS_FILE_NR;</span>
+<span class="nc bnc" id="L248" title="All 4 branches missed.">        if (index &lt; 0 || index &gt; 2) {</span>
+<span class="nc" id="L249">            throw new IllegalArgumentException(&quot;Index must be between 0 and 2.&quot;);</span>
         }
-<span class="nc" id="L246">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
-<span class="nc bnc" id="L247" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
-<span class="nc" id="L248">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
-<span class="nc" id="L249">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
+<span class="nc" id="L251">        List&lt;String&gt; osDescriptors = FileUtil.readFile(filename);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (!osDescriptors.isEmpty()) {</span>
+<span class="nc" id="L253">            String[] splittedLine = osDescriptors.get(0).split(&quot;\\D+&quot;);</span>
+<span class="nc" id="L254">            return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);</span>
         }
-<span class="nc" id="L251">        return 0L;</span>
+<span class="nc" id="L256">        return 0L;</span>
+    }
+
+    private static long getFileDescriptorsPerProcess() {
+<span class="nc" id="L260">        return FileUtil.getLongFromFile(ProcPath.SYS_FS_FILE_MAX);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

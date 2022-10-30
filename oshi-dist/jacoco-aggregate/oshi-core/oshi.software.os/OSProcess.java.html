@@ -249,6 +249,30 @@ public interface OSProcess {
     long getOpenFiles();
 
     /**
+     * Gets the soft limit for open file handles (or network connections) of the given process.
+     * &lt;p&gt;
+     * Retrieving the soft limit for processes other than the calling process is only supported on Linux, FreeBsd and
+     * Solaris.
+     *
+     * @return the soft open file limit for the process if available. Returns -1 if the calling process is not the same
+     *         as this OSProcess instance and the underlying operating system does not support retrieving the soft limit
+     *         for other processes.
+     */
+    long getSoftOpenFileLimit();
+
+    /**
+     * Gets the hard limit for open file handles (or network connections) that belong to the given process.
+     * &lt;p&gt;
+     * Retrieving the hard limit for processes other than the calling process is only supported on Linux, FreeBsd and
+     * Solaris.
+     *
+     * @return the hard open file limit for the process if available. Returns -1 if the calling process is not the same
+     *         as this OSProcess instance and the underlying operating system does not support retrieving the hard limit
+     *         for other processes.
+     */
+    long getHardOpenFileLimit();
+
+    /**
      * Gets cumulative CPU usage of this process.
      * &lt;p&gt;
      * This calculation sums CPU ticks across all processors and may exceed 100% for multi-threaded processes. This is
@@ -271,7 +295,6 @@ public interface OSProcess {
      *
      * @param proc An {@link OSProcess} object containing statistics for this same process collected at a prior point in
      *             time. May be null.
-     *
      * @return If the prior snapshot is for the same process at a prior point in time, the proportion of elapsed up time
      *         between the current process snapshot and the previous one that the process was executing in kernel or
      *         user mode. Returns cumulative load otherwise.
@@ -330,7 +353,7 @@ public interface OSProcess {
      * @return minor page faults (reclaims).
      */
     default long getMinorFaults() {
-<span class="nc" id="L333">        return 0L;</span>
+<span class="nc" id="L356">        return 0L;</span>
     }
 
     /**
@@ -344,7 +367,7 @@ public interface OSProcess {
      * @return major page faults.
      */
     default long getMajorFaults() {
-<span class="nc" id="L347">        return 0L;</span>
+<span class="nc" id="L370">        return 0L;</span>
     }
 
     /**
@@ -359,49 +382,49 @@ public interface OSProcess {
      * @return sum of both voluntary and involuntary context switches if available, 0 otherwise.
      */
     default long getContextSwitches() {
-<span class="nc" id="L362">        return 0L;</span>
+<span class="nc" id="L385">        return 0L;</span>
     }
 
     /**
      * Process and Thread Execution States
      */
-<span class="nc" id="L368">    enum State {</span>
+<span class="nc" id="L391">    enum State {</span>
         /**
          * Intermediate state in process creation
          */
-<span class="nc" id="L372">        NEW,</span>
+<span class="nc" id="L395">        NEW,</span>
         /**
          * Actively executing process
          */
-<span class="nc" id="L376">        RUNNING,</span>
+<span class="nc" id="L399">        RUNNING,</span>
         /**
          * Interruptible sleep state
          */
-<span class="nc" id="L380">        SLEEPING,</span>
+<span class="nc" id="L403">        SLEEPING,</span>
         /**
          * Blocked, uninterruptible sleep state
          */
-<span class="nc" id="L384">        WAITING,</span>
+<span class="nc" id="L407">        WAITING,</span>
         /**
          * Intermediate state in process termination
          */
-<span class="nc" id="L388">        ZOMBIE,</span>
+<span class="nc" id="L411">        ZOMBIE,</span>
         /**
          * Stopped by the user, such as for debugging
          */
-<span class="nc" id="L392">        STOPPED,</span>
+<span class="nc" id="L415">        STOPPED,</span>
         /**
          * Other or unknown states not defined
          */
-<span class="nc" id="L396">        OTHER,</span>
+<span class="nc" id="L419">        OTHER,</span>
         /**
          * The state resulting if the process fails to update statistics, probably due to termination.
          */
-<span class="nc" id="L400">        INVALID,</span>
+<span class="nc" id="L423">        INVALID,</span>
         /**
          * Special case of waiting if the process has been intentionally suspended (Windows only)
          */
-<span class="nc" id="L404">        SUSPENDED</span>
+<span class="nc" id="L427">        SUSPENDED</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

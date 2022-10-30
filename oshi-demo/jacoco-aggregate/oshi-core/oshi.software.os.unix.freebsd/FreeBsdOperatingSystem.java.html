@@ -128,7 +128,7 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L128">        return procs.get(0);</span>
     }
 
-    private static List&lt;OSProcess&gt; getProcessListFromPS(int pid) {
+    private List&lt;OSProcess&gt; getProcessListFromPS(int pid) {
 <span class="nc" id="L132">        String psCommand = &quot;ps -awwxo &quot; + PS_COMMAND_ARGS;</span>
 <span class="nc bnc" id="L133" title="All 2 branches missed.">        if (pid &gt;= 0) {</span>
 <span class="nc" id="L134">            psCommand += &quot; -p &quot; + pid;</span>
@@ -138,7 +138,7 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L138">        return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()</span>
 <span class="nc" id="L139">                .map(proc -&gt; ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)</span>
 <span class="nc" id="L140">                .map(psMap -&gt; new FreeBsdOSProcess(</span>
-<span class="nc bnc" id="L141" title="All 2 branches missed.">                        pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">                        pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this))</span>
 <span class="nc" id="L142">                .filter(VALID_PROCESS).collect(Collectors.toList());</span>
     }
 

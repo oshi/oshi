@@ -136,7 +136,7 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">return</strong> procs.get(0);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;OSProcess&gt; getProcessListFromPS(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">private</strong> List&lt;OSProcess&gt; getProcessListFromPS(<strong class="jxr_keyword">int</strong> pid) {
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         String psCommand = <span class="jxr_string">"ps -awwxo "</span> + PS_COMMAND_ARGS;
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">if</strong> (pid &gt;= 0) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>             psCommand += <span class="jxr_string">" -p "</span> + pid;
@@ -146,7 +146,7 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">return</strong> ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>                 .map(proc -&gt; ParseUtil.stringToEnumMap(PsKeywords.<strong class="jxr_keyword">class</strong>, proc.trim(), ' ')).filter(hasKeywordArgs)
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>                 .map(psMap -&gt; <strong class="jxr_keyword">new</strong> <a name="FreeBsdOSProcess" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdOSProcess.html#FreeBsdOSProcess">FreeBsdOSProcess</a>(
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>                         pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap))
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                         pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, <strong class="jxr_keyword">this</strong>))
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>                 .filter(VALID_PROCESS).collect(Collectors.toList());
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     }
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> 

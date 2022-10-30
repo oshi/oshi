@@ -146,5 +146,11 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
     public long getMaxFileDescriptors() {
 <span class="nc" id="L147">        return BsdSysctlUtil.sysctl(&quot;kern.maxfiles&quot;, 0);</span>
     }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        // On FreeBsd there is no process specific system-wide limit, so the general limit is returned
+<span class="nc" id="L153">        return getMaxFileDescriptors();</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -133,11 +133,11 @@ import oshi.util.tuples.Pair;
 <span class="nc" id="L133">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
-    private static List&lt;OSProcess&gt; queryAllProcessesFromPrStat() {
+    private List&lt;OSProcess&gt; queryAllProcessesFromPrStat() {
 <span class="nc" id="L137">        return getProcessListFromProcfs(-1);</span>
     }
 
-    private static List&lt;OSProcess&gt; getProcessListFromProcfs(int pid) {
+    private List&lt;OSProcess&gt; getProcessListFromProcfs(int pid) {
 <span class="nc" id="L141">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
 
 <span class="nc" id="L143">        File[] numericFiles = null;</span>
@@ -160,7 +160,7 @@ import oshi.util.tuples.Pair;
         // Iterate files
 <span class="nc bnc" id="L161" title="All 2 branches missed.">        for (File pidFile : numericFiles) {</span>
 <span class="nc" id="L162">            int pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);</span>
-<span class="nc" id="L163">            OSProcess proc = new SolarisOSProcess(pidNum);</span>
+<span class="nc" id="L163">            OSProcess proc = new SolarisOSProcess(pidNum, this);</span>
 <span class="nc bnc" id="L164" title="All 2 branches missed.">            if (proc.getState() != INVALID) {</span>
 <span class="nc" id="L165">                procs.add(proc);</span>
             }
