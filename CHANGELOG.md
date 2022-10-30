@@ -1,19 +1,15 @@
-# 6.3.1 (in progress)
+# 6.3.2 (in progress)
 
-##### New Features
-* [#2218](https://github.com/oshi/oshi/pull/2218): Added system-wide per-process open file descriptor limits - [@gitseti](https://github.com/gitseti)
-* [#2225](https://github.com/oshi/oshi/pull/2225): Added process specific open file descriptor limits - [@gitseti](https://github.com/gitseti)
+* Your contribution here!
 
-##### Bug fixes / Improvements
-* [#2224](https://github.com/oshi/oshi/pull/2224): Detect Windows Server 2022 in older JDKs - [@dbwiddis](https://github.com/dbwiddis).
-* [#2229](https://github.com/oshi/oshi/pull/2229): Fix division by zero on AIX with fewer logical processors than physical processors - [@dbwiddis](https://github.com/dbwiddis).
-
-# 6.3.0 (2022-10-16)
+# 6.3.0 (2022-10-16), 6.3.1 (2022-10-30)
 
 ##### New Features
 * [#2129](https://github.com/oshi/oshi/pull/2129): Added JMX demo project - [@SalvadorRomo](https://github.com/SalvadorRomo).
 * [#2197](https://github.com/oshi/oshi/issues/2197): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).
 * [#2198](https://github.com/oshi/oshi/pull/2198): Added Processor Cache Information - [@dbwiddis](https://github.com/dbwiddis).
+* [#2218](https://github.com/oshi/oshi/pull/2218): Added system-wide per-process open file descriptor limits - [@gitseti](https://github.com/gitseti)
+* [#2225](https://github.com/oshi/oshi/pull/2225): Added process specific open file descriptor limits - [@gitseti](https://github.com/gitseti)
 
 ##### Bug fixes / Improvements
 * [#2179](https://github.com/oshi/oshi/pull/2179): Update JUnit EnabledOnOS for OpenBSD and FreeBSD - [@dbwiddis](https://github.com/dbwiddis).
@@ -21,6 +17,8 @@
 * [#2181](https://github.com/oshi/oshi/pull/2181): Better handling of ARM CPU Names - [@dbwiddis](https://github.com/dbwiddis).
 * [#2204](https://github.com/oshi/oshi/pull/2204): Improve performance using parallel streams for processes and threads - [@adrian-kong](https://github.com/adrian-kong).
 * [#2212](https://github.com/oshi/oshi/pull/2212): Suppress log warnings for common non-root macOS sysctl failures - [@pavangole](https://github.com/pavangole).
+* [#2224](https://github.com/oshi/oshi/pull/2224): Detect Windows Server 2022 in older JDKs - [@dbwiddis](https://github.com/dbwiddis).
+* [#2229](https://github.com/oshi/oshi/pull/2229): Fix division by zero on AIX with fewer logical processors than physical processors - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 
