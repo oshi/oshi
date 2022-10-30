@@ -36,7 +36,6 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
-import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData;
 import oshi.driver.windows.registry.ProcessWtsData;
@@ -233,14 +232,12 @@ public class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        // TODO how to execute _getmaxstdio
-        return new SystemInfo().getOperatingSystem().getFileSystem().getMaxFileDescriptorsPerProcess();
+        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        // FIXME how to execute _getmaxstdio
-        return new SystemInfo().getOperatingSystem().getFileSystem().getMaxFileDescriptorsPerProcess();
+        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
     }
 
     @Override
