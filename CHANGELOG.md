@@ -5,6 +5,7 @@
 
 ##### Bug fixes / Improvements
 * [#2224](https://github.com/oshi/oshi/pull/2224): Detect Windows Server 2022 in older JDKs - [@dbwiddis](https://github.com/dbwiddis).
+* [#2229](https://github.com/oshi/oshi/pull/2229): Fix division by zero on AIX with fewer logical processors than physical processors - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.3.0 (2022-10-16)
 
