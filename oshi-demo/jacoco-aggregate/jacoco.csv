@@ -49,7 +49,7 @@ oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSThread,170,0,16,0,48,0,23,
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsNetworkParams,213,0,22,0,50,0,20,0,9,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSProcess,938,0,88,0,221,0,86,0,42,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSFileStore,140,0,10,0,35,0,15,0,10,0
-oshi-demo/oshi-core,oshi.software.os.windows,WindowsInternetProtocolStats,597,0,46,0,114,0,40,0,12,0
+oshi-demo/oshi-core,oshi.software.os.windows,WindowsInternetProtocolStats,589,0,38,0,108,0,36,0,12,0
 oshi-demo/oshi-core,oshi.util.platform.unix.solaris,KstatUtil,382,0,38,0,77,0,29,0,6,0
 oshi-demo/oshi-core,oshi.util.platform.unix.solaris,KstatUtil.KstatChain,128,0,22,0,25,0,17,0,6,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacNetworkParams,151,0,18,0,37,0,15,0,6,0
