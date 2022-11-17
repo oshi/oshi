@@ -1,6 +1,7 @@
 # 6.3.2 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2243](https://github.com/oshi/oshi/pull/224e): Actually return Windows IP Connections - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30)
 
