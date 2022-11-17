@@ -1,9 +1,8 @@
-# 6.3.2 (in progress)
+# 6.3.3 (in progress)
 
-##### Bug fixes / Improvements
-* [#2243](https://github.com/oshi/oshi/pull/224e): Actually return Windows IP Connections - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.3.0 (2022-10-16), 6.3.1 (2022-10-30)
+# 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
 ##### New Features
 * [#2129](https://github.com/oshi/oshi/pull/2129): Added JMX demo project - [@SalvadorRomo](https://github.com/SalvadorRomo).
@@ -20,6 +19,7 @@
 * [#2212](https://github.com/oshi/oshi/pull/2212): Suppress log warnings for common non-root macOS sysctl failures - [@pavangole](https://github.com/pavangole).
 * [#2224](https://github.com/oshi/oshi/pull/2224): Detect Windows Server 2022 in older JDKs - [@dbwiddis](https://github.com/dbwiddis).
 * [#2229](https://github.com/oshi/oshi/pull/2229): Fix division by zero on AIX with fewer logical processors than physical processors - [@dbwiddis](https://github.com/dbwiddis).
+* [#2243](https://github.com/oshi/oshi/pull/224e): Actually return Windows IP Connections - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 
