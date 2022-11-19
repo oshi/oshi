@@ -6,7 +6,7 @@
     "packageRules": [
       {
         "description": "Batch and auto-merge plugin updates",
-        "matchPackagePatterns": ["-plugin$"],
+        "matchPackagePatterns": ["maven", "-plugin$", "bind-api"],
         "matchUpdateTypes": ["patch", "minor"],
         "groupName": "plugins",
         "automerge": true
