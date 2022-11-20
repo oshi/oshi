@@ -1,4 +1,4 @@
-name: Alpine CI
+name: Multiarch CI
 
 on:
   workflow_dispatch:
@@ -14,13 +14,17 @@ on:
 jobs:
   testalpine:
     runs-on: ubuntu-latest
-    name: Test JDK 11, Alpine vm
+    name: Test JDK 8
     strategy:
       fail-fast: false
       matrix:
         arch: [ armv6, armv7, aarch64, s390x, ppc64le ]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
       - name: Test on Alpine
         id: test-alpine
         uses: uraimo/run-on-arch-action@v2
@@ -28,7 +32,7 @@ jobs:
           arch: ${{ matrix.arch }}
           distro: alpine_latest
           run: |
-            mvn clean test -B -Djacoco.skip=true -Dlicense.skip=true
+            mvn test -B -Djacoco.skip=true
           install: |
             apk update
             apk add maven musl
