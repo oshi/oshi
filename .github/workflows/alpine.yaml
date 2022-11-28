@@ -31,8 +31,8 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
           distro: alpine_latest
-          run: |
-            mvn test -B -Djacoco.skip=true
+          shell: /bin/bash
+          run: mvn test -B -Djacoco.skip=true
           install: |
             apk update
             apk add maven musl
