@@ -34,5 +34,6 @@ jobs:
           install: |
             apk update
             apk add maven musl
-          run: sudo mvn test -B -Djacoco.skip=true
+          run: |
+            mvn test -B -Djacoco.skip=true -Djdk.lang.Process.launchMechanism=vfork
 
