@@ -25,12 +25,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '8'
-      - name: Test on Alpine
-        id: test-alpine
+      - name: Test on Ubuntu
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: ${{ matrix.arch }}
-          distro: alpine_latest
+          distro: ubuntu22.04
           install: |
             apk update
             apk add maven musl
