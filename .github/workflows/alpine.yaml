@@ -32,7 +32,7 @@ jobs:
           distro: ubuntu22.04
           install: |
             apt update
-            apt install maven musl
+            apt install -y maven musl
           run: |
             mvn test -B -Djacoco.skip=true -Djdk.lang.Process.launchMechanism=vfork
 
