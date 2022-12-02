@@ -5,7 +5,6 @@
 package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -147,9 +146,7 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
             Supplier<perfstat_disk_t[]> diskStats, Map<String, Pair<Integer, Integer>> majMinMap) {
         AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
                 diskStats);
-        store.partitionList = Collections.unmodifiableList(Lspv.queryLogicalVolumes(diskName, majMinMap).stream()
-                .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))
-                .collect(Collectors.toList()));
+        store.partitionList = Lspv.queryLogicalVolumes(diskName, majMinMap);
         store.updateAttributes();
         return store;
     }
