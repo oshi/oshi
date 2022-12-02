@@ -10,7 +10,25 @@ It does not require the installation of any additional native libraries and aims
 cross-platform implementation to retrieve system information, such as OS version, processes,
 memory and CPU usage, disks and partitions, devices, sensors, etc.
 
-Supported platforms
+[![codecov](https://codecov.io/gh/opensearch-project/opensearch-sdk-java/branch/main/graph/badge.svg)](https://codecov.io/gh/opensearch-project/opensearch-sdk-java)
+[![GHA gradle check](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/build.yml/badge.svg)](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/build.yml)
+[![GHA validate pull request](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/wrapper.yml/badge.svg)](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/wrapper.yml)
+
+- [Supported Platforms](#supported-platforms)
+- [Downloads and Dependency Management](#downloads-and-dependency-management)
+- [Documentation](#documentation)
+- [Usage](#usage)
+- [Supported Features](#supported-features)
+- [Support](#support)
+- [OSHI for Enterprise](#oshi-for-enterprise)
+- [Security Contact Information](#security-contact-information)
+- [Continuous Integration Test Status](#continuous-integration-test-status)
+- [How Can I Help?](#how-can-i-help)
+- [Contributing to OSHI](#contributing-to-oshi)
+- [Acknowledgments](#acknowledgments)
+- [License](#license)
+
+Supported Platforms
 ---------------------------
 Windows • macOS • Linux (Android) • Unix (AIX, FreeBSD, OpenBSD, Solaris)
 
@@ -60,7 +78,7 @@ Some settings are configurable in the [`oshi.properties`](https://github.com/osh
 
 The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
 
-Supported features
+Supported Features
 ------------------
 * Computer System and firmware, baseboard
 * Operating System and Version/Build
@@ -83,13 +101,13 @@ Support
 * For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, asking a new question if it hasn't been answered before.
 * To say thanks to OSHI's primary maintainer, you can [sponsor him](https://github.com/sponsors/dbwiddis) or [buy him a coffee](https://www.buymeacoffee.com/dbwiddis).
 
-OSHI for enterprise
+OSHI for Enterprise
 -------------------
 Available as part of the Tidelift Subscription [![Tidelift](https://tidelift.com/badges/package/maven/com.github.oshi:oshi-core)](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&utm_medium=referral&utm_campaign=readme)
 
 The maintainers of OSHI and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-github-oshi-oshi-core?utm_source=maven-com-github-oshi-oshi-core&utm_medium=referral&utm_campaign=readme)
 
-Security contact information
+Security Contact Information
 ----------------------------
 To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security).
 Tidelift will coordinate the fix and disclosure.
@@ -117,8 +135,8 @@ Continuous Integration Test Status
 [![CodeQL](https://github.com/oshi/oshi/workflows/CodeQL/badge.svg)](https://github.com/oshi/oshi/security/code-scanning)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
 
-Where are we? How can I help?
------------------------------
+How Can I Help?
+---------------
 [OSHI originated](https://code.dblock.org/2010/06/23/introducing-oshi-operating-system-and-hardware-information-java.html)
 as a platform-independent library that did not require additional software and had a license compatible with
 both open source and commercial products. We have developed a strong core of features on major Operating Systems,
@@ -136,8 +154,8 @@ Contributing to OSHI
 * [How to Contribute](src/site/markdown/Contributing.md)
 * [How to Release](src/site/markdown/Releasing.md)
 
-Acknowledgements
-----------------
+Acknowledgments
+---------------
 Many thanks to the following companies for providing free support of Open Source projects including OSHI:
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
 * [GitHub Actions](https://github.com/features/actions), [Travis CI](https://travis-ci.com/), [AppVeyor](https://www.appveyor.com/), and [Cirrus CI](https://cirrus-ci.org/) for continuous integration testing
