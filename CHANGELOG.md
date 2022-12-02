@@ -1,6 +1,7 @@
 # 6.3.3 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2257](https://github.com/oshi/oshi/pull/2257): Ensure constant AIX processor tick count array - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 

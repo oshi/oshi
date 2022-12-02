@@ -214,7 +214,8 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
         perfstat_cpu_t[] cpu = cpuProc.get();
-        long[][] ticks = new long[cpu.length][TickType.values().length];
+        // oversize the array to ensure constant length; we'll only fill cpu.length of it
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         for (int i = 0; i < cpu.length; i++) {
             ticks[i] = new long[TickType.values().length];
             ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;
