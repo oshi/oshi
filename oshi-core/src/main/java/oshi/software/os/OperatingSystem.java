@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -231,11 +232,20 @@ public interface OperatingSystem {
             int limit);
 
     /**
-     * Gets the current process ID
+     * Gets the current process ID (PID).
      *
      * @return the Process ID of the current process
      */
     int getProcessId();
+
+    /**
+     * Gets the current process.
+     *
+     * @return the current process
+     */
+    default OSProcess getCurrentProcess() {
+        return getProcess(getProcessId());
+    }
 
     /**
      * Get the number of processes currently running
@@ -243,6 +253,36 @@ public interface OperatingSystem {
      * @return The number of processes running
      */
     int getProcessCount();
+
+    /**
+     * Gets the current thread ID (TID).
+     *
+     * @return the Thread ID of the current thread if known, 0 otherwise.
+     */
+    default int getThreadId() {
+        OSThread thread = getCurrentThread();
+        if (thread == null) {
+            return 0;
+        }
+        return thread.getThreadId();
+    }
+
+    /**
+     * Gets the current thread.
+     *
+     * @return the current thread if known; null otherwise.
+     */
+    default OSThread getCurrentThread() {
+        List<OSThread> threads = getCurrentProcess().getThreadDetails();
+        // Get oldest running thread
+        Optional<OSThread> thread = threads.stream().filter(t -> t.getState() == State.RUNNING)
+                .sorted(Comparator.comparingLong(OSThread::getStartTime)).findFirst();
+        if (thread.isPresent()) {
+            return thread.get();
+        }
+        // If nothing is running get oldest thread
+        return threads.stream().sorted(Comparator.comparingLong(OSThread::getStartTime)).findFirst().orElse(null);
+    }
 
     /**
      * Get the number of threads currently running
