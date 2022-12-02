@@ -39,6 +39,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -250,6 +251,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public int getProcessCount() {
         return ProcessStat.getPidFiles().length;
+    }
+
+    @Override
+    public int getThreadId() {
+        return LinuxLibc.INSTANCE.gettid();
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        return new LinuxOSThread(getProcessId(), getThreadId());
     }
 
     @Override
