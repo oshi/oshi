@@ -214,40 +214,41 @@ import oshi.util.tuples.Triplet;
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
 <span class="nc" id="L216">        perfstat_cpu_t[] cpu = cpuProc.get();</span>
-<span class="nc" id="L217">        long[][] ticks = new long[cpu.length][TickType.values().length];</span>
-<span class="nc bnc" id="L218" title="All 2 branches missed.">        for (int i = 0; i &lt; cpu.length; i++) {</span>
-<span class="nc" id="L219">            ticks[i] = new long[TickType.values().length];</span>
-<span class="nc" id="L220">            ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;</span>
+        // oversize the array to ensure constant length; we'll only fill cpu.length of it
+<span class="nc" id="L218">        long[][] ticks = new long[cpu.length][TickType.values().length];</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        for (int i = 0; i &lt; cpu.length; i++) {</span>
+<span class="nc" id="L220">            ticks[i] = new long[TickType.values().length];</span>
+<span class="nc" id="L221">            ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;</span>
             // Skip NICE
-<span class="nc" id="L222">            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys * 1000L / USER_HZ;</span>
-<span class="nc" id="L223">            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle * 1000L / USER_HZ;</span>
-<span class="nc" id="L224">            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait * 1000L / USER_HZ;</span>
-<span class="nc" id="L225">            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs * 1000L / USER_HZ;</span>
-<span class="nc" id="L226">            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs * 1000L / USER_HZ;</span>
-<span class="nc" id="L227">            ticks[i][TickType.STEAL.ordinal()] = (cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr) * 1000L / USER_HZ;</span>
+<span class="nc" id="L223">            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys * 1000L / USER_HZ;</span>
+<span class="nc" id="L224">            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle * 1000L / USER_HZ;</span>
+<span class="nc" id="L225">            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait * 1000L / USER_HZ;</span>
+<span class="nc" id="L226">            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs * 1000L / USER_HZ;</span>
+<span class="nc" id="L227">            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs * 1000L / USER_HZ;</span>
+<span class="nc" id="L228">            ticks[i][TickType.STEAL.ordinal()] = (cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr) * 1000L / USER_HZ;</span>
         }
-<span class="nc" id="L229">        return ticks;</span>
+<span class="nc" id="L230">        return ticks;</span>
     }
 
     @Override
     public long queryContextSwitches() {
-<span class="nc" id="L234">        return cpuTotal.get().pswitch;</span>
+<span class="nc" id="L235">        return cpuTotal.get().pswitch;</span>
     }
 
     @Override
     public long queryInterrupts() {
-<span class="nc" id="L239">        perfstat_cpu_total_t cpu = cpuTotal.get();</span>
-<span class="nc" id="L240">        return cpu.devintrs + cpu.softintrs;</span>
+<span class="nc" id="L240">        perfstat_cpu_total_t cpu = cpuTotal.get();</span>
+<span class="nc" id="L241">        return cpu.devintrs + cpu.softintrs;</span>
     }
 
     private static int querySbits() {
         // read from /usr/include/sys/proc.h
-<span class="nc bnc" id="L245" title="All 2 branches missed.">        for (String s : FileUtil.readFile(&quot;/usr/include/sys/proc.h&quot;)) {</span>
-<span class="nc bnc" id="L246" title="All 4 branches missed.">            if (s.contains(&quot;SBITS&quot;) &amp;&amp; s.contains(&quot;#define&quot;)) {</span>
-<span class="nc" id="L247">                return ParseUtil.parseLastInt(s, 16);</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        for (String s : FileUtil.readFile(&quot;/usr/include/sys/proc.h&quot;)) {</span>
+<span class="nc bnc" id="L247" title="All 4 branches missed.">            if (s.contains(&quot;SBITS&quot;) &amp;&amp; s.contains(&quot;#define&quot;)) {</span>
+<span class="nc" id="L248">                return ParseUtil.parseLastInt(s, 16);</span>
             }
-<span class="nc" id="L249">        }</span>
-<span class="nc" id="L250">        return 16;</span>
+<span class="nc" id="L250">        }</span>
+<span class="nc" id="L251">        return 16;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

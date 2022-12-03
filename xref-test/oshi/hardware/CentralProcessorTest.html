@@ -93,7 +93,7 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertThat(<span class="jxr_string">"System's load averages length for 3 elements should equal 3"</span>, p.getSystemLoadAverage(3).length,
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  is(3));
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertThat(<span class="jxr_string">"Cpu load between ticks should equal the logical processor count"</span>, p.getLogicalProcessorCount(),
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertThat(<span class="jxr_string">"Cpu load between ticks size should equal the tick array size"</span>, procTicks.length,
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  is(p.getProcessorCpuLoadBetweenTicks(procTicks).length));
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; p.getLogicalProcessorCount(); cpu++) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              assertThat(<span class="jxr_string">"Cpu number "</span> + cpu + <span class="jxr_string">"'s load between ticks should be inclusively between 0 and 1"</span>,
@@ -108,12 +108,12 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> 
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     @Test
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">void</strong> testDelayTicks() {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(<span class="jxr_string">"System's cpu load should be inclusively between 0 and 1"</span>, p.getSystemCpuLoad(500),
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">double</strong>[] procCpuLoad = p.getProcessorCpuLoad(500);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertThat(<span class="jxr_string">"Cpu load array size should equal the logical processor count"</span>, p.getLogicalProcessorCount(),
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 is(procCpuLoad.length));
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">long</strong>[][] procTicks = p.getProcessorCpuLoadTicks();
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(<span class="jxr_string">"System's cpu load should be inclusively between 0 and 1"</span>, p.getSystemCpuLoad(500),
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">double</strong>[] procCpuLoad = p.getProcessorCpuLoad(500);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertThat(<span class="jxr_string">"Cpu load array size should equal the tick array size"</span>, procTicks.length, is(procCpuLoad.length));
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; p.getLogicalProcessorCount(); cpu++) {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>             assertThat(<span class="jxr_string">"Cpu number "</span> + cpu + <span class="jxr_string">"'s load should be inclusively between 0 and 1"</span>, procCpuLoad[cpu],
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>                     is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));

@@ -25,7 +25,7 @@ oshi-demo/oshi-core,oshi.software.os,OperatingSystem.OSVersionInfo,63,0,6,0,15,0
 oshi-demo/oshi-core,oshi.software.os,InternetProtocolStats.UdpStats,54,0,0,0,11,0,6,0,6,0
 oshi-demo/oshi-core,oshi.software.os,OperatingSystem.ProcessSorting,29,0,0,0,11,0,2,0,2,0
 oshi-demo/oshi-core,oshi.software.os,OSProcess,6,0,0,0,3,0,3,0,3,0
-oshi-demo/oshi-core,oshi.software.os,OperatingSystem,38,0,2,0,7,0,7,0,6,0
+oshi-demo/oshi-core,oshi.software.os,OperatingSystem,43,0,2,0,8,0,8,0,7,0
 oshi-demo/oshi-core,oshi.software.os,OperatingSystem.ProcessFiltering,47,0,8,0,5,0,10,0,6,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractVirtualMemory,50,0,0,0,11,0,2,0,2,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractUsbDevice,149,0,8,0,29,0,15,0,11,0
@@ -43,7 +43,7 @@ oshi-demo/oshi-core,oshi.hardware.common,AbstractBaseboard,44,0,0,0,7,0,2,0,2,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractCentralProcessor,989,0,87,0,195,0,82,0,24,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractSensors,71,0,0,0,12,0,5,0,5,0
 oshi-demo/oshi-core,oshi.hardware.common,AbstractHardwareAbstractionLayer,47,0,0,0,10,0,6,0,6,0
-oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,922,0,111,0,222,0,95,0,39,0
+oshi-demo/oshi-core,oshi.software.os.windows,WindowsOperatingSystem,957,0,113,0,227,0,99,0,42,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsFileSystem,610,0,48,0,113,0,36,0,10,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsOSThread,170,0,16,0,48,0,23,0,13,0
 oshi-demo/oshi-core,oshi.software.os.windows,WindowsNetworkParams,213,0,22,0,50,0,20,0,9,0
@@ -53,10 +53,10 @@ oshi-demo/oshi-core,oshi.software.os.windows,WindowsInternetProtocolStats,589,0,
 oshi-demo/oshi-core,oshi.util.platform.unix.solaris,KstatUtil,382,0,38,0,77,0,29,0,6,0
 oshi-demo/oshi-core,oshi.util.platform.unix.solaris,KstatUtil.KstatChain,128,0,22,0,25,0,17,0,6,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacNetworkParams,151,0,18,0,37,0,15,0,6,0
-oshi-demo/oshi-core,oshi.software.os.mac,MacOperatingSystem,562,0,62,0,104,0,56,0,25,0
+oshi-demo/oshi-core,oshi.software.os.mac,MacOperatingSystem,588,0,64,0,110,0,59,0,27,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacOSProcess,682,0,57,0,152,0,68,0,37,0
-oshi-demo/oshi-core,oshi.software.os.mac,MacOSThread,46,0,0,0,16,0,8,0,8,0
+oshi-demo/oshi-core,oshi.software.os.mac,MacOSThread,57,0,0,0,18,0,9,0,9,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacInternetProtocolStats,774,0,58,0,146,0,47,0,13,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacFileSystem,482,0,56,0,104,0,37,0,9,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,SystemInformation.ProcessorQueueLengthProperty,28,0,0,0,8,0,4,0,4,0
@@ -120,15 +120,15 @@ oshi-demo/oshi-core,oshi.driver.unix.aix,Ls,61,0,10,0,11,0,6,0,1,0
 oshi-demo/oshi-core,oshi.driver.unix.aix,Uptime,68,0,10,0,16,0,7,0,2,0
 oshi-demo/oshi-core,oshi.driver.unix.aix,Lssrad,95,0,14,0,20,0,8,0,1,0
 oshi-demo/oshi-core,oshi.driver.unix.aix,Lscfg,176,0,28,0,40,0,17,0,3,0
-oshi-demo/oshi-core,oshi.driver.unix.aix,Lspv,240,0,24,0,37,0,13,0,1,0
+oshi-demo/oshi-core,oshi.driver.unix.aix,Lspv,266,0,24,0,42,0,16,0,4,0
 oshi-demo/oshi-core,oshi.util.platform.unix.freebsd,BsdSysctlUtil,243,0,14,0,45,0,13,0,6,0
 oshi-demo/oshi-core,oshi.util.platform.unix.freebsd,ProcstatUtil,148,0,20,0,23,0,13,0,3,0
 oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem.PsKeywords,123,0,0,0,3,0,1,0,1,0
-oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSThread,245,0,14,0,55,0,24,0,15,0
+oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSThread,261,0,14,0,59,0,25,0,16,0
 oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdNetworkParams,91,0,6,0,24,0,9,0,6,0
 oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdInternetProtocolStats,239,0,8,0,44,0,10,0,6,0
 oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdFileSystem,319,0,42,0,66,0,27,0,6,0
-oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem,400,0,32,0,72,0,42,0,26,0
+oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOperatingSystem,444,0,36,0,80,0,47,0,29,0
 oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSFileStore,125,0,8,0,32,0,14,0,10,0
 oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSProcess.PsThreadColumns,75,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.software.os.unix.freebsd,FreeBsdOSProcess,836,0,44,0,169,0,68,0,44,0
@@ -150,7 +150,7 @@ oshi-demo/oshi-core,oshi.hardware.platform.mac,MacPowerSource,404,0,42,0,112,0,2
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacFirmware,223,0,44,0,57,0,30,0,7,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacDisplay,81,0,8,0,26,0,7,0,3,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacLogicalVolumeGroup,140,0,16,0,30,0,13,0,5,0
-oshi-demo/oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,910,0,80,0,170,0,62,0,22,0
+oshi-demo/oshi-core,oshi.hardware.platform.mac,MacCentralProcessor,918,0,80,0,173,0,62,0,22,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacComputerSystem,115,0,14,0,27,0,15,0,8,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacHardwareAbstractionLayer,37,0,0,0,13,0,13,0,13,0
 oshi-demo/oshi-core,oshi.hardware.platform.mac,MacSensors,79,0,6,0,20,0,7,0,4,0
@@ -186,8 +186,8 @@ oshi-demo/oshi-core,oshi.driver.unix,Xwininfo,255,0,22,0,48,0,14,0,3,0
 oshi-demo/oshi-core,oshi.driver.unix,Xrandr,77,0,12,0,20,0,8,0,2,0
 oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSFileStore,124,0,8,0,32,0,14,0,10,0
 oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdNetworkParams,11,0,0,0,3,0,3,0,3,0
-oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSThread,234,0,14,0,55,0,24,0,15,0
-oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOperatingSystem,398,0,34,0,78,0,39,0,22,0
+oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSThread,250,0,14,0,59,0,25,0,16,0
+oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOperatingSystem,431,0,36,0,83,0,43,0,25,0
 oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSProcess,829,0,46,0,176,0,67,0,42,0
 oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOperatingSystem.PsKeywords,111,0,0,0,3,0,1,0,1,0
 oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdOSProcess.PsThreadColumns,63,0,0,0,2,0,1,0,1,0
@@ -244,8 +244,8 @@ oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Processor,36,0,0,0,6,0,3,0,3,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32VideoController.VideoControllerProperty,33,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,OhmHardware.IdentifierProperty,9,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32LogicalDiskToPartition,11,0,0,0,2,0,1,0,1,0
-oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Process.ProcessXPProperty,51,0,0,0,2,0,1,0,1,0
+oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32LogicalDisk,44,0,6,0,9,0,4,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32PhysicalMemory.PhysicalMemoryProperty,33,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Processor.ProcessorIdProperty,9,0,0,0,2,0,1,0,1,0
@@ -285,7 +285,7 @@ oshi-demo/oshi-core,oshi.software.os.unix.aix,AixInternetProtocolStats,138,0,8,0
 oshi-demo/oshi-core,oshi.software.os.unix.aix,AixOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-demo/oshi-core,oshi.software.os.unix.aix,AixNetworkParams,60,0,8,0,14,0,10,0,6,0
 oshi-demo/oshi-core,oshi.software.os.unix.aix,AixOSThread,74,0,2,0,23,0,12,0,11,0
-oshi-demo/oshi-core,oshi.software.os.unix.aix,AixOperatingSystem,480,0,50,0,83,0,47,0,22,0
+oshi-demo/oshi-core,oshi.software.os.unix.aix,AixOperatingSystem,513,0,52,0,88,0,51,0,25,0
 oshi-demo/oshi-core,oshi.software.os.unix.aix,AixOSProcess,633,0,41,0,137,0,63,0,40,0
 oshi-demo/oshi-core,oshi.software.os.unix.aix,AixFileSystem,332,0,48,0,70,0,32,0,8,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix,UnixDisplay,12,0,0,0,3,0,2,0,2,0
@@ -336,7 +336,7 @@ oshi-demo/oshi-core,oshi.software.os.linux,LinuxInternetProtocolStats,324,0,30,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxFileSystem,500,0,58,0,115,0,40,0,11,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSThread,256,0,6,0,48,0,18,0,15,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSThread.ThreadPidStat,91,0,0,0,7,0,3,0,3,0
-oshi-demo/oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1270,0,192,0,254,0,130,0,34,0
+oshi-demo/oshi-core,oshi.software.os.linux,LinuxOperatingSystem,1281,0,192,0,256,0,132,0,36,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxNetworkParams,233,0,36,0,53,0,24,0,6,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSFileStore,119,0,6,0,31,0,13,0,10,0
 oshi-demo/oshi-core,oshi.util.platform.linux,ProcPath,285,0,2,0,34,0,3,0,2,0
@@ -383,7 +383,7 @@ oshi-demo/oshi-core,oshi.hardware.platform.unix.aix,AixSoundCard,52,0,6,0,11,0,5
 oshi-demo/oshi-core,oshi.hardware.platform.unix.aix,AixUsbDevice,81,0,8,0,14,0,6,0,2,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.aix,AixComputerSystem.LsattrStrings,59,0,14,0,9,0,8,0,1,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.aix,AixPowerSource,26,0,0,0,3,0,2,0,2,0
-oshi-demo/oshi-core,oshi.hardware.platform.unix.aix,AixHWDiskStore,284,0,20,0,57,0,23,0,13,0
+oshi-demo/oshi-core,oshi.hardware.platform.unix.aix,AixHWDiskStore,274,0,20,0,55,0,23,0,13,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.aix,AixHardwareAbstractionLayer,59,0,0,0,14,0,12,0,12,0
 oshi-demo/oshi-core,oshi.driver.mac,ThreadInfo.ThreadStats,71,0,6,0,25,0,12,0,7,0
 oshi-demo/oshi-core,oshi.driver.mac,Who,84,0,14,0,15,0,9,0,2,0
@@ -425,8 +425,8 @@ oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisComputerSystem.Sm
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisFirmware,21,0,0,0,8,0,4,0,4,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisPowerSource,303,0,38,0,66,0,23,0,4,0
-oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,345,0,30,0,56,0,30,0,15,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisSoundCard,142,0,18,0,25,0,11,0,2,0
+oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,345,0,30,0,56,0,30,0,15,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHWDiskStore,497,0,36,0,74,0,31,0,13,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,60,0,0,0,11,0,7,0,7,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,380,0,38,0,72,0,25,0,6,0
@@ -438,7 +438,7 @@ oshi-demo/oshi-core,oshi.software.os.unix.solaris,SolarisNetworkParams,30,0,2,0,
 oshi-demo/oshi-core,oshi.software.os.unix.solaris,SolarisOSThread,210,0,10,0,42,0,19,0,14,0
 oshi-demo/oshi-core,oshi.software.os.unix.solaris,SolarisOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-demo/oshi-core,oshi.software.os.unix.solaris,SolarisFileSystem,439,0,72,0,91,0,45,0,9,0
-oshi-demo/oshi-core,oshi.software.os.unix.solaris,SolarisOperatingSystem,540,0,68,0,106,0,61,0,27,0
+oshi-demo/oshi-core,oshi.software.os.unix.solaris,SolarisOperatingSystem,551,0,68,0,108,0,63,0,29,0
 oshi-demo/oshi-core,oshi.driver.mac.disk,Fsstat,68,0,2,0,10,0,3,0,2,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,CoreGraphics,6,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.InSockInfo,15,0,0,0,4,0,1,0,1,0
@@ -451,8 +451,8 @@ oshi-demo/oshi-core,oshi.jna.platform.mac,CoreGraphics.CGRect,7,0,0,0,3,0,2,0,2,
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.MacUtmpx,23,0,0,0,6,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.ProcFileInfo,3,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyData,11,0,0,0,4,0,2,0,2,0
-oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.SocketInfo,15,0,0,0,4,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,CoreGraphics.CGPoint,3,0,0,0,1,0,1,0,1,0
+oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.SocketInfo,15,0,0,0,4,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,IOKit,6,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB,6,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.TcpSockInfo,7,0,0,0,2,0,1,0,1,0

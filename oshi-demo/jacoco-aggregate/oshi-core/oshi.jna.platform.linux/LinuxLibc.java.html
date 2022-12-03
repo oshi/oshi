@@ -65,5 +65,13 @@ public interface LinuxLibc extends LibC, CLibrary {
      * @return a {@link LinuxUtmpx} on success, and NULL on failure (which includes the &quot;record not found&quot; case)
      */
     LinuxUtmpx getutxent();
+
+    /**
+     * Returns the caller's thread ID (TID). In a single-threaded process, the thread ID is equal to the process ID. In
+     * a multithreaded process, all threads have the same PID, but each one has a unique TID.
+     *
+     * @return the thread ID of the calling thread.
+     */
+    int gettid();
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

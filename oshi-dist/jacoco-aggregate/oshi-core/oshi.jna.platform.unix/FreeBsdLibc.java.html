@@ -9,13 +9,14 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.ptr.NativeLongByReference;
 
 /**
  * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA
  * project.
  */
 public interface FreeBsdLibc extends CLibrary {
-<span class="nc" id="L18">    FreeBsdLibc INSTANCE = Native.load(&quot;libc&quot;, FreeBsdLibc.class);</span>
+<span class="nc" id="L19">    FreeBsdLibc INSTANCE = Native.load(&quot;libc&quot;, FreeBsdLibc.class);</span>
 
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 16;
@@ -26,24 +27,24 @@ public interface FreeBsdLibc extends CLibrary {
      * Connection info
      */
     @FieldOrder({ &quot;ut_type&quot;, &quot;ut_tv&quot;, &quot;ut_id&quot;, &quot;ut_pid&quot;, &quot;ut_user&quot;, &quot;ut_line&quot;, &quot;ut_host&quot;, &quot;ut_spare&quot; })
-<span class="nc" id="L29">    class FreeBsdUtmpx extends Structure {</span>
+<span class="nc" id="L30">    class FreeBsdUtmpx extends Structure {</span>
         public short ut_type; // type of entry
         public Timeval ut_tv; // time entry was made
-<span class="nc" id="L32">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
+<span class="nc" id="L33">        public byte[] ut_id = new byte[UTX_IDSIZE]; // etc/inittab id (usually line #)</span>
         public int ut_pid; // process id
-<span class="nc" id="L34">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
-<span class="nc" id="L35">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
-<span class="nc" id="L36">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
-<span class="nc" id="L37">        public byte[] ut_spare = new byte[64];</span>
+<span class="nc" id="L35">        public byte[] ut_user = new byte[UTX_USERSIZE]; // user login name</span>
+<span class="nc" id="L36">        public byte[] ut_line = new byte[UTX_LINESIZE]; // device name</span>
+<span class="nc" id="L37">        public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name</span>
+<span class="nc" id="L38">        public byte[] ut_spare = new byte[64];</span>
     }
 
     /*
      * Data size
      */
     /** Constant &lt;code&gt;UINT64_SIZE=Native.getNativeSize(long.class)&lt;/code&gt; */
-<span class="nc" id="L44">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
+<span class="nc" id="L45">    int UINT64_SIZE = Native.getNativeSize(long.class);</span>
     /** Constant &lt;code&gt;INT_SIZE=Native.getNativeSize(int.class)&lt;/code&gt; */
-<span class="nc" id="L46">    int INT_SIZE = Native.getNativeSize(int.class);</span>
+<span class="nc" id="L47">    int INT_SIZE = Native.getNativeSize(int.class);</span>
 
     /*
      * CPU state indices
@@ -65,7 +66,7 @@ public interface FreeBsdLibc extends CLibrary {
      * Return type for BSD sysctl kern.boottime
      */
     @FieldOrder({ &quot;tv_sec&quot;, &quot;tv_usec&quot; })
-<span class="nc" id="L68">    class Timeval extends Structure {</span>
+<span class="nc" id="L69">    class Timeval extends Structure {</span>
         public long tv_sec; // seconds
         public long tv_usec; // microseconds
     }
@@ -74,16 +75,16 @@ public interface FreeBsdLibc extends CLibrary {
      * CPU Ticks
      */
     @FieldOrder({ &quot;cpu_ticks&quot; })
-<span class="nc" id="L77">    class CpTime extends Structure implements AutoCloseable {</span>
-<span class="nc" id="L78">        public long[] cpu_ticks = new long[CPUSTATES];</span>
+<span class="nc" id="L78">    class CpTime extends Structure implements AutoCloseable {</span>
+<span class="nc" id="L79">        public long[] cpu_ticks = new long[CPUSTATES];</span>
 
         @Override
         public void close() {
-<span class="nc" id="L82">            Pointer p = this.getPointer();</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
-<span class="nc" id="L84">                ((Memory) p).close();</span>
+<span class="nc" id="L83">            Pointer p = this.getPointer();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (p instanceof Memory) {</span>
+<span class="nc" id="L85">                ((Memory) p).close();</span>
             }
-<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">        }</span>
     }
 
     /**
@@ -95,5 +96,15 @@ public interface FreeBsdLibc extends CLibrary {
      * @return a {@link FreeBsdUtmpx} on success, and NULL on failure (which includes the &quot;record not found&quot; case)
      */
     FreeBsdUtmpx getutxent();
+
+    /**
+     * Stores the system-wide thread identifier for the current kernel-scheduled thread in the variable pointed by the
+     * argument id.
+     *
+     * @param id The thread identifier is an integer in the range from PID_MAX + 2 (100001) to INT_MAX. The thread
+     *           identifier is guaranteed to be unique at any given time, for each running thread in the system.
+     * @return If successful, returns zero, otherwise -1 is returned, and errno is set to indicate the error.
+     */
+    int thr_self(NativeLongByReference id);
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

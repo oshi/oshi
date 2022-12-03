@@ -231,11 +231,20 @@ public interface OperatingSystem {
             int limit);
 
     /**
-     * Gets the current process ID
+     * Gets the current process ID (PID).
      *
      * @return the Process ID of the current process
      */
     int getProcessId();
+
+    /**
+     * Gets the current process.
+     *
+     * @return the current process
+     */
+    default OSProcess getCurrentProcess() {
+<span class="nc" id="L246">        return getProcess(getProcessId());</span>
+    }
 
     /**
      * Get the number of processes currently running
@@ -243,6 +252,26 @@ public interface OperatingSystem {
      * @return The number of processes running
      */
     int getProcessCount();
+
+    /**
+     * Makes a best effort to get the current thread ID (TID). May not be useful in a multithreaded environment. The
+     * thread ID returned may have been short lived and no longer exist.
+     * &lt;p&gt;
+     * Thread IDs on macOS are not correlated with any other Operating System output.
+     *
+     * @return the Thread ID of the current thread if known, 0 otherwise.
+     */
+    int getThreadId();
+
+    /**
+     * Makes a best effort to get the current thread. May not be useful in a multithreaded environment. The thread
+     * returned may have been short lived and no longer exist.
+     * &lt;p&gt;
+     * On macOS, returns the oldest thread in the calling process.
+     *
+     * @return the current thread if known; an invalid thread otherwise.
+     */
+    OSThread getCurrentThread();
 
     /**
      * Get the number of threads currently running
@@ -278,7 +307,7 @@ public interface OperatingSystem {
      * @return True if this process has elevated permissions
      */
     default boolean isElevated() {
-<span class="nc bnc" id="L281" title="All 2 branches missed.">        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;), -1);</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;), -1);</span>
     }
 
     /**
@@ -294,7 +323,7 @@ public interface OperatingSystem {
      * @return An array of {@link OSService} objects
      */
     default List&lt;OSService&gt; getServices() {
-<span class="nc" id="L297">        return new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L326">        return new ArrayList&lt;&gt;();</span>
     }
 
     /**
@@ -312,7 +341,7 @@ public interface OperatingSystem {
      * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users
      */
     default List&lt;OSSession&gt; getSessions() {
-<span class="nc" id="L315">        return Who.queryWho();</span>
+<span class="nc" id="L344">        return Who.queryWho();</span>
     }
 
     /**
@@ -333,7 +362,7 @@ public interface OperatingSystem {
     default List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly) {
         // Default X11 implementation for Unix-like operating systems.
         // Overridden on Windows and macOS
-<span class="nc" id="L336">        return Xwininfo.queryXWindows(visibleOnly);</span>
+<span class="nc" id="L365">        return Xwininfo.queryXWindows(visibleOnly);</span>
     }
 
     /**
@@ -346,20 +375,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="nc" id="L349">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="nc" id="L350">            this.version = version;</span>
-<span class="nc" id="L351">            this.codeName = codeName;</span>
-<span class="nc" id="L352">            this.buildNumber = buildNumber;</span>
+<span class="nc" id="L378">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="nc" id="L379">            this.version = version;</span>
+<span class="nc" id="L380">            this.codeName = codeName;</span>
+<span class="nc" id="L381">            this.buildNumber = buildNumber;</span>
 
-<span class="nc bnc" id="L354" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="nc bnc" id="L355" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="nc" id="L356">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="nc" id="L385">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="nc bnc" id="L358" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="nc" id="L359">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="nc" id="L388">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="nc" id="L361">            this.versionStr = sb.toString();</span>
-<span class="nc" id="L362">        }</span>
+<span class="nc" id="L390">            this.versionStr = sb.toString();</span>
+<span class="nc" id="L391">        }</span>
 
         /**
          * Gets the operating system version.
@@ -367,7 +396,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="nc" id="L370">            return version;</span>
+<span class="nc" id="L399">            return version;</span>
         }
 
         /**
@@ -376,7 +405,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="nc" id="L379">            return codeName;</span>
+<span class="nc" id="L408">            return codeName;</span>
         }
 
         /**
@@ -385,12 +414,12 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="nc" id="L388">            return buildNumber;</span>
+<span class="nc" id="L417">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L393">            return this.versionStr;</span>
+<span class="nc" id="L422">            return this.versionStr;</span>
         }
     }
 }

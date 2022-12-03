@@ -34,39 +34,43 @@ public class MacOSThread extends AbstractOSThread {
 <span class="nc" id="L34">        this.priority = priority;</span>
 <span class="nc" id="L35">    }</span>
 
+    public MacOSThread(int processId) {
+<span class="nc" id="L38">        this(processId, 0, State.INVALID, 0L, 0L, 0L, 0L, 0);</span>
+<span class="nc" id="L39">    }</span>
+
     @Override
     public int getThreadId() {
-<span class="nc" id="L39">        return threadId;</span>
+<span class="nc" id="L43">        return threadId;</span>
     }
 
     @Override
     public State getState() {
-<span class="nc" id="L44">        return state;</span>
+<span class="nc" id="L48">        return state;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L49">        return kernelTime;</span>
+<span class="nc" id="L53">        return kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L54">        return userTime;</span>
+<span class="nc" id="L58">        return userTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L59">        return startTime;</span>
+<span class="nc" id="L63">        return startTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L64">        return upTime;</span>
+<span class="nc" id="L68">        return upTime;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L69">        return priority;</span>
+<span class="nc" id="L73">        return priority;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

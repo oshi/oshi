@@ -31,6 +31,7 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
@@ -41,129 +42,142 @@ import oshi.util.tuples.Pair;
  * which was based on Research Unix.
  */
 @ThreadSafe
-<span class="nc" id="L44">public class OpenBsdOperatingSystem extends AbstractOperatingSystem {</span>
+<span class="nc" id="L45">public class OpenBsdOperatingSystem extends AbstractOperatingSystem {</span>
 
-<span class="nc" id="L46">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystem.class);</span>
+<span class="nc" id="L47">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystem.class);</span>
 
-<span class="nc" id="L48">    private static final long BOOTTIME = querySystemBootTime();</span>
+<span class="nc" id="L49">    private static final long BOOTTIME = querySystemBootTime();</span>
 
     /*
      * Package-private for use by OpenBsdOSProcess
      */
-<span class="nc" id="L53">    enum PsKeywords {</span>
-<span class="nc" id="L54">        STATE, PID, PPID, USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW,</span>
-<span class="nc" id="L55">        ARGS; // ARGS must always be last</span>
+<span class="nc" id="L54">    enum PsKeywords {</span>
+<span class="nc" id="L55">        STATE, PID, PPID, USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW,</span>
+<span class="nc" id="L56">        ARGS; // ARGS must always be last</span>
     }
 
-<span class="nc" id="L58">    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)</span>
-<span class="nc" id="L59">            .collect(Collectors.joining(&quot;,&quot;));</span>
+<span class="nc" id="L59">    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)</span>
+<span class="nc" id="L60">            .collect(Collectors.joining(&quot;,&quot;));</span>
 
     @Override
     public String queryManufacturer() {
-<span class="nc" id="L63">        return &quot;Unix/BSD&quot;;</span>
+<span class="nc" id="L64">        return &quot;Unix/BSD&quot;;</span>
     }
 
     @Override
     public Pair&lt;String, OSVersionInfo&gt; queryFamilyVersionInfo() {
-<span class="nc" id="L68">        int[] mib = new int[2];</span>
-<span class="nc" id="L69">        mib[0] = CTL_KERN;</span>
-<span class="nc" id="L70">        mib[1] = KERN_OSTYPE;</span>
-<span class="nc" id="L71">        String family = OpenBsdSysctlUtil.sysctl(mib, &quot;OpenBSD&quot;);</span>
-<span class="nc" id="L72">        mib[1] = KERN_OSRELEASE;</span>
-<span class="nc" id="L73">        String version = OpenBsdSysctlUtil.sysctl(mib, &quot;&quot;);</span>
-<span class="nc" id="L74">        mib[1] = KERN_VERSION;</span>
-<span class="nc" id="L75">        String versionInfo = OpenBsdSysctlUtil.sysctl(mib, &quot;&quot;);</span>
-<span class="nc" id="L76">        String buildNumber = versionInfo.split(&quot;:&quot;)[0].replace(family, &quot;&quot;).replace(version, &quot;&quot;).trim();</span>
+<span class="nc" id="L69">        int[] mib = new int[2];</span>
+<span class="nc" id="L70">        mib[0] = CTL_KERN;</span>
+<span class="nc" id="L71">        mib[1] = KERN_OSTYPE;</span>
+<span class="nc" id="L72">        String family = OpenBsdSysctlUtil.sysctl(mib, &quot;OpenBSD&quot;);</span>
+<span class="nc" id="L73">        mib[1] = KERN_OSRELEASE;</span>
+<span class="nc" id="L74">        String version = OpenBsdSysctlUtil.sysctl(mib, &quot;&quot;);</span>
+<span class="nc" id="L75">        mib[1] = KERN_VERSION;</span>
+<span class="nc" id="L76">        String versionInfo = OpenBsdSysctlUtil.sysctl(mib, &quot;&quot;);</span>
+<span class="nc" id="L77">        String buildNumber = versionInfo.split(&quot;:&quot;)[0].replace(family, &quot;&quot;).replace(version, &quot;&quot;).trim();</span>
 
-<span class="nc" id="L78">        return new Pair&lt;&gt;(family, new OSVersionInfo(version, null, buildNumber));</span>
+<span class="nc" id="L79">        return new Pair&lt;&gt;(family, new OSVersionInfo(version, null, buildNumber));</span>
     }
 
     @Override
     protected int queryBitness(int jvmBitness) {
-<span class="nc bnc" id="L83" title="All 4 branches missed.">        if (jvmBitness &lt; 64 &amp;&amp; ExecutingCommand.getFirstAnswer(&quot;uname -m&quot;).indexOf(&quot;64&quot;) == -1) {</span>
-<span class="nc" id="L84">            return jvmBitness;</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">        if (jvmBitness &lt; 64 &amp;&amp; ExecutingCommand.getFirstAnswer(&quot;uname -m&quot;).indexOf(&quot;64&quot;) == -1) {</span>
+<span class="nc" id="L85">            return jvmBitness;</span>
         }
-<span class="nc" id="L86">        return 64;</span>
+<span class="nc" id="L87">        return 64;</span>
     }
 
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L91">        return new OpenBsdFileSystem();</span>
+<span class="nc" id="L92">        return new OpenBsdFileSystem();</span>
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-<span class="nc" id="L96">        return new OpenBsdInternetProtocolStats();</span>
+<span class="nc" id="L97">        return new OpenBsdInternetProtocolStats();</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryAllProcesses() {
-<span class="nc" id="L101">        return getProcessListFromPS(-1);</span>
+<span class="nc" id="L102">        return getProcessListFromPS(-1);</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryChildProcesses(int parentPid) {
-<span class="nc" id="L106">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
-<span class="nc" id="L107">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
-<span class="nc" id="L108">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L107">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L108">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
+<span class="nc" id="L109">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid) {
-<span class="nc" id="L113">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
-<span class="nc" id="L114">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
-<span class="nc" id="L115">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L114">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L115">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
+<span class="nc" id="L116">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L120">        List&lt;OSProcess&gt; procs = getProcessListFromPS(pid);</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (procs.isEmpty()) {</span>
-<span class="nc" id="L122">            return null;</span>
+<span class="nc" id="L121">        List&lt;OSProcess&gt; procs = getProcessListFromPS(pid);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (procs.isEmpty()) {</span>
+<span class="nc" id="L123">            return null;</span>
         }
-<span class="nc" id="L124">        return procs.get(0);</span>
+<span class="nc" id="L125">        return procs.get(0);</span>
     }
 
     private List&lt;OSProcess&gt; getProcessListFromPS(int pid) {
-<span class="nc" id="L128">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L129">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
         // https://man.openbsd.org/ps#KEYWORDS
         // missing are threadCount and kernelTime which is included in cputime
-<span class="nc" id="L131">        String psCommand = &quot;ps -awwxo &quot; + PS_COMMAND_ARGS;</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (pid &gt;= 0) {</span>
-<span class="nc" id="L133">            psCommand += &quot; -p &quot; + pid;</span>
+<span class="nc" id="L132">        String psCommand = &quot;ps -awwxo &quot; + PS_COMMAND_ARGS;</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (pid &gt;= 0) {</span>
+<span class="nc" id="L134">            psCommand += &quot; -p &quot; + pid;</span>
         }
-<span class="nc" id="L135">        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand);</span>
-<span class="nc bnc" id="L136" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
-<span class="nc" id="L137">            return procs;</span>
+<span class="nc" id="L136">        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand);</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">        if (procList.isEmpty() || procList.size() &lt; 2) {</span>
+<span class="nc" id="L138">            return procs;</span>
         }
 
         // remove header row
-<span class="nc" id="L141">        procList.remove(0);</span>
+<span class="nc" id="L142">        procList.remove(0);</span>
         // Fill list
-<span class="nc bnc" id="L143" title="All 2 branches missed.">        for (String proc : procList) {</span>
-<span class="nc" id="L144">            Map&lt;PsKeywords, String&gt; psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        for (String proc : procList) {</span>
+<span class="nc" id="L145">            Map&lt;PsKeywords, String&gt; psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');</span>
             // Check if last (thus all) value populated
-<span class="nc bnc" id="L146" title="All 2 branches missed.">            if (psMap.containsKey(PsKeywords.ARGS)) {</span>
-<span class="nc" id="L147">                procs.add(new OpenBsdOSProcess(</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">                        pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this));</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            if (psMap.containsKey(PsKeywords.ARGS)) {</span>
+<span class="nc" id="L148">                procs.add(new OpenBsdOSProcess(</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">                        pid &lt; 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this));</span>
             }
-<span class="nc" id="L150">        }</span>
-<span class="nc" id="L151">        return procs;</span>
+<span class="nc" id="L151">        }</span>
+<span class="nc" id="L152">        return procs;</span>
     }
 
     @Override
     public int getProcessId() {
-<span class="nc" id="L156">        return OpenBsdLibc.INSTANCE.getpid();</span>
+<span class="nc" id="L157">        return OpenBsdLibc.INSTANCE.getpid();</span>
     }
 
     @Override
     public int getProcessCount() {
-<span class="nc" id="L161">        List&lt;String&gt; procList = ExecutingCommand.runNative(&quot;ps -axo pid&quot;);</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (!procList.isEmpty()) {</span>
+<span class="nc" id="L162">        List&lt;String&gt; procList = ExecutingCommand.runNative(&quot;ps -axo pid&quot;);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (!procList.isEmpty()) {</span>
             // Subtract 1 for header
-<span class="nc" id="L164">            return procList.size() - 1;</span>
+<span class="nc" id="L165">            return procList.size() - 1;</span>
         }
-<span class="nc" id="L166">        return 0;</span>
+<span class="nc" id="L167">        return 0;</span>
+    }
+
+    @Override
+    public int getThreadId() {
+<span class="nc" id="L172">        return OpenBsdLibc.INSTANCE.getthrid();</span>
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+<span class="nc" id="L177">        OSProcess proc = getCurrentProcess();</span>
+<span class="nc" id="L178">        final int tid = getThreadId();</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        return proc.getThreadDetails().stream().filter(t -&gt; t.getThreadId() == tid).findFirst()</span>
+<span class="nc" id="L180">                .orElse(new OpenBsdOSThread(proc.getProcessID(), tid));</span>
     }
 
     @Override
@@ -171,61 +185,61 @@ import oshi.util.tuples.Pair;
         // -H &quot;Also display information about kernel visible threads&quot;
         // -k &quot;Also display information about kernel threads&quot;
         // column TID holds thread ID
-<span class="nc" id="L174">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -axHo tid&quot;);</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
+<span class="nc" id="L188">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -axHo tid&quot;);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
             // Subtract 1 for header
-<span class="nc" id="L177">            return threadList.size() - 1;</span>
+<span class="nc" id="L191">            return threadList.size() - 1;</span>
         }
-<span class="nc" id="L179">        return 0;</span>
+<span class="nc" id="L193">        return 0;</span>
     }
 
     @Override
     public long getSystemUptime() {
-<span class="nc" id="L184">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
+<span class="nc" id="L198">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
     }
 
     @Override
     public long getSystemBootTime() {
-<span class="nc" id="L189">        return BOOTTIME;</span>
+<span class="nc" id="L203">        return BOOTTIME;</span>
     }
 
     private static long querySystemBootTime() {
         // Boot time will be the first consecutive string of digits.
-<span class="nc" id="L194">        return ParseUtil.parseLongOrDefault(</span>
-<span class="nc" id="L195">                ExecutingCommand.getFirstAnswer(&quot;sysctl -n kern.boottime&quot;).split(&quot;,&quot;)[0].replaceAll(&quot;\\D&quot;, &quot;&quot;),</span>
-<span class="nc" id="L196">                System.currentTimeMillis() / 1000);</span>
+<span class="nc" id="L208">        return ParseUtil.parseLongOrDefault(</span>
+<span class="nc" id="L209">                ExecutingCommand.getFirstAnswer(&quot;sysctl -n kern.boottime&quot;).split(&quot;,&quot;)[0].replaceAll(&quot;\\D&quot;, &quot;&quot;),</span>
+<span class="nc" id="L210">                System.currentTimeMillis() / 1000);</span>
     }
 
     @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L201">        return new OpenBsdNetworkParams();</span>
+<span class="nc" id="L215">        return new OpenBsdNetworkParams();</span>
     }
 
     @Override
     public List&lt;OSService&gt; getServices() {
         // Get running services
-<span class="nc" id="L207">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L208">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {</span>
-<span class="nc" id="L210">            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);</span>
-<span class="nc" id="L211">            services.add(s);</span>
-<span class="nc" id="L212">            running.add(p.getName());</span>
-<span class="nc" id="L213">        }</span>
+<span class="nc" id="L221">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L222">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {</span>
+<span class="nc" id="L224">            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);</span>
+<span class="nc" id="L225">            services.add(s);</span>
+<span class="nc" id="L226">            running.add(p.getName());</span>
+<span class="nc" id="L227">        }</span>
         // Get Directories for stopped services
-<span class="nc" id="L215">        File dir = new File(&quot;/etc/rc.d&quot;);</span>
+<span class="nc" id="L229">        File dir = new File(&quot;/etc/rc.d&quot;);</span>
         File[] listFiles;
-<span class="nc bnc" id="L217" title="All 6 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory() &amp;&amp; (listFiles = dir.listFiles()) != null) {</span>
-<span class="nc bnc" id="L218" title="All 2 branches missed.">            for (File f : listFiles) {</span>
-<span class="nc" id="L219">                String name = f.getName();</span>
-<span class="nc bnc" id="L220" title="All 2 branches missed.">                if (!running.contains(name)) {</span>
-<span class="nc" id="L221">                    OSService s = new OSService(name, 0, STOPPED);</span>
-<span class="nc" id="L222">                    services.add(s);</span>
+<span class="nc bnc" id="L231" title="All 6 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory() &amp;&amp; (listFiles = dir.listFiles()) != null) {</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">            for (File f : listFiles) {</span>
+<span class="nc" id="L233">                String name = f.getName();</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                if (!running.contains(name)) {</span>
+<span class="nc" id="L235">                    OSService s = new OSService(name, 0, STOPPED);</span>
+<span class="nc" id="L236">                    services.add(s);</span>
                 }
             }
         } else {
-<span class="nc" id="L226">            LOG.error(&quot;Directory: /etc/rc.d does not exist&quot;);</span>
+<span class="nc" id="L240">            LOG.error(&quot;Directory: /etc/rc.d does not exist&quot;);</span>
         }
-<span class="nc" id="L228">        return services;</span>
+<span class="nc" id="L242">        return services;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

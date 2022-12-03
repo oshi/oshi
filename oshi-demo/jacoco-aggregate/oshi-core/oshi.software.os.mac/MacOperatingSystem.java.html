@@ -10,6 +10,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -35,6 +36,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -49,14 +51,14 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class MacOperatingSystem extends AbstractOperatingSystem {
 
-<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);</span>
+<span class="nc" id="L54">    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);</span>
 
     public static final String MACOS_VERSIONS_PROPERTIES = &quot;oshi.macos.versions.properties&quot;;
 
     private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = &quot;/System/Library/LaunchAgents&quot;;
     private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = &quot;/System/Library/LaunchDaemons&quot;;
 
-<span class="nc" id="L59">    private int maxProc = 1024;</span>
+<span class="nc" id="L61">    private int maxProc = 1024;</span>
 
     private final String osXVersion;
     private final int major;
@@ -64,216 +66,232 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final long BOOTTIME;
     static {
-<span class="nc" id="L67">        try (CloseableTimeval tv = new CloseableTimeval()) {</span>
-<span class="nc bnc" id="L68" title="All 4 branches missed.">            if (!SysctlUtil.sysctl(&quot;kern.boottime&quot;, tv) || tv.tv_sec.longValue() == 0L) {</span>
+<span class="nc" id="L69">        try (CloseableTimeval tv = new CloseableTimeval()) {</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">            if (!SysctlUtil.sysctl(&quot;kern.boottime&quot;, tv) || tv.tv_sec.longValue() == 0L) {</span>
                 // Usually this works. If it doesn't, fall back to text parsing.
                 // Boot time will be the first consecutive string of digits.
-<span class="nc" id="L71">                BOOTTIME = ParseUtil.parseLongOrDefault(</span>
-<span class="nc" id="L72">                        ExecutingCommand.getFirstAnswer(&quot;sysctl -n kern.boottime&quot;).split(&quot;,&quot;)[0].replaceAll(&quot;\\D&quot;, &quot;&quot;),</span>
-<span class="nc" id="L73">                        System.currentTimeMillis() / 1000);</span>
+<span class="nc" id="L73">                BOOTTIME = ParseUtil.parseLongOrDefault(</span>
+<span class="nc" id="L74">                        ExecutingCommand.getFirstAnswer(&quot;sysctl -n kern.boottime&quot;).split(&quot;,&quot;)[0].replaceAll(&quot;\\D&quot;, &quot;&quot;),</span>
+<span class="nc" id="L75">                        System.currentTimeMillis() / 1000);</span>
             } else {
                 // tv now points to a 64-bit timeval structure for boot time.
                 // First 4 bytes are seconds, second 4 bytes are microseconds
                 // (we ignore)
-<span class="nc" id="L78">                BOOTTIME = tv.tv_sec.longValue();</span>
+<span class="nc" id="L80">                BOOTTIME = tv.tv_sec.longValue();</span>
             }
         }
-<span class="nc" id="L81">    }</span>
+<span class="nc" id="L83">    }</span>
 
-<span class="nc" id="L83">    public MacOperatingSystem() {</span>
-<span class="nc" id="L84">        String version = System.getProperty(&quot;os.version&quot;);</span>
-<span class="nc" id="L85">        int verMajor = ParseUtil.getFirstIntValue(version);</span>
-<span class="nc" id="L86">        int verMinor = ParseUtil.getNthIntValue(version, 2);</span>
+<span class="nc" id="L85">    public MacOperatingSystem() {</span>
+<span class="nc" id="L86">        String version = System.getProperty(&quot;os.version&quot;);</span>
+<span class="nc" id="L87">        int verMajor = ParseUtil.getFirstIntValue(version);</span>
+<span class="nc" id="L88">        int verMinor = ParseUtil.getNthIntValue(version, 2);</span>
         // Big Sur (11.x) may return 10.16
-<span class="nc bnc" id="L88" title="All 4 branches missed.">        if (verMajor == 10 &amp;&amp; verMinor &gt; 15) {</span>
-<span class="nc" id="L89">            String swVers = ExecutingCommand.getFirstAnswer(&quot;sw_vers -productVersion&quot;);</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (!swVers.isEmpty()) {</span>
-<span class="nc" id="L91">                version = swVers;</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">        if (verMajor == 10 &amp;&amp; verMinor &gt; 15) {</span>
+<span class="nc" id="L91">            String swVers = ExecutingCommand.getFirstAnswer(&quot;sw_vers -productVersion&quot;);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (!swVers.isEmpty()) {</span>
+<span class="nc" id="L93">                version = swVers;</span>
             }
-<span class="nc" id="L93">            verMajor = ParseUtil.getFirstIntValue(version);</span>
-<span class="nc" id="L94">            verMinor = ParseUtil.getNthIntValue(version, 2);</span>
+<span class="nc" id="L95">            verMajor = ParseUtil.getFirstIntValue(version);</span>
+<span class="nc" id="L96">            verMinor = ParseUtil.getNthIntValue(version, 2);</span>
         }
-<span class="nc" id="L96">        this.osXVersion = version;</span>
-<span class="nc" id="L97">        this.major = verMajor;</span>
-<span class="nc" id="L98">        this.minor = verMinor;</span>
+<span class="nc" id="L98">        this.osXVersion = version;</span>
+<span class="nc" id="L99">        this.major = verMajor;</span>
+<span class="nc" id="L100">        this.minor = verMinor;</span>
         // Set max processes
-<span class="nc" id="L100">        this.maxProc = SysctlUtil.sysctl(&quot;kern.maxproc&quot;, 0x1000);</span>
-<span class="nc" id="L101">    }</span>
+<span class="nc" id="L102">        this.maxProc = SysctlUtil.sysctl(&quot;kern.maxproc&quot;, 0x1000);</span>
+<span class="nc" id="L103">    }</span>
 
     @Override
     public String queryManufacturer() {
-<span class="nc" id="L105">        return &quot;Apple&quot;;</span>
+<span class="nc" id="L107">        return &quot;Apple&quot;;</span>
     }
 
     @Override
     public Pair&lt;String, OSVersionInfo&gt; queryFamilyVersionInfo() {
-<span class="nc bnc" id="L110" title="All 6 branches missed.">        String family = this.major &gt; 10 || (this.major == 10 &amp;&amp; this.minor &gt;= 12) ? &quot;macOS&quot;</span>
-<span class="nc" id="L111">                : System.getProperty(&quot;os.name&quot;);</span>
-<span class="nc" id="L112">        String codeName = parseCodeName();</span>
-<span class="nc" id="L113">        String buildNumber = SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;);</span>
-<span class="nc" id="L114">        return new Pair&lt;&gt;(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));</span>
+<span class="nc bnc" id="L112" title="All 6 branches missed.">        String family = this.major &gt; 10 || (this.major == 10 &amp;&amp; this.minor &gt;= 12) ? &quot;macOS&quot;</span>
+<span class="nc" id="L113">                : System.getProperty(&quot;os.name&quot;);</span>
+<span class="nc" id="L114">        String codeName = parseCodeName();</span>
+<span class="nc" id="L115">        String buildNumber = SysctlUtil.sysctl(&quot;kern.osversion&quot;, &quot;&quot;);</span>
+<span class="nc" id="L116">        return new Pair&lt;&gt;(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));</span>
     }
 
     private String parseCodeName() {
-<span class="nc" id="L118">        Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);</span>
-<span class="nc" id="L119">        String codeName = null;</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (this.major &gt; 10) {</span>
-<span class="nc" id="L121">            codeName = verProps.getProperty(Integer.toString(this.major));</span>
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        } else if (this.major == 10) {</span>
-<span class="nc" id="L123">            codeName = verProps.getProperty(this.major + &quot;.&quot; + this.minor);</span>
+<span class="nc" id="L120">        Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);</span>
+<span class="nc" id="L121">        String codeName = null;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (this.major &gt; 10) {</span>
+<span class="nc" id="L123">            codeName = verProps.getProperty(Integer.toString(this.major));</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        } else if (this.major == 10) {</span>
+<span class="nc" id="L125">            codeName = verProps.getProperty(this.major + &quot;.&quot; + this.minor);</span>
         }
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (Util.isBlank(codeName)) {</span>
-<span class="nc" id="L126">            LOG.warn(&quot;Unable to parse version {}.{} to a codename.&quot;, this.major, this.minor);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (Util.isBlank(codeName)) {</span>
+<span class="nc" id="L128">            LOG.warn(&quot;Unable to parse version {}.{} to a codename.&quot;, this.major, this.minor);</span>
         }
-<span class="nc" id="L128">        return codeName;</span>
+<span class="nc" id="L130">        return codeName;</span>
     }
 
     @Override
     protected int queryBitness(int jvmBitness) {
-<span class="nc bnc" id="L133" title="All 6 branches missed.">        if (jvmBitness == 64 || (this.major == 10 &amp;&amp; this.minor &gt; 6)) {</span>
-<span class="nc" id="L134">            return 64;</span>
+<span class="nc bnc" id="L135" title="All 6 branches missed.">        if (jvmBitness == 64 || (this.major == 10 &amp;&amp; this.minor &gt; 6)) {</span>
+<span class="nc" id="L136">            return 64;</span>
         }
-<span class="nc" id="L136">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf LONG_BIT&quot;), 32);</span>
+<span class="nc" id="L138">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;getconf LONG_BIT&quot;), 32);</span>
     }
 
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L141">        return new MacFileSystem();</span>
+<span class="nc" id="L143">        return new MacFileSystem();</span>
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-<span class="nc" id="L146">        return new MacInternetProtocolStats(isElevated());</span>
+<span class="nc" id="L148">        return new MacInternetProtocolStats(isElevated());</span>
     }
 
     @Override
     public List&lt;OSSession&gt; getSessions() {
-<span class="nc bnc" id="L151" title="All 2 branches missed.">        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryAllProcesses() {
-<span class="nc" id="L156">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L157">        int[] pids = new int[this.maxProc];</span>
-<span class="nc" id="L158">        Arrays.fill(pids, -1);</span>
-<span class="nc" id="L159">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
+<span class="nc" id="L158">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L159">        int[] pids = new int[this.maxProc];</span>
+<span class="nc" id="L160">        Arrays.fill(pids, -1);</span>
+<span class="nc" id="L161">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,</span>
                 pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
-<span class="nc bnc" id="L161" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">            if (pids[i] &gt;= 0) {</span>
-<span class="nc" id="L163">                OSProcess proc = getProcess(pids[i]);</span>
-<span class="nc bnc" id="L164" title="All 2 branches missed.">                if (proc != null) {</span>
-<span class="nc" id="L165">                    procs.add(proc);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (pids[i] &gt;= 0) {</span>
+<span class="nc" id="L165">                OSProcess proc = getProcess(pids[i]);</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                if (proc != null) {</span>
+<span class="nc" id="L167">                    procs.add(proc);</span>
                 }
             }
         }
-<span class="nc" id="L169">        return procs;</span>
+<span class="nc" id="L171">        return procs;</span>
     }
 
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L174">        OSProcess proc = new MacOSProcess(pid, this.major, this.minor, this);</span>
-<span class="nc bnc" id="L175" title="All 2 branches missed.">        return proc.getState().equals(State.INVALID) ? null : proc;</span>
+<span class="nc" id="L176">        OSProcess proc = new MacOSProcess(pid, this.major, this.minor, this);</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        return proc.getState().equals(State.INVALID) ? null : proc;</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryChildProcesses(int parentPid) {
-<span class="nc" id="L180">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
-<span class="nc" id="L181">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
-<span class="nc" id="L182">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L182">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L183">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
+<span class="nc" id="L184">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid) {
-<span class="nc" id="L187">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
-<span class="nc" id="L188">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
-<span class="nc" id="L189">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L189">        List&lt;OSProcess&gt; allProcs = queryAllProcesses();</span>
+<span class="nc" id="L190">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
+<span class="nc" id="L191">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
     public int getProcessId() {
-<span class="nc" id="L194">        return SystemB.INSTANCE.getpid();</span>
+<span class="nc" id="L196">        return SystemB.INSTANCE.getpid();</span>
     }
 
     @Override
     public int getProcessCount() {
-<span class="nc" id="L199">        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;</span>
+<span class="nc" id="L201">        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;</span>
+    }
+
+    @Override
+    public int getThreadId() {
+<span class="nc" id="L206">        OSThread thread = getCurrentThread();</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (thread == null) {</span>
+<span class="nc" id="L208">            return 0;</span>
+        }
+<span class="nc" id="L210">        return thread.getThreadId();</span>
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        // Get oldest thread
+<span class="nc" id="L216">        return getCurrentProcess().getThreadDetails().stream().sorted(Comparator.comparingLong(OSThread::getStartTime))</span>
+<span class="nc" id="L217">                .findFirst().orElse(new MacOSThread(getProcessId()));</span>
     }
 
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
         // allocating array space
-<span class="nc" id="L206">        int[] pids = new int[getProcessCount() + 10];</span>
-<span class="nc" id="L207">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
+<span class="nc" id="L224">        int[] pids = new int[getProcessCount() + 10];</span>
+<span class="nc" id="L225">        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)</span>
                 / SystemB.INT_SIZE;
-<span class="nc" id="L209">        int numberOfThreads = 0;</span>
-<span class="nc" id="L210">        try (CloseableProcTaskInfo taskInfo = new CloseableProcTaskInfo()) {</span>
-<span class="nc bnc" id="L211" title="All 2 branches missed.">            for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
-<span class="nc" id="L212">                int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo,</span>
-<span class="nc" id="L213">                        taskInfo.size());</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">                if (exit != -1) {</span>
-<span class="nc" id="L215">                    numberOfThreads += taskInfo.pti_threadnum;</span>
+<span class="nc" id="L227">        int numberOfThreads = 0;</span>
+<span class="nc" id="L228">        try (CloseableProcTaskInfo taskInfo = new CloseableProcTaskInfo()) {</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">            for (int i = 0; i &lt; numberOfProcesses; i++) {</span>
+<span class="nc" id="L230">                int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo,</span>
+<span class="nc" id="L231">                        taskInfo.size());</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">                if (exit != -1) {</span>
+<span class="nc" id="L233">                    numberOfThreads += taskInfo.pti_threadnum;</span>
                 }
             }
         }
-<span class="nc" id="L219">        return numberOfThreads;</span>
+<span class="nc" id="L237">        return numberOfThreads;</span>
     }
 
     @Override
     public long getSystemUptime() {
-<span class="nc" id="L224">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
+<span class="nc" id="L242">        return System.currentTimeMillis() / 1000 - BOOTTIME;</span>
     }
 
     @Override
     public long getSystemBootTime() {
-<span class="nc" id="L229">        return BOOTTIME;</span>
+<span class="nc" id="L247">        return BOOTTIME;</span>
     }
 
     @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L234">        return new MacNetworkParams();</span>
+<span class="nc" id="L252">        return new MacNetworkParams();</span>
     }
 
     @Override
     public List&lt;OSService&gt; getServices() {
         // Get running services
-<span class="nc" id="L240">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L241">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {</span>
-<span class="nc" id="L243">            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);</span>
-<span class="nc" id="L244">            services.add(s);</span>
-<span class="nc" id="L245">            running.add(p.getName());</span>
-<span class="nc" id="L246">        }</span>
+<span class="nc" id="L258">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L259">        Set&lt;String&gt; running = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {</span>
+<span class="nc" id="L261">            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);</span>
+<span class="nc" id="L262">            services.add(s);</span>
+<span class="nc" id="L263">            running.add(p.getName());</span>
+<span class="nc" id="L264">        }</span>
         // Get Directories for stopped services
-<span class="nc" id="L248">        ArrayList&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L249">        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);</span>
-<span class="nc bnc" id="L250" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
-<span class="nc" id="L251">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
+<span class="nc" id="L266">        ArrayList&lt;File&gt; files = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L267">        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);</span>
+<span class="nc bnc" id="L268" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
+<span class="nc" id="L269">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
         } else {
-<span class="nc" id="L253">            LOG.error(&quot;Directory: /System/Library/LaunchAgents does not exist&quot;);</span>
+<span class="nc" id="L271">            LOG.error(&quot;Directory: /System/Library/LaunchAgents does not exist&quot;);</span>
         }
-<span class="nc" id="L255">        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);</span>
-<span class="nc bnc" id="L256" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
-<span class="nc" id="L257">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
+<span class="nc" id="L273">        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);</span>
+<span class="nc bnc" id="L274" title="All 4 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory()) {</span>
+<span class="nc" id="L275">            files.addAll(Arrays.asList(dir.listFiles((f, name) -&gt; name.toLowerCase().endsWith(&quot;.plist&quot;))));</span>
         } else {
-<span class="nc" id="L259">            LOG.error(&quot;Directory: /System/Library/LaunchDaemons does not exist&quot;);</span>
+<span class="nc" id="L277">            LOG.error(&quot;Directory: /System/Library/LaunchDaemons does not exist&quot;);</span>
         }
-<span class="nc bnc" id="L261" title="All 2 branches missed.">        for (File f : files) {</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        for (File f : files) {</span>
             // remove .plist extension
-<span class="nc" id="L263">            String name = f.getName().substring(0, f.getName().length() - 6);</span>
-<span class="nc" id="L264">            int index = name.lastIndexOf('.');</span>
-<span class="nc bnc" id="L265" title="All 4 branches missed.">            String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);</span>
-<span class="nc bnc" id="L266" title="All 4 branches missed.">            if (!running.contains(name) &amp;&amp; !running.contains(shortName)) {</span>
-<span class="nc" id="L267">                OSService s = new OSService(name, 0, STOPPED);</span>
-<span class="nc" id="L268">                services.add(s);</span>
+<span class="nc" id="L281">            String name = f.getName().substring(0, f.getName().length() - 6);</span>
+<span class="nc" id="L282">            int index = name.lastIndexOf('.');</span>
+<span class="nc bnc" id="L283" title="All 4 branches missed.">            String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);</span>
+<span class="nc bnc" id="L284" title="All 4 branches missed.">            if (!running.contains(name) &amp;&amp; !running.contains(shortName)) {</span>
+<span class="nc" id="L285">                OSService s = new OSService(name, 0, STOPPED);</span>
+<span class="nc" id="L286">                services.add(s);</span>
             }
-<span class="nc" id="L270">        }</span>
-<span class="nc" id="L271">        return services;</span>
+<span class="nc" id="L288">        }</span>
+<span class="nc" id="L289">        return services;</span>
     }
 
     @Override
     public List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly) {
-<span class="nc" id="L276">        return WindowInfo.queryDesktopWindows(visibleOnly);</span>
+<span class="nc" id="L294">        return WindowInfo.queryDesktopWindows(visibleOnly);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
