@@ -254,14 +254,20 @@ public interface OperatingSystem {
     int getProcessCount();
 
     /**
-     * Gets the current thread ID (TID).
+     * Makes a best effort to get the current thread ID (TID). May not be useful in a multithreaded environment. The
+     * thread ID returned may have been short lived and no longer exist.
+     * <p>
+     * Thread IDs on macOS are not correlated with any other Operating System output.
      *
      * @return the Thread ID of the current thread if known, 0 otherwise.
      */
     int getThreadId();
 
     /**
-     * Gets the current thread.
+     * Makes a best effort to get the current thread. May not be useful in a multithreaded environment. The thread
+     * returned may have been short lived and no longer exist.
+     * <p>
+     * On macOS, returns the oldest thread in the calling process.
      *
      * @return the current thread if known; an invalid thread otherwise.
      */
