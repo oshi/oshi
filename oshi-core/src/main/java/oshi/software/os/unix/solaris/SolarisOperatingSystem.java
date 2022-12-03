@@ -30,6 +30,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.Memoizer;
@@ -176,6 +177,16 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     @Override
     public int getProcessCount() {
         return ProcessStat.getPidFiles().length;
+    }
+
+    @Override
+    public int getThreadId() {
+        return SolarisLibc.INSTANCE.thr_self();
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        return new SolarisOSThread(getProcessId(), getThreadId());
     }
 
     @Override
