@@ -1,4 +1,7 @@
-# 6.3.3 (in progress)
+# 6.4.0 (in progress)
+
+##### New Features
+* [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#2258](https://github.com/oshi/oshi/pull/2258): Ensure constant AIX processor tick count array - [@dbwiddis](https://github.com/dbwiddis).
@@ -9,7 +12,7 @@
 
 ##### New Features
 * [#2129](https://github.com/oshi/oshi/pull/2129): Added JMX demo project - [@SalvadorRomo](https://github.com/SalvadorRomo).
-* [#2197](https://github.com/oshi/oshi/issues/2197): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).
+* [#2197](https://github.com/oshi/oshi/pull/2197): Added support for Android OS - [@milan-fabian](https://github.com/milan-fabian).
 * [#2198](https://github.com/oshi/oshi/pull/2198): Added Processor Cache Information - [@dbwiddis](https://github.com/dbwiddis).
 * [#2218](https://github.com/oshi/oshi/pull/2218): Added system-wide per-process open file descriptor limits - [@gitseti](https://github.com/gitseti)
 * [#2225](https://github.com/oshi/oshi/pull/2225): Added process specific open file descriptor limits - [@gitseti](https://github.com/gitseti)
