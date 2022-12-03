@@ -85,7 +85,7 @@ class CentralProcessorTest {
         assertThat("System's load averages length for 3 elements should equal 3", p.getSystemLoadAverage(3).length,
                 is(3));
 
-        assertThat("Cpu load between ticks should equal the logical processor count", p.getLogicalProcessorCount(),
+        assertThat("Cpu load between ticks size should equal the tick array size", procTicks.length,
                 is(p.getProcessorCpuLoadBetweenTicks(procTicks).length));
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
             assertThat("Cpu number " + cpu + "'s load between ticks should be inclusively between 0 and 1",
@@ -100,12 +100,12 @@ class CentralProcessorTest {
 
     @Test
     void testDelayTicks() {
+        long[][] procTicks = p.getProcessorCpuLoadTicks();
         assertThat("System's cpu load should be inclusively between 0 and 1", p.getSystemCpuLoad(500),
                 is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));
 
         double[] procCpuLoad = p.getProcessorCpuLoad(500);
-        assertThat("Cpu load array size should equal the logical processor count", p.getLogicalProcessorCount(),
-                is(procCpuLoad.length));
+        assertThat("Cpu load array size should equal the tick array size", procTicks.length, is(procCpuLoad.length));
         for (int cpu = 0; cpu < p.getLogicalProcessorCount(); cpu++) {
             assertThat("Cpu number " + cpu + "'s load should be inclusively between 0 and 1", procCpuLoad[cpu],
                     is(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(1d))));
