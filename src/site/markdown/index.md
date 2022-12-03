@@ -10,10 +10,6 @@ It does not require the installation of any additional native libraries and aims
 cross-platform implementation to retrieve system information, such as OS version, processes,
 memory and CPU usage, disks and partitions, devices, sensors, etc.
 
-[![codecov](https://codecov.io/gh/opensearch-project/opensearch-sdk-java/branch/main/graph/badge.svg)](https://codecov.io/gh/opensearch-project/opensearch-sdk-java)
-[![GHA gradle check](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/build.yml/badge.svg)](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/build.yml)
-[![GHA validate pull request](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/wrapper.yml/badge.svg)](https://github.com/opensearch-project/opensearch-sdk-java/actions/workflows/wrapper.yml)
-
 - [Supported Platforms](#supported-platforms)
 - [Downloads and Dependency Management](#downloads-and-dependency-management)
 - [Documentation](#documentation)
