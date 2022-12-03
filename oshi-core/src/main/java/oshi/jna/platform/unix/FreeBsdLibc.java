@@ -9,6 +9,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.ptr.NativeLongByReference;
 
 /**
  * C library. This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA
@@ -95,4 +96,14 @@ public interface FreeBsdLibc extends CLibrary {
      * @return a {@link FreeBsdUtmpx} on success, and NULL on failure (which includes the "record not found" case)
      */
     FreeBsdUtmpx getutxent();
+
+    /**
+     * Stores the system-wide thread identifier for the current kernel-scheduled thread in the variable pointed by the
+     * argument id.
+     *
+     * @param id The thread identifier is an integer in the range from PID_MAX + 2 (100001) to INT_MAX. The thread
+     *           identifier is guaranteed to be unique at any given time, for each running thread in the system.
+     * @return If successful, returns zero, otherwise -1 is returned, and errno is set to indicate the error.
+     */
+    int thr_self(NativeLongByReference id);
 }

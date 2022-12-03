@@ -34,6 +34,10 @@ public class MacOSThread extends AbstractOSThread {
         this.priority = priority;
     }
 
+    public MacOSThread(int processId) {
+        this(processId, 0, State.INVALID, 0L, 0L, 0L, 0L, 0);
+    }
+
     @Override
     public int getThreadId() {
         return threadId;

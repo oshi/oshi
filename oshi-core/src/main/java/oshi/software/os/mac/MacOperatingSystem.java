@@ -10,6 +10,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -35,6 +36,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -197,6 +199,22 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     @Override
     public int getProcessCount() {
         return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
+    }
+
+    @Override
+    public int getThreadId() {
+        OSThread thread = getCurrentThread();
+        if (thread == null) {
+            return 0;
+        }
+        return thread.getThreadId();
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        // Get oldest thread
+        return getCurrentProcess().getThreadDetails().stream().sorted(Comparator.comparingLong(OSThread::getStartTime))
+                .findFirst().orElse(new MacOSThread(getProcessId()));
     }
 
     @Override

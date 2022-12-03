@@ -21,17 +21,20 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.ptr.NativeLongByReference;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
-import oshi.software.os.OSProcess;
-import oshi.software.os.OSSession;
-import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.FileSystem;
-import oshi.software.os.OSService;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -155,6 +158,23 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
             return procList.size() - 1;
         }
         return 0;
+    }
+
+    @Override
+    public int getThreadId() {
+        NativeLongByReference pTid = new NativeLongByReference();
+        if (FreeBsdLibc.INSTANCE.thr_self(pTid) < 0) {
+            return 0;
+        }
+        return pTid.getValue().intValue();
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        OSProcess proc = getCurrentProcess();
+        final int tid = getThreadId();
+        return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
+                .orElse(new FreeBsdOSThread(proc.getProcessID(), tid));
     }
 
     @Override

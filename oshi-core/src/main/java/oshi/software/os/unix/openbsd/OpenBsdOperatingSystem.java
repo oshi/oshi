@@ -31,6 +31,7 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
@@ -164,6 +165,19 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
             return procList.size() - 1;
         }
         return 0;
+    }
+
+    @Override
+    public int getThreadId() {
+        return OpenBsdLibc.INSTANCE.getthrid();
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        OSProcess proc = getCurrentProcess();
+        final int tid = getThreadId();
+        return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
+                .orElse(new OpenBsdOSThread(proc.getProcessID(), tid));
     }
 
     @Override

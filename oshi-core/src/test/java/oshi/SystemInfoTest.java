@@ -299,6 +299,8 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         // current process will never be null. Other code should check for null here
         oshi.add(
                 "My PID: " + myProc.getProcessID() + " with affinity " + Long.toBinaryString(myProc.getAffinityMask()));
+        oshi.add("My TID: " + os.getThreadId() + " with details " + os.getCurrentThread());
+
         oshi.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
         List<OSProcess> procs = os.getProcesses(ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC, 5);

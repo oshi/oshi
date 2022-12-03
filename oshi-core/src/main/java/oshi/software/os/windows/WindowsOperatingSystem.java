@@ -73,6 +73,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
 import oshi.util.platform.windows.WmiUtil;
@@ -359,6 +360,19 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             }
             return perfInfo.ProcessCount.intValue();
         }
+    }
+
+    @Override
+    public int getThreadId() {
+        return Kernel32.INSTANCE.GetCurrentThreadId();
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        OSProcess proc = getCurrentProcess();
+        final int tid = getThreadId();
+        return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
+                .orElse(new WindowsOSThread(proc.getProcessID(), tid, null, null));
     }
 
     @Override

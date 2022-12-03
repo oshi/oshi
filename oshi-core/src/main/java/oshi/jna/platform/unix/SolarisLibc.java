@@ -312,4 +312,11 @@ public interface SolarisLibc extends CLibrary {
             this.tv_nsec = FileUtil.readNativeLongFromBuffer(buff);
         }
     }
+
+    /**
+     * Returns the thread ID of the calling thread.
+     *
+     * @return the thread ID of the calling thread.
+     */
+    int thr_self();
 }
