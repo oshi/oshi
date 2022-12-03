@@ -4,9 +4,9 @@
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
-* [#2258](https://github.com/oshi/oshi/pull/2258): Ensure constant AIX processor tick count array - [@dbwiddis](https://github.com/dbwiddis).
 * [#2259](https://github.com/oshi/oshi/pull/2259): Cache AIX partition list to reduce disk reads from lspv - [@dbwiddis](https://github.com/dbwiddis).
 * [#2260](https://github.com/oshi/oshi/pull/2260): Use regex to pre-filter to parseable CPU numbers for ARM Macs - [@dbwiddis](https://github.com/dbwiddis).
+* [#2262](https://github.com/oshi/oshi/pull/2262): Consistent treatment of AIX tick lengths - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 

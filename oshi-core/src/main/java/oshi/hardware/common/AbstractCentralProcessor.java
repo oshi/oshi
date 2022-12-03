@@ -228,8 +228,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                             + " arrays, each of which has " + TickType.values().length + " elements");
         }
         long[][] ticks = getProcessorCpuLoadTicks();
-        double[] load = new double[this.logicalProcessorCount];
-        for (int cpu = 0; cpu < this.logicalProcessorCount; cpu++) {
+        double[] load = new double[ticks.length];
+        for (int cpu = 0; cpu < ticks.length; cpu++) {
             long total = 0;
             for (int i = 0; i < ticks[cpu].length; i++) {
                 total += ticks[cpu][i] - oldTicks[cpu][i];
