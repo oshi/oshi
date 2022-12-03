@@ -35,13 +35,13 @@ Windows • macOS • Linux (Android) • Unix (AIX, FreeBSD, OpenBSD, Solaris)
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Version
-  * JDK8: [oshi-core-6.3.2](https://search.maven.org/artifact/com.github.oshi/oshi-core/6.3.2/jar)
-  * JPMS: [oshi-core-java11-6.3.2](https://search.maven.org/artifact/com.github.oshi/oshi-core-java11/6.3.2/jar)
+  * JDK8: [oshi-core-6.4.0](https://search.maven.org/artifact/com.github.oshi/oshi-core/6.4.0/jar)
+  * JPMS: [oshi-core-java11-6.4.0](https://search.maven.org/artifact/com.github.oshi/oshi-core-java11/6.4.0/jar)
   * JDK6: [oshi-core-3.14.0](https://search.maven.org/artifact/com.github.oshi/oshi-core/3.14.0/jar)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=6.3.3-SNAPSHOT&e=jar)
-  * JPMS: [oshi-core-java11-6.3.3-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=6.3.3-SNAPSHOT&e=jar)
+  * JDK8: [oshi-core-6.4.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=6.4.1-SNAPSHOT&e=jar)
+  * JPMS: [oshi-core-java11-6.4.1-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core-java11&v=6.4.1-SNAPSHOT&e=jar)
 
 Documentation
 -------------
