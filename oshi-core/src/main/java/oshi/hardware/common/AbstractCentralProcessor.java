@@ -203,8 +203,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public double getSystemCpuLoadBetweenTicks(long[] oldTicks) {
         if (oldTicks.length != TickType.values().length) {
-            throw new IllegalArgumentException(
-                    "Tick array " + oldTicks.length + " should have " + TickType.values().length + " elements");
+            throw new IllegalArgumentException("Provited tick array length " + oldTicks.length + " should have "
+                    + TickType.values().length + " elements");
         }
         long[] ticks = getSystemCpuLoadTicks();
         // Calculate total
@@ -222,12 +222,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     @Override
     public double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks) {
-        if (oldTicks.length != this.logicalProcessorCount || oldTicks[0].length != TickType.values().length) {
-            throw new IllegalArgumentException(
-                    "Tick array " + oldTicks.length + " should have " + this.logicalProcessorCount
-                            + " arrays, each of which has " + TickType.values().length + " elements");
-        }
         long[][] ticks = getProcessorCpuLoadTicks();
+        if (oldTicks.length != ticks.length || oldTicks[0].length != TickType.values().length) {
+            throw new IllegalArgumentException("Provided tick array length " + oldTicks.length + " should be "
+                    + ticks.length + ", each subarray having " + TickType.values().length + " elements");
+        }
         double[] load = new double[ticks.length];
         for (int cpu = 0; cpu < ticks.length; cpu++) {
             long total = 0;
