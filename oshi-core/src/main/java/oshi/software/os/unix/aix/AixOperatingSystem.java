@@ -36,6 +36,7 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -159,6 +160,19 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public int getProcessCount() {
         return procCpu.get().length;
+    }
+
+    @Override
+    public int getThreadId() {
+        return AixLibc.INSTANCE.thread_self();
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        OSProcess proc = getCurrentProcess();
+        final int tid = getThreadId();
+        return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
+                .orElse(new AixOSThread(proc.getProcessID(), tid));
     }
 
     @Override

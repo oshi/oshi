@@ -131,4 +131,11 @@ public interface AixLibc extends CLibrary {
             this.pad = FileUtil.readIntFromBuffer(buff);
         }
     }
+
+    /**
+     * Returns the caller's kernel thread ID.
+     *
+     * @return the caller's kernel thread ID.
+     */
+    int thread_self();
 }
