@@ -46,6 +46,12 @@ public class OpenBsdOSThread extends AbstractOSThread {
         updateAttributes(threadMap);
     }
 
+    public OpenBsdOSThread(int processId, int threadId) {
+        super(processId);
+        this.threadId = threadId;
+        updateAttributes();
+    }
+
     @Override
     public int getThreadId() {
         return this.threadId;
