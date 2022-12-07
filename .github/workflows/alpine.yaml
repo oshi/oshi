@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '11'
       - name: Test on Ubuntu
         uses: uraimo/run-on-arch-action@v2
         with:
@@ -33,6 +33,5 @@ jobs:
           install: |
             apt update
             apt install -y maven musl
-          run: |
-            mvn test -B -Djacoco.skip=true -Djdk.lang.Process.launchMechanism=vfork
+          run: mvn test -B -Djacoco.skip=true -Djdk.lang.Process.launchMechanism=POSIX_SPAWN
 
