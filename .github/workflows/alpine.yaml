@@ -14,7 +14,7 @@ on:
 jobs:
   testalpine:
     runs-on: ubuntu-latest
-    name: Test JDK 8
+    name: Test JDK 11
     strategy:
       fail-fast: false
       matrix:
@@ -33,5 +33,5 @@ jobs:
           install: |
             apt update
             apt install -y maven musl
-          run: mvn test -B -Djacoco.skip=true -Djdk.lang.Process.launchMechanism=POSIX_SPAWN
+          run: mvn test -B -Djacoco.skip=true -Djdk.lang.Process.launchMechanism=vfork
 
