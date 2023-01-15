@@ -1,6 +1,7 @@
 # 6.4.1 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2292](https://github.com/oshi/oshi/pull/2292): Update to JNA 5.13.0 - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
 import com.sun.jna.platform.win32.Kernel32;
@@ -63,7 +64,6 @@ import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
 import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.jna.Struct.CloseableSystemInfo;
-import oshi.jna.platform.windows.WinNT.TOKEN_ELEVATION;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -92,8 +92,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
-
-    private static final int TOKENELEVATION = 0x14;
 
     /*
      * Windows event log name
@@ -215,24 +213,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public boolean isElevated() {
-        try (CloseableHANDLEByReference hToken = new CloseableHANDLEByReference();
-                CloseableIntByReference returnLength = new CloseableIntByReference()) {
-            boolean success = Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),
-                    WinNT.TOKEN_QUERY, hToken);
-            if (!success) {
-                LOG.error("OpenProcessToken failed. Error: {}", Native.getLastError());
-                return false;
-            }
-            try (TOKEN_ELEVATION elevation = new TOKEN_ELEVATION()) {
-                if (Advapi32.INSTANCE.GetTokenInformation(hToken.getValue(), TOKENELEVATION, elevation,
-                        elevation.size(), returnLength)) {
-                    return elevation.TokenIsElevated > 0;
-                }
-            } finally {
-                Kernel32.INSTANCE.CloseHandle(hToken.getValue());
-            }
-        }
-        return false;
+        return Advapi32Util.isCurrentProcessElevated();
     }
 
     @Override
