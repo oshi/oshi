@@ -102,7 +102,7 @@
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
         <nexus-staging-plugin.version>1.6.13</nexus-staging-plugin.version>
-        <maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.2.1</maven-enforcer-plugin.version>
         <restrict-imports-enforcer-rule.version>2.1.0</restrict-imports-enforcer-rule.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.0</maven-install-plugin.version>
@@ -133,7 +133,7 @@
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <bind-api.version>2.3.3</bind-api.version>
-        <sortpom-plugin.version>3.2.0</sortpom-plugin.version>
+        <sortpom-plugin.version>3.2.1</sortpom-plugin.version>
         <spotless-plugin.version>2.31.0</spotless-plugin.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
@@ -145,7 +145,7 @@
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.22</animal-sniffer-maven-plugin.version>
-        <dependency-check-maven.version>8.0.1</dependency-check-maven.version>
+        <dependency-check-maven.version>8.0.2</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.6.0</puppycrawl.checkstyle.version>
     </properties>
 
