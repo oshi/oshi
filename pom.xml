@@ -109,7 +109,7 @@
         <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
         <maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M8</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M9</maven-surefire-plugin.version>
         <maven-fluido-skin.version>1.11.2</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
@@ -139,13 +139,13 @@
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.3.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.4.2</maven-project-info-reports-plugin.version>
-        <maven-surefire-report-plugin.version>3.0.0-M8</maven-surefire-report-plugin.version>
+        <maven-surefire-report-plugin.version>3.0.0-M9</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.0.0</taglist-maven-plugin.version>
         <versions-maven-plugin.version>2.14.2</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.22</animal-sniffer-maven-plugin.version>
-        <dependency-check-maven.version>8.0.2</dependency-check-maven.version>
+        <dependency-check-maven.version>8.1.0</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.7.0</puppycrawl.checkstyle.version>
     </properties>
 
