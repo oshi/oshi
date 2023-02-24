@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -518,6 +518,12 @@ class ParseUtilTest {
         s = "0 2-5 7";
         parsed = ParseUtil.parseHyphenatedIntList(s);
         assertThat(parsed, contains(0, 2, 3, 4, 5, 7));
+        assertThat(parsed, not(hasItems(1)));
+        assertThat(parsed, not(hasItems(6)));
+
+        s = "0, 2-5, 7-8, 9";
+        parsed = ParseUtil.parseHyphenatedIntList(s);
+        assertThat(parsed, contains(0, 2, 3, 4, 5, 7, 8, 9));
         assertThat(parsed, not(hasItems(1)));
         assertThat(parsed, not(hasItems(6)));
     }

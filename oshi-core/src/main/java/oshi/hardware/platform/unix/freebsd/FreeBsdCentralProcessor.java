@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -40,7 +40,8 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
 
-    private static final Pattern CPUMASK = Pattern.compile(".*<cpu\\s.*mask=\"(?:0x)?(\\p{XDigit}+)\".*>.*</cpu>.*");
+    private static final Pattern CPUMASK = Pattern
+            .compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\".*>.*</cpu>.*");
 
     private static final long CPTIME_SIZE;
     static {
@@ -167,6 +168,15 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
              <cpu count="2" mask="3">0, 1</cpu>
              <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
             </group>
+            ...
+        * On FreeBSD 13.1, the output may contain a csv value for the mask:
+        <groups>
+         <group level="1" cache-level="3">
+          <cpu count="8" mask="ff,0,0,0">0, 1, 2, 3, 4, 5, 6, 7</cpu>
+          <children>
+           <group level="2" cache-level="2">
+            <cpu count="2" mask="3,0,0,0">0, 1</cpu>
+            ...
         *
         * Opens with <groups>
         * <group> level 1 identifies all the processors via bitmask, should only be one
