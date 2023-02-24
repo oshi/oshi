@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -1021,8 +1021,9 @@ public final class ParseUtil {
 
     /**
      * Parse a space-delimited list of integers which include hyphenated ranges to a list of just the integers. For
-     * example, 0 1 4-7 parses to a list containing 0, 1, 4, 5, 6, and 7.
-     * Also support comma separated entries like 0, 2-5, 7-8, 9 to a list containing 0, 2, 3, 4, 5, 7, 8, 9.
+     * example, 0 1 4-7 parses to a list containing 0, 1, 4, 5, 6, and 7. Also support comma separated entries like 0,
+     * 2-5, 7-8, 9 to a list containing 0, 2, 3, 4, 5, 7, 8, 9.
+     *
      * @param str A string containing space-delimited integers or ranges of integers with a hyphen
      * @return A list of integers representing the provided range(s).
      */
