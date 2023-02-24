@@ -40,7 +40,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
 
-    private static final Pattern CPUMASK = Pattern.compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+),.*\".*>.*</cpu>.*");
+    private static final Pattern CPUMASK = Pattern.compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\".*>.*</cpu>.*");
 
     private static final long CPTIME_SIZE;
     static {
