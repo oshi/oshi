@@ -169,7 +169,6 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
              <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
             </group>
             ...
-        
         * On FreeBSD 13.1, the output may contain a csv value for the mask:
         <groups>
          <group level="1" cache-level="3">
