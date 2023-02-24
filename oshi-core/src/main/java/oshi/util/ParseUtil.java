@@ -1022,23 +1022,27 @@ public final class ParseUtil {
     /**
      * Parse a space-delimited list of integers which include hyphenated ranges to a list of just the integers. For
      * example, 0 1 4-7 parses to a list containing 0, 1, 4, 5, 6, and 7.
-     *
+     * Also support comma separated entries like 0, 2-5, 7-8, 9 to a list containing 0, 2, 3, 4, 5, 7, 8, 9.
      * @param str A string containing space-delimited integers or ranges of integers with a hyphen
      * @return A list of integers representing the provided range(s).
      */
     public static List<Integer> parseHyphenatedIntList(String str) {
         List<Integer> result = new ArrayList<>();
-        for (String s : whitespaces.split(str)) {
-            if (s.contains("-")) {
-                int first = getFirstIntValue(s);
-                int last = getNthIntValue(s, 2);
-                for (int i = first; i <= last; i++) {
-                    result.add(i);
-                }
-            } else {
-                int only = ParseUtil.parseIntOrDefault(s, -1);
-                if (only >= 0) {
-                    result.add(only);
+        String[] csvTokens = str.split(",");
+        for (String csvToken : csvTokens) {
+            csvToken = csvToken.trim();
+            for (String s : whitespaces.split(csvToken)) {
+                if (s.contains("-")) {
+                    int first = getFirstIntValue(s);
+                    int last = getNthIntValue(s, 2);
+                    for (int i = first; i <= last; i++) {
+                        result.add(i);
+                    }
+                } else {
+                    int only = ParseUtil.parseIntOrDefault(s, -1);
+                    if (only >= 0) {
+                        result.add(only);
+                    }
                 }
             }
         }
