@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#2292](https://github.com/oshi/oshi/pull/2292): Update to JNA 5.13.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#2309](https://github.com/oshi/oshi/pull/2309): Fix FreeBSD CPU count parsing - [@decketron](https://github.com/decketron).
 
 # 6.4.0 (2022-12-02)
 
