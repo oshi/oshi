@@ -4,6 +4,7 @@
 * [#2292](https://github.com/oshi/oshi/pull/2292): Update to JNA 5.13.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#2315](https://github.com/oshi/oshi/pull/2315),
 * [#2318](https://github.com/oshi/oshi/pull/2318): Fix parsing generally and for FreeBSD cpu detection - [@decketron](https://github.com/decketron).
+* [#2327](https://github.com/oshi/oshi/pull/2327): Improve Udev exception handling - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02)
 

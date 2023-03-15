@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -69,13 +69,20 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
      */
     public static final boolean HAS_UDEV;
     static {
-        Udev lib = null;
+        boolean hasUdev = false;
         try {
-            lib = Udev.INSTANCE;
-        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            // no udev
+            @SuppressWarnings("unused")
+            Udev lib = null;
+            try {
+                lib = Udev.INSTANCE;
+                hasUdev = true;
+            } catch (UnsatisfiedLinkError e) {
+                LOG.warn("Did not find udev library in operating system. Some features may not work.");
+            }
+        } catch (NoClassDefFoundError e) {
+            LOG.error("Did not find Udev class from JNA. There is likely an old JNA version on the classpath.");
         }
-        HAS_UDEV = lib != null;
+        HAS_UDEV = hasUdev;
     }
 
     /**
