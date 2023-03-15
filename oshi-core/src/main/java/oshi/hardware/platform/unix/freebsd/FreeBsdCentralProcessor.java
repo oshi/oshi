@@ -40,6 +40,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
 
+    // Capture the CSV of hex values as group(1), clients should split on ','
     private static final Pattern CPUMASK = Pattern
             .compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\".*>.*</cpu>.*");
 
@@ -198,17 +199,22 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 // Find <cpu> tag and extract bits
                 Matcher m = CPUMASK.matcher(topo);
                 if (m.matches()) {
+                    // If csv of hex values like "f,0,0,0", parse the first value
+                    String csvMatch = m.group(1);
+                    String[] csvTokens = csvMatch.split(",");
+                    String firstVal = csvTokens[0];
+
                     // Regex guarantees parsing digits so we won't get a
                     // NumberFormatException
                     switch (groupLevel) {
                     case 1:
-                        group1 = Long.parseLong(m.group(1), 16);
+                        group1 = Long.parseLong(firstVal, 16);
                         break;
                     case 2:
-                        group2.add(Long.parseLong(m.group(1), 16));
+                        group2.add(Long.parseLong(firstVal, 16));
                         break;
                     case 3:
-                        group3.add(Long.parseLong(m.group(1), 16));
+                        group3.add(Long.parseLong(firstVal, 16));
                         break;
                     default:
                         break;
