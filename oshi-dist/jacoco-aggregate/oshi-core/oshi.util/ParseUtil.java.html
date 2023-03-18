@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ParseUtil.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">ParseUtil.java</span></div><h1>ParseUtil.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -1021,28 +1021,33 @@ public final class ParseUtil {
 
     /**
      * Parse a space-delimited list of integers which include hyphenated ranges to a list of just the integers. For
-     * example, 0 1 4-7 parses to a list containing 0, 1, 4, 5, 6, and 7.
+     * example, 0 1 4-7 parses to a list containing 0, 1, 4, 5, 6, and 7. Also support comma separated entries like 0,
+     * 2-5, 7-8, 9 to a list containing 0, 2, 3, 4, 5, 7, 8, 9.
      *
      * @param str A string containing space-delimited integers or ranges of integers with a hyphen
      * @return A list of integers representing the provided range(s).
      */
     public static List&lt;Integer&gt; parseHyphenatedIntList(String str) {
-<span class="nc" id="L1030">        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L1031" title="All 2 branches missed.">        for (String s : whitespaces.split(str)) {</span>
-<span class="nc bnc" id="L1032" title="All 2 branches missed.">            if (s.contains(&quot;-&quot;)) {</span>
-<span class="nc" id="L1033">                int first = getFirstIntValue(s);</span>
-<span class="nc" id="L1034">                int last = getNthIntValue(s, 2);</span>
-<span class="nc bnc" id="L1035" title="All 2 branches missed.">                for (int i = first; i &lt;= last; i++) {</span>
-<span class="nc" id="L1036">                    result.add(i);</span>
-                }
-<span class="nc" id="L1038">            } else {</span>
-<span class="nc" id="L1039">                int only = ParseUtil.parseIntOrDefault(s, -1);</span>
-<span class="nc bnc" id="L1040" title="All 2 branches missed.">                if (only &gt;= 0) {</span>
-<span class="nc" id="L1041">                    result.add(only);</span>
+<span class="nc" id="L1031">        List&lt;Integer&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L1032">        String[] csvTokens = str.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L1033" title="All 2 branches missed.">        for (String csvToken : csvTokens) {</span>
+<span class="nc" id="L1034">            csvToken = csvToken.trim();</span>
+<span class="nc bnc" id="L1035" title="All 2 branches missed.">            for (String s : whitespaces.split(csvToken)) {</span>
+<span class="nc bnc" id="L1036" title="All 2 branches missed.">                if (s.contains(&quot;-&quot;)) {</span>
+<span class="nc" id="L1037">                    int first = getFirstIntValue(s);</span>
+<span class="nc" id="L1038">                    int last = getNthIntValue(s, 2);</span>
+<span class="nc bnc" id="L1039" title="All 2 branches missed.">                    for (int i = first; i &lt;= last; i++) {</span>
+<span class="nc" id="L1040">                        result.add(i);</span>
+                    }
+<span class="nc" id="L1042">                } else {</span>
+<span class="nc" id="L1043">                    int only = ParseUtil.parseIntOrDefault(s, -1);</span>
+<span class="nc bnc" id="L1044" title="All 2 branches missed.">                    if (only &gt;= 0) {</span>
+<span class="nc" id="L1045">                        result.add(only);</span>
+                    }
                 }
             }
         }
-<span class="nc" id="L1045">        return result;</span>
+<span class="nc" id="L1050">        return result;</span>
     }
 
     /**
@@ -1052,7 +1057,7 @@ public final class ParseUtil {
      * @return The address as an array of four bytes
      */
     public static byte[] parseIntToIP(int ip) {
-<span class="nc" id="L1055">        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(ip).array();</span>
+<span class="nc" id="L1060">        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(ip).array();</span>
     }
 
     /**
@@ -1062,11 +1067,11 @@ public final class ParseUtil {
      * @return The address as an array of sizteen bytes
      */
     public static byte[] parseIntArrayToIP(int[] ip6) {
-<span class="nc" id="L1065">        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);</span>
-<span class="nc bnc" id="L1066" title="All 2 branches missed.">        for (int i : ip6) {</span>
-<span class="nc" id="L1067">            bb.putInt(i);</span>
+<span class="nc" id="L1070">        ByteBuffer bb = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);</span>
+<span class="nc bnc" id="L1071" title="All 2 branches missed.">        for (int i : ip6) {</span>
+<span class="nc" id="L1072">            bb.putInt(i);</span>
         }
-<span class="nc" id="L1069">        return bb.array();</span>
+<span class="nc" id="L1074">        return bb.array();</span>
     }
 
     /**
@@ -1080,7 +1085,7 @@ public final class ParseUtil {
     public static int bigEndian16ToLittleEndian(int port) {
         // 20480 = 0x5000 should be 0x0050 = 80
         // 47873 = 0xBB01 should be 0x01BB = 443
-<span class="nc" id="L1083">        return port &gt;&gt; 8 &amp; 0xff | port &lt;&lt; 8 &amp; 0xff00;</span>
+<span class="nc" id="L1088">        return port &gt;&gt; 8 &amp; 0xff | port &lt;&lt; 8 &amp; 0xff00;</span>
     }
 
     /**
@@ -1092,33 +1097,33 @@ public final class ParseUtil {
      * @return A string representation of the IP address.
      */
     public static String parseUtAddrV6toIP(int[] utAddrV6) {
-<span class="nc bnc" id="L1095" title="All 2 branches missed.">        if (utAddrV6.length != 4) {</span>
-<span class="nc" id="L1096">            throw new IllegalArgumentException(&quot;ut_addr_v6 must have exactly 4 elements&quot;);</span>
+<span class="nc bnc" id="L1100" title="All 2 branches missed.">        if (utAddrV6.length != 4) {</span>
+<span class="nc" id="L1101">            throw new IllegalArgumentException(&quot;ut_addr_v6 must have exactly 4 elements&quot;);</span>
         }
         // IPv4 has only first element
-<span class="nc bnc" id="L1099" title="All 6 branches missed.">        if (utAddrV6[1] == 0 &amp;&amp; utAddrV6[2] == 0 &amp;&amp; utAddrV6[3] == 0) {</span>
+<span class="nc bnc" id="L1104" title="All 6 branches missed.">        if (utAddrV6[1] == 0 &amp;&amp; utAddrV6[2] == 0 &amp;&amp; utAddrV6[3] == 0) {</span>
             // Special case for all 0's
-<span class="nc bnc" id="L1101" title="All 2 branches missed.">            if (utAddrV6[0] == 0) {</span>
-<span class="nc" id="L1102">                return &quot;::&quot;;</span>
+<span class="nc bnc" id="L1106" title="All 2 branches missed.">            if (utAddrV6[0] == 0) {</span>
+<span class="nc" id="L1107">                return &quot;::&quot;;</span>
             }
             // Parse using InetAddress
-<span class="nc" id="L1105">            byte[] ipv4 = ByteBuffer.allocate(4).putInt(utAddrV6[0]).array();</span>
+<span class="nc" id="L1110">            byte[] ipv4 = ByteBuffer.allocate(4).putInt(utAddrV6[0]).array();</span>
             try {
-<span class="nc" id="L1107">                return InetAddress.getByAddress(ipv4).getHostAddress();</span>
-<span class="nc" id="L1108">            } catch (UnknownHostException e) {</span>
+<span class="nc" id="L1112">                return InetAddress.getByAddress(ipv4).getHostAddress();</span>
+<span class="nc" id="L1113">            } catch (UnknownHostException e) {</span>
                 // Shouldn't happen with length 4 or 16
-<span class="nc" id="L1110">                return Constants.UNKNOWN;</span>
+<span class="nc" id="L1115">                return Constants.UNKNOWN;</span>
             }
         }
         // Parse all 16 bytes
-<span class="nc" id="L1114">        byte[] ipv6 = ByteBuffer.allocate(16).putInt(utAddrV6[0]).putInt(utAddrV6[1]).putInt(utAddrV6[2])</span>
-<span class="nc" id="L1115">                .putInt(utAddrV6[3]).array();</span>
+<span class="nc" id="L1119">        byte[] ipv6 = ByteBuffer.allocate(16).putInt(utAddrV6[0]).putInt(utAddrV6[1]).putInt(utAddrV6[2])</span>
+<span class="nc" id="L1120">                .putInt(utAddrV6[3]).array();</span>
         try {
-<span class="nc" id="L1117">            return InetAddress.getByAddress(ipv6).getHostAddress()</span>
-<span class="nc" id="L1118">                    .replaceAll(&quot;((?:(?:^|:)0+\\b){2,8}):?(?!\\S*\\b\\1:0+\\b)(\\S*)&quot;, &quot;::$2&quot;);</span>
-<span class="nc" id="L1119">        } catch (UnknownHostException e) {</span>
+<span class="nc" id="L1122">            return InetAddress.getByAddress(ipv6).getHostAddress()</span>
+<span class="nc" id="L1123">                    .replaceAll(&quot;((?:(?:^|:)0+\\b){2,8}):?(?!\\S*\\b\\1:0+\\b)(\\S*)&quot;, &quot;::$2&quot;);</span>
+<span class="nc" id="L1124">        } catch (UnknownHostException e) {</span>
             // Shouldn't happen with length 4 or 16
-<span class="nc" id="L1121">            return Constants.UNKNOWN;</span>
+<span class="nc" id="L1126">            return Constants.UNKNOWN;</span>
         }
     }
 
@@ -1130,19 +1135,19 @@ public final class ParseUtil {
      * @return The corresponding int value
      */
     public static int hexStringToInt(String hexString, int defaultValue) {
-<span class="nc bnc" id="L1133" title="All 2 branches missed.">        if (hexString != null) {</span>
+<span class="nc bnc" id="L1138" title="All 2 branches missed.">        if (hexString != null) {</span>
             try {
-<span class="nc bnc" id="L1135" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
-<span class="nc" id="L1136">                    return new BigInteger(hexString.substring(2), 16).intValue();</span>
+<span class="nc bnc" id="L1140" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
+<span class="nc" id="L1141">                    return new BigInteger(hexString.substring(2), 16).intValue();</span>
                 } else {
-<span class="nc" id="L1138">                    return new BigInteger(hexString, 16).intValue();</span>
+<span class="nc" id="L1143">                    return new BigInteger(hexString, 16).intValue();</span>
                 }
-<span class="nc" id="L1140">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L1141">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
+<span class="nc" id="L1145">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L1146">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
             }
         }
         // Hex failed to parse, just return the default long
-<span class="nc" id="L1145">        return defaultValue;</span>
+<span class="nc" id="L1150">        return defaultValue;</span>
     }
 
     /**
@@ -1153,19 +1158,19 @@ public final class ParseUtil {
      * @return The corresponding long value
      */
     public static long hexStringToLong(String hexString, long defaultValue) {
-<span class="nc bnc" id="L1156" title="All 2 branches missed.">        if (hexString != null) {</span>
+<span class="nc bnc" id="L1161" title="All 2 branches missed.">        if (hexString != null) {</span>
             try {
-<span class="nc bnc" id="L1158" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
-<span class="nc" id="L1159">                    return new BigInteger(hexString.substring(2), 16).longValue();</span>
+<span class="nc bnc" id="L1163" title="All 2 branches missed.">                if (hexString.startsWith(&quot;0x&quot;)) {</span>
+<span class="nc" id="L1164">                    return new BigInteger(hexString.substring(2), 16).longValue();</span>
                 } else {
-<span class="nc" id="L1161">                    return new BigInteger(hexString, 16).longValue();</span>
+<span class="nc" id="L1166">                    return new BigInteger(hexString, 16).longValue();</span>
                 }
-<span class="nc" id="L1163">            } catch (NumberFormatException e) {</span>
-<span class="nc" id="L1164">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
+<span class="nc" id="L1168">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L1169">                LOG.trace(DEFAULT_LOG_MSG, hexString, e);</span>
             }
         }
         // Hex failed to parse, just return the default long
-<span class="nc" id="L1168">        return defaultValue;</span>
+<span class="nc" id="L1173">        return defaultValue;</span>
     }
 
     /**
@@ -1175,11 +1180,11 @@ public final class ParseUtil {
      * @return The string without the dots
      */
     public static String removeLeadingDots(String dotPrefixedStr) {
-<span class="nc" id="L1178">        int pos = 0;</span>
-<span class="nc bnc" id="L1179" title="All 4 branches missed.">        while (pos &lt; dotPrefixedStr.length() &amp;&amp; dotPrefixedStr.charAt(pos) == '.') {</span>
-<span class="nc" id="L1180">            pos++;</span>
+<span class="nc" id="L1183">        int pos = 0;</span>
+<span class="nc bnc" id="L1184" title="All 4 branches missed.">        while (pos &lt; dotPrefixedStr.length() &amp;&amp; dotPrefixedStr.charAt(pos) == '.') {</span>
+<span class="nc" id="L1185">            pos++;</span>
         }
-<span class="nc bnc" id="L1182" title="All 2 branches missed.">        return pos &lt; dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : &quot;&quot;;</span>
+<span class="nc bnc" id="L1187" title="All 2 branches missed.">        return pos &lt; dotPrefixedStr.length() ? dotPrefixedStr.substring(pos) : &quot;&quot;;</span>
     }
 
     /**
@@ -1190,24 +1195,24 @@ public final class ParseUtil {
      * @return A list of Strings between the nulls.
      */
     public static List&lt;String&gt; parseByteArrayToStrings(byte[] bytes) {
-<span class="nc" id="L1193">        List&lt;String&gt; strList = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L1194">        int start = 0;</span>
-<span class="nc" id="L1195">        int end = 0;</span>
+<span class="nc" id="L1198">        List&lt;String&gt; strList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L1199">        int start = 0;</span>
+<span class="nc" id="L1200">        int end = 0;</span>
         // Iterate characters
         do {
             // If we've reached a delimiter or the end of the array, add to list
-<span class="nc bnc" id="L1199" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
+<span class="nc bnc" id="L1204" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
                 // Zero length string means two nulls, we're done
-<span class="nc bnc" id="L1201" title="All 2 branches missed.">                if (start == end) {</span>
-<span class="nc" id="L1202">                    break;</span>
+<span class="nc bnc" id="L1206" title="All 2 branches missed.">                if (start == end) {</span>
+<span class="nc" id="L1207">                    break;</span>
                 }
                 // Otherwise add string and reset start
                 // Intentionally using platform default charset
-<span class="nc" id="L1206">                strList.add(new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
-<span class="nc" id="L1207">                start = end + 1;</span>
+<span class="nc" id="L1211">                strList.add(new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L1212">                start = end + 1;</span>
             }
-<span class="nc bnc" id="L1209" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
-<span class="nc" id="L1210">        return strList;</span>
+<span class="nc bnc" id="L1214" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
+<span class="nc" id="L1215">        return strList;</span>
     }
 
     /**
@@ -1220,29 +1225,29 @@ public final class ParseUtil {
     public static Map&lt;String, String&gt; parseByteArrayToStringMap(byte[] bytes) {
         // API does not specify any particular order of entries, but it is reasonable to
         // maintain whatever order the OS provided to the end user
-<span class="nc" id="L1223">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
-<span class="nc" id="L1224">        int start = 0;</span>
-<span class="nc" id="L1225">        int end = 0;</span>
-<span class="nc" id="L1226">        String key = null;</span>
+<span class="nc" id="L1228">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L1229">        int start = 0;</span>
+<span class="nc" id="L1230">        int end = 0;</span>
+<span class="nc" id="L1231">        String key = null;</span>
         // Iterate characters
         do {
             // If we've reached a delimiter or the end of the array, add to list
-<span class="nc bnc" id="L1230" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
+<span class="nc bnc" id="L1235" title="All 4 branches missed.">            if (end == bytes.length || bytes[end] == 0) {</span>
                 // Zero length string with no key, we're done
-<span class="nc bnc" id="L1232" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
-<span class="nc" id="L1233">                    break;</span>
+<span class="nc bnc" id="L1237" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
+<span class="nc" id="L1238">                    break;</span>
                 }
                 // Otherwise add string (possibly empty) and reset start
                 // Intentionally using platform default charset
-<span class="nc" id="L1237">                strMap.put(key, new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
-<span class="nc" id="L1238">                key = null;</span>
-<span class="nc" id="L1239">                start = end + 1;</span>
-<span class="nc bnc" id="L1240" title="All 4 branches missed.">            } else if (bytes[end] == '=' &amp;&amp; key == null) {</span>
-<span class="nc" id="L1241">                key = new String(bytes, start, end - start, StandardCharsets.UTF_8);</span>
-<span class="nc" id="L1242">                start = end + 1;</span>
+<span class="nc" id="L1242">                strMap.put(key, new String(bytes, start, end - start, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L1243">                key = null;</span>
+<span class="nc" id="L1244">                start = end + 1;</span>
+<span class="nc bnc" id="L1245" title="All 4 branches missed.">            } else if (bytes[end] == '=' &amp;&amp; key == null) {</span>
+<span class="nc" id="L1246">                key = new String(bytes, start, end - start, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L1247">                start = end + 1;</span>
             }
-<span class="nc bnc" id="L1244" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
-<span class="nc" id="L1245">        return strMap;</span>
+<span class="nc bnc" id="L1249" title="All 2 branches missed.">        } while (end++ &lt; bytes.length);</span>
+<span class="nc" id="L1250">        return strMap;</span>
     }
 
     /**
@@ -1255,29 +1260,29 @@ public final class ParseUtil {
     public static Map&lt;String, String&gt; parseCharArrayToStringMap(char[] chars) {
         // API does not specify any particular order of entries, but it is reasonable to
         // maintain whatever order the OS provided to the end user
-<span class="nc" id="L1258">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
-<span class="nc" id="L1259">        int start = 0;</span>
-<span class="nc" id="L1260">        int end = 0;</span>
-<span class="nc" id="L1261">        String key = null;</span>
+<span class="nc" id="L1263">        Map&lt;String, String&gt; strMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L1264">        int start = 0;</span>
+<span class="nc" id="L1265">        int end = 0;</span>
+<span class="nc" id="L1266">        String key = null;</span>
         // Iterate characters
         do {
             // If we've reached a delimiter or the end of the array, add to list
-<span class="nc bnc" id="L1265" title="All 4 branches missed.">            if (end == chars.length || chars[end] == 0) {</span>
+<span class="nc bnc" id="L1270" title="All 4 branches missed.">            if (end == chars.length || chars[end] == 0) {</span>
                 // Zero length string with no key, we're done
-<span class="nc bnc" id="L1267" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
-<span class="nc" id="L1268">                    break;</span>
+<span class="nc bnc" id="L1272" title="All 4 branches missed.">                if (start == end &amp;&amp; key == null) {</span>
+<span class="nc" id="L1273">                    break;</span>
                 }
                 // Otherwise add string (possibly empty) and reset start
                 // Intentionally using platform default charset
-<span class="nc" id="L1272">                strMap.put(key, new String(chars, start, end - start));</span>
-<span class="nc" id="L1273">                key = null;</span>
-<span class="nc" id="L1274">                start = end + 1;</span>
-<span class="nc bnc" id="L1275" title="All 4 branches missed.">            } else if (chars[end] == '=' &amp;&amp; key == null) {</span>
-<span class="nc" id="L1276">                key = new String(chars, start, end - start);</span>
-<span class="nc" id="L1277">                start = end + 1;</span>
+<span class="nc" id="L1277">                strMap.put(key, new String(chars, start, end - start));</span>
+<span class="nc" id="L1278">                key = null;</span>
+<span class="nc" id="L1279">                start = end + 1;</span>
+<span class="nc bnc" id="L1280" title="All 4 branches missed.">            } else if (chars[end] == '=' &amp;&amp; key == null) {</span>
+<span class="nc" id="L1281">                key = new String(chars, start, end - start);</span>
+<span class="nc" id="L1282">                start = end + 1;</span>
             }
-<span class="nc bnc" id="L1279" title="All 2 branches missed.">        } while (end++ &lt; chars.length);</span>
-<span class="nc" id="L1280">        return strMap;</span>
+<span class="nc bnc" id="L1284" title="All 2 branches missed.">        } while (end++ &lt; chars.length);</span>
+<span class="nc" id="L1285">        return strMap;</span>
     }
 
     /**
@@ -1292,27 +1297,27 @@ public final class ParseUtil {
      *         String, including excess delimiters.
      */
     public static &lt;K extends Enum&lt;K&gt;&gt; Map&lt;K, String&gt; stringToEnumMap(Class&lt;K&gt; clazz, String values, char delim) {
-<span class="nc" id="L1295">        EnumMap&lt;K, String&gt; map = new EnumMap&lt;&gt;(clazz);</span>
-<span class="nc" id="L1296">        int start = 0;</span>
-<span class="nc" id="L1297">        int len = values.length();</span>
-<span class="nc" id="L1298">        EnumSet&lt;K&gt; keys = EnumSet.allOf(clazz);</span>
-<span class="nc" id="L1299">        int keySize = keys.size();</span>
-<span class="nc bnc" id="L1300" title="All 2 branches missed.">        for (K key : keys) {</span>
+<span class="nc" id="L1300">        EnumMap&lt;K, String&gt; map = new EnumMap&lt;&gt;(clazz);</span>
+<span class="nc" id="L1301">        int start = 0;</span>
+<span class="nc" id="L1302">        int len = values.length();</span>
+<span class="nc" id="L1303">        EnumSet&lt;K&gt; keys = EnumSet.allOf(clazz);</span>
+<span class="nc" id="L1304">        int keySize = keys.size();</span>
+<span class="nc bnc" id="L1305" title="All 2 branches missed.">        for (K key : keys) {</span>
             // If this is the last enum, put the index at the end of the string, otherwise
             // put at delimiter
-<span class="nc bnc" id="L1303" title="All 2 branches missed.">            int idx = --keySize == 0 ? len : values.indexOf(delim, start);</span>
-<span class="nc bnc" id="L1304" title="All 2 branches missed.">            if (idx &gt;= 0) {</span>
-<span class="nc" id="L1305">                map.put(key, values.substring(start, idx));</span>
-<span class="nc" id="L1306">                start = idx;</span>
+<span class="nc bnc" id="L1308" title="All 2 branches missed.">            int idx = --keySize == 0 ? len : values.indexOf(delim, start);</span>
+<span class="nc bnc" id="L1309" title="All 2 branches missed.">            if (idx &gt;= 0) {</span>
+<span class="nc" id="L1310">                map.put(key, values.substring(start, idx));</span>
+<span class="nc" id="L1311">                start = idx;</span>
                 do {
-<span class="nc" id="L1308">                    start++;</span>
-<span class="nc bnc" id="L1309" title="All 4 branches missed.">                } while (start &lt; len &amp;&amp; values.charAt(start) == delim);</span>
+<span class="nc" id="L1313">                    start++;</span>
+<span class="nc bnc" id="L1314" title="All 4 branches missed.">                } while (start &lt; len &amp;&amp; values.charAt(start) == delim);</span>
             } else {
-<span class="nc" id="L1311">                map.put(key, values.substring(start));</span>
-<span class="nc" id="L1312">                break;</span>
+<span class="nc" id="L1316">                map.put(key, values.substring(start));</span>
+<span class="nc" id="L1317">                break;</span>
             }
-<span class="nc" id="L1314">        }</span>
-<span class="nc" id="L1315">        return map;</span>
+<span class="nc" id="L1319">        }</span>
+<span class="nc" id="L1320">        return map;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
