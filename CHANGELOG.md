@@ -1,12 +1,8 @@
-# 6.4.1 (in progress)
+# 6.4.2 (in progress)
 
-##### Bug fixes / Improvements
-* [#2292](https://github.com/oshi/oshi/pull/2292): Update to JNA 5.13.0 - [@dbwiddis](https://github.com/dbwiddis).
-* [#2315](https://github.com/oshi/oshi/pull/2315),
-* [#2318](https://github.com/oshi/oshi/pull/2318): Fix parsing generally and for FreeBSD cpu detection - [@decketron](https://github.com/decketron).
-* [#2327](https://github.com/oshi/oshi/pull/2327): Improve Udev exception handling - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.4.0 (2022-12-02)
+# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18)
 
 ##### New Features
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
@@ -16,6 +12,11 @@
 * [#2260](https://github.com/oshi/oshi/pull/2260): Use regex to pre-filter to parseable CPU numbers for ARM Macs - [@dbwiddis](https://github.com/dbwiddis).
 * [#2262](https://github.com/oshi/oshi/pull/2262): Consistent treatment of AIX tick lengths - [@dbwiddis](https://github.com/dbwiddis).
 * [#2264](https://github.com/oshi/oshi/pull/2264): Don't assume ticks match logical processor count - [@dbwiddis](https://github.com/dbwiddis).
+* [#2292](https://github.com/oshi/oshi/pull/2292): Update to JNA 5.13.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#2315](https://github.com/oshi/oshi/pull/2315),
+* [#2318](https://github.com/oshi/oshi/pull/2318): Fix parsing generally and for FreeBSD cpu detection - [@decketron](https://github.com/decketron).
+* [#2327](https://github.com/oshi/oshi/pull/2327): Improve Udev exception handling - [@dbwiddis](https://github.com/dbwiddis).
+* [#2329](https://github.com/oshi/oshi/pull/2329): Allow using SLF4J 1 in OSGi containers - [@mshabarov](https://github.com/mshabarov).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
