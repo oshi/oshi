@@ -1,11 +1,14 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
 
 import static oshi.util.Memoizer.memoize;
+import static oshi.util.Util.parseBIOSStrings;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
@@ -73,6 +76,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         String boardVersion = null;
         String boardSerialNumber = null;
 
+        Map<String, String> biosStrings = new HashMap<>();
+
         // $ smbios
         // ID SIZE TYPE
         // 0 87 SMB_TYPE_BIOS (BIOS Information)
@@ -130,46 +135,25 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             // Based on the smbTypeID we are processing for
             switch (smbTypeId) {
             case 0: // BIOS
-                if (checkLine.contains(vendorMarker)) {
-                    biosVendor = checkLine.split(vendorMarker)[1].trim();
-                } else if (checkLine.contains(biosVersionMarker)) {
-                    biosVersion = checkLine.split(biosVersionMarker)[1].trim();
-                } else if (checkLine.contains(biosDateMarker)) {
-                    biosDate = checkLine.split(biosDateMarker)[1].trim();
-                }
+                biosStrings = parseBIOSStrings(checkLine, smbTypeId, vendorMarker, biosVersionMarker, biosDateMarker);
                 break;
             case 1: // SYSTEM
-                if (checkLine.contains(manufacturerMarker)) {
-                    manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                } else if (checkLine.contains(productMarker)) {
-                    model = checkLine.split(productMarker)[1].trim();
-                } else if (checkLine.contains(serialNumMarker)) {
-                    serialNumber = checkLine.split(serialNumMarker)[1].trim();
-                } else if (checkLine.contains(uuidMarker)) {
-                    uuid = checkLine.split(uuidMarker)[1].trim();
-                }
+                biosStrings = parseBIOSStrings(checkLine, smbTypeId, manufacturerMarker, productMarker, serialNumMarker,
+                        uuidMarker);
                 break;
             case 2: // BASEBOARD
-                if (checkLine.contains(manufacturerMarker)) {
-                    boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                } else if (checkLine.contains(productMarker)) {
-                    boardModel = checkLine.split(productMarker)[1].trim();
-                } else if (checkLine.contains(versionMarker)) {
-                    boardVersion = checkLine.split(versionMarker)[1].trim();
-                } else if (checkLine.contains(serialNumMarker)) {
-                    boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();
-                }
+                biosStrings = parseBIOSStrings(checkLine, smbTypeId, manufacturerMarker, productMarker, versionMarker,
+                        serialNumMarker);
                 break;
             default:
                 break;
             }
         }
         // If we get to end and haven't assigned, use fallback
-        if (Util.isBlank(serialNumber)) {
-            serialNumber = readSerialNumber();
+        if (!biosStrings.containsKey(serialNumMarker) || Util.isBlank(biosStrings.get(serialNumMarker))) {
+            biosStrings.put(serialNumMarker, readSerialNumber());
         }
-        return new SmbiosStrings(biosVendor, biosVersion, biosDate, manufacturer, model, serialNumber, uuid,
-                boardManufacturer, boardModel, boardVersion, boardSerialNumber);
+        return new SmbiosStrings(biosStrings);
     }
 
     private static int getSmbType(String checkLine) {
@@ -217,22 +201,66 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         private final String boardVersion;
         private final String boardSerialNumber;
 
-        private SmbiosStrings(String biosVendor, String biosVersion, String biosDate, //
-                String manufacturer, String model, String serialNumber, String uuid, //
-                String boardManufacturer, String boardModel, String boardVersion, String boardSerialNumber) {
-            this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;
-            this.biosVersion = Util.isBlank(biosVersion) ? Constants.UNKNOWN : biosVersion;
-            this.biosDate = Util.isBlank(biosDate) ? Constants.UNKNOWN : biosDate;
+        private SmbiosStrings(Map<String, String> biosStrings) {
+            final String vendorMarker = "Vendor:";
+            final String biosDateMarker = "Release Date:";
+            final String biosVersionMarker = "VersionString:";
 
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-            this.uuid = Util.isBlank(uuid) ? Constants.UNKNOWN : uuid;
+            final String manufacturerMarker = "Manufacturer:";
+            final String productMarker = "Product:";
+            final String serialNumMarker = "Serial Number:";
+            final String uuidMarker = "UUID:";
+            final String versionMarker = "Version:";
 
-            this.boardManufacturer = Util.isBlank(boardManufacturer) ? Constants.UNKNOWN : boardManufacturer;
-            this.boardModel = Util.isBlank(boardModel) ? Constants.UNKNOWN : boardModel;
-            this.boardVersion = Util.isBlank(boardVersion) ? Constants.UNKNOWN : boardVersion;
-            this.boardSerialNumber = Util.isBlank(boardSerialNumber) ? Constants.UNKNOWN : boardSerialNumber;
+            this.biosVendor = !biosStrings.containsKey(vendorMarker) || Util.isBlank(biosStrings.get(vendorMarker))
+                    ? Constants.UNKNOWN
+                    : biosStrings.get(vendorMarker);
+            this.biosVersion = !biosStrings.containsKey(biosVersionMarker)
+                    || Util.isBlank(biosStrings.get(biosVersionMarker)) ? Constants.UNKNOWN
+                            : biosStrings.get(biosVersionMarker);
+            this.biosDate = !biosStrings.containsKey(biosDateMarker) || Util.isBlank(biosStrings.get(biosDateMarker))
+                    ? Constants.UNKNOWN
+                    : biosStrings.get(biosDateMarker);
+            this.uuid = !biosStrings.containsKey(uuidMarker) || Util.isBlank(biosStrings.get(uuidMarker))
+                    ? Constants.UNKNOWN
+                    : biosStrings.get(uuidMarker);
+            this.boardVersion = !biosStrings.containsKey(versionMarker) || Util.isBlank(biosStrings.get(versionMarker))
+                    ? Constants.UNKNOWN
+                    : biosStrings.get(versionMarker);
+            if (biosStrings.get("smbTypeId") == "1") {
+                this.manufacturer = !biosStrings.containsKey(manufacturerMarker)
+                        || Util.isBlank(biosStrings.get(manufacturerMarker)) ? Constants.UNKNOWN
+                                : biosStrings.get(manufacturerMarker);
+                this.model = !biosStrings.containsKey(productMarker) || Util.isBlank(biosStrings.get(productMarker))
+                        ? Constants.UNKNOWN
+                        : biosStrings.get(productMarker);
+                this.serialNumber = !biosStrings.containsKey(serialNumMarker)
+                        || Util.isBlank(biosStrings.get(serialNumMarker)) ? Constants.UNKNOWN
+                                : biosStrings.get(serialNumMarker);
+                this.boardManufacturer = Constants.UNKNOWN;
+                this.boardModel = Constants.UNKNOWN;
+                this.boardSerialNumber = Constants.UNKNOWN;
+            } else if (biosStrings.get("smbTypeId") == "2") {
+                this.manufacturer = Constants.UNKNOWN;
+                this.model = Constants.UNKNOWN;
+                this.serialNumber = Constants.UNKNOWN;
+                this.boardManufacturer = !biosStrings.containsKey(manufacturerMarker)
+                        || Util.isBlank(biosStrings.get(manufacturerMarker)) ? Constants.UNKNOWN
+                                : biosStrings.get(manufacturerMarker);
+                this.boardModel = !biosStrings.containsKey(productMarker)
+                        || Util.isBlank(biosStrings.get(productMarker)) ? Constants.UNKNOWN
+                                : biosStrings.get(productMarker);
+                this.boardSerialNumber = !biosStrings.containsKey(serialNumber)
+                        || Util.isBlank(biosStrings.get(serialNumber)) ? Constants.UNKNOWN
+                                : biosStrings.get(serialNumber);
+            } else {
+                this.manufacturer = Constants.UNKNOWN;
+                this.model = Constants.UNKNOWN;
+                this.serialNumber = Constants.UNKNOWN;
+                this.boardManufacturer = Constants.UNKNOWN;
+                this.boardModel = Constants.UNKNOWN;
+                this.boardSerialNumber = Constants.UNKNOWN;
+            }
         }
     }
 }

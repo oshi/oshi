@@ -98,4 +98,23 @@ public final class Util {
     public static boolean isSessionInvalid(String user, String device, Long loginTime) {
         return user.isEmpty() || device.isEmpty() || loginTime < 0 || loginTime > System.currentTimeMillis();
     }
+
+    /**
+     * Tests if session of a user logged in a device is valid or not.
+     *
+     * @param checkLine The line received by running the bios command
+     * @param smbTypeId The smbTypeID fetched
+     * @param param     contains the biosStrings data to be fetched for
+     * @return True if the user of device is empty or the login time is lesser than zero or greater than current time.
+     */
+    public static Map<String, String> parseBIOSStrings(String checkLine, Integer smbTypeId, String... param) {
+        Map<String, String> biosStrings = new HashMap<>();
+        biosStrings.put("smbTypeId", smbTypeId.toString());
+        for (int i = 0; i < param.length; i++) {
+            if (checkLine.contains(param[i])) {
+                biosStrings.put(param[i], checkLine.split(param[i])[1].trim());
+            }
+        }
+        return biosStrings;
+    }
 }
