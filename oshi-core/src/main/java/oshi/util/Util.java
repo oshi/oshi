@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -11,6 +11,9 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
 import oshi.annotation.concurrent.ThreadSafe;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * General utility methods
@@ -82,5 +85,17 @@ public final class Util {
         if (p instanceof Memory) {
             ((Memory) p).close();
         }
+    }
+
+    /**
+     * Tests if session of a user logged in a device is valid or not.
+     *
+     * @param user      The user logged in
+     * @param device    The device used by user
+     * @param loginTime The login time of the user
+     * @return True if the user of device is empty or the login time is lesser than zero or greater than current time.
+     */
+    public static boolean isSessionInvalid(String user, String device, Long loginTime) {
+        return user.isEmpty() || device.isEmpty() || loginTime < 0 || loginTime > System.currentTimeMillis();
     }
 }
