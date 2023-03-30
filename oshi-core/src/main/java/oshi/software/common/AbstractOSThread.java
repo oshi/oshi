@@ -29,6 +29,11 @@ public abstract class AbstractOSThread implements OSThread {
     }
 
     @Override
+    public int getThreadId() {
+        return this.threadId;
+    }
+
+    @Override
     public int getOwningProcessId() {
         return this.owningProcessId;
     }

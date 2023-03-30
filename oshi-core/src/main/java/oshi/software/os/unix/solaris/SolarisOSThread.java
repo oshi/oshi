@@ -60,11 +60,6 @@ public class SolarisOSThread extends AbstractOSThread {
     }
 
     @Override
-    public int getThreadId() {
-        return this.threadId;
-    }
-
-    @Override
     public OSProcess.State getState() {
         return this.state;
     }

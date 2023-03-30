@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -44,11 +44,6 @@ public class WindowsOSThread extends AbstractOSThread {
         super(pid);
         this.threadId = tid;
         updateAttributes(procName, pcb);
-    }
-
-    @Override
-    public int getThreadId() {
-        return threadId;
     }
 
     @Override
