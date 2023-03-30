@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -28,7 +28,6 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public class FreeBsdOSThread extends AbstractOSThread {
 
-    private int threadId;
     private String name = "";
     private OSProcess.State state = INVALID;
     private long minorFaults;

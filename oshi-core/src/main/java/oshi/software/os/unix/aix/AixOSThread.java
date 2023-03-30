@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -16,7 +16,6 @@ import oshi.software.os.OSProcess;
 @ThreadSafe
 public class AixOSThread extends AbstractOSThread {
 
-    private int threadId;
     private OSProcess.State state = OSProcess.State.INVALID;
     private long startMemoryAddress;
     private long contextSwitches;

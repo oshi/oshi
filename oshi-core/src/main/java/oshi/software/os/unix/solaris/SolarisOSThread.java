@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
@@ -30,7 +30,7 @@ public class SolarisOSThread extends AbstractOSThread {
     private Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private String name;
-    private int threadId;
+
     private OSProcess.State state = OSProcess.State.INVALID;
     private long startMemoryAddress;
     private long contextSwitches;

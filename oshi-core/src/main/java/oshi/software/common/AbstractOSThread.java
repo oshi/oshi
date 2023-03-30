@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.common;
@@ -19,6 +19,8 @@ import oshi.software.os.OSThread;
 public abstract class AbstractOSThread implements OSThread {
 
     private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad, defaultExpiration());
+
+    protected int threadId;
 
     private final int owningProcessId;
 
