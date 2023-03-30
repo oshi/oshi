@@ -52,11 +52,6 @@ public class OpenBsdOSThread extends AbstractOSThread {
     }
 
     @Override
-    public int getThreadId() {
-        return this.threadId;
-    }
-
-    @Override
     public String getName() {
         return this.name;
     }
