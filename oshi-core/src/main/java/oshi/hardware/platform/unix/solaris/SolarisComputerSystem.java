@@ -7,9 +7,11 @@ package oshi.hardware.platform.unix.solaris;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
@@ -251,13 +253,9 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
      * @return True if the user of device is empty or the login time is lesser than zero or greater than current time.
      */
     private static Map<String, String> parseBIOSStrings(String checkLine, int smbTypeId, String... param) {
-        Map<String, String> biosStrings = new HashMap<>();
+        Map<String, String> biosStrings = Arrays.stream(param).filter(checkLine::contains)
+                .collect(Collectors.toMap(p -> p, p -> checkLine.split(p)[1].trim()));
         biosStrings.put("smbTypeId", Integer.toString(smbTypeId));
-        for (int i = 0; i < param.length; i++) {
-            if (checkLine.contains(param[i])) {
-                biosStrings.put(param[i], checkLine.split(param[i])[1].trim());
-            }
-        }
         return biosStrings;
     }
 }
