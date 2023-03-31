@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx;
@@ -62,11 +62,11 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         this.properties = properties;
         this.contextRegistrationPlatform = platform;
 
-        this.initilizeMbeanServer();
-        this.initilizeMBeans();
+        this.initializeMbeanServer();
+        this.initializeMBeans();
     }
 
-    /* A singlenton Method just to retrive the instance of JMSOshiAgentServer */
+    /* A singleton Method just to retrieve the instance of JMSOshiAgentServer */
     protected static JMXOshiAgentServer getInstance(String host, Integer port, Map properties,
             ContextRegistrationPlatform platform) throws Exception {
         if (jmxOshiAgentServer == null) {
@@ -76,9 +76,9 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /*
-     * This method is for initilizing the connector server and bound the MBeanServer with the JMXConnector
+     * This method is for initializing the connector server and bound the MBeanServer with the JMXConnector
      */
-    private void initilizeMbeanServer() throws IOException, NotCompliantMBeanException, InstanceAlreadyExistsException,
+    private void initializeMbeanServer() throws IOException, NotCompliantMBeanException, InstanceAlreadyExistsException,
             MBeanRegistrationException, MalformedObjectNameException {
 
         if (LocateRegistry.getRegistry(this.port) != null)
@@ -92,10 +92,10 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /*
-     * This method implmenet an startegy pattern to choose wich platform is and execute the corresponding strategy for
+     * This method implement a strategy pattern to choose which platform is and execute the corresponding strategy for
      * registering the corresponding MBeans
      */
-    private void initilizeMBeans() throws Exception {
+    private void initializeMBeans() throws Exception {
 
         StrategyRegistrationPlatformMBeans platformMBeans = null;
         SystemInfo si = new SystemInfo();
