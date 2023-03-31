@@ -227,7 +227,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             this.boardVersion = !biosStrings.containsKey(versionMarker) || Util.isBlank(biosStrings.get(versionMarker))
                     ? Constants.UNKNOWN
                     : biosStrings.get(versionMarker);
-            if (biosStrings.get("smbTypeId") == "1") {
+            if ("1".equals(biosStrings.get("smbTypeId"))) {
                 this.manufacturer = !biosStrings.containsKey(manufacturerMarker)
                         || Util.isBlank(biosStrings.get(manufacturerMarker)) ? Constants.UNKNOWN
                                 : biosStrings.get(manufacturerMarker);
