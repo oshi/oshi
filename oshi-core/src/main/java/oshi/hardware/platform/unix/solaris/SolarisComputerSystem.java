@@ -271,9 +271,9 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
      * @param param     contains the biosStrings data to be fetched for
      * @return True if the user of device is empty or the login time is lesser than zero or greater than current time.
      */
-    private static Map<String, String> parseBIOSStrings(String checkLine, Integer smbTypeId, String... param) {
+    private static Map<String, String> parseBIOSStrings(String checkLine, int smbTypeId, String... param) {
         Map<String, String> biosStrings = new HashMap<>();
-        biosStrings.put("smbTypeId", smbTypeId.toString());
+        biosStrings.put("smbTypeId", Integer.toString(smbTypeId));
         for (int i = 0; i < param.length; i++) {
             if (checkLine.contains(param[i])) {
                 biosStrings.put(param[i], checkLine.split(param[i])[1].trim());
