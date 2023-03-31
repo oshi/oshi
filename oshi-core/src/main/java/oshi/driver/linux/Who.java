@@ -6,7 +6,7 @@ package oshi.driver.linux;
 
 import static oshi.jna.platform.unix.CLibrary.LOGIN_PROCESS;
 import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
-import static oshi.util.Util.isSessionInvalid;
+import static oshi.util.Util.isSessionValid;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public final class Who {
                     String host = ParseUtil.parseUtAddrV6toIP(ut.ut_addr_v6);
                     long loginTime = ut.ut_tv.tv_sec * 1000L + ut.ut_tv.tv_usec / 1000L;
                     // Sanity check. If errors, default to who command line
-                    if (isSessionInvalid(user, device, loginTime)) {
+                    if (!isSessionValid(user, device, loginTime)) {
                         return oshi.driver.unix.Who.queryWho();
                     }
                     whoList.add(new OSSession(user, device, loginTime, host));
