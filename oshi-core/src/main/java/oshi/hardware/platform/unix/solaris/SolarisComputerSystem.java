@@ -5,6 +5,7 @@
 package oshi.hardware.platform.unix.solaris;
 
 import static oshi.util.Memoizer.memoize;
+import static oshi.util.ParseUtil.getValueOrUnknown;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -211,31 +212,15 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             final String uuidMarker = "UUID:";
             final String versionMarker = "Version:";
 
-            this.biosVendor = !biosStrings.containsKey(vendorMarker) || Util.isBlank(biosStrings.get(vendorMarker))
-                    ? Constants.UNKNOWN
-                    : biosStrings.get(vendorMarker);
-            this.biosVersion = !biosStrings.containsKey(biosVersionMarker)
-                    || Util.isBlank(biosStrings.get(biosVersionMarker)) ? Constants.UNKNOWN
-                            : biosStrings.get(biosVersionMarker);
-            this.biosDate = !biosStrings.containsKey(biosDateMarker) || Util.isBlank(biosStrings.get(biosDateMarker))
-                    ? Constants.UNKNOWN
-                    : biosStrings.get(biosDateMarker);
-            this.uuid = !biosStrings.containsKey(uuidMarker) || Util.isBlank(biosStrings.get(uuidMarker))
-                    ? Constants.UNKNOWN
-                    : biosStrings.get(uuidMarker);
-            this.boardVersion = !biosStrings.containsKey(versionMarker) || Util.isBlank(biosStrings.get(versionMarker))
-                    ? Constants.UNKNOWN
-                    : biosStrings.get(versionMarker);
+            this.biosVendor = getValueOrUnknown(biosStrings, vendorMarker);
+            this.biosVersion = getValueOrUnknown(biosStrings, biosVersionMarker);
+            this.biosDate = getValueOrUnknown(biosStrings, biosDateMarker);
+            this.uuid = getValueOrUnknown(biosStrings, uuidMarker);
+            this.boardVersion = getValueOrUnknown(biosStrings, versionMarker);
             if ("1".equals(biosStrings.get("smbTypeId"))) {
-                this.manufacturer = !biosStrings.containsKey(manufacturerMarker)
-                        || Util.isBlank(biosStrings.get(manufacturerMarker)) ? Constants.UNKNOWN
-                                : biosStrings.get(manufacturerMarker);
-                this.model = !biosStrings.containsKey(productMarker) || Util.isBlank(biosStrings.get(productMarker))
-                        ? Constants.UNKNOWN
-                        : biosStrings.get(productMarker);
-                this.serialNumber = !biosStrings.containsKey(serialNumMarker)
-                        || Util.isBlank(biosStrings.get(serialNumMarker)) ? Constants.UNKNOWN
-                                : biosStrings.get(serialNumMarker);
+                this.manufacturer = getValueOrUnknown(biosStrings, manufacturerMarker);
+                this.model = getValueOrUnknown(biosStrings, productMarker);
+                this.serialNumber = getValueOrUnknown(biosStrings, serialNumMarker);
                 this.boardManufacturer = Constants.UNKNOWN;
                 this.boardModel = Constants.UNKNOWN;
                 this.boardSerialNumber = Constants.UNKNOWN;
@@ -243,15 +228,9 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 this.manufacturer = Constants.UNKNOWN;
                 this.model = Constants.UNKNOWN;
                 this.serialNumber = Constants.UNKNOWN;
-                this.boardManufacturer = !biosStrings.containsKey(manufacturerMarker)
-                        || Util.isBlank(biosStrings.get(manufacturerMarker)) ? Constants.UNKNOWN
-                                : biosStrings.get(manufacturerMarker);
-                this.boardModel = !biosStrings.containsKey(productMarker)
-                        || Util.isBlank(biosStrings.get(productMarker)) ? Constants.UNKNOWN
-                                : biosStrings.get(productMarker);
-                this.boardSerialNumber = !biosStrings.containsKey(serialNumber)
-                        || Util.isBlank(biosStrings.get(serialNumber)) ? Constants.UNKNOWN
-                                : biosStrings.get(serialNumber);
+                this.boardManufacturer = getValueOrUnknown(biosStrings, manufacturerMarker);
+                this.boardModel = getValueOrUnknown(biosStrings, productMarker);
+                this.boardSerialNumber = getValueOrUnknown(biosStrings, serialNumber);
             } else {
                 this.manufacturer = Constants.UNKNOWN;
                 this.model = Constants.UNKNOWN;
