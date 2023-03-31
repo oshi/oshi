@@ -90,7 +90,8 @@ public final class Util {
      * @param user      The user logged in
      * @param device    The device used by user
      * @param loginTime The login time of the user
-     * @return True if the user of device is empty or the login time is lesser than zero or greater than current time.
+     * @return True if Session is valid or False if the user of device is empty or the login time is lesser than zero or
+     *         greater than current time.
      */
     public static boolean isSessionValid(String user, String device, Long loginTime) {
         return !(user.isEmpty() || device.isEmpty() || loginTime < 0 || loginTime > System.currentTimeMillis());
