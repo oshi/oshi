@@ -12,9 +12,6 @@ import com.sun.jna.Pointer;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * General utility methods
  */
