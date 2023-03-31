@@ -4,9 +4,8 @@
  */
 package oshi.demo.jmx.api;
 
-import javax.management.MBeanServer;
 import java.io.IOException;
 
-public interface JMXOshiAgent extends MBeanServer {
+public interface JMXOshiAgent {
     public void startAgent() throws IOException;
 }
