@@ -240,7 +240,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 this.boardManufacturer = Constants.UNKNOWN;
                 this.boardModel = Constants.UNKNOWN;
                 this.boardSerialNumber = Constants.UNKNOWN;
-            } else if (biosStrings.get("smbTypeId") == "2") {
+            } else if ("2".equals(biosStrings.get("smbTypeId"))) {
                 this.manufacturer = Constants.UNKNOWN;
                 this.model = Constants.UNKNOWN;
                 this.serialNumber = Constants.UNKNOWN;
