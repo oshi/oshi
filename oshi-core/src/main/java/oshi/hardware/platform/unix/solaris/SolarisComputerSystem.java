@@ -245,12 +245,12 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
     }
 
     /**
-     * Tests if session of a user logged in a device is valid or not.
+     * Generate a map of strings parsing the BIOS Strings
      *
      * @param checkLine The line received by running the bios command
      * @param smbTypeId The smbTypeID fetched
      * @param param     contains the biosStrings data to be fetched for
-     * @return True if the user of device is empty or the login time is lesser than zero or greater than current time.
+     * @return Map of strings based on the param and smbTypeId passed in the argument.
      */
     private static Map<String, String> parseBIOSStrings(String checkLine, int smbTypeId, String... param) {
         Map<String, String> biosStrings = Arrays.stream(param).filter(checkLine::contains)
