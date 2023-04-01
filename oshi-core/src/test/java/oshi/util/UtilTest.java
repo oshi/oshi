@@ -59,4 +59,13 @@ class UtilTest {
         assertThat("unknown should be unknown", Util.isBlankOrUnknown(Constants.UNKNOWN), is(true));
         assertThat("\"Not blank\" should not be Blank", Util.isBlankOrUnknown("Not blank"), is(false));
     }
+
+    @Test
+    void testIsSessionValid() {
+        assertThat("Session is invalid because user is empty",Util.isSessionValid("", "device", (long)0), is( false));
+        assertThat("Session is invalid because device is empty",Util.isSessionValid("user", "", (long)0), is( false));
+        assertThat("Session is invalid because loginTime is greater than current system time",Util.isSessionValid("user", "device", Long.MAX_VALUE), is( false));
+        assertThat("Session is invalid because loginTime is lesser than zero",Util.isSessionValid("user", "device", Long.MIN_VALUE), is( false));
+        assertThat("Session is valid because all the arguments are appropriate",Util.isSessionValid("user", "device", (long)999999999), is( true));
+    }
 }

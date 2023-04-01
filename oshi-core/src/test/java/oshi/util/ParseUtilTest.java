@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -739,5 +740,15 @@ class ParseUtilTest {
         String empty = "";
         map = ParseUtil.stringToEnumMap(TestEnum.class, empty, ',');
         assertThat(map.get(TestEnum.FOO), is(""));
+    }
+
+    @Test
+    void testgetValueOrUnknown() {
+        String key = "key";
+        Map<String, String> map = new HashMap<>();
+        assertThat(ParseUtil.getValueOrUnknown(map, key), is(Constants.UNKNOWN));
+
+        map.put("key", "value");
+        assertThat(ParseUtil.getValueOrUnknown(map, key), is("value"));
     }
 }
