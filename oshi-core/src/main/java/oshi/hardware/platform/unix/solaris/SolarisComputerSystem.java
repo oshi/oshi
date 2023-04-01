@@ -7,9 +7,7 @@ package oshi.hardware.platform.unix.solaris;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -18,7 +16,6 @@ import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.hardware.platform.unix.UnixBaseboard;
-import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -28,6 +25,35 @@ import oshi.util.Util;
  */
 @Immutable
 final class SolarisComputerSystem extends AbstractComputerSystem {
+    private enum SMB_TYPE_ENUM {
+        /**
+         * BIOS
+         */
+        BIOS(0),
+        /**
+         * System
+         */
+        System(1),
+        /**
+         * Baseboard
+         */
+        Baseboard(2),;
+
+        private final int smbTypeId;
+
+        SMB_TYPE_ENUM(int smbTypeId) {
+            this.smbTypeId = smbTypeId;
+        }
+
+        /**
+         * Gets the index of the smbType
+         *
+         * @return the index of the current smbType
+         */
+        public Integer getIndex() {
+            return this.smbTypeId;
+        }
+    }
 
     private final Supplier<SmbiosStrings> smbiosStrings = memoize(SolarisComputerSystem::readSmbios);
 
@@ -127,7 +153,13 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         final String versionMarker = "Version:";
 
         int smbTypeId = -1;
-        // Only works with root permissions but it's all we've got
+
+        Map<Integer, List<String>> smbTypesBIOSStringsMap = new HashMap<>();
+        smbTypesBIOSStringsMap.put(SMB_TYPE_ENUM.BIOS.getIndex(), new ArrayList<>());
+        smbTypesBIOSStringsMap.put(SMB_TYPE_ENUM.System.getIndex(), new ArrayList<>());
+        smbTypesBIOSStringsMap.put(SMB_TYPE_ENUM.Baseboard.getIndex(), new ArrayList<>());
+
+//        // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("smbios")) {
             // Change the smbTypeId when hitting a new header
             if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == Integer.MAX_VALUE) {
@@ -135,27 +167,24 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 break;
             }
             // Based on the smbTypeID we are processing for
-            switch (smbTypeId) {
-            case 0: // BIOS
-                biosStrings = parseBIOSStrings(checkLine, smbTypeId, vendorMarker, biosVersionMarker, biosDateMarker);
-                break;
-            case 1: // SYSTEM
-                biosStrings = parseBIOSStrings(checkLine, smbTypeId, manufacturerMarker, productMarker, serialNumMarker,
-                        uuidMarker);
-                break;
-            case 2: // BASEBOARD
-                biosStrings = parseBIOSStrings(checkLine, smbTypeId, manufacturerMarker, productMarker, versionMarker,
-                        serialNumMarker);
-                break;
-            default:
-                break;
-            }
+            smbTypesBIOSStringsMap.get(smbTypeId).add(checkLine);
         }
+        Map<String, String> smbTypeBIOSStrings = parseBIOSStrings(
+                smbTypesBIOSStringsMap.get(SMB_TYPE_ENUM.BIOS.getIndex()), SMB_TYPE_ENUM.BIOS.getIndex(), vendorMarker,
+                biosVersionMarker, biosDateMarker);
+        Map<String, String> smbTypeSystemStrings = parseBIOSStrings(
+                smbTypesBIOSStringsMap.get(SMB_TYPE_ENUM.System.getIndex()), SMB_TYPE_ENUM.System.getIndex(),
+                manufacturerMarker, productMarker, serialNumMarker, uuidMarker);
+        Map<String, String> smbTypeBaseboardStrings = parseBIOSStrings(
+                smbTypesBIOSStringsMap.get(SMB_TYPE_ENUM.Baseboard.getIndex()), SMB_TYPE_ENUM.Baseboard.getIndex(),
+                manufacturerMarker, productMarker, versionMarker, serialNumMarker);
+
         // If we get to end and haven't assigned, use fallback
-        if (!biosStrings.containsKey(serialNumMarker) || Util.isBlank(biosStrings.get(serialNumMarker))) {
-            biosStrings.put(serialNumMarker, readSerialNumber());
+        if (!smbTypeSystemStrings.containsKey(serialNumMarker)
+                || Util.isBlank(smbTypeSystemStrings.get(serialNumMarker))) {
+            smbTypeSystemStrings.put(serialNumMarker, readSerialNumber());
         }
-        return new SmbiosStrings(biosStrings);
+        return new SmbiosStrings(smbTypeBIOSStrings, smbTypeSystemStrings, smbTypeBaseboardStrings);
     }
 
     private static int getSmbType(String checkLine) {
@@ -203,7 +232,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         private final String boardVersion;
         private final String boardSerialNumber;
 
-        private SmbiosStrings(Map<String, String> biosStrings) {
+        private SmbiosStrings(Map<String, String> smbTypeBIOSStrings, Map<String, String> smbTypeSystemStrings,
+                Map<String, String> smbTypeBaseboardStrings) {
             final String vendorMarker = "Vendor:";
             final String biosDateMarker = "Release Date:";
             final String biosVersionMarker = "VersionString:";
@@ -214,47 +244,40 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             final String uuidMarker = "UUID:";
             final String versionMarker = "Version:";
 
-            this.biosVendor = getValueOrUnknown(biosStrings, vendorMarker);
-            this.biosVersion = getValueOrUnknown(biosStrings, biosVersionMarker);
-            this.biosDate = getValueOrUnknown(biosStrings, biosDateMarker);
-            this.uuid = getValueOrUnknown(biosStrings, uuidMarker);
-            this.boardVersion = getValueOrUnknown(biosStrings, versionMarker);
-            if ("1".equals(biosStrings.get("smbTypeId"))) {
-                this.manufacturer = getValueOrUnknown(biosStrings, manufacturerMarker);
-                this.model = getValueOrUnknown(biosStrings, productMarker);
-                this.serialNumber = getValueOrUnknown(biosStrings, serialNumMarker);
-                this.boardManufacturer = Constants.UNKNOWN;
-                this.boardModel = Constants.UNKNOWN;
-                this.boardSerialNumber = Constants.UNKNOWN;
-            } else if ("2".equals(biosStrings.get("smbTypeId"))) {
-                this.manufacturer = Constants.UNKNOWN;
-                this.model = Constants.UNKNOWN;
-                this.serialNumber = Constants.UNKNOWN;
-                this.boardManufacturer = getValueOrUnknown(biosStrings, manufacturerMarker);
-                this.boardModel = getValueOrUnknown(biosStrings, productMarker);
-                this.boardSerialNumber = getValueOrUnknown(biosStrings, serialNumber);
-            } else {
-                this.manufacturer = Constants.UNKNOWN;
-                this.model = Constants.UNKNOWN;
-                this.serialNumber = Constants.UNKNOWN;
-                this.boardManufacturer = Constants.UNKNOWN;
-                this.boardModel = Constants.UNKNOWN;
-                this.boardSerialNumber = Constants.UNKNOWN;
-            }
+            this.biosVendor = getValueOrUnknown(smbTypeBIOSStrings, vendorMarker);
+            this.biosVersion = getValueOrUnknown(smbTypeBIOSStrings, biosVersionMarker);
+            this.biosDate = getValueOrUnknown(smbTypeBIOSStrings, biosDateMarker);
+            this.manufacturer = getValueOrUnknown(smbTypeSystemStrings, manufacturerMarker);
+            this.model = getValueOrUnknown(smbTypeSystemStrings, productMarker);
+            this.serialNumber = getValueOrUnknown(smbTypeSystemStrings, serialNumMarker);
+            this.uuid = getValueOrUnknown(smbTypeSystemStrings, uuidMarker);
+            this.boardManufacturer = getValueOrUnknown(smbTypeBaseboardStrings, manufacturerMarker);
+            this.boardModel = getValueOrUnknown(smbTypeBaseboardStrings, productMarker);
+            this.boardVersion = getValueOrUnknown(smbTypeBaseboardStrings, versionMarker);
+            this.boardSerialNumber = getValueOrUnknown(smbTypeBaseboardStrings, serialNumMarker);
         }
     }
 
     /**
      * Generate a map of strings parsing the BIOS Strings
      *
-     * @param checkLine The line received by running the bios command
-     * @param smbTypeId The smbTypeID fetched
-     * @param param     contains the biosStrings data to be fetched for
+     * @param checkLines The lines received by running the bios command
+     * @param smbTypeId  The smbTypeID fetched
+     * @param param      contains the biosStrings data to be fetched for
      * @return Map of strings based on the param and smbTypeId passed in the argument.
      */
-    private static Map<String, String> parseBIOSStrings(String checkLine, int smbTypeId, String... param) {
-        Map<String, String> biosStrings = Arrays.stream(param).filter(checkLine::contains)
-                .collect(Collectors.toMap(p -> p, p -> checkLine.split(p)[1].trim()));
+    private static Map<String, String> parseBIOSStrings(List<String> checkLines, int smbTypeId, String... param) {
+//        Map<String, String> biosStrings = Arrays.stream(param).filter(checkLine::contains)
+//                .collect(Collectors.toMap(p -> p, p -> checkLine.split(p)[1].trim()));
+//        Map<String, String> biosStrings = checkLines.stream()
+//            .filter(line -> Arrays.stream(param).anyMatch(line::startsWith))
+//            .collect(Collectors.toMap(
+//                s -> s.substring(0, s.indexOf(":")).trim(),
+//                s -> s.substring(s.indexOf(":") + 1).trim()));
+        Map<String, String> biosStrings = Arrays.stream(param)
+                .filter(key -> checkLines.stream().anyMatch(line -> line.startsWith(key)))
+                .collect(Collectors.toMap(s -> s.substring(0, s.indexOf(":")).trim(),
+                        s -> s.substring(s.indexOf(":") + 1).trim(), (oldValue, newValue) -> newValue));
         biosStrings.put("smbTypeId", Integer.toString(smbTypeId));
         return biosStrings;
     }
