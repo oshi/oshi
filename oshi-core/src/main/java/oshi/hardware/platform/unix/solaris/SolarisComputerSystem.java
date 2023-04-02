@@ -4,6 +4,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.*;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
@@ -112,16 +113,16 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         // ID SIZE TYPE
         // 3 .... <snip> ...
 
-        final String serialNumMarker = "Serial Number:";
+        final String serialNumMarker = "Serial Number";
 
         SmbType smbTypeId = null;
 
         EnumMap<SmbType, Map<String, String>> smbTypesMap = new EnumMap<>(SmbType.class);
-        smbTypesMap.put(SmbType.SMB_TYPE_BIOS, new HashMap<>());
-        smbTypesMap.put(SmbType.SMB_TYPE_SYSTEM, new HashMap<>());
-        smbTypesMap.put(SmbType.SMB_TYPE_BASEBOARD, new HashMap<>());
+        smbTypesMap.put(SMB_TYPE_BIOS, new HashMap<>());
+        smbTypesMap.put(SMB_TYPE_SYSTEM, new HashMap<>());
+        smbTypesMap.put(SMB_TYPE_BASEBOARD, new HashMap<>());
 
-//        // Only works with root permissions but it's all we've got
+        // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("smbios")) {
             // Change the smbTypeId when hitting a new header
             if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == null) {
@@ -129,34 +130,34 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 break;
             }
             // Based on the smbTypeID we are processing for
-            if (smbTypeId != null) {
-                String key = checkLine.substring(0, checkLine.indexOf(":")).trim();
-                String val = checkLine.substring(checkLine.indexOf(":") + 1).trim();
+            Integer colonDelimiterIndex = checkLine.indexOf(":");
+            if (smbTypeId != null && colonDelimiterIndex >= 0) {
+                String key = checkLine.substring(0, colonDelimiterIndex).trim();
+                String val = checkLine.substring(colonDelimiterIndex + 1).trim();
                 smbTypesMap.get(smbTypeId).put(key, val);
             }
         }
 
+        Map<String, String> smbTypeBIOSMap = smbTypesMap.get(SMB_TYPE_BIOS);
+        Map<String, String> smbTypeSystemMap = smbTypesMap.get(SMB_TYPE_SYSTEM);
+        Map<String, String> smbTypeBaseboardMap = smbTypesMap.get(SMB_TYPE_BASEBOARD);
+
         // If we get to end and haven't assigned, use fallback
-        if (!smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).containsKey(serialNumMarker)
-                || Util.isBlank(smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).get(serialNumMarker))) {
-            smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).put(serialNumMarker, readSerialNumber());
+        if (!smbTypeSystemMap.containsKey(serialNumMarker) || Util.isBlank(smbTypeSystemMap.get(serialNumMarker))) {
+            smbTypeSystemMap.put(serialNumMarker, readSerialNumber());
         }
-        return new SmbiosStrings(smbTypesMap.get(SmbType.SMB_TYPE_BIOS), smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM),
-                smbTypesMap.get(SmbType.SMB_TYPE_BASEBOARD));
+        return new SmbiosStrings(smbTypeBIOSMap, smbTypeSystemMap, smbTypeBaseboardMap);
     }
 
     private static SmbType getSmbType(String checkLine) {
-        if (checkLine.contains("SMB_TYPE_BIOS")) {
-            return SmbType.SMB_TYPE_BIOS; // BIOS
-        } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
-            return SmbType.SMB_TYPE_SYSTEM; // SYSTEM
-        } else if (checkLine.contains("SMB_TYPE_BASEBOARD")) {
-            return SmbType.SMB_TYPE_BASEBOARD; // BASEBOARD
-        } else {
-            // First 3 SMB_TYPEs are what we need. After that no need to
-            // continue processing the output
-            return null;
+        for (SmbType smbType : SmbType.values()) {
+            if (checkLine.contains(smbType.name())) {
+                return smbType;
+            }
         }
+        // First 3 SMB_TYPEs are what we need. After that no need to
+        // continue processing the output
+        return null;
     }
 
     private static String readSerialNumber() {
@@ -192,15 +193,15 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
 
         private SmbiosStrings(Map<String, String> smbTypeBIOSStrings, Map<String, String> smbTypeSystemStrings,
                 Map<String, String> smbTypeBaseboardStrings) {
-            final String vendorMarker = "Vendor:";
-            final String biosDateMarker = "Release Date:";
-            final String biosVersionMarker = "VersionString:";
+            final String vendorMarker = "Vendor";
+            final String biosDateMarker = "Release Date";
+            final String biosVersionMarker = "VersionString";
 
-            final String manufacturerMarker = "Manufacturer:";
-            final String productMarker = "Product:";
-            final String serialNumMarker = "Serial Number:";
-            final String uuidMarker = "UUID:";
-            final String versionMarker = "Version:";
+            final String manufacturerMarker = "Manufacturer";
+            final String productMarker = "Product";
+            final String serialNumMarker = "Serial Number";
+            final String uuidMarker = "UUID";
+            final String versionMarker = "Version";
 
             this.biosVendor = getValueOrUnknown(smbTypeBIOSStrings, vendorMarker);
             this.biosVersion = getValueOrUnknown(smbTypeBIOSStrings, biosVersionMarker);
