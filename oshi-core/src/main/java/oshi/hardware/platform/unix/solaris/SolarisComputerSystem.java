@@ -7,7 +7,11 @@ package oshi.hardware.platform.unix.solaris;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -25,34 +29,19 @@ import oshi.util.Util;
  */
 @Immutable
 final class SolarisComputerSystem extends AbstractComputerSystem {
-    private enum SMB_TYPE_ENUM {
+    private enum SmbType {
         /**
          * BIOS
          */
-        BIOS(0),
+        SMB_TYPE_BIOS,
         /**
          * System
          */
-        System(1),
+        SMB_TYPE_SYSTEM,
         /**
          * Baseboard
          */
-        Baseboard(2),;
-
-        private final int smbTypeId;
-
-        SMB_TYPE_ENUM(int smbTypeId) {
-            this.smbTypeId = smbTypeId;
-        }
-
-        /**
-         * Gets the index of the smbType
-         *
-         * @return the index of the current smbType
-         */
-        public Integer getIndex() {
-            return this.smbTypeId;
-        }
+        SMB_TYPE_BASEBOARD
     }
 
     private final Supplier<SmbiosStrings> smbiosStrings = memoize(SolarisComputerSystem::readSmbios);
@@ -152,52 +141,47 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         final String uuidMarker = "UUID:";
         final String versionMarker = "Version:";
 
-        int smbTypeId = -1;
+        SmbType smbTypeId = null;
 
-        Map<Integer, List<String>> smbTypesBIOSStringsMap = new HashMap<>();
-        smbTypesBIOSStringsMap.put(SMB_TYPE_ENUM.BIOS.getIndex(), new ArrayList<>());
-        smbTypesBIOSStringsMap.put(SMB_TYPE_ENUM.System.getIndex(), new ArrayList<>());
-        smbTypesBIOSStringsMap.put(SMB_TYPE_ENUM.Baseboard.getIndex(), new ArrayList<>());
+        EnumMap<SmbType, Map<String, String>> smbTypesMap = new EnumMap<>(SmbType.class);
+        smbTypesMap.put(SmbType.SMB_TYPE_BIOS, new HashMap<>());
+        smbTypesMap.put(SmbType.SMB_TYPE_SYSTEM, new HashMap<>());
+        smbTypesMap.put(SmbType.SMB_TYPE_BASEBOARD, new HashMap<>());
 
 //        // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("smbios")) {
             // Change the smbTypeId when hitting a new header
-            if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == Integer.MAX_VALUE) {
+            if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == null) {
                 // If we get past what we need, stop iterating
                 break;
             }
             // Based on the smbTypeID we are processing for
-            smbTypesBIOSStringsMap.get(smbTypeId).add(checkLine);
+            if(smbTypeId != null) {
+                String key = checkLine.substring(0, checkLine.indexOf(":")).trim();
+                String val = checkLine.substring(checkLine.indexOf(":") + 1).trim();
+                smbTypesMap.get(smbTypeId).put(key, val);
+            }
         }
-        Map<String, String> smbTypeBIOSStrings = parseBIOSStrings(
-                smbTypesBIOSStringsMap.get(SMB_TYPE_ENUM.BIOS.getIndex()), SMB_TYPE_ENUM.BIOS.getIndex(), vendorMarker,
-                biosVersionMarker, biosDateMarker);
-        Map<String, String> smbTypeSystemStrings = parseBIOSStrings(
-                smbTypesBIOSStringsMap.get(SMB_TYPE_ENUM.System.getIndex()), SMB_TYPE_ENUM.System.getIndex(),
-                manufacturerMarker, productMarker, serialNumMarker, uuidMarker);
-        Map<String, String> smbTypeBaseboardStrings = parseBIOSStrings(
-                smbTypesBIOSStringsMap.get(SMB_TYPE_ENUM.Baseboard.getIndex()), SMB_TYPE_ENUM.Baseboard.getIndex(),
-                manufacturerMarker, productMarker, versionMarker, serialNumMarker);
 
         // If we get to end and haven't assigned, use fallback
-        if (!smbTypeSystemStrings.containsKey(serialNumMarker)
-                || Util.isBlank(smbTypeSystemStrings.get(serialNumMarker))) {
-            smbTypeSystemStrings.put(serialNumMarker, readSerialNumber());
+        if (!smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).containsKey(serialNumMarker)
+                || Util.isBlank(smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).get(serialNumMarker))) {
+            smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).put(serialNumMarker, readSerialNumber());
         }
-        return new SmbiosStrings(smbTypeBIOSStrings, smbTypeSystemStrings, smbTypeBaseboardStrings);
+        return new SmbiosStrings(smbTypesMap.get(SmbType.SMB_TYPE_BIOS), smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM), smbTypesMap.get(SmbType.SMB_TYPE_BASEBOARD));
     }
 
-    private static int getSmbType(String checkLine) {
+    private static SmbType getSmbType(String checkLine) {
         if (checkLine.contains("SMB_TYPE_BIOS")) {
-            return 0; // BIOS
+            return SmbType.SMB_TYPE_BIOS; // BIOS
         } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
-            return 1; // SYSTEM
+            return SmbType.SMB_TYPE_SYSTEM; // SYSTEM
         } else if (checkLine.contains("SMB_TYPE_BASEBOARD")) {
-            return 2; // BASEBOARD
+            return SmbType.SMB_TYPE_BASEBOARD; // BASEBOARD
         } else {
             // First 3 SMB_TYPEs are what we need. After that no need to
             // continue processing the output
-            return Integer.MAX_VALUE;
+            return null;
         }
     }
 
