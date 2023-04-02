@@ -197,7 +197,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 Map<String, String> smbTypeBaseboardStrings) {
             final String vendorMarker = "Vendor";
             final String biosDateMarker = "Release Date";
-            final String biosVersionMarker = "VersionString";
+            final String biosVersionMarker = "Version String";
 
             final String manufacturerMarker = "Manufacturer";
             final String productMarker = "Product";
