@@ -7,13 +7,10 @@ package oshi.hardware.platform.unix.solaris;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
@@ -79,22 +76,6 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
     }
 
     private static SmbiosStrings readSmbios() {
-        String biosVendor = null;
-        String biosVersion = null;
-        String biosDate = null;
-
-        String manufacturer = null;
-        String model = null;
-        String serialNumber = null;
-        String uuid = null;
-
-        String boardManufacturer = null;
-        String boardModel = null;
-        String boardVersion = null;
-        String boardSerialNumber = null;
-
-        Map<String, String> biosStrings = new HashMap<>();
-
         // $ smbios
         // ID SIZE TYPE
         // 0 87 SMB_TYPE_BIOS (BIOS Information)
@@ -131,15 +112,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         // ID SIZE TYPE
         // 3 .... <snip> ...
 
-        final String vendorMarker = "Vendor:";
-        final String biosDateMarker = "Release Date:";
-        final String biosVersionMarker = "VersionString:";
-
-        final String manufacturerMarker = "Manufacturer:";
-        final String productMarker = "Product:";
         final String serialNumMarker = "Serial Number:";
-        final String uuidMarker = "UUID:";
-        final String versionMarker = "Version:";
 
         SmbType smbTypeId = null;
 
@@ -241,29 +214,5 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
             this.boardVersion = getValueOrUnknown(smbTypeBaseboardStrings, versionMarker);
             this.boardSerialNumber = getValueOrUnknown(smbTypeBaseboardStrings, serialNumMarker);
         }
-    }
-
-    /**
-     * Generate a map of strings parsing the BIOS Strings
-     *
-     * @param checkLines The lines received by running the bios command
-     * @param smbTypeId  The smbTypeID fetched
-     * @param param      contains the biosStrings data to be fetched for
-     * @return Map of strings based on the param and smbTypeId passed in the argument.
-     */
-    private static Map<String, String> parseBIOSStrings(List<String> checkLines, int smbTypeId, String... param) {
-//        Map<String, String> biosStrings = Arrays.stream(param).filter(checkLine::contains)
-//                .collect(Collectors.toMap(p -> p, p -> checkLine.split(p)[1].trim()));
-//        Map<String, String> biosStrings = checkLines.stream()
-//            .filter(line -> Arrays.stream(param).anyMatch(line::startsWith))
-//            .collect(Collectors.toMap(
-//                s -> s.substring(0, s.indexOf(":")).trim(),
-//                s -> s.substring(s.indexOf(":") + 1).trim()));
-        Map<String, String> biosStrings = Arrays.stream(param)
-                .filter(key -> checkLines.stream().anyMatch(line -> line.startsWith(key)))
-                .collect(Collectors.toMap(s -> s.substring(0, s.indexOf(":")).trim(),
-                        s -> s.substring(s.indexOf(":") + 1).trim(), (oldValue, newValue) -> newValue));
-        biosStrings.put("smbTypeId", Integer.toString(smbTypeId));
-        return biosStrings;
     }
 }
