@@ -1,11 +1,18 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BIOS;
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_SYSTEM;
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BASEBOARD;
 import static oshi.util.Memoizer.memoize;
+import static oshi.util.ParseUtil.getValueOrUnknown;
 
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
@@ -13,7 +20,6 @@ import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.hardware.platform.unix.UnixBaseboard;
-import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -23,6 +29,20 @@ import oshi.util.Util;
  */
 @Immutable
 final class SolarisComputerSystem extends AbstractComputerSystem {
+    public enum SmbType {
+        /**
+         * BIOS
+         */
+        SMB_TYPE_BIOS,
+        /**
+         * System
+         */
+        SMB_TYPE_SYSTEM,
+        /**
+         * Baseboard
+         */
+        SMB_TYPE_BASEBOARD
+    }
 
     private final Supplier<SmbiosStrings> smbiosStrings = memoize(SolarisComputerSystem::readSmbios);
 
@@ -59,20 +79,6 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
     }
 
     private static SmbiosStrings readSmbios() {
-        String biosVendor = null;
-        String biosVersion = null;
-        String biosDate = null;
-
-        String manufacturer = null;
-        String model = null;
-        String serialNumber = null;
-        String uuid = null;
-
-        String boardManufacturer = null;
-        String boardModel = null;
-        String boardVersion = null;
-        String boardSerialNumber = null;
-
         // $ smbios
         // ID SIZE TYPE
         // 0 87 SMB_TYPE_BIOS (BIOS Information)
@@ -109,81 +115,51 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         // ID SIZE TYPE
         // 3 .... <snip> ...
 
-        final String vendorMarker = "Vendor:";
-        final String biosDateMarker = "Release Date:";
-        final String biosVersionMarker = "VersionString:";
+        final String serialNumMarker = "Serial Number";
 
-        final String manufacturerMarker = "Manufacturer:";
-        final String productMarker = "Product:";
-        final String serialNumMarker = "Serial Number:";
-        final String uuidMarker = "UUID:";
-        final String versionMarker = "Version:";
+        SmbType smbTypeId = null;
 
-        int smbTypeId = -1;
+        EnumMap<SmbType, Map<String, String>> smbTypesMap = new EnumMap<>(SmbType.class);
+        smbTypesMap.put(SMB_TYPE_BIOS, new HashMap<>());
+        smbTypesMap.put(SMB_TYPE_SYSTEM, new HashMap<>());
+        smbTypesMap.put(SMB_TYPE_BASEBOARD, new HashMap<>());
+
         // Only works with root permissions but it's all we've got
         for (final String checkLine : ExecutingCommand.runNative("smbios")) {
             // Change the smbTypeId when hitting a new header
-            if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == Integer.MAX_VALUE) {
+            if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == null) {
                 // If we get past what we need, stop iterating
                 break;
             }
             // Based on the smbTypeID we are processing for
-            switch (smbTypeId) {
-            case 0: // BIOS
-                if (checkLine.contains(vendorMarker)) {
-                    biosVendor = checkLine.split(vendorMarker)[1].trim();
-                } else if (checkLine.contains(biosVersionMarker)) {
-                    biosVersion = checkLine.split(biosVersionMarker)[1].trim();
-                } else if (checkLine.contains(biosDateMarker)) {
-                    biosDate = checkLine.split(biosDateMarker)[1].trim();
-                }
-                break;
-            case 1: // SYSTEM
-                if (checkLine.contains(manufacturerMarker)) {
-                    manufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                } else if (checkLine.contains(productMarker)) {
-                    model = checkLine.split(productMarker)[1].trim();
-                } else if (checkLine.contains(serialNumMarker)) {
-                    serialNumber = checkLine.split(serialNumMarker)[1].trim();
-                } else if (checkLine.contains(uuidMarker)) {
-                    uuid = checkLine.split(uuidMarker)[1].trim();
-                }
-                break;
-            case 2: // BASEBOARD
-                if (checkLine.contains(manufacturerMarker)) {
-                    boardManufacturer = checkLine.split(manufacturerMarker)[1].trim();
-                } else if (checkLine.contains(productMarker)) {
-                    boardModel = checkLine.split(productMarker)[1].trim();
-                } else if (checkLine.contains(versionMarker)) {
-                    boardVersion = checkLine.split(versionMarker)[1].trim();
-                } else if (checkLine.contains(serialNumMarker)) {
-                    boardSerialNumber = checkLine.split(serialNumMarker)[1].trim();
-                }
-                break;
-            default:
-                break;
+            Integer colonDelimiterIndex = checkLine.indexOf(":");
+            if (smbTypeId != null && colonDelimiterIndex >= 0) {
+                String key = checkLine.substring(0, colonDelimiterIndex).trim();
+                String val = checkLine.substring(colonDelimiterIndex + 1).trim();
+                smbTypesMap.get(smbTypeId).put(key, val);
             }
         }
+
+        Map<String, String> smbTypeBIOSMap = smbTypesMap.get(SMB_TYPE_BIOS);
+        Map<String, String> smbTypeSystemMap = smbTypesMap.get(SMB_TYPE_SYSTEM);
+        Map<String, String> smbTypeBaseboardMap = smbTypesMap.get(SMB_TYPE_BASEBOARD);
+
         // If we get to end and haven't assigned, use fallback
-        if (Util.isBlank(serialNumber)) {
-            serialNumber = readSerialNumber();
+        if (!smbTypeSystemMap.containsKey(serialNumMarker) || Util.isBlank(smbTypeSystemMap.get(serialNumMarker))) {
+            smbTypeSystemMap.put(serialNumMarker, readSerialNumber());
         }
-        return new SmbiosStrings(biosVendor, biosVersion, biosDate, manufacturer, model, serialNumber, uuid,
-                boardManufacturer, boardModel, boardVersion, boardSerialNumber);
+        return new SmbiosStrings(smbTypeBIOSMap, smbTypeSystemMap, smbTypeBaseboardMap);
     }
 
-    private static int getSmbType(String checkLine) {
-        if (checkLine.contains("SMB_TYPE_BIOS")) {
-            return 0; // BIOS
-        } else if (checkLine.contains("SMB_TYPE_SYSTEM")) {
-            return 1; // SYSTEM
-        } else if (checkLine.contains("SMB_TYPE_BASEBOARD")) {
-            return 2; // BASEBOARD
-        } else {
-            // First 3 SMB_TYPEs are what we need. After that no need to
-            // continue processing the output
-            return Integer.MAX_VALUE;
+    private static SmbType getSmbType(String checkLine) {
+        for (SmbType smbType : SmbType.values()) {
+            if (checkLine.contains(smbType.name())) {
+                return smbType;
+            }
         }
+        // First 3 SMB_TYPEs are what we need. After that no need to
+        // continue processing the output
+        return null;
     }
 
     private static String readSerialNumber() {
@@ -217,22 +193,29 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
         private final String boardVersion;
         private final String boardSerialNumber;
 
-        private SmbiosStrings(String biosVendor, String biosVersion, String biosDate, //
-                String manufacturer, String model, String serialNumber, String uuid, //
-                String boardManufacturer, String boardModel, String boardVersion, String boardSerialNumber) {
-            this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;
-            this.biosVersion = Util.isBlank(biosVersion) ? Constants.UNKNOWN : biosVersion;
-            this.biosDate = Util.isBlank(biosDate) ? Constants.UNKNOWN : biosDate;
+        private SmbiosStrings(Map<String, String> smbTypeBIOSStrings, Map<String, String> smbTypeSystemStrings,
+                Map<String, String> smbTypeBaseboardStrings) {
+            final String vendorMarker = "Vendor";
+            final String biosDateMarker = "Release Date";
+            final String biosVersionMarker = "Version String";
 
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-            this.uuid = Util.isBlank(uuid) ? Constants.UNKNOWN : uuid;
+            final String manufacturerMarker = "Manufacturer";
+            final String productMarker = "Product";
+            final String serialNumMarker = "Serial Number";
+            final String uuidMarker = "UUID";
+            final String versionMarker = "Version";
 
-            this.boardManufacturer = Util.isBlank(boardManufacturer) ? Constants.UNKNOWN : boardManufacturer;
-            this.boardModel = Util.isBlank(boardModel) ? Constants.UNKNOWN : boardModel;
-            this.boardVersion = Util.isBlank(boardVersion) ? Constants.UNKNOWN : boardVersion;
-            this.boardSerialNumber = Util.isBlank(boardSerialNumber) ? Constants.UNKNOWN : boardSerialNumber;
+            this.biosVendor = getValueOrUnknown(smbTypeBIOSStrings, vendorMarker);
+            this.biosVersion = getValueOrUnknown(smbTypeBIOSStrings, biosVersionMarker);
+            this.biosDate = getValueOrUnknown(smbTypeBIOSStrings, biosDateMarker);
+            this.manufacturer = getValueOrUnknown(smbTypeSystemStrings, manufacturerMarker);
+            this.model = getValueOrUnknown(smbTypeSystemStrings, productMarker);
+            this.serialNumber = getValueOrUnknown(smbTypeSystemStrings, serialNumMarker);
+            this.uuid = getValueOrUnknown(smbTypeSystemStrings, uuidMarker);
+            this.boardManufacturer = getValueOrUnknown(smbTypeBaseboardStrings, manufacturerMarker);
+            this.boardModel = getValueOrUnknown(smbTypeBaseboardStrings, productMarker);
+            this.boardVersion = getValueOrUnknown(smbTypeBaseboardStrings, versionMarker);
+            this.boardSerialNumber = getValueOrUnknown(smbTypeBaseboardStrings, serialNumMarker);
         }
     }
 }

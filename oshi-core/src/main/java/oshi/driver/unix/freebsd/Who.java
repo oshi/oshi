@@ -1,11 +1,12 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.freebsd;
 
 import static oshi.jna.platform.unix.CLibrary.LOGIN_PROCESS;
 import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
+import static oshi.util.Util.isSessionValid;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public final class Who {
                     String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
                     long loginTime = ut.ut_tv.tv_sec * 1000L + ut.ut_tv.tv_usec / 1000L;
                     // Sanity check. If errors, default to who command line
-                    if (user.isEmpty() || device.isEmpty() || loginTime < 0 || loginTime > System.currentTimeMillis()) {
+                    if (!isSessionValid(user, device, loginTime)) {
                         return oshi.driver.unix.Who.queryWho();
                     }
                     whoList.add(new OSSession(user, device, loginTime, host));
