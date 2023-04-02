@@ -156,7 +156,7 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 break;
             }
             // Based on the smbTypeID we are processing for
-            if(smbTypeId != null) {
+            if (smbTypeId != null) {
                 String key = checkLine.substring(0, checkLine.indexOf(":")).trim();
                 String val = checkLine.substring(checkLine.indexOf(":") + 1).trim();
                 smbTypesMap.get(smbTypeId).put(key, val);
@@ -168,7 +168,8 @@ final class SolarisComputerSystem extends AbstractComputerSystem {
                 || Util.isBlank(smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).get(serialNumMarker))) {
             smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM).put(serialNumMarker, readSerialNumber());
         }
-        return new SmbiosStrings(smbTypesMap.get(SmbType.SMB_TYPE_BIOS), smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM), smbTypesMap.get(SmbType.SMB_TYPE_BASEBOARD));
+        return new SmbiosStrings(smbTypesMap.get(SmbType.SMB_TYPE_BIOS), smbTypesMap.get(SmbType.SMB_TYPE_SYSTEM),
+                smbTypesMap.get(SmbType.SMB_TYPE_BASEBOARD));
     }
 
     private static SmbType getSmbType(String checkLine) {
