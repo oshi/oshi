@@ -108,7 +108,7 @@
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
+        <maven-scm-publish-plugin.version>3.2.1</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
         <maven-fluido-skin.version>1.11.2</maven-fluido-skin.version>
