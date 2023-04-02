@@ -27,7 +27,7 @@ import oshi.util.Util;
  */
 @Immutable
 final class SolarisComputerSystem extends AbstractComputerSystem {
-    private enum SmbType {
+    public enum SmbType {
         /**
          * BIOS
          */
