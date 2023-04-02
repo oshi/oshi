@@ -4,7 +4,9 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.*;
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BIOS;
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_SYSTEM;
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BASEBOARD;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
