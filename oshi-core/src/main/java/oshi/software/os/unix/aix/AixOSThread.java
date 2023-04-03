@@ -27,7 +27,7 @@ public class AixOSThread extends AbstractOSThread {
 
     public AixOSThread(int pid, int tid) {
         super(pid);
-        this.threadId = tid;
+        setThreadId(tid);
         updateAttributes();
     }
 
@@ -78,7 +78,7 @@ public class AixOSThread extends AbstractOSThread {
             this.state = OSProcess.State.INVALID;
             return false;
         }
-        this.threadId = (int) lwpsinfo.pr_lwpid; // 64 bit storage but always 32 bit
+        setThreadId((int) lwpsinfo.pr_lwpid); // 64 bit storage but always 32 bit
         this.startMemoryAddress = lwpsinfo.pr_addr;
         this.state = AixOSProcess.getStateFromOutput((char) lwpsinfo.pr_sname);
         this.priority = lwpsinfo.pr_pri;

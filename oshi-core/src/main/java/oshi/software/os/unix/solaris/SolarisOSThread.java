@@ -42,7 +42,7 @@ public class SolarisOSThread extends AbstractOSThread {
 
     public SolarisOSThread(int pid, int lwpid) {
         super(pid);
-        this.threadId = lwpid;
+        setThreadId(lwpid);
         updateAttributes();
     }
 

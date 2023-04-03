@@ -20,7 +20,11 @@ public abstract class AbstractOSThread implements OSThread {
 
     private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad, defaultExpiration());
 
-    protected int threadId;
+    public void setThreadId(int threadId) {
+        this.threadId = threadId;
+    }
+
+    private int threadId;
 
     private final int owningProcessId;
 

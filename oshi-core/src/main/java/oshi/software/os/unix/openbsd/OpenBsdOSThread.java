@@ -47,7 +47,7 @@ public class OpenBsdOSThread extends AbstractOSThread {
 
     public OpenBsdOSThread(int processId, int threadId) {
         super(processId);
-        this.threadId = threadId;
+        setThreadId(threadId);
         updateAttributes();
     }
 
@@ -111,7 +111,7 @@ public class OpenBsdOSThread extends AbstractOSThread {
         String psCommand = "ps -aHwwxo " + OpenBsdOSProcess.PS_THREAD_COLUMNS + " -p " + getOwningProcessId();
         // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
-        String tidStr = Integer.toString(this.threadId);
+        String tidStr = Integer.toString(getThreadId());
         for (String psOutput : threadList) {
             Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),
                     ' ');
@@ -124,7 +124,7 @@ public class OpenBsdOSThread extends AbstractOSThread {
     }
 
     private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
-        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);
+        setThreadId(ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0));
         switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
         case 'R':
             this.state = RUNNING;
