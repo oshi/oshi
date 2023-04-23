@@ -120,7 +120,7 @@
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <junit-platform-maven-plugin.version>1.1.7</junit-platform-maven-plugin.version>
         <!-- reporting plugins -->
-        <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
+        <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
         <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
         <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
