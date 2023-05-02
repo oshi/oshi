@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        java: [11, 17, 19, 20-ea]
+        java: [11, 17, 20, 21-ea]
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
     steps:
