@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -23,16 +23,19 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.platform.mac.IOKit.IOIterator;
+import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Group;
 import com.sun.jna.platform.mac.SystemB.Passwd;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
+import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
@@ -42,6 +45,7 @@ import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
@@ -54,6 +58,33 @@ public class MacOSProcess extends AbstractOSProcess {
     private static final Logger LOG = LoggerFactory.getLogger(MacOSProcess.class);
 
     private static final int ARGMAX = SysctlUtil.sysctl("kern.argmax", 0);
+    private static final long TICKS_PER_MS;
+    static {
+        // default to 1 tick per nanosecond
+        long ticksPerSec = 1_000_000_000L;
+        IOIterator iter = IOKitUtil.getMatchingServices("IOPlatformDevice");
+        if (iter != null) {
+            IORegistryEntry cpu = iter.next();
+            while (cpu != null) {
+                try {
+                    String s = cpu.getName().toLowerCase();
+                    if (s.startsWith("cpu") && s.length() > 3) {
+                        byte[] data = cpu.getByteArrayProperty("timebase-frequency");
+                        if (data != null) {
+                            ticksPerSec = ParseUtil.byteArrayToLong(data, 4, false);
+                            break;
+                        }
+                    }
+                } finally {
+                    cpu.release();
+                }
+                cpu = iter.next();
+            }
+            iter.release();
+        }
+        // Convert to ticks per millisecond
+        TICKS_PER_MS = ticksPerSec / 1000L;
+    }
 
     private static final boolean LOG_MAC_SYSCTL_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SYSCTL_LOGWARNING,
             false);
@@ -422,8 +453,8 @@ public class MacOSProcess extends AbstractOSProcess {
             this.priority = taskAllInfo.ptinfo.pti_priority;
             this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;
             this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;
-            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / 1_000_000L;
-            this.userTime = taskAllInfo.ptinfo.pti_total_user / 1_000_000L;
+            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / TICKS_PER_MS;
+            this.userTime = taskAllInfo.ptinfo.pti_total_user / TICKS_PER_MS;
             this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;
             this.upTime = now - this.startTime;
             this.openFiles = taskAllInfo.pbsd.pbi_nfiles;

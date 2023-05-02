@@ -1,6 +1,7 @@
 # 6.4.2 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2361](https://github.com/oshi/oshi/pull/2361): Convert per-process CPU ticks on Apple Silicon to milliseconds - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18)
 
