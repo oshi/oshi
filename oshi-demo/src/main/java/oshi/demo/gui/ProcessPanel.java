@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -156,8 +156,8 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
             procArr[i][2] = p.getThreadCount();
             if (perProc.isSelected()) {
                 procArr[i][3] = String.format("%.1f",
-                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) / cpuCount);
-                procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative() / cpuCount);
+                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);
+                procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative() * cpuCount);
             } else {
                 procArr[i][3] = String.format("%.1f",
                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
