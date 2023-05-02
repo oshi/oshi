@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
@@ -33,6 +33,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -54,6 +55,8 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
         BUILD_NUMBER = split.length > 1 ? split[1] : "";
     }
 
+    private static final boolean ALLOW_KSTAT2 = GlobalConfig.get(GlobalConfig.OSHI_OS_SOLARIS_ALLOWKSTAT2, true);
+
     /**
      * This static field identifies if the kstat2 library (available in Solaris 11.4 or greater) can be loaded.
      */
@@ -61,7 +64,9 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     static {
         Kstat2 lib = null;
         try {
-            lib = Kstat2.INSTANCE;
+            if (ALLOW_KSTAT2) {
+                lib = Kstat2.INSTANCE;
+            }
         } catch (UnsatisfiedLinkError e) {
             // 11.3 or earlier, no kstat2
         }

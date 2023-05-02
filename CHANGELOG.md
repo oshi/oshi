@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#2361](https://github.com/oshi/oshi/pull/2361): Convert per-process CPU ticks on Apple Silicon to milliseconds - [@dbwiddis](https://github.com/dbwiddis).
+* [#2362](https://github.com/oshi/oshi/pull/2362): Make use of Kstat2 configurable - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18)
 
@@ -15,7 +16,7 @@
 * [#2264](https://github.com/oshi/oshi/pull/2264): Don't assume ticks match logical processor count - [@dbwiddis](https://github.com/dbwiddis).
 * [#2292](https://github.com/oshi/oshi/pull/2292): Update to JNA 5.13.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#2315](https://github.com/oshi/oshi/pull/2315),
-* [#2318](https://github.com/oshi/oshi/pull/2318): Fix parsing generally and for FreeBSD cpu detection - [@decketron](https://github.com/decketron).
+  [#2318](https://github.com/oshi/oshi/pull/2318): Fix parsing generally and for FreeBSD cpu detection - [@decketron](https://github.com/decketron).
 * [#2327](https://github.com/oshi/oshi/pull/2327): Improve Udev exception handling - [@dbwiddis](https://github.com/dbwiddis).
 * [#2329](https://github.com/oshi/oshi/pull/2329): Allow using SLF4J 1 in OSGi containers - [@mshabarov](https://github.com/mshabarov).
 
