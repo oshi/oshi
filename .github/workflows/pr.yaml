@@ -11,8 +11,6 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    # disable on windows JDK18+ until junit-platform-maven-plugin fix
-    # https://github.com/sormuras/junit-platform-maven-plugin/issues/95
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
