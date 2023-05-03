@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux;
@@ -7,6 +7,7 @@ package oshi.driver.linux;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
 
 /**
@@ -62,10 +63,12 @@ public final class Dmidecode {
      */
     public static String querySerialNumber() {
         // If root privileges this will work
-        String marker = "Serial Number:";
-        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
-            if (checkLine.contains(marker)) {
-                return checkLine.split(marker)[1].trim();
+        if (UserGroupInfo.isElevated()) {
+            String marker = "Serial Number:";
+            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+                if (checkLine.contains(marker)) {
+                    return checkLine.split(marker)[1].trim();
+                }
             }
         }
         return null;
@@ -78,10 +81,12 @@ public final class Dmidecode {
      */
     public static String queryUUID() {
         // If root privileges this will work
-        String marker = "UUID:";
-        for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
-            if (checkLine.contains(marker)) {
-                return checkLine.split(marker)[1].trim();
+        if (UserGroupInfo.isElevated()) {
+            String marker = "UUID:";
+            for (String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+                if (checkLine.contains(marker)) {
+                    return checkLine.split(marker)[1].trim();
+                }
             }
         }
         return null;
@@ -96,21 +101,23 @@ public final class Dmidecode {
         String biosName = null;
         String revision = null;
 
-        final String biosMarker = "SMBIOS";
-        final String revMarker = "Bios Revision:";
-
         // Requires root, may not return anything
-        for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
-            if (checkLine.contains(biosMarker)) {
-                String[] biosArr = ParseUtil.whitespaces.split(checkLine);
-                if (biosArr.length >= 2) {
-                    biosName = biosArr[0] + " " + biosArr[1];
+        if (UserGroupInfo.isElevated()) {
+            final String biosMarker = "SMBIOS";
+            final String revMarker = "Bios Revision:";
+
+            for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
+                if (checkLine.contains(biosMarker)) {
+                    String[] biosArr = ParseUtil.whitespaces.split(checkLine);
+                    if (biosArr.length >= 2) {
+                        biosName = biosArr[0] + " " + biosArr[1];
+                    }
                 }
-            }
-            if (checkLine.contains(revMarker)) {
-                revision = checkLine.split(revMarker)[1].trim();
-                // SMBIOS should be first line so if we're here we are done iterating
-                break;
+                if (checkLine.contains(revMarker)) {
+                    revision = checkLine.split(revMarker)[1].trim();
+                    // SMBIOS should be first line so if we're here we are done iterating
+                    break;
+                }
             }
         }
         return new Pair<>(biosName, revision);

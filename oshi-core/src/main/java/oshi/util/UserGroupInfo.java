@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -29,7 +29,19 @@ public final class UserGroupInfo {
     private static final Supplier<Map<String, String>> GROUPS_ID_MAP = memoize(UserGroupInfo::getGroupMap,
             TimeUnit.MINUTES.toNanos(1));
 
+    private static final boolean ELEVATED = 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"),
+            -1);
+
     private UserGroupInfo() {
+    }
+
+    /**
+     * Determine whether the current process has elevated permissions such as sudo / Administrator
+     *
+     * @return True if this process has elevated permissions
+     */
+    public static boolean isElevated() {
+        return ELEVATED;
     }
 
     /**
