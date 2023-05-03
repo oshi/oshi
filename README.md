@@ -1,7 +1,7 @@
 ![OSHI](https://dl.dropboxusercontent.com/s/c82qboyvvudpvdp/oshilogo.png)
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.oshi%22%20AND%20a:%22oshi-core%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.github.oshi&sort=name)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![Openhub Stats](https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif)](https://www.openhub.net/p/oshi?ref=github)
 
@@ -31,9 +31,9 @@ Windows • macOS • Linux (Android) • Unix (AIX, FreeBSD, OpenBSD, Solaris)
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Version
-  * JDK8: [oshi-core-6.4.1](https://search.maven.org/artifact/com.github.oshi/oshi-core/6.4.1/jar)
-  * JPMS: [oshi-core-java11-6.4.1](https://search.maven.org/artifact/com.github.oshi/oshi-core-java11/6.4.1/jar)
-  * JDK6: [oshi-core-3.14.0](https://search.maven.org/artifact/com.github.oshi/oshi-core/3.14.0/jar)
+  * JDK8: [oshi-core-6.4.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.4.1)
+  * JPMS: [oshi-core-java11-6.4.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.4.1)
+  * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
   * JDK8: [oshi-core-6.4.2-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=com.github.oshi&a=oshi-core&v=6.4.2-SNAPSHOT&e=jar)
