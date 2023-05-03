@@ -1319,5 +1319,17 @@ public final class ParseUtil {
 <span class="nc" id="L1319">        }</span>
 <span class="nc" id="L1320">        return map;</span>
     }
+
+    /**
+     * Checks if value exists in map for the given key or not and returns value or unknown based on it
+     *
+     * @param map A map of String key-value pairs
+     * @param key Fetch value for the given key
+     * @return Returns the value for the key if it exists in the map else it returns unknown
+     */
+    public static String getValueOrUnknown(Map&lt;String, String&gt; map, String key) {
+<span class="nc" id="L1331">        String value = map.getOrDefault(key, &quot;&quot;);</span>
+<span class="nc bnc" id="L1332" title="All 2 branches missed.">        return value.isEmpty() ? Constants.UNKNOWN : value;</span>
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

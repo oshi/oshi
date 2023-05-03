@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../testapidocs/oshi/util/UtilTest.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2023 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util;
@@ -67,7 +67,19 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertThat(<span class="jxr_string">"unknown should be unknown"</span>, Util.isBlankOrUnknown(Constants.UNKNOWN), is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertThat(<span class="jxr_string">"\&quot;Not blank\&quot; should not be Blank"</span>, Util.isBlankOrUnknown(<span class="jxr_string">"Not blank"</span>), is(false));
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      @Test
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">void</strong> testIsSessionValid() {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(<span class="jxr_string">"Session is invalid because user is empty"</span>, Util.isSessionValid(<span class="jxr_string">""</span>, <span class="jxr_string">"device"</span>, (<strong class="jxr_keyword">long</strong>) 0), is(false));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertThat(<span class="jxr_string">"Session is invalid because device is empty"</span>, Util.isSessionValid(<span class="jxr_string">"user"</span>, <span class="jxr_string">""</span>, (<strong class="jxr_keyword">long</strong>) 0), is(false));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(<span class="jxr_string">"Session is invalid because loginTime is greater than current system time"</span>,
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  Util.isSessionValid(<span class="jxr_string">"user"</span>, <span class="jxr_string">"device"</span>, Long.MAX_VALUE), is(false));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(<span class="jxr_string">"Session is invalid because loginTime is lesser than zero"</span>,
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  Util.isSessionValid(<span class="jxr_string">"user"</span>, <span class="jxr_string">"device"</span>, Long.MIN_VALUE), is(false));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertThat(<span class="jxr_string">"Session is valid because all the arguments are appropriate"</span>,
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  Util.isSessionValid(<span class="jxr_string">"user"</span>, <span class="jxr_string">"device"</span>, (<strong class="jxr_keyword">long</strong>) 999999999), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2023 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

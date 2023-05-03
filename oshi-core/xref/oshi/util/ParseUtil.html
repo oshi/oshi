@@ -1327,7 +1327,19 @@
 <a class="jxr_linenumber" name="L1319" href="#L1319">1319</a>         }
 <a class="jxr_linenumber" name="L1320" href="#L1320">1320</a>         <strong class="jxr_keyword">return</strong> map;
 <a class="jxr_linenumber" name="L1321" href="#L1321">1321</a>     }
-<a class="jxr_linenumber" name="L1322" href="#L1322">1322</a> }
+<a class="jxr_linenumber" name="L1322" href="#L1322">1322</a> 
+<a class="jxr_linenumber" name="L1323" href="#L1323">1323</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1324" href="#L1324">1324</a> <em class="jxr_javadoccomment">     * Checks if value exists in map for the given key or not and returns value or unknown based on it</em>
+<a class="jxr_linenumber" name="L1325" href="#L1325">1325</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1326" href="#L1326">1326</a> <em class="jxr_javadoccomment">     * @param map A map of String key-value pairs</em>
+<a class="jxr_linenumber" name="L1327" href="#L1327">1327</a> <em class="jxr_javadoccomment">     * @param key Fetch value for the given key</em>
+<a class="jxr_linenumber" name="L1328" href="#L1328">1328</a> <em class="jxr_javadoccomment">     * @return Returns the value for the key if it exists in the map else it returns unknown</em>
+<a class="jxr_linenumber" name="L1329" href="#L1329">1329</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1330" href="#L1330">1330</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getValueOrUnknown(Map&lt;String, String&gt; map, String key) {
+<a class="jxr_linenumber" name="L1331" href="#L1331">1331</a>         String value = map.getOrDefault(key, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L1332" href="#L1332">1332</a>         <strong class="jxr_keyword">return</strong> value.isEmpty() ? Constants.UNKNOWN : value;
+<a class="jxr_linenumber" name="L1333" href="#L1333">1333</a>     }
+<a class="jxr_linenumber" name="L1334" href="#L1334">1334</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2023 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

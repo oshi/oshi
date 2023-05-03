@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>GlobalConfig.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">GlobalConfig.java</span></div><h1>GlobalConfig.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -45,6 +45,7 @@ public final class GlobalConfig {
     public static final String OSHI_OS_WINDOWS_PERFPROC_DIABLED = &quot;oshi.os.windows.perfproc.disabled&quot;;
 
     public static final String OSHI_OS_UNIX_WHOCOMMAND = &quot;oshi.os.unix.whoCommand&quot;;
+    public static final String OSHI_OS_SOLARIS_ALLOWKSTAT2 = &quot;oshi.os.solaris.allowKstat2&quot;;
 
     private GlobalConfig() {
     }
@@ -56,7 +57,7 @@ public final class GlobalConfig {
      * @return The property value if it exists, or null otherwise
      */
     public static String get(String key) {
-<span class="nc" id="L59">        return CONFIG.getProperty(key);</span>
+<span class="nc" id="L60">        return CONFIG.getProperty(key);</span>
     }
 
     /**
@@ -67,7 +68,7 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static String get(String key, String def) {
-<span class="nc" id="L70">        return CONFIG.getProperty(key, def);</span>
+<span class="nc" id="L71">        return CONFIG.getProperty(key, def);</span>
     }
 
     /**
@@ -78,8 +79,8 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static int get(String key, int def) {
-<span class="nc" id="L81">        String value = CONFIG.getProperty(key);</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseIntOrDefault(value, def);</span>
+<span class="nc" id="L82">        String value = CONFIG.getProperty(key);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseIntOrDefault(value, def);</span>
     }
 
     /**
@@ -90,8 +91,8 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static double get(String key, double def) {
-<span class="nc" id="L93">        String value = CONFIG.getProperty(key);</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseDoubleOrDefault(value, def);</span>
+<span class="nc" id="L94">        String value = CONFIG.getProperty(key);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        return value == null ? def : ParseUtil.parseDoubleOrDefault(value, def);</span>
     }
 
     /**
@@ -102,8 +103,8 @@ public final class GlobalConfig {
      * @return The property value or the given default if not found
      */
     public static boolean get(String key, boolean def) {
-<span class="nc" id="L105">        String value = CONFIG.getProperty(key);</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        return value == null ? def : Boolean.parseBoolean(value);</span>
+<span class="nc" id="L106">        String value = CONFIG.getProperty(key);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        return value == null ? def : Boolean.parseBoolean(value);</span>
     }
 
     /**
@@ -114,12 +115,12 @@ public final class GlobalConfig {
      * @param val The new value
      */
     public static void set(String key, Object val) {
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (val == null) {</span>
-<span class="nc" id="L118">            CONFIG.remove(key);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (val == null) {</span>
+<span class="nc" id="L119">            CONFIG.remove(key);</span>
         } else {
-<span class="nc" id="L120">            CONFIG.setProperty(key, val.toString());</span>
+<span class="nc" id="L121">            CONFIG.setProperty(key, val.toString());</span>
         }
-<span class="nc" id="L122">    }</span>
+<span class="nc" id="L123">    }</span>
 
     /**
      * Reset the given property to its default value.
@@ -127,15 +128,15 @@ public final class GlobalConfig {
      * @param key The property key
      */
     public static void remove(String key) {
-<span class="nc" id="L130">        CONFIG.remove(key);</span>
-<span class="nc" id="L131">    }</span>
+<span class="nc" id="L131">        CONFIG.remove(key);</span>
+<span class="nc" id="L132">    }</span>
 
     /**
      * Clear the configuration.
      */
     public static void clear() {
-<span class="nc" id="L137">        CONFIG.clear();</span>
-<span class="nc" id="L138">    }</span>
+<span class="nc" id="L138">        CONFIG.clear();</span>
+<span class="nc" id="L139">    }</span>
 
     /**
      * Load the given {@link java.util.Properties} into the global configuration.
@@ -143,8 +144,8 @@ public final class GlobalConfig {
      * @param properties The new properties
      */
     public static void load(Properties properties) {
-<span class="nc" id="L146">        CONFIG.putAll(properties);</span>
-<span class="nc" id="L147">    }</span>
+<span class="nc" id="L147">        CONFIG.putAll(properties);</span>
+<span class="nc" id="L148">    }</span>
 
     /**
      * Indicates that a configuration value is invalid.
@@ -157,16 +158,16 @@ public final class GlobalConfig {
          * @param property The property name
          */
         public PropertyException(String property) {
-<span class="nc" id="L160">            super(&quot;Invalid property: \&quot;&quot; + property + &quot;\&quot; = &quot; + GlobalConfig.get(property, null));</span>
-<span class="nc" id="L161">        }</span>
+<span class="nc" id="L161">            super(&quot;Invalid property: \&quot;&quot; + property + &quot;\&quot; = &quot; + GlobalConfig.get(property, null));</span>
+<span class="nc" id="L162">        }</span>
 
         /**
          * @param property The property name
          * @param message  An exception message
          */
         public PropertyException(String property, String message) {
-<span class="nc" id="L168">            super(&quot;Invalid property \&quot;&quot; + property + &quot;\&quot;: &quot; + message);</span>
-<span class="nc" id="L169">        }</span>
+<span class="nc" id="L169">            super(&quot;Invalid property \&quot;&quot; + property + &quot;\&quot;: &quot; + message);</span>
+<span class="nc" id="L170">        }</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

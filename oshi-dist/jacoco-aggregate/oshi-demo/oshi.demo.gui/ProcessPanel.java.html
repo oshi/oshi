@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProcessPanel.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.gui</a> &gt; <span class="el_source">ProcessPanel.java</span></div><h1>ProcessPanel.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -156,8 +156,8 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
 <span class="nc" id="L156">            procArr[i][2] = p.getThreadCount();</span>
 <span class="nc bnc" id="L157" title="All 2 branches missed.">            if (perProc.isSelected()) {</span>
 <span class="nc" id="L158">                procArr[i][3] = String.format(&quot;%.1f&quot;,</span>
-<span class="nc" id="L159">                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) / cpuCount);</span>
-<span class="nc" id="L160">                procArr[i][4] = String.format(&quot;%.1f&quot;, 100d * p.getProcessCpuLoadCumulative() / cpuCount);</span>
+<span class="nc" id="L159">                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);</span>
+<span class="nc" id="L160">                procArr[i][4] = String.format(&quot;%.1f&quot;, 100d * p.getProcessCpuLoadCumulative() * cpuCount);</span>
             } else {
 <span class="nc" id="L162">                procArr[i][3] = String.format(&quot;%.1f&quot;,</span>
 <span class="nc" id="L163">                        100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));</span>
@@ -187,4 +187,4 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
         }
 <span class="nc" id="L188">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

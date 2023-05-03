@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SolarisOperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.solaris</a> &gt; <span class="el_source">SolarisOperatingSystem.java</span></div><h1>SolarisOperatingSystem.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
@@ -33,6 +33,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
@@ -44,229 +45,233 @@ import oshi.util.tuples.Pair;
  * earlier SunOS in 1993. In 2010, after the Sun acquisition by Oracle, it was renamed Oracle Solaris.
  */
 @ThreadSafe
-<span class="nc" id="L47">public class SolarisOperatingSystem extends AbstractOperatingSystem {</span>
+<span class="nc" id="L48">public class SolarisOperatingSystem extends AbstractOperatingSystem {</span>
 
     private static final String VERSION;
     private static final String BUILD_NUMBER;
     static {
-<span class="nc" id="L52">        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;));</span>
-<span class="nc" id="L53">        VERSION = split[0];</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        BUILD_NUMBER = split.length &gt; 1 ? split[1] : &quot;&quot;;</span>
+<span class="nc" id="L53">        String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer(&quot;uname -rv&quot;));</span>
+<span class="nc" id="L54">        VERSION = split[0];</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        BUILD_NUMBER = split.length &gt; 1 ? split[1] : &quot;&quot;;</span>
     }
+
+<span class="nc" id="L58">    private static final boolean ALLOW_KSTAT2 = GlobalConfig.get(GlobalConfig.OSHI_OS_SOLARIS_ALLOWKSTAT2, true);</span>
 
     /**
      * This static field identifies if the kstat2 library (available in Solaris 11.4 or greater) can be loaded.
      */
     public static final boolean HAS_KSTAT2;
     static {
-<span class="nc" id="L62">        Kstat2 lib = null;</span>
+<span class="nc" id="L65">        Kstat2 lib = null;</span>
         try {
-<span class="nc" id="L64">            lib = Kstat2.INSTANCE;</span>
-<span class="nc" id="L65">        } catch (UnsatisfiedLinkError e) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (ALLOW_KSTAT2) {</span>
+<span class="nc" id="L68">                lib = Kstat2.INSTANCE;</span>
+            }
+<span class="nc" id="L70">        } catch (UnsatisfiedLinkError e) {</span>
             // 11.3 or earlier, no kstat2
-<span class="nc" id="L67">        }</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        HAS_KSTAT2 = lib != null;</span>
+<span class="nc" id="L72">        }</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        HAS_KSTAT2 = lib != null;</span>
     }
 
-<span class="nc" id="L71">    private static final Supplier&lt;Pair&lt;Long, Long&gt;&gt; BOOT_UPTIME = Memoizer</span>
-<span class="nc" id="L72">            .memoize(SolarisOperatingSystem::queryBootAndUptime, defaultExpiration());</span>
+<span class="nc" id="L76">    private static final Supplier&lt;Pair&lt;Long, Long&gt;&gt; BOOT_UPTIME = Memoizer</span>
+<span class="nc" id="L77">            .memoize(SolarisOperatingSystem::queryBootAndUptime, defaultExpiration());</span>
 
-<span class="nc" id="L74">    private static final long BOOTTIME = querySystemBootTime();</span>
+<span class="nc" id="L79">    private static final long BOOTTIME = querySystemBootTime();</span>
 
     @Override
     public String queryManufacturer() {
-<span class="nc" id="L78">        return &quot;Oracle&quot;;</span>
+<span class="nc" id="L83">        return &quot;Oracle&quot;;</span>
     }
 
     @Override
     public Pair&lt;String, OSVersionInfo&gt; queryFamilyVersionInfo() {
-<span class="nc" id="L83">        return new Pair&lt;&gt;(&quot;SunOS&quot;, new OSVersionInfo(VERSION, &quot;Solaris&quot;, BUILD_NUMBER));</span>
+<span class="nc" id="L88">        return new Pair&lt;&gt;(&quot;SunOS&quot;, new OSVersionInfo(VERSION, &quot;Solaris&quot;, BUILD_NUMBER));</span>
     }
 
     @Override
     protected int queryBitness(int jvmBitness) {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (jvmBitness == 64) {</span>
-<span class="nc" id="L89">            return 64;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (jvmBitness == 64) {</span>
+<span class="nc" id="L94">            return 64;</span>
         }
-<span class="nc" id="L91">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;isainfo -b&quot;), 32);</span>
+<span class="nc" id="L96">        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;isainfo -b&quot;), 32);</span>
     }
 
     @Override
     public FileSystem getFileSystem() {
-<span class="nc" id="L96">        return new SolarisFileSystem();</span>
+<span class="nc" id="L101">        return new SolarisFileSystem();</span>
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-<span class="nc" id="L101">        return new SolarisInternetProtocolStats();</span>
+<span class="nc" id="L106">        return new SolarisInternetProtocolStats();</span>
     }
 
     @Override
     public List&lt;OSSession&gt; getSessions() {
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();</span>
     }
 
     @Override
     public OSProcess getProcess(int pid) {
-<span class="nc" id="L111">        List&lt;OSProcess&gt; procs = getProcessListFromProcfs(pid);</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (procs.isEmpty()) {</span>
-<span class="nc" id="L113">            return null;</span>
+<span class="nc" id="L116">        List&lt;OSProcess&gt; procs = getProcessListFromProcfs(pid);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (procs.isEmpty()) {</span>
+<span class="nc" id="L118">            return null;</span>
         }
-<span class="nc" id="L115">        return procs.get(0);</span>
+<span class="nc" id="L120">        return procs.get(0);</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryAllProcesses() {
-<span class="nc" id="L120">        return queryAllProcessesFromPrStat();</span>
+<span class="nc" id="L125">        return queryAllProcessesFromPrStat();</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryChildProcesses(int parentPid) {
-<span class="nc" id="L125">        List&lt;OSProcess&gt; allProcs = queryAllProcessesFromPrStat();</span>
-<span class="nc" id="L126">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
-<span class="nc" id="L127">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L130">        List&lt;OSProcess&gt; allProcs = queryAllProcessesFromPrStat();</span>
+<span class="nc" id="L131">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);</span>
+<span class="nc" id="L132">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     @Override
     public List&lt;OSProcess&gt; queryDescendantProcesses(int parentPid) {
-<span class="nc" id="L132">        List&lt;OSProcess&gt; allProcs = queryAllProcessesFromPrStat();</span>
-<span class="nc" id="L133">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
-<span class="nc" id="L134">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
+<span class="nc" id="L137">        List&lt;OSProcess&gt; allProcs = queryAllProcessesFromPrStat();</span>
+<span class="nc" id="L138">        Set&lt;Integer&gt; descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);</span>
+<span class="nc" id="L139">        return allProcs.stream().filter(p -&gt; descendantPids.contains(p.getProcessID())).collect(Collectors.toList());</span>
     }
 
     private List&lt;OSProcess&gt; queryAllProcessesFromPrStat() {
-<span class="nc" id="L138">        return getProcessListFromProcfs(-1);</span>
+<span class="nc" id="L143">        return getProcessListFromProcfs(-1);</span>
     }
 
     private List&lt;OSProcess&gt; getProcessListFromProcfs(int pid) {
-<span class="nc" id="L142">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L147">        List&lt;OSProcess&gt; procs = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L144">        File[] numericFiles = null;</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (pid &lt; 0) {</span>
+<span class="nc" id="L149">        File[] numericFiles = null;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (pid &lt; 0) {</span>
             // If no pid, get process files in proc
-<span class="nc" id="L147">            File directory = new File(&quot;/proc&quot;);</span>
-<span class="nc" id="L148">            numericFiles = directory.listFiles(file -&gt; Constants.DIGITS.matcher(file.getName()).matches());</span>
-<span class="nc" id="L149">        } else {</span>
+<span class="nc" id="L152">            File directory = new File(&quot;/proc&quot;);</span>
+<span class="nc" id="L153">            numericFiles = directory.listFiles(file -&gt; Constants.DIGITS.matcher(file.getName()).matches());</span>
+<span class="nc" id="L154">        } else {</span>
             // If pid specified just find that file
-<span class="nc" id="L151">            File pidFile = new File(&quot;/proc/&quot; + pid);</span>
-<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (pidFile.exists()) {</span>
-<span class="nc" id="L153">                numericFiles = new File[1];</span>
-<span class="nc" id="L154">                numericFiles[0] = pidFile;</span>
+<span class="nc" id="L156">            File pidFile = new File(&quot;/proc/&quot; + pid);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if (pidFile.exists()) {</span>
+<span class="nc" id="L158">                numericFiles = new File[1];</span>
+<span class="nc" id="L159">                numericFiles[0] = pidFile;</span>
             }
         }
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (numericFiles == null) {</span>
-<span class="nc" id="L158">            return procs;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (numericFiles == null) {</span>
+<span class="nc" id="L163">            return procs;</span>
         }
 
         // Iterate files
-<span class="nc bnc" id="L162" title="All 2 branches missed.">        for (File pidFile : numericFiles) {</span>
-<span class="nc" id="L163">            int pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);</span>
-<span class="nc" id="L164">            OSProcess proc = new SolarisOSProcess(pidNum, this);</span>
-<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (proc.getState() != INVALID) {</span>
-<span class="nc" id="L166">                procs.add(proc);</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        for (File pidFile : numericFiles) {</span>
+<span class="nc" id="L168">            int pidNum = ParseUtil.parseIntOrDefault(pidFile.getName(), 0);</span>
+<span class="nc" id="L169">            OSProcess proc = new SolarisOSProcess(pidNum, this);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">            if (proc.getState() != INVALID) {</span>
+<span class="nc" id="L171">                procs.add(proc);</span>
             }
         }
-<span class="nc" id="L169">        return procs;</span>
+<span class="nc" id="L174">        return procs;</span>
     }
 
     @Override
     public int getProcessId() {
-<span class="nc" id="L174">        return SolarisLibc.INSTANCE.getpid();</span>
+<span class="nc" id="L179">        return SolarisLibc.INSTANCE.getpid();</span>
     }
 
     @Override
     public int getProcessCount() {
-<span class="nc" id="L179">        return ProcessStat.getPidFiles().length;</span>
+<span class="nc" id="L184">        return ProcessStat.getPidFiles().length;</span>
     }
 
     @Override
     public int getThreadId() {
-<span class="nc" id="L184">        return SolarisLibc.INSTANCE.thr_self();</span>
+<span class="nc" id="L189">        return SolarisLibc.INSTANCE.thr_self();</span>
     }
 
     @Override
     public OSThread getCurrentThread() {
-<span class="nc" id="L189">        return new SolarisOSThread(getProcessId(), getThreadId());</span>
+<span class="nc" id="L194">        return new SolarisOSThread(getProcessId(), getThreadId());</span>
     }
 
     @Override
     public int getThreadCount() {
-<span class="nc" id="L194">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
-<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
+<span class="nc" id="L199">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -eLo pid&quot;);</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
             // Subtract 1 for header
-<span class="nc" id="L197">            return threadList.size() - 1;</span>
+<span class="nc" id="L202">            return threadList.size() - 1;</span>
         }
-<span class="nc" id="L199">        return getProcessCount();</span>
+<span class="nc" id="L204">        return getProcessCount();</span>
     }
 
     @Override
     public long getSystemUptime() {
-<span class="nc" id="L204">        return querySystemUptime();</span>
+<span class="nc" id="L209">        return querySystemUptime();</span>
     }
 
     private static long querySystemUptime() {
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (HAS_KSTAT2) {</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        if (HAS_KSTAT2) {</span>
             // Use Kstat2 implementation
-<span class="nc" id="L210">            return BOOT_UPTIME.get().getB();</span>
+<span class="nc" id="L215">            return BOOT_UPTIME.get().getB();</span>
         }
-<span class="nc" id="L212">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L213">            Kstat ksp = kc.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
-<span class="nc bnc" id="L214" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L217">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L218">            Kstat ksp = kc.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
+<span class="nc bnc" id="L219" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
                 // Snap Time is in nanoseconds; divide for seconds
-<span class="nc" id="L216">                return ksp.ks_snaptime / 1_000_000_000L;</span>
+<span class="nc" id="L221">                return ksp.ks_snaptime / 1_000_000_000L;</span>
             }
-<span class="nc bnc" id="L218" title="All 2 branches missed.">        }</span>
-<span class="nc" id="L219">        return 0L;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        }</span>
+<span class="nc" id="L224">        return 0L;</span>
     }
 
     @Override
     public long getSystemBootTime() {
-<span class="nc" id="L224">        return BOOTTIME;</span>
+<span class="nc" id="L229">        return BOOTTIME;</span>
     }
 
     private static long querySystemBootTime() {
-<span class="nc bnc" id="L228" title="All 2 branches missed.">        if (HAS_KSTAT2) {</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if (HAS_KSTAT2) {</span>
             // Use Kstat2 implementation
-<span class="nc" id="L230">            return BOOT_UPTIME.get().getA();</span>
+<span class="nc" id="L235">            return BOOT_UPTIME.get().getA();</span>
         }
-<span class="nc" id="L232">        try (KstatChain kc = KstatUtil.openChain()) {</span>
-<span class="nc" id="L233">            Kstat ksp = kc.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
-<span class="nc bnc" id="L234" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
-<span class="nc" id="L235">                return KstatUtil.dataLookupLong(ksp, &quot;boot_time&quot;);</span>
+<span class="nc" id="L237">        try (KstatChain kc = KstatUtil.openChain()) {</span>
+<span class="nc" id="L238">            Kstat ksp = kc.lookup(&quot;unix&quot;, 0, &quot;system_misc&quot;);</span>
+<span class="nc bnc" id="L239" title="All 4 branches missed.">            if (ksp != null &amp;&amp; kc.read(ksp)) {</span>
+<span class="nc" id="L240">                return KstatUtil.dataLookupLong(ksp, &quot;boot_time&quot;);</span>
             }
-<span class="nc bnc" id="L237" title="All 2 branches missed.">        }</span>
-<span class="nc" id="L238">        return System.currentTimeMillis() / 1000L - querySystemUptime();</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        }</span>
+<span class="nc" id="L243">        return System.currentTimeMillis() / 1000L - querySystemUptime();</span>
     }
 
     private static Pair&lt;Long, Long&gt; queryBootAndUptime() {
-<span class="nc" id="L242">        Object[] results = KstatUtil.queryKstat2(&quot;/misc/unix/system_misc&quot;, &quot;boot_time&quot;, &quot;snaptime&quot;);</span>
+<span class="nc" id="L247">        Object[] results = KstatUtil.queryKstat2(&quot;/misc/unix/system_misc&quot;, &quot;boot_time&quot;, &quot;snaptime&quot;);</span>
 
-<span class="nc bnc" id="L244" title="All 2 branches missed.">        long boot = results[0] == null ? System.currentTimeMillis() : (long) results[0];</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">        long boot = results[0] == null ? System.currentTimeMillis() : (long) results[0];</span>
         // Snap Time is in nanoseconds; divide for seconds
-<span class="nc bnc" id="L246" title="All 2 branches missed.">        long snap = results[1] == null ? 0L : (long) results[1] / 1_000_000_000L;</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        long snap = results[1] == null ? 0L : (long) results[1] / 1_000_000_000L;</span>
 
-<span class="nc" id="L248">        return new Pair&lt;&gt;(boot, snap);</span>
+<span class="nc" id="L253">        return new Pair&lt;&gt;(boot, snap);</span>
     }
 
     @Override
     public NetworkParams getNetworkParams() {
-<span class="nc" id="L253">        return new SolarisNetworkParams();</span>
+<span class="nc" id="L258">        return new SolarisNetworkParams();</span>
     }
 
     @Override
     public List&lt;OSService&gt; getServices() {
-<span class="nc" id="L258">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L263">        List&lt;OSService&gt; services = new ArrayList&lt;&gt;();</span>
         // Get legacy RC service name possibilities
-<span class="nc" id="L260">        List&lt;String&gt; legacySvcs = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L261">        File dir = new File(&quot;/etc/init.d&quot;);</span>
+<span class="nc" id="L265">        List&lt;String&gt; legacySvcs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L266">        File dir = new File(&quot;/etc/init.d&quot;);</span>
         File[] listFiles;
-<span class="nc bnc" id="L263" title="All 6 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory() &amp;&amp; (listFiles = dir.listFiles()) != null) {</span>
-<span class="nc bnc" id="L264" title="All 2 branches missed.">            for (File f : listFiles) {</span>
-<span class="nc" id="L265">                legacySvcs.add(f.getName());</span>
+<span class="nc bnc" id="L268" title="All 6 branches missed.">        if (dir.exists() &amp;&amp; dir.isDirectory() &amp;&amp; (listFiles = dir.listFiles()) != null) {</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">            for (File f : listFiles) {</span>
+<span class="nc" id="L270">                legacySvcs.add(f.getName());</span>
             }
         }
         // Iterate service list
-<span class="nc" id="L269">        List&lt;String&gt; svcs = ExecutingCommand.runNative(&quot;svcs -p&quot;);</span>
+<span class="nc" id="L274">        List&lt;String&gt; svcs = ExecutingCommand.runNative(&quot;svcs -p&quot;);</span>
         /*-
          Output:
          STATE          STIME    FRMI
@@ -278,31 +283,31 @@ import oshi.util.tuples.Pair;
                         23:56:24       13 svc.startd
                         ...
          */
-<span class="nc bnc" id="L281" title="All 2 branches missed.">        for (String line : svcs) {</span>
-<span class="nc bnc" id="L282" title="All 2 branches missed.">            if (line.startsWith(&quot;online&quot;)) {</span>
-<span class="nc" id="L283">                int delim = line.lastIndexOf(&quot;:/&quot;);</span>
-<span class="nc bnc" id="L284" title="All 2 branches missed.">                if (delim &gt; 0) {</span>
-<span class="nc" id="L285">                    String name = line.substring(delim + 1);</span>
-<span class="nc bnc" id="L286" title="All 2 branches missed.">                    if (name.endsWith(&quot;:default&quot;)) {</span>
-<span class="nc" id="L287">                        name = name.substring(0, name.length() - 8);</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">        for (String line : svcs) {</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">            if (line.startsWith(&quot;online&quot;)) {</span>
+<span class="nc" id="L288">                int delim = line.lastIndexOf(&quot;:/&quot;);</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">                if (delim &gt; 0) {</span>
+<span class="nc" id="L290">                    String name = line.substring(delim + 1);</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">                    if (name.endsWith(&quot;:default&quot;)) {</span>
+<span class="nc" id="L292">                        name = name.substring(0, name.length() - 8);</span>
                     }
-<span class="nc" id="L289">                    services.add(new OSService(name, 0, STOPPED));</span>
+<span class="nc" id="L294">                    services.add(new OSService(name, 0, STOPPED));</span>
                 }
-<span class="nc bnc" id="L291" title="All 2 branches missed.">            } else if (line.startsWith(&quot; &quot;)) {</span>
-<span class="nc" id="L292">                String[] split = ParseUtil.whitespaces.split(line.trim());</span>
-<span class="nc bnc" id="L293" title="All 2 branches missed.">                if (split.length == 3) {</span>
-<span class="nc" id="L294">                    services.add(new OSService(split[2], ParseUtil.parseIntOrDefault(split[1], 0), RUNNING));</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">            } else if (line.startsWith(&quot; &quot;)) {</span>
+<span class="nc" id="L297">                String[] split = ParseUtil.whitespaces.split(line.trim());</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                if (split.length == 3) {</span>
+<span class="nc" id="L299">                    services.add(new OSService(split[2], ParseUtil.parseIntOrDefault(split[1], 0), RUNNING));</span>
                 }
-<span class="nc bnc" id="L296" title="All 2 branches missed.">            } else if (line.startsWith(&quot;legacy_run&quot;)) {</span>
-<span class="nc bnc" id="L297" title="All 2 branches missed.">                for (String svc : legacySvcs) {</span>
-<span class="nc bnc" id="L298" title="All 2 branches missed.">                    if (line.endsWith(svc)) {</span>
-<span class="nc" id="L299">                        services.add(new OSService(svc, 0, STOPPED));</span>
-<span class="nc" id="L300">                        break;</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">            } else if (line.startsWith(&quot;legacy_run&quot;)) {</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">                for (String svc : legacySvcs) {</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">                    if (line.endsWith(svc)) {</span>
+<span class="nc" id="L304">                        services.add(new OSService(svc, 0, STOPPED));</span>
+<span class="nc" id="L305">                        break;</span>
                     }
-<span class="nc" id="L302">                }</span>
+<span class="nc" id="L307">                }</span>
             }
-<span class="nc" id="L304">        }</span>
-<span class="nc" id="L305">        return services;</span>
+<span class="nc" id="L309">        }</span>
+<span class="nc" id="L310">        return services;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

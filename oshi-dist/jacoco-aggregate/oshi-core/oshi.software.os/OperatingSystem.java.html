@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OperatingSystem.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os</a> &gt; <span class="el_source">OperatingSystem.java</span></div><h1>OperatingSystem.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -18,8 +18,7 @@ import oshi.driver.unix.Who;
 import oshi.driver.unix.Xwininfo;
 import oshi.software.os.OSProcess.State;
 import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.Util;
 
 /**
@@ -43,23 +42,23 @@ public interface OperatingSystem {
         /**
          * No filtering.
          */
-<span class="nc" id="L46">        public static final Predicate&lt;OSProcess&gt; ALL_PROCESSES = p -&gt; true;</span>
+<span class="nc" id="L45">        public static final Predicate&lt;OSProcess&gt; ALL_PROCESSES = p -&gt; true;</span>
         /**
          * Exclude processes with {@link State#INVALID} process state.
          */
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; VALID_PROCESS = p -&gt; !p.getState().equals(State.INVALID);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; VALID_PROCESS = p -&gt; !p.getState().equals(State.INVALID);</span>
         /**
          * Exclude child processes. Only include processes which are their own parent.
          */
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; NO_PARENT = p -&gt; p.getParentProcessID() == p.getProcessID();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; NO_PARENT = p -&gt; p.getParentProcessID() == p.getProcessID();</span>
         /**
          * Only incude 64-bit processes.
          */
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_64 = p -&gt; p.getBitness() == 64;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_64 = p -&gt; p.getBitness() == 64;</span>
         /**
          * Only include 32-bit processes.
          */
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_32 = p -&gt; p.getBitness() == 32;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        public static final Predicate&lt;OSProcess&gt; BITNESS_32 = p -&gt; p.getBitness() == 32;</span>
     }
 
     /**
@@ -74,38 +73,38 @@ public interface OperatingSystem {
         /**
          * No sorting
          */
-<span class="nc" id="L77">        public static final Comparator&lt;OSProcess&gt; NO_SORTING = (p1, p2) -&gt; 0;</span>
+<span class="nc" id="L76">        public static final Comparator&lt;OSProcess&gt; NO_SORTING = (p1, p2) -&gt; 0;</span>
         /**
          * Sort by decreasing cumulative CPU percentage
          */
-<span class="nc" id="L81">        public static final Comparator&lt;OSProcess&gt; CPU_DESC = Comparator</span>
-<span class="nc" id="L82">                .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();</span>
+<span class="nc" id="L80">        public static final Comparator&lt;OSProcess&gt; CPU_DESC = Comparator</span>
+<span class="nc" id="L81">                .comparingDouble(OSProcess::getProcessCpuLoadCumulative).reversed();</span>
         /**
          * Sort by decreasing Resident Set Size (RSS)
          */
-<span class="nc" id="L86">        public static final Comparator&lt;OSProcess&gt; RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
-<span class="nc" id="L87">                .reversed();</span>
+<span class="nc" id="L85">        public static final Comparator&lt;OSProcess&gt; RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)</span>
+<span class="nc" id="L86">                .reversed();</span>
         /**
          * Sort by up time, newest processes first
          */
-<span class="nc" id="L91">        public static final Comparator&lt;OSProcess&gt; UPTIME_ASC = Comparator.comparingLong(OSProcess::getUpTime);</span>
+<span class="nc" id="L90">        public static final Comparator&lt;OSProcess&gt; UPTIME_ASC = Comparator.comparingLong(OSProcess::getUpTime);</span>
         /**
          * Sort by up time, oldest processes first
          */
-<span class="nc" id="L95">        public static final Comparator&lt;OSProcess&gt; UPTIME_DESC = UPTIME_ASC.reversed();</span>
+<span class="nc" id="L94">        public static final Comparator&lt;OSProcess&gt; UPTIME_DESC = UPTIME_ASC.reversed();</span>
         /**
          * Sort by Process Id
          */
-<span class="nc" id="L99">        public static final Comparator&lt;OSProcess&gt; PID_ASC = Comparator.comparingInt(OSProcess::getProcessID);</span>
+<span class="nc" id="L98">        public static final Comparator&lt;OSProcess&gt; PID_ASC = Comparator.comparingInt(OSProcess::getProcessID);</span>
         /**
          * Sort by Parent Process Id
          */
-<span class="nc" id="L103">        public static final Comparator&lt;OSProcess&gt; PARENTPID_ASC = Comparator</span>
-<span class="nc" id="L104">                .comparingInt(OSProcess::getParentProcessID);</span>
+<span class="nc" id="L102">        public static final Comparator&lt;OSProcess&gt; PARENTPID_ASC = Comparator</span>
+<span class="nc" id="L103">                .comparingInt(OSProcess::getParentProcessID);</span>
         /**
          * Sort by Process Name (case insensitive)
          */
-<span class="nc" id="L108">        public static final Comparator&lt;OSProcess&gt; NAME_ASC = Comparator.comparing(OSProcess::getName,</span>
+<span class="nc" id="L107">        public static final Comparator&lt;OSProcess&gt; NAME_ASC = Comparator.comparing(OSProcess::getName,</span>
                 String.CASE_INSENSITIVE_ORDER);
     }
 
@@ -152,7 +151,7 @@ public interface OperatingSystem {
      *         {@link OSProcess.State#INVALID} if a process terminates during iteration.
      */
     default List&lt;OSProcess&gt; getProcesses() {
-<span class="nc" id="L155">        return getProcesses(null, null, 0);</span>
+<span class="nc" id="L154">        return getProcesses(null, null, 0);</span>
     }
 
     /**
@@ -179,8 +178,8 @@ public interface OperatingSystem {
      * @return A list of {@link oshi.software.os.OSProcess} objects for the specified process ids if it is running
      */
     default List&lt;OSProcess&gt; getProcesses(Collection&lt;Integer&gt; pids) {
-<span class="nc" id="L182">        return pids.stream().map(this::getProcess).filter(Objects::nonNull).filter(ProcessFiltering.VALID_PROCESS)</span>
-<span class="nc" id="L183">                .collect(Collectors.toList());</span>
+<span class="nc" id="L181">        return pids.stream().map(this::getProcess).filter(Objects::nonNull).filter(ProcessFiltering.VALID_PROCESS)</span>
+<span class="nc" id="L182">                .collect(Collectors.toList());</span>
     }
 
     /**
@@ -243,7 +242,7 @@ public interface OperatingSystem {
      * @return the current process
      */
     default OSProcess getCurrentProcess() {
-<span class="nc" id="L246">        return getProcess(getProcessId());</span>
+<span class="nc" id="L245">        return getProcess(getProcessId());</span>
     }
 
     /**
@@ -307,7 +306,7 @@ public interface OperatingSystem {
      * @return True if this process has elevated permissions
      */
     default boolean isElevated() {
-<span class="nc bnc" id="L310" title="All 2 branches missed.">        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;), -1);</span>
+<span class="nc" id="L309">        return UserGroupInfo.isElevated();</span>
     }
 
     /**
@@ -323,7 +322,7 @@ public interface OperatingSystem {
      * @return An array of {@link OSService} objects
      */
     default List&lt;OSService&gt; getServices() {
-<span class="nc" id="L326">        return new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L325">        return new ArrayList&lt;&gt;();</span>
     }
 
     /**
@@ -341,7 +340,7 @@ public interface OperatingSystem {
      * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users
      */
     default List&lt;OSSession&gt; getSessions() {
-<span class="nc" id="L344">        return Who.queryWho();</span>
+<span class="nc" id="L343">        return Who.queryWho();</span>
     }
 
     /**
@@ -362,7 +361,7 @@ public interface OperatingSystem {
     default List&lt;OSDesktopWindow&gt; getDesktopWindows(boolean visibleOnly) {
         // Default X11 implementation for Unix-like operating systems.
         // Overridden on Windows and macOS
-<span class="nc" id="L365">        return Xwininfo.queryXWindows(visibleOnly);</span>
+<span class="nc" id="L364">        return Xwininfo.queryXWindows(visibleOnly);</span>
     }
 
     /**
@@ -375,20 +374,20 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
-<span class="nc" id="L378">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
-<span class="nc" id="L379">            this.version = version;</span>
-<span class="nc" id="L380">            this.codeName = codeName;</span>
-<span class="nc" id="L381">            this.buildNumber = buildNumber;</span>
+<span class="nc" id="L377">        public OSVersionInfo(String version, String codeName, String buildNumber) {</span>
+<span class="nc" id="L378">            this.version = version;</span>
+<span class="nc" id="L379">            this.codeName = codeName;</span>
+<span class="nc" id="L380">            this.buildNumber = buildNumber;</span>
 
-<span class="nc bnc" id="L383" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
-<span class="nc bnc" id="L384" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
-<span class="nc" id="L385">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">            if (!Util.isBlank(getCodeName())) {</span>
+<span class="nc" id="L384">                sb.append(&quot; (&quot;).append(getCodeName()).append(')');</span>
             }
-<span class="nc bnc" id="L387" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
-<span class="nc" id="L388">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">            if (!Util.isBlank(getBuildNumber())) {</span>
+<span class="nc" id="L387">                sb.append(&quot; build &quot;).append(getBuildNumber());</span>
             }
-<span class="nc" id="L390">            this.versionStr = sb.toString();</span>
-<span class="nc" id="L391">        }</span>
+<span class="nc" id="L389">            this.versionStr = sb.toString();</span>
+<span class="nc" id="L390">        }</span>
 
         /**
          * Gets the operating system version.
@@ -396,7 +395,7 @@ public interface OperatingSystem {
          * @return The version, if any. May be {@code null}.
          */
         public String getVersion() {
-<span class="nc" id="L399">            return version;</span>
+<span class="nc" id="L398">            return version;</span>
         }
 
         /**
@@ -405,7 +404,7 @@ public interface OperatingSystem {
          * @return The code name, if any. May be {@code null}.
          */
         public String getCodeName() {
-<span class="nc" id="L408">            return codeName;</span>
+<span class="nc" id="L407">            return codeName;</span>
         }
 
         /**
@@ -414,13 +413,13 @@ public interface OperatingSystem {
          * @return The build number, if any. May be {@code null}.
          */
         public String getBuildNumber() {
-<span class="nc" id="L417">            return buildNumber;</span>
+<span class="nc" id="L416">            return buildNumber;</span>
         }
 
         @Override
         public String toString() {
-<span class="nc" id="L422">            return this.versionStr;</span>
+<span class="nc" id="L421">            return this.versionStr;</span>
         }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

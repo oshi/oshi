@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Dmidecode.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.linux</a> &gt; <span class="el_source">Dmidecode.java</span></div><h1>Dmidecode.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux;
@@ -7,6 +7,7 @@ package oshi.driver.linux;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
 
 /**
@@ -62,13 +63,15 @@ public final class Dmidecode {
      */
     public static String querySerialNumber() {
         // If root privileges this will work
-<span class="nc" id="L65">        String marker = &quot;Serial Number:&quot;;</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L68">                return checkLine.split(marker)[1].trim();</span>
-            }
-<span class="nc" id="L70">        }</span>
-<span class="nc" id="L71">        return null;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (UserGroupInfo.isElevated()) {</span>
+<span class="nc" id="L67">            String marker = &quot;Serial Number:&quot;;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L70">                    return checkLine.split(marker)[1].trim();</span>
+                }
+<span class="nc" id="L72">            }</span>
+        }
+<span class="nc" id="L74">        return null;</span>
     }
 
     /**
@@ -78,13 +81,15 @@ public final class Dmidecode {
      */
     public static String queryUUID() {
         // If root privileges this will work
-<span class="nc" id="L81">        String marker = &quot;UUID:&quot;;</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (checkLine.contains(marker)) {</span>
-<span class="nc" id="L84">                return checkLine.split(marker)[1].trim();</span>
-            }
-<span class="nc" id="L86">        }</span>
-<span class="nc" id="L87">        return null;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (UserGroupInfo.isElevated()) {</span>
+<span class="nc" id="L85">            String marker = &quot;UUID:&quot;;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            for (String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t system&quot;)) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (checkLine.contains(marker)) {</span>
+<span class="nc" id="L88">                    return checkLine.split(marker)[1].trim();</span>
+                }
+<span class="nc" id="L90">            }</span>
+        }
+<span class="nc" id="L92">        return null;</span>
     }
 
     /**
@@ -93,27 +98,29 @@ public final class Dmidecode {
      * @return The a pair containing the name and revision if available, null values in the pair otherwise
      */
     public static Pair&lt;String, String&gt; queryBiosNameRev() {
-<span class="nc" id="L96">        String biosName = null;</span>
-<span class="nc" id="L97">        String revision = null;</span>
-
-<span class="nc" id="L99">        final String biosMarker = &quot;SMBIOS&quot;;</span>
-<span class="nc" id="L100">        final String revMarker = &quot;Bios Revision:&quot;;</span>
+<span class="nc" id="L101">        String biosName = null;</span>
+<span class="nc" id="L102">        String revision = null;</span>
 
         // Requires root, may not return anything
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (checkLine.contains(biosMarker)) {</span>
-<span class="nc" id="L105">                String[] biosArr = ParseUtil.whitespaces.split(checkLine);</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">                if (biosArr.length &gt;= 2) {</span>
-<span class="nc" id="L107">                    biosName = biosArr[0] + &quot; &quot; + biosArr[1];</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (UserGroupInfo.isElevated()) {</span>
+<span class="nc" id="L106">            final String biosMarker = &quot;SMBIOS&quot;;</span>
+<span class="nc" id="L107">            final String revMarker = &quot;Bios Revision:&quot;;</span>
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            for (final String checkLine : ExecutingCommand.runNative(&quot;dmidecode -t bios&quot;)) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (checkLine.contains(biosMarker)) {</span>
+<span class="nc" id="L111">                    String[] biosArr = ParseUtil.whitespaces.split(checkLine);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                    if (biosArr.length &gt;= 2) {</span>
+<span class="nc" id="L113">                        biosName = biosArr[0] + &quot; &quot; + biosArr[1];</span>
+                    }
                 }
-            }
-<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (checkLine.contains(revMarker)) {</span>
-<span class="nc" id="L111">                revision = checkLine.split(revMarker)[1].trim();</span>
-                // SMBIOS should be first line so if we're here we are done iterating
-<span class="nc" id="L113">                break;</span>
-            }
-<span class="nc" id="L115">        }</span>
-<span class="nc" id="L116">        return new Pair&lt;&gt;(biosName, revision);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (checkLine.contains(revMarker)) {</span>
+<span class="nc" id="L117">                    revision = checkLine.split(revMarker)[1].trim();</span>
+                    // SMBIOS should be first line so if we're here we are done iterating
+<span class="nc" id="L119">                    break;</span>
+                }
+<span class="nc" id="L121">            }</span>
+        }
+<span class="nc" id="L123">        return new Pair&lt;&gt;(biosName, revision);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>UserGroupInfo.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util</a> &gt; <span class="el_source">UserGroupInfo.java</span></div><h1>UserGroupInfo.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -29,7 +29,19 @@ public final class UserGroupInfo {
 <span class="nc" id="L29">    private static final Supplier&lt;Map&lt;String, String&gt;&gt; GROUPS_ID_MAP = memoize(UserGroupInfo::getGroupMap,</span>
 <span class="nc" id="L30">            TimeUnit.MINUTES.toNanos(1));</span>
 
+<span class="nc bnc" id="L32" title="All 2 branches missed.">    private static final boolean ELEVATED = 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(&quot;id -u&quot;),</span>
+            -1);
+
     private UserGroupInfo() {
+    }
+
+    /**
+     * Determine whether the current process has elevated permissions such as sudo / Administrator
+     *
+     * @return True if this process has elevated permissions
+     */
+    public static boolean isElevated() {
+<span class="nc" id="L44">        return ELEVATED;</span>
     }
 
     /**
@@ -39,7 +51,7 @@ public final class UserGroupInfo {
      * @return a pair containing that user id as the first element and the user name as the second
      */
     public static String getUser(String userId) {
-<span class="nc" id="L42">        return USERS_ID_MAP.get().getOrDefault(userId, Constants.UNKNOWN);</span>
+<span class="nc" id="L54">        return USERS_ID_MAP.get().getOrDefault(userId, Constants.UNKNOWN);</span>
     }
 
     /**
@@ -49,49 +61,49 @@ public final class UserGroupInfo {
      * @return a {@link java.lang.String} object.
      */
     public static String getGroupName(String groupId) {
-<span class="nc" id="L52">        return GROUPS_ID_MAP.get().getOrDefault(groupId, Constants.UNKNOWN);</span>
+<span class="nc" id="L64">        return GROUPS_ID_MAP.get().getOrDefault(groupId, Constants.UNKNOWN);</span>
     }
 
     private static Map&lt;String, String&gt; getUserMap() {
-<span class="nc" id="L56">        HashMap&lt;String, String&gt; userMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">        HashMap&lt;String, String&gt; userMap = new HashMap&lt;&gt;();</span>
         List&lt;String&gt; passwd;
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (Platform.isAIX()) {</span>
-<span class="nc" id="L59">            passwd = FileUtil.readFile(&quot;/etc/passwd&quot;);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (Platform.isAIX()) {</span>
+<span class="nc" id="L71">            passwd = FileUtil.readFile(&quot;/etc/passwd&quot;);</span>
         } else {
-<span class="nc" id="L61">            passwd = ExecutingCommand.runNative(&quot;getent passwd&quot;);</span>
+<span class="nc" id="L73">            passwd = ExecutingCommand.runNative(&quot;getent passwd&quot;);</span>
         }
         // see man 5 passwd for the fields
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        for (String entry : passwd) {</span>
-<span class="nc" id="L65">            String[] split = entry.split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (split.length &gt; 2) {</span>
-<span class="nc" id="L67">                String userName = split[0];</span>
-<span class="nc" id="L68">                String uid = split[2];</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        for (String entry : passwd) {</span>
+<span class="nc" id="L77">            String[] split = entry.split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (split.length &gt; 2) {</span>
+<span class="nc" id="L79">                String userName = split[0];</span>
+<span class="nc" id="L80">                String uid = split[2];</span>
                 // it is allowed to have multiple entries for the same userId,
                 // we use the first one
-<span class="nc" id="L71">                userMap.putIfAbsent(uid, userName);</span>
+<span class="nc" id="L83">                userMap.putIfAbsent(uid, userName);</span>
             }
-<span class="nc" id="L73">        }</span>
-<span class="nc" id="L74">        return userMap;</span>
+<span class="nc" id="L85">        }</span>
+<span class="nc" id="L86">        return userMap;</span>
     }
 
     private static Map&lt;String, String&gt; getGroupMap() {
-<span class="nc" id="L78">        Map&lt;String, String&gt; groupMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L90">        Map&lt;String, String&gt; groupMap = new HashMap&lt;&gt;();</span>
         List&lt;String&gt; group;
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (Platform.isAIX()) {</span>
-<span class="nc" id="L81">            group = FileUtil.readFile(&quot;/etc/group&quot;);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (Platform.isAIX()) {</span>
+<span class="nc" id="L93">            group = FileUtil.readFile(&quot;/etc/group&quot;);</span>
         } else {
-<span class="nc" id="L83">            group = ExecutingCommand.runNative(&quot;getent group&quot;);</span>
+<span class="nc" id="L95">            group = ExecutingCommand.runNative(&quot;getent group&quot;);</span>
         }
         // see man 5 group for the fields
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (String entry : group) {</span>
-<span class="nc" id="L87">            String[] split = entry.split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (split.length &gt; 2) {</span>
-<span class="nc" id="L89">                String groupName = split[0];</span>
-<span class="nc" id="L90">                String gid = split[2];</span>
-<span class="nc" id="L91">                groupMap.putIfAbsent(gid, groupName);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        for (String entry : group) {</span>
+<span class="nc" id="L99">            String[] split = entry.split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (split.length &gt; 2) {</span>
+<span class="nc" id="L101">                String groupName = split[0];</span>
+<span class="nc" id="L102">                String gid = split[2];</span>
+<span class="nc" id="L103">                groupMap.putIfAbsent(gid, groupName);</span>
             }
-<span class="nc" id="L93">        }</span>
-<span class="nc" id="L94">        return groupMap;</span>
+<span class="nc" id="L105">        }</span>
+<span class="nc" id="L106">        return groupMap;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
