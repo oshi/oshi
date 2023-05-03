@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux;
@@ -7,6 +7,7 @@ package oshi.driver.linux;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 
 /**
  * Utility to read info from {@code lshw}
@@ -17,19 +18,41 @@ public final class Lshw {
     private Lshw() {
     }
 
+    private static final String MODEL;
+    private static final String SERIAL;
+    private static final String UUID;
+    static {
+        String model = null;
+        String serial = null;
+        String uuid = null;
+
+        if (UserGroupInfo.isElevated()) {
+            String modelMarker = "product:";
+            String serialMarker = "serial:";
+            String uuidMarker = "uuid:";
+
+            for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
+                if (checkLine.contains(modelMarker)) {
+                    model = checkLine.split(modelMarker)[1].trim();
+                } else if (checkLine.contains(serialMarker)) {
+                    serial = checkLine.split(serialMarker)[1].trim();
+                } else if (checkLine.contains(uuidMarker)) {
+                    uuid = checkLine.split(uuidMarker)[1].trim();
+                }
+            }
+        }
+        MODEL = model;
+        SERIAL = serial;
+        UUID = uuid;
+    }
+
     /**
      * Query the model from lshw
      *
      * @return The model if available, null otherwise
      */
     public static String queryModel() {
-        String modelMarker = "product:";
-        for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
-            if (checkLine.contains(modelMarker)) {
-                return checkLine.split(modelMarker)[1].trim();
-            }
-        }
-        return null;
+        return MODEL;
     }
 
     /**
@@ -38,13 +61,7 @@ public final class Lshw {
      * @return The serial number if available, null otherwise
      */
     public static String querySerialNumber() {
-        String serialMarker = "serial:";
-        for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
-            if (checkLine.contains(serialMarker)) {
-                return checkLine.split(serialMarker)[1].trim();
-            }
-        }
-        return null;
+        return SERIAL;
     }
 
     /**
@@ -53,13 +70,7 @@ public final class Lshw {
      * @return The UUID if available, null otherwise
      */
     public static String queryUUID() {
-        String uuidMarker = "uuid:";
-        for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
-            if (checkLine.contains(uuidMarker)) {
-                return checkLine.split(uuidMarker)[1].trim();
-            }
-        }
-        return null;
+        return UUID;
     }
 
     /**

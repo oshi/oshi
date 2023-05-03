@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -18,8 +18,7 @@ import oshi.driver.unix.Who;
 import oshi.driver.unix.Xwininfo;
 import oshi.software.os.OSProcess.State;
 import oshi.util.Constants;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.Util;
 
 /**
@@ -307,7 +306,7 @@ public interface OperatingSystem {
      * @return True if this process has elevated permissions
      */
     default boolean isElevated() {
-        return 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"), -1);
+        return UserGroupInfo.isElevated();
     }
 
     /**
