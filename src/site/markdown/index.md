@@ -125,7 +125,7 @@ Continuous Integration Test Status
 [![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![Coverity Scan Build Status](https://img.shields.io/coverity/scan/9332.svg)](https://scan.coverity.com/projects/dblock-oshi)
+[![Coverity Scan Build Status](https://img.shields.io/coverity/scan/28367.svg)](https://scan.coverity.com/projects/oshi-oshi)
 [![Codacy Grade](https://app.codacy.com/project/badge/Grade/4002c92342814fe1989a7841d9f427f1)](https://www.codacy.com/gh/oshi/oshi/dashboard?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=oshi/oshi&amp;amp;utm_campaign=Badge_Grade)
 [![CodeQL](https://github.com/oshi/oshi/workflows/CodeQL/badge.svg)](https://github.com/oshi/oshi/security/code-scanning)
 [![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
