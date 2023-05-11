@@ -26,7 +26,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Analyze with Coverity
         run: |
-          wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=dblock%2Foshi" -O coverity_tool.tgz
+          wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=oshi%2Foshi" -O coverity_tool.tgz
           tar -xf coverity_tool.tgz
           ./cov-analysis-linux64-*/bin/cov-configure --java
           ./cov-analysis-linux64-*/bin/cov-build --dir cov-int ./mvnw -B -DskipTests=true verify
@@ -36,7 +36,7 @@ jobs:
             --form file=@oshi.tgz \
             --form version="oshi/coverity_scan" \
             --form description="Oshi Coverity Scan" \
-            https://scan.coverity.com/builds?project=dblock%2Foshi
+            https://scan.coverity.com/builds?project=oshi%2Foshi
         env:
           COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
           EMAIL: ${{ secrets.EMAIL }}
