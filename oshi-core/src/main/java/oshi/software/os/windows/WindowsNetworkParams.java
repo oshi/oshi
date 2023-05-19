@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 The OSHI Project Contributors
+ * Copyright 2017-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -18,6 +18,7 @@ import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
 import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -85,7 +86,11 @@ final class WindowsNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getHostName() {
-        return Kernel32Util.getComputerName();
+        try {
+            return Kernel32Util.getComputerName();
+        } catch (Win32Exception e) {
+            return super.getHostName();
+        }
     }
 
     @Override

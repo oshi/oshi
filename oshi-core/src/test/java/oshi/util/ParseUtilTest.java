@@ -17,9 +17,11 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -424,11 +426,15 @@ class ParseUtilTest {
     @Test
     void testParseCimDateTimeToOffset() {
         String cimDateTime = "20160513072950.782000-420";
+        OffsetDateTime parsedTime = ParseUtil.parseCimDateTimeToOffset(cimDateTime);
+        assertNotNull(parsedTime);
         // 2016-05-13T07:29:50 == 1463124590
         // Add 420 minutes to get unix seconds
         Instant timeInst = Instant.ofEpochMilli(1463124590_782L + 60 * 420_000L);
-        assertThat(ParseUtil.parseCimDateTimeToOffset(cimDateTime).toInstant(), is(timeInst));
-        assertThat(ParseUtil.parseCimDateTimeToOffset("Not a datetime").toInstant(), is(Instant.EPOCH));
+        assertThat(parsedTime.toInstant(), is(timeInst));
+        OffsetDateTime badParsingTime = ParseUtil.parseCimDateTimeToOffset("Not a datetime");
+        assertNotNull(badParsingTime);
+        assertThat(badParsingTime.toInstant(), is(Instant.EPOCH));
     }
 
     @Test
