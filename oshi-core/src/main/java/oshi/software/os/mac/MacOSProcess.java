@@ -441,14 +441,10 @@ public class MacOSProcess extends AbstractOSProcess {
             this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;
             this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);
             Passwd pwuid = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);
-            if (pwuid != null) {
-                this.user = pwuid.pw_name;
-            }
+            this.user = pwuid == null ? Integer.toString(taskAllInfo.pbsd.pbi_uid) : pwuid.pw_name;
             this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);
             Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);
-            if (grgid != null) {
-                this.group = grgid.gr_name;
-            }
+            this.group = grgid == null ? Integer.toString(taskAllInfo.pbsd.pbi_gid) : grgid.gr_name;
             this.threadCount = taskAllInfo.ptinfo.pti_threadnum;
             this.priority = taskAllInfo.ptinfo.pti_priority;
             this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;
