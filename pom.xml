@@ -113,7 +113,7 @@
         <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
         <maven-fluido-skin.version>1.11.2</maven-fluido-skin.version>
         <!-- build plugins -->
-        <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
+        <git-commit-id-maven-plugin.version>6.0.0</git-commit-id-maven-plugin.version>
         <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <bnd-maven-plugin.version>6.4.0</bnd-maven-plugin.version>
@@ -255,9 +255,9 @@
                 </plugin>
                 <!-- Build Plugins -->
                 <plugin>
-                    <groupId>pl.project13.maven</groupId>
-                    <artifactId>git-commit-id-plugin</artifactId>
-                    <version>${git-commit-id-plugin.version}</version>
+                    <groupId>io.github.git-commit-id</groupId>
+                    <artifactId>git-commit-id-maven-plugin</artifactId>
+                    <version>${git-commit-id-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -596,8 +596,8 @@
         <plugins>
             <!-- Build Plugins -->
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
                 <configuration>
                     <dotGitDirectory>.git</dotGitDirectory>
                 </configuration>
