@@ -22,8 +22,11 @@ jobs:
         with:
           usesh: false
           mem: 2048
+          # note default jdk for maven is 8, but some maven plugins no longer work
+          # the version is specific for the OBSD release, ic.7.3 ; there is no meta package like eg. "jdk-11"
           prepare: |
             pkg_add curl
+            pkg_add jdk-11.0.18.10.1p0v0
             pkg_add maven
           run: |
             mvn clean test -B -Djacoco.skip=true
