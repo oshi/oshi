@@ -120,14 +120,14 @@
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <junit-platform-maven-plugin.version>1.1.7</junit-platform-maven-plugin.version>
         <!-- reporting plugins -->
-        <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
+        <maven-checkstyle-plugin.version>3.3.0</maven-checkstyle-plugin.version>
         <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
         <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <!-- tools -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
-        <maven-dependency-plugin.version>3.5.0</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.6.0</maven-dependency-plugin.version>
         <maven-release-plugin.version>3.0.0</maven-release-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <properties-maven-plugin.version>1.1.0</properties-maven-plugin.version>
