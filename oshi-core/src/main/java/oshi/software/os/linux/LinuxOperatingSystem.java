@@ -262,7 +262,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadId() {
-        return LinuxLibc.INSTANCE.syscall(LinuxLibc.SYS_gettid);
+        return LinuxLibc.INSTANCE.syscall(LinuxLibc.SYS_GETTID);
     }
 
     @Override

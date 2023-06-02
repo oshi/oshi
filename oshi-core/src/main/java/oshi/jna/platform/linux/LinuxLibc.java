@@ -4,7 +4,6 @@
  */
 package oshi.jna.platform.linux;
 
-import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Structure;
@@ -68,18 +67,21 @@ public interface LinuxLibc extends LibC, CLibrary {
      */
     LinuxUtmpx getutxent();
 
-    int SYS_gettid = Platform.is64Bit() ? 186 : 224;
+    /**
+     * SYS_gettid
+     * Defined in /usr/include/asm/unistd_32.h or /usr/include/asm/unistd_64.h
+     */
+    int SYS_GETTID = Platform.is64Bit() ? 186 : 224;
 
     /**
      * syscall()  performs the system call whose assembly language interface has the specified number with the specified
      * arguments.
      *
-     * @param number
-     * @param args
+     * @param number sys call number
+     * @param args sys call arguments
      * @return The return value is defined by the system call being invoked.  In general, a 0 return value indicates success.   A  -1  return  value  indicates  an
      *        error, and an error code is stored in errno.
-     * @throws LastErrorException
      */
-    int syscall(int number, Object... args) throws LastErrorException;
+    int syscall(int number, Object... args);
 
 }
