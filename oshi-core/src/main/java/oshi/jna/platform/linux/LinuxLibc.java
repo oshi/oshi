@@ -4,7 +4,9 @@
  */
 package oshi.jna.platform.linux;
 
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
+import com.sun.jna.Platform;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.linux.LibC;
@@ -66,11 +68,17 @@ public interface LinuxLibc extends LibC, CLibrary {
      */
     LinuxUtmpx getutxent();
 
+    int SYS_gettid = Platform.is64Bit() ? 186 : 224;
+
     /**
-     * Returns the caller's thread ID (TID). In a single-threaded process, the thread ID is equal to the process ID. In
-     * a multithreaded process, all threads have the same PID, but each one has a unique TID.
-     *
-     * @return the thread ID of the calling thread.
+     * syscall()  performs the system call whose assembly language interface has the specified number with the specified arguments.  Symbolic constants for
+     * system calls can be found in the header file <sys/syscall.h>.
+     * @param number
+     * @param args
+     * @return The return value is defined by the system call being invoked.  In general, a 0 return value indicates success.   A  -1  return  value  indicates  an
+     *        error, and an error code is stored in errno.
+     * @throws LastErrorException
      */
-    int gettid();
+    int syscall(int number, Object... args) throws LastErrorException;
+
 }
