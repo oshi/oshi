@@ -71,8 +71,9 @@ public interface LinuxLibc extends LibC, CLibrary {
     int SYS_gettid = Platform.is64Bit() ? 186 : 224;
 
     /**
-     * syscall()  performs the system call whose assembly language interface has the specified number with the specified arguments.  Symbolic constants for
-     * system calls can be found in the header file <sys/syscall.h>.
+     * syscall()  performs the system call whose assembly language interface has the specified number with the specified
+     * arguments.
+     *
      * @param number
      * @param args
      * @return The return value is defined by the system call being invoked.  In general, a 0 return value indicates success.   A  -1  return  value  indicates  an
