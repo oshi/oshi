@@ -275,11 +275,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // 3:0 – Stepping
         processorIdBytes |= steppingL & 0xf;
         // 19:16,7:4 – Model
-        processorIdBytes |= (modelL & 0x0f) << 4;
-        processorIdBytes |= (modelL & 0xf0) << 16;
+        processorIdBytes |= (modelL & 0xf) << 4;
+        processorIdBytes |= (modelL & 0xf0) << 12; // shift high 4 bits
         // 27:20,11:8 – Family
-        processorIdBytes |= (familyL & 0x0f) << 8;
-        processorIdBytes |= (familyL & 0xf0) << 20;
+        processorIdBytes |= (familyL & 0xf) << 8;
+        processorIdBytes |= (familyL & 0xff0) << 16; // shift high 8 bits
         // 13:12 – Processor Type, assume 0
         long hwcap = 0L;
         if (Platform.isLinux()) {
