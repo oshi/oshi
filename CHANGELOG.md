@@ -1,6 +1,7 @@
 # 6.4.3 (in progress)
 
 * [#2377](https://github.com/oshi/oshi/pull/2377): Graceful fallback for macOS Process user or group name - [@dbwiddis](https://github.com/dbwiddis).
+* [#2394](https://github.com/oshi/oshi/pull/2394): Fix bit shifting in CPUID calculation - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02)
 
