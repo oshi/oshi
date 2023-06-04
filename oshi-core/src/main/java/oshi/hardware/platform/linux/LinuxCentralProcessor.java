@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -161,9 +162,14 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+        // Attempt to read from sysfs
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
                 ? readTopologyFromUdev()
                 : readTopologyFromSysfs();
+        // This sometimes fails so fall back to CPUID
+        if (topology.getA().isEmpty()) {
+            topology = readTopologyFromCpuinfo();
+        }
         List<LogicalProcessor> logProcs = topology.getA();
         List<ProcessorCache> caches = topology.getB();
         Map<Integer, Integer> coreEfficiencyMap = topology.getC();
@@ -290,6 +296,119 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         } catch (IllegalArgumentException e) {
             return ProcessorCache.Type.UNIFIED;
         }
+    }
+
+    private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromCpuinfo() {
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        Set<ProcessorCache> caches = mapCachesFromLscpu();
+        Map<Integer, Integer> numaNodeMap = mapNumaNodesFromLscpu();
+
+        List<String> procCpu = FileUtil.readFile(CPUINFO);
+        int currentProcessor = 0;
+        int currentCore = 0;
+        int currentPackage = 0;
+
+        boolean first = true;
+        for (String cpu : procCpu) {
+            // Count logical processors
+            if (cpu.startsWith("processor")) {
+                if (first) {
+                    first = false;
+                } else {
+                    // add from the previous iteration
+                    logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
+                            numaNodeMap.getOrDefault(currentProcessor, 0)));
+                }
+                // start creating for this iteration
+                currentProcessor = ParseUtil.parseLastInt(cpu, 0);
+            } else if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
+                // Count unique combinations of core id and physical id.
+                currentCore = ParseUtil.parseLastInt(cpu, 0);
+            } else if (cpu.startsWith("physical id")) {
+                currentPackage = ParseUtil.parseLastInt(cpu, 0);
+            }
+        }
+        logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
+                numaNodeMap.getOrDefault(currentProcessor, 0)));
+        return new Quartet<>(logProcs, orderedProcCaches(caches), Collections.emptyMap(), Collections.emptyMap());
+    }
+
+    private static Map<Integer, Integer> mapNumaNodesFromLscpu() {
+        Map<Integer, Integer> numaNodeMap = new HashMap<>();
+        // Get numa node info from lscpu
+        List<String> lscpu = ExecutingCommand.runNative("lscpu -p=cpu,node");
+        // Format:
+        // # comment lines starting with #
+        // # then comma-delimited cpu,node
+        // 0,0
+        // 1,0
+        for (String line : lscpu) {
+            if (!line.startsWith("#")) {
+                int pos = line.indexOf(',');
+                if (pos > 0 && pos < line.length()) {
+                    numaNodeMap.put(ParseUtil.parseIntOrDefault(line.substring(0, pos), 0),
+                            ParseUtil.parseIntOrDefault(line.substring(pos + 1), 0));
+                }
+            }
+        }
+        return numaNodeMap;
+    }
+
+    private static Set<ProcessorCache> mapCachesFromLscpu() {
+        Set<ProcessorCache> caches = new HashSet<>();
+        int level = 0;
+        Type type = null;
+        int associativity = 0;
+        int lineSize = 0;
+        long size = 0L;
+        // Get numa node info from lscpu
+        List<String> lscpu = ExecutingCommand.runNative("lscpu -B -C --json");
+        for (String line : lscpu) {
+            String s = line.trim();
+            if (s.startsWith("}")) {
+                // done with this entry, save it
+                if (level > 0 && type != null) {
+                    caches.add(new ProcessorCache(level, associativity, lineSize, size, type));
+                }
+                level = 0;
+                type = null;
+                associativity = 0;
+                lineSize = 0;
+                size = 0L;
+            } else if (s.contains("one-size")) {
+                // "one-size": "65536",
+                String[] split = ParseUtil.notDigits.split(s);
+                if (split.length > 1) {
+                    size = ParseUtil.parseLongOrDefault(split[1], 0L);
+                }
+            } else if (s.contains("ways")) {
+                // "ways": null,
+                // "ways": 4,
+                String[] split = ParseUtil.notDigits.split(s);
+                if (split.length > 1) {
+                    associativity = ParseUtil.parseIntOrDefault(split[1], 0);
+                }
+            } else if (s.contains("type")) {
+                // "type": "Unified",
+                String[] split = s.split("\"");
+                if (split.length > 2) {
+                    type = parseCacheType(split[split.length - 2]);
+                }
+            } else if (s.contains("level")) {
+                // "level": 3,
+                String[] split = ParseUtil.notDigits.split(s);
+                if (split.length > 1) {
+                    level = ParseUtil.parseIntOrDefault(split[1], 0);
+                }
+            } else if (s.contains("coherency-size")) {
+                // "coherency-size": 64
+                String[] split = ParseUtil.notDigits.split(s);
+                if (split.length > 1) {
+                    lineSize = ParseUtil.parseIntOrDefault(split[1], 0);
+                }
+            }
+        }
+        return caches;
     }
 
     @Override
