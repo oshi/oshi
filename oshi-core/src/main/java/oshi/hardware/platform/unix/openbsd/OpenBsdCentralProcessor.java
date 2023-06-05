@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -88,11 +88,6 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // stepping is bits 3:0
         int stepping = cpuid & 0xf;
         return new Triplet<>(family, model, stepping);
-    }
-
-    @Override
-    protected long queryMaxFreq() {
-        return queryCurrentFreq()[0];
     }
 
     @Override
