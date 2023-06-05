@@ -22,9 +22,11 @@ public interface LinuxLibc extends LibC, CLibrary {
     LinuxLibc INSTANCE = Native.load("c", LinuxLibc.class);
 
     /**
-     * SYS_gettid Defined in /usr/include/asm/unistd_32.h or /usr/include/asm/unistd_64.h
+     * SYS_gettid Defined in one of: arch/arm64/include/asm/unistd32.h, 224 arch/x86/include/uapi/asm/unistd_32.h, 224
+     * arch/x86/include/uapi/asm/unistd_64.h, 186 include/uapi/asm-generic/unistd.h, 178
      */
-    NativeLong SYS_GETTID = new NativeLong(Platform.is64Bit() ? (Platform.isARM() ? 178 : 186) : 224);
+    NativeLong SYS_GETTID = new NativeLong(Platform.isIntel() ? (Platform.is64Bit() ? 186 : 224)
+            : ((Platform.isARM() && Platform.is64Bit()) ? 224 : 178));
 
     /**
      * Return type for getutxent()
