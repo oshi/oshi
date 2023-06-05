@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -117,7 +117,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      *
      * @return The max frequency.
      */
-    protected abstract long queryMaxFreq();
+    protected long queryMaxFreq() {
+        return Arrays.stream(getCurrentFreq()).max().orElse(-1L);
+    }
 
     @Override
     public long[] getCurrentFreq() {
