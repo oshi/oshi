@@ -1,10 +1,12 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.linux;
 
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
+import com.sun.jna.Platform;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.linux.LibC;
@@ -18,6 +20,11 @@ import oshi.jna.platform.unix.CLibrary;
 public interface LinuxLibc extends LibC, CLibrary {
 
     LinuxLibc INSTANCE = Native.load("c", LinuxLibc.class);
+
+    /**
+     * SYS_gettid Defined in /usr/include/asm/unistd_32.h or /usr/include/asm/unistd_64.h
+     */
+    NativeLong SYS_GETTID = new NativeLong(Platform.is64Bit() ? (Platform.isARM() ? 178 : 186) : 224);
 
     /**
      * Return type for getutxent()
@@ -73,4 +80,15 @@ public interface LinuxLibc extends LibC, CLibrary {
      * @return the thread ID of the calling thread.
      */
     int gettid();
+
+    /**
+     * syscall() performs the system call whose assembly language interface has the specified number with the specified
+     * arguments.
+     *
+     * @param number sys call number
+     * @param args   sys call arguments
+     * @return The return value is defined by the system call being invoked. In general, a 0 return value indicates
+     *         success. A -1 return value indicates an error, and an error code is stored in errno.
+     */
+    NativeLong syscall(NativeLong number, Object... args);
 }
