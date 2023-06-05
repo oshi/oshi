@@ -177,6 +177,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         // Failsafe
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
+        }
+        if (coreEfficiencyMap.isEmpty()) {
             coreEfficiencyMap.put(0, 0);
         }
         // Sort
@@ -302,6 +304,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Set<ProcessorCache> caches = mapCachesFromLscpu();
         Map<Integer, Integer> numaNodeMap = mapNumaNodesFromLscpu();
+        Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
 
         List<String> procCpu = FileUtil.readFile(CPUINFO);
         int currentProcessor = 0;
@@ -318,11 +321,12 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     // add from the previous iteration
                     logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
                             numaNodeMap.getOrDefault(currentProcessor, 0)));
+                    // Count unique combinations of core id and physical id.
+                    coreEfficiencyMap.put((currentPackage << 16) + currentCore, 0);
                 }
                 // start creating for this iteration
                 currentProcessor = ParseUtil.parseLastInt(cpu, 0);
             } else if (cpu.startsWith("core id") || cpu.startsWith("cpu number")) {
-                // Count unique combinations of core id and physical id.
                 currentCore = ParseUtil.parseLastInt(cpu, 0);
             } else if (cpu.startsWith("physical id")) {
                 currentPackage = ParseUtil.parseLastInt(cpu, 0);
@@ -330,7 +334,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         logProcs.add(new LogicalProcessor(currentProcessor, currentCore, currentPackage,
                 numaNodeMap.getOrDefault(currentProcessor, 0)));
-        return new Quartet<>(logProcs, orderedProcCaches(caches), Collections.emptyMap(), Collections.emptyMap());
+        coreEfficiencyMap.put((currentPackage << 16) + currentCore, 0);
+        return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, Collections.emptyMap());
     }
 
     private static Map<Integer, Integer> mapNumaNodesFromLscpu() {
