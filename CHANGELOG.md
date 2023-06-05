@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#2377](https://github.com/oshi/oshi/pull/2377): Graceful fallback for macOS Process user or group name - [@dbwiddis](https://github.com/dbwiddis).
+* [#2393](https://github.com/oshi/oshi/pull/2393): Get threadId by syscall when not have gettid - [@silencewood](https://github.com/silencewood).
 * [#2394](https://github.com/oshi/oshi/pull/2394): Fix bit shifting in CPUID calculation - [@dbwiddis](https://github.com/dbwiddis).
 * [#2396](https://github.com/oshi/oshi/pull/2396): Add command-line fallbacks for udev and sysfs processor info - [@dbwiddis](https://github.com/dbwiddis).
 

@@ -5,6 +5,7 @@
 package oshi.jna.platform.linux;
 
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Platform;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -68,10 +69,18 @@ public interface LinuxLibc extends LibC, CLibrary {
     LinuxUtmpx getutxent();
 
     /**
+     * Returns the caller's thread ID (TID). In a single-threaded process, the thread ID is equal to the process ID. In
+     * a multithreaded process, all threads have the same PID, but each one has a unique TID.
+     *
+     * @return the thread ID of the calling thread.
+     */
+    int gettid();
+
+    /**
      * SYS_gettid
      * Defined in /usr/include/asm/unistd_32.h or /usr/include/asm/unistd_64.h
      */
-    int SYS_GETTID = Platform.is64Bit() ? 186 : 224;
+    int SYS_GETTID = Platform.is64Bit() ? (Platform.isARM() ? 178 : 186) : 224;
 
     /**
      * syscall()  performs the system call whose assembly language interface has the specified number with the specified
@@ -82,6 +91,6 @@ public interface LinuxLibc extends LibC, CLibrary {
      * @return The return value is defined by the system call being invoked.  In general, a 0 return value indicates success.   A  -1  return  value  indicates  an
      *        error, and an error code is stored in errno.
      */
-    int syscall(int number, Object... args);
+    NativeLong syscall(int number, Object... args);
 
 }

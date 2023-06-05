@@ -85,6 +85,18 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         HAS_UDEV = hasUdev;
     }
 
+    public static final boolean HAS_GETTID;
+    static {
+        boolean hasGettid = false;
+        try {
+            LinuxLibc.INSTANCE.gettid();
+            hasGettid = true;
+        } catch (UnsatisfiedLinkError e) {
+            LOG.warn("Did not find gettid. Use syscall to get threadId.");
+        }
+        HAS_GETTID = hasGettid;
+    }
+
     /**
      * Jiffies per second, used for process time counters.
      */
@@ -262,7 +274,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadId() {
-        return LinuxLibc.INSTANCE.syscall(LinuxLibc.SYS_GETTID);
+        return HAS_GETTID ? LinuxLibc.INSTANCE.gettid() : LinuxLibc.INSTANCE.syscall(LinuxLibc.SYS_GETTID).intValue();
     }
 
     @Override
