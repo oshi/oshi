@@ -441,43 +441,39 @@ public class MacOSProcess extends AbstractOSProcess {
 <span class="nc" id="L441">            this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;</span>
 <span class="nc" id="L442">            this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);</span>
 <span class="nc" id="L443">            Passwd pwuid = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);</span>
-<span class="nc bnc" id="L444" title="All 2 branches missed.">            if (pwuid != null) {</span>
-<span class="nc" id="L445">                this.user = pwuid.pw_name;</span>
-            }
-<span class="nc" id="L447">            this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);</span>
-<span class="nc" id="L448">            Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);</span>
-<span class="nc bnc" id="L449" title="All 2 branches missed.">            if (grgid != null) {</span>
-<span class="nc" id="L450">                this.group = grgid.gr_name;</span>
-            }
-<span class="nc" id="L452">            this.threadCount = taskAllInfo.ptinfo.pti_threadnum;</span>
-<span class="nc" id="L453">            this.priority = taskAllInfo.ptinfo.pti_priority;</span>
-<span class="nc" id="L454">            this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;</span>
-<span class="nc" id="L455">            this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;</span>
-<span class="nc" id="L456">            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / TICKS_PER_MS;</span>
-<span class="nc" id="L457">            this.userTime = taskAllInfo.ptinfo.pti_total_user / TICKS_PER_MS;</span>
-<span class="nc" id="L458">            this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;</span>
-<span class="nc" id="L459">            this.upTime = now - this.startTime;</span>
-<span class="nc" id="L460">            this.openFiles = taskAllInfo.pbsd.pbi_nfiles;</span>
-<span class="nc bnc" id="L461" title="All 2 branches missed.">            this.bitness = (taskAllInfo.pbsd.pbi_flags &amp; P_LP64) == 0 ? 32 : 64;</span>
-<span class="nc" id="L462">            this.majorFaults = taskAllInfo.ptinfo.pti_pageins;</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">            this.user = pwuid == null ? Integer.toString(taskAllInfo.pbsd.pbi_uid) : pwuid.pw_name;</span>
+<span class="nc" id="L445">            this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);</span>
+<span class="nc" id="L446">            Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);</span>
+<span class="nc bnc" id="L447" title="All 2 branches missed.">            this.group = grgid == null ? Integer.toString(taskAllInfo.pbsd.pbi_gid) : grgid.gr_name;</span>
+<span class="nc" id="L448">            this.threadCount = taskAllInfo.ptinfo.pti_threadnum;</span>
+<span class="nc" id="L449">            this.priority = taskAllInfo.ptinfo.pti_priority;</span>
+<span class="nc" id="L450">            this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;</span>
+<span class="nc" id="L451">            this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;</span>
+<span class="nc" id="L452">            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / TICKS_PER_MS;</span>
+<span class="nc" id="L453">            this.userTime = taskAllInfo.ptinfo.pti_total_user / TICKS_PER_MS;</span>
+<span class="nc" id="L454">            this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;</span>
+<span class="nc" id="L455">            this.upTime = now - this.startTime;</span>
+<span class="nc" id="L456">            this.openFiles = taskAllInfo.pbsd.pbi_nfiles;</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">            this.bitness = (taskAllInfo.pbsd.pbi_flags &amp; P_LP64) == 0 ? 32 : 64;</span>
+<span class="nc" id="L458">            this.majorFaults = taskAllInfo.ptinfo.pti_pageins;</span>
             // testing using getrusage confirms pti_faults includes both major and minor
-<span class="nc" id="L464">            this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184</span>
-<span class="nc" id="L465">            this.contextSwitches = taskAllInfo.ptinfo.pti_csw;</span>
-<span class="nc" id="L466">        }</span>
-<span class="nc bnc" id="L467" title="All 4 branches missed.">        if (this.majorVersion &gt; 10 || this.minorVersion &gt;= 9) {</span>
-<span class="nc" id="L468">            try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {</span>
-<span class="nc bnc" id="L469" title="All 2 branches missed.">                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {</span>
-<span class="nc" id="L470">                    this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;</span>
-<span class="nc" id="L471">                    this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;</span>
+<span class="nc" id="L460">            this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184</span>
+<span class="nc" id="L461">            this.contextSwitches = taskAllInfo.ptinfo.pti_csw;</span>
+<span class="nc" id="L462">        }</span>
+<span class="nc bnc" id="L463" title="All 4 branches missed.">        if (this.majorVersion &gt; 10 || this.minorVersion &gt;= 9) {</span>
+<span class="nc" id="L464">            try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {</span>
+<span class="nc bnc" id="L465" title="All 2 branches missed.">                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {</span>
+<span class="nc" id="L466">                    this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;</span>
+<span class="nc" id="L467">                    this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;</span>
                 }
             }
         }
-<span class="nc" id="L475">        try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {</span>
-<span class="nc bnc" id="L476" title="All 2 branches missed.">            if (0 &lt; SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {</span>
-<span class="nc" id="L477">                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);</span>
+<span class="nc" id="L471">        try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">            if (0 &lt; SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {</span>
+<span class="nc" id="L473">                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);</span>
             }
         }
-<span class="nc" id="L480">        return true;</span>
+<span class="nc" id="L476">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
