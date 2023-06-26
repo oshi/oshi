@@ -1,6 +1,6 @@
 # 6.4.4 (in progress)
 
-* Your contribution here!
+* [#2407](https://github.com/oshi/oshi/pull/2407): Improve performance of Linux User and Group name queries - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06)
 
