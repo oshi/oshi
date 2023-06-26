@@ -6,28 +6,29 @@ package oshi.util;
 
 import static oshi.util.Memoizer.memoize;
 
-import java.util.HashMap;
+import com.sun.jna.Platform;
+
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
-import com.sun.jna.Platform;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * Utility class to temporarily cache the userID and group maps in *nix, for parsing process ownership. Cache expires
- * after one minute.
+ * Utility class to temporarily cache the userID and group maps in *nix, for
+ * parsing process ownership. Cache expires after one minute.
  */
 @ThreadSafe
 public final class UserGroupInfo {
 
-    // Temporarily cache users and groups, update each minute
+    // Temporarily cache users and groups in concurrent maps, completely refresh
+    // every 5 minutes
     private static final Supplier<Map<String, String>> USERS_ID_MAP = memoize(UserGroupInfo::getUserMap,
-            TimeUnit.MINUTES.toNanos(1));
+            TimeUnit.MINUTES.toNanos(5));
     private static final Supplier<Map<String, String>> GROUPS_ID_MAP = memoize(UserGroupInfo::getGroupMap,
-            TimeUnit.MINUTES.toNanos(1));
+            TimeUnit.MINUTES.toNanos(5));
 
     private static final boolean ELEVATED = 0 == ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("id -u"),
             -1);
@@ -36,7 +37,8 @@ public final class UserGroupInfo {
     }
 
     /**
-     * Determine whether the current process has elevated permissions such as sudo / Administrator
+     * Determine whether the current process has elevated permissions such as sudo /
+     * Administrator
      *
      * @return True if this process has elevated permissions
      */
@@ -47,31 +49,44 @@ public final class UserGroupInfo {
     /**
      * Gets a user from their ID
      *
-     * @param userId a user ID
-     * @return a pair containing that user id as the first element and the user name as the second
+     * @param userId
+     *            a user ID
+     * @return a pair containing that user id as the first element and the user name
+     *         as the second
      */
     public static String getUser(String userId) {
-        return USERS_ID_MAP.get().getOrDefault(userId, Constants.UNKNOWN);
+        // If value is in cached /etc/passwd return, else do getent passwd uid
+        return USERS_ID_MAP.get().getOrDefault(userId, getentPasswd(userId));
     }
 
     /**
      * Gets the group name for a given ID
      *
-     * @param groupId a {@link java.lang.String} object.
+     * @param groupId
+     *            a {@link java.lang.String} object.
      * @return a {@link java.lang.String} object.
      */
     public static String getGroupName(String groupId) {
-        return GROUPS_ID_MAP.get().getOrDefault(groupId, Constants.UNKNOWN);
+        // If value is in cached /etc/passwd return, else do getent group gid
+        return GROUPS_ID_MAP.get().getOrDefault(groupId, getentGroup(groupId));
     }
 
     private static Map<String, String> getUserMap() {
-        HashMap<String, String> userMap = new HashMap<>();
-        List<String> passwd;
+        return parsePasswd(FileUtil.readFile("/etc/passwd"));
+    }
+
+    private static String getentPasswd(String userId) {
         if (Platform.isAIX()) {
-            passwd = FileUtil.readFile("/etc/passwd");
-        } else {
-            passwd = ExecutingCommand.runNative("getent passwd");
+            return Constants.UNKNOWN;
         }
+        Map<String, String> newUsers = parsePasswd(ExecutingCommand.runNative("getent passwd " + userId));
+        // add to user map for future queries
+        USERS_ID_MAP.get().putAll(newUsers);
+        return newUsers.getOrDefault(userId, Constants.UNKNOWN);
+    }
+
+    private static Map<String, String> parsePasswd(List<String> passwd) {
+        Map<String, String> userMap = new ConcurrentHashMap<>();
         // see man 5 passwd for the fields
         for (String entry : passwd) {
             String[] split = entry.split(":");
@@ -87,13 +102,21 @@ public final class UserGroupInfo {
     }
 
     private static Map<String, String> getGroupMap() {
-        Map<String, String> groupMap = new HashMap<>();
-        List<String> group;
+        return parseGroup(FileUtil.readFile("/etc/group"));
+    }
+
+    private static String getentGroup(String groupId) {
         if (Platform.isAIX()) {
-            group = FileUtil.readFile("/etc/group");
-        } else {
-            group = ExecutingCommand.runNative("getent group");
+            return Constants.UNKNOWN;
         }
+        Map<String, String> newGroups = parseGroup(ExecutingCommand.runNative("getent group " + groupId));
+        // add to group map for future queries
+        GROUPS_ID_MAP.get().putAll(newGroups);
+        return newGroups.getOrDefault(groupId, Constants.UNKNOWN);
+    }
+
+    private static Map<String, String> parseGroup(List<String> group) {
+        Map<String, String> groupMap = new ConcurrentHashMap<>();
         // see man 5 group for the fields
         for (String entry : group) {
             String[] split = entry.split(":");
