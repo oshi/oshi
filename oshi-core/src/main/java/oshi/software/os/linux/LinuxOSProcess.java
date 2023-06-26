@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -70,12 +70,12 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<List<String>> arguments = memoize(this::queryArguments);
     private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
+    private Supplier<String> user = memoize(this::queryUser);
+    private Supplier<String> group = memoize(this::queryGroup);
 
     private String name;
     private String path = "";
-    private String user;
     private String userID;
-    private String group;
     private String groupID;
     private State state = INVALID;
     private int parentProcessID;
@@ -156,7 +156,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public String getUser() {
-        return this.user;
+        return user.get();
+    }
+
+    private String queryUser() {
+        return UserGroupInfo.getUser(userID);
     }
 
     @Override
@@ -166,7 +170,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public String getGroup() {
-        return this.group;
+        return group.get();
+    }
+
+    private String queryGroup() {
+        return UserGroupInfo.getGroupName(groupID);
     }
 
     @Override
@@ -388,9 +396,9 @@ public class LinuxOSProcess extends AbstractOSProcess {
         // Don't set open files or bitness or currentWorkingDirectory; fetch on demand.
 
         this.userID = ParseUtil.whitespaces.split(status.getOrDefault("Uid", ""))[0];
-        this.user = UserGroupInfo.getUser(userID);
+        // defer user lookup until asked
         this.groupID = ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0];
-        this.group = UserGroupInfo.getGroupName(groupID);
+        // defer group lookup until asked
         this.name = status.getOrDefault("Name", "");
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
         return true;
