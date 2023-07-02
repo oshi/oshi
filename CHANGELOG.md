@@ -1,8 +1,8 @@
-# 6.4.4 (in progress)
+# 6.4.5 (in progress)
 
-* [#2407](https://github.com/oshi/oshi/pull/2407): Improve performance of Linux User and Group name queries - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06)
+# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01)
 
 ##### New Features
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
@@ -23,6 +23,7 @@
 * [#2393](https://github.com/oshi/oshi/pull/2393): Get threadId by syscall when gettid not available - [@silencewood](https://github.com/silencewood).
 * [#2394](https://github.com/oshi/oshi/pull/2394): Fix bit shifting in CPUID calculation - [@dbwiddis](https://github.com/dbwiddis).
 * [#2396](https://github.com/oshi/oshi/pull/2396): Add command-line fallbacks for udev and sysfs processor info - [@dbwiddis](https://github.com/dbwiddis).
+* [#2407](https://github.com/oshi/oshi/pull/2407): Improve performance of Linux User and Group name queries - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
