@@ -196,7 +196,7 @@ oshi-demo/oshi-core,oshi.software.os.unix.openbsd,OpenBsdInternetProtocolStats,9
 oshi-demo/oshi-core,oshi.util,Util,98,0,24,0,17,0,19,0,7,0
 oshi-demo/oshi-core,oshi.util,FileSystemUtil,110,0,20,0,20,0,14,0,4,0
 oshi-demo/oshi-core,oshi.util,Memoizer.new Supplier() {...},73,0,10,0,14,0,7,0,2,0
-oshi-demo/oshi-core,oshi.util,UserGroupInfo,135,0,14,0,32,0,13,0,6,0
+oshi-demo/oshi-core,oshi.util,UserGroupInfo,179,0,14,0,38,0,17,0,10,0
 oshi-demo/oshi-core,oshi.util,GlobalConfig,74,0,8,0,19,0,14,0,10,0
 oshi-demo/oshi-core,oshi.util,Constants,14,0,0,0,4,0,2,0,2,0
 oshi-demo/oshi-core,oshi.util,ParseUtil,2095,0,276,0,428,0,197,0,56,0
@@ -330,7 +330,7 @@ oshi-demo/oshi-core,oshi.jna.platform.linux,LinuxLibc.Exit_status,3,0,0,0,1,0,1,
 oshi-demo/oshi-core,oshi.jna.platform.linux,LinuxLibc.LinuxUtmpx,27,0,0,0,7,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.linux,LinuxLibc,27,0,8,0,3,0,5,0,1,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSProcess.ProcPidStat,84,0,0,0,7,0,3,0,3,0
-oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSProcess,785,0,40,0,148,0,62,0,42,0
+oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSProcess,797,0,40,0,150,0,64,0,44,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxInternetProtocolStats,324,0,30,0,57,0,29,0,9,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxFileSystem,500,0,58,0,115,0,40,0,11,0
 oshi-demo/oshi-core,oshi.software.os.linux,LinuxOSThread,256,0,6,0,48,0,18,0,15,0
@@ -425,8 +425,8 @@ oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisComputerSystem.Sm
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisFirmware,21,0,0,0,8,0,4,0,4,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisPowerSource,303,0,38,0,66,0,23,0,4,0
-oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisSoundCard,142,0,18,0,25,0,11,0,2,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,345,0,30,0,56,0,30,0,15,0
+oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisSoundCard,142,0,18,0,25,0,11,0,2,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHWDiskStore,497,0,36,0,74,0,31,0,13,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,60,0,0,0,11,0,7,0,7,0
 oshi-demo/oshi-core,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,380,0,38,0,72,0,25,0,6,0
@@ -451,8 +451,8 @@ oshi-demo/oshi-core,oshi.jna.platform.mac,CoreGraphics.CGRect,7,0,0,0,3,0,2,0,2,
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.MacUtmpx,23,0,0,0,6,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.ProcFileInfo,3,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,IOKit.SMCKeyData,11,0,0,0,4,0,2,0,2,0
-oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.SocketInfo,15,0,0,0,4,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,CoreGraphics.CGPoint,3,0,0,0,1,0,1,0,1,0
+oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.SocketInfo,15,0,0,0,4,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,IOKit,6,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB,6,0,0,0,1,0,1,0,1,0
 oshi-demo/oshi-core,oshi.jna.platform.mac,SystemB.TcpSockInfo,7,0,0,0,2,0,1,0,1,0
