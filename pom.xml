@@ -134,7 +134,7 @@
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <bind-api.version>2.3.3</bind-api.version>
-        <sortpom-plugin.version>3.2.1</sortpom-plugin.version>
+        <sortpom-plugin.version>3.3.0</sortpom-plugin.version>
         <spotless-plugin.version>2.38.0</spotless-plugin.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
