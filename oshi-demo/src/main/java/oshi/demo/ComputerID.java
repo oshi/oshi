@@ -1,8 +1,11 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
+
+import java.util.Arrays;
+import java.util.List;
 
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
@@ -16,6 +19,10 @@ import oshi.util.Constants;
  * cooperation.
  */
 public class ComputerID {
+
+    public static final List<String> NON_UNIQUE_UUIDS = Arrays.asList("03000200-0400-0500-0006-000700080009",
+            "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "00000000-0000-0000-0000-000000000000");
+
     /**
      * <p>
      * main.
@@ -29,14 +36,14 @@ public class ComputerID {
         System.out.println("Here's a unique (?) id for your computer.");
         System.out.println(getComputerIdentifier());
         System.out.println("If any field is " + unknownHash
-                + " then I couldn't find a serial number or uuid, and running as sudo might change this.");
+                + " then I couldn't find a serial number or unique uuid, and running as sudo might change this.");
     }
 
     /**
      * Generates a Computer Identifier, which may be part of a strategy to construct a licence key. (The identifier may
      * not be unique as in one case hashcode could be same for multiple values, and the result may differ based on
      * whether the program is running with sudo/root permission.) The identifier string is based upon the processor
-     * serial number, vendor, processor identifier, and total processor count.
+     * serial number, vendor, system UUID, processor identifier, and total processor count.
      *
      * @return A string containing four hyphen-delimited fields representing the processor; the first 3 are 32-bit
      *         hexadecimal values and the last one is an integer value.
@@ -51,6 +58,9 @@ public class ComputerID {
         String vendor = operatingSystem.getManufacturer();
         String processorSerialNumber = computerSystem.getSerialNumber();
         String uuid = computerSystem.getHardwareUUID();
+        if (NON_UNIQUE_UUIDS.contains(uuid.toUpperCase())) {
+            uuid = Constants.UNKNOWN;
+        }
         String processorIdentifier = centralProcessor.getProcessorIdentifier().getIdentifier();
         int processors = centralProcessor.getLogicalProcessorCount();
 
