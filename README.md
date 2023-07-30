@@ -51,7 +51,9 @@ Documentation
 
 Usage
 -----
-1. Include OSHI and its dependencies on your classpath.  We strongly recommend you add OSHI as a dependency to your project dependency manager such as Maven or Gradle.
+1. Include OSHI and its dependencies on your classpath.
+   - We strongly recommend you add `oshi-core` as a dependency to your project dependency manager such as Maven or Gradle.  
+   - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
 2. Create a new instance of `SystemInfo`
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
