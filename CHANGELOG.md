@@ -1,6 +1,7 @@
 # 6.4.5 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2421](https://github.com/oshi/oshi/pull/2421): Handle non-unique UUIDs in demo ComputerID class - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01)
 
