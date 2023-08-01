@@ -1,5 +1,26 @@
 # Frequently Asked Questions
 
+  * [What is the intended use of the API?](#what-is-the-intended-use-of-the-api)
+  * [Is the API backwards compatible between versions?](#is-the-api-backwards-compatible-between-versions)
+  * [Does OSHI support Open Service Gateway initiative (OSGi) modules?](#does-oshi-support-open-service-gateway-initiative--osgi--modules)
+  * [Does OSHI support Java Module System (JPMS) modules?](#does-oshi-support-java-module-system--jpms--modules)
+  * [Is OSHI Thread Safe?](#is-oshi-thread-safe)
+  * [What minimum Java version is required?](#what-minimum-java-version-is-required)
+  * [Which operating systems are supported?](#which-operating-systems-are-supported)
+  * [How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?](#how-do-i-resolve-pdh-call-failed-with-error-code-0xc0000bb8-issues)
+  * [How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?](#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues)
+  * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
+  * [Why does OSHI's Process CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-process-cpu-usage-differ-from-the-windows-task-manager)
+  * [Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?](#why-does-oshi-freeze-for-20-seconds--or-larger-multiples-of-20-seconds--on-windows-when-it-first-starts-up)
+  * [How is OSHI different from SIGAR?](#how-is-oshi-different-from-sigar)
+  * [Does OSHI work on ...](#does-oshi-work-on-)
+    + [ARM hardware?](#arm-hardware)
+    + [Apple Silicon hardware?](#apple-silicon-hardware)
+    + [Raspberry Pi hardware?](#raspberry-pi-hardware)
+  * [Will you implement ... ?](#will-you-implement--)
+
+---
+
 ## What is the intended use of the API?
 
 Users should create a new instance of [SystemInfo](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/SystemInfo.html) and use the getters from this class to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
@@ -73,11 +94,19 @@ OSHI uses the latest version of JNA, which may conflict with other dependencies 
 If you experience a `NoClassDefFoundError` or `NoSuchMethodError` issues with JNA artifacts, you likely have
 an older version of either `jna` or `jna-platform` in your classpath from a transitive dependency on another project.
 Consider one or more of the following steps to resolve the conflict:
- - Listing OSHI earlier (or first) in your dependency list
- - Specifying the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` as dependencies.
+ - If using Maven, import OSHI's dependency management per [Maven Documentation](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#importing-dependencies)
+ - If using Maven, list OSHI earlier (or first) in your dependency list to influence dependency resolution.
+ - Specify the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` (For Gradle, `build.gradle` includes additional options to force the version). For Android, see the next paragraph.
  - If you are using the Spring Boot Starter Parent version 2.2 and earlier that includes JNA as a dependency:
    - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
    - If you must use version 2.2 or earlier, override the `jna.version` property to the latest JNA version.
+
+For Android, see the [JNA FAQ](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) for additional requirements relating to Android and ProGuard, specifically:
+ - Use the AAR artifact dependency rather than the JAR (for `jna` dependency only):
+   - In Gradle (`build.gradle`), you'll need to add `@aar` after the version
+   - In Maven (`pom.xml`), you'll need to specify `<type>aar</type>`
+   - In both cases you should add an exclusion to your `oshi-core` dependency for the (default) JAR artifact
+ - In ProGuard, use `-keep` directives to prevent obfuscating JNA classes
 
 ## Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?
 
@@ -140,20 +169,22 @@ development has been entirely done by open source volunteers, and it is under ac
  - **Support** SIGAR is completely unsupported by its authors, and there is no organized community support.
 OSHI is supported actively to fix bugs, respond to questions, and implement new features.
 
-## Does OSHI work on ARM hardware?
+## Does OSHI work on ...
+
+### ARM hardware?
 
 Yes, CI is actively conducted on Linux ARM hardware and other platforms will be added when hardware is
 available for such testing. Note that many features (e.g., CPUID, and processor identification such as
 family, model, stepping, and vendor frequency) are based on Intel chips and may have different corresponding
 meanings.
 
-## Does OSHI work on Apple M1 hardware?
+### Apple Silicon hardware?
 
 OSHI works with native `AArch64` support when JNA is version 5.7.0 or later.
 
 OSHI works using virtual x86 hardware under Rosetta if you are executing an x86-based JVM.
 
-## Does OSHI work on Raspberry Pi hardware?
+### Raspberry Pi hardware?
 
 Yes, most of the Linux code works here and other Pi-specific code has been implemented but has seen
 limited testing.  As the developers do not have a Pi to test on, users reporting issues should be
