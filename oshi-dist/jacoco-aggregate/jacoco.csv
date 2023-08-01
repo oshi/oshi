@@ -244,8 +244,8 @@ oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32Processor,36,0,0,0,6,0,3,0,3,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32VideoController.VideoControllerProperty,33,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,OhmHardware.IdentifierProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32LogicalDiskToPartition,11,0,0,0,2,0,1,0,1,0
-oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32Process.ProcessXPProperty,51,0,0,0,2,0,1,0,1,0
+oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32LogicalDisk,44,0,6,0,9,0,4,0,1,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32PhysicalMemory.PhysicalMemoryProperty,33,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core,oshi.driver.windows.wmi,Win32Processor.ProcessorIdProperty,9,0,0,0,2,0,1,0,1,0
@@ -425,8 +425,8 @@ oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisComputerSystem.Sm
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisFirmware,21,0,0,0,8,0,4,0,4,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisPowerSource,303,0,38,0,66,0,23,0,4,0
-oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,345,0,30,0,56,0,30,0,15,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisSoundCard,142,0,18,0,25,0,11,0,2,0
+oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,345,0,30,0,56,0,30,0,15,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisHWDiskStore,497,0,36,0,74,0,31,0,13,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,60,0,0,0,11,0,7,0,7,0
 oshi-dist/oshi-core,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,380,0,38,0,72,0,25,0,6,0
@@ -727,8 +727,8 @@ oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32Processor,36,0,0,0,6,0,3
 oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32VideoController.VideoControllerProperty,33,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,OhmHardware.IdentifierProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32LogicalDiskToPartition,11,0,0,0,2,0,1,0,1,0
-oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32Process.ProcessXPProperty,51,0,0,0,2,0,1,0,1,0
+oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32LogicalDisk,44,0,6,0,9,0,4,0,1,0
 oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32PhysicalMemory.PhysicalMemoryProperty,33,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-core-java11,oshi.driver.windows.wmi,Win32Processor.ProcessorIdProperty,9,0,0,0,2,0,1,0,1,0
@@ -908,8 +908,8 @@ oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisComputerSy
 oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisFirmware,21,0,0,0,8,0,4,0,4,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisPowerSource,303,0,38,0,66,0,23,0,4,0
-oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,337,0,30,0,56,0,30,0,15,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisSoundCard,127,0,18,0,25,0,11,0,2,0
+oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,337,0,30,0,56,0,30,0,15,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisHWDiskStore,468,0,36,0,74,0,31,0,13,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,60,0,0,0,11,0,7,0,7,0
 oshi-dist/oshi-core-java11,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,373,0,38,0,72,0,25,0,6,0
@@ -965,7 +965,7 @@ oshi-dist/oshi-core-java11,oshi.hardware,CentralProcessor.ProcessorCache,140,0,1
 oshi-dist/oshi-core-java11,oshi.hardware,NetworkIF.IfOperStatus,81,0,2,0,14,0,6,0,5,0
 oshi-dist/oshi-core-java11,oshi.hardware,CentralProcessor.ProcessorIdentifier,261,0,28,0,64,0,28,0,14,0
 oshi-dist/oshi-core-java11,oshi.hardware,PowerSource.CapacityUnits,21,0,0,0,4,0,1,0,1,0
-oshi-dist/oshi-demo,oshi.demo,ComputerID,126,0,0,0,21,0,3,0,3,0
+oshi-dist/oshi-demo,oshi.demo,ComputerID,150,0,2,0,24,0,5,0,4,0
 oshi-dist/oshi-demo,oshi.demo,DetectVM,232,0,18,0,39,0,13,0,4,0
 oshi-dist/oshi-demo,oshi.demo,OshiHTTPServer,239,0,8,0,59,0,8,0,4,0
 oshi-dist/oshi-demo,oshi.demo,OshiGui,220,0,4,0,43,0,10,0,8,0
@@ -1219,8 +1219,8 @@ oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32Processor,36,0,0,0,6,0,3,0,3,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32VideoController.VideoControllerProperty,33,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,OhmHardware.IdentifierProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32LogicalDiskToPartition,11,0,0,0,2,0,1,0,1,0
-oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32Process.ProcessXPProperty,51,0,0,0,2,0,1,0,1,0
+oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32LogicalDisk,44,0,6,0,9,0,4,0,1,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32PhysicalMemory.PhysicalMemoryProperty,33,0,0,0,2,0,1,0,1,0
 oshi-dist/oshi-demo,oshi.driver.windows.wmi,Win32Processor.ProcessorIdProperty,9,0,0,0,2,0,1,0,1,0
@@ -1412,8 +1412,8 @@ oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisComputerSystem.Sm
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisFirmware,21,0,0,0,8,0,4,0,4,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisHardwareAbstractionLayer,35,0,0,0,12,0,12,0,12,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisPowerSource,303,0,38,0,66,0,23,0,4,0
-oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,345,0,30,0,56,0,30,0,15,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisSoundCard,142,0,18,0,25,0,11,0,2,0
+oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisNetworkIF,345,0,30,0,56,0,30,0,15,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisHWDiskStore,497,0,36,0,74,0,31,0,13,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisGlobalMemory,60,0,0,0,11,0,7,0,7,0
 oshi-dist/oshi-demo,oshi.hardware.platform.unix.solaris,SolarisUsbDevice,380,0,38,0,72,0,25,0,6,0
