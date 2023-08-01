@@ -110,7 +110,6 @@ Tidelift will coordinate the fix and disclosure.
 
 Continuous Integration Test Status
 ----------------------------------
-[![Travis Build Status](https://api.travis-ci.com/oshi/oshi.svg?branch=master)](https://travis-ci.com/github/oshi/oshi)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/v489i8xoyfspxx7s?svg=true)](https://ci.appveyor.com/project/dbwiddis/oshi)
 [![Cirrus Build Status](https://api.cirrus-ci.com/github/oshi/oshi.svg)](https://cirrus-ci.com/github/oshi/oshi)
 [![Windows CI](https://github.com/oshi/oshi/workflows/Windows%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Windows+CI%22)
@@ -153,7 +152,7 @@ Acknowledgments
 ---------------
 Many thanks to the following companies for providing free support of Open Source projects including OSHI:
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
-* [GitHub Actions](https://github.com/features/actions), [Travis CI](https://travis-ci.com/), [AppVeyor](https://www.appveyor.com/), and [Cirrus CI](https://cirrus-ci.org/) for continuous integration testing
+* [GitHub Actions](https://github.com/features/actions), [AppVeyor](https://www.appveyor.com/), and [Cirrus CI](https://cirrus-ci.org/) for continuous integration testing
 * The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate cpu bottlenecks
 
 License
