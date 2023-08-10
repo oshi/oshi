@@ -16,7 +16,7 @@ jobs:
   # Runs current branch on FreeBSD 10.0.1 in a VM
   # Cirrus CI tests 11.4, 12.3 and 13.0
   testfreebsd:
-    runs-on: macos-12
+    runs-on: macos-13
     name: Test JDK 11, freebsd
     steps:
       - uses: actions/checkout@v3

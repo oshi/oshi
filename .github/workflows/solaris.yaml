@@ -15,7 +15,7 @@ on:
 jobs:
   # Runs on Solaris 11.4 x86 VM
   testsolaris:
-    runs-on: macos-12
+    runs-on: macos-13
     name: Test JDK 11, Solaris VM
     steps:
       - uses: actions/checkout@v3
