@@ -148,11 +148,15 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
             cpuStepping = armStepping.toString();
         }
         processorID = getProcessorID(cpuVendor, cpuStepping, cpuModel, cpuFamily, flags);
-        if (cpuVendor.startsWith("0x")) {
+        if (cpuVendor.startsWith("0x") || cpuModel.isEmpty()) {
             List<String> lscpu = ExecutingCommand.runNative("lscpu");
             for (String line : lscpu) {
-                if (line.startsWith("Architecture:")) {
+                if (line.startsWith("Architecture:") && cpuVendor.startsWith("0x")) {
                     cpuVendor = line.replace("Architecture:", "").trim();
+                } else if (line.startsWith("Vendor ID:")) {
+                    cpuVendor = line.replace("Vendor ID:", "").trim();
+                } else if (line.startsWith("Model name:") && cpuModel.isEmpty()) {
+                    cpuModel = line.replace("Model name:", "").trim();
                 }
             }
         }
