@@ -91,9 +91,11 @@ If you receive this PDH error code, investigate whether your English (page 009) 
 ## How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?
 
 OSHI uses the latest version of JNA, which may conflict with other dependencies your project (or its parent) includes.
-If you experience a `NoClassDefFoundError` or `NoSuchMethodError` issues with JNA artifacts, you likely have
-an older version of either `jna` or `jna-platform` in your classpath from a transitive dependency on another project.
-Consider one or more of the following steps to resolve the conflict:
+If you experience a `NoClassDefFoundError` or `NoSuchMethodError` issues with JNA artifacts, likely causes include file system
+permissions or an older version of either `jna` or `jna-platform` in your classpath from a transitive dependency on another
+project. Consider one or more of the following steps to resolve the conflict:
+ - JNA needs to write its [native DLL](https://javadoc.io/static/net.java.dev.jna/jna/5.13.0/com/sun/jna/Native.html), usually to a temporary file unless you've configured otherwise. File system permissions or capacity may prevent this from happening. Pre-extracting the DLL and placing it in a known location resolves this.
+ - Use a dependency analyzer to verify you're importing the correct version.
  - If using Maven, import OSHI's dependency management per [Maven Documentation](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#importing-dependencies)
  - If using Maven, list OSHI earlier (or first) in your dependency list to influence dependency resolution.
  - Specify the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` (For Gradle, `build.gradle` includes additional options to force the version). For Android, see the next paragraph.
@@ -105,7 +107,7 @@ For Android, see the [JNA FAQ](https://github.com/java-native-access/jna/blob/ma
  - Use the AAR artifact dependency rather than the JAR (for `jna` dependency only):
    - In Gradle (`build.gradle`), you'll need to add `@aar` after the version
    - In Maven (`pom.xml`), you'll need to specify `<type>aar</type>`
-   - In both cases you should add an exclusion to your `oshi-core` dependency for the (default) JAR artifact
+   - In both cases you should add an exclusion to your `oshi-core` dependency for the (default) `jna` JAR artifact.
  - In ProGuard, use `-keep` directives to prevent obfuscating JNA classes
 
 ## Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?
