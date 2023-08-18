@@ -272,11 +272,8 @@ public class WindowsOSProcess extends AbstractOSProcess {
         Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
                 .buildThreadMapFromRegistry(Collections.singleton(getProcessID()));
         // otherwise performance counters with WMI backup
-        if (threads != null) {
-            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()));
-        }
         if (threads == null) {
-            return Collections.emptyList();
+            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()));
         }
         return threads.entrySet().stream().parallel()
                 .map(entry -> new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
