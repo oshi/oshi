@@ -1,12 +1,8 @@
-# 6.4.5 (in progress)
+# 6.4.6 (in progress)
 
-##### Bug fixes / Improvements
-* [#2421](https://github.com/oshi/oshi/pull/2421): Handle non-unique UUIDs in demo ComputerID class - [@dbwiddis](https://github.com/dbwiddis).
-* [#2427](https://github.com/oshi/oshi/pull/2427): Lookup hardware implementer if lscpu fails to do so - [@dbwiddis](https://github.com/dbwiddis).
-* [#2434](https://github.com/oshi/oshi/pull/2434): Fix Windows OS Process logic to use registry values - [@tzfun](https://github.com/tzfun).
-* [#2436](https://github.com/oshi/oshi/pull/2436): Fall back to vendor frequency on failed max on Windows - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01)
+# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20)
 
 ##### New Features
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
@@ -28,6 +24,10 @@
 * [#2394](https://github.com/oshi/oshi/pull/2394): Fix bit shifting in CPUID calculation - [@dbwiddis](https://github.com/dbwiddis).
 * [#2396](https://github.com/oshi/oshi/pull/2396): Add command-line fallbacks for udev and sysfs processor info - [@dbwiddis](https://github.com/dbwiddis).
 * [#2407](https://github.com/oshi/oshi/pull/2407): Improve performance of Linux User and Group name queries - [@dbwiddis](https://github.com/dbwiddis).
+* [#2421](https://github.com/oshi/oshi/pull/2421): Handle non-unique UUIDs in demo ComputerID class - [@dbwiddis](https://github.com/dbwiddis).
+* [#2427](https://github.com/oshi/oshi/pull/2427): Lookup hardware implementer if lscpu fails to do so - [@dbwiddis](https://github.com/dbwiddis).
+* [#2434](https://github.com/oshi/oshi/pull/2434): Fix Windows OS Process logic to use registry values - [@tzfun](https://github.com/tzfun).
+* [#2436](https://github.com/oshi/oshi/pull/2436): Fall back to vendor frequency on failed max on Windows - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
