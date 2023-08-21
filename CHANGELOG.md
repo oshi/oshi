@@ -3,6 +3,8 @@
 ##### Bug fixes / Improvements
 * [#2421](https://github.com/oshi/oshi/pull/2421): Handle non-unique UUIDs in demo ComputerID class - [@dbwiddis](https://github.com/dbwiddis).
 * [#2427](https://github.com/oshi/oshi/pull/2427): Lookup hardware implementer if lscpu fails to do so - [@dbwiddis](https://github.com/dbwiddis).
+* [#2434](https://github.com/oshi/oshi/pull/2434): Fix Windows OS Process logic to use registry values - [@tzfun](https://github.com/tzfun).
+* [#2436](https://github.com/oshi/oshi/pull/2436): Fall back to vendor frequency on failed max on Windows - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -80,6 +80,8 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             : null;
     // Lazily initialized
     private Long utilityBaseMultiplier = null;
+    // Use to backup queryNTPower
+    private long cpuVendorFreq = 0L;
 
     /**
      * Initializes Class variables
@@ -92,7 +94,6 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
-        long cpuVendorFreq = 0L;
         String processorID;
         boolean cpu64bit = false;
 
@@ -261,6 +262,10 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 freqs[i] = ppiArray[i].currentMhz * 1_000_000L;
             } else {
                 freqs[i] = -1L;
+            }
+            // In Win11 23H2 CallNtPowerInformation returns all 0's so use vendor freq
+            if (freqs[i] == 0) {
+                freqs[i] = this.cpuVendorFreq;
             }
         }
         return freqs;
