@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/software/os/windows/WindowsOSProcess.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2023 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.windows;
@@ -280,293 +280,290 @@
 <a class="jxr_linenumber" name="L272" href="#L272">272</a>         Map&lt;Integer, ThreadPerformanceData.PerfCounterBlock&gt; threads = <a name="ThreadPerformanceData" href="../../../../oshi/driver/windows/registry/ThreadPerformanceData.html#ThreadPerformanceData">ThreadPerformanceData</a>
 <a class="jxr_linenumber" name="L273" href="#L273">273</a>                 .buildThreadMapFromRegistry(Collections.singleton(getProcessID()));
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>         <em class="jxr_comment">// otherwise performance counters with WMI backup</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">if</strong> (threads != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">if</strong> (threads == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>             threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(Collections.singleton(<strong class="jxr_keyword">this</strong>.getProcessID()));
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>         }
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">if</strong> (threads == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>             <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         }
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">return</strong> threads.entrySet().stream().parallel()
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 .map(entry -&gt; <strong class="jxr_keyword">new</strong> <a name="WindowsOSThread" href="../../../../oshi/software/os/windows/WindowsOSThread.html#WindowsOSThread">WindowsOSThread</a>(getProcessID(), entry.getKey(), <strong class="jxr_keyword">this</strong>.name, entry.getValue()))
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 .collect(Collectors.toList());
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     @Override
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         Set&lt;Integer&gt; pids = Collections.singleton(<strong class="jxr_keyword">this</strong>.getProcessID());
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <em class="jxr_comment">// Get data from the registry if possible</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         Map&lt;Integer, ProcessPerformanceData.PerfCounterBlock&gt; pcb = <a name="ProcessPerformanceData" href="../../../../oshi/driver/windows/registry/ProcessPerformanceData.html#ProcessPerformanceData">ProcessPerformanceData</a>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>                 .buildProcessMapFromRegistry(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <em class="jxr_comment">// otherwise performance counters with WMI backup</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">if</strong> (pcb == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>             pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         }
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         Map&lt;Integer, ThreadPerformanceData.PerfCounterBlock&gt; tcb = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">if</strong> (USE_PROCSTATE_SUSPENDED) {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>             tcb = ThreadPerformanceData.buildThreadMapFromRegistry(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>             <em class="jxr_comment">// otherwise performance counters with WMI backup</em>
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>             <strong class="jxr_keyword">if</strong> (tcb == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>                 tcb = ThreadPerformanceData.buildThreadMapFromPerfCounters(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>             }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>         }
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         Map&lt;Integer, WtsInfo&gt; wts = ProcessWtsData.queryProcessWtsMap(pids);
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">return</strong> updateAttributes(pcb.get(<strong class="jxr_keyword">this</strong>.getProcessID()), wts.get(<strong class="jxr_keyword">this</strong>.getProcessID()), tcb);
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>     }
-<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts,
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>             Map&lt;Integer, ThreadPerformanceData.PerfCounterBlock&gt; threadMap) {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">this</strong>.name = pcb.getName();
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">this</strong>.path = wts.getPath(); <em class="jxr_comment">// Empty string for Win7+</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">this</strong>.parentProcessID = pcb.getParentProcessID();
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <strong class="jxr_keyword">this</strong>.threadCount = wts.getThreadCount();
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         <strong class="jxr_keyword">this</strong>.priority = pcb.getPriority();
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <strong class="jxr_keyword">this</strong>.virtualSize = wts.getVirtualSize();
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">this</strong>.residentSetSize = pcb.getResidentSetSize();
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <strong class="jxr_keyword">this</strong>.kernelTime = wts.getKernelTime();
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">this</strong>.userTime = wts.getUserTime();
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">this</strong>.startTime = pcb.getStartTime();
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <strong class="jxr_keyword">this</strong>.upTime = pcb.getUpTime();
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">this</strong>.bytesRead = pcb.getBytesRead();
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">this</strong>.bytesWritten = pcb.getBytesWritten();
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">this</strong>.openFiles = wts.getOpenFiles();
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">this</strong>.pageFaults = pcb.getPageFaults();
-<a class="jxr_linenumber" name="L325" href="#L325">325</a> 
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <em class="jxr_comment">// There are only 3 possible Process states on Windows: RUNNING, SUSPENDED, or</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// UNKNOWN. Processes are considered running unless all of their threads are</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_comment">// SUSPENDED.</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">this</strong>.state = RUNNING;
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">if</strong> (threadMap != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>             <em class="jxr_comment">// If user hasn't enabled this in properties, we ignore</em>
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>             <strong class="jxr_keyword">int</strong> pid = <strong class="jxr_keyword">this</strong>.getProcessID();
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>             <em class="jxr_comment">// If any thread is NOT suspended, set running</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>             <strong class="jxr_keyword">for</strong> (ThreadPerformanceData.PerfCounterBlock tcb : threadMap.values()) {
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 <strong class="jxr_keyword">if</strong> (tcb.getOwningProcessID() == pid) {
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                     <strong class="jxr_keyword">if</strong> (tcb.getThreadWaitReason() == 5) {
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>                         <strong class="jxr_keyword">this</strong>.state = SUSPENDED;
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>                     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>                         <strong class="jxr_keyword">this</strong>.state = RUNNING;
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>                         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>                     }
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>                 }
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>             }
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         }
-<a class="jxr_linenumber" name="L345" href="#L345">345</a> 
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <em class="jxr_comment">// Get a handle to the process for various extended info. Only gets</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <em class="jxr_comment">// current user unless running as administrator</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>             <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>                 <em class="jxr_comment">// Test for 32-bit process on 64-bit windows</em>
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>                 <strong class="jxr_keyword">if</strong> (IS_VISTA_OR_GREATER &amp;&amp; <strong class="jxr_keyword">this</strong>.bitness == 64) {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                     <strong class="jxr_keyword">try</strong> (CloseableIntByReference wow64 = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>                         <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64) &amp;&amp; wow64.getValue() &gt; 0) {
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>                             <strong class="jxr_keyword">this</strong>.bitness = 32;
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>                         }
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>                     }
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>                 }
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>                 <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// EXECUTABLEPATH</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>                     <strong class="jxr_keyword">if</strong> (IS_WINDOWS7_OR_GREATER) {
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                         <strong class="jxr_keyword">this</strong>.path = Kernel32Util.QueryFullProcessImageName(pHandle, 0);
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>                     }
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 } <strong class="jxr_keyword">catch</strong> (Win32Exception e) {
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>                     <strong class="jxr_keyword">this</strong>.state = INVALID;
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 }
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>             } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                 Kernel32.INSTANCE.CloseHandle(pHandle);
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>             }
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         }
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">return</strong> threads.entrySet().stream().parallel()
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 .map(entry -&gt; <strong class="jxr_keyword">new</strong> <a name="WindowsOSThread" href="../../../../oshi/software/os/windows/WindowsOSThread.html#WindowsOSThread">WindowsOSThread</a>(getProcessID(), entry.getKey(), <strong class="jxr_keyword">this</strong>.name, entry.getValue()))
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     @Override
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         Set&lt;Integer&gt; pids = Collections.singleton(<strong class="jxr_keyword">this</strong>.getProcessID());
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <em class="jxr_comment">// Get data from the registry if possible</em>
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         Map&lt;Integer, ProcessPerformanceData.PerfCounterBlock&gt; pcb = <a name="ProcessPerformanceData" href="../../../../oshi/driver/windows/registry/ProcessPerformanceData.html#ProcessPerformanceData">ProcessPerformanceData</a>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 .buildProcessMapFromRegistry(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <em class="jxr_comment">// otherwise performance counters with WMI backup</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">if</strong> (pcb == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>             pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         Map&lt;Integer, ThreadPerformanceData.PerfCounterBlock&gt; tcb = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">if</strong> (USE_PROCSTATE_SUSPENDED) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>             tcb = ThreadPerformanceData.buildThreadMapFromRegistry(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>             <em class="jxr_comment">// otherwise performance counters with WMI backup</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>             <strong class="jxr_keyword">if</strong> (tcb == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                 tcb = ThreadPerformanceData.buildThreadMapFromPerfCounters(<strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             }
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         }
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         Map&lt;Integer, WtsInfo&gt; wts = ProcessWtsData.queryProcessWtsMap(pids);
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">return</strong> updateAttributes(pcb.get(<strong class="jxr_keyword">this</strong>.getProcessID()), wts.get(<strong class="jxr_keyword">this</strong>.getProcessID()), tcb);
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts,
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>             Map&lt;Integer, ThreadPerformanceData.PerfCounterBlock&gt; threadMap) {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <strong class="jxr_keyword">this</strong>.name = pcb.getName();
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">this</strong>.path = wts.getPath(); <em class="jxr_comment">// Empty string for Win7+</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">this</strong>.parentProcessID = pcb.getParentProcessID();
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">this</strong>.threadCount = wts.getThreadCount();
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">this</strong>.priority = pcb.getPriority();
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">this</strong>.virtualSize = wts.getVirtualSize();
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <strong class="jxr_keyword">this</strong>.residentSetSize = pcb.getResidentSetSize();
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         <strong class="jxr_keyword">this</strong>.kernelTime = wts.getKernelTime();
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <strong class="jxr_keyword">this</strong>.userTime = wts.getUserTime();
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">this</strong>.startTime = pcb.getStartTime();
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <strong class="jxr_keyword">this</strong>.upTime = pcb.getUpTime();
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">this</strong>.bytesRead = pcb.getBytesRead();
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">this</strong>.bytesWritten = pcb.getBytesWritten();
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <strong class="jxr_keyword">this</strong>.openFiles = wts.getOpenFiles();
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">this</strong>.pageFaults = pcb.getPageFaults();
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <em class="jxr_comment">// There are only 3 possible Process states on Windows: RUNNING, SUSPENDED, or</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <em class="jxr_comment">// UNKNOWN. Processes are considered running unless all of their threads are</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <em class="jxr_comment">// SUSPENDED.</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">this</strong>.state = RUNNING;
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <strong class="jxr_keyword">if</strong> (threadMap != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>             <em class="jxr_comment">// If user hasn't enabled this in properties, we ignore</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>             <strong class="jxr_keyword">int</strong> pid = <strong class="jxr_keyword">this</strong>.getProcessID();
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>             <em class="jxr_comment">// If any thread is NOT suspended, set running</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             <strong class="jxr_keyword">for</strong> (ThreadPerformanceData.PerfCounterBlock tcb : threadMap.values()) {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 <strong class="jxr_keyword">if</strong> (tcb.getOwningProcessID() == pid) {
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                     <strong class="jxr_keyword">if</strong> (tcb.getThreadWaitReason() == 5) {
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                         <strong class="jxr_keyword">this</strong>.state = SUSPENDED;
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                         <strong class="jxr_keyword">this</strong>.state = RUNNING;
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                     }
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 }
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>             }
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <em class="jxr_comment">// Get a handle to the process for various extended info. Only gets</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <em class="jxr_comment">// current user unless running as administrator</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 <em class="jxr_comment">// Test for 32-bit process on 64-bit windows</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                 <strong class="jxr_keyword">if</strong> (IS_VISTA_OR_GREATER &amp;&amp; <strong class="jxr_keyword">this</strong>.bitness == 64) {
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>                     <strong class="jxr_keyword">try</strong> (CloseableIntByReference wow64 = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>                         <strong class="jxr_keyword">if</strong> (Kernel32.INSTANCE.IsWow64Process(pHandle, wow64) &amp;&amp; wow64.getValue() &gt; 0) {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                             <strong class="jxr_keyword">this</strong>.bitness = 32;
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                         }
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>                     }
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>                 }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                 <strong class="jxr_keyword">try</strong> { <em class="jxr_comment">// EXECUTABLEPATH</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>                     <strong class="jxr_keyword">if</strong> (IS_WINDOWS7_OR_GREATER) {
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                         <strong class="jxr_keyword">this</strong>.path = Kernel32Util.QueryFullProcessImageName(pHandle, 0);
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                     }
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                 } <strong class="jxr_keyword">catch</strong> (Win32Exception e) {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                     <strong class="jxr_keyword">this</strong>.state = INVALID;
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>                 }
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                 Kernel32.INSTANCE.CloseHandle(pHandle);
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>             }
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         }
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> 
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">return</strong> !<strong class="jxr_keyword">this</strong>.state.equals(INVALID);
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>     }
 <a class="jxr_linenumber" name="L370" href="#L370">370</a> 
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <strong class="jxr_keyword">return</strong> !<strong class="jxr_keyword">this</strong>.state.equals(INVALID);
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     }
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> 
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>     <strong class="jxr_keyword">private</strong> String queryCommandLine() {
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <em class="jxr_comment">// Try to fetch from process memory</em>
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>         <strong class="jxr_keyword">if</strong> (!cwdCmdEnv.get().getB().isEmpty()) {
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>             <strong class="jxr_keyword">return</strong> cwdCmdEnv.get().getB();
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         }
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <em class="jxr_comment">// If using batch mode fetch from WMI Cache</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <strong class="jxr_keyword">if</strong> (USE_BATCH_COMMANDLINE) {
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>             <strong class="jxr_keyword">return</strong> Win32ProcessCached.getInstance().getCommandLine(getProcessID(), getStartTime());
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         }
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <em class="jxr_comment">// If no cache enabled, query line by line</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         WmiResult&lt;CommandLineProperty&gt; commandLineProcs = <a name="Win32Process" href="../../../../oshi/driver/windows/wmi/Win32Process.html#Win32Process">Win32Process</a>
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 .queryCommandLines(Collections.singleton(getProcessID()));
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">if</strong> (commandLineProcs.getResultCount() &gt; 0) {
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>             <strong class="jxr_keyword">return</strong> WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         }
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>     }
-<a class="jxr_linenumber" name="L391" href="#L391">391</a> 
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>     <strong class="jxr_keyword">private</strong> List&lt;String&gt; queryArguments() {
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>         String cl = getCommandLine();
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">if</strong> (!cl.isEmpty()) {
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>             <strong class="jxr_keyword">return</strong> Arrays.asList(Shell32Util.CommandLineToArgv(cl));
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>         }
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>     }
-<a class="jxr_linenumber" name="L399" href="#L399">399</a> 
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>     <strong class="jxr_keyword">private</strong> String queryCwd() {
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         <em class="jxr_comment">// Try to fetch from process memory</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <strong class="jxr_keyword">if</strong> (!cwdCmdEnv.get().getA().isEmpty()) {
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>             <strong class="jxr_keyword">return</strong> cwdCmdEnv.get().getA();
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         }
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <em class="jxr_comment">// For executing process, set CWD</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>         <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>             String cwd = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"."</span>).getAbsolutePath();
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>             <em class="jxr_comment">// trim off trailing "."</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>             <strong class="jxr_keyword">if</strong> (!cwd.isEmpty()) {
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>                 <strong class="jxr_keyword">return</strong> cwd.substring(0, cwd.length() - 1);
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>             }
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         }
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>     }
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> 
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">private</strong> Pair&lt;String, String&gt; queryUserInfo() {
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         Pair&lt;String, String&gt; pair = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>             <strong class="jxr_keyword">try</strong> (CloseableHANDLEByReference phToken = <strong class="jxr_keyword">new</strong> CloseableHANDLEByReference()) {
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>                 <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>                     <strong class="jxr_keyword">if</strong> (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>                             phToken)) {
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>                         pair = <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(account.name, account.sidString);
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>                     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>                         <strong class="jxr_keyword">int</strong> error = Kernel32.INSTANCE.GetLastError();
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>                         <em class="jxr_comment">// Access denied errors are common. Fail silently.</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>                         <strong class="jxr_keyword">if</strong> (error != WinError.ERROR_ACCESS_DENIED) {
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>                             LOG.error(<span class="jxr_string">"Failed to get process token for process {}: {}"</span>, getProcessID(),
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>                                     Kernel32.INSTANCE.GetLastError());
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>                         }
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>                     }
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>                 } <strong class="jxr_keyword">catch</strong> (Win32Exception e) {
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>                     LOG.warn(<span class="jxr_string">"Failed to query user info for process {} ({}): {}"</span>, getProcessID(), getName(),
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>                             e.getMessage());
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>                 } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>                     <strong class="jxr_keyword">final</strong> HANDLE token = phToken.getValue();
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>                     <strong class="jxr_keyword">if</strong> (token != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>                         Kernel32.INSTANCE.CloseHandle(token);
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>                     }
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>                     Kernel32.INSTANCE.CloseHandle(pHandle);
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>                 }
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>             }
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>     <strong class="jxr_keyword">private</strong> String queryCommandLine() {
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <em class="jxr_comment">// Try to fetch from process memory</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <strong class="jxr_keyword">if</strong> (!cwdCmdEnv.get().getB().isEmpty()) {
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>             <strong class="jxr_keyword">return</strong> cwdCmdEnv.get().getB();
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         <em class="jxr_comment">// If using batch mode fetch from WMI Cache</em>
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         <strong class="jxr_keyword">if</strong> (USE_BATCH_COMMANDLINE) {
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>             <strong class="jxr_keyword">return</strong> Win32ProcessCached.getInstance().getCommandLine(getProcessID(), getStartTime());
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         }
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <em class="jxr_comment">// If no cache enabled, query line by line</em>
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         WmiResult&lt;CommandLineProperty&gt; commandLineProcs = <a name="Win32Process" href="../../../../oshi/driver/windows/wmi/Win32Process.html#Win32Process">Win32Process</a>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>                 .queryCommandLines(Collections.singleton(getProcessID()));
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <strong class="jxr_keyword">if</strong> (commandLineProcs.getResultCount() &gt; 0) {
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>             <strong class="jxr_keyword">return</strong> WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         }
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>     }
+<a class="jxr_linenumber" name="L388" href="#L388">388</a> 
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>     <strong class="jxr_keyword">private</strong> List&lt;String&gt; queryArguments() {
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         String cl = getCommandLine();
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <strong class="jxr_keyword">if</strong> (!cl.isEmpty()) {
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>             <strong class="jxr_keyword">return</strong> Arrays.asList(Shell32Util.CommandLineToArgv(cl));
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         }
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>     <strong class="jxr_keyword">private</strong> String queryCwd() {
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <em class="jxr_comment">// Try to fetch from process memory</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         <strong class="jxr_keyword">if</strong> (!cwdCmdEnv.get().getA().isEmpty()) {
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>             <strong class="jxr_keyword">return</strong> cwdCmdEnv.get().getA();
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>         }
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <em class="jxr_comment">// For executing process, set CWD</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>             String cwd = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"."</span>).getAbsolutePath();
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>             <em class="jxr_comment">// trim off trailing "."</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>             <strong class="jxr_keyword">if</strong> (!cwd.isEmpty()) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                 <strong class="jxr_keyword">return</strong> cwd.substring(0, cwd.length() - 1);
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>             }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>         }
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     }
+<a class="jxr_linenumber" name="L412" href="#L412">412</a> 
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     <strong class="jxr_keyword">private</strong> Pair&lt;String, String&gt; queryUserInfo() {
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         Pair&lt;String, String&gt; pair = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>             <strong class="jxr_keyword">try</strong> (CloseableHANDLEByReference phToken = <strong class="jxr_keyword">new</strong> CloseableHANDLEByReference()) {
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>                 <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>                     <strong class="jxr_keyword">if</strong> (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY,
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                             phToken)) {
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                         Account account = Advapi32Util.getTokenAccount(phToken.getValue());
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>                         pair = <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(account.name, account.sidString);
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>                         <strong class="jxr_keyword">int</strong> error = Kernel32.INSTANCE.GetLastError();
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>                         <em class="jxr_comment">// Access denied errors are common. Fail silently.</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>                         <strong class="jxr_keyword">if</strong> (error != WinError.ERROR_ACCESS_DENIED) {
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>                             LOG.error(<span class="jxr_string">"Failed to get process token for process {}: {}"</span>, getProcessID(),
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>                                     Kernel32.INSTANCE.GetLastError());
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>                         }
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>                     }
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>                 } <strong class="jxr_keyword">catch</strong> (Win32Exception e) {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>                     LOG.warn(<span class="jxr_string">"Failed to query user info for process {} ({}): {}"</span>, getProcessID(), getName(),
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>                             e.getMessage());
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>                 } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>                     <strong class="jxr_keyword">final</strong> HANDLE token = phToken.getValue();
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>                     <strong class="jxr_keyword">if</strong> (token != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>                         Kernel32.INSTANCE.CloseHandle(token);
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>                     }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>                     Kernel32.INSTANCE.CloseHandle(pHandle);
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 }
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             }
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>         }
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">if</strong> (pair == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L445" href="#L445">445</a>         }
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">if</strong> (pair == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         }
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <strong class="jxr_keyword">return</strong> pair;
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <strong class="jxr_keyword">private</strong> Pair&lt;String, String&gt; queryGroupInfo() {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>         Pair&lt;String, String&gt; pair = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>             <strong class="jxr_keyword">try</strong> (CloseableHANDLEByReference phToken = <strong class="jxr_keyword">new</strong> CloseableHANDLEByReference()) {
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>                 <strong class="jxr_keyword">if</strong> (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>                     Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>                     pair = <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(account.name, account.sidString);
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>                     <strong class="jxr_keyword">int</strong> error = Kernel32.INSTANCE.GetLastError();
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>                     <em class="jxr_comment">// Access denied errors are common. Fail silently.</em>
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>                     <strong class="jxr_keyword">if</strong> (error != WinError.ERROR_ACCESS_DENIED) {
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>                         LOG.error(<span class="jxr_string">"Failed to get process token for process {}: {}"</span>, getProcessID(),
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>                                 Kernel32.INSTANCE.GetLastError());
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>                     }
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>                 }
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>                 <strong class="jxr_keyword">final</strong> HANDLE token = phToken.getValue();
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>                 <strong class="jxr_keyword">if</strong> (token != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>                     Kernel32.INSTANCE.CloseHandle(token);
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>                 }
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>                 Kernel32.INSTANCE.CloseHandle(pHandle);
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>             }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">return</strong> pair;
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     <strong class="jxr_keyword">private</strong> Pair&lt;String, String&gt; queryGroupInfo() {
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         Pair&lt;String, String&gt; pair = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         <strong class="jxr_keyword">final</strong> HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         <strong class="jxr_keyword">if</strong> (pHandle != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>             <strong class="jxr_keyword">try</strong> (CloseableHANDLEByReference phToken = <strong class="jxr_keyword">new</strong> CloseableHANDLEByReference()) {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>                 <strong class="jxr_keyword">if</strong> (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_DUPLICATE | WinNT.TOKEN_QUERY, phToken)) {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>                     Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>                     pair = <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(account.name, account.sidString);
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>                     <strong class="jxr_keyword">int</strong> error = Kernel32.INSTANCE.GetLastError();
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>                     <em class="jxr_comment">// Access denied errors are common. Fail silently.</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>                     <strong class="jxr_keyword">if</strong> (error != WinError.ERROR_ACCESS_DENIED) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>                         LOG.error(<span class="jxr_string">"Failed to get process token for process {}: {}"</span>, getProcessID(),
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>                                 Kernel32.INSTANCE.GetLastError());
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>                     }
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>                 }
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>                 <strong class="jxr_keyword">final</strong> HANDLE token = phToken.getValue();
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>                 <strong class="jxr_keyword">if</strong> (token != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>                     Kernel32.INSTANCE.CloseHandle(token);
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>                 }
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>                 Kernel32.INSTANCE.CloseHandle(pHandle);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>             }
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         }
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <strong class="jxr_keyword">if</strong> (pair == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>         }
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">if</strong> (pair == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(Constants.UNKNOWN, Constants.UNKNOWN);
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         }
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">return</strong> pair;
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>     }
-<a class="jxr_linenumber" name="L480" href="#L480">480</a> 
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>     <strong class="jxr_keyword">private</strong> Triplet&lt;String, String, Map&lt;String, String&gt;&gt; queryCwdCommandlineEnvironment() {
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>         <em class="jxr_comment">// Get the process handle</em>
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false,
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>                 getProcessID());
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>         <strong class="jxr_keyword">if</strong> (h != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>             <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 <em class="jxr_comment">// Can't check 32-bit procs from a 64-bit one</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>                 <strong class="jxr_keyword">if</strong> (WindowsOperatingSystem.isX86() == WindowsOperatingSystem.isWow(h)) {
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>                     <strong class="jxr_keyword">try</strong> (CloseableIntByReference nRead = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>                         <em class="jxr_comment">// Start by getting the address of the PEB</em>
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>                         NtDll.PROCESS_BASIC_INFORMATION pbi = <strong class="jxr_keyword">new</strong> NtDll.PROCESS_BASIC_INFORMATION();
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>                         <strong class="jxr_keyword">int</strong> ret = NtDll.INSTANCE.NtQueryInformationProcess(h, NtDll.PROCESS_BASIC_INFORMATION,
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>                                 pbi.getPointer(), pbi.size(), nRead);
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>                         <strong class="jxr_keyword">if</strong> (ret != 0) {
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>                             <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>                         }
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                         pbi.read();
-<a class="jxr_linenumber" name="L498" href="#L498">498</a> 
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>                         <em class="jxr_comment">// Now fetch the PEB</em>
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>                         NtDll.PEB peb = <strong class="jxr_keyword">new</strong> NtDll.PEB();
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>                         Kernel32.INSTANCE.ReadProcessMemory(h, pbi.PebBaseAddress, peb.getPointer(), peb.size(), nRead);
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>                         <strong class="jxr_keyword">if</strong> (nRead.getValue() == 0) {
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>                             <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                         }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>                         peb.read();
-<a class="jxr_linenumber" name="L506" href="#L506">506</a> 
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>                         <em class="jxr_comment">// Now fetch the Process Parameters structure containing our data</em>
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>                         NtDll.RTL_USER_PROCESS_PARAMETERS upp = <strong class="jxr_keyword">new</strong> NtDll.RTL_USER_PROCESS_PARAMETERS();
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>                         Kernel32.INSTANCE.ReadProcessMemory(h, peb.ProcessParameters, upp.getPointer(), upp.size(),
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>                                 nRead);
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>                         <strong class="jxr_keyword">if</strong> (nRead.getValue() == 0) {
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>                             <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>                         }
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>                         upp.read();
-<a class="jxr_linenumber" name="L515" href="#L515">515</a> 
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>                         <em class="jxr_comment">// Get CWD and Command Line strings here</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>                         String cwd = readUnicodeString(h, upp.CurrentDirectory.DosPath);
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>                         String cl = readUnicodeString(h, upp.CommandLine);
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> 
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>                         <em class="jxr_comment">// Fetch the Environment Strings</em>
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>                         <strong class="jxr_keyword">int</strong> envSize = upp.EnvironmentSize.intValue();
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>                         <strong class="jxr_keyword">if</strong> (envSize &gt; 0) {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>                             <strong class="jxr_keyword">try</strong> (Memory buffer = <strong class="jxr_keyword">new</strong> Memory(envSize)) {
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>                                 Kernel32.INSTANCE.ReadProcessMemory(h, upp.Environment, buffer, envSize, nRead);
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>                                 <strong class="jxr_keyword">if</strong> (nRead.getValue() &gt; 0) {
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>                                     <strong class="jxr_keyword">char</strong>[] env = buffer.getCharArray(0, envSize / 2);
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>                                     Map&lt;String, String&gt; envMap = ParseUtil.parseCharArrayToStringMap(env);
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>                                     <em class="jxr_comment">// First entry in Environment is "=::=::\&quot;</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>                                     envMap.remove(<span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>                                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.unmodifiableMap(envMap));
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>                                 }
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>                             }
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>                         }
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.emptyMap());
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>                     }
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>                 }
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>             } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>                 Kernel32.INSTANCE.CloseHandle(h);
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>             }
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>         }
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>         <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>     }
-<a class="jxr_linenumber" name="L543" href="#L543">543</a> 
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, Map&lt;String, String&gt;&gt; defaultCwdCommandlineEnvironment() {
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, Collections.emptyMap());
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>     }
-<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String readUnicodeString(HANDLE h, UNICODE_STRING s) {
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">if</strong> (s.Length &gt; 0) {
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>             <em class="jxr_comment">// Add space for null terminator</em>
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>             <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(s.Length + 2L); CloseableIntByReference nRead = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>                 m.clear(); <em class="jxr_comment">// really only need null in last 2 bytes but this is easier</em>
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>                 Kernel32.INSTANCE.ReadProcessMemory(h, s.Buffer, m, s.Length, nRead);
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>                 <strong class="jxr_keyword">if</strong> (nRead.getValue() &gt; 0) {
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>                     <strong class="jxr_keyword">return</strong> m.getWideString(0);
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>                 }
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>             }
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>         }
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>     }
-<a class="jxr_linenumber" name="L561" href="#L561">561</a> }
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">return</strong> pair;
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     }
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> 
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>     <strong class="jxr_keyword">private</strong> Triplet&lt;String, String, Map&lt;String, String&gt;&gt; queryCwdCommandlineEnvironment() {
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <em class="jxr_comment">// Get the process handle</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION | WinNT.PROCESS_VM_READ, false,
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>                 getProcessID());
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         <strong class="jxr_keyword">if</strong> (h != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>                 <em class="jxr_comment">// Can't check 32-bit procs from a 64-bit one</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>                 <strong class="jxr_keyword">if</strong> (WindowsOperatingSystem.isX86() == WindowsOperatingSystem.isWow(h)) {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>                     <strong class="jxr_keyword">try</strong> (CloseableIntByReference nRead = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>                         <em class="jxr_comment">// Start by getting the address of the PEB</em>
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>                         NtDll.PROCESS_BASIC_INFORMATION pbi = <strong class="jxr_keyword">new</strong> NtDll.PROCESS_BASIC_INFORMATION();
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>                         <strong class="jxr_keyword">int</strong> ret = NtDll.INSTANCE.NtQueryInformationProcess(h, NtDll.PROCESS_BASIC_INFORMATION,
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>                                 pbi.getPointer(), pbi.size(), nRead);
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>                         <strong class="jxr_keyword">if</strong> (ret != 0) {
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                             <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>                         }
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>                         pbi.read();
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> 
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>                         <em class="jxr_comment">// Now fetch the PEB</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>                         NtDll.PEB peb = <strong class="jxr_keyword">new</strong> NtDll.PEB();
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>                         Kernel32.INSTANCE.ReadProcessMemory(h, pbi.PebBaseAddress, peb.getPointer(), peb.size(), nRead);
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>                         <strong class="jxr_keyword">if</strong> (nRead.getValue() == 0) {
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>                             <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>                         }
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>                         peb.read();
+<a class="jxr_linenumber" name="L503" href="#L503">503</a> 
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>                         <em class="jxr_comment">// Now fetch the Process Parameters structure containing our data</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>                         NtDll.RTL_USER_PROCESS_PARAMETERS upp = <strong class="jxr_keyword">new</strong> NtDll.RTL_USER_PROCESS_PARAMETERS();
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>                         Kernel32.INSTANCE.ReadProcessMemory(h, peb.ProcessParameters, upp.getPointer(), upp.size(),
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                                 nRead);
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                         <strong class="jxr_keyword">if</strong> (nRead.getValue() == 0) {
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>                             <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>                         }
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>                         upp.read();
+<a class="jxr_linenumber" name="L512" href="#L512">512</a> 
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>                         <em class="jxr_comment">// Get CWD and Command Line strings here</em>
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>                         String cwd = readUnicodeString(h, upp.CurrentDirectory.DosPath);
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>                         String cl = readUnicodeString(h, upp.CommandLine);
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> 
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>                         <em class="jxr_comment">// Fetch the Environment Strings</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>                         <strong class="jxr_keyword">int</strong> envSize = upp.EnvironmentSize.intValue();
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>                         <strong class="jxr_keyword">if</strong> (envSize &gt; 0) {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>                             <strong class="jxr_keyword">try</strong> (Memory buffer = <strong class="jxr_keyword">new</strong> Memory(envSize)) {
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>                                 Kernel32.INSTANCE.ReadProcessMemory(h, upp.Environment, buffer, envSize, nRead);
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>                                 <strong class="jxr_keyword">if</strong> (nRead.getValue() &gt; 0) {
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>                                     <strong class="jxr_keyword">char</strong>[] env = buffer.getCharArray(0, envSize / 2);
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>                                     Map&lt;String, String&gt; envMap = ParseUtil.parseCharArrayToStringMap(env);
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>                                     <em class="jxr_comment">// First entry in Environment is "=::=::\&quot;</em>
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>                                     envMap.remove(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>                                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.unmodifiableMap(envMap));
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>                                 }
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>                             }
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>                         }
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.emptyMap());
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>                     }
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>                 }
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>                 Kernel32.INSTANCE.CloseHandle(h);
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             }
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         }
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>         <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     }
+<a class="jxr_linenumber" name="L540" href="#L540">540</a> 
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, Map&lt;String, String&gt;&gt; defaultCwdCommandlineEnvironment() {
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, Collections.emptyMap());
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>     }
+<a class="jxr_linenumber" name="L544" href="#L544">544</a> 
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String readUnicodeString(HANDLE h, UNICODE_STRING s) {
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <strong class="jxr_keyword">if</strong> (s.Length &gt; 0) {
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>             <em class="jxr_comment">// Add space for null terminator</em>
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>             <strong class="jxr_keyword">try</strong> (Memory m = <strong class="jxr_keyword">new</strong> Memory(s.Length + 2L); CloseableIntByReference nRead = <strong class="jxr_keyword">new</strong> CloseableIntByReference()) {
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>                 m.clear(); <em class="jxr_comment">// really only need null in last 2 bytes but this is easier</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>                 Kernel32.INSTANCE.ReadProcessMemory(h, s.Buffer, m, s.Length, nRead);
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>                 <strong class="jxr_keyword">if</strong> (nRead.getValue() &gt; 0) {
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>                     <strong class="jxr_keyword">return</strong> m.getWideString(0);
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>                 }
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>             }
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>         }
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>     }
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2023 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

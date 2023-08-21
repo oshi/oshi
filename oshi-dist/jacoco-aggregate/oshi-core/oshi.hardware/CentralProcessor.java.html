@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>CentralProcessor.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.hardware</a> &gt; <span class="el_source">CentralProcessor.java</span></div><h1>CentralProcessor.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -675,7 +675,7 @@ public interface CentralProcessor {
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
 <span class="nc" id="L677">                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {</span>
-<span class="nc" id="L678">            this.cpuVendor = cpuVendor;</span>
+<span class="nc bnc" id="L678" title="All 2 branches missed.">            this.cpuVendor = cpuVendor.startsWith(&quot;0x&quot;) ? queryVendorFromImplementer() : cpuVendor;</span>
 <span class="nc" id="L679">            this.cpuName = cpuName;</span>
 <span class="nc" id="L680">            this.cpuFamily = cpuFamily;</span>
 <span class="nc" id="L681">            this.cpuModel = cpuModel;</span>
@@ -857,9 +857,15 @@ public interface CentralProcessor {
 <span class="nc bnc" id="L857" title="All 2 branches missed.">            return Util.isBlank(arch) ? Constants.UNKNOWN : arch;</span>
         }
 
+        private String queryVendorFromImplementer() {
+<span class="nc" id="L861">            Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);</span>
+<span class="nc" id="L862">            String vendor = archProps.getProperty(&quot;hw_impl.&quot; + this.cpuVendor);</span>
+<span class="nc bnc" id="L863" title="All 2 branches missed.">            return (vendor == null ? this.cpuVendor : vendor);</span>
+        }
+
         @Override
         public String toString() {
-<span class="nc" id="L862">            return getIdentifier();</span>
+<span class="nc" id="L868">            return getIdentifier();</span>
         }
     }
 }
