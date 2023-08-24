@@ -38,6 +38,7 @@ jobs:
           rm -fR ~/javashared*
           cd ~/git/oshi
           export JAVA_HOME=/opt/ibm-semeru-open-17-jdk
+          export PATH=$PATH:/opt/freeware/bin
           export MAVEN_OPTS="-Xshareclasses:none"
           git checkout master
           git reset --hard HEAD~2
