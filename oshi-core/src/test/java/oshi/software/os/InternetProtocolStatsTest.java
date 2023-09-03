@@ -119,7 +119,7 @@ class InternetProtocolStatsTest {
         for (IPConnection conn : ipStats.getConnections()) {
             assertThat("Protocol name is not null or empty", conn.getType(),
                     allOf(is(not(emptyString())), is(notNullValue())));
-            if (conn.getType().contains("4") || conn.getType().contains("46")) {
+            if (conn.getType().contains("4")) {
                 assertThat("Local address array size should be 0, or 4", conn.getLocalAddress().length,
                         anyOf(is(0), is(4)));
                 assertThat("Foreign address rray size should be 0, or 4", conn.getForeignAddress().length,
