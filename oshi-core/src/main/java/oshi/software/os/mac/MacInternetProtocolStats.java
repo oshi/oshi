@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -191,6 +191,10 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
                     laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);
                     faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);
                     type += "6";
+                } else if (ini.insi_vflag == 3) {
+                    laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
+                    faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
+                    type += "46";
                 } else {
                     return null;
                 }

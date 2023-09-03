@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -301,7 +301,7 @@ public interface InternetProtocolStats {
         }
 
         /**
-         * Returns the connection protocol type, e.g., tcp4, tcp6, udp4, udp6
+         * Returns the connection protocol type, e.g., tcp4, tcp6, tcp46, udp4, udp6, udp46
          *
          * @return The protocol type
          */
