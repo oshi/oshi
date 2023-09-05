@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-12
     name: Test JDK 11, Solaris VM
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test on Solaris
         id: test-solaris
         uses: vmactions/solaris-vm@v0
