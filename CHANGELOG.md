@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#2443](https://github.com/oshi/oshi/pull/2443): Include IPConnections on Mac that listen on both IPv4 and IPv6 protocols - [@rieck0](https://github.com/rieck0).
+* [#2446](https://github.com/oshi/oshi/pull/2446): Ignore case when parsing cpuinfo - [@Glavo](https://github.com/Glavo).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20)
 

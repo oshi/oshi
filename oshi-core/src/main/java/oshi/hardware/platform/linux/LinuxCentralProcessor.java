@@ -81,13 +81,13 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
                 continue;
             }
-            switch (splitLine[0]) {
+            switch (splitLine[0].toLowerCase()) {
             case "vendor_id":
-            case "CPU implementer":
+            case "cpu implementer":
                 cpuVendor = splitLine[1];
                 break;
             case "model name":
-            case "Processor": // some ARM chips
+            case "processor": // some ARM chips
                 // May be a processor number. Check for a space.
                 if (splitLine[1].indexOf(' ') > 0) {
                     cpuName = splitLine[1];
@@ -105,26 +105,26 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
             case "stepping":
                 cpuStepping = splitLine[1];
                 break;
-            case "CPU variant":
+            case "cpu variant":
                 if (!armStepping.toString().startsWith("r")) {
                     // CPU variant format always starts with 0x
                     int rev = ParseUtil.parseLastInt(splitLine[1], 0);
                     armStepping.insert(0, "r" + rev);
                 }
                 break;
-            case "CPU revision":
+            case "cpu revision":
                 if (!armStepping.toString().contains("p")) {
                     armStepping.append('p').append(splitLine[1]);
                 }
                 break;
             case "model":
-            case "CPU part":
+            case "cpu part":
                 cpuModel = splitLine[1];
                 break;
             case "cpu family":
                 cpuFamily = splitLine[1];
                 break;
-            case "cpu MHz":
+            case "cpu mhz":
                 cpuFreq = ParseUtil.parseHertz(splitLine[1]);
                 break;
             default:
