@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -81,7 +82,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
                 continue;
             }
-            switch (splitLine[0].toLowerCase()) {
+            switch (splitLine[0].toLowerCase(Locale.ROOT)) {
             case "vendor_id":
             case "cpu implementer":
                 cpuVendor = splitLine[1];
