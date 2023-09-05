@@ -19,7 +19,7 @@ jobs:
     runs-on: macos-12
     name: Test JDK 11, freebsd
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test in FreeBSD
         id: test-freebsd
         uses: vmactions/freebsd-vm@v0
