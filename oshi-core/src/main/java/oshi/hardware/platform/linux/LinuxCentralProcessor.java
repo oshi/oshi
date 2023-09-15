@@ -89,8 +89,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 break;
             case "model name":
             case "processor": // some ARM chips
-                // May be a processor number. Check for a space.
-                if (splitLine[1].indexOf(' ') > 0) {
+                // Ignore processor number
+                if (!splitLine[1].matches("[0-9]+")) {
                     cpuName = splitLine[1];
                 }
                 break;
