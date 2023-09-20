@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        java: [11, 17, 20, 21-ea]
+        java: [11, 17, 20, 21]
         os: [ubuntu-latest]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
@@ -41,7 +41,7 @@ jobs:
       - name: Test with Maven
         run: ./mvnw clean test -B
       - name: Report Coverage to Coveralls
-        if: contains(matrix.java, '8')
+        if: contains(matrix.java, '11')
         run: ./mvnw clean test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
