@@ -119,16 +119,21 @@ class InternetProtocolStatsTest {
         for (IPConnection conn : ipStats.getConnections()) {
             assertThat("Protocol name is not null or empty", conn.getType(),
                     allOf(is(not(emptyString())), is(notNullValue())));
-            if (conn.getType().contains("4")) {
+            if (conn.getType().contains("46")) {
                 assertThat("Local address array size should be 0, or 4", conn.getLocalAddress().length,
                         anyOf(is(0), is(4)));
                 assertThat("Foreign address rray size should be 0, or 4", conn.getForeignAddress().length,
                         anyOf(is(0), is(4)));
-            } else {
+            } else if (conn.getType().contains("6")) {
                 assertThat("Local address array size should be 0, or 16", conn.getLocalAddress().length,
                         anyOf(is(0), is(16)));
                 assertThat("Foreign address rray size should be 0, or 16", conn.getForeignAddress().length,
                         anyOf(is(0), is(16)));
+            } else {
+                assertThat("Local address array size should be 0, or 4", conn.getLocalAddress().length,
+                        anyOf(is(0), is(4)));
+                assertThat("Foreign address rray size should be 0, or 4", conn.getForeignAddress().length,
+                        anyOf(is(0), is(4)));
             }
             assertThat("Local port must be a 16 bit value", conn.getLocalPort(),
                     allOf(greaterThanOrEqualTo(0), lessThanOrEqualTo(0xffff)));
