@@ -1,10 +1,8 @@
-# 6.4.6 (in progress)
+# 6.4.7 (in progress)
 
-##### Bug fixes / Improvements
-* [#2443](https://github.com/oshi/oshi/pull/2443): Include IPConnections on Mac that listen on both IPv4 and IPv6 protocols - [@rieck0](https://github.com/rieck0).
-* [#2446](https://github.com/oshi/oshi/pull/2446): Fix parsing Loongson CPU names - [@Glavo](https://github.com/Glavo).
+* Your contribution here!
 
-# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20)
+# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24)
 
 ##### New Features
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
@@ -30,6 +28,8 @@
 * [#2427](https://github.com/oshi/oshi/pull/2427): Lookup hardware implementer if lscpu fails to do so - [@dbwiddis](https://github.com/dbwiddis).
 * [#2434](https://github.com/oshi/oshi/pull/2434): Fix Windows OS Process logic to use registry values - [@tzfun](https://github.com/tzfun).
 * [#2436](https://github.com/oshi/oshi/pull/2436): Fall back to vendor frequency on failed max on Windows - [@dbwiddis](https://github.com/dbwiddis).
+* [#2443](https://github.com/oshi/oshi/pull/2443): Include IPConnections on macOS that listen on both IPv4 and IPv6 protocols - [@rieck0](https://github.com/rieck0).
+* [#2446](https://github.com/oshi/oshi/pull/2446): Fix parsing Loongson CPU names - [@Glavo](https://github.com/Glavo).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
