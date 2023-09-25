@@ -57,7 +57,7 @@ oshi-demo/oshi-core,oshi.software.os.mac,MacOperatingSystem,588,0,64,0,110,0,59,
 oshi-demo/oshi-core,oshi.software.os.mac,MacOSFileStore,118,0,6,0,31,0,13,0,10,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacOSProcess,741,0,67,0,164,0,73,0,37,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacOSThread,57,0,0,0,18,0,9,0,9,0
-oshi-demo/oshi-core,oshi.software.os.mac,MacInternetProtocolStats,774,0,58,0,146,0,47,0,13,0
+oshi-demo/oshi-core,oshi.software.os.mac,MacInternetProtocolStats,800,0,60,0,150,0,48,0,13,0
 oshi-demo/oshi-core,oshi.software.os.mac,MacFileSystem,482,0,56,0,104,0,37,0,9,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,SystemInformation.ProcessorQueueLengthProperty,28,0,0,0,8,0,4,0,4,0
 oshi-demo/oshi-core,oshi.driver.windows.perfmon,MemoryInformation.PageSwapProperty,36,0,0,0,9,0,4,0,4,0
@@ -244,8 +244,8 @@ oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Processor,36,0,0,0,6,0,3,0,3,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32VideoController.VideoControllerProperty,33,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,OhmHardware.IdentifierProperty,9,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32LogicalDiskToPartition,11,0,0,0,2,0,1,0,1,0
-oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Process.ProcessXPProperty,51,0,0,0,2,0,1,0,1,0
+oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Fan.SpeedProperty,9,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32LogicalDisk,44,0,6,0,9,0,4,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32PhysicalMemory.PhysicalMemoryProperty,33,0,0,0,2,0,1,0,1,0
 oshi-demo/oshi-core,oshi.driver.windows.wmi,Win32Processor.ProcessorIdProperty,9,0,0,0,2,0,1,0,1,0
@@ -411,7 +411,7 @@ oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxUsbDevice,351,0,30,0,76,0,
 oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxSoundCard,238,0,32,0,42,0,23,0,7,0
 oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxHWDiskStore.UdevStat,56,0,0,0,6,0,3,0,3,0
 oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxPowerSource,322,0,28,0,82,0,18,0,4,0
-oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,1729,0,194,0,349,0,129,0,28,0
+oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxCentralProcessor,1731,0,194,0,349,0,129,0,28,0
 oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxHWDiskStore,592,0,66,0,129,0,51,0,18,0
 oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxVirtualMemory,215,0,21,0,47,0,22,0,10,0
 oshi-demo/oshi-core,oshi.hardware.platform.linux,LinuxLogicalVolumeGroup,257,0,28,0,46,0,22,0,8,0
