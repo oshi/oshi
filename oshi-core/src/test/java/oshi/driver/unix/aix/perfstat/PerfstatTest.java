@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix.perfstat;
@@ -7,6 +7,7 @@ package oshi.driver.unix.aix.perfstat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -55,7 +56,12 @@ class PerfstatTest {
         perfstat_disk_t[] disks = PerfstatDisk.queryDiskStats();
         assertThat("Should have at least one disk", disks.length, greaterThan(0));
         for (perfstat_disk_t disk : disks) {
-            assertThat("Should have a nonzero disk capacity", disk.size, greaterThan(0L));
+            // Virtual disks may give 0 capacity but also have 0 time
+            if (disk.time == 0) {
+                assertThat("Should have a nonnegative disk capacity", disk.size, greaterThanOrEqualTo(0L));
+            } else {
+                assertThat("Should have a nonzero disk capacity", disk.size, greaterThan(0L));
+            }
         }
     }
 
