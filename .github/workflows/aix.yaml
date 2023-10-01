@@ -37,7 +37,7 @@ jobs:
           rm -fR ~/.cache/JNA
           rm -fR ~/javashared*
           cd ~/git/oshi
-          export JAVA_HOME=/opt/ibm-semeru-open-17-jdk
+          export JAVA_HOME=~/java/jdk-17.0.8.1+1
           export PATH=$PATH:/opt/freeware/bin
           export MAVEN_OPTS="-Xshareclasses:none"
           git checkout master
