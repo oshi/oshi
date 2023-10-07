@@ -5,7 +5,11 @@
 package oshi.demo.gui;
 
 import java.awt.BorderLayout;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;

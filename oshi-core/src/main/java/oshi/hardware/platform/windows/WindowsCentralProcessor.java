@@ -6,7 +6,11 @@ package oshi.hardware.platform.windows;
 
 import static oshi.util.Memoizer.memoize;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
