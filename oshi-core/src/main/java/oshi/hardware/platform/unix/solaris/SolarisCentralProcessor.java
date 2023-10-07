@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -335,7 +336,8 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
                 flags.append(' ').append(line.trim());
             }
         }
-        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase()));
+        return createProcessorID(stepping, model, family,
+                ParseUtil.whitespaces.split(flags.toString().toLowerCase(Locale.ROOT)));
     }
 
     @Override

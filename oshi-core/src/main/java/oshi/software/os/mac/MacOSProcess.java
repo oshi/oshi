@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -67,7 +68,7 @@ public class MacOSProcess extends AbstractOSProcess {
             IORegistryEntry cpu = iter.next();
             while (cpu != null) {
                 try {
-                    String s = cpu.getName().toLowerCase();
+                    String s = cpu.getName().toLowerCase(Locale.ROOT);
                     if (s.startsWith("cpu") && s.length() > 3) {
                         byte[] data = cpu.getByteArrayProperty("timebase-frequency");
                         if (data != null) {

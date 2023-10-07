@@ -59,7 +59,7 @@ public class ComputerID {
         String vendor = operatingSystem.getManufacturer();
         String processorSerialNumber = computerSystem.getSerialNumber();
         String uuid = computerSystem.getHardwareUUID();
-        if (NON_UNIQUE_UUIDS.contains(uuid.toUpperCase())) {
+        if (NON_UNIQUE_UUIDS.contains(uuid.toUpperCase(Locale.ROOT))) {
             uuid = Constants.UNKNOWN;
         }
         String processorIdentifier = centralProcessor.getProcessorIdentifier().getIdentifier();

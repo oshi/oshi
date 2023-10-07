@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -10,6 +10,7 @@ import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -222,7 +223,7 @@ public class MacFileSystem extends AbstractFileSystem {
                                     // Now get the UUID
                                     uuid = fsEntry.getStringProperty("UUID");
                                     if (uuid != null) {
-                                        uuid = uuid.toLowerCase();
+                                        uuid = uuid.toLowerCase(Locale.ROOT);
                                     }
                                     fsEntry.release();
                                 }

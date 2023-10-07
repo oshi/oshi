@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx.mbeans;
@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
@@ -40,8 +41,8 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
         for (int i = 0; i < methods.length; i++) {
             attributeInfos[i] = new MBeanAttributeInfo(methods[i].getName(), methods[i].getShortDescription(),
                     methods[i].getReadMethod(), null);
-            propertiesAvailable
-                    .add(methods[i].getName().substring(0, 1).toUpperCase() + methods[i].getName().substring(1));
+            propertiesAvailable.add(
+                    methods[i].getName().substring(0, 1).toUpperCase(Locale.ROOT) + methods[i].getName().substring(1));
         }
 
         dMBeanInfo = new MBeanInfo(baseboard.getClass().getName(), null, attributeInfos, null, null,

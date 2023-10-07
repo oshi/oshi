@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -80,9 +81,9 @@ public class OshiHTTPServer implements Runnable {
             }
             // we parse the request with a string tokenizer
             StringTokenizer parse = new StringTokenizer(input);
-            String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
+            String method = parse.nextToken().toUpperCase(Locale.ROOT); // we get the HTTP method of the client
             // we get fields requested
-            String fileRequested = parse.nextToken().toLowerCase();
+            String fileRequested = parse.nextToken().toLowerCase(Locale.ROOT);
 
             // we support only GET and HEAD methods, we check
             if (!method.equals("GET") && !method.equals("HEAD")) {

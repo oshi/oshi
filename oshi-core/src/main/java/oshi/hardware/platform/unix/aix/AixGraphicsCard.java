@@ -1,11 +1,12 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
@@ -51,7 +52,7 @@ final class AixGraphicsCard extends AbstractGraphicsCard {
             String s = line.trim();
             if (s.startsWith("Name:") && s.contains("display")) {
                 display = true;
-            } else if (display && s.toLowerCase().contains("graphics")) {
+            } else if (display && s.toLowerCase(Locale.ROOT).contains("graphics")) {
                 name = s;
             } else if (display && name != null) {
                 if (s.startsWith("Manufacture ID")) {

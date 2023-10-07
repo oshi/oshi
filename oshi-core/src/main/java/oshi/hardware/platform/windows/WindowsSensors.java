@@ -1,9 +1,10 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -191,7 +192,7 @@ final class WindowsSensors extends AbstractSensors {
                 String cpuIdentifier = null;
                 for (int i = 0; i < ohmHardware.getResultCount(); i++) {
                     String id = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
-                    if (id.toLowerCase().contains("cpu")) {
+                    if (id.toLowerCase(Locale.ROOT).contains("cpu")) {
                         cpuIdentifier = id;
                         break;
                     }

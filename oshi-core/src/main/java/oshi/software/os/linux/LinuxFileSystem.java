@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -80,9 +81,9 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) and volumes as key
                     String canonicalPath = uuid.getCanonicalPath();
-                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase());
+                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase(Locale.ROOT));
                     if (volumeDeviceMap.containsKey(canonicalPath)) {
-                        uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase());
+                        uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase(Locale.ROOT));
                     }
                 } catch (IOException e) {
                     LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());

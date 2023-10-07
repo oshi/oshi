@@ -1,11 +1,12 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -75,7 +76,7 @@ public class DetectVM {
         // Try well known MAC addresses
         List<NetworkIF> nifs = hw.getNetworkIFs();
         for (NetworkIF nif : nifs) {
-            String mac = nif.getMacaddr().toUpperCase();
+            String mac = nif.getMacaddr().toUpperCase(Locale.ROOT);
             String oui = mac.length() > 7 ? mac.substring(0, 8) : mac;
             if (vmMacAddressProps.containsKey(oui)) {
                 return vmMacAddressProps.getProperty(oui);
