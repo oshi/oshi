@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi;
@@ -182,7 +182,8 @@ public class SystemInfoTest { // NOSONAR squid:S5786
             }
         }
         oshi.add(" Topology:");
-        oshi.add(String.format(Locale.ROOT, "  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA", "PGrp"));
+        oshi.add(String.format(Locale.ROOT, "  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA",
+                "PGrp"));
         for (PhysicalProcessor cpu : processor.getPhysicalProcessors()) {
             oshi.add(String.format(Locale.ROOT, "  %7s %4s %4d %4s %4d %4d",
                     processor.getLogicalProcessors().stream()
@@ -258,14 +259,15 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         long steal = ticks[TickType.STEAL.getIndex()] - prevTicks[TickType.STEAL.getIndex()];
         long totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
 
-        oshi.add(String.format(
-                Locale.ROOT,
+        oshi.add(String.format(Locale.ROOT,
                 "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu));
-        oshi.add(String.format(Locale.ROOT, "CPU load: %.1f%%", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
+        oshi.add(String.format(Locale.ROOT, "CPU load: %.1f%%",
+                processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
         double[] loadAverage = processor.getSystemLoadAverage(3);
-        oshi.add("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[0]))
+        oshi.add("CPU load averages:"
+                + (loadAverage[0] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[0]))
                 + (loadAverage[1] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[1]))
                 + (loadAverage[2] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[2])));
         // per core CPU
@@ -389,8 +391,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         for (OSFileStore fs : fileSystem.getFileStores()) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            oshi.add(String.format(
-                    Locale.ROOT,
+            oshi.add(String.format(Locale.ROOT,
                     " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
                             + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
                             + " and is mounted at %s",

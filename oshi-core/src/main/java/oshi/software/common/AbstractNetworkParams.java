@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 The OSHI Project Contributors
+ * Copyright 2017-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.common;
@@ -93,7 +93,8 @@ public abstract class AbstractNetworkParams implements NetworkParams {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s",
+        return String.format(Locale.ROOT,
+                "Host name: %s, Domain name: %s, DNS servers: %s, IPv4 Gateway: %s, IPv6 Gateway: %s",
                 this.getHostName(), this.getDomainName(), Arrays.toString(this.getDnsServers()),
                 this.getIpv4DefaultGateway(), this.getIpv6DefaultGateway());
 

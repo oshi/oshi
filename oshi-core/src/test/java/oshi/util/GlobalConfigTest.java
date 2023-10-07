@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;

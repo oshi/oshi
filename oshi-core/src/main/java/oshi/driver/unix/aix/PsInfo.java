@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix;
@@ -64,7 +64,8 @@ public final class PsInfo {
      * @return A structure containing information for the requested thread
      */
     public static AixLwpsInfo queryLwpsInfo(int pid, int tid) {
-        return new AixLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
+        return new AixLwpsInfo(
+                FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
     }
 
     /**

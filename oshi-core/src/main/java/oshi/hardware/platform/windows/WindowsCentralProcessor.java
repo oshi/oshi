@@ -181,7 +181,8 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                     curNode = node;
                     procNum = 0;
                 }
-                numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", logProc.getNumaNode(), procNum++), lp++);
+                numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", logProc.getNumaNode(), procNum++),
+                        lp++);
             }
             return procs;
         } else {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -71,7 +71,8 @@ public final class EdidUtil {
     }
 
     private static String getAlphaNumericOrHex(byte b) {
-        return Character.isLetterOrDigit((char) b) ? String.format(Locale.ROOT, "%s", (char) b) : String.format("%02X", b);
+        return Character.isLetterOrDigit((char) b) ? String.format(Locale.ROOT, "%s", (char) b)
+                : String.format("%02X", b);
     }
 
     /**
@@ -186,8 +187,8 @@ public final class EdidUtil {
      * @return A string describing some of the range limits
      */
     public static String getDescriptorRangeLimits(byte[] desc) {
-        return String.format(Locale.ROOT, "Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz", desc[5], desc[6],
-                desc[7], desc[8], desc[9] * 10);
+        return String.format(Locale.ROOT, "Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz",
+                desc[5], desc[6], desc[7], desc[8], desc[9] * 10);
     }
 
     /**
@@ -217,7 +218,8 @@ public final class EdidUtil {
         sb.append(", EDID v").append(EdidUtil.getVersion(edid));
         int hSize = EdidUtil.getHcm(edid);
         int vSize = EdidUtil.getVcm(edid);
-        sb.append(String.format(Locale.ROOT, "%n  %d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54, vSize / 2.54));
+        sb.append(String.format(Locale.ROOT, "%n  %d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54,
+                vSize / 2.54));
         byte[][] desc = EdidUtil.getDescriptors(edid);
         for (byte[] b : desc) {
             switch (EdidUtil.getDescriptorType(b)) {

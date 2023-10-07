@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -90,7 +90,8 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * @return The device toString, indented
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
-        String indentFmt = indent > 4 ? String.format(Locale.ROOT, "%%%ds|-- ", indent - 4) : String.format("%%%ds", indent);
+        String indentFmt = indent > 4 ? String.format(Locale.ROOT, "%%%ds|-- ", indent - 4)
+                : String.format("%%%ds", indent);
         StringBuilder sb = new StringBuilder(String.format(Locale.ROOT, indentFmt, ""));
         sb.append(usbDevice.getName());
         if (!usbDevice.getVendor().isEmpty()) {

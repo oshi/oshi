@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.common;
@@ -56,8 +56,8 @@ public abstract class AbstractOSThread implements OSThread {
         return "OSThread [threadId=" + getThreadId() + ", owningProcessId=" + getOwningProcessId() + ", name="
                 + getName() + ", state=" + getState() + ", kernelTime=" + getKernelTime() + ", userTime="
                 + getUserTime() + ", upTime=" + getUpTime() + ", startTime=" + getStartTime()
-                + ", startMemoryAddress=0x" + String.format(Locale.ROOT, "%x", getStartMemoryAddress()) + ", contextSwitches="
-                + getContextSwitches() + ", minorFaults=" + getMinorFaults() + ", majorFaults=" + getMajorFaults()
-                + "]";
+                + ", startMemoryAddress=0x" + String.format(Locale.ROOT, "%x", getStartMemoryAddress())
+                + ", contextSwitches=" + getContextSwitches() + ", minorFaults=" + getMinorFaults() + ", majorFaults="
+                + getMajorFaults() + "]";
     }
 }
