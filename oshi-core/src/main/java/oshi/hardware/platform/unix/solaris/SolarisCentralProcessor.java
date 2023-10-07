@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -336,7 +336,8 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
                 flags.append(' ').append(line.trim());
             }
         }
-        return createProcessorID(stepping, model, family, ParseUtil.whitespaces.split(flags.toString().toLowerCase(Locale.ROOT)));
+        return createProcessorID(stepping, model, family,
+                ParseUtil.whitespaces.split(flags.toString().toLowerCase(Locale.ROOT)));
     }
 
     @Override
