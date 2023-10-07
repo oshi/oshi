@@ -4,10 +4,7 @@
  */
 package oshi.demo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -75,7 +72,7 @@ public class DetectVM {
         // Try well known MAC addresses
         List<NetworkIF> nifs = hw.getNetworkIFs();
         for (NetworkIF nif : nifs) {
-            String mac = nif.getMacaddr().toUpperCase();
+            String mac = nif.getMacaddr().toUpperCase(Locale.ROOT);
             String oui = mac.length() > 7 ? mac.substring(0, 8) : mac;
             if (vmMacAddressProps.containsKey(oui)) {
                 return vmMacAddressProps.getProperty(oui);

@@ -7,10 +7,7 @@ package oshi.software.os.mac;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -222,7 +219,7 @@ public class MacFileSystem extends AbstractFileSystem {
                                     // Now get the UUID
                                     uuid = fsEntry.getStringProperty("UUID");
                                     if (uuid != null) {
-                                        uuid = uuid.toLowerCase();
+                                        uuid = uuid.toLowerCase(Locale.ROOT);
                                     }
                                     fsEntry.release();
                                 }

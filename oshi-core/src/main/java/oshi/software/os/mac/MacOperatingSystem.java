@@ -8,13 +8,7 @@ import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -266,13 +260,13 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         ArrayList<File> files = new ArrayList<>();
         File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);
         if (dir.exists() && dir.isDirectory()) {
-            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".plist"))));
         } else {
             LOG.error("Directory: /System/Library/LaunchAgents does not exist");
         }
         dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);
         if (dir.exists() && dir.isDirectory()) {
-            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase().endsWith(".plist"))));
+            files.addAll(Arrays.asList(dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".plist"))));
         } else {
             LOG.error("Directory: /System/Library/LaunchDaemons does not exist");
         }

@@ -6,6 +6,7 @@ package oshi.demo;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
@@ -58,7 +59,7 @@ public class ComputerID {
         String vendor = operatingSystem.getManufacturer();
         String processorSerialNumber = computerSystem.getSerialNumber();
         String uuid = computerSystem.getHardwareUUID();
-        if (NON_UNIQUE_UUIDS.contains(uuid.toUpperCase())) {
+        if (NON_UNIQUE_UUIDS.contains(uuid.toUpperCase(Locale.ROOT))) {
             uuid = Constants.UNKNOWN;
         }
         String processorIdentifier = centralProcessor.getProcessorIdentifier().getIdentifier();

@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
@@ -41,7 +42,7 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
             attributeInfos[i] = new MBeanAttributeInfo(methods[i].getName(), methods[i].getShortDescription(),
                     methods[i].getReadMethod(), null);
             propertiesAvailable
-                    .add(methods[i].getName().substring(0, 1).toUpperCase() + methods[i].getName().substring(1));
+                    .add(methods[i].getName().substring(0, 1).toUpperCase(Locale.ROOT) + methods[i].getName().substring(1));
         }
 
         dMBeanInfo = new MBeanInfo(baseboard.getClass().getName(), null, attributeInfos, null, null,

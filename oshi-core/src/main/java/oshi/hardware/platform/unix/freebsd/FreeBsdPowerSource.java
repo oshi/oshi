@@ -5,10 +5,7 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
@@ -100,9 +97,9 @@ public final class FreeBsdPowerSource extends AbstractPowerSource {
         String cap = psMap.get("Design capacity");
         if (cap != null) {
             psDesignCapacity = ParseUtil.getFirstIntValue(cap);
-            if (cap.toLowerCase().contains("mah")) {
+            if (cap.toLowerCase(Locale.ROOT).contains("mah")) {
                 psCapacityUnits = CapacityUnits.MAH;
-            } else if (cap.toLowerCase().contains("mwh")) {
+            } else if (cap.toLowerCase(Locale.ROOT).contains("mwh")) {
                 psCapacityUnits = CapacityUnits.MWH;
             }
         }

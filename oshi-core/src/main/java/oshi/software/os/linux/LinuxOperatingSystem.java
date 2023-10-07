@@ -10,13 +10,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -621,8 +615,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             return "Unknown";
         } else {
             Properties filenameProps = FileUtil.readPropertiesFromFilename(FILENAME_PROPERTIES);
-            String family = filenameProps.getProperty(name.toLowerCase());
-            return family != null ? family : name.substring(0, 1).toUpperCase() + name.substring(1);
+            String family = filenameProps.getProperty(name.toLowerCase(Locale.ROOT));
+            return family != null ? family : name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
         }
     }
 
@@ -656,7 +650,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
             // Get Directories for stopped services
             File dir = new File("/etc/init");
             if (dir.exists() && dir.isDirectory()) {
-                for (File f : dir.listFiles((f, name) -> name.toLowerCase().endsWith(".conf"))) {
+                for (File f : dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".conf"))) {
                     // remove .conf extension
                     String name = f.getName().substring(0, f.getName().length() - 5);
                     int index = name.lastIndexOf('.');

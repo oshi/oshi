@@ -10,10 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,9 +77,9 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) and volumes as key
                     String canonicalPath = uuid.getCanonicalPath();
-                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase());
+                    uuidMap.put(canonicalPath, uuid.getName().toLowerCase(Locale.ROOT));
                     if (volumeDeviceMap.containsKey(canonicalPath)) {
-                        uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase());
+                        uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase(Locale.ROOT));
                     }
                 } catch (IOException e) {
                     LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
