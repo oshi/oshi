@@ -6,7 +6,12 @@ package oshi.hardware.platform.unix.solaris;
 
 import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

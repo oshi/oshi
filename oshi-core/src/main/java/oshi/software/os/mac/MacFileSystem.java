@@ -7,7 +7,11 @@ package oshi.software.os.mac;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.PathMatcher;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 

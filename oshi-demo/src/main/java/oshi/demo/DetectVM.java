@@ -4,7 +4,11 @@
  */
 package oshi.demo;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
