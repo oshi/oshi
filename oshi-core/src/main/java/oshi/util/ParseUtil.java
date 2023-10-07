@@ -166,7 +166,7 @@ public final class ParseUtil {
     public static int parseLastInt(String s, int i) {
         try {
             String ls = parseLastString(s);
-            if (ls.toLowerCase().startsWith("0x")) {
+            if (ls.toLowerCase(Locale.ROOT).startsWith("0x")) {
                 return Integer.decode(ls);
             } else {
                 return Integer.parseInt(ls);
@@ -187,7 +187,7 @@ public final class ParseUtil {
     public static long parseLastLong(String s, long li) {
         try {
             String ls = parseLastString(s);
-            if (ls.toLowerCase().startsWith("0x")) {
+            if (ls.toLowerCase(Locale.ROOT).startsWith("0x")) {
                 return Long.decode(ls);
             } else {
                 return Long.parseLong(ls);
@@ -238,7 +238,7 @@ public final class ParseUtil {
             sb.append(Character.forDigit((b & 0xf0) >>> 4, 16));
             sb.append(Character.forDigit(b & 0x0f, 16));
         }
-        return sb.toString().toUpperCase();
+        return sb.toString().toUpperCase(Locale.ROOT);
     }
 
     /**
@@ -520,7 +520,7 @@ public final class ParseUtil {
      * @return The parsed UUID, or the default if parsing fails
      */
     public static String parseUuidOrDefault(String s, String defaultStr) {
-        Matcher m = UUID_PATTERN.matcher(s.toLowerCase());
+        Matcher m = UUID_PATTERN.matcher(s.toLowerCase(Locale.ROOT));
         if (m.matches()) {
             return m.group(1);
         }
@@ -955,8 +955,8 @@ public final class ParseUtil {
     public static Triplet<String, String, String> parseDeviceIdToVendorProductSerial(String deviceId) {
         Matcher m = VENDOR_PRODUCT_ID_SERIAL.matcher(deviceId);
         if (m.matches()) {
-            String vendorId = "0x" + m.group(1).toLowerCase();
-            String productId = "0x" + m.group(2).toLowerCase();
+            String vendorId = "0x" + m.group(1).toLowerCase(Locale.ROOT);
+            String productId = "0x" + m.group(2).toLowerCase(Locale.ROOT);
             String serial = m.group(4);
             return new Triplet<>(vendorId, productId, !m.group(3).isEmpty() || serial.contains("&") ? "" : serial);
         }

@@ -1,11 +1,12 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
@@ -50,7 +51,7 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
         for (String line : sp) {
             String[] split = line.trim().split(":", 2);
             if (split.length == 2) {
-                String prefix = split[0].toLowerCase();
+                String prefix = split[0].toLowerCase(Locale.ROOT);
                 if (prefix.equals("chipset model")) {
                     // Save previous card
                     if (cardNum++ > 0) {

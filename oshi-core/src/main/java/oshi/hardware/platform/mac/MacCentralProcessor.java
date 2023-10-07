@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -130,7 +131,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         Map<Integer, String> compatMap = queryCompatibleStrings();
         int perflevels = SysctlUtil.sysctl("hw.nperflevels", 1);
         List<PhysicalProcessor> physProcs = pkgCoreKeys.stream().sorted().map(k -> {
-            String compat = compatMap.getOrDefault(k, "").toLowerCase();
+            String compat = compatMap.getOrDefault(k, "").toLowerCase(Locale.ROOT);
             int efficiency = 0; // default, for E-core icestorm or blizzard
             if (compat.contains("firestorm") || compat.contains("avalanche")) {
                 // This is brittle. A better long term solution is to use sysctls
@@ -294,7 +295,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         if (iter != null) {
             IORegistryEntry cpu = iter.next();
             while (cpu != null) {
-                Matcher m = CPU_N.matcher(cpu.getName().toLowerCase());
+                Matcher m = CPU_N.matcher(cpu.getName().toLowerCase(Locale.ROOT));
                 if (m.matches()) {
                     int procId = ParseUtil.parseIntOrDefault(m.group(1), 0);
                     // Compatible key is null-delimited C string array in byte array
@@ -326,7 +327,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                 IORegistryEntry device = iter.next();
                 try {
                     while (device != null) {
-                        if (device.getName().toLowerCase().equals("pmgr")) {
+                        if (device.getName().equalsIgnoreCase("pmgr")) {
                             performanceCoreFrequency = getMaxFreqFromByteArray(
                                     device.getByteArrayProperty("voltage-states5-sram"));
                             efficiencyCoreFrequency = getMaxFreqFromByteArray(

@@ -7,6 +7,7 @@ package oshi.hardware;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -554,7 +555,7 @@ public interface CentralProcessor {
 
             @Override
             public String toString() {
-                return name().substring(0, 1) + name().substring(1).toLowerCase();
+                return name().substring(0, 1) + name().substring(1).toLowerCase(Locale.ROOT);
             }
         }
 
@@ -822,7 +823,7 @@ public interface CentralProcessor {
             // Intel is default, no prefix
             StringBuilder sb = new StringBuilder();
             // AMD and ARM properties have prefix
-            String ucVendor = this.cpuVendor.toUpperCase();
+            String ucVendor = this.cpuVendor.toUpperCase(Locale.ROOT);
             if (ucVendor.contains("AMD")) {
                 sb.append("amd.");
             } else if (ucVendor.contains("ARM")) {

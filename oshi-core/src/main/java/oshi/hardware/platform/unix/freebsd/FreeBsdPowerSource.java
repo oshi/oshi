@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -100,9 +101,9 @@ public final class FreeBsdPowerSource extends AbstractPowerSource {
         String cap = psMap.get("Design capacity");
         if (cap != null) {
             psDesignCapacity = ParseUtil.getFirstIntValue(cap);
-            if (cap.toLowerCase().contains("mah")) {
+            if (cap.toLowerCase(Locale.ROOT).contains("mah")) {
                 psCapacityUnits = CapacityUnits.MAH;
-            } else if (cap.toLowerCase().contains("mwh")) {
+            } else if (cap.toLowerCase(Locale.ROOT).contains("mwh")) {
                 psCapacityUnits = CapacityUnits.MWH;
             }
         }

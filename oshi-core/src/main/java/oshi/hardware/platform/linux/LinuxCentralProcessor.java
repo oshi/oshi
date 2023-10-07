@@ -95,7 +95,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }
                 break;
             case "flags":
-                flags = splitLine[1].toLowerCase().split(" ");
+                flags = splitLine[1].toLowerCase(Locale.ROOT).split(" ");
                 for (String flag : flags) {
                     if ("lm".equals(flag)) {
                         cpu64bit = true;
@@ -299,7 +299,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static ProcessorCache.Type parseCacheType(String type) {
         try {
-            return ProcessorCache.Type.valueOf(type.toUpperCase());
+            return ProcessorCache.Type.valueOf(type.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return ProcessorCache.Type.UNIFIED;
         }
@@ -478,7 +478,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         List<String> cpuInfo = FileUtil.readFile(CPUINFO);
         int proc = 0;
         for (String s : cpuInfo) {
-            if (s.toLowerCase().contains("cpu mhz")) {
+            if (s.toLowerCase(Locale.ROOT).contains("cpu mhz")) {
                 freqs[proc] = Math.round(ParseUtil.parseLastDouble(s, 0d) * 1_000_000d);
                 if (++proc >= freqs.length) {
                     break;
