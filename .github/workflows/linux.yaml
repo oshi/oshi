@@ -35,6 +35,9 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Forbidden APIs
+        if: contains(matrix.java, '11')
+        run: ./mvnw forbiddenapis:check
       - name: Checkstyle
         if: contains(matrix.java, '11')
         run: ./mvnw checkstyle:check
