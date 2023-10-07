@@ -7,6 +7,7 @@ package oshi.software.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Locale;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -55,7 +56,7 @@ public abstract class AbstractOSThread implements OSThread {
         return "OSThread [threadId=" + getThreadId() + ", owningProcessId=" + getOwningProcessId() + ", name="
                 + getName() + ", state=" + getState() + ", kernelTime=" + getKernelTime() + ", userTime="
                 + getUserTime() + ", upTime=" + getUpTime() + ", startTime=" + getStartTime()
-                + ", startMemoryAddress=0x" + String.format("%x", getStartMemoryAddress()) + ", contextSwitches="
+                + ", startMemoryAddress=0x" + String.format(Locale.ROOT, "%x", getStartMemoryAddress()) + ", contextSwitches="
                 + getContextSwitches() + ", minorFaults=" + getMinorFaults() + ", majorFaults=" + getMajorFaults()
                 + "]";
     }

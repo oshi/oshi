@@ -7,15 +7,7 @@ package oshi.hardware.common;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -387,7 +379,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 }
             }
         }
-        return String.format("%016X", processorIdBytes);
+        return String.format(Locale.ROOT, "%016X", processorIdBytes);
     }
 
     protected List<PhysicalProcessor> createProcListFromDmesg(List<LogicalProcessor> logProcs,

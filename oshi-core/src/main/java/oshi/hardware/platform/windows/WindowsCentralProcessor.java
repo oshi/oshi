@@ -6,10 +6,7 @@ package oshi.hardware.platform.windows;
 
 import static oshi.util.Memoizer.memoize;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -180,7 +177,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                     curNode = node;
                     procNum = 0;
                 }
-                numaNodeProcToLogicalProcMap.put(String.format("%d,%d", logProc.getNumaNode(), procNum++), lp++);
+                numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", logProc.getNumaNode(), procNum++), lp++);
             }
             return procs;
         } else {

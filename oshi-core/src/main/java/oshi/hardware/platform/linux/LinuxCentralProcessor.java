@@ -647,7 +647,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         // 31:24 - Implementer = vendor
         midrBytes |= ParseUtil.parseLastInt(vendor, 0) << 24;
 
-        return String.format("%08X", midrBytes);
+        return String.format(Locale.ROOT, "%08X", midrBytes);
     }
 
     @Override

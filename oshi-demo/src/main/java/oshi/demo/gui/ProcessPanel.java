@@ -5,10 +5,7 @@
 package oshi.demo.gui;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;
@@ -155,17 +152,17 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
             procArr[i][1] = p.getParentProcessID();
             procArr[i][2] = p.getThreadCount();
             if (perProc.isSelected()) {
-                procArr[i][3] = String.format("%.1f",
+                procArr[i][3] = String.format(Locale.ROOT, "%.1f",
                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);
-                procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative() * cpuCount);
+                procArr[i][4] = String.format(Locale.ROOT, "%.1f", 100d * p.getProcessCpuLoadCumulative() * cpuCount);
             } else {
-                procArr[i][3] = String.format("%.1f",
+                procArr[i][3] = String.format(Locale.ROOT, "%.1f",
                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
-                procArr[i][4] = String.format("%.1f", 100d * p.getProcessCpuLoadCumulative());
+                procArr[i][4] = String.format(Locale.ROOT, "%.1f", 100d * p.getProcessCpuLoadCumulative());
             }
             procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());
             procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());
-            procArr[i][7] = String.format("%.1f", 100d * p.getResidentSetSize() / totalMem);
+            procArr[i][7] = String.format(Locale.ROOT, "%.1f", 100d * p.getResidentSetSize() / totalMem);
             procArr[i][8] = p.getName();
         }
         // Re-populate snapshot map

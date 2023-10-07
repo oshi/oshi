@@ -5,6 +5,7 @@
 package oshi.util.platform.windows;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -132,7 +133,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
         if (value < 0) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Error querying counter {}: {}", counter.getCounterPath(),
-                        String.format(FormatUtil.formatError((int) value)));
+                        String.format(Locale.ROOT, FormatUtil.formatError((int) value)));
             }
             return 0L;
         }

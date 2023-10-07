@@ -10,13 +10,7 @@ import static oshi.software.os.OSService.State.STOPPED;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,7 +267,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static int getParentPidFromProcFile(int pid) {
-        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, "/proc/%d/stat", pid));
         // A race condition may leave us with an empty string
         if (stat.isEmpty()) {
             return 0;

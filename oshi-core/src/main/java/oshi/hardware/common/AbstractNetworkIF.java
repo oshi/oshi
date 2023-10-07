@@ -10,12 +10,7 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -82,7 +77,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             if (hwmac != null) {
                 List<String> octets = new ArrayList<>(6);
                 for (byte b : hwmac) {
-                    octets.add(String.format("%02x", b));
+                    octets.add(String.format(Locale.ROOT, "%02x", b));
                 }
                 this.mac = String.join(":", octets);
             } else {

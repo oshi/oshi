@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ class PsInfoTest {
         Pair<List<String>, Map<String, String>> argsEnv = PsInfo.queryArgsEnv(pid, psinfo);
         assertThat("Arg list size should match argc", argsEnv.getA().size(), is(addrs.getA().intValue()));
 
-        File directory = new File(String.format("/proc/%d/lwp", pid));
+        File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", pid));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         assertNotNull(numericFiles);
         for (File lwpidFile : numericFiles) {

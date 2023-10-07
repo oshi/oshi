@@ -4,12 +4,7 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -363,7 +358,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         // If we've gotten this far, dmidecode failed. Used the passed-in values
-        return String.format("%016X", processorID);
+        return String.format(Locale.ROOT, "%016X", processorID);
     }
 
     @Override

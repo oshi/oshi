@@ -9,11 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -181,9 +177,9 @@ public class SystemInfoTest { // NOSONAR squid:S5786
             }
         }
         oshi.add(" Topology:");
-        oshi.add(String.format("  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA", "PGrp"));
+        oshi.add(String.format(Locale.ROOT, "  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA", "PGrp"));
         for (PhysicalProcessor cpu : processor.getPhysicalProcessors()) {
-            oshi.add(String.format("  %7s %4s %4d %4s %4d %4d",
+            oshi.add(String.format(Locale.ROOT, "  %7s %4s %4d %4s %4d %4d",
                     processor.getLogicalProcessors().stream()
                             .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
                             .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
@@ -258,19 +254,20 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         long totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
 
         oshi.add(String.format(
+                Locale.ROOT,
                 "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu));
-        oshi.add(String.format("CPU load: %.1f%%", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
+        oshi.add(String.format(Locale.ROOT, "CPU load: %.1f%%", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
         double[] loadAverage = processor.getSystemLoadAverage(3);
-        oshi.add("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(" %.2f", loadAverage[0]))
-                + (loadAverage[1] < 0 ? " N/A" : String.format(" %.2f", loadAverage[1]))
-                + (loadAverage[2] < 0 ? " N/A" : String.format(" %.2f", loadAverage[2])));
+        oshi.add("CPU load averages:" + (loadAverage[0] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[0]))
+                + (loadAverage[1] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[1]))
+                + (loadAverage[2] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[2])));
         // per core CPU
         StringBuilder procCpu = new StringBuilder("CPU load per processor:");
         double[] load = processor.getProcessorCpuLoadBetweenTicks(prevProcTicks);
         for (double avg : load) {
-            procCpu.append(String.format(" %.1f%%", avg * 100));
+            procCpu.append(String.format(Locale.ROOT, " %.1f%%", avg * 100));
         }
         oshi.add(procCpu.toString());
         long freq = processor.getProcessorIdentifier().getVendorFreq();
@@ -307,7 +304,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         oshi.add("   PID  %CPU %MEM       VSZ       RSS Name");
         for (int i = 0; i < procs.size(); i++) {
             OSProcess p = procs.get(i);
-            oshi.add(String.format(" %5d %5.1f %4.1f %9s %9s %s", p.getProcessID(),
+            oshi.add(String.format(Locale.ROOT, " %5d %5.1f %4.1f %9s %9s %s", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                     100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
@@ -330,13 +327,13 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         int i = 0;
         for (OSService s : os.getServices()) {
             if (s.getState().equals(OSService.State.RUNNING) && i++ < 5) {
-                oshi.add(String.format(" %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
+                oshi.add(String.format(Locale.ROOT, " %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
             }
         }
         i = 0;
         for (OSService s : os.getServices()) {
             if (s.getState().equals(OSService.State.STOPPED) && i++ < 5) {
-                oshi.add(String.format(" %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
+                oshi.add(String.format(Locale.ROOT, " %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
             }
         }
     }
@@ -381,13 +378,14 @@ public class SystemInfoTest { // NOSONAR squid:S5786
     private static void printFileSystem(FileSystem fileSystem) {
         oshi.add("File System:");
 
-        oshi.add(String.format(" File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
+        oshi.add(String.format(Locale.ROOT, " File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
                 fileSystem.getMaxFileDescriptors()));
 
         for (OSFileStore fs : fileSystem.getFileStores()) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
             oshi.add(String.format(
+                    Locale.ROOT,
                     " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
                             + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
                             + " and is mounted at %s",
