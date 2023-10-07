@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -27,7 +28,7 @@ class PsInfoTest {
         int pid = new SystemInfo().getOperatingSystem().getProcessId();
         SolarisPsInfo psinfo = PsInfo.queryPsInfo(pid);
         assertThat("Process ID in structure should match PID", psinfo.pr_pid, is(pid));
-        File directory = new File(String.format("/proc/%d/lwp", pid));
+        File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", pid));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         assertNotNull(numericFiles);
         for (File lwpidFile : numericFiles) {

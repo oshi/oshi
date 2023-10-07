@@ -15,6 +15,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -164,7 +165,7 @@ final class MemoizerTest {
 
     private static void testIncrementCounts(long actualNumberOfIncrements, long iterationDurationNanos, long ttlNanos) {
         if (ttlNanos < 0) {
-            assertThat(String.format("ttlNanos=%d", ttlNanos), actualNumberOfIncrements, is(1L));
+            assertThat(String.format(Locale.ROOT, "ttlNanos=%d", ttlNanos), actualNumberOfIncrements, is(1L));
         } else {
             /*
              * Calculation of expectedNumberOfIncrements is a bit tricky because there is no such thing. We can only
@@ -185,9 +186,9 @@ final class MemoizerTest {
             final long minExpectedNumberOfIncrements = 2L;
             final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * numberOfThreads;
 
-            assertThat(String.format("ttlNanos=%s", ttlNanos), minExpectedNumberOfIncrements,
+            assertThat(String.format(Locale.ROOT, "ttlNanos=%s", ttlNanos), minExpectedNumberOfIncrements,
                     is(lessThanOrEqualTo(actualNumberOfIncrements)));
-            assertThat(String.format("ttlNanos=%s", ttlNanos), actualNumberOfIncrements,
+            assertThat(String.format(Locale.ROOT, "ttlNanos=%s", ttlNanos), actualNumberOfIncrements,
                     is(lessThanOrEqualTo(maxExpectedNumberOfIncrements)));
         }
     }

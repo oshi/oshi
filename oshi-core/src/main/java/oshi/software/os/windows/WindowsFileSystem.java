@@ -4,10 +4,7 @@
  */
 package oshi.software.os.windows;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Native;
@@ -191,7 +188,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     // Parse uuid from volume name
                     String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
-                    fs.add(new WindowsOSFileStore(String.format("%s (%s)", strName, strMount), volume, strName,
+                    fs.add(new WindowsOSFileStore(String.format(Locale.ROOT, "%s (%s)", strName, strMount), volume, strName,
                             strMount, options.toString(), uuid, "", getDriveType(strMount), strFsType,
                             systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
                 }
@@ -234,7 +231,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     description = split[split.length - 1];
                 }
             }
-            fs.add(new WindowsOSFileStore(String.format("%s (%s)", description, name), volume, label, name + "\\",
+            fs.add(new WindowsOSFileStore(String.format(Locale.ROOT, "%s (%s)", description, name), volume, label, name + "\\",
                     options, "", "", getDriveType(name), WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i),
                     free, free, total, 0, 0));
         }

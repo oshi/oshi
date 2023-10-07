@@ -4,6 +4,8 @@
  */
 package oshi.util.platform.windows;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +143,7 @@ public final class PerfDataUtil {
             }
             if (ret != WinError.ERROR_SUCCESS) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to update counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+                    LOG.warn("Failed to update counter. Error code: {}", String.format(Locale.ROOT, FormatUtil.formatError(ret)));
                 }
                 return 0L;
             }
@@ -161,7 +163,7 @@ public final class PerfDataUtil {
         int ret = PDH.PdhOpenQuery(null, PZERO, q);
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to open PDH Query. Error code: {}", String.format(FormatUtil.formatError(ret)));
+                LOG.error("Failed to open PDH Query. Error code: {}", String.format(Locale.ROOT, FormatUtil.formatError(ret)));
             }
             return false;
         }
@@ -189,7 +191,7 @@ public final class PerfDataUtil {
             int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
             if (ret != WinError.ERROR_SUCCESS) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to get counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+                    LOG.warn("Failed to get counter. Error code: {}", String.format(Locale.ROOT, FormatUtil.formatError(ret)));
                 }
                 return ret;
             }
@@ -208,7 +210,7 @@ public final class PerfDataUtil {
             int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
             if (ret != WinError.ERROR_SUCCESS) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to get counter. Error code: {}", String.format(FormatUtil.formatError(ret)));
+                    LOG.warn("Failed to get counter. Error code: {}", String.format(Locale.ROOT, FormatUtil.formatError(ret)));
                 }
                 return ret;
             }
@@ -231,7 +233,7 @@ public final class PerfDataUtil {
         if (ret != WinError.ERROR_SUCCESS) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to add PDH Counter: {}, Error code: {}", path,
-                        String.format(FormatUtil.formatError(ret)));
+                        String.format(Locale.ROOT, FormatUtil.formatError(ret)));
             }
             return false;
         }

@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public final class EdidUtil {
                 .format("%8s%8s", Integer.toBinaryString(edid[8] & 0xFF), Integer.toBinaryString(edid[9] & 0xFF))
                 .replace(' ', '0');
         LOG.debug("Manufacurer ID: {}", temp);
-        return String.format("%s%s%s", (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),
+        return String.format(Locale.ROOT, "%s%s%s", (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),
                 (char) (64 + Integer.parseInt(temp.substring(7, 11), 2)),
                 (char) (64 + Integer.parseInt(temp.substring(12, 16), 2))).replace("@", "");
     }
@@ -65,12 +66,12 @@ public final class EdidUtil {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Serial number: {}", Arrays.toString(Arrays.copyOfRange(edid, 12, 16)));
         }
-        return String.format("%s%s%s%s", getAlphaNumericOrHex(edid[15]), getAlphaNumericOrHex(edid[14]),
+        return String.format(Locale.ROOT, "%s%s%s%s", getAlphaNumericOrHex(edid[15]), getAlphaNumericOrHex(edid[14]),
                 getAlphaNumericOrHex(edid[13]), getAlphaNumericOrHex(edid[12]));
     }
 
     private static String getAlphaNumericOrHex(byte b) {
-        return Character.isLetterOrDigit((char) b) ? String.format("%s", (char) b) : String.format("%02X", b);
+        return Character.isLetterOrDigit((char) b) ? String.format(Locale.ROOT, "%s", (char) b) : String.format("%02X", b);
     }
 
     /**
@@ -175,7 +176,7 @@ public final class EdidUtil {
         int clock = ByteBuffer.wrap(Arrays.copyOfRange(desc, 0, 2)).order(ByteOrder.LITTLE_ENDIAN).getShort() / 100;
         int hActive = (desc[2] & 0xff) + ((desc[4] & 0xf0) << 4);
         int vActive = (desc[5] & 0xff) + ((desc[7] & 0xf0) << 4);
-        return String.format("Clock %dMHz, Active Pixels %dx%d ", clock, hActive, vActive);
+        return String.format(Locale.ROOT, "Clock %dMHz, Active Pixels %dx%d ", clock, hActive, vActive);
     }
 
     /**
@@ -185,7 +186,7 @@ public final class EdidUtil {
      * @return A string describing some of the range limits
      */
     public static String getDescriptorRangeLimits(byte[] desc) {
-        return String.format("Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz", desc[5], desc[6],
+        return String.format(Locale.ROOT, "Field Rate %d-%d Hz vertical, %d-%d Hz horizontal, Max clock: %d MHz", desc[5], desc[6],
                 desc[7], desc[8], desc[9] * 10);
     }
 
@@ -216,7 +217,7 @@ public final class EdidUtil {
         sb.append(", EDID v").append(EdidUtil.getVersion(edid));
         int hSize = EdidUtil.getHcm(edid);
         int vSize = EdidUtil.getVcm(edid);
-        sb.append(String.format("%n  %d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54, vSize / 2.54));
+        sb.append(String.format(Locale.ROOT, "%n  %d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54, vSize / 2.54));
         byte[][] desc = EdidUtil.getDescriptors(edid);
         for (byte[] b : desc) {
             switch (EdidUtil.getDescriptorType(b)) {

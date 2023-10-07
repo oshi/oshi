@@ -88,9 +88,9 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                 family = SysctlUtil.sysctl("hw.cpufamily", 0);
             }
             // Translate to output
-            cpuFamily = String.format("0x%08x", family);
+            cpuFamily = String.format(Locale.ROOT, "0x%08x", family);
             // Processor ID is an intel concept but CPU type + family conveys same info
-            processorID = String.format("%08x%08x", type, family);
+            processorID = String.format(Locale.ROOT, "%08x%08x", type, family);
         } else {
             // Processing an Intel chip
             cpuVendor = SysctlUtil.sysctl("machdep.cpu.vendor", "");
@@ -103,7 +103,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             long processorIdBits = 0L;
             processorIdBits |= SysctlUtil.sysctl("machdep.cpu.signature", 0);
             processorIdBits |= (SysctlUtil.sysctl("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
-            processorID = String.format("%016x", processorIdBits);
+            processorID = String.format(Locale.ROOT, "%016x", processorIdBits);
         }
         if (isArmCpu) {
             calculateNominalFrequencies();

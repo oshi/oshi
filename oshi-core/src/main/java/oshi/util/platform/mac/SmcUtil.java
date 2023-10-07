@@ -7,6 +7,7 @@ package oshi.util.platform.mac;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -75,7 +76,7 @@ public final class SmcUtil {
                 if (result == 0) {
                     return new IOConnect(connPtr.getValue());
                 } else if (LOG.isErrorEnabled()) {
-                    LOG.error(String.format("Unable to open connection to AppleSMC service. Error: 0x%08x", result));
+                    LOG.error(String.format(Locale.ROOT, "Unable to open connection to AppleSMC service. Error: 0x%08x", result));
                 }
             } finally {
                 smcService.release();

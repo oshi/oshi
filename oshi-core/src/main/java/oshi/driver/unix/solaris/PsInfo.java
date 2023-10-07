@@ -4,10 +4,7 @@
  */
 package oshi.driver.unix.solaris;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +48,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested process
      */
     public static SolarisPsInfo queryPsInfo(int pid) {
-        return new SolarisPsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/psinfo", pid)));
+        return new SolarisPsInfo(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/psinfo", pid)));
     }
 
     /**
@@ -62,7 +59,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested thread
      */
     public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
-        return new SolarisLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
+        return new SolarisLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
     }
 
     /**
@@ -72,7 +69,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested process
      */
     public static SolarisPrUsage queryPrUsage(int pid) {
-        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/usage", pid)));
+        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/usage", pid)));
     }
 
     /**
@@ -83,7 +80,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested thread
      */
     public static SolarisPrUsage queryPrUsage(int pid, int tid) {
-        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/lwp/%d/usage", pid, tid)));
+        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/usage", pid, tid)));
     }
 
     /**

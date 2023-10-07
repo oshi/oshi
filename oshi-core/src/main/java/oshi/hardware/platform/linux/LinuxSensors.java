@@ -8,10 +8,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
@@ -99,7 +96,7 @@ final class LinuxSensors extends AbstractSensors {
             File dir = new File(path);
             File[] matchingFiles = dir.listFiles(sensorFileFilter);
             if (matchingFiles != null && matchingFiles.length > 0) {
-                this.sensorsMap.put(sensor, String.format("%s/%s", path, sensor));
+                this.sensorsMap.put(sensor, String.format(Locale.ROOT, "%s/%s", path, sensor));
             }
             i++;
         }
@@ -115,7 +112,7 @@ final class LinuxSensors extends AbstractSensors {
             long millidegrees = 0;
             if (tempStr.contains(HWMON)) {
                 // First attempt should be CPU temperature at index 1, if available
-                millidegrees = FileUtil.getLongFromFile(String.format("%s1_input", tempStr));
+                millidegrees = FileUtil.getLongFromFile(String.format(Locale.ROOT, "%s1_input", tempStr));
                 // Should return a single line of millidegrees Celsius
                 if (millidegrees > 0) {
                     return millidegrees / 1000d;
@@ -125,7 +122,7 @@ final class LinuxSensors extends AbstractSensors {
                 long sum = 0;
                 int count = 0;
                 for (int i = 2; i <= 6; i++) {
-                    millidegrees = FileUtil.getLongFromFile(String.format("%s%d_input", tempStr, i));
+                    millidegrees = FileUtil.getLongFromFile(String.format(Locale.ROOT, "%s%d_input", tempStr, i));
                     if (millidegrees > 0) {
                         sum += millidegrees;
                         count++;
@@ -168,7 +165,7 @@ final class LinuxSensors extends AbstractSensors {
                 List<Integer> speeds = new ArrayList<>();
                 int fan = 1;
                 for (;;) {
-                    String fanPath = String.format("%s%d_input", fanStr, fan);
+                    String fanPath = String.format(Locale.ROOT, "%s%d_input", fanStr, fan);
                     if (!new File(fanPath).exists()) {
                         // No file found, we've reached max fans
                         break;
@@ -196,7 +193,7 @@ final class LinuxSensors extends AbstractSensors {
         String voltageStr = this.sensorsMap.get(VOLTAGE);
         if (voltageStr != null) {
             // Should return a single line of millivolt
-            return FileUtil.getIntFromFile(String.format("%s1_input", voltageStr)) / 1000d;
+            return FileUtil.getIntFromFile(String.format(Locale.ROOT, "%s1_input", voltageStr)) / 1000d;
         }
         return 0d;
     }

@@ -16,11 +16,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -439,7 +435,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private long getProcessOpenFileLimit(long processId, int index) {
-        final String limitsPath = String.format("/proc/%d/limits", processId);
+        final String limitsPath = String.format(Locale.ROOT, "/proc/%d/limits", processId);
         if (!Files.exists(Paths.get(limitsPath))) {
             return -1; // not supported
         }

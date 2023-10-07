@@ -20,13 +20,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.oneOf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -427,7 +421,7 @@ class OperatingSystemTest {
                     is(not(emptyString())));
             // Login time
             assertThat(
-                    String.format("Logon time should be before now: %d < %d%n%s", sess.getLoginTime(),
+                    String.format(Locale.ROOT, "Logon time should be before now: %d < %d%n%s", sess.getLoginTime(),
                             System.currentTimeMillis(), sess),
                     sess.getLoginTime(), is(lessThanOrEqualTo(System.currentTimeMillis())));
             assertThat("Session host shouldn't be null", sess.getHost(), is(notNullValue()));

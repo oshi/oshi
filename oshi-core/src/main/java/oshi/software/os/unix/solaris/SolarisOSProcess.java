@@ -20,11 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -330,7 +326,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         // Get process files in proc
-        File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
+        File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", getProcessID()));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         if (numericFiles == null) {
             return Collections.emptyList();
