@@ -1,10 +1,11 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
 import java.math.BigInteger;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -58,9 +59,9 @@ public final class FormatUtil {
      */
     public static String formatBytes(long bytes) {
         if (bytes == 1L) { // bytes
-            return String.format("%d byte", bytes);
+            return String.format(Locale.ROOT, "%d byte", bytes);
         } else if (bytes < KIBI) { // bytes
-            return String.format("%d bytes", bytes);
+            return String.format(Locale.ROOT, "%d bytes", bytes);
         } else if (bytes < MEBI) { // KiB
             return formatUnits(bytes, KIBI, "KiB");
         } else if (bytes < GIBI) { // MiB
@@ -86,9 +87,9 @@ public final class FormatUtil {
      */
     private static String formatUnits(long value, long prefix, String unit) {
         if (value % prefix == 0) {
-            return String.format("%d %s", value / prefix, unit);
+            return String.format(Locale.ROOT, "%d %s", value / prefix, unit);
         }
-        return String.format("%.1f %s", (double) value / prefix, unit);
+        return String.format(Locale.ROOT, "%.1f %s", (double) value / prefix, unit);
     }
 
     /**
@@ -100,9 +101,9 @@ public final class FormatUtil {
      */
     public static String formatBytesDecimal(long bytes) {
         if (bytes == 1L) { // bytes
-            return String.format("%d byte", bytes);
+            return String.format(Locale.ROOT, "%d byte", bytes);
         } else if (bytes < KILO) { // bytes
-            return String.format("%d bytes", bytes);
+            return String.format(Locale.ROOT, "%d bytes", bytes);
         } else {
             return formatValue(bytes, "B");
         }
@@ -127,7 +128,7 @@ public final class FormatUtil {
      */
     public static String formatValue(long value, String unit) {
         if (value < KILO) {
-            return String.format("%d %s", value, unit).trim();
+            return String.format(Locale.ROOT, "%d %s", value, unit).trim();
         } else if (value < MEGA) { // K
             return formatUnits(value, KILO, "K" + unit);
         } else if (value < GIGA) { // M
@@ -158,7 +159,7 @@ public final class FormatUtil {
         final long min = TimeUnit.SECONDS.toMinutes(eTime);
         eTime -= TimeUnit.MINUTES.toSeconds(min);
         final long sec = eTime;
-        return String.format("%d days, %02d:%02d:%02d", days, hr, min, sec);
+        return String.format(Locale.ROOT, "%d days, %02d:%02d:%02d", days, hr, min, sec);
     }
 
     /**
@@ -208,7 +209,7 @@ public final class FormatUtil {
      * @return A string representing the error as 0x....
      */
     public static String formatError(int errorCode) {
-        return String.format(HEX_ERROR, errorCode);
+        return String.format(Locale.ROOT, HEX_ERROR, errorCode);
     }
 
     /**

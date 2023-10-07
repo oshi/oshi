@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -10,6 +10,7 @@ import java.io.File;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -187,26 +188,26 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     @Override
     public boolean updateAttributes() {
         try {
-            File ifDir = new File(String.format("/sys/class/net/%s/statistics", getName()));
+            File ifDir = new File(String.format(Locale.ROOT, "/sys/class/net/%s/statistics", getName()));
             if (!ifDir.isDirectory()) {
                 return false;
             }
         } catch (SecurityException e) {
             return false;
         }
-        String ifTypePath = String.format("/sys/class/net/%s/type", getName());
-        String carrierPath = String.format("/sys/class/net/%s/carrier", getName());
-        String txBytesPath = String.format("/sys/class/net/%s/statistics/tx_bytes", getName());
-        String rxBytesPath = String.format("/sys/class/net/%s/statistics/rx_bytes", getName());
-        String txPacketsPath = String.format("/sys/class/net/%s/statistics/tx_packets", getName());
-        String rxPacketsPath = String.format("/sys/class/net/%s/statistics/rx_packets", getName());
-        String txErrorsPath = String.format("/sys/class/net/%s/statistics/tx_errors", getName());
-        String rxErrorsPath = String.format("/sys/class/net/%s/statistics/rx_errors", getName());
-        String collisionsPath = String.format("/sys/class/net/%s/statistics/collisions", getName());
-        String rxDropsPath = String.format("/sys/class/net/%s/statistics/rx_dropped", getName());
-        String ifSpeed = String.format("/sys/class/net/%s/speed", getName());
-        String ifAliasPath = String.format("/sys/class/net/%s/ifalias", getName());
-        String ifOperStatusPath = String.format("/sys/class/net/%s/operstate", getName());
+        String ifTypePath = String.format(Locale.ROOT, "/sys/class/net/%s/type", getName());
+        String carrierPath = String.format(Locale.ROOT, "/sys/class/net/%s/carrier", getName());
+        String txBytesPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/tx_bytes", getName());
+        String rxBytesPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_bytes", getName());
+        String txPacketsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/tx_packets", getName());
+        String rxPacketsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_packets", getName());
+        String txErrorsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/tx_errors", getName());
+        String rxErrorsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_errors", getName());
+        String collisionsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/collisions", getName());
+        String rxDropsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_dropped", getName());
+        String ifSpeed = String.format(Locale.ROOT, "/sys/class/net/%s/speed", getName());
+        String ifAliasPath = String.format(Locale.ROOT, "/sys/class/net/%s/ifalias", getName());
+        String ifOperStatusPath = String.format(Locale.ROOT, "/sys/class/net/%s/operstate", getName());
 
         this.timeStamp = System.currentTimeMillis();
         this.ifType = FileUtil.getIntFromFile(ifTypePath);

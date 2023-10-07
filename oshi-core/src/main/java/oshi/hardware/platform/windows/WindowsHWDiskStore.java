@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -165,7 +166,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive(h);
             for (int i = 0; i < vals.getResultCount(); i++) {
                 WindowsHWDiskStore ds = new WindowsHWDiskStore(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
-                        String.format("%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
+                        String.format(Locale.ROOT, "%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
                                 WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
                         // Most vendors store serial # as a hex string; convert
                         ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),

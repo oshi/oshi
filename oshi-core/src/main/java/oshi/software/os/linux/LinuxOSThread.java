@@ -1,9 +1,10 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
 
+import java.util.Locale;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -110,12 +111,12 @@ public class LinuxOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        this.name = FileUtil
-                .getStringFromFile(String.format(ProcPath.TASK_COMM, this.getOwningProcessId(), this.threadId));
+        this.name = FileUtil.getStringFromFile(
+                String.format(Locale.ROOT, ProcPath.TASK_COMM, this.getOwningProcessId(), this.threadId));
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(
-                String.format(ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), ":");
-        String stat = FileUtil
-                .getStringFromFile(String.format(ProcPath.TASK_STAT, this.getOwningProcessId(), this.threadId));
+                String.format(Locale.ROOT, ProcPath.TASK_STATUS, this.getOwningProcessId(), this.threadId), ":");
+        String stat = FileUtil.getStringFromFile(
+                String.format(Locale.ROOT, ProcPath.TASK_STAT, this.getOwningProcessId(), this.threadId));
         if (stat.isEmpty()) {
             this.state = State.INVALID;
             return false;

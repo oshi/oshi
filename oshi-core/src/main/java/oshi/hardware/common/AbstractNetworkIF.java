@@ -83,7 +83,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             if (hwmac != null) {
                 List<String> octets = new ArrayList<>(6);
                 for (byte b : hwmac) {
-                    octets.add(String.format("%02x", b));
+                    octets.add(String.format(Locale.ROOT, "%02x", b));
                 }
                 this.mac = String.join(":", octets);
             } else {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -427,7 +428,7 @@ class OperatingSystemTest {
                     is(not(emptyString())));
             // Login time
             assertThat(
-                    String.format("Logon time should be before now: %d < %d%n%s", sess.getLoginTime(),
+                    String.format(Locale.ROOT, "Logon time should be before now: %d < %d%n%s", sess.getLoginTime(),
                             System.currentTimeMillis(), sess),
                     sess.getLoginTime(), is(lessThanOrEqualTo(System.currentTimeMillis())));
             assertThat("Session host shouldn't be null", sess.getHost(), is(notNullValue()));

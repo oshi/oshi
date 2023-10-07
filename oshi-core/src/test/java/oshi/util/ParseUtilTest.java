@@ -25,6 +25,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -344,7 +345,7 @@ class ParseUtilTest {
         int[] indices = { 1, 3 };
         long now = System.currentTimeMillis();
 
-        String foo = String.format("The numbers are %d %d %d %d", 123, 456, 789, now);
+        String foo = String.format(Locale.ROOT, "The numbers are %d %d %d %d", 123, 456, 789, now);
         int count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 4 for \"" + foo + "\"", count, is(4));
         long[] result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
@@ -352,7 +353,7 @@ class ParseUtilTest {
         assertThat("result[1] should be " + now + " using parseStringToLongArray on \"" + foo + "\"", result[1],
                 is(now));
 
-        foo = String.format("The numbers are %d %d %d %d %s", 123, 456, 789, now,
+        foo = String.format(Locale.ROOT, "The numbers are %d %d %d %d %s", 123, 456, 789, now,
                 "709af748-5f8e-41b3-b73a-b440ef4406c8");
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 4 for \"" + foo + "\"", count, is(4));
@@ -361,41 +362,41 @@ class ParseUtilTest {
         assertThat("result[1] should be " + now + " using parseStringToLongArray on \"" + foo + "\"", result[1],
                 is(now));
 
-        foo = String.format("The numbers are %d -%d %d +%d", 123, 456, 789, now);
+        foo = String.format(Locale.ROOT, "The numbers are %d -%d %d +%d", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 4 for \"" + foo + "\"", count, is(4));
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertThat("result[0] should be -4456 using parseStringToLongArray on \"" + foo + "\"", result[0], is(-456L));
         assertThat("result[1] index should be 456 using parseStringToLongArray on \"" + foo + "\"", result[1], is(now));
 
-        foo = String.format("NOLOG: Invalid character %d %s %d %d", 123, "4v6", 789, now);
+        foo = String.format(Locale.ROOT, "NOLOG: Invalid character %d %s %d %d", 123, "4v6", 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 2 for \"" + foo + "\"", count, is(2));
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
 
-        foo = String.format("Exceeds max long %d %d %d 1%d", 123, 456, 789, Long.MAX_VALUE);
+        foo = String.format(Locale.ROOT, "Exceeds max long %d %d %d 1%d", 123, 456, 789, Long.MAX_VALUE);
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertThat("result[1] index should be " + Long.MAX_VALUE
                 + " (Long.MAX_VALUE) using parseStringToLongArray on \"" + foo + "\"", result[1], is(Long.MAX_VALUE));
 
-        foo = String.format("NOLOG: String too short %d %d %d %d", 123, 456, 789, now);
+        foo = String.format(Locale.ROOT, "NOLOG: String too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 9, ' ');
         assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
 
-        foo = String.format("NOLOG: Array too short %d %d %d %d", 123, 456, 789, now);
+        foo = String.format(Locale.ROOT, "NOLOG: Array too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 2, ' ');
         assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
 
-        foo = String.format("%d %d %d %d", 123, 456, 789, now);
+        foo = String.format(Locale.ROOT, "%d %d %d %d", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 4 for \"" + foo + "\"", count, is(4));
 
-        foo = String.format("%d %d %d %d nonNumeric", 123, 456, 789, now);
+        foo = String.format(Locale.ROOT, "%d %d %d %d nonNumeric", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 4 for \"" + foo + "\"", count, is(4));
 
-        foo = String.format("%d %d %d %d 123-456", 123, 456, 789, now);
+        foo = String.format(Locale.ROOT, "%d %d %d %d 123-456", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 4 for \"" + foo + "\"", count, is(4));
     }

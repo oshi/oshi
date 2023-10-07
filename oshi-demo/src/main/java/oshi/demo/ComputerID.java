@@ -32,7 +32,7 @@ public class ComputerID {
      * @param args an array of {@link java.lang.String} objects.
      */
     public static void main(String[] args) {
-        String unknownHash = String.format("%08x", Constants.UNKNOWN.hashCode());
+        String unknownHash = String.format(Locale.ROOT, "%08x", Constants.UNKNOWN.hashCode());
 
         System.out.println("Here's a unique (?) id for your computer.");
         System.out.println(getComputerIdentifier());
@@ -67,9 +67,9 @@ public class ComputerID {
 
         String delimiter = "-";
 
-        return String.format("%08x", vendor.hashCode()) + delimiter
-                + String.format("%08x", processorSerialNumber.hashCode()) + delimiter
-                + String.format("%08x", uuid.hashCode()) + delimiter
-                + String.format("%08x", processorIdentifier.hashCode()) + delimiter + processors;
+        return String.format(Locale.ROOT, "%08x", vendor.hashCode()) + delimiter
+                + String.format(Locale.ROOT, "%08x", processorSerialNumber.hashCode()) + delimiter
+                + String.format(Locale.ROOT, "%08x", uuid.hashCode()) + delimiter
+                + String.format(Locale.ROOT, "%08x", processorIdentifier.hashCode()) + delimiter + processors;
     }
 }

@@ -1,11 +1,12 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 import com.sun.jna.Platform;
 
@@ -287,7 +288,7 @@ public abstract class AbstractPowerSource implements PowerSource {
         } else {
             int hours = (int) (timeInSeconds / 3600);
             int minutes = (int) (timeInSeconds % 3600 / 60);
-            formattedTimeRemaining = String.format("%d:%02d", hours, minutes);
+            formattedTimeRemaining = String.format(Locale.ROOT, "%d:%02d", hours, minutes);
         }
         return formattedTimeRemaining;
     }

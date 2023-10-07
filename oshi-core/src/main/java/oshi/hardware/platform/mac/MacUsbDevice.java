@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.sun.jna.platform.mac.CoreFoundation;
@@ -161,12 +162,12 @@ public class MacUsbDevice extends AbstractUsbDevice {
         // Get vendorId and store in map
         Long vendorId = device.getLongProperty("idVendor");
         if (vendorId != null) {
-            vendorIdMap.put(id, String.format("%04x", 0xffff & vendorId));
+            vendorIdMap.put(id, String.format(Locale.ROOT, "%04x", 0xffff & vendorId));
         }
         // Get productId and store in map
         Long productId = device.getLongProperty("idProduct");
         if (productId != null) {
-            productIdMap.put(id, String.format("%04x", 0xffff & productId));
+            productIdMap.put(id, String.format(Locale.ROOT, "%04x", 0xffff & productId));
         }
         // Get serial and store in map
         String serial = device.getStringProperty("USB Serial Number");
@@ -234,14 +235,14 @@ public class MacUsbDevice extends AbstractUsbDevice {
                 if (parent != null) {
                     byte[] vid = parent.getByteArrayProperty("vendor-id");
                     if (vid != null && vid.length >= 2) {
-                        vendorIdMap.put(id, String.format("%02x%02x", vid[1], vid[0]));
+                        vendorIdMap.put(id, String.format(Locale.ROOT, "%02x%02x", vid[1], vid[0]));
                         found = true;
                     }
                     // look up the device-id by key
                     // device-id is a byte array of 4 bytes
                     byte[] pid = parent.getByteArrayProperty("device-id");
                     if (pid != null && pid.length >= 2) {
-                        productIdMap.put(id, String.format("%02x%02x", pid[1], pid[0]));
+                        productIdMap.put(id, String.format(Locale.ROOT, "%02x%02x", pid[1], pid[0]));
                         found = true;
                     }
                     parent.release();

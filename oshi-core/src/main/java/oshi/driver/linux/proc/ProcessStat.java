@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux.proc;
@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -364,7 +365,7 @@ public final class ProcessStat {
      *         If the process doesn't exist, returns null.
      */
     public static Triplet<String, Character, Map<PidStat, Long>> getPidStats(int pid) {
-        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, pid));
+        String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, pid));
         if (stat.isEmpty()) {
             // If pid doesn't exist
             return null;
@@ -394,7 +395,7 @@ public final class ProcessStat {
      *         If the process doesn't exist, returns null.
      */
     public static Map<PidStatM, Long> getPidStatM(int pid) {
-        String statm = FileUtil.getStringFromFile(String.format(ProcPath.PID_STATM, pid));
+        String statm = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STATM, pid));
         if (statm.isEmpty()) {
             // If pid doesn't exist
             return null;
@@ -417,7 +418,7 @@ public final class ProcessStat {
      * @return An array of File objects representing opened file descriptors of the process
      */
     public static File[] getFileDescriptorFiles(int pid) {
-        return listNumericFiles(String.format(ProcPath.PID_FD, pid));
+        return listNumericFiles(String.format(Locale.ROOT, ProcPath.PID_FD, pid));
     }
 
     /**
@@ -460,7 +461,7 @@ public final class ProcessStat {
      * @return A list of thread id.
      */
     public static List<Integer> getThreadIds(int pid) {
-        File[] threads = listNumericFiles(String.format(ProcPath.TASK_PATH, pid));
+        File[] threads = listNumericFiles(String.format(Locale.ROOT, ProcPath.TASK_PATH, pid));
         return Arrays.stream(threads).map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0))
                 .filter(threadId -> threadId != pid).collect(Collectors.toList());
     }

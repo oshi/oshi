@@ -1,8 +1,10 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
+
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,7 @@ public final class PerfmonDisabled {
         String perfDisabled = GlobalConfig.get(config);
         // If null or empty, check registry
         if (Util.isBlank(perfDisabled)) {
-            String key = String.format("SYSTEM\\CurrentControlSet\\Services\\%s\\Performance", service);
+            String key = String.format(Locale.ROOT, "SYSTEM\\CurrentControlSet\\Services\\%s\\Performance", service);
             String value = "Disable Performance Counters";
             // If disabled in registry, log warning and return
             if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, key, value)) {

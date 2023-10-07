@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -154,7 +155,8 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
                 sb.append(name).append(": ");
                 int hSize = EdidUtil.getHcm(edid);
                 int vSize = EdidUtil.getVcm(edid);
-                sb.append(String.format("%d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54, vSize / 2.54));
+                sb.append(String.format(Locale.ROOT, "%d x %d cm (%.1f x %.1f in)", hSize, vSize, hSize / 2.54,
+                        vSize / 2.54));
             }
         }
         return sb.toString();

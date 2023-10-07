@@ -1,10 +1,11 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
 
 import java.util.EnumMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -179,11 +180,11 @@ public final class PerfCounterQuery {
         } catch (Win32Exception e) {
             LOG.warn(
                     "Unable to locate English counter names in registry Perflib 009. Assuming English counters. Error {}. {}",
-                    String.format("0x%x", e.getHR().intValue()),
+                    String.format(Locale.ROOT, "0x%x", e.getHR().intValue()),
                     "See https://support.microsoft.com/en-us/help/300956/how-to-manually-rebuild-performance-counter-library-values");
         } catch (PdhException e) {
             LOG.warn("Unable to localize {} performance counter.  Error {}.", perfObject,
-                    String.format("0x%x", e.getErrorCode()));
+                    String.format(Locale.ROOT, "0x%x", e.getErrorCode()));
         }
         if (localized.isEmpty()) {
             return perfObject;

@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -74,7 +75,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         String machine = OpenBsdSysctlUtil.sysctl(mib, "");
         boolean cpu64bit = machine != null && machine.contains("64")
                 || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
-        String processorID = String.format("%08x%08x", cpufeature, cpuid);
+        String processorID = String.format(Locale.ROOT, "%08x%08x", cpufeature, cpuid);
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuFreq);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import oshi.annotation.concurrent.Immutable;
@@ -110,9 +111,9 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                                 serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", ""))
                                         : serial);
                     } else if (line.contains(".vendor_id =")) {
-                        vendorIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
+                        vendorIdMap.put(key, String.format(Locale.ROOT, "%04x", ParseUtil.getFirstIntValue(line)));
                     } else if (line.contains(".product_id =")) {
-                        productIdMap.put(key, String.format("%04x", ParseUtil.getFirstIntValue(line)));
+                        productIdMap.put(key, String.format(Locale.ROOT, "%04x", ParseUtil.getFirstIntValue(line)));
                     }
                 }
             }

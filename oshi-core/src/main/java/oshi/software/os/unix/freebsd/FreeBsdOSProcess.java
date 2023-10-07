@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -439,7 +440,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private long getProcessOpenFileLimit(long processId, int index) {
-        final String limitsPath = String.format("/proc/%d/limits", processId);
+        final String limitsPath = String.format(Locale.ROOT, "/proc/%d/limits", processId);
         if (!Files.exists(Paths.get(limitsPath))) {
             return -1; // not supported
         }

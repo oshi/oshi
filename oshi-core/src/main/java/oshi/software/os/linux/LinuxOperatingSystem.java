@@ -274,7 +274,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static int getParentPidFromProcFile(int pid) {
-        String stat = FileUtil.getStringFromFile(String.format("/proc/%d/stat", pid));
+        String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, "/proc/%d/stat", pid));
         // A race condition may leave us with an empty string
         if (stat.isEmpty()) {
             return 0;

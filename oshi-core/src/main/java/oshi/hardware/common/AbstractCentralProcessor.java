@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -387,7 +388,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 }
             }
         }
-        return String.format("%016X", processorIdBytes);
+        return String.format(Locale.ROOT, "%016X", processorIdBytes);
     }
 
     protected List<PhysicalProcessor> createProcListFromDmesg(List<LogicalProcessor> logProcs,

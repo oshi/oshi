@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -115,8 +116,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private String queryCommandLine() {
-        return Arrays
-                .stream(FileUtil.getStringFromFile(String.format(ProcPath.PID_CMDLINE, getProcessID())).split("\0"))
+        return Arrays.stream(FileUtil
+                .getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_CMDLINE, getProcessID())).split("\0"))
                 .collect(Collectors.joining(" "));
     }
 
@@ -126,8 +127,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private List<String> queryArguments() {
-        return Collections.unmodifiableList(ParseUtil
-                .parseByteArrayToStrings(FileUtil.readAllBytes(String.format(ProcPath.PID_CMDLINE, getProcessID()))));
+        return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(
+                FileUtil.readAllBytes(String.format(Locale.ROOT, ProcPath.PID_CMDLINE, getProcessID()))));
     }
 
     @Override
@@ -136,14 +137,14 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(
-                FileUtil.readAllBytes(String.format(ProcPath.PID_ENVIRON, getProcessID()), LOG_PROCFS_WARNING)));
+        return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(FileUtil
+                .readAllBytes(String.format(Locale.ROOT, ProcPath.PID_ENVIRON, getProcessID()), LOG_PROCFS_WARNING)));
     }
 
     @Override
     public String getCurrentWorkingDirectory() {
         try {
-            String cwdLink = String.format(ProcPath.PID_CWD, getProcessID());
+            String cwdLink = String.format(Locale.ROOT, ProcPath.PID_CWD, getProcessID());
             String cwd = new File(cwdLink).getCanonicalPath();
             if (!cwd.equals(cwdLink)) {
                 return cwd;
@@ -329,7 +330,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String procPidExe = String.format(ProcPath.PID_EXE, getProcessID());
+        String procPidExe = String.format(Locale.ROOT, ProcPath.PID_EXE, getProcessID());
         try {
             Path link = Paths.get(procPidExe);
             this.path = Files.readSymbolicLink(link).toString();
@@ -343,10 +344,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
         }
         // Fetch all the values here
         // check for terminated process race condition after last one.
-        Map<String, String> io = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_IO, getProcessID()), ":");
-        Map<String, String> status = FileUtil.getKeyValueMapFromFile(String.format(ProcPath.PID_STATUS, getProcessID()),
-                ":");
-        String stat = FileUtil.getStringFromFile(String.format(ProcPath.PID_STAT, getProcessID()));
+        Map<String, String> io = FileUtil
+                .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_IO, getProcessID()), ":");
+        Map<String, String> status = FileUtil
+                .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_STATUS, getProcessID()), ":");
+        String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, getProcessID()));
         if (stat.isEmpty()) {
             this.state = INVALID;
             return false;
@@ -452,7 +454,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private long getProcessOpenFileLimit(long processId, int index) {
-        final String limitsPath = String.format("/proc/%d/limits", processId);
+        final String limitsPath = String.format(Locale.ROOT, "/proc/%d/limits", processId);
         if (!Files.exists(Paths.get(limitsPath))) {
             return -1; // not supported
         }

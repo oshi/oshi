@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix;
@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public final class PsInfo {
      * @return A structure containing information for the requested process
      */
     public static AixPsInfo queryPsInfo(int pid) {
-        return new AixPsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/psinfo", pid)));
+        return new AixPsInfo(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/psinfo", pid)));
     }
 
     /**
@@ -63,7 +64,8 @@ public final class PsInfo {
      * @return A structure containing information for the requested thread
      */
     public static AixLwpsInfo queryLwpsInfo(int pid, int tid) {
-        return new AixLwpsInfo(FileUtil.readAllBytesAsBuffer(String.format("/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
+        return new AixLwpsInfo(
+                FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
     }
 
     /**

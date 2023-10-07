@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import oshi.annotation.concurrent.Immutable;
 
@@ -75,6 +76,6 @@ public class OSSession {
         if (!host.isEmpty() && !host.equals("::") && !host.equals("0.0.0.0")) {
             hostStr = ", (" + host + ")";
         }
-        return String.format("%s, %s, %s%s", userName, terminalDevice, loginStr, hostStr);
+        return String.format(Locale.ROOT, "%s, %s, %s%s", userName, terminalDevice, loginStr, hostStr);
     }
 }

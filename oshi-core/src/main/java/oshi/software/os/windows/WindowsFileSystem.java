@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -7,6 +7,7 @@ package oshi.software.os.windows;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -191,8 +192,8 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     // Parse uuid from volume name
                     String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
-                    fs.add(new WindowsOSFileStore(String.format("%s (%s)", strName, strMount), volume, strName,
-                            strMount, options.toString(), uuid, "", getDriveType(strMount), strFsType,
+                    fs.add(new WindowsOSFileStore(String.format(Locale.ROOT, "%s (%s)", strName, strMount), volume,
+                            strName, strMount, options.toString(), uuid, "", getDriveType(strMount), strFsType,
                             systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
                 }
             } while (Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE));
@@ -234,9 +235,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     description = split[split.length - 1];
                 }
             }
-            fs.add(new WindowsOSFileStore(String.format("%s (%s)", description, name), volume, label, name + "\\",
-                    options, "", "", getDriveType(name), WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i),
-                    free, free, total, 0, 0));
+            fs.add(new WindowsOSFileStore(String.format(Locale.ROOT, "%s (%s)", description, name), volume, label,
+                    name + "\\", options, "", "", getDriveType(name),
+                    WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i), free, free, total, 0, 0));
         }
         return fs;
     }

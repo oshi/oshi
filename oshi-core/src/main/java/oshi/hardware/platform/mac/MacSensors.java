@@ -1,8 +1,10 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
+
+import java.util.Locale;
 
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 
@@ -39,7 +41,7 @@ final class MacSensors extends AbstractSensors {
         }
         int[] fanSpeeds = new int[this.numFans];
         for (int i = 0; i < this.numFans; i++) {
-            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(SmcUtil.SMC_KEY_FAN_SPEED, i));
+            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(Locale.ROOT, SmcUtil.SMC_KEY_FAN_SPEED, i));
         }
         SmcUtil.smcClose(conn);
         return fanSpeeds;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -16,6 +16,7 @@ import static oshi.util.GlobalConfig.remove;
 import static oshi.util.GlobalConfig.set;
 import static oshi.util.GlobalConfigTest.GlobalConfigAsserter.asserter;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -85,7 +86,7 @@ class GlobalConfigTest {
         String removed = "test";
         set(PROPERTY, removed);
         remove(PROPERTY);
-        asserter(PROPERTY).assertThat(format("Should have removed property %s", removed), "123", "123");
+        asserter(PROPERTY).assertThat(format(Locale.ROOT, "Should have removed property %s", removed), "123", "123");
     }
 
     @Test

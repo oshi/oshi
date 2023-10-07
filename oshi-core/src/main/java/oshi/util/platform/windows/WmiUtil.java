@@ -1,10 +1,11 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
 
 import java.time.OffsetDateTime;
+import java.util.Locale;
 
 import com.sun.jna.platform.win32.Variant;
 import com.sun.jna.platform.win32.COM.Wbemcli;
@@ -66,7 +67,7 @@ public final class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_STRING) {
             return getStr(result, property, index);
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "String",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "String",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -103,7 +104,7 @@ public final class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_DATETIME) {
             return ParseUtil.parseCimDateTimeToOffset(getStr(result, property, index));
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "DateTime",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "DateTime",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -121,7 +122,7 @@ public final class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_REFERENCE) {
             return getStr(result, property, index);
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Reference",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "Reference",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -132,7 +133,7 @@ public final class WmiUtil {
         } else if (result.getVtType(property) == Variant.VT_BSTR) {
             return (String) o;
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "String-mapped",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "String-mapped",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -154,7 +155,7 @@ public final class WmiUtil {
         } else if (result.getCIMType(property) == Wbemcli.CIM_UINT64 && result.getVtType(property) == Variant.VT_BSTR) {
             return ParseUtil.parseLongOrDefault((String) o, 0L);
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT64",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "UINT64",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -173,7 +174,7 @@ public final class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {
             return getInt(result, property, index);
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT32",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "UINT32",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -191,7 +192,7 @@ public final class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_UINT32) {
             return getInt(result, property, index) & 0xFFFFFFFFL;
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT32",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "UINT32",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -210,7 +211,7 @@ public final class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_SINT32) {
             return getInt(result, property, index);
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "SINT32",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "SINT32",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -229,7 +230,7 @@ public final class WmiUtil {
         if (result.getCIMType(property) == Wbemcli.CIM_UINT16) {
             return getInt(result, property, index);
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "UINT16",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "UINT16",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -240,7 +241,7 @@ public final class WmiUtil {
         } else if (result.getVtType(property) == Variant.VT_I4) {
             return (int) o;
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "32-bit integer",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "32-bit integer",
                 result.getCIMType(property), result.getVtType(property)));
     }
 
@@ -261,7 +262,7 @@ public final class WmiUtil {
         } else if (result.getCIMType(property) == Wbemcli.CIM_REAL32 && result.getVtType(property) == Variant.VT_R4) {
             return (float) o;
         }
-        throw new ClassCastException(String.format(CLASS_CAST_MSG, property.name(), "Float",
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "Float",
                 result.getCIMType(property), result.getVtType(property)));
     }
 }

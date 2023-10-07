@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -282,7 +283,7 @@ public class AixOSProcess extends AbstractOSProcess {
         long mask = 0L;
         // Need to capture pr_bndpro for all threads
         // Get process files in proc
-        File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
+        File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", getProcessID()));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         if (numericFiles == null) {
             return mask;
@@ -302,7 +303,7 @@ public class AixOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         // Get process files in proc
-        File directory = new File(String.format("/proc/%d/lwp", getProcessID()));
+        File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", getProcessID()));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         if (numericFiles == null) {
             return Collections.emptyList();
