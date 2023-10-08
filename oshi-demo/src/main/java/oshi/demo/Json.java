@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oshi.SystemInfo;
+import oshi.demo.annotation.SuppressForbidden;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -23,6 +24,7 @@ public class Json {
      *
      * @param args an array of {@link java.lang.String} objects.
      */
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
         // Jackson ObjectMapper
         ObjectMapper mapper = new ObjectMapper();

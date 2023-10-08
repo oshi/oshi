@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import oshi.SystemInfo;
+import oshi.demo.annotation.SuppressForbidden;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -29,6 +30,7 @@ public class DiskStoreForPath {
      * @param args Optional file path
      * @throws URISyntaxException on invalid path
      */
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) throws URISyntaxException {
         // Use the arg as a file path or get this class's path
         String filePath = args.length > 0 ? args[0]

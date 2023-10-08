@@ -149,6 +149,7 @@
         <animal-sniffer-maven-plugin.version>1.23</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>8.4.0</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.12.4</puppycrawl.checkstyle.version>
+        <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 
     <build>
@@ -597,6 +598,31 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
                 </plugin>
+                <!-- Eclipse -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>${m2e.lifecycle-mapping.version}</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-enforcer-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>enforce</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -725,13 +751,13 @@
                     <bundledSignatures>
                         <bundledSignature>jdk-unsafe</bundledSignature>
                         <bundledSignature>jdk-deprecated</bundledSignature>
-                        <bundledSignature>jdk-internal</bundledSignature>
                         <bundledSignature>jdk-non-portable</bundledSignature>
                         <bundledSignature>jdk-reflection</bundledSignature>
+                        <bundledSignature>jdk-system-out</bundledSignature>
                     </bundledSignatures>
-                    <!-- signaturesFiles>
-                        <signaturesFile>./rel/path/to/signatures.txt</signaturesFile>
-                    </signaturesFiles -->
+                    <suppressAnnotations>
+                        <suppressAnnotation>oshi.demo.annotation.SuppressForbidden</suppressAnnotation>
+                    </suppressAnnotations>
                 </configuration>
                 <executions>
                     <execution>

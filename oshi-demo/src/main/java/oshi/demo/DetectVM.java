@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import oshi.SystemInfo;
+import oshi.demo.annotation.SuppressForbidden;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.util.FileUtil;
@@ -47,6 +48,7 @@ public class DetectVM {
      *
      * @param args Arguments, ignored.
      */
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
         String vmString = identifyVM();
 
