@@ -100,7 +100,7 @@ class GlobalConfigTest {
     void testPropertyExceptionMessage() {
         set(PROPERTY, "test");
         assertThat(new PropertyException(PROPERTY).getMessage(),
-                is(format("Invalid property: \"%s\" = test", PROPERTY)));
+                is(format(Locale.ROOT, "Invalid property: \"%s\" = test", PROPERTY)));
     }
 
     private Properties propertiesWith(String value) {
@@ -146,11 +146,11 @@ class GlobalConfigTest {
         }
 
         private String failureMessage(Object def) {
-            return format(FAILURE_MESSAGE_TEMPLATE, property, def);
+            return format(Locale.ROOT, FAILURE_MESSAGE_TEMPLATE, property, def);
         }
 
         private String defaultFailureMessage(Object def) {
-            return format(DEFAULT_FAILURE_MESSAGE_TEMPLATE, PROPERTY, def);
+            return format(Locale.ROOT, DEFAULT_FAILURE_MESSAGE_TEMPLATE, PROPERTY, def);
         }
     }
 }
