@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -638,7 +639,7 @@ class ParseUtilTest {
 
     @Test
     void parseByteArrayToStrings() {
-        byte[] bytes = "foo bar".getBytes();
+        byte[] bytes = "foo bar".getBytes(StandardCharsets.US_ASCII);
         bytes[3] = 0;
         List<String> list = ParseUtil.parseByteArrayToStrings(bytes);
         assertThat(list, contains("foo", "bar"));
@@ -658,7 +659,7 @@ class ParseUtilTest {
 
     @Test
     void parseByteArrayToStringMap() {
-        byte[] bytes = "foo=1 bar=2".getBytes();
+        byte[] bytes = "foo=1 bar=2".getBytes(StandardCharsets.US_ASCII);
         bytes[5] = 0;
         Map<String, String> map = ParseUtil.parseByteArrayToStringMap(bytes);
         assertThat(map.keySet(), containsInAnyOrder("foo", "bar"));
@@ -673,7 +674,7 @@ class ParseUtilTest {
         assertThat(map.get("foo"), is("1"));
         assertThat(map.get("bar"), is(""));
 
-        bytes = "foo=1 bar=2".getBytes();
+        bytes = "foo=1 bar=2".getBytes(StandardCharsets.US_ASCII);
         bytes[5] = 0;
         bytes[6] = 0;
         map = ParseUtil.parseByteArrayToStringMap(bytes);

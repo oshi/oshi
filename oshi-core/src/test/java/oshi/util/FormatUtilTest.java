@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test;
  */
 class FormatUtilTest {
 
-    private static char DECIMAL_SEPARATOR = new DecimalFormatSymbols().getDecimalSeparator();
+    private static final char DECIMAL_SEPARATOR = DecimalFormatSymbols.getInstance(Locale.ROOT).getDecimalSeparator();
 
     /**
      * Test format bytes.

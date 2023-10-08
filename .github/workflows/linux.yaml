@@ -40,7 +40,7 @@ jobs:
         run: ./mvnw checkstyle:check
       - name: Forbidden APIs
         if: contains(matrix.java, '11')
-        run: ./mvnw compile forbiddenapis:check
+        run: ./mvnw compile forbiddenapis:check forbiddenapis:testCheck
       - name: Test with Maven
         run: ./mvnw test -B
       - name: Report Coverage to Coveralls
