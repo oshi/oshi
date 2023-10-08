@@ -38,10 +38,13 @@ jobs:
       - name: Checkstyle
         if: contains(matrix.java, '11')
         run: ./mvnw checkstyle:check
+      - name: Forbidden APIs
+        if: contains(matrix.java, '11')
+        run: ./mvnw compile forbiddenapis:check
       - name: Test with Maven
-        run: ./mvnw clean test -B
+        run: ./mvnw test -B
       - name: Report Coverage to Coveralls
         if: contains(matrix.java, '11')
-        run: ./mvnw clean test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
+        run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

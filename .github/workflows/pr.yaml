@@ -33,6 +33,9 @@ jobs:
       - name: Checkstyle
         if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '11')
         run: ./mvnw checkstyle:check
+      - name: Forbidden APIs
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '11')
+        run: ./mvnw compile forbiddenapis:check
       - name: Test with Maven
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos') || contains(matrix.java, '11') || contains(matrix.java, '17')
         run: ./mvnw test -B

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -9,8 +9,10 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -39,6 +41,8 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final String USED = "Used";
     private static final String AVAILABLE = "Available";
+
+    private static final DecimalFormatSymbols ROOT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ROOT);
 
     public FileStorePanel(SystemInfo si) {
         super();
@@ -117,7 +121,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         plot.setSimpleLabels(true);
 
         PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator("{0}: {1} ({2})",
-                new DecimalFormat("0"), new DecimalFormat("0%"));
+                new DecimalFormat("0", ROOT_SYMBOLS), new DecimalFormat("0%", ROOT_SYMBOLS));
         plot.setLabelGenerator(labelGenerator);
     }
 

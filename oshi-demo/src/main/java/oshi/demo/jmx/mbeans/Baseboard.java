@@ -4,26 +4,25 @@
  */
 package oshi.demo.jmx.mbeans;
 
-import oshi.demo.jmx.demo.PropertiesAvailable;
-
-import javax.management.DynamicMBean;
-import javax.management.MBeanInfo;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanNotificationInfo;
-import javax.management.AttributeNotFoundException;
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
-import javax.management.InvalidAttributeValueException;
-import javax.management.AttributeList;
-import javax.management.Attribute;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.AttributeNotFoundException;
+import javax.management.DynamicMBean;
+import javax.management.InvalidAttributeValueException;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanInfo;
+import javax.management.MBeanNotificationInfo;
+import javax.management.ReflectionException;
+
+import oshi.demo.jmx.demo.PropertiesAvailable;
 
 public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
@@ -31,7 +30,6 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
     private MBeanInfo dMBeanInfo = null;
     private List<String> propertiesAvailable = new ArrayList<>();
     private final String PROPERTIES = "Properties";
-    private final String GET_PREFIX = "get";
 
     private void setUpMBean() throws IntrospectionException, javax.management.IntrospectionException {
 
@@ -56,24 +54,20 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
     }
 
     @Override
-    public Object getAttribute(String attribute)
-            throws AttributeNotFoundException, MBeanException, ReflectionException {
-
-        if (attribute.equals(PROPERTIES)) {
+    public Object getAttribute(String attribute) {
+        switch (attribute) {
+        case PROPERTIES:
             return this.getProperties();
-        }
-
-        Method method = null;
-        try {
-            method = baseboard.getClass().getDeclaredMethod(GET_PREFIX + attribute, null);
-            method.setAccessible(true);
-            return method.invoke(baseboard, null);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+        case "Manufacturer":
+            return baseboard.getManufacturer();
+        case "Model":
+            return baseboard.getModel();
+        case "Version":
+            return baseboard.getVersion();
+        case "SerialNumber":
+            return baseboard.getSerialNumber();
+        default:
+            throw new IllegalArgumentException("No attribute " + attribute);
         }
     }
 
