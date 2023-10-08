@@ -725,7 +725,6 @@
                     <bundledSignatures>
                         <bundledSignature>jdk-unsafe</bundledSignature>
                         <bundledSignature>jdk-deprecated</bundledSignature>
-                        <bundledSignature>jdk-internal</bundledSignature>
                         <bundledSignature>jdk-non-portable</bundledSignature>
                         <bundledSignature>jdk-reflection</bundledSignature>
                         <bundledSignature>jdk-system-out</bundledSignature>
@@ -733,9 +732,6 @@
                     <suppressAnnotations>
                         <suppressAnnotation>oshi.demo.annotation.SuppressForbidden</suppressAnnotation>
                     </suppressAnnotations>
-                    <!-- signaturesFiles>
-                        <signaturesFile>./rel/path/to/signatures.txt</signaturesFile>
-                    </signaturesFiles -->
                 </configuration>
                 <executions>
                     <execution>
