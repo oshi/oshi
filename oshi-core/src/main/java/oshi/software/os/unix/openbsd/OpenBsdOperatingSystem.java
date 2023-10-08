@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         ARGS; // ARGS must always be last
     }
 
-    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(String::toLowerCase)
+    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(name -> name.toLowerCase(Locale.ROOT))
             .collect(Collectors.joining(","));
 
     @Override

@@ -17,7 +17,7 @@ import oshi.annotation.concurrent.Immutable;
  */
 @Immutable
 public class OSSession {
-    private static final DateTimeFormatter LOGIN_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter LOGIN_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ROOT);
 
     private final String userName;
     private final String terminalDevice;
