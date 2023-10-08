@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -59,7 +60,7 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     }
 
     static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-            .map(String::toLowerCase).collect(Collectors.joining(","));
+            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     private static final int ARGMAX;
 

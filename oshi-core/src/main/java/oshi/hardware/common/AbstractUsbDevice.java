@@ -91,7 +91,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      */
     private static String indentUsb(UsbDevice usbDevice, int indent) {
         String indentFmt = indent > 4 ? String.format(Locale.ROOT, "%%%ds|-- ", indent - 4)
-                : String.format("%%%ds", indent);
+                : String.format(Locale.ROOT, "%%%ds", indent);
         StringBuilder sb = new StringBuilder(String.format(Locale.ROOT, indentFmt, ""));
         sb.append(usbDevice.getName());
         if (!usbDevice.getVendor().isEmpty()) {
