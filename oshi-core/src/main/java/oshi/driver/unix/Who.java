@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix;
@@ -35,13 +35,14 @@ public final class Who {
     // oshi pts/0 2020-05-14 21:23 (192.168.1.23)
     private static final Pattern WHO_FORMAT_LINUX = Pattern
             .compile("(\\S+)\\s+(\\S+)\\s+(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2})\\s*(?:\\((.+)\\))?");
-    private static final DateTimeFormatter WHO_DATE_FORMAT_LINUX = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter WHO_DATE_FORMAT_LINUX = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm",
+            Locale.ROOT);
     // oshi ttys000 May 4 23:50 (192.168.1.23)
     // middle 12 characters from Thu Nov 24 18:22:48 1986
     private static final Pattern WHO_FORMAT_UNIX = Pattern
             .compile("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\d+)\\s+(\\d{2}:\\d{2})\\s*(?:\\((.+)\\))?");
     private static final DateTimeFormatter WHO_DATE_FORMAT_UNIX = new DateTimeFormatterBuilder()
-            .appendPattern("MMM d HH:mm").parseDefaulting(ChronoField.YEAR, Year.now().getValue())
+            .appendPattern("MMM d HH:mm").parseDefaulting(ChronoField.YEAR, Year.now(ZoneId.systemDefault()).getValue())
             .toFormatter(Locale.US);
 
     private Who() {
@@ -105,7 +106,7 @@ public final class Who {
                 LocalDateTime login = LocalDateTime.parse(m.group(3) + " " + m.group(4) + " " + m.group(5),
                         WHO_DATE_FORMAT_UNIX);
                 // If this date is in the future, subtract a year
-                if (login.isAfter(LocalDateTime.now())) {
+                if (login.isAfter(LocalDateTime.now(ZoneId.systemDefault()))) {
                     login = login.minus(1, ChronoUnit.YEARS);
                 }
                 long millis = login.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();

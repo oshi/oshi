@@ -34,9 +34,8 @@ public final class EdidUtil {
      */
     public static String getManufacturerID(byte[] edid) {
         // Bytes 8-9 are manufacturer ID in 3 5-bit characters.
-        String temp = String
-                .format("%8s%8s", Integer.toBinaryString(edid[8] & 0xFF), Integer.toBinaryString(edid[9] & 0xFF))
-                .replace(' ', '0');
+        String temp = String.format(Locale.ROOT, "%8s%8s", Integer.toBinaryString(edid[8] & 0xFF),
+                Integer.toBinaryString(edid[9] & 0xFF)).replace(' ', '0');
         LOG.debug("Manufacurer ID: {}", temp);
         return String.format(Locale.ROOT, "%s%s%s", (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),
                 (char) (64 + Integer.parseInt(temp.substring(7, 11), 2)),
@@ -72,7 +71,7 @@ public final class EdidUtil {
 
     private static String getAlphaNumericOrHex(byte b) {
         return Character.isLetterOrDigit((char) b) ? String.format(Locale.ROOT, "%s", (char) b)
-                : String.format("%02X", b);
+                : String.format(Locale.ROOT, "%02X", b);
     }
 
     /**

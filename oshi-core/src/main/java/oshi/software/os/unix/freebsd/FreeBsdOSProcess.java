@@ -66,7 +66,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-            .map(String::toLowerCase).collect(Collectors.joining(","));
+            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
