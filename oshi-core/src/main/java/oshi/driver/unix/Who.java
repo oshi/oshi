@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix;
@@ -35,7 +35,8 @@ public final class Who {
     // oshi pts/0 2020-05-14 21:23 (192.168.1.23)
     private static final Pattern WHO_FORMAT_LINUX = Pattern
             .compile("(\\S+)\\s+(\\S+)\\s+(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2})\\s*(?:\\((.+)\\))?");
-    private static final DateTimeFormatter WHO_DATE_FORMAT_LINUX = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ROOT);
+    private static final DateTimeFormatter WHO_DATE_FORMAT_LINUX = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm",
+            Locale.ROOT);
     // oshi ttys000 May 4 23:50 (192.168.1.23)
     // middle 12 characters from Thu Nov 24 18:22:48 1986
     private static final Pattern WHO_FORMAT_UNIX = Pattern

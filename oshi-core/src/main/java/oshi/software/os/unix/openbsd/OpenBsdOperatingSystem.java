@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.openbsd;
@@ -57,8 +57,8 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
         ARGS; // ARGS must always be last
     }
 
-    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name).map(name -> name.toLowerCase(Locale.ROOT))
-            .collect(Collectors.joining(","));
+    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name)
+            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
