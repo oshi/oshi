@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -52,7 +52,7 @@ public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
         GridBagConstraints procConstraints = (GridBagConstraints) sysConstraints.clone();
         procConstraints.gridx = 1;
 
-        Date date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        Date date = Date.from(LocalDateTime.now(ZoneId.systemDefault()).atZone(ZoneId.systemDefault()).toInstant());
         DynamicTimeSeriesCollection sysData = new DynamicTimeSeriesCollection(1, 60, new Second());
         sysData.setTimeBase(new Second(date));
         sysData.addSeries(floatArrayPercent(cpuData(processor)), 0, "All cpus");
