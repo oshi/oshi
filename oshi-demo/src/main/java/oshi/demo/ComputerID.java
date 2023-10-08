@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 import oshi.SystemInfo;
+import oshi.demo.annotation.SuppressForbidden;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -31,6 +32,7 @@ public class ComputerID {
      *
      * @param args an array of {@link java.lang.String} objects.
      */
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
         String unknownHash = String.format(Locale.ROOT, "%08x", Constants.UNKNOWN.hashCode());
 

@@ -1,52 +1,52 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx;
 
-import oshi.SystemInfo;
-import oshi.demo.jmx.api.JMXOshiAgent;
-import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
-import oshi.demo.jmx.strategiesplatform.WindowsStrategyRegistrattionPlatform;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.ObjectInstance;
-import javax.management.MBeanServerFactory;
-import javax.management.ReflectionException;
-import javax.management.MBeanException;
-import javax.management.QueryExp;
-import javax.management.AttributeNotFoundException;
-import javax.management.AttributeList;
-import javax.management.Attribute;
-import javax.management.InvalidAttributeValueException;
-import javax.management.NotificationFilter;
-import javax.management.NotificationListener;
-import javax.management.IntrospectionException;
-import javax.management.MBeanInfo;
-import javax.management.ListenerNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.OperationsException;
-import javax.management.loading.ClassLoaderRepository;
-import javax.management.remote.JMXConnectorServer;
-import javax.management.remote.JMXConnectorServerFactory;
-import javax.management.remote.JMXServiceURL;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.MBeanRegistrationException;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
-
 import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.ListenerNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanInfo;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.NotificationFilter;
+import javax.management.NotificationListener;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+import javax.management.OperationsException;
+import javax.management.QueryExp;
+import javax.management.ReflectionException;
+import javax.management.loading.ClassLoaderRepository;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
+
+import oshi.SystemInfo;
+import oshi.demo.annotation.SuppressForbidden;
+import oshi.demo.jmx.api.JMXOshiAgent;
+import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
+import oshi.demo.jmx.strategiesplatform.WindowsStrategyRegistrattionPlatform;
+
 public class JMXOshiAgentServer implements JMXOshiAgent {
     private String host;
     private Integer port;
-    private Map properties;
+    private Map<String, ?> properties;
 
     private MBeanServer server;
     private JMXServiceURL address;
@@ -54,8 +54,8 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     private ContextRegistrationPlatform contextRegistrationPlatform;
     private static JMXOshiAgentServer jmxOshiAgentServer;
 
-    private JMXOshiAgentServer(Integer port, String host, Map properties, ContextRegistrationPlatform platform)
-            throws Exception {
+    private JMXOshiAgentServer(Integer port, String host, Map<String, ?> properties,
+            ContextRegistrationPlatform platform) throws Exception {
 
         this.port = port;
         this.host = host;
@@ -66,8 +66,8 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         this.initilizeMBeans();
     }
 
-    /* A singlenton Method just to retrive the instance of JMSOshiAgentServer */
-    protected static JMXOshiAgentServer getInstance(String host, Integer port, Map properties,
+    /* A singleton Method just to retrieve the instance of JMSOshiAgentServer */
+    protected static JMXOshiAgentServer getInstance(String host, Integer port, Map<String, ?> properties,
             ContextRegistrationPlatform platform) throws Exception {
         if (jmxOshiAgentServer == null) {
             jmxOshiAgentServer = new JMXOshiAgentServer(port, host, properties, platform);
@@ -76,7 +76,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /*
-     * This method is for initilizing the connector server and bound the MBeanServer with the JMXConnector
+     * This method is for initializing the connector server and bound the MBeanServer with the JMXConnector
      */
     private void initilizeMbeanServer() throws IOException, NotCompliantMBeanException, InstanceAlreadyExistsException,
             MBeanRegistrationException, MalformedObjectNameException {
@@ -92,9 +92,10 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /*
-     * This method implmenet an startegy pattern to choose wich platform is and execute the corresponding strategy for
+     * This method implement an strategy pattern to choose which platform is and execute the corresponding strategy for
      * registering the corresponding MBeans
      */
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     private void initilizeMBeans() throws Exception {
 
         StrategyRegistrationPlatformMBeans platformMBeans = null;
@@ -113,6 +114,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         platformMBeans.registerMBeans(si, this.server);
     }
 
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     @Override
     public void startAgent() throws IOException {
         cntorServer.start();

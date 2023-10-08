@@ -1,15 +1,16 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
 
+import java.util.Objects;
+
 import com.sun.jna.platform.win32.COM.COMException;
 
+import oshi.demo.annotation.SuppressForbidden;
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.util.platform.windows.WmiQueryHandler;
-
-import java.util.Objects;
 
 /**
  * Class demonstrating WMI stat performance improvements if the user does COM initialization so OSHI doesn't have to
@@ -18,6 +19,7 @@ public class UserComInit {
 
     private static final int REPETITIONS = 300;
 
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
         wakeUpCom();
         System.out.println("Collecting statistics with default COM setup");
@@ -31,6 +33,7 @@ public class UserComInit {
         Win32OperatingSystem.queryOsVersion();
     }
 
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     private static void loopWmiQueries() {
         long t = System.nanoTime();
         for (int i = 0; i < REPETITIONS; i++) {
