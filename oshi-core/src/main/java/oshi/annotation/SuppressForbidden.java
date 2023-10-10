@@ -2,7 +2,7 @@
  * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.demo.annotation;
+package oshi.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

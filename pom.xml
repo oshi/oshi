@@ -161,25 +161,6 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>${maven-clean-plugin.version}</version>
                 </plugin>
-          <plugins>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <version>3.2.2</version>
-            <configuration>
-                <archive>
-                    <manifest>
-                        <addClasspath>true</addClasspath>
-                        <mainClass>your.main.class</mainClass>
-                    </manifest>
-                    <manifestEntries>
-                        <!-- Add other manifest entries if needed -->
-                    </manifestEntries>
-                </archive>
-                <signaturesFiles>
-                    <signaturesFile><your-signatures-file></signaturesFile>
-                </signaturesFiles>
-            </configuration>
-        </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
