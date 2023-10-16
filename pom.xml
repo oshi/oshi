@@ -756,10 +756,10 @@
                         <bundledSignature>jdk-system-out</bundledSignature>
                     </bundledSignatures>
                     <signaturesFiles>
-                        <signaturesFile>./src/main/resources/signatures.txt</signaturesFile>
+                        <signaturesFile>../config/signatures.txt</signaturesFile>
                     </signaturesFiles>
                     <suppressAnnotations>
-                        <suppressAnnotation>oshi.demo.oshi.annotation.SuppressForbidden</suppressAnnotation>
+                        <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>
                     </suppressAnnotations>
                 </configuration>
                 <executions>
