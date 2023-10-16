@@ -755,8 +755,11 @@
                         <bundledSignature>jdk-reflection</bundledSignature>
                         <bundledSignature>jdk-system-out</bundledSignature>
                     </bundledSignatures>
+                    <signaturesFiles>
+                        <signaturesFile>./src/main/resources/signatures.txt</signaturesFile>
+                    </signaturesFiles>
                     <suppressAnnotations>
-                        <suppressAnnotation>oshi.demo.annotation.SuppressForbidden</suppressAnnotation>
+                        <suppressAnnotation>oshi.demo.oshi.annotation.SuppressForbidden</suppressAnnotation>
                     </suppressAnnotations>
                 </configuration>
                 <executions>

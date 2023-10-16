@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 import oshi.SystemInfo;
-import oshi.demo.annotation.SuppressForbidden;
+import oshi.annotation.SuppressForbidden;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.HardwareAbstractionLayer;

@@ -8,7 +8,7 @@ import java.util.Objects;
 
 import com.sun.jna.platform.win32.COM.COMException;
 
-import oshi.demo.annotation.SuppressForbidden;
+import oshi.annotation.SuppressForbidden;
 import oshi.driver.windows.wmi.Win32OperatingSystem;
 import oshi.util.platform.windows.WmiQueryHandler;
 

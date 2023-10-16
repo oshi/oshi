@@ -300,7 +300,7 @@ public final class FileUtil {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace(READ_LOG, read.get(0));
                 }
-                return Integer.parseInt(read.get(0));
+                return ParseUtil.parseLastInt(read.get(0), 0);
             }
         } catch (NumberFormatException ex) {
             LOG.warn("Unable to read value from {}. {}", filename, ex.getMessage());

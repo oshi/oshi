@@ -6,6 +6,7 @@ package oshi.driver.linux.proc;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
 /**
@@ -30,7 +31,7 @@ public final class UpTime {
                 // No space, error
                 return 0d;
             }
-            return Double.parseDouble(uptime.substring(0, spaceIndex));
+            return ParseUtil.parseLastDouble(uptime.substring(0, spaceIndex), 0);
         } catch (NumberFormatException nfe) {
             return 0d;
         }

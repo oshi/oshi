@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import oshi.SystemInfo;
-import oshi.demo.annotation.SuppressForbidden;
+import oshi.annotation.SuppressForbidden;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
