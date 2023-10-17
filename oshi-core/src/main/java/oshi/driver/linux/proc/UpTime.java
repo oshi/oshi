@@ -26,14 +26,10 @@ public final class UpTime {
     public static double getSystemUptimeSeconds() {
         String uptime = FileUtil.getStringFromFile(ProcPath.UPTIME);
         int spaceIndex = uptime.indexOf(' ');
-        try {
-            if (spaceIndex < 0) {
-                // No space, error
-                return 0d;
-            }
-            return ParseUtil.parseLastDouble(uptime.substring(0, spaceIndex), 0);
-        } catch (NumberFormatException nfe) {
+        if (spaceIndex < 0) {
+            // No space, error
             return 0d;
         }
+        return ParseUtil.parseDoubleOrDefault(uptime.substring(0, spaceIndex), 0d);
     }
 }

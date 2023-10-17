@@ -27,9 +27,9 @@ import com.sun.jna.platform.win32.WinPerf.PERF_INSTANCE_DEFINITION;
 import com.sun.jna.platform.win32.WinPerf.PERF_OBJECT_TYPE;
 import com.sun.jna.platform.win32.WinReg;
 
+import oshi.annotation.SuppressForbidden;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableIntByReference;
-import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -267,13 +267,14 @@ public final class HkeyPerformanceDataUtil {
      * @return An unmodifiable map containing counter name strings as keys and indices as integer values if the key is
      * read successfully; an empty map otherwise.
      */
+    @SuppressForbidden(reason = "Catching the error here")
     private static Map<String, Integer> mapCounterIndicesFromRegistry() {
         HashMap<String, Integer> indexMap = new HashMap<>();
         try {
             String[] counterText = Advapi32Util.registryGetStringArray(WinReg.HKEY_LOCAL_MACHINE, HKEY_PERFORMANCE_TEXT,
                     COUNTER);
             for (int i = 1; i < counterText.length; i += 2) {
-                indexMap.putIfAbsent(counterText[i], ParseUtil.parseLastInt(counterText[i - 1], 0));
+                indexMap.putIfAbsent(counterText[i], Integer.parseInt(counterText[i - 1]));
             }
         } catch (Win32Exception we) {
             LOG.error(

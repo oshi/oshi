@@ -1,5 +1,0 @@
-java.lang.Integer#parseInt(java.lang.String) @ Use oshi.util.ParseUtil#parseLastInt(java.lang.String,int)
-
-java.lang.Long#parseLong(java.lang.String) @ Use oshi.util.ParseUtil#parseLastLong(java.lang.String,int)
-
-java.lang.Double#parseDouble(java.lang.String) @ Use oshi.util.ParseUtil#parseLastDouble(java.lang.String,int)

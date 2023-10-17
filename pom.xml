@@ -756,7 +756,7 @@
                         <bundledSignature>jdk-system-out</bundledSignature>
                     </bundledSignatures>
                     <signaturesFiles>
-                        <signaturesFile>../config/signatures.txt</signaturesFile>
+                        <signaturesFile>../config/forbidden-apis.txt</signaturesFile>
                     </signaturesFiles>
                     <suppressAnnotations>
                         <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>
