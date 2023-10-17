@@ -38,7 +38,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import oshi.SystemInfo;
-import oshi.demo.annotation.SuppressForbidden;
+import oshi.annotation.SuppressForbidden;
 import oshi.demo.jmx.api.JMXOshiAgent;
 import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
 import oshi.demo.jmx.strategiesplatform.WindowsStrategyRegistrattionPlatform;

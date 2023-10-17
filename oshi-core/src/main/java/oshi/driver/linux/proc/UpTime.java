@@ -6,6 +6,7 @@ package oshi.driver.linux.proc;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
 /**
@@ -25,14 +26,10 @@ public final class UpTime {
     public static double getSystemUptimeSeconds() {
         String uptime = FileUtil.getStringFromFile(ProcPath.UPTIME);
         int spaceIndex = uptime.indexOf(' ');
-        try {
-            if (spaceIndex < 0) {
-                // No space, error
-                return 0d;
-            }
-            return Double.parseDouble(uptime.substring(0, spaceIndex));
-        } catch (NumberFormatException nfe) {
+        if (spaceIndex < 0) {
+            // No space, error
             return 0d;
         }
+        return ParseUtil.parseDoubleOrDefault(uptime.substring(0, spaceIndex), 0d);
     }
 }

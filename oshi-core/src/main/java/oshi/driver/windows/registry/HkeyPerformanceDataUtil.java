@@ -27,6 +27,7 @@ import com.sun.jna.platform.win32.WinPerf.PERF_INSTANCE_DEFINITION;
 import com.sun.jna.platform.win32.WinPerf.PERF_OBJECT_TYPE;
 import com.sun.jna.platform.win32.WinReg;
 
+import oshi.annotation.SuppressForbidden;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
@@ -266,6 +267,7 @@ public final class HkeyPerformanceDataUtil {
      * @return An unmodifiable map containing counter name strings as keys and indices as integer values if the key is
      * read successfully; an empty map otherwise.
      */
+    @SuppressForbidden(reason = "Catching the error here")
     private static Map<String, Integer> mapCounterIndicesFromRegistry() {
         HashMap<String, Integer> indexMap = new HashMap<>();
         try {

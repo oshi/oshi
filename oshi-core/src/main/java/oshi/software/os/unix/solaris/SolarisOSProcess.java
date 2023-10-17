@@ -430,6 +430,6 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
         // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
         final String[] split = nofilesLine.get().split("\\D+");
-        return Long.parseLong(split[index]);
+        return ParseUtil.parseLongOrDefault(split[index], -1);
     }
 }

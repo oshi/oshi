@@ -467,6 +467,6 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
         // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
         final String[] split = maxOpenFilesLine.get().split("\\D+");
-        return Long.parseLong(split[index]);
+        return ParseUtil.parseLongOrDefault(split[index], -1);
     }
 }

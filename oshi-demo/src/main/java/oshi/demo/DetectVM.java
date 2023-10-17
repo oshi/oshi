@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import oshi.SystemInfo;
-import oshi.demo.annotation.SuppressForbidden;
+import oshi.annotation.SuppressForbidden;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.util.FileUtil;

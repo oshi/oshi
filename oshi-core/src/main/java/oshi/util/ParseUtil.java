@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.annotation.SuppressForbidden;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -38,6 +39,7 @@ import oshi.util.tuples.Triplet;
  * String parsing utility.
  */
 @ThreadSafe
+@SuppressForbidden(reason = "Require parse methods to parse in utility class")
 public final class ParseUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
