@@ -33,7 +33,7 @@ public final class EdidUtil {
      * @param edid The EDID byte array
      * @return The manufacturer ID
      */
-    @SuppressForbidden(reason = "using base 2")
+    @SuppressForbidden(reason = "customized base 2 parsing not in Util class")
     public static String getManufacturerID(byte[] edid) {
         // Bytes 8-9 are manufacturer ID in 3 5-bit characters.
         String temp = String.format(Locale.ROOT, "%8s%8s", Integer.toBinaryString(edid[8] & 0xFF),
