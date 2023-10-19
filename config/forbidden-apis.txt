@@ -1,4 +1,6 @@
-java.lang.Integer#parseInt(java.lang.String) @ Use oshi.util.ParseUtil#parseIntOrDefault(java.lang.String,int)
+@defaultMessage Use existing oshi.util.ParseUtil methods or create a new one
+
+java.lang.Integer#parseInt(java.lang.String)
 java.lang.Integer#parseInt(java.lang.String,int)
 java.lang.Integer#parseInt(java.lang.CharSequence,int,int,int)
 
