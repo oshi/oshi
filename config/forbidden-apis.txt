@@ -4,8 +4,8 @@ java.lang.Integer#parseInt(java.lang.String)
 java.lang.Integer#parseInt(java.lang.String,int)
 java.lang.Integer#parseInt(java.lang.CharSequence,int,int,int)
 
-java.lang.Long#parseLong(java.lang.String) @ Use oshi.util.ParseUtil#parseLongOrDefault(java.lang.String,int)
+java.lang.Long#parseLong(java.lang.String)
 java.lang.Long#parseLong(java.lang.String,int)
 java.lang.Long#parseLong(java.lang.CharSequence,int,int,int)
 
-java.lang.Double#parseDouble(java.lang.String) @ Use oshi.util.ParseUtil#parseDoubleOrDefault(java.lang.String,int)
+java.lang.Double#parseDouble(java.lang.String)
