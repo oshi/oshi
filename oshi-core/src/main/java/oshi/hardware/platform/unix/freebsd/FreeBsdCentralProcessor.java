@@ -207,15 +207,16 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
                     // Regex guarantees parsing digits so we won't get a
                     // NumberFormatException
+                    long parsedVal = ParseUtil.hexStringToLong(firstVal, 0);
                     switch (groupLevel) {
                     case 1:
-                        group1 = Long.parseLong(firstVal, 16);
+                        group1 = parsedVal;
                         break;
                     case 2:
-                        group2.add(Long.parseLong(firstVal, 16));
+                        group2.add(parsedVal);
                         break;
                     case 3:
-                        group3.add(Long.parseLong(firstVal, 16));
+                        group3.add(parsedVal);
                         break;
                     default:
                         break;
