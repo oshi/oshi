@@ -5,6 +5,7 @@
 package oshi.driver.windows.registry;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import com.sun.jna.platform.win32.WinBase.FILETIME;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.perfmon.PerfmonDisabled;
 import oshi.driver.windows.perfmon.ThreadInformation;
 import oshi.driver.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.util.tuples.Pair;
@@ -90,6 +92,9 @@ public final class ThreadPerformanceData {
      *         information.
      */
     public static Map<Integer, PerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
+        if (PerfmonDisabled.PERF_PROC_DISABLED) {
+            return Collections.emptyMap();
+        }
         Map<Integer, PerfCounterBlock> threadMap = new HashMap<>();
         Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = ThreadInformation
                 .queryThreadCounters();

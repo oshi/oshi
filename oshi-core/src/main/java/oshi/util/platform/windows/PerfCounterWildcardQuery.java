@@ -85,10 +85,13 @@ public final class PerfCounterWildcardQuery {
             if (!instancesAndValuesMap.getA().isEmpty()) {
                 return instancesAndValuesMap;
             }
-            // If we are here, query failed
-            LOG.warn("Disabling further attempts to query {}.", perfObject);
-            FAILED_QUERY_CACHE.add(perfObject);
+            // If we are here, query returned no results
+            if (Util.isBlank(customFilter)) {
+                LOG.warn("Disabling further attempts to query {}.", perfObject);
+                FAILED_QUERY_CACHE.add(perfObject);
+            }
         }
+        System.out.println("XXX Query with filter [" + customFilter + "] failed. Querying WMI: " + perfWmiClass);
         return queryInstancesAndValuesFromWMI(propertyEnum, perfWmiClass);
     }
 
@@ -133,9 +136,11 @@ public final class PerfCounterWildcardQuery {
                 ? ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
                         .toLowerCase(Locale.ROOT)
                 : customFilter;
+        System.out.println("Instance filter: " + instanceFilter);
         // Localize the perfObject using different variable for the EnumObjectItems
         // Will still use unlocalized perfObject for the query
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, true);
+        System.out.println("Perf object: " + perfObjectLocalized);
 
         // Get list of instances
         PdhEnumObjectItems objectItems = null;

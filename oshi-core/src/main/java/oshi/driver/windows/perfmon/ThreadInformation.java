@@ -1,14 +1,15 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
 
 import static oshi.driver.windows.perfmon.PerfmonConstants.THREAD;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -62,10 +63,20 @@ public final class ThreadInformation {
      * @return Thread counters for each thread.
      */
     public static Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> queryThreadCounters() {
-        if (PerfmonDisabled.PERF_PROC_DISABLED) {
-            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
-        }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,
                 WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL);
+    }
+
+    /**
+     * Returns thread counters filtered to the specified process name.
+     *
+     * @param name The process name to filter
+     *
+     * @return Thread counters for each thread.
+     */
+    public static Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> queryThreadCounters(String name) {
+        String procName = name.toLowerCase(Locale.ROOT);
+        return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,
+                WIN32_PERF_RAW_DATA_PERF_PROC_THREAD + " WHERE Name LIKE \\\"" + procName + "\\\"", procName + "/*");
     }
 }

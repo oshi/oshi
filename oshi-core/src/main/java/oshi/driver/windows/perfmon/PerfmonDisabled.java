@@ -24,9 +24,11 @@ public final class PerfmonDisabled {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfmonDisabled.class);
 
-    static final boolean PERF_OS_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFOS_DIABLED, "PerfOS");
-    static final boolean PERF_PROC_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFPROC_DIABLED, "PerfProc");
-    static final boolean PERF_DISK_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFDISK_DIABLED, "PerfDisk");
+    public static final boolean PERF_OS_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFOS_DIABLED, "PerfOS");
+    public static final boolean PERF_PROC_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFPROC_DIABLED,
+            "PerfProc");
+    public static final boolean PERF_DISK_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFDISK_DIABLED,
+            "PerfDisk");
 
     /**
      * Everything in this class is static, never instantiate it
