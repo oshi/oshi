@@ -268,13 +268,8 @@ public class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        // Get data from the registry if possible
         Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
-                .buildThreadMapFromRegistry(Collections.singleton(getProcessID()));
-        // otherwise performance counters with WMI backup
-        if (threads == null) {
-            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()));
-        }
+                .buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()), this.getName(), -1);
         return threads.entrySet().stream().parallel()
                 .map(entry -> new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
                 .collect(Collectors.toList());

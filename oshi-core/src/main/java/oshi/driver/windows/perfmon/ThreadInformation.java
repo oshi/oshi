@@ -68,14 +68,22 @@ public final class ThreadInformation {
     }
 
     /**
-     * Returns thread counters filtered to the specified process name.
+     * Returns thread counters filtered to the specified process name and thread.
      *
-     * @param name The process name to filter
+     * @param name      The process name to filter
+     * @param threadNum The thread number to match. -1 matches all threads.
      *
      * @return Thread counters for each thread.
      */
-    public static Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> queryThreadCounters(String name) {
+    public static Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> queryThreadCounters(String name,
+            int threadNum) {
         String procName = name.toLowerCase(Locale.ROOT);
+        if (threadNum >= 0) {
+            return PerfCounterWildcardQuery.queryInstancesAndValues(
+                    ThreadPerformanceProperty.class, THREAD, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD
+                            + " WHERE Name LIKE \\\"" + procName + "\\\" AND IDThread=" + threadNum,
+                    procName + "/" + threadNum);
+        }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,
                 WIN32_PERF_RAW_DATA_PERF_PROC_THREAD + " WHERE Name LIKE \\\"" + procName + "\\\"", procName + "/*");
     }

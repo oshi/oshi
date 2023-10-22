@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -99,14 +99,10 @@ public class WindowsOSThread extends AbstractOSThread {
     @Override
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(getOwningProcessId());
-        // Get data from the registry if possible
+        String procName = this.name.split("/")[0];
         Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
-                .buildThreadMapFromRegistry(pids);
-        // otherwise performance counters with WMI backup
-        if (threads == null) {
-            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids);
-        }
-        return updateAttributes(this.name.split("/")[0], threads.get(getThreadId()));
+                .buildThreadMapFromPerfCounters(pids, procName, getThreadId());
+        return updateAttributes(procName, threads.get(getThreadId()));
     }
 
     private boolean updateAttributes(String procName, PerfCounterBlock pcb) {

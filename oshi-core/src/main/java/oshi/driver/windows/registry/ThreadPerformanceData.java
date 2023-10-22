@@ -17,6 +17,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.PerfmonDisabled;
 import oshi.driver.windows.perfmon.ThreadInformation;
 import oshi.driver.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
+import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -92,12 +93,27 @@ public final class ThreadPerformanceData {
      *         information.
      */
     public static Map<Integer, PerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
+        return buildThreadMapFromPerfCounters(pids, null, -1);
+    }
+
+    /**
+     * Query PerfMon for thread performance counters
+     *
+     * @param pids      An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @param procName  Limit the matches to processes matching the given name.
+     * @param threadNum Limit the matches to threads matching the given thread. Use -1 to match all threads.
+     * @return A map with Thread ID as the key and a {@link PerfCounterBlock} object populated with performance counter
+     *         information.
+     */
+    public static Map<Integer, PerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids,
+            String procName, int threadNum) {
         if (PerfmonDisabled.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }
         Map<Integer, PerfCounterBlock> threadMap = new HashMap<>();
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = ThreadInformation
-                .queryThreadCounters();
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = Util.isBlank(procName)
+                ? ThreadInformation.queryThreadCounters()
+                : ThreadInformation.queryThreadCounters(procName, threadNum);
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
         Map<ThreadPerformanceProperty, List<Long>> valueMap = instanceValues.getB();

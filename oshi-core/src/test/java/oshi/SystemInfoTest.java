@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.driver.windows.perfmon.ThreadInformation;
-import oshi.driver.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
@@ -55,7 +53,6 @@ import oshi.software.os.OperatingSystem.ProcessFiltering;
 import oshi.software.os.OperatingSystem.ProcessSorting;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
-import oshi.util.tuples.Pair;
 
 /**
  * A demonstration of access to many of OSHI's capabilities
@@ -320,13 +317,6 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                     FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
         }
         OSProcess p = os.getProcess(os.getProcessId());
-        System.out.println("XXX TESTING XXX");
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> nameFilter = ThreadInformation
-                .queryThreadCounters(p.getName());
-        oshi.add("Query with name: ");
-        for (String s : nameFilter.getA()) {
-            oshi.add("  " + s);
-        }
         oshi.add("Current process arguments: ");
         for (String s : p.getArguments()) {
             oshi.add("  " + s);
