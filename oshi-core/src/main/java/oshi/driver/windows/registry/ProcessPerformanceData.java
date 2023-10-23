@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -89,6 +89,19 @@ public final class ProcessPerformanceData {
      *         information.
      */
     public static Map<Integer, PerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
+        return buildProcessMapFromPerfCounters(pids, null);
+    }
+
+    /**
+     * Query PerfMon for process performance counters
+     *
+     * @param pids     An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @param procName Filter by this process name.
+     * @return A map with Process ID as the key and a {@link PerfCounterBlock} object populated with performance counter
+     *         information.
+     */
+    public static Map<Integer, PerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids,
+            String procName) {
         Map<Integer, PerfCounterBlock> processMap = new HashMap<>();
         Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = ProcessInformation
                 .queryProcessCounters();

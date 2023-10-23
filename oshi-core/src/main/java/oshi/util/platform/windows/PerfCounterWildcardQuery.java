@@ -54,20 +54,42 @@ public final class PerfCounterWildcardQuery {
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @param perfWmiClass The WMI PerfData_RawData_* class corresponding to the PDH object
-     * @return An pair containing a list of instances and an {@link EnumMap} of the corresponding values indexed by
+     * @return A pair containing a list of instances and an {@link EnumMap} of the corresponding values indexed by
      *         {@code propertyEnum} on success, or an empty list and empty map if both PDH and WMI queries failed.
      */
     public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValues(
             Class<T> propertyEnum, String perfObject, String perfWmiClass) {
+        return queryInstancesAndValues(propertyEnum, perfObject, perfWmiClass, null);
+    }
+
+    /**
+     * Query the a Performance Counter using PDH, with WMI backup on failure, for values corresponding to the property
+     * enum.
+     *
+     * @param <T>          The enum type of {@code propertyEnum}
+     * @param propertyEnum An enum which implements
+     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
+     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
+     *                     time
+     * @param perfWmiClass The WMI PerfData_RawData_* class corresponding to the PDH object
+     * @param customFilter a custom instance filter to use. If null, uses the first element of the property enum
+     * @return A pair containing a list of instances and an {@link EnumMap} of the corresponding values indexed by
+     *         {@code propertyEnum} on success, or an empty list and empty map if both PDH and WMI queries failed.
+     */
+    public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValues(
+            Class<T> propertyEnum, String perfObject, String perfWmiClass, String customFilter) {
         if (!FAILED_QUERY_CACHE.contains(perfObject)) {
             Pair<List<String>, Map<T, List<Long>>> instancesAndValuesMap = queryInstancesAndValuesFromPDH(propertyEnum,
-                    perfObject);
+                    perfObject, customFilter);
             if (!instancesAndValuesMap.getA().isEmpty()) {
                 return instancesAndValuesMap;
             }
-            // If we are here, query failed
-            LOG.warn("Disabling further attempts to query {}.", perfObject);
-            FAILED_QUERY_CACHE.add(perfObject);
+            // If we are here, query returned no results
+            if (Util.isBlank(customFilter)) {
+                LOG.warn("Disabling further attempts to query {}.", perfObject);
+                FAILED_QUERY_CACHE.add(perfObject);
+            }
         }
         return queryInstancesAndValuesFromWMI(propertyEnum, perfWmiClass);
     }
@@ -86,13 +108,33 @@ public final class PerfCounterWildcardQuery {
      */
     public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValuesFromPDH(
             Class<T> propertyEnum, String perfObject) {
+        return queryInstancesAndValuesFromPDH(propertyEnum, perfObject, null);
+    }
+
+    /**
+     * Query the a Performance Counter using PDH for values corresponding to the property enum.
+     *
+     * @param <T>          The enum type of {@code propertyEnum}
+     * @param propertyEnum An enum which implements
+     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
+     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
+     *                     time
+     * @param customFilter a custom instance filter to use. If null, uses the first element of the property enum
+     * @return An pair containing a list of instances and an {@link EnumMap} of the corresponding values indexed by
+     *         {@code propertyEnum} on success, or an empty list and empty map if the PDH query failed.
+     */
+    public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValuesFromPDH(
+            Class<T> propertyEnum, String perfObject, String customFilter) {
         T[] props = propertyEnum.getEnumConstants();
         if (props.length < 2) {
             throw new IllegalArgumentException("Enum " + propertyEnum.getName()
                     + " must have at least two elements, an instance filter and a counter.");
         }
-        String instanceFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
-                .toLowerCase(Locale.ROOT);
+        String instanceFilter = Util.isBlank(customFilter)
+                ? ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
+                        .toLowerCase(Locale.ROOT)
+                : customFilter;
         // Localize the perfObject using different variable for the EnumObjectItems
         // Will still use unlocalized perfObject for the query
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, true);
