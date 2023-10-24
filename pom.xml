@@ -110,7 +110,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-scm-publish-plugin.version>3.2.1</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.2.1</maven-surefire-plugin.version>
         <maven-fluido-skin.version>1.12.0</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-maven-plugin.version>7.0.0</git-commit-id-maven-plugin.version>
@@ -128,7 +128,7 @@
         <!-- tools -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
-        <maven-dependency-plugin.version>3.6.0</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <properties-maven-plugin.version>1.2.0</properties-maven-plugin.version>
@@ -139,9 +139,9 @@
         <spotless-plugin.version>2.40.0</spotless-plugin.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
-        <maven-jxr-plugin.version>3.3.0</maven-jxr-plugin.version>
+        <maven-jxr-plugin.version>3.3.1</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
-        <maven-surefire-report-plugin.version>3.1.2</maven-surefire-report-plugin.version>
+        <maven-surefire-report-plugin.version>3.2.1</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.0.0</taglist-maven-plugin.version>
         <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
         <!-- Misc. -->
