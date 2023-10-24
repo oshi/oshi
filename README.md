@@ -130,7 +130,7 @@ Continuous Integration Test Status
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/28367.svg)](https://scan.coverity.com/projects/oshi-oshi)
 [![Codacy Grade](https://app.codacy.com/project/badge/Grade/4002c92342814fe1989a7841d9f427f1)](https://www.codacy.com/gh/oshi/oshi/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=oshi/oshi&amp;utm_campaign=Badge_Grade)
 [![CodeQL](https://github.com/oshi/oshi/workflows/CodeQL/badge.svg)](https://github.com/oshi/oshi/security/code-scanning)
-[![Coverage Status](https://coveralls.io/repos/github/oshi/oshi/badge.svg?branch=master)](https://coveralls.io/github/oshi/oshi?branch=master)
+[![Coverage Status](https://codecov.io/github/oshi/oshi/graph/badge.svg?token=XpNPRyv8TJ)](https://codecov.io/github/oshi/oshi)
 
 How Can I Help?
 ---------------

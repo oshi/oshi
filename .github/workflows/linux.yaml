@@ -43,8 +43,8 @@ jobs:
         run: ./mvnw compile forbiddenapis:check forbiddenapis:testCheck
       - name: Test with Maven
         run: ./mvnw test -B
-      - name: Report Coverage to Coveralls
+      - name: Upload Coverage
         if: contains(matrix.java, '11')
-        run: ./mvnw test jacoco:report coveralls:report -q -Dlicense.skip=true -DrepoToken=$GITHUB_TOKEN -DserviceName=github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
