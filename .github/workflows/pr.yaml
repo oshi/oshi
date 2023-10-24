@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - '**.md'
       - '**.yml'
-      - '**.yaml'
+#      - '**.yaml'
 
 jobs:
   test:
@@ -39,3 +39,8 @@ jobs:
       - name: Test with Maven
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos') || contains(matrix.java, '11') || contains(matrix.java, '17')
         run: ./mvnw test -B
+      - name: Upload Coverage
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '11')
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
