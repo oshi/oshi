@@ -41,3 +41,8 @@ jobs:
         run: ./mvnw clean test -B
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Coverage
+        if: contains(matrix.java, '11') && contains(matrix.os, 'windows-2022')
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
