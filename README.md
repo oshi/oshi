@@ -29,7 +29,7 @@ Supported Platforms
 - Windows
 - macOS
 - Linux (Android)
-- Other UNIX based OS (AIX, FreeBSD, OpenBSD, Solaris)
+- UNIX (AIX, FreeBSD, OpenBSD, Solaris)
 
 Downloads and Dependency Management
 -----------------------------------
