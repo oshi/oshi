@@ -26,7 +26,10 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 Supported Platforms
 ---------------------------
-Windows • macOS • Linux (Android) • Unix (AIX, FreeBSD, OpenBSD, Solaris)
+- Windows
+- macOS
+- Linux (Android)
+- Other UNIX based OS (AIX, FreeBSD, OpenBSD, Solaris)
 
 Downloads and Dependency Management
 -----------------------------------
@@ -64,7 +67,7 @@ HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```
 
-See [SystemInfoTest.java](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for examples.  To see sample output for your machine:
+See [SystemInfoTest.java](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for examples. To see sample output for your machine:
 ```sh
 git clone https://github.com/oshi/oshi.git && cd oshi
 
@@ -97,7 +100,7 @@ Support
 -------
 * For bug reports, feature requests, or general questions about OSHI's longer term plans, please [create an issue](https://github.com/oshi/oshi/issues).
 * For help integrating OSHI into your own project or maintainer code review of your PRs, tag `@dbwiddis` in issues or pull requests on your project site.
-* For "how to" questions regarding use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, asking a new question if it hasn't been answered before.
+* For "how to" questions regarding the use of the API, consult examples in the `oshi-demo` project, create an issue, or [search on Stack Overflow](https://stackoverflow.com/search?q=%5Boshi%5D+is%3Aquestion) using the `oshi` tag, asking a new question if it hasn't been answered before.
 * To say thanks to OSHI's primary maintainer, you can [sponsor him](https://github.com/sponsors/dbwiddis) or [buy him a coffee](https://www.buymeacoffee.com/dbwiddis).
 
 OSHI for Enterprise
