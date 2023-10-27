@@ -99,7 +99,7 @@
         <junit.version>5.10.0</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <!-- Compile versions -->
-        <maven-clean-plugin.version>3.3.1</maven-clean-plugin.version>
+        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <nexus-staging-plugin.version>1.6.13</nexus-staging-plugin.version>
