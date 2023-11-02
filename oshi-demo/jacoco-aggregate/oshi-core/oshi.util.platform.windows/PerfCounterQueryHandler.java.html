@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PerfCounterQueryHandler.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.util.platform.windows</a> &gt; <span class="el_source">PerfCounterQueryHandler.java</span></div><h1>PerfCounterQueryHandler.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -22,14 +23,14 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
  * try-with-resources block.
  */
 @NotThreadSafe
-<span class="nc" id="L25">public final class PerfCounterQueryHandler implements AutoCloseable {</span>
+<span class="nc" id="L26">public final class PerfCounterQueryHandler implements AutoCloseable {</span>
 
-<span class="nc" id="L27">    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);</span>
+<span class="nc" id="L28">    private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);</span>
 
     // Map of counter handles
-<span class="nc" id="L30">    private Map&lt;PerfCounter, CloseableHANDLEByReference&gt; counterHandleMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L31">    private Map&lt;PerfCounter, CloseableHANDLEByReference&gt; counterHandleMap = new HashMap&lt;&gt;();</span>
     // The query handle
-<span class="nc" id="L32">    private CloseableHANDLEByReference queryHandle = null;</span>
+<span class="nc" id="L33">    private CloseableHANDLEByReference queryHandle = null;</span>
 
     /**
      * Begin monitoring a Performance Data counter.
@@ -39,24 +40,24 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
      */
     public boolean addCounterToQuery(PerfCounter counter) {
         // Open a new query or get the handle to an existing one
-<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (this.queryHandle == null) {</span>
-<span class="nc" id="L43">            this.queryHandle = new CloseableHANDLEByReference();</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">            if (!PerfDataUtil.openQuery(this.queryHandle)) {</span>
-<span class="nc" id="L45">                LOG.warn(&quot;Failed to open a query for PDH counter: {}&quot;, counter.getCounterPath());</span>
-<span class="nc" id="L46">                this.queryHandle.close();</span>
-<span class="nc" id="L47">                this.queryHandle = null;</span>
-<span class="nc" id="L48">                return false;</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (this.queryHandle == null) {</span>
+<span class="nc" id="L44">            this.queryHandle = new CloseableHANDLEByReference();</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (!PerfDataUtil.openQuery(this.queryHandle)) {</span>
+<span class="nc" id="L46">                LOG.warn(&quot;Failed to open a query for PDH counter: {}&quot;, counter.getCounterPath());</span>
+<span class="nc" id="L47">                this.queryHandle.close();</span>
+<span class="nc" id="L48">                this.queryHandle = null;</span>
+<span class="nc" id="L49">                return false;</span>
             }
         }
         // Get a new handle for the counter
-<span class="nc" id="L52">        CloseableHANDLEByReference p = new CloseableHANDLEByReference();</span>
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {</span>
-<span class="nc" id="L54">            LOG.warn(&quot;Failed to add counter for PDH counter: {}&quot;, counter.getCounterPath());</span>
-<span class="nc" id="L55">            p.close();</span>
-<span class="nc" id="L56">            return false;</span>
+<span class="nc" id="L53">        CloseableHANDLEByReference p = new CloseableHANDLEByReference();</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (!PerfDataUtil.addCounter(this.queryHandle, counter.getCounterPath(), p)) {</span>
+<span class="nc" id="L55">            LOG.warn(&quot;Failed to add counter for PDH counter: {}&quot;, counter.getCounterPath());</span>
+<span class="nc" id="L56">            p.close();</span>
+<span class="nc" id="L57">            return false;</span>
         }
-<span class="nc" id="L58">        counterHandleMap.put(counter, p);</span>
-<span class="nc" id="L59">        return true;</span>
+<span class="nc" id="L59">        counterHandleMap.put(counter, p);</span>
+<span class="nc" id="L60">        return true;</span>
     }
 
     /**
@@ -66,19 +67,19 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
      * @return True if the counter was successfully removed.
      */
     public boolean removeCounterFromQuery(PerfCounter counter) {
-<span class="nc" id="L69">        boolean success = false;</span>
-<span class="nc" id="L70">        try (CloseableHANDLEByReference href = counterHandleMap.remove(counter)) {</span>
+<span class="nc" id="L70">        boolean success = false;</span>
+<span class="nc" id="L71">        try (CloseableHANDLEByReference href = counterHandleMap.remove(counter)) {</span>
             // null if handle wasn't present
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (href != null) {</span>
-<span class="nc" id="L73">                success = PerfDataUtil.removeCounter(href);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (href != null) {</span>
+<span class="nc" id="L74">                success = PerfDataUtil.removeCounter(href);</span>
             }
         }
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (counterHandleMap.isEmpty()) {</span>
-<span class="nc" id="L77">            PerfDataUtil.closeQuery(this.queryHandle);</span>
-<span class="nc" id="L78">            this.queryHandle.close();</span>
-<span class="nc" id="L79">            this.queryHandle = null;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (counterHandleMap.isEmpty()) {</span>
+<span class="nc" id="L78">            PerfDataUtil.closeQuery(this.queryHandle);</span>
+<span class="nc" id="L79">            this.queryHandle.close();</span>
+<span class="nc" id="L80">            this.queryHandle = null;</span>
         }
-<span class="nc" id="L81">        return success;</span>
+<span class="nc" id="L82">        return success;</span>
     }
 
     /**
@@ -86,18 +87,18 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
      */
     public void removeAllCounters() {
         // Remove all counters from counterHandle map
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (CloseableHANDLEByReference href : counterHandleMap.values()) {</span>
-<span class="nc" id="L90">            PerfDataUtil.removeCounter(href);</span>
-<span class="nc" id="L91">            href.close();</span>
-<span class="nc" id="L92">        }</span>
-<span class="nc" id="L93">        counterHandleMap.clear();</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        for (CloseableHANDLEByReference href : counterHandleMap.values()) {</span>
+<span class="nc" id="L91">            PerfDataUtil.removeCounter(href);</span>
+<span class="nc" id="L92">            href.close();</span>
+<span class="nc" id="L93">        }</span>
+<span class="nc" id="L94">        counterHandleMap.clear();</span>
         // Remove query
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.queryHandle != null) {</span>
-<span class="nc" id="L96">            PerfDataUtil.closeQuery(this.queryHandle);</span>
-<span class="nc" id="L97">            this.queryHandle.close();</span>
-<span class="nc" id="L98">            this.queryHandle = null;</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (this.queryHandle != null) {</span>
+<span class="nc" id="L97">            PerfDataUtil.closeQuery(this.queryHandle);</span>
+<span class="nc" id="L98">            this.queryHandle.close();</span>
+<span class="nc" id="L99">            this.queryHandle = null;</span>
         }
-<span class="nc" id="L100">    }</span>
+<span class="nc" id="L101">    }</span>
 
     /**
      * Update all counters on this query.
@@ -106,11 +107,11 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
      *         failed
      */
     public long updateQuery() {
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (this.queryHandle == null) {</span>
-<span class="nc" id="L110">            LOG.warn(&quot;Query does not exist to update.&quot;);</span>
-<span class="nc" id="L111">            return 0L;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (this.queryHandle == null) {</span>
+<span class="nc" id="L111">            LOG.warn(&quot;Query does not exist to update.&quot;);</span>
+<span class="nc" id="L112">            return 0L;</span>
         }
-<span class="nc" id="L113">        return PerfDataUtil.updateQueryTimestamp(queryHandle);</span>
+<span class="nc" id="L114">        return PerfDataUtil.updateQueryTimestamp(queryHandle);</span>
     }
 
     /**
@@ -121,27 +122,27 @@ import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
      * @return The raw value of the counter
      */
     public long queryCounter(PerfCounter counter) {
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (!counterHandleMap.containsKey(counter)) {</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L126">                LOG.warn(&quot;Counter {} does not exist to query.&quot;, counter.getCounterPath());</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (!counterHandleMap.containsKey(counter)) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L127">                LOG.warn(&quot;Counter {} does not exist to query.&quot;, counter.getCounterPath());</span>
             }
-<span class="nc" id="L128">            return 0;</span>
+<span class="nc" id="L129">            return 0;</span>
         }
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        long value = counter.isBaseCounter() ? PerfDataUtil.querySecondCounter(counterHandleMap.get(counter))</span>
-<span class="nc" id="L131">                : PerfDataUtil.queryCounter(counterHandleMap.get(counter));</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (value &lt; 0) {</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
-<span class="nc" id="L134">                LOG.warn(&quot;Error querying counter {}: {}&quot;, counter.getCounterPath(),</span>
-<span class="nc" id="L135">                        String.format(FormatUtil.formatError((int) value)));</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        long value = counter.isBaseCounter() ? PerfDataUtil.querySecondCounter(counterHandleMap.get(counter))</span>
+<span class="nc" id="L132">                : PerfDataUtil.queryCounter(counterHandleMap.get(counter));</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (value &lt; 0) {</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (LOG.isWarnEnabled()) {</span>
+<span class="nc" id="L135">                LOG.warn(&quot;Error querying counter {}: {}&quot;, counter.getCounterPath(),</span>
+<span class="nc" id="L136">                        String.format(Locale.ROOT, FormatUtil.formatError((int) value)));</span>
             }
-<span class="nc" id="L137">            return 0L;</span>
+<span class="nc" id="L138">            return 0L;</span>
         }
-<span class="nc" id="L139">        return value;</span>
+<span class="nc" id="L140">        return value;</span>
     }
 
     @Override
     public void close() {
-<span class="nc" id="L144">        removeAllCounters();</span>
-<span class="nc" id="L145">    }</span>
+<span class="nc" id="L145">        removeAllCounters();</span>
+<span class="nc" id="L146">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

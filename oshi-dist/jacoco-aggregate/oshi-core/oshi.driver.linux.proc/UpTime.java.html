@@ -6,6 +6,7 @@ package oshi.driver.linux.proc;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 
 /**
@@ -23,17 +24,13 @@ public final class UpTime {
      * @return Seconds since boot
      */
     public static double getSystemUptimeSeconds() {
-<span class="nc" id="L26">        String uptime = FileUtil.getStringFromFile(ProcPath.UPTIME);</span>
-<span class="nc" id="L27">        int spaceIndex = uptime.indexOf(' ');</span>
-        try {
-<span class="nc bnc" id="L29" title="All 2 branches missed.">            if (spaceIndex &lt; 0) {</span>
-                // No space, error
-<span class="nc" id="L31">                return 0d;</span>
-            }
-<span class="nc" id="L33">            return Double.parseDouble(uptime.substring(0, spaceIndex));</span>
-<span class="nc" id="L34">        } catch (NumberFormatException nfe) {</span>
-<span class="nc" id="L35">            return 0d;</span>
+<span class="nc" id="L27">        String uptime = FileUtil.getStringFromFile(ProcPath.UPTIME);</span>
+<span class="nc" id="L28">        int spaceIndex = uptime.indexOf(' ');</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if (spaceIndex &lt; 0) {</span>
+            // No space, error
+<span class="nc" id="L31">            return 0d;</span>
         }
+<span class="nc" id="L33">        return ParseUtil.parseDoubleOrDefault(uptime.substring(0, spaceIndex), 0d);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

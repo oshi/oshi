@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OshiHTTPServer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo</a> &gt; <span class="el_source">OshiHTTPServer.java</span></div><h1>OshiHTTPServer.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -35,106 +36,106 @@ public class OshiHTTPServer implements Runnable {
     // port to listen connection
     private static final int PORT = 8080;
 
-<span class="nc" id="L38">    private static final Logger logger = LoggerFactory.getLogger(OshiHTTPServer.class);</span>
+<span class="nc" id="L39">    private static final Logger logger = LoggerFactory.getLogger(OshiHTTPServer.class);</span>
 
     // Client Connection via Socket Class
     private Socket connect;
 
-<span class="nc" id="L43">    public OshiHTTPServer(Socket c) {</span>
-<span class="nc" id="L44">        connect = c;</span>
-<span class="nc" id="L45">        logger.debug(&quot;Connecton opened.&quot;);</span>
-<span class="nc" id="L46">    }</span>
+<span class="nc" id="L44">    public OshiHTTPServer(Socket c) {</span>
+<span class="nc" id="L45">        connect = c;</span>
+<span class="nc" id="L46">        logger.debug(&quot;Connecton opened.&quot;);</span>
+<span class="nc" id="L47">    }</span>
 
     public static void main(String[] args) {
-<span class="nc" id="L49">        try (ServerSocket serverConnect = new ServerSocket(PORT)) {</span>
-<span class="nc" id="L50">            logger.info(&quot;Server started. Listening for connections on port {}&quot;, PORT);</span>
+<span class="nc" id="L50">        try (ServerSocket serverConnect = new ServerSocket(PORT)) {</span>
+<span class="nc" id="L51">            logger.info(&quot;Server started. Listening for connections on port {}&quot;, PORT);</span>
 
             // we listen until user halts server execution
             while (true) { // NOSONAR squid:S2189
-<span class="nc" id="L54">                OshiHTTPServer myServer = new OshiHTTPServer(serverConnect.accept());</span>
+<span class="nc" id="L55">                OshiHTTPServer myServer = new OshiHTTPServer(serverConnect.accept());</span>
 
                 // create dedicated thread to manage the client connection
-<span class="nc" id="L57">                Thread thread = new Thread(myServer);</span>
-<span class="nc" id="L58">                thread.start();</span>
-<span class="nc" id="L59">            }</span>
-<span class="nc" id="L60">        } catch (IOException e) {</span>
-<span class="nc" id="L61">            logger.error(&quot;Server Connection error: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L58">                Thread thread = new Thread(myServer);</span>
+<span class="nc" id="L59">                thread.start();</span>
+<span class="nc" id="L60">            }</span>
+<span class="nc" id="L61">        } catch (IOException e) {</span>
+<span class="nc" id="L62">            logger.error(&quot;Server Connection error: {}&quot;, e.getMessage());</span>
         }
-<span class="nc" id="L63">    }</span>
+<span class="nc" id="L64">    }</span>
 
     @Override
     public void run() {
         try ( // read characters from the client via input stream on the socket
-<span class="nc" id="L68">                BufferedReader in = new BufferedReader(</span>
-<span class="nc" id="L69">                        new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));</span>
+<span class="nc" id="L69">                BufferedReader in = new BufferedReader(</span>
+<span class="nc" id="L70">                        new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));</span>
                 // get character output stream to client (for headers)
-<span class="nc" id="L71">                PrintWriter out = new PrintWriter(</span>
-<span class="nc" id="L72">                        new OutputStreamWriter(connect.getOutputStream(), StandardCharsets.UTF_8));</span>
+<span class="nc" id="L72">                PrintWriter out = new PrintWriter(</span>
+<span class="nc" id="L73">                        new OutputStreamWriter(connect.getOutputStream(), StandardCharsets.UTF_8));</span>
                 // get binary output stream to client (for requested data)
-<span class="nc" id="L74">                BufferedOutputStream dataOut = new BufferedOutputStream(connect.getOutputStream())) {</span>
+<span class="nc" id="L75">                BufferedOutputStream dataOut = new BufferedOutputStream(connect.getOutputStream())) {</span>
 
             // get first line of the request from the client
-<span class="nc" id="L77">            String input = in.readLine();</span>
-<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (input == null) {</span>
-<span class="nc" id="L79">                throw new IOException(&quot;No characters read from input stream.&quot;);</span>
+<span class="nc" id="L78">            String input = in.readLine();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (input == null) {</span>
+<span class="nc" id="L80">                throw new IOException(&quot;No characters read from input stream.&quot;);</span>
             }
             // we parse the request with a string tokenizer
-<span class="nc" id="L82">            StringTokenizer parse = new StringTokenizer(input);</span>
-<span class="nc" id="L83">            String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client</span>
+<span class="nc" id="L83">            StringTokenizer parse = new StringTokenizer(input);</span>
+<span class="nc" id="L84">            String method = parse.nextToken().toUpperCase(Locale.ROOT); // we get the HTTP method of the client</span>
             // we get fields requested
-<span class="nc" id="L85">            String fileRequested = parse.nextToken().toLowerCase();</span>
+<span class="nc" id="L86">            String fileRequested = parse.nextToken().toLowerCase(Locale.ROOT);</span>
 
             // we support only GET and HEAD methods, we check
-<span class="nc bnc" id="L88" title="All 4 branches missed.">            if (!method.equals(&quot;GET&quot;) &amp;&amp; !method.equals(&quot;HEAD&quot;)) {</span>
-<span class="nc" id="L89">                logger.debug(&quot;501 Not Implemented: {}&quot;, method);</span>
-<span class="nc" id="L90">                String contentMimeType = &quot;text/html&quot;;</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">            if (!method.equals(&quot;GET&quot;) &amp;&amp; !method.equals(&quot;HEAD&quot;)) {</span>
+<span class="nc" id="L90">                logger.debug(&quot;501 Not Implemented: {}&quot;, method);</span>
+<span class="nc" id="L91">                String contentMimeType = &quot;text/html&quot;;</span>
 
                 // we send HTTP Headers with data to client
-<span class="nc" id="L93">                out.println(&quot;HTTP/1.1 501 Not Implemented&quot;);</span>
-<span class="nc" id="L94">                out.println(&quot;Server: OSHI HTTP Server&quot;);</span>
-<span class="nc" id="L95">                out.println(&quot;Date: &quot; + Instant.now());</span>
-<span class="nc" id="L96">                out.println(&quot;Content-type: &quot; + contentMimeType);</span>
-<span class="nc" id="L97">                out.println(&quot;Content-length: &quot; + 0);</span>
-<span class="nc" id="L98">                out.println(); // blank line between headers and content, very important !</span>
-<span class="nc" id="L99">                out.flush(); // flush character output stream buffer</span>
+<span class="nc" id="L94">                out.println(&quot;HTTP/1.1 501 Not Implemented&quot;);</span>
+<span class="nc" id="L95">                out.println(&quot;Server: OSHI HTTP Server&quot;);</span>
+<span class="nc" id="L96">                out.println(&quot;Date: &quot; + Instant.now());</span>
+<span class="nc" id="L97">                out.println(&quot;Content-type: &quot; + contentMimeType);</span>
+<span class="nc" id="L98">                out.println(&quot;Content-length: &quot; + 0);</span>
+<span class="nc" id="L99">                out.println(); // blank line between headers and content, very important !</span>
+<span class="nc" id="L100">                out.flush(); // flush character output stream buffer</span>
 
                 // Could return other information here...
-<span class="nc" id="L102">            } else {</span>
+<span class="nc" id="L103">            } else {</span>
                 // Possibly could use the fileRequested value from user input to work down
                 // OSHI's JSON tree and only return the relevant info instead of the entire
                 // SystemInfo object.
-<span class="nc" id="L106">                SystemInfo si = new SystemInfo();</span>
-<span class="nc" id="L107">                ObjectMapper mapper = new ObjectMapper();</span>
-<span class="nc" id="L108">                byte[] content = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(si)</span>
-<span class="nc" id="L109">                        .getBytes(StandardCharsets.UTF_8);</span>
+<span class="nc" id="L107">                SystemInfo si = new SystemInfo();</span>
+<span class="nc" id="L108">                ObjectMapper mapper = new ObjectMapper();</span>
+<span class="nc" id="L109">                byte[] content = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(si)</span>
+<span class="nc" id="L110">                        .getBytes(StandardCharsets.UTF_8);</span>
 
-<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (method.equals(&quot;GET&quot;)) { // GET method so we return content</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                if (method.equals(&quot;GET&quot;)) { // GET method so we return content</span>
                     // send HTTP Headers
-<span class="nc" id="L113">                    out.println(&quot;HTTP/1.1 200 OK&quot;);</span>
-<span class="nc" id="L114">                    out.println(&quot;Server: OSHI HTTP Server&quot;);</span>
-<span class="nc" id="L115">                    out.println(&quot;Date: &quot; + Instant.now());</span>
-<span class="nc" id="L116">                    out.println(&quot;Content-type: application/json&quot;);</span>
-<span class="nc" id="L117">                    out.println(&quot;Content-length: &quot; + content.length);</span>
-<span class="nc" id="L118">                    out.println(); // blank line between headers and content, very important !</span>
-<span class="nc" id="L119">                    out.flush(); // flush character output stream buffer</span>
+<span class="nc" id="L114">                    out.println(&quot;HTTP/1.1 200 OK&quot;);</span>
+<span class="nc" id="L115">                    out.println(&quot;Server: OSHI HTTP Server&quot;);</span>
+<span class="nc" id="L116">                    out.println(&quot;Date: &quot; + Instant.now());</span>
+<span class="nc" id="L117">                    out.println(&quot;Content-type: application/json&quot;);</span>
+<span class="nc" id="L118">                    out.println(&quot;Content-length: &quot; + content.length);</span>
+<span class="nc" id="L119">                    out.println(); // blank line between headers and content, very important !</span>
+<span class="nc" id="L120">                    out.flush(); // flush character output stream buffer</span>
 
-<span class="nc" id="L121">                    dataOut.write(content, 0, content.length);</span>
-<span class="nc" id="L122">                    dataOut.flush();</span>
+<span class="nc" id="L122">                    dataOut.write(content, 0, content.length);</span>
+<span class="nc" id="L123">                    dataOut.flush();</span>
                 }
 
-<span class="nc" id="L125">                logger.debug(&quot;Data {} returned&quot;, fileRequested);</span>
+<span class="nc" id="L126">                logger.debug(&quot;Data {} returned&quot;, fileRequested);</span>
             }
-<span class="nc" id="L127">        } catch (IOException ioe) {</span>
-<span class="nc" id="L128">            logger.error(&quot;Server error: {}&quot;, ioe.getMessage());</span>
+<span class="nc" id="L128">        } catch (IOException ioe) {</span>
+<span class="nc" id="L129">            logger.error(&quot;Server error: {}&quot;, ioe.getMessage());</span>
         } finally {
             try {
                 // close socket connection, defined for this thread
-<span class="nc" id="L132">                connect.close();</span>
-<span class="nc" id="L133">            } catch (Exception e) {</span>
-<span class="nc" id="L134">                logger.error(&quot;Error closing connection: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L135">            }</span>
-<span class="nc" id="L136">            logger.debug(&quot;Connection closed.&quot;);</span>
+<span class="nc" id="L133">                connect.close();</span>
+<span class="nc" id="L134">            } catch (Exception e) {</span>
+<span class="nc" id="L135">                logger.error(&quot;Error closing connection: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L136">            }</span>
+<span class="nc" id="L137">            logger.debug(&quot;Connection closed.&quot;);</span>
         }
-<span class="nc" id="L138">    }</span>
+<span class="nc" id="L139">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

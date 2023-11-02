@@ -95,7 +95,7 @@ import oshi.util.tuples.Triplet;
                 }
                 break;
             case &quot;flags&quot;:
-<span class="nc" id="L98">                flags = splitLine[1].toLowerCase().split(&quot; &quot;);</span>
+<span class="nc" id="L98">                flags = splitLine[1].toLowerCase(Locale.ROOT).split(&quot; &quot;);</span>
 <span class="nc bnc" id="L99" title="All 2 branches missed.">                for (String flag : flags) {</span>
 <span class="nc bnc" id="L100" title="All 2 branches missed.">                    if (&quot;lm&quot;.equals(flag)) {</span>
 <span class="nc" id="L101">                        cpu64bit = true;</span>
@@ -299,7 +299,7 @@ import oshi.util.tuples.Triplet;
 
     private static ProcessorCache.Type parseCacheType(String type) {
         try {
-<span class="nc" id="L302">            return ProcessorCache.Type.valueOf(type.toUpperCase());</span>
+<span class="nc" id="L302">            return ProcessorCache.Type.valueOf(type.toUpperCase(Locale.ROOT));</span>
 <span class="nc" id="L303">        } catch (IllegalArgumentException e) {</span>
 <span class="nc" id="L304">            return ProcessorCache.Type.UNIFIED;</span>
         }
@@ -478,7 +478,7 @@ import oshi.util.tuples.Triplet;
 <span class="nc" id="L478">        List&lt;String&gt; cpuInfo = FileUtil.readFile(CPUINFO);</span>
 <span class="nc" id="L479">        int proc = 0;</span>
 <span class="nc bnc" id="L480" title="All 2 branches missed.">        for (String s : cpuInfo) {</span>
-<span class="nc bnc" id="L481" title="All 2 branches missed.">            if (s.toLowerCase().contains(&quot;cpu mhz&quot;)) {</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">            if (s.toLowerCase(Locale.ROOT).contains(&quot;cpu mhz&quot;)) {</span>
 <span class="nc" id="L482">                freqs[proc] = Math.round(ParseUtil.parseLastDouble(s, 0d) * 1_000_000d);</span>
 <span class="nc bnc" id="L483" title="All 2 branches missed.">                if (++proc &gt;= freqs.length) {</span>
 <span class="nc" id="L484">                    break;</span>
@@ -647,7 +647,7 @@ import oshi.util.tuples.Triplet;
         // 31:24 - Implementer = vendor
 <span class="nc" id="L648">        midrBytes |= ParseUtil.parseLastInt(vendor, 0) &lt;&lt; 24;</span>
 
-<span class="nc" id="L650">        return String.format(&quot;%08X&quot;, midrBytes);</span>
+<span class="nc" id="L650">        return String.format(Locale.ROOT, &quot;%08X&quot;, midrBytes);</span>
     }
 
     @Override
@@ -660,4 +660,4 @@ import oshi.util.tuples.Triplet;
 <span class="nc" id="L660">        return CpuStat.getInterrupts();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

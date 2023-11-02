@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>JMXOshiAgentServer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-demo</a> &gt; <a href="index.source.html" class="el_package">oshi.demo.jmx</a> &gt; <span class="el_source">JMXOshiAgentServer.java</span></div><h1>JMXOshiAgentServer.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx;
 
-import oshi.SystemInfo;
-import oshi.demo.jmx.api.JMXOshiAgent;
-import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
-import oshi.demo.jmx.strategiesplatform.WindowsStrategyRegistrattionPlatform;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.ObjectInstance;
-import javax.management.MBeanServerFactory;
-import javax.management.ReflectionException;
-import javax.management.MBeanException;
-import javax.management.QueryExp;
-import javax.management.AttributeNotFoundException;
-import javax.management.AttributeList;
-import javax.management.Attribute;
-import javax.management.InvalidAttributeValueException;
-import javax.management.NotificationFilter;
-import javax.management.NotificationListener;
-import javax.management.IntrospectionException;
-import javax.management.MBeanInfo;
-import javax.management.ListenerNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.OperationsException;
-import javax.management.loading.ClassLoaderRepository;
-import javax.management.remote.JMXConnectorServer;
-import javax.management.remote.JMXConnectorServerFactory;
-import javax.management.remote.JMXServiceURL;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.MBeanRegistrationException;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
-
 import java.rmi.registry.LocateRegistry;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.ListenerNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanInfo;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.NotificationFilter;
+import javax.management.NotificationListener;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+import javax.management.OperationsException;
+import javax.management.QueryExp;
+import javax.management.ReflectionException;
+import javax.management.loading.ClassLoaderRepository;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
+
+import oshi.SystemInfo;
+import oshi.annotation.SuppressForbidden;
+import oshi.demo.jmx.api.JMXOshiAgent;
+import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
+import oshi.demo.jmx.strategiesplatform.WindowsStrategyRegistrattionPlatform;
+
 public class JMXOshiAgentServer implements JMXOshiAgent {
     private String host;
     private Integer port;
-    private Map properties;
+    private Map&lt;String, ?&gt; properties;
 
     private MBeanServer server;
     private JMXServiceURL address;
@@ -54,8 +54,8 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     private ContextRegistrationPlatform contextRegistrationPlatform;
     private static JMXOshiAgentServer jmxOshiAgentServer;
 
-    private JMXOshiAgentServer(Integer port, String host, Map properties, ContextRegistrationPlatform platform)
-<span class="nc" id="L58">            throws Exception {</span>
+    private JMXOshiAgentServer(Integer port, String host, Map&lt;String, ?&gt; properties,
+<span class="nc" id="L58">            ContextRegistrationPlatform platform) throws Exception {</span>
 
 <span class="nc" id="L60">        this.port = port;</span>
 <span class="nc" id="L61">        this.host = host;</span>
@@ -66,8 +66,8 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
 <span class="nc" id="L66">        this.initilizeMBeans();</span>
 <span class="nc" id="L67">    }</span>
 
-    /* A singlenton Method just to retrive the instance of JMSOshiAgentServer */
-    protected static JMXOshiAgentServer getInstance(String host, Integer port, Map properties,
+    /* A singleton Method just to retrieve the instance of JMSOshiAgentServer */
+    protected static JMXOshiAgentServer getInstance(String host, Integer port, Map&lt;String, ?&gt; properties,
             ContextRegistrationPlatform platform) throws Exception {
 <span class="nc bnc" id="L72" title="All 2 branches missed.">        if (jmxOshiAgentServer == null) {</span>
 <span class="nc" id="L73">            jmxOshiAgentServer = new JMXOshiAgentServer(port, host, properties, platform);</span>
@@ -76,7 +76,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /*
-     * This method is for initilizing the connector server and bound the MBeanServer with the JMXConnector
+     * This method is for initializing the connector server and bound the MBeanServer with the JMXConnector
      */
     private void initilizeMbeanServer() throws IOException, NotCompliantMBeanException, InstanceAlreadyExistsException,
             MBeanRegistrationException, MalformedObjectNameException {
@@ -92,242 +92,244 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
 <span class="nc" id="L92">    }</span>
 
     /*
-     * This method implmenet an startegy pattern to choose wich platform is and execute the corresponding strategy for
+     * This method implement an strategy pattern to choose which platform is and execute the corresponding strategy for
      * registering the corresponding MBeans
      */
+    @SuppressForbidden(reason = &quot;Using System.out in a demo class&quot;)
     private void initilizeMBeans() throws Exception {
 
-<span class="nc" id="L100">        StrategyRegistrationPlatformMBeans platformMBeans = null;</span>
-<span class="nc" id="L101">        SystemInfo si = new SystemInfo();</span>
+<span class="nc" id="L101">        StrategyRegistrationPlatformMBeans platformMBeans = null;</span>
+<span class="nc" id="L102">        SystemInfo si = new SystemInfo();</span>
 
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        switch (SystemInfo.getCurrentPlatform()) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        switch (SystemInfo.getCurrentPlatform()) {</span>
         case WINDOWS:
-<span class="nc" id="L105">            platformMBeans = new WindowsStrategyRegistrattionPlatform();</span>
-<span class="nc" id="L106">            contextRegistrationPlatform.setStrategyRegistrationContext(platformMBeans);</span>
-<span class="nc" id="L107">            break;</span>
+<span class="nc" id="L106">            platformMBeans = new WindowsStrategyRegistrattionPlatform();</span>
+<span class="nc" id="L107">            contextRegistrationPlatform.setStrategyRegistrationContext(platformMBeans);</span>
+<span class="nc" id="L108">            break;</span>
         default:
-<span class="nc" id="L109">            System.out.println(&quot;Couldn't Initialize server &quot;);</span>
-<span class="nc" id="L110">            throw new Exception(&quot;Server could not be initialized&quot;);</span>
+<span class="nc" id="L110">            System.out.println(&quot;Couldn't Initialize server &quot;);</span>
+<span class="nc" id="L111">            throw new Exception(&quot;Server could not be initialized&quot;);</span>
         }
 
-<span class="nc" id="L113">        platformMBeans.registerMBeans(si, this.server);</span>
-<span class="nc" id="L114">    }</span>
+<span class="nc" id="L114">        platformMBeans.registerMBeans(si, this.server);</span>
+<span class="nc" id="L115">    }</span>
 
+    @SuppressForbidden(reason = &quot;Using System.out in a demo class&quot;)
     @Override
     public void startAgent() throws IOException {
-<span class="nc" id="L118">        cntorServer.start();</span>
-<span class="nc" id="L119">        System.out.println(&quot;Server Started&quot;);</span>
-<span class="nc" id="L120">    }</span>
+<span class="nc" id="L120">        cntorServer.start();</span>
+<span class="nc" id="L121">        System.out.println(&quot;Server Started&quot;);</span>
+<span class="nc" id="L122">    }</span>
 
     @Override
     public void stopAgent() throws IOException {
-<span class="nc" id="L124">        cntorServer.stop();</span>
-<span class="nc" id="L125">    }</span>
+<span class="nc" id="L126">        cntorServer.stop();</span>
+<span class="nc" id="L127">    }</span>
 
     @Override
     public ObjectInstance createMBean(String className, ObjectName name) throws ReflectionException,
             InstanceAlreadyExistsException, MBeanRegistrationException, MBeanException, NotCompliantMBeanException {
-<span class="nc" id="L130">        return null;</span>
+<span class="nc" id="L132">        return null;</span>
     }
 
     @Override
     public ObjectInstance createMBean(String className, ObjectName name, ObjectName loaderName)
             throws ReflectionException, InstanceAlreadyExistsException, MBeanRegistrationException, MBeanException,
             NotCompliantMBeanException, InstanceNotFoundException {
-<span class="nc" id="L137">        return null;</span>
+<span class="nc" id="L139">        return null;</span>
     }
 
     @Override
     public ObjectInstance createMBean(String className, ObjectName name, Object[] params, String[] signature)
             throws ReflectionException, InstanceAlreadyExistsException, MBeanRegistrationException, MBeanException,
             NotCompliantMBeanException {
-<span class="nc" id="L144">        return null;</span>
+<span class="nc" id="L146">        return null;</span>
     }
 
     @Override
     public ObjectInstance createMBean(String className, ObjectName name, ObjectName loaderName, Object[] params,
             String[] signature) throws ReflectionException, InstanceAlreadyExistsException, MBeanRegistrationException,
             MBeanException, NotCompliantMBeanException, InstanceNotFoundException {
-<span class="nc" id="L151">        return null;</span>
+<span class="nc" id="L153">        return null;</span>
     }
 
     @Override
     public ObjectInstance registerMBean(Object object, ObjectName name)
             throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
-<span class="nc" id="L157">        return server.registerMBean(object, name);</span>
+<span class="nc" id="L159">        return server.registerMBean(object, name);</span>
     }
 
     @Override
     public void unregisterMBean(ObjectName name) throws InstanceNotFoundException, MBeanRegistrationException {
 
-<span class="nc" id="L163">    }</span>
+<span class="nc" id="L165">    }</span>
 
     @Override
     public ObjectInstance getObjectInstance(ObjectName name) throws InstanceNotFoundException {
-<span class="nc" id="L167">        return null;</span>
+<span class="nc" id="L169">        return null;</span>
     }
 
     @Override
     public Set&lt;ObjectInstance&gt; queryMBeans(ObjectName name, QueryExp query) {
-<span class="nc" id="L172">        return null;</span>
+<span class="nc" id="L174">        return null;</span>
     }
 
     @Override
     public Set&lt;ObjectName&gt; queryNames(ObjectName name, QueryExp query) {
-<span class="nc" id="L177">        return null;</span>
+<span class="nc" id="L179">        return null;</span>
     }
 
     @Override
     public boolean isRegistered(ObjectName name) {
-<span class="nc" id="L182">        return false;</span>
+<span class="nc" id="L184">        return false;</span>
     }
 
     @Override
     public Integer getMBeanCount() {
-<span class="nc" id="L187">        return null;</span>
+<span class="nc" id="L189">        return null;</span>
     }
 
     @Override
     public Object getAttribute(ObjectName name, String attribute)
             throws MBeanException, AttributeNotFoundException, InstanceNotFoundException, ReflectionException {
-<span class="nc" id="L193">        return null;</span>
+<span class="nc" id="L195">        return null;</span>
     }
 
     @Override
     public AttributeList getAttributes(ObjectName name, String[] attributes)
             throws InstanceNotFoundException, ReflectionException {
-<span class="nc" id="L199">        return null;</span>
+<span class="nc" id="L201">        return null;</span>
     }
 
     @Override
     public void setAttribute(ObjectName name, Attribute attribute) throws InstanceNotFoundException,
             AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException {
 
-<span class="nc" id="L206">    }</span>
+<span class="nc" id="L208">    }</span>
 
     @Override
     public AttributeList setAttributes(ObjectName name, AttributeList attributes)
             throws InstanceNotFoundException, ReflectionException {
-<span class="nc" id="L211">        return null;</span>
+<span class="nc" id="L213">        return null;</span>
     }
 
     @Override
     public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature)
             throws InstanceNotFoundException, MBeanException, ReflectionException {
-<span class="nc" id="L217">        return null;</span>
+<span class="nc" id="L219">        return null;</span>
     }
 
     @Override
     public String getDefaultDomain() {
-<span class="nc" id="L222">        return null;</span>
+<span class="nc" id="L224">        return null;</span>
     }
 
     @Override
     public String[] getDomains() {
-<span class="nc" id="L227">        return new String[0];</span>
+<span class="nc" id="L229">        return new String[0];</span>
     }
 
     @Override
     public void addNotificationListener(ObjectName name, NotificationListener listener, NotificationFilter filter,
             Object handback) throws InstanceNotFoundException {
 
-<span class="nc" id="L234">    }</span>
+<span class="nc" id="L236">    }</span>
 
     @Override
     public void addNotificationListener(ObjectName name, ObjectName listener, NotificationFilter filter,
             Object handback) throws InstanceNotFoundException {
 
-<span class="nc" id="L240">    }</span>
+<span class="nc" id="L242">    }</span>
 
     @Override
     public void removeNotificationListener(ObjectName name, ObjectName listener)
             throws InstanceNotFoundException, ListenerNotFoundException {
 
-<span class="nc" id="L246">    }</span>
+<span class="nc" id="L248">    }</span>
 
     @Override
     public void removeNotificationListener(ObjectName name, ObjectName listener, NotificationFilter filter,
             Object handback) throws InstanceNotFoundException, ListenerNotFoundException {
 
-<span class="nc" id="L252">    }</span>
+<span class="nc" id="L254">    }</span>
 
     @Override
     public void removeNotificationListener(ObjectName name, NotificationListener listener)
             throws InstanceNotFoundException, ListenerNotFoundException {
 
-<span class="nc" id="L258">    }</span>
+<span class="nc" id="L260">    }</span>
 
     @Override
     public void removeNotificationListener(ObjectName name, NotificationListener listener, NotificationFilter filter,
             Object handback) throws InstanceNotFoundException, ListenerNotFoundException {
 
-<span class="nc" id="L264">    }</span>
+<span class="nc" id="L266">    }</span>
 
     @Override
     public MBeanInfo getMBeanInfo(ObjectName name)
             throws InstanceNotFoundException, IntrospectionException, ReflectionException {
-<span class="nc" id="L269">        return null;</span>
+<span class="nc" id="L271">        return null;</span>
     }
 
     @Override
     public boolean isInstanceOf(ObjectName name, String className) throws InstanceNotFoundException {
-<span class="nc" id="L274">        return false;</span>
+<span class="nc" id="L276">        return false;</span>
     }
 
     @Override
     public Object instantiate(String className) throws ReflectionException, MBeanException {
-<span class="nc" id="L279">        return null;</span>
+<span class="nc" id="L281">        return null;</span>
     }
 
     @Override
     public Object instantiate(String className, ObjectName loaderName)
             throws ReflectionException, MBeanException, InstanceNotFoundException {
-<span class="nc" id="L285">        return null;</span>
+<span class="nc" id="L287">        return null;</span>
     }
 
     @Override
     public Object instantiate(String className, Object[] params, String[] signature)
             throws ReflectionException, MBeanException {
-<span class="nc" id="L291">        return null;</span>
+<span class="nc" id="L293">        return null;</span>
     }
 
     @Override
     public Object instantiate(String className, ObjectName loaderName, Object[] params, String[] signature)
             throws ReflectionException, MBeanException, InstanceNotFoundException {
-<span class="nc" id="L297">        return null;</span>
+<span class="nc" id="L299">        return null;</span>
     }
 
     @Override
     public ObjectInputStream deserialize(ObjectName name, byte[] data)
             throws InstanceNotFoundException, OperationsException {
-<span class="nc" id="L303">        return null;</span>
+<span class="nc" id="L305">        return null;</span>
     }
 
     @Override
     public ObjectInputStream deserialize(String className, byte[] data)
             throws OperationsException, ReflectionException {
-<span class="nc" id="L309">        return null;</span>
+<span class="nc" id="L311">        return null;</span>
     }
 
     @Override
     public ObjectInputStream deserialize(String className, ObjectName loaderName, byte[] data)
             throws InstanceNotFoundException, OperationsException, ReflectionException {
-<span class="nc" id="L315">        return null;</span>
+<span class="nc" id="L317">        return null;</span>
     }
 
     @Override
     public ClassLoader getClassLoaderFor(ObjectName mbeanName) throws InstanceNotFoundException {
-<span class="nc" id="L320">        return null;</span>
+<span class="nc" id="L322">        return null;</span>
     }
 
     @Override
     public ClassLoader getClassLoader(ObjectName loaderName) throws InstanceNotFoundException {
-<span class="nc" id="L325">        return null;</span>
+<span class="nc" id="L327">        return null;</span>
     }
 
     @Override
     public ClassLoaderRepository getClassLoaderRepository() {
-<span class="nc" id="L330">        return null;</span>
+<span class="nc" id="L332">        return null;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

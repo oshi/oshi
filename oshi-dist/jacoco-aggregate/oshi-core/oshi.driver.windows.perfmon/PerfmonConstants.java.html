@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PerfmonConstants.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">PerfmonConstants.java</span></div><h1>PerfmonConstants.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -31,6 +31,7 @@ public final class PerfmonConstants {
     static final String WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0 = &quot;Win32_PerfRawData_PerfProc_Process WHERE IDProcess=0&quot;;
 
     static final String THREAD = &quot;Thread&quot;;
+    static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD = &quot;Win32_PerfRawData_PerfProc_Thread&quot;;
     static final String WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL = &quot;Win32_PerfRawData_PerfProc_Thread WHERE NOT Name LIKE \&quot;%_Total\&quot;&quot;;
 
     // For Vista- ... Older systems just have processor #
@@ -48,8 +49,8 @@ public final class PerfmonConstants {
     /**
      * Everything in this class is static, never instantiate it
      */
-<span class="nc" id="L51">    private PerfmonConstants() {</span>
-<span class="nc" id="L52">        throw new AssertionError();</span>
+<span class="nc" id="L52">    private PerfmonConstants() {</span>
+<span class="nc" id="L53">        throw new AssertionError();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

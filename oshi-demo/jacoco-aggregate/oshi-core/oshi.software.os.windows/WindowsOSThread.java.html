@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>WindowsOSThread.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.windows</a> &gt; <span class="el_source">WindowsOSThread.java</span></div><h1>WindowsOSThread.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -99,59 +99,55 @@ public class WindowsOSThread extends AbstractOSThread {
     @Override
     public boolean updateAttributes() {
 <span class="nc" id="L101">        Set&lt;Integer&gt; pids = Collections.singleton(getOwningProcessId());</span>
-        // Get data from the registry if possible
+<span class="nc" id="L102">        String procName = this.name.split(&quot;/&quot;)[0];</span>
 <span class="nc" id="L103">        Map&lt;Integer, ThreadPerformanceData.PerfCounterBlock&gt; threads = ThreadPerformanceData</span>
-<span class="nc" id="L104">                .buildThreadMapFromRegistry(pids);</span>
-        // otherwise performance counters with WMI backup
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (threads == null) {</span>
-<span class="nc" id="L107">            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids);</span>
-        }
-<span class="nc" id="L109">        return updateAttributes(this.name.split(&quot;/&quot;)[0], threads.get(getThreadId()));</span>
+<span class="nc" id="L104">                .buildThreadMapFromPerfCounters(pids, procName, getThreadId());</span>
+<span class="nc" id="L105">        return updateAttributes(procName, threads.get(getThreadId()));</span>
     }
 
     private boolean updateAttributes(String procName, PerfCounterBlock pcb) {
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (pcb == null) {</span>
-<span class="nc" id="L114">            this.state = INVALID;</span>
-<span class="nc" id="L115">            return false;</span>
-<span class="nc bnc" id="L116" title="All 4 branches missed.">        } else if (pcb.getName().contains(&quot;/&quot;) || procName.isEmpty()) {</span>
-<span class="nc" id="L117">            name = pcb.getName();</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (pcb == null) {</span>
+<span class="nc" id="L110">            this.state = INVALID;</span>
+<span class="nc" id="L111">            return false;</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">        } else if (pcb.getName().contains(&quot;/&quot;) || procName.isEmpty()) {</span>
+<span class="nc" id="L113">            name = pcb.getName();</span>
         } else {
-<span class="nc" id="L119">            this.name = procName + &quot;/&quot; + pcb.getName();</span>
+<span class="nc" id="L115">            this.name = procName + &quot;/&quot; + pcb.getName();</span>
         }
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (pcb.getThreadWaitReason() == 5) {</span>
-<span class="nc" id="L122">            state = SUSPENDED;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (pcb.getThreadWaitReason() == 5) {</span>
+<span class="nc" id="L118">            state = SUSPENDED;</span>
         } else {
-<span class="nc bnc" id="L124" title="All 6 branches missed.">            switch (pcb.getThreadState()) {</span>
+<span class="nc bnc" id="L120" title="All 6 branches missed.">            switch (pcb.getThreadState()) {</span>
             case 0:
-<span class="nc" id="L126">                state = NEW;</span>
-<span class="nc" id="L127">                break;</span>
+<span class="nc" id="L122">                state = NEW;</span>
+<span class="nc" id="L123">                break;</span>
             case 2:
             case 3:
-<span class="nc" id="L130">                state = RUNNING;</span>
-<span class="nc" id="L131">                break;</span>
+<span class="nc" id="L126">                state = RUNNING;</span>
+<span class="nc" id="L127">                break;</span>
             case 4:
-<span class="nc" id="L133">                state = STOPPED;</span>
-<span class="nc" id="L134">                break;</span>
+<span class="nc" id="L129">                state = STOPPED;</span>
+<span class="nc" id="L130">                break;</span>
             case 5:
-<span class="nc" id="L136">                state = SLEEPING;</span>
-<span class="nc" id="L137">                break;</span>
+<span class="nc" id="L132">                state = SLEEPING;</span>
+<span class="nc" id="L133">                break;</span>
             case 1:
             case 6:
-<span class="nc" id="L140">                state = WAITING;</span>
-<span class="nc" id="L141">                break;</span>
+<span class="nc" id="L136">                state = WAITING;</span>
+<span class="nc" id="L137">                break;</span>
             case 7:
             default:
-<span class="nc" id="L144">                state = OTHER;</span>
+<span class="nc" id="L140">                state = OTHER;</span>
             }
         }
-<span class="nc" id="L147">        startMemoryAddress = pcb.getStartAddress();</span>
-<span class="nc" id="L148">        contextSwitches = pcb.getContextSwitches();</span>
-<span class="nc" id="L149">        kernelTime = pcb.getKernelTime();</span>
-<span class="nc" id="L150">        userTime = pcb.getUserTime();</span>
-<span class="nc" id="L151">        startTime = pcb.getStartTime();</span>
-<span class="nc" id="L152">        upTime = System.currentTimeMillis() - pcb.getStartTime();</span>
-<span class="nc" id="L153">        priority = pcb.getPriority();</span>
-<span class="nc" id="L154">        return true;</span>
+<span class="nc" id="L143">        startMemoryAddress = pcb.getStartAddress();</span>
+<span class="nc" id="L144">        contextSwitches = pcb.getContextSwitches();</span>
+<span class="nc" id="L145">        kernelTime = pcb.getKernelTime();</span>
+<span class="nc" id="L146">        userTime = pcb.getUserTime();</span>
+<span class="nc" id="L147">        startTime = pcb.getStartTime();</span>
+<span class="nc" id="L148">        upTime = System.currentTimeMillis() - pcb.getStartTime();</span>
+<span class="nc" id="L149">        priority = pcb.getPriority();</span>
+<span class="nc" id="L150">        return true;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

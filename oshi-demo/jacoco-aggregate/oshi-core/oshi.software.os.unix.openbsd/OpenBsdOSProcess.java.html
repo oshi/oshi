@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OpenBsdOSProcess.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-demo</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.software.os.unix.openbsd</a> &gt; <span class="el_source">OpenBsdOSProcess.java</span></div><h1>OpenBsdOSProcess.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.openbsd;
@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -49,49 +50,49 @@ import oshi.util.platform.unix.openbsd.FstatUtil;
 @ThreadSafe
 public class OpenBsdOSProcess extends AbstractOSProcess {
 
-<span class="nc" id="L52">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.class);</span>
+<span class="nc" id="L53">    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.class);</span>
 
     /*
      * Package-private for use by OpenBsdOSThread
      */
-<span class="nc" id="L57">    enum PsThreadColumns {</span>
-<span class="nc" id="L58">        TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;</span>
+<span class="nc" id="L58">    enum PsThreadColumns {</span>
+<span class="nc" id="L59">        TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;</span>
     }
 
-<span class="nc" id="L61">    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)</span>
-<span class="nc" id="L62">            .map(String::toLowerCase).collect(Collectors.joining(&quot;,&quot;));</span>
+<span class="nc" id="L62">    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)</span>
+<span class="nc" id="L63">            .map(name -&gt; name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(&quot;,&quot;));</span>
 
     private static final int ARGMAX;
 
     static {
-<span class="nc" id="L67">        int[] mib = new int[2];</span>
-<span class="nc" id="L68">        mib[0] = 1; // CTL_KERN</span>
-<span class="nc" id="L69">        mib[1] = 8; // KERN_ARGMAX</span>
-<span class="nc" id="L70">        try (Memory m = new Memory(Integer.BYTES);</span>
-<span class="nc" id="L71">                CloseableSizeTByReference size = new CloseableSizeTByReference(Integer.BYTES)) {</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {</span>
-<span class="nc" id="L73">                ARGMAX = m.getInt(0);</span>
+<span class="nc" id="L68">        int[] mib = new int[2];</span>
+<span class="nc" id="L69">        mib[0] = 1; // CTL_KERN</span>
+<span class="nc" id="L70">        mib[1] = 8; // KERN_ARGMAX</span>
+<span class="nc" id="L71">        try (Memory m = new Memory(Integer.BYTES);</span>
+<span class="nc" id="L72">                CloseableSizeTByReference size = new CloseableSizeTByReference(Integer.BYTES)) {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {</span>
+<span class="nc" id="L74">                ARGMAX = m.getInt(0);</span>
             } else {
-<span class="nc" id="L75">                LOG.warn(&quot;Failed sysctl call for process arguments max size (kern.argmax). Error code: {}&quot;,</span>
-<span class="nc" id="L76">                        Native.getLastError());</span>
-<span class="nc" id="L77">                ARGMAX = 0;</span>
+<span class="nc" id="L76">                LOG.warn(&quot;Failed sysctl call for process arguments max size (kern.argmax). Error code: {}&quot;,</span>
+<span class="nc" id="L77">                        Native.getLastError());</span>
+<span class="nc" id="L78">                ARGMAX = 0;</span>
             }
         }
-<span class="nc" id="L80">    }</span>
+<span class="nc" id="L81">    }</span>
 
     private final OpenBsdOperatingSystem os;
 
-<span class="nc" id="L84">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
-<span class="nc" id="L85">    private Supplier&lt;List&lt;String&gt;&gt; arguments = memoize(this::queryArguments);</span>
-<span class="nc" id="L86">    private Supplier&lt;Map&lt;String, String&gt;&gt; environmentVariables = memoize(this::queryEnvironmentVariables);</span>
+<span class="nc" id="L85">    private Supplier&lt;String&gt; commandLine = memoize(this::queryCommandLine);</span>
+<span class="nc" id="L86">    private Supplier&lt;List&lt;String&gt;&gt; arguments = memoize(this::queryArguments);</span>
+<span class="nc" id="L87">    private Supplier&lt;Map&lt;String, String&gt;&gt; environmentVariables = memoize(this::queryEnvironmentVariables);</span>
 
     private String name;
-<span class="nc" id="L89">    private String path = &quot;&quot;;</span>
+<span class="nc" id="L90">    private String path = &quot;&quot;;</span>
     private String user;
     private String userID;
     private String group;
     private String groupID;
-<span class="nc" id="L94">    private State state = INVALID;</span>
+<span class="nc" id="L95">    private State state = INVALID;</span>
     private int parentProcessID;
     private int threadCount;
     private int priority;
@@ -110,359 +111,359 @@ public class OpenBsdOSProcess extends AbstractOSProcess {
     private String commandLineBackup;
 
     public OpenBsdOSProcess(int pid, Map&lt;PsKeywords, String&gt; psMap, OpenBsdOperatingSystem os) {
-<span class="nc" id="L113">        super(pid);</span>
-<span class="nc" id="L114">        this.os = os;</span>
+<span class="nc" id="L114">        super(pid);</span>
+<span class="nc" id="L115">        this.os = os;</span>
         // OpenBSD does not maintain a compatibility layer.
         // Process bitness is OS bitness
-<span class="nc" id="L117">        this.bitness = Native.LONG_SIZE * 8;</span>
-<span class="nc" id="L118">        updateThreadCount();</span>
-<span class="nc" id="L119">        updateAttributes(psMap);</span>
-<span class="nc" id="L120">    }</span>
+<span class="nc" id="L118">        this.bitness = Native.LONG_SIZE * 8;</span>
+<span class="nc" id="L119">        updateThreadCount();</span>
+<span class="nc" id="L120">        updateAttributes(psMap);</span>
+<span class="nc" id="L121">    }</span>
 
     @Override
     public String getName() {
-<span class="nc" id="L124">        return this.name;</span>
+<span class="nc" id="L125">        return this.name;</span>
     }
 
     @Override
     public String getPath() {
-<span class="nc" id="L129">        return this.path;</span>
+<span class="nc" id="L130">        return this.path;</span>
     }
 
     @Override
     public String getCommandLine() {
-<span class="nc" id="L134">        return this.commandLine.get();</span>
+<span class="nc" id="L135">        return this.commandLine.get();</span>
     }
 
     private String queryCommandLine() {
-<span class="nc" id="L138">        String cl = String.join(&quot; &quot;, getArguments());</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">        return cl.isEmpty() ? this.commandLineBackup : cl;</span>
+<span class="nc" id="L139">        String cl = String.join(&quot; &quot;, getArguments());</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        return cl.isEmpty() ? this.commandLineBackup : cl;</span>
     }
 
     @Override
     public List&lt;String&gt; getArguments() {
-<span class="nc" id="L144">        return arguments.get();</span>
+<span class="nc" id="L145">        return arguments.get();</span>
     }
 
     private List&lt;String&gt; queryArguments() {
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (ARGMAX &gt; 0) {</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (ARGMAX &gt; 0) {</span>
             // Get arguments via sysctl(3)
-<span class="nc" id="L150">            int[] mib = new int[4];</span>
-<span class="nc" id="L151">            mib[0] = 1; // CTL_KERN</span>
-<span class="nc" id="L152">            mib[1] = 55; // KERN_PROC_ARGS</span>
-<span class="nc" id="L153">            mib[2] = getProcessID();</span>
-<span class="nc" id="L154">            mib[3] = 1; // KERN_PROC_ARGV</span>
+<span class="nc" id="L151">            int[] mib = new int[4];</span>
+<span class="nc" id="L152">            mib[0] = 1; // CTL_KERN</span>
+<span class="nc" id="L153">            mib[1] = 55; // KERN_PROC_ARGS</span>
+<span class="nc" id="L154">            mib[2] = getProcessID();</span>
+<span class="nc" id="L155">            mib[3] = 1; // KERN_PROC_ARGV</span>
             // Allocate memory for arguments
-<span class="nc" id="L156">            try (Memory m = new Memory(ARGMAX);</span>
-<span class="nc" id="L157">                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {</span>
+<span class="nc" id="L157">            try (Memory m = new Memory(ARGMAX);</span>
+<span class="nc" id="L158">                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {</span>
                 // Fetch arguments
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">                if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {</span>
                     // Returns a null-terminated list of pointers to the actual data
-<span class="nc" id="L161">                    List&lt;String&gt; args = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L162">                    List&lt;String&gt; args = new ArrayList&lt;&gt;();</span>
                     // To iterate the pointer-list
-<span class="nc" id="L163">                    long offset = 0;</span>
+<span class="nc" id="L164">                    long offset = 0;</span>
                     // Get the data base address to calculate offsets
-<span class="nc" id="L165">                    long baseAddr = Pointer.nativeValue(m);</span>
-<span class="nc" id="L166">                    long maxAddr = baseAddr + size.getValue().longValue();</span>
+<span class="nc" id="L166">                    long baseAddr = Pointer.nativeValue(m);</span>
+<span class="nc" id="L167">                    long maxAddr = baseAddr + size.getValue().longValue();</span>
                     // Get the address of the data. If null (0) we're done iterating
-<span class="nc" id="L168">                    long argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
-<span class="nc bnc" id="L169" title="All 4 branches missed.">                    while (argAddr &gt; baseAddr &amp;&amp; argAddr &lt; maxAddr) {</span>
-<span class="nc" id="L170">                        args.add(m.getString(argAddr - baseAddr));</span>
-<span class="nc" id="L171">                        offset += Native.POINTER_SIZE;</span>
-<span class="nc" id="L172">                        argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
+<span class="nc" id="L169">                    long argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
+<span class="nc bnc" id="L170" title="All 4 branches missed.">                    while (argAddr &gt; baseAddr &amp;&amp; argAddr &lt; maxAddr) {</span>
+<span class="nc" id="L171">                        args.add(m.getString(argAddr - baseAddr));</span>
+<span class="nc" id="L172">                        offset += Native.POINTER_SIZE;</span>
+<span class="nc" id="L173">                        argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
                     }
-<span class="nc" id="L174">                    return Collections.unmodifiableList(args);</span>
+<span class="nc" id="L175">                    return Collections.unmodifiableList(args);</span>
                 }
-<span class="nc" id="L176">            }</span>
+<span class="nc" id="L177">            }</span>
         }
-<span class="nc" id="L178">        return Collections.emptyList();</span>
+<span class="nc" id="L179">        return Collections.emptyList();</span>
     }
 
     @Override
     public Map&lt;String, String&gt; getEnvironmentVariables() {
-<span class="nc" id="L183">        return environmentVariables.get();</span>
+<span class="nc" id="L184">        return environmentVariables.get();</span>
     }
 
     private Map&lt;String, String&gt; queryEnvironmentVariables() {
         // Get environment variables via sysctl(3)
-<span class="nc" id="L188">        int[] mib = new int[4];</span>
-<span class="nc" id="L189">        mib[0] = 1; // CTL_KERN</span>
-<span class="nc" id="L190">        mib[1] = 55; // KERN_PROC_ARGS</span>
-<span class="nc" id="L191">        mib[2] = getProcessID();</span>
-<span class="nc" id="L192">        mib[3] = 3; // KERN_PROC_ENV</span>
+<span class="nc" id="L189">        int[] mib = new int[4];</span>
+<span class="nc" id="L190">        mib[0] = 1; // CTL_KERN</span>
+<span class="nc" id="L191">        mib[1] = 55; // KERN_PROC_ARGS</span>
+<span class="nc" id="L192">        mib[2] = getProcessID();</span>
+<span class="nc" id="L193">        mib[3] = 3; // KERN_PROC_ENV</span>
         // Allocate memory for environment variables
-<span class="nc" id="L194">        try (Memory m = new Memory(ARGMAX); CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {</span>
+<span class="nc" id="L195">        try (Memory m = new Memory(ARGMAX); CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {</span>
             // Fetch environment variables
-<span class="nc bnc" id="L196" title="All 2 branches missed.">            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {</span>
                 // Returns a null-terminated list of pointers to the actual data
-<span class="nc" id="L198">                Map&lt;String, String&gt; env = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L199">                Map&lt;String, String&gt; env = new LinkedHashMap&lt;&gt;();</span>
                 // To iterate the pointer-list
-<span class="nc" id="L200">                long offset = 0;</span>
+<span class="nc" id="L201">                long offset = 0;</span>
                 // Get the data base address to calculate offsets
-<span class="nc" id="L202">                long baseAddr = Pointer.nativeValue(m);</span>
-<span class="nc" id="L203">                long maxAddr = baseAddr + size.longValue();</span>
+<span class="nc" id="L203">                long baseAddr = Pointer.nativeValue(m);</span>
+<span class="nc" id="L204">                long maxAddr = baseAddr + size.longValue();</span>
                 // Get the address of the data. If null (0) we're done iterating
-<span class="nc" id="L205">                long argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
-<span class="nc bnc" id="L206" title="All 4 branches missed.">                while (argAddr &gt; baseAddr &amp;&amp; argAddr &lt; maxAddr) {</span>
-<span class="nc" id="L207">                    String envStr = m.getString(argAddr - baseAddr);</span>
-<span class="nc" id="L208">                    int idx = envStr.indexOf('=');</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">                    if (idx &gt; 0) {</span>
-<span class="nc" id="L210">                        env.put(envStr.substring(0, idx), envStr.substring(idx + 1));</span>
+<span class="nc" id="L206">                long argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
+<span class="nc bnc" id="L207" title="All 4 branches missed.">                while (argAddr &gt; baseAddr &amp;&amp; argAddr &lt; maxAddr) {</span>
+<span class="nc" id="L208">                    String envStr = m.getString(argAddr - baseAddr);</span>
+<span class="nc" id="L209">                    int idx = envStr.indexOf('=');</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                    if (idx &gt; 0) {</span>
+<span class="nc" id="L211">                        env.put(envStr.substring(0, idx), envStr.substring(idx + 1));</span>
                     }
-<span class="nc" id="L212">                    offset += Native.POINTER_SIZE;</span>
-<span class="nc" id="L213">                    argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
-<span class="nc" id="L214">                }</span>
-<span class="nc" id="L215">                return Collections.unmodifiableMap(env);</span>
+<span class="nc" id="L213">                    offset += Native.POINTER_SIZE;</span>
+<span class="nc" id="L214">                    argAddr = Pointer.nativeValue(m.getPointer(offset));</span>
+<span class="nc" id="L215">                }</span>
+<span class="nc" id="L216">                return Collections.unmodifiableMap(env);</span>
             }
-<span class="nc" id="L217">        }</span>
-<span class="nc" id="L218">        return Collections.emptyMap();</span>
+<span class="nc" id="L218">        }</span>
+<span class="nc" id="L219">        return Collections.emptyMap();</span>
     }
 
     @Override
     public String getCurrentWorkingDirectory() {
-<span class="nc" id="L223">        return FstatUtil.getCwd(getProcessID());</span>
+<span class="nc" id="L224">        return FstatUtil.getCwd(getProcessID());</span>
     }
 
     @Override
     public String getUser() {
-<span class="nc" id="L228">        return this.user;</span>
+<span class="nc" id="L229">        return this.user;</span>
     }
 
     @Override
     public String getUserID() {
-<span class="nc" id="L233">        return this.userID;</span>
+<span class="nc" id="L234">        return this.userID;</span>
     }
 
     @Override
     public String getGroup() {
-<span class="nc" id="L238">        return this.group;</span>
+<span class="nc" id="L239">        return this.group;</span>
     }
 
     @Override
     public String getGroupID() {
-<span class="nc" id="L243">        return this.groupID;</span>
+<span class="nc" id="L244">        return this.groupID;</span>
     }
 
     @Override
     public State getState() {
-<span class="nc" id="L248">        return this.state;</span>
+<span class="nc" id="L249">        return this.state;</span>
     }
 
     @Override
     public int getParentProcessID() {
-<span class="nc" id="L253">        return this.parentProcessID;</span>
+<span class="nc" id="L254">        return this.parentProcessID;</span>
     }
 
     @Override
     public int getThreadCount() {
-<span class="nc" id="L258">        return this.threadCount;</span>
+<span class="nc" id="L259">        return this.threadCount;</span>
     }
 
     @Override
     public int getPriority() {
-<span class="nc" id="L263">        return this.priority;</span>
+<span class="nc" id="L264">        return this.priority;</span>
     }
 
     @Override
     public long getVirtualSize() {
-<span class="nc" id="L268">        return this.virtualSize;</span>
+<span class="nc" id="L269">        return this.virtualSize;</span>
     }
 
     @Override
     public long getResidentSetSize() {
-<span class="nc" id="L273">        return this.residentSetSize;</span>
+<span class="nc" id="L274">        return this.residentSetSize;</span>
     }
 
     @Override
     public long getKernelTime() {
-<span class="nc" id="L278">        return this.kernelTime;</span>
+<span class="nc" id="L279">        return this.kernelTime;</span>
     }
 
     @Override
     public long getUserTime() {
-<span class="nc" id="L283">        return this.userTime;</span>
+<span class="nc" id="L284">        return this.userTime;</span>
     }
 
     @Override
     public long getUpTime() {
-<span class="nc" id="L288">        return this.upTime;</span>
+<span class="nc" id="L289">        return this.upTime;</span>
     }
 
     @Override
     public long getStartTime() {
-<span class="nc" id="L293">        return this.startTime;</span>
+<span class="nc" id="L294">        return this.startTime;</span>
     }
 
     @Override
     public long getBytesRead() {
-<span class="nc" id="L298">        return this.bytesRead;</span>
+<span class="nc" id="L299">        return this.bytesRead;</span>
     }
 
     @Override
     public long getBytesWritten() {
-<span class="nc" id="L303">        return this.bytesWritten;</span>
+<span class="nc" id="L304">        return this.bytesWritten;</span>
     }
 
     @Override
     public long getOpenFiles() {
-<span class="nc" id="L308">        return FstatUtil.getOpenFiles(getProcessID());</span>
+<span class="nc" id="L309">        return FstatUtil.getOpenFiles(getProcessID());</span>
     }
 
     @Override
     public long getSoftOpenFileLimit() {
-<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (getProcessID() == this.os.getProcessId()) {</span>
-<span class="nc" id="L314">            final Resource.Rlimit rlimit = new Resource.Rlimit();</span>
-<span class="nc" id="L315">            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);</span>
-<span class="nc" id="L316">            return rlimit.rlim_cur;</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">        if (getProcessID() == this.os.getProcessId()) {</span>
+<span class="nc" id="L315">            final Resource.Rlimit rlimit = new Resource.Rlimit();</span>
+<span class="nc" id="L316">            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);</span>
+<span class="nc" id="L317">            return rlimit.rlim_cur;</span>
         } else {
-<span class="nc" id="L318">            return -1L; // not supported</span>
+<span class="nc" id="L319">            return -1L; // not supported</span>
         }
     }
 
     @Override
     public long getHardOpenFileLimit() {
-<span class="nc bnc" id="L324" title="All 2 branches missed.">        if (getProcessID() == this.os.getProcessId()) {</span>
-<span class="nc" id="L325">            final Resource.Rlimit rlimit = new Resource.Rlimit();</span>
-<span class="nc" id="L326">            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);</span>
-<span class="nc" id="L327">            return rlimit.rlim_max;</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">        if (getProcessID() == this.os.getProcessId()) {</span>
+<span class="nc" id="L326">            final Resource.Rlimit rlimit = new Resource.Rlimit();</span>
+<span class="nc" id="L327">            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);</span>
+<span class="nc" id="L328">            return rlimit.rlim_max;</span>
         } else {
-<span class="nc" id="L329">            return -1L; // not supported</span>
+<span class="nc" id="L330">            return -1L; // not supported</span>
         }
     }
 
     @Override
     public int getBitness() {
-<span class="nc" id="L335">        return this.bitness;</span>
+<span class="nc" id="L336">        return this.bitness;</span>
     }
 
     @Override
     public long getAffinityMask() {
-<span class="nc" id="L340">        long bitMask = 0L;</span>
+<span class="nc" id="L341">        long bitMask = 0L;</span>
         // Would prefer to use native cpuset_getaffinity call but variable sizing is
         // kernel-dependent and requires C macros, so we use commandline instead.
-<span class="nc" id="L343">        String cpuset = ExecutingCommand.getFirstAnswer(&quot;cpuset -gp &quot; + getProcessID());</span>
+<span class="nc" id="L344">        String cpuset = ExecutingCommand.getFirstAnswer(&quot;cpuset -gp &quot; + getProcessID());</span>
         // Sample output:
         // pid 8 mask: 0, 1
         // cpuset: getaffinity: No such process
-<span class="nc" id="L347">        String[] split = cpuset.split(&quot;:&quot;);</span>
-<span class="nc bnc" id="L348" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
-<span class="nc" id="L349">            String[] bits = split[1].split(&quot;,&quot;);</span>
-<span class="nc bnc" id="L350" title="All 2 branches missed.">            for (String bit : bits) {</span>
-<span class="nc" id="L351">                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);</span>
-<span class="nc bnc" id="L352" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
-<span class="nc" id="L353">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
+<span class="nc" id="L348">        String[] split = cpuset.split(&quot;:&quot;);</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">        if (split.length &gt; 1) {</span>
+<span class="nc" id="L350">            String[] bits = split[1].split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">            for (String bit : bits) {</span>
+<span class="nc" id="L352">                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">                if (bitToSet &gt;= 0) {</span>
+<span class="nc" id="L354">                    bitMask |= 1L &lt;&lt; bitToSet;</span>
                 }
             }
         }
-<span class="nc" id="L357">        return bitMask;</span>
+<span class="nc" id="L358">        return bitMask;</span>
     }
 
     @Override
     public List&lt;OSThread&gt; getThreadDetails() {
-<span class="nc" id="L362">        String psCommand = &quot;ps -aHwwxo &quot; + PS_THREAD_COLUMNS;</span>
-<span class="nc bnc" id="L363" title="All 2 branches missed.">        if (getProcessID() &gt;= 0) {</span>
-<span class="nc" id="L364">            psCommand += &quot; -p &quot; + getProcessID();</span>
+<span class="nc" id="L363">        String psCommand = &quot;ps -aHwwxo &quot; + PS_THREAD_COLUMNS;</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">        if (getProcessID() &gt;= 0) {</span>
+<span class="nc" id="L365">            psCommand += &quot; -p &quot; + getProcessID();</span>
         }
-<span class="nc" id="L366">        Predicate&lt;Map&lt;PsThreadColumns, String&gt;&gt; hasColumnsArgs = threadMap -&gt; threadMap</span>
-<span class="nc" id="L367">                .containsKey(PsThreadColumns.ARGS);</span>
-<span class="nc" id="L368">        return ExecutingCommand.runNative(psCommand).stream().skip(1)</span>
-<span class="nc" id="L369">                .map(thread -&gt; ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))</span>
-<span class="nc" id="L370">                .filter(hasColumnsArgs).map(threadMap -&gt; new OpenBsdOSThread(getProcessID(), threadMap))</span>
-<span class="nc" id="L371">                .filter(VALID_THREAD).collect(Collectors.toList());</span>
+<span class="nc" id="L367">        Predicate&lt;Map&lt;PsThreadColumns, String&gt;&gt; hasColumnsArgs = threadMap -&gt; threadMap</span>
+<span class="nc" id="L368">                .containsKey(PsThreadColumns.ARGS);</span>
+<span class="nc" id="L369">        return ExecutingCommand.runNative(psCommand).stream().skip(1)</span>
+<span class="nc" id="L370">                .map(thread -&gt; ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))</span>
+<span class="nc" id="L371">                .filter(hasColumnsArgs).map(threadMap -&gt; new OpenBsdOSThread(getProcessID(), threadMap))</span>
+<span class="nc" id="L372">                .filter(VALID_THREAD).collect(Collectors.toList());</span>
     }
 
     @Override
     public long getMinorFaults() {
-<span class="nc" id="L376">        return this.minorFaults;</span>
+<span class="nc" id="L377">        return this.minorFaults;</span>
     }
 
     @Override
     public long getMajorFaults() {
-<span class="nc" id="L381">        return this.majorFaults;</span>
+<span class="nc" id="L382">        return this.majorFaults;</span>
     }
 
     @Override
     public long getContextSwitches() {
-<span class="nc" id="L386">        return this.contextSwitches;</span>
+<span class="nc" id="L387">        return this.contextSwitches;</span>
     }
 
     @Override
     public boolean updateAttributes() {
         // 'ps' does not provide threadCount or kernelTime on OpenBSD
-<span class="nc" id="L392">        String psCommand = &quot;ps -awwxo &quot; + OpenBsdOperatingSystem.PS_COMMAND_ARGS + &quot; -p &quot; + getProcessID();</span>
-<span class="nc" id="L393">        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand);</span>
-<span class="nc bnc" id="L394" title="All 2 branches missed.">        if (procList.size() &gt; 1) {</span>
+<span class="nc" id="L393">        String psCommand = &quot;ps -awwxo &quot; + OpenBsdOperatingSystem.PS_COMMAND_ARGS + &quot; -p &quot; + getProcessID();</span>
+<span class="nc" id="L394">        List&lt;String&gt; procList = ExecutingCommand.runNative(psCommand);</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">        if (procList.size() &gt; 1) {</span>
             // skip header row
-<span class="nc" id="L396">            Map&lt;PsKeywords, String&gt; psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');</span>
+<span class="nc" id="L397">            Map&lt;PsKeywords, String&gt; psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');</span>
             // Check if last (thus all) value populated
-<span class="nc bnc" id="L398" title="All 2 branches missed.">            if (psMap.containsKey(PsKeywords.ARGS)) {</span>
-<span class="nc" id="L399">                updateThreadCount();</span>
-<span class="nc" id="L400">                return updateAttributes(psMap);</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">            if (psMap.containsKey(PsKeywords.ARGS)) {</span>
+<span class="nc" id="L400">                updateThreadCount();</span>
+<span class="nc" id="L401">                return updateAttributes(psMap);</span>
             }
         }
-<span class="nc" id="L403">        this.state = INVALID;</span>
-<span class="nc" id="L404">        return false;</span>
+<span class="nc" id="L404">        this.state = INVALID;</span>
+<span class="nc" id="L405">        return false;</span>
     }
 
     private boolean updateAttributes(Map&lt;PsKeywords, String&gt; psMap) {
-<span class="nc" id="L408">        long now = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L409" title="All 6 branches missed.">        switch (psMap.get(PsKeywords.STATE).charAt(0)) {</span>
+<span class="nc" id="L409">        long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L410" title="All 6 branches missed.">        switch (psMap.get(PsKeywords.STATE).charAt(0)) {</span>
         case 'R':
-<span class="nc" id="L411">            this.state = RUNNING;</span>
-<span class="nc" id="L412">            break;</span>
+<span class="nc" id="L412">            this.state = RUNNING;</span>
+<span class="nc" id="L413">            break;</span>
         case 'I':
         case 'S':
-<span class="nc" id="L415">            this.state = SLEEPING;</span>
-<span class="nc" id="L416">            break;</span>
+<span class="nc" id="L416">            this.state = SLEEPING;</span>
+<span class="nc" id="L417">            break;</span>
         case 'D':
         case 'L':
         case 'U':
-<span class="nc" id="L420">            this.state = WAITING;</span>
-<span class="nc" id="L421">            break;</span>
+<span class="nc" id="L421">            this.state = WAITING;</span>
+<span class="nc" id="L422">            break;</span>
         case 'Z':
-<span class="nc" id="L423">            this.state = ZOMBIE;</span>
-<span class="nc" id="L424">            break;</span>
+<span class="nc" id="L424">            this.state = ZOMBIE;</span>
+<span class="nc" id="L425">            break;</span>
         case 'T':
-<span class="nc" id="L426">            this.state = STOPPED;</span>
-<span class="nc" id="L427">            break;</span>
+<span class="nc" id="L427">            this.state = STOPPED;</span>
+<span class="nc" id="L428">            break;</span>
         default:
-<span class="nc" id="L429">            this.state = OTHER;</span>
+<span class="nc" id="L430">            this.state = OTHER;</span>
             break;
         }
-<span class="nc" id="L432">        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);</span>
-<span class="nc" id="L433">        this.user = psMap.get(PsKeywords.USER);</span>
-<span class="nc" id="L434">        this.userID = psMap.get(PsKeywords.UID);</span>
-<span class="nc" id="L435">        this.group = psMap.get(PsKeywords.GROUP);</span>
-<span class="nc" id="L436">        this.groupID = psMap.get(PsKeywords.GID);</span>
-<span class="nc" id="L437">        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);</span>
+<span class="nc" id="L433">        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);</span>
+<span class="nc" id="L434">        this.user = psMap.get(PsKeywords.USER);</span>
+<span class="nc" id="L435">        this.userID = psMap.get(PsKeywords.UID);</span>
+<span class="nc" id="L436">        this.group = psMap.get(PsKeywords.GROUP);</span>
+<span class="nc" id="L437">        this.groupID = psMap.get(PsKeywords.GID);</span>
+<span class="nc" id="L438">        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);</span>
         // These are in KB, multiply
-<span class="nc" id="L439">        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;</span>
-<span class="nc" id="L440">        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;</span>
+<span class="nc" id="L440">        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;</span>
+<span class="nc" id="L441">        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;</span>
         // Avoid divide by zero for processes up less than a second
-<span class="nc" id="L442">        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);</span>
-<span class="nc bnc" id="L443" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
-<span class="nc" id="L444">        this.startTime = now - this.upTime;</span>
-<span class="nc" id="L445">        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.CPUTIME), 0L);</span>
+<span class="nc" id="L443">        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">        this.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;</span>
+<span class="nc" id="L445">        this.startTime = now - this.upTime;</span>
+<span class="nc" id="L446">        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.CPUTIME), 0L);</span>
         // kernel time is included in user time
-<span class="nc" id="L447">        this.kernelTime = 0L;</span>
-<span class="nc" id="L448">        this.path = psMap.get(PsKeywords.COMM);</span>
-<span class="nc" id="L449">        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);</span>
-<span class="nc" id="L450">        this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MINFLT), 0L);</span>
-<span class="nc" id="L451">        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);</span>
-<span class="nc" id="L452">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);</span>
-<span class="nc" id="L453">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);</span>
-<span class="nc" id="L454">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
-<span class="nc" id="L455">        this.commandLineBackup = psMap.get(PsKeywords.ARGS);</span>
-<span class="nc" id="L456">        return true;</span>
+<span class="nc" id="L448">        this.kernelTime = 0L;</span>
+<span class="nc" id="L449">        this.path = psMap.get(PsKeywords.COMM);</span>
+<span class="nc" id="L450">        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);</span>
+<span class="nc" id="L451">        this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MINFLT), 0L);</span>
+<span class="nc" id="L452">        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);</span>
+<span class="nc" id="L453">        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);</span>
+<span class="nc" id="L454">        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);</span>
+<span class="nc" id="L455">        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;</span>
+<span class="nc" id="L456">        this.commandLineBackup = psMap.get(PsKeywords.ARGS);</span>
+<span class="nc" id="L457">        return true;</span>
     }
 
     private void updateThreadCount() {
-<span class="nc" id="L460">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -axHo tid -p &quot; + getProcessID());</span>
-<span class="nc bnc" id="L461" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
+<span class="nc" id="L461">        List&lt;String&gt; threadList = ExecutingCommand.runNative(&quot;ps -axHo tid -p &quot; + getProcessID());</span>
+<span class="nc bnc" id="L462" title="All 2 branches missed.">        if (!threadList.isEmpty()) {</span>
             // Subtract 1 for header
-<span class="nc" id="L463">            this.threadCount = threadList.size() - 1;</span>
+<span class="nc" id="L464">            this.threadCount = threadList.size() - 1;</span>
         }
-<span class="nc" id="L465">        this.threadCount = 1;</span>
-<span class="nc" id="L466">    }</span>
+<span class="nc" id="L466">        this.threadCount = 1;</span>
+<span class="nc" id="L467">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

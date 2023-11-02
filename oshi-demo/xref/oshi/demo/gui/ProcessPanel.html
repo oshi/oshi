@@ -16,185 +16,186 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.HashMap;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Map.Entry;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> javax.swing.ButtonGroup;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> javax.swing.JLabel;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> javax.swing.JPanel;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> javax.swing.JRadioButton;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> javax.swing.JScrollPane;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> javax.swing.JTable;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> javax.swing.ScrollPaneConstants;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> javax.swing.Timer;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.DefaultTableModel;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.TableColumn;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.TableColumnModel;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.TableModel;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.PlatformEnum;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.SystemInfo;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystem;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * Displays a process list, such as ps or task manager. This performs more like Windows Task Manger with current CPU as</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * measured between polling intervals, while PS uses a cumulative CPU value.</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ProcessPanel" href="../../../oshi/demo/gui/ProcessPanel.html#ProcessPanel">ProcessPanel</a> <strong class="jxr_keyword">extends</strong> <a name="OshiJPanel" href="../../../oshi/demo/gui/OshiJPanel.html#OshiJPanel">OshiJPanel</a> { <em class="jxr_comment">// NOSONAR squid:S110</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROCESSES = <span class="jxr_string">"Processes"</span>;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] COLUMNS = { <span class="jxr_string">"PID"</span>, <span class="jxr_string">"PPID"</span>, <span class="jxr_string">"Threads"</span>, <span class="jxr_string">"% CPU"</span>, <span class="jxr_string">"Cumulative"</span>, <span class="jxr_string">"VSZ"</span>, <span class="jxr_string">"RSS"</span>, <span class="jxr_string">"% Memory"</span>,
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <span class="jxr_string">"Process Name"</span> };
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35 };
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> Map&lt;Integer, OSProcess&gt; priorSnapshotMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> ButtonGroup cpuOption = <strong class="jxr_keyword">new</strong> ButtonGroup();
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton perProc = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"of one Processor"</span>);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton perSystem = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"of System"</span>);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> ButtonGroup sortOption = <strong class="jxr_keyword">new</strong> ButtonGroup();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton cpuButton = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"CPU %"</span>);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton cumulativeCpuButton = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"Cumulative CPU"</span>);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton memButton = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"Memory %"</span>);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <a name="ProcessPanel" href="../../../oshi/demo/gui/ProcessPanel.html#ProcessPanel">ProcessPanel</a>(SystemInfo si) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">super</strong>();
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          init(si);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init(SystemInfo si) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          OperatingSystem os = si.getOperatingSystem();
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          JLabel procLabel = <strong class="jxr_keyword">new</strong> JLabel(PROCESSES);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          add(procLabel, BorderLayout.NORTH);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          JPanel settings = <strong class="jxr_keyword">new</strong> JPanel();
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          JLabel cpuChoice = <strong class="jxr_keyword">new</strong> JLabel(<span class="jxr_string">"          CPU %:"</span>);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          settings.add(cpuChoice);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          cpuOption.add(perProc);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          settings.add(perProc);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          cpuOption.add(perSystem);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          settings.add(perSystem);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              perSystem.setSelected(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              perProc.setSelected(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          JLabel sortChoice = <strong class="jxr_keyword">new</strong> JLabel(<span class="jxr_string">"          Sort by:"</span>);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          settings.add(sortChoice);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          sortOption.add(cpuButton);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          settings.add(cpuButton);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          sortOption.add(cumulativeCpuButton);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          settings.add(cumulativeCpuButton);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          sortOption.add(memButton);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          settings.add(memButton);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          cpuButton.setSelected(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          TableModel model = <strong class="jxr_keyword">new</strong> DefaultTableModel(parseProcesses(os.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0), si), COLUMNS);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          JTable procTable = <strong class="jxr_keyword">new</strong> JTable(model);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          JScrollPane scrollV = <strong class="jxr_keyword">new</strong> JScrollPane(procTable);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          resizeColumns(procTable.getColumnModel());
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          add(scrollV, BorderLayout.CENTER);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          add(settings, BorderLayout.SOUTH);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         Timer timer = <strong class="jxr_keyword">new</strong> Timer(Config.REFRESH_SLOW, e -&gt; {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>             DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             Object[][] newData = parseProcesses(os.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0), si);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">int</strong> rowCount = tableModel.getRowCount();
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; newData.length; row++) {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 <strong class="jxr_keyword">if</strong> (row &lt; rowCount) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                     <em class="jxr_comment">// Overwrite row</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; newData[row].length; col++) {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                         tableModel.setValueAt(newData[row][col], row, col);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                     }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                     <em class="jxr_comment">// Add row</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                     tableModel.addRow(newData[row]);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 }
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             }
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <em class="jxr_comment">// Delete any extra rows</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = rowCount - 1; row &gt;= newData.length; row--) {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 tableModel.removeRow(row);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         });
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         timer.start();
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">private</strong> Object[][] parseProcesses(List&lt;OSProcess&gt; list, SystemInfo si) {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">long</strong> totalMem = si.getHardware().getMemory().getTotal();
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">int</strong> cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <em class="jxr_comment">// Build a map with a value for each process to control the sort</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         Map&lt;OSProcess, Double&gt; processSortValueMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : list) {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">int</strong> pid = p.getProcessID();
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <em class="jxr_comment">// Ignore the Idle process on Windows</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">if</strong> (pid &gt; 0 || !SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <em class="jxr_comment">// Set up for appropriate sort</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <strong class="jxr_keyword">if</strong> (cpuButton.isSelected()) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     processSortValueMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (cumulativeCpuButton.isSelected()) {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                     processSortValueMap.put(p, p.getProcessCpuLoadCumulative());
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                     processSortValueMap.put(p, (<strong class="jxr_keyword">double</strong>) p.getResidentSetSize());
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 }
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>             }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         }
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// Now sort the list by the values</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         List&lt;Entry&lt;OSProcess, Double&gt;&gt; procList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(processSortValueMap.entrySet());
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         procList.sort(Entry.comparingByValue());
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <em class="jxr_comment">// Insert into array in reverse order (lowest sort value last)</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">int</strong> i = procList.size();
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         Object[][] procArr = <strong class="jxr_keyword">new</strong> Object[i][COLUMNS.length];
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <em class="jxr_comment">// These are in descending CPU order</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;OSProcess, Double&gt; e : procList) {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             OSProcess p = e.getKey();
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>             <em class="jxr_comment">// Matches order of COLUMNS field</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>             i--;
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <strong class="jxr_keyword">int</strong> pid = p.getProcessID();
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             procArr[i][0] = pid;
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             procArr[i][1] = p.getParentProcessID();
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             procArr[i][2] = p.getThreadCount();
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">if</strong> (perProc.isSelected()) {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 procArr[i][3] = String.format(<span class="jxr_string">"%.1f"</span>,
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 procArr[i][4] = String.format(<span class="jxr_string">"%.1f"</span>, 100d * p.getProcessCpuLoadCumulative() * cpuCount);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 procArr[i][3] = String.format(<span class="jxr_string">"%.1f"</span>,
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 procArr[i][4] = String.format(<span class="jxr_string">"%.1f"</span>, 100d * p.getProcessCpuLoadCumulative());
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>             }
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>             procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             procArr[i][7] = String.format(<span class="jxr_string">"%.1f"</span>, 100d * p.getResidentSetSize() / totalMem);
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             procArr[i][8] = p.getName();
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <em class="jxr_comment">// Re-populate snapshot map</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         priorSnapshotMap.clear();
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : list) {
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>             priorSnapshotMap.put(p.getProcessID(), p);
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         }
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">return</strong> procArr;
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     }
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> resizeColumns(TableColumnModel tableColumnModel) {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         TableColumn column;
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">int</strong> tW = tableColumnModel.getTotalColumnWidth();
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">int</strong> cantCols = tableColumnModel.getColumnCount();
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; cantCols; i++) {
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>             column = tableColumnModel.getColumn(i);
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">int</strong> pWidth = (<strong class="jxr_keyword">int</strong>) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             column.setPreferredWidth(pWidth);
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     }
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> }
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.Map.Entry;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> javax.swing.ButtonGroup;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> javax.swing.JLabel;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> javax.swing.JPanel;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> javax.swing.JRadioButton;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> javax.swing.JScrollPane;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> javax.swing.JTable;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> javax.swing.ScrollPaneConstants;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> javax.swing.Timer;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.DefaultTableModel;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.TableColumn;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.TableColumnModel;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> javax.swing.table.TableModel;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.PlatformEnum;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.SystemInfo;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OperatingSystem;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * Displays a process list, such as ps or task manager. This performs more like Windows Task Manger with current CPU as</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * measured between polling intervals, while PS uses a cumulative CPU value.</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="ProcessPanel" href="../../../oshi/demo/gui/ProcessPanel.html#ProcessPanel">ProcessPanel</a> <strong class="jxr_keyword">extends</strong> <a name="OshiJPanel" href="../../../oshi/demo/gui/OshiJPanel.html#OshiJPanel">OshiJPanel</a> { <em class="jxr_comment">// NOSONAR squid:S110</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROCESSES = <span class="jxr_string">"Processes"</span>;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] COLUMNS = { <span class="jxr_string">"PID"</span>, <span class="jxr_string">"PPID"</span>, <span class="jxr_string">"Threads"</span>, <span class="jxr_string">"% CPU"</span>, <span class="jxr_string">"Cumulative"</span>, <span class="jxr_string">"VSZ"</span>, <span class="jxr_string">"RSS"</span>, <span class="jxr_string">"% Memory"</span>,
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <span class="jxr_string">"Process Name"</span> };
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35 };
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> Map&lt;Integer, OSProcess&gt; priorSnapshotMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> ButtonGroup cpuOption = <strong class="jxr_keyword">new</strong> ButtonGroup();
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton perProc = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"of one Processor"</span>);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton perSystem = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"of System"</span>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> ButtonGroup sortOption = <strong class="jxr_keyword">new</strong> ButtonGroup();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton cpuButton = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"CPU %"</span>);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton cumulativeCpuButton = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"Cumulative CPU"</span>);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">transient</strong> JRadioButton memButton = <strong class="jxr_keyword">new</strong> JRadioButton(<span class="jxr_string">"Memory %"</span>);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <a name="ProcessPanel" href="../../../oshi/demo/gui/ProcessPanel.html#ProcessPanel">ProcessPanel</a>(SystemInfo si) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          init(si);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init(SystemInfo si) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          OperatingSystem os = si.getOperatingSystem();
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          JLabel procLabel = <strong class="jxr_keyword">new</strong> JLabel(PROCESSES);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          add(procLabel, BorderLayout.NORTH);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          JPanel settings = <strong class="jxr_keyword">new</strong> JPanel();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          JLabel cpuChoice = <strong class="jxr_keyword">new</strong> JLabel(<span class="jxr_string">"          CPU %:"</span>);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          settings.add(cpuChoice);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          cpuOption.add(perProc);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          settings.add(perProc);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          cpuOption.add(perSystem);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          settings.add(perSystem);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">if</strong> (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              perSystem.setSelected(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              perProc.setSelected(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          JLabel sortChoice = <strong class="jxr_keyword">new</strong> JLabel(<span class="jxr_string">"          Sort by:"</span>);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          settings.add(sortChoice);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          sortOption.add(cpuButton);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          settings.add(cpuButton);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          sortOption.add(cumulativeCpuButton);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          settings.add(cumulativeCpuButton);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          sortOption.add(memButton);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          settings.add(memButton);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          cpuButton.setSelected(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          TableModel model = <strong class="jxr_keyword">new</strong> DefaultTableModel(parseProcesses(os.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0), si), COLUMNS);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          JTable procTable = <strong class="jxr_keyword">new</strong> JTable(model);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          JScrollPane scrollV = <strong class="jxr_keyword">new</strong> JScrollPane(procTable);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          resizeColumns(procTable.getColumnModel());
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          add(scrollV, BorderLayout.CENTER);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          add(settings, BorderLayout.SOUTH);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         Timer timer = <strong class="jxr_keyword">new</strong> Timer(Config.REFRESH_SLOW, e -&gt; {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             DefaultTableModel tableModel = (DefaultTableModel) procTable.getModel();
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             Object[][] newData = parseProcesses(os.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0), si);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">int</strong> rowCount = tableModel.getRowCount();
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = 0; row &lt; newData.length; row++) {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">if</strong> (row &lt; rowCount) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     <em class="jxr_comment">// Overwrite row</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col = 0; col &lt; newData[row].length; col++) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                         tableModel.setValueAt(newData[row][col], row, col);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                     }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                     <em class="jxr_comment">// Add row</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                     tableModel.addRow(newData[row]);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <em class="jxr_comment">// Delete any extra rows</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> row = rowCount - 1; row &gt;= newData.length; row--) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 tableModel.removeRow(row);
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         });
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         timer.start();
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">private</strong> Object[][] parseProcesses(List&lt;OSProcess&gt; list, SystemInfo si) {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">long</strong> totalMem = si.getHardware().getMemory().getTotal();
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">int</strong> cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <em class="jxr_comment">// Build a map with a value for each process to control the sort</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         Map&lt;OSProcess, Double&gt; processSortValueMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : list) {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">int</strong> pid = p.getProcessID();
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <em class="jxr_comment">// Ignore the Idle process on Windows</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">if</strong> (pid &gt; 0 || !SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <em class="jxr_comment">// Set up for appropriate sort</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <strong class="jxr_keyword">if</strong> (cpuButton.isSelected()) {
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                     processSortValueMap.put(p, p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (cumulativeCpuButton.isSelected()) {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                     processSortValueMap.put(p, p.getProcessCpuLoadCumulative());
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                     processSortValueMap.put(p, (<strong class="jxr_keyword">double</strong>) p.getResidentSetSize());
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <em class="jxr_comment">// Now sort the list by the values</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         List&lt;Entry&lt;OSProcess, Double&gt;&gt; procList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(processSortValueMap.entrySet());
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         procList.sort(Entry.comparingByValue());
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <em class="jxr_comment">// Insert into array in reverse order (lowest sort value last)</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">int</strong> i = procList.size();
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         Object[][] procArr = <strong class="jxr_keyword">new</strong> Object[i][COLUMNS.length];
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <em class="jxr_comment">// These are in descending CPU order</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;OSProcess, Double&gt; e : procList) {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>             OSProcess p = e.getKey();
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             <em class="jxr_comment">// Matches order of COLUMNS field</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>             i--;
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             <strong class="jxr_keyword">int</strong> pid = p.getProcessID();
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             procArr[i][0] = pid;
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             procArr[i][1] = p.getParentProcessID();
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             procArr[i][2] = p.getThreadCount();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>             <strong class="jxr_keyword">if</strong> (perProc.isSelected()) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                 procArr[i][3] = String.format(Locale.ROOT, <span class="jxr_string">"%.1f"</span>,
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)) * cpuCount);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 procArr[i][4] = String.format(Locale.ROOT, <span class="jxr_string">"%.1f"</span>, 100d * p.getProcessCpuLoadCumulative() * cpuCount);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 procArr[i][3] = String.format(Locale.ROOT, <span class="jxr_string">"%.1f"</span>,
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                         100d * p.getProcessCpuLoadBetweenTicks(priorSnapshotMap.get(pid)));
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 procArr[i][4] = String.format(Locale.ROOT, <span class="jxr_string">"%.1f"</span>, 100d * p.getProcessCpuLoadCumulative());
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             procArr[i][7] = String.format(Locale.ROOT, <span class="jxr_string">"%.1f"</span>, 100d * p.getResidentSetSize() / totalMem);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             procArr[i][8] = p.getName();
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <em class="jxr_comment">// Re-populate snapshot map</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         priorSnapshotMap.clear();
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : list) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             priorSnapshotMap.put(p.getProcessID(), p);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">return</strong> procArr;
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> resizeColumns(TableColumnModel tableColumnModel) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         TableColumn column;
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">int</strong> tW = tableColumnModel.getTotalColumnWidth();
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">int</strong> cantCols = tableColumnModel.getColumnCount();
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; cantCols; i++) {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             column = tableColumnModel.getColumn(i);
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">int</strong> pWidth = (<strong class="jxr_keyword">int</strong>) Math.round(COLUMN_WIDTH_PERCENT[i] * tW);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             column.setPreferredWidth(pWidth);
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2010&#x2013;2023 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>

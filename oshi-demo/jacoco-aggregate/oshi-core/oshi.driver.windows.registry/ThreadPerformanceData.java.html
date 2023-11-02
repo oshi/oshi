@@ -5,6 +5,7 @@
 package oshi.driver.windows.registry;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,10 @@ import com.sun.jna.platform.win32.WinBase.FILETIME;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.perfmon.PerfmonDisabled;
 import oshi.driver.windows.perfmon.ThreadInformation;
 import oshi.driver.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
+import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -38,48 +41,48 @@ public final class ThreadPerformanceData {
      */
     public static Map&lt;Integer, PerfCounterBlock&gt; buildThreadMapFromRegistry(Collection&lt;Integer&gt; pids) {
         // Grab the data from the registry.
-<span class="nc" id="L41">        Triplet&lt;List&lt;Map&lt;ThreadPerformanceProperty, Object&gt;&gt;, Long, Long&gt; threadData = HkeyPerformanceDataUtil</span>
-<span class="nc" id="L42">                .readPerfDataFromRegistry(THREAD, ThreadPerformanceProperty.class);</span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (threadData == null) {</span>
-<span class="nc" id="L44">            return null;</span>
+<span class="nc" id="L44">        Triplet&lt;List&lt;Map&lt;ThreadPerformanceProperty, Object&gt;&gt;, Long, Long&gt; threadData = HkeyPerformanceDataUtil</span>
+<span class="nc" id="L45">                .readPerfDataFromRegistry(THREAD, ThreadPerformanceProperty.class);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (threadData == null) {</span>
+<span class="nc" id="L47">            return null;</span>
         }
-<span class="nc" id="L46">        List&lt;Map&lt;ThreadPerformanceProperty, Object&gt;&gt; threadInstanceMaps = threadData.getA();</span>
-<span class="nc" id="L47">        long perfTime100nSec = threadData.getB(); // 1601</span>
-<span class="nc" id="L48">        long now = threadData.getC(); // 1970 epoch</span>
+<span class="nc" id="L49">        List&lt;Map&lt;ThreadPerformanceProperty, Object&gt;&gt; threadInstanceMaps = threadData.getA();</span>
+<span class="nc" id="L50">        long perfTime100nSec = threadData.getB(); // 1601</span>
+<span class="nc" id="L51">        long now = threadData.getC(); // 1970 epoch</span>
 
         // Create a map and fill it
-<span class="nc" id="L51">        Map&lt;Integer, PerfCounterBlock&gt; threadMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L54">        Map&lt;Integer, PerfCounterBlock&gt; threadMap = new HashMap&lt;&gt;();</span>
         // Iterate instances.
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (Map&lt;ThreadPerformanceProperty, Object&gt; threadInstanceMap : threadInstanceMaps) {</span>
-<span class="nc" id="L54">            int pid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDPROCESS)).intValue();</span>
-<span class="nc bnc" id="L55" title="All 6 branches missed.">            if ((pids == null || pids.contains(pid)) &amp;&amp; pid &gt; 0) {</span>
-<span class="nc" id="L56">                int tid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDTHREAD)).intValue();</span>
-<span class="nc" id="L57">                String name = (String) threadInstanceMap.get(ThreadPerformanceProperty.NAME);</span>
-<span class="nc" id="L58">                long upTime = (perfTime100nSec - (Long) threadInstanceMap.get(ThreadPerformanceProperty.ELAPSEDTIME))</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (Map&lt;ThreadPerformanceProperty, Object&gt; threadInstanceMap : threadInstanceMaps) {</span>
+<span class="nc" id="L57">            int pid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDPROCESS)).intValue();</span>
+<span class="nc bnc" id="L58" title="All 6 branches missed.">            if ((pids == null || pids.contains(pid)) &amp;&amp; pid &gt; 0) {</span>
+<span class="nc" id="L59">                int tid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDTHREAD)).intValue();</span>
+<span class="nc" id="L60">                String name = (String) threadInstanceMap.get(ThreadPerformanceProperty.NAME);</span>
+<span class="nc" id="L61">                long upTime = (perfTime100nSec - (Long) threadInstanceMap.get(ThreadPerformanceProperty.ELAPSEDTIME))</span>
                         / 10_000L;
-<span class="nc bnc" id="L60" title="All 2 branches missed.">                if (upTime &lt; 1) {</span>
-<span class="nc" id="L61">                    upTime = 1;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                if (upTime &lt; 1) {</span>
+<span class="nc" id="L64">                    upTime = 1;</span>
                 }
-<span class="nc" id="L63">                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME)).longValue()</span>
+<span class="nc" id="L66">                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME)).longValue()</span>
                         / 10_000L;
-<span class="nc" id="L65">                long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME))</span>
-<span class="nc" id="L66">                        .longValue() / 10_000L;</span>
-<span class="nc" id="L67">                int priority = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PRIORITYCURRENT)).intValue();</span>
-<span class="nc" id="L68">                int threadState = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADSTATE)).intValue();</span>
-<span class="nc" id="L69">                int threadWaitReason = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADWAITREASON))</span>
-<span class="nc" id="L70">                        .intValue();</span>
+<span class="nc" id="L68">                long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME))</span>
+<span class="nc" id="L69">                        .longValue() / 10_000L;</span>
+<span class="nc" id="L70">                int priority = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PRIORITYCURRENT)).intValue();</span>
+<span class="nc" id="L71">                int threadState = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADSTATE)).intValue();</span>
+<span class="nc" id="L72">                int threadWaitReason = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADWAITREASON))</span>
+<span class="nc" id="L73">                        .intValue();</span>
                 // Start address is pointer sized when fetched from registry, so this could be
                 // either Integer (uint32) or Long depending on OS bitness
-<span class="nc" id="L73">                Object addr = threadInstanceMap.get(ThreadPerformanceProperty.STARTADDRESS);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">                long startAddr = addr.getClass().equals(Long.class) ? (Long) addr</span>
-<span class="nc" id="L75">                        : Integer.toUnsignedLong((Integer) addr);</span>
-<span class="nc" id="L76">                int contextSwitches = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC))</span>
-<span class="nc" id="L77">                        .intValue();</span>
-<span class="nc" id="L78">                threadMap.put(tid, new PerfCounterBlock(name, tid, pid, now - upTime, user, kernel, priority,</span>
+<span class="nc" id="L76">                Object addr = threadInstanceMap.get(ThreadPerformanceProperty.STARTADDRESS);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                long startAddr = addr.getClass().equals(Long.class) ? (Long) addr</span>
+<span class="nc" id="L78">                        : Integer.toUnsignedLong((Integer) addr);</span>
+<span class="nc" id="L79">                int contextSwitches = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC))</span>
+<span class="nc" id="L80">                        .intValue();</span>
+<span class="nc" id="L81">                threadMap.put(tid, new PerfCounterBlock(name, tid, pid, now - upTime, user, kernel, priority,</span>
                         threadState, threadWaitReason, startAddr, contextSwitches));
             }
-<span class="nc" id="L81">        }</span>
-<span class="nc" id="L82">        return threadMap;</span>
+<span class="nc" id="L84">        }</span>
+<span class="nc" id="L85">        return threadMap;</span>
     }
 
     /**
@@ -90,51 +93,69 @@ public final class ThreadPerformanceData {
      *         information.
      */
     public static Map&lt;Integer, PerfCounterBlock&gt; buildThreadMapFromPerfCounters(Collection&lt;Integer&gt; pids) {
-<span class="nc" id="L93">        Map&lt;Integer, PerfCounterBlock&gt; threadMap = new HashMap&lt;&gt;();</span>
-        Pair&lt;List&lt;String&gt;, Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt;&gt; instanceValues = ThreadInformation
-<span class="nc" id="L95">                .queryThreadCounters();</span>
-<span class="nc" id="L96">        long now = System.currentTimeMillis(); // 1970 epoch</span>
-<span class="nc" id="L97">        List&lt;String&gt; instances = instanceValues.getA();</span>
-<span class="nc" id="L98">        Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt; valueMap = instanceValues.getB();</span>
-<span class="nc" id="L99">        List&lt;Long&gt; tidList = valueMap.get(ThreadPerformanceProperty.IDTHREAD);</span>
-<span class="nc" id="L100">        List&lt;Long&gt; pidList = valueMap.get(ThreadPerformanceProperty.IDPROCESS);</span>
-<span class="nc" id="L101">        List&lt;Long&gt; userList = valueMap.get(ThreadPerformanceProperty.PERCENTUSERTIME); // 100-nsec</span>
-<span class="nc" id="L102">        List&lt;Long&gt; kernelList = valueMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME); // 100-nsec</span>
-<span class="nc" id="L103">        List&lt;Long&gt; startTimeList = valueMap.get(ThreadPerformanceProperty.ELAPSEDTIME); // filetime</span>
-<span class="nc" id="L104">        List&lt;Long&gt; priorityList = valueMap.get(ThreadPerformanceProperty.PRIORITYCURRENT);</span>
-<span class="nc" id="L105">        List&lt;Long&gt; stateList = valueMap.get(ThreadPerformanceProperty.THREADSTATE);</span>
-<span class="nc" id="L106">        List&lt;Long&gt; waitReasonList = valueMap.get(ThreadPerformanceProperty.THREADWAITREASON);</span>
-<span class="nc" id="L107">        List&lt;Long&gt; startAddrList = valueMap.get(ThreadPerformanceProperty.STARTADDRESS);</span>
-<span class="nc" id="L108">        List&lt;Long&gt; contextSwitchesList = valueMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC);</span>
+<span class="nc" id="L96">        return buildThreadMapFromPerfCounters(pids, null, -1);</span>
+    }
 
-<span class="nc" id="L110">        int nameIndex = 0;</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (int inst = 0; inst &lt; instances.size(); inst++) {</span>
-<span class="nc" id="L112">            int pid = pidList.get(inst).intValue();</span>
-<span class="nc bnc" id="L113" title="All 4 branches missed.">            if (pids == null || pids.contains(pid)) {</span>
-<span class="nc" id="L114">                int tid = tidList.get(inst).intValue();</span>
-<span class="nc" id="L115">                String name = Integer.toString(nameIndex++);</span>
-<span class="nc" id="L116">                long startTime = startTimeList.get(inst);</span>
-<span class="nc" id="L117">                int lowerStartTimeLimit = (int) (startTime &gt;&gt; 32);</span>
-<span class="nc" id="L118">                int higherStartTimeLimit = (int) (startTime &amp; 0xffffffffL);</span>
-<span class="nc" id="L119">                startTime = FILETIME.filetimeToDate(lowerStartTimeLimit, higherStartTimeLimit).getTime();</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">                if (startTime &gt; now) {</span>
-<span class="nc" id="L121">                    startTime = now - 1;</span>
+    /**
+     * Query PerfMon for thread performance counters
+     *
+     * @param pids      An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @param procName  Limit the matches to processes matching the given name.
+     * @param threadNum Limit the matches to threads matching the given thread. Use -1 to match all threads.
+     * @return A map with Thread ID as the key and a {@link PerfCounterBlock} object populated with performance counter
+     *         information.
+     */
+    public static Map&lt;Integer, PerfCounterBlock&gt; buildThreadMapFromPerfCounters(Collection&lt;Integer&gt; pids,
+            String procName, int threadNum) {
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_PROC_DISABLED) {</span>
+<span class="nc" id="L111">            return Collections.emptyMap();</span>
+        }
+<span class="nc" id="L113">        Map&lt;Integer, PerfCounterBlock&gt; threadMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        Pair&lt;List&lt;String&gt;, Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt;&gt; instanceValues = Util.isBlank(procName)</span>
+<span class="nc" id="L115">                ? ThreadInformation.queryThreadCounters()</span>
+<span class="nc" id="L116">                : ThreadInformation.queryThreadCounters(procName, threadNum);</span>
+<span class="nc" id="L117">        long now = System.currentTimeMillis(); // 1970 epoch</span>
+<span class="nc" id="L118">        List&lt;String&gt; instances = instanceValues.getA();</span>
+<span class="nc" id="L119">        Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt; valueMap = instanceValues.getB();</span>
+<span class="nc" id="L120">        List&lt;Long&gt; tidList = valueMap.get(ThreadPerformanceProperty.IDTHREAD);</span>
+<span class="nc" id="L121">        List&lt;Long&gt; pidList = valueMap.get(ThreadPerformanceProperty.IDPROCESS);</span>
+<span class="nc" id="L122">        List&lt;Long&gt; userList = valueMap.get(ThreadPerformanceProperty.PERCENTUSERTIME); // 100-nsec</span>
+<span class="nc" id="L123">        List&lt;Long&gt; kernelList = valueMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME); // 100-nsec</span>
+<span class="nc" id="L124">        List&lt;Long&gt; startTimeList = valueMap.get(ThreadPerformanceProperty.ELAPSEDTIME); // filetime</span>
+<span class="nc" id="L125">        List&lt;Long&gt; priorityList = valueMap.get(ThreadPerformanceProperty.PRIORITYCURRENT);</span>
+<span class="nc" id="L126">        List&lt;Long&gt; stateList = valueMap.get(ThreadPerformanceProperty.THREADSTATE);</span>
+<span class="nc" id="L127">        List&lt;Long&gt; waitReasonList = valueMap.get(ThreadPerformanceProperty.THREADWAITREASON);</span>
+<span class="nc" id="L128">        List&lt;Long&gt; startAddrList = valueMap.get(ThreadPerformanceProperty.STARTADDRESS);</span>
+<span class="nc" id="L129">        List&lt;Long&gt; contextSwitchesList = valueMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC);</span>
+
+<span class="nc" id="L131">        int nameIndex = 0;</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        for (int inst = 0; inst &lt; instances.size(); inst++) {</span>
+<span class="nc" id="L133">            int pid = pidList.get(inst).intValue();</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">            if (pids == null || pids.contains(pid)) {</span>
+<span class="nc" id="L135">                int tid = tidList.get(inst).intValue();</span>
+<span class="nc" id="L136">                String name = Integer.toString(nameIndex++);</span>
+<span class="nc" id="L137">                long startTime = startTimeList.get(inst);</span>
+<span class="nc" id="L138">                int lowerStartTimeLimit = (int) (startTime &gt;&gt; 32);</span>
+<span class="nc" id="L139">                int higherStartTimeLimit = (int) (startTime &amp; 0xffffffffL);</span>
+<span class="nc" id="L140">                startTime = FILETIME.filetimeToDate(lowerStartTimeLimit, higherStartTimeLimit).getTime();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">                if (startTime &gt; now) {</span>
+<span class="nc" id="L142">                    startTime = now - 1;</span>
                 }
-<span class="nc" id="L123">                long user = userList.get(inst) / 10_000L;</span>
-<span class="nc" id="L124">                long kernel = kernelList.get(inst) / 10_000L;</span>
-<span class="nc" id="L125">                int priority = priorityList.get(inst).intValue();</span>
-<span class="nc" id="L126">                int threadState = stateList.get(inst).intValue();</span>
-<span class="nc" id="L127">                int threadWaitReason = waitReasonList.get(inst).intValue();</span>
-<span class="nc" id="L128">                long startAddr = startAddrList.get(inst).longValue();</span>
-<span class="nc" id="L129">                int contextSwitches = contextSwitchesList.get(inst).intValue();</span>
+<span class="nc" id="L144">                long user = userList.get(inst) / 10_000L;</span>
+<span class="nc" id="L145">                long kernel = kernelList.get(inst) / 10_000L;</span>
+<span class="nc" id="L146">                int priority = priorityList.get(inst).intValue();</span>
+<span class="nc" id="L147">                int threadState = stateList.get(inst).intValue();</span>
+<span class="nc" id="L148">                int threadWaitReason = waitReasonList.get(inst).intValue();</span>
+<span class="nc" id="L149">                long startAddr = startAddrList.get(inst).longValue();</span>
+<span class="nc" id="L150">                int contextSwitches = contextSwitchesList.get(inst).intValue();</span>
 
                 // if creation time value is less than current millis, it's in 1970 epoch,
                 // otherwise it's 1601 epoch and we must convert
-<span class="nc" id="L133">                threadMap.put(tid, new PerfCounterBlock(name, tid, pid, startTime, user, kernel, priority, threadState,</span>
+<span class="nc" id="L154">                threadMap.put(tid, new PerfCounterBlock(name, tid, pid, startTime, user, kernel, priority, threadState,</span>
                         threadWaitReason, startAddr, contextSwitches));
             }
         }
-<span class="nc" id="L137">        return threadMap;</span>
+<span class="nc" id="L158">        return threadMap;</span>
     }
 
     /**
@@ -156,96 +177,96 @@ public final class ThreadPerformanceData {
 
         public PerfCounterBlock(String name, int threadID, int owningProcessID, long startTime, long userTime,
                 long kernelTime, int priority, int threadState, int threadWaitReason, long startAddress,
-<span class="nc" id="L159">                int contextSwitches) {</span>
-<span class="nc" id="L160">            this.name = name;</span>
-<span class="nc" id="L161">            this.threadID = threadID;</span>
-<span class="nc" id="L162">            this.owningProcessID = owningProcessID;</span>
-<span class="nc" id="L163">            this.startTime = startTime;</span>
-<span class="nc" id="L164">            this.userTime = userTime;</span>
-<span class="nc" id="L165">            this.kernelTime = kernelTime;</span>
-<span class="nc" id="L166">            this.priority = priority;</span>
-<span class="nc" id="L167">            this.threadState = threadState;</span>
-<span class="nc" id="L168">            this.threadWaitReason = threadWaitReason;</span>
-<span class="nc" id="L169">            this.startAddress = startAddress;</span>
-<span class="nc" id="L170">            this.contextSwitches = contextSwitches;</span>
-<span class="nc" id="L171">        }</span>
+<span class="nc" id="L180">                int contextSwitches) {</span>
+<span class="nc" id="L181">            this.name = name;</span>
+<span class="nc" id="L182">            this.threadID = threadID;</span>
+<span class="nc" id="L183">            this.owningProcessID = owningProcessID;</span>
+<span class="nc" id="L184">            this.startTime = startTime;</span>
+<span class="nc" id="L185">            this.userTime = userTime;</span>
+<span class="nc" id="L186">            this.kernelTime = kernelTime;</span>
+<span class="nc" id="L187">            this.priority = priority;</span>
+<span class="nc" id="L188">            this.threadState = threadState;</span>
+<span class="nc" id="L189">            this.threadWaitReason = threadWaitReason;</span>
+<span class="nc" id="L190">            this.startAddress = startAddress;</span>
+<span class="nc" id="L191">            this.contextSwitches = contextSwitches;</span>
+<span class="nc" id="L192">        }</span>
 
         /**
          * @return the name
          */
         public String getName() {
-<span class="nc" id="L177">            return name;</span>
+<span class="nc" id="L198">            return name;</span>
         }
 
         /**
          * @return the threadID
          */
         public int getThreadID() {
-<span class="nc" id="L184">            return threadID;</span>
+<span class="nc" id="L205">            return threadID;</span>
         }
 
         /**
          * @return the owningProcessID
          */
         public int getOwningProcessID() {
-<span class="nc" id="L191">            return owningProcessID;</span>
+<span class="nc" id="L212">            return owningProcessID;</span>
         }
 
         /**
          * @return the startTime
          */
         public long getStartTime() {
-<span class="nc" id="L198">            return startTime;</span>
+<span class="nc" id="L219">            return startTime;</span>
         }
 
         /**
          * @return the userTime
          */
         public long getUserTime() {
-<span class="nc" id="L205">            return userTime;</span>
+<span class="nc" id="L226">            return userTime;</span>
         }
 
         /**
          * @return the kernelTime
          */
         public long getKernelTime() {
-<span class="nc" id="L212">            return kernelTime;</span>
+<span class="nc" id="L233">            return kernelTime;</span>
         }
 
         /**
          * @return the priority
          */
         public int getPriority() {
-<span class="nc" id="L219">            return priority;</span>
+<span class="nc" id="L240">            return priority;</span>
         }
 
         /**
          * @return the threadState
          */
         public int getThreadState() {
-<span class="nc" id="L226">            return threadState;</span>
+<span class="nc" id="L247">            return threadState;</span>
         }
 
         /**
          * @return the threadWaitReason
          */
         public int getThreadWaitReason() {
-<span class="nc" id="L233">            return threadWaitReason;</span>
+<span class="nc" id="L254">            return threadWaitReason;</span>
         }
 
         /**
          * @return the startMemoryAddress
          */
         public long getStartAddress() {
-<span class="nc" id="L240">            return startAddress;</span>
+<span class="nc" id="L261">            return startAddress;</span>
         }
 
         /**
          * @return the contextSwitches
          */
         public int getContextSwitches() {
-<span class="nc" id="L247">            return contextSwitches;</span>
+<span class="nc" id="L268">            return contextSwitches;</span>
         }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

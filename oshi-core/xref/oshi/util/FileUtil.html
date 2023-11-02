@@ -308,7 +308,7 @@
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>                 <strong class="jxr_keyword">if</strong> (LOG.isTraceEnabled()) {
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>                     LOG.trace(READ_LOG, read.get(0));
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>                 }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 <strong class="jxr_keyword">return</strong> Integer.parseInt(read.get(0));
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.parseIntOrDefault(read.get(0), 0);
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>             }
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>         } <strong class="jxr_keyword">catch</strong> (NumberFormatException ex) {
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>             LOG.warn(<span class="jxr_string">"Unable to read value from {}. {}"</span>, filename, ex.getMessage());

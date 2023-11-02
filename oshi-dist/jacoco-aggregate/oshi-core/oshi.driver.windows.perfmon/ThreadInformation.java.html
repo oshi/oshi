@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ThreadInformation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">oshi-dist</a> &gt; <a href="../index.html" class="el_bundle">oshi-core</a> &gt; <a href="index.source.html" class="el_package">oshi.driver.windows.perfmon</a> &gt; <span class="el_source">ThreadInformation.java</span></div><h1>ThreadInformation.java</h1><pre class="source lang-java linenums">/*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
 
 import static oshi.driver.windows.perfmon.PerfmonConstants.THREAD;
+import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD;
 import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -26,30 +27,30 @@ public final class ThreadInformation {
     /**
      * Thread performance counters
      */
-<span class="nc" id="L29">    public enum ThreadPerformanceProperty implements PdhCounterWildcardProperty {</span>
+<span class="nc" id="L30">    public enum ThreadPerformanceProperty implements PdhCounterWildcardProperty {</span>
         // First element defines WMI instance name field and PDH instance filter
-<span class="nc" id="L31">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
+<span class="nc" id="L32">        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),</span>
         // Remaining elements define counters
-<span class="nc" id="L33">        PERCENTUSERTIME(&quot;% User Time&quot;), //</span>
-<span class="nc" id="L34">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
-<span class="nc" id="L35">        ELAPSEDTIME(&quot;Elapsed Time&quot;), //</span>
-<span class="nc" id="L36">        PRIORITYCURRENT(&quot;Priority Current&quot;), //</span>
-<span class="nc" id="L37">        STARTADDRESS(&quot;Start Address&quot;), //</span>
-<span class="nc" id="L38">        THREADSTATE(&quot;Thread State&quot;), //</span>
-<span class="nc" id="L39">        THREADWAITREASON(&quot;Thread Wait Reason&quot;), // 5 is SUSPENDED</span>
-<span class="nc" id="L40">        IDPROCESS(&quot;ID Process&quot;), //</span>
-<span class="nc" id="L41">        IDTHREAD(&quot;ID Thread&quot;), //</span>
-<span class="nc" id="L42">        CONTEXTSWITCHESPERSEC(&quot;Context Switches/sec&quot;);</span>
+<span class="nc" id="L34">        PERCENTUSERTIME(&quot;% User Time&quot;), //</span>
+<span class="nc" id="L35">        PERCENTPRIVILEGEDTIME(&quot;% Privileged Time&quot;), //</span>
+<span class="nc" id="L36">        ELAPSEDTIME(&quot;Elapsed Time&quot;), //</span>
+<span class="nc" id="L37">        PRIORITYCURRENT(&quot;Priority Current&quot;), //</span>
+<span class="nc" id="L38">        STARTADDRESS(&quot;Start Address&quot;), //</span>
+<span class="nc" id="L39">        THREADSTATE(&quot;Thread State&quot;), //</span>
+<span class="nc" id="L40">        THREADWAITREASON(&quot;Thread Wait Reason&quot;), // 5 is SUSPENDED</span>
+<span class="nc" id="L41">        IDPROCESS(&quot;ID Process&quot;), //</span>
+<span class="nc" id="L42">        IDTHREAD(&quot;ID Thread&quot;), //</span>
+<span class="nc" id="L43">        CONTEXTSWITCHESPERSEC(&quot;Context Switches/sec&quot;);</span>
 
         private final String counter;
 
-<span class="nc" id="L46">        ThreadPerformanceProperty(String counter) {</span>
-<span class="nc" id="L47">            this.counter = counter;</span>
-<span class="nc" id="L48">        }</span>
+<span class="nc" id="L47">        ThreadPerformanceProperty(String counter) {</span>
+<span class="nc" id="L48">            this.counter = counter;</span>
+<span class="nc" id="L49">        }</span>
 
         @Override
         public String getCounter() {
-<span class="nc" id="L52">            return counter;</span>
+<span class="nc" id="L53">            return counter;</span>
         }
     }
 
@@ -62,11 +63,29 @@ public final class ThreadInformation {
      * @return Thread counters for each thread.
      */
     public static Pair&lt;List&lt;String&gt;, Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt;&gt; queryThreadCounters() {
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (PerfmonDisabled.PERF_PROC_DISABLED) {</span>
-<span class="nc" id="L66">            return new Pair&lt;&gt;(Collections.emptyList(), Collections.emptyMap());</span>
-        }
-<span class="nc" id="L68">        return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,</span>
+<span class="nc" id="L66">        return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,</span>
                 WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL);
     }
+
+    /**
+     * Returns thread counters filtered to the specified process name and thread.
+     *
+     * @param name      The process name to filter
+     * @param threadNum The thread number to match. -1 matches all threads.
+     *
+     * @return Thread counters for each thread.
+     */
+    public static Pair&lt;List&lt;String&gt;, Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt;&gt; queryThreadCounters(String name,
+            int threadNum) {
+<span class="nc" id="L80">        String procName = name.toLowerCase(Locale.ROOT);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (threadNum &gt;= 0) {</span>
+<span class="nc" id="L82">            return PerfCounterWildcardQuery.queryInstancesAndValues(</span>
+                    ThreadPerformanceProperty.class, THREAD, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD
+                            + &quot; WHERE Name LIKE \\\&quot;&quot; + procName + &quot;\\\&quot; AND IDThread=&quot; + threadNum,
+                    procName + &quot;/&quot; + threadNum);
+        }
+<span class="nc" id="L87">        return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,</span>
+                WIN32_PERF_RAW_DATA_PERF_PROC_THREAD + &quot; WHERE Name LIKE \\\&quot;&quot; + procName + &quot;\\\&quot;&quot;, procName + &quot;/*&quot;);
+    }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -300,7 +300,7 @@ public final class FileUtil {
 <span class="nc bnc" id="L300" title="All 2 branches missed.">                if (LOG.isTraceEnabled()) {</span>
 <span class="nc" id="L301">                    LOG.trace(READ_LOG, read.get(0));</span>
                 }
-<span class="nc" id="L303">                return Integer.parseInt(read.get(0));</span>
+<span class="nc" id="L303">                return ParseUtil.parseIntOrDefault(read.get(0), 0);</span>
             }
 <span class="nc" id="L305">        } catch (NumberFormatException ex) {</span>
 <span class="nc" id="L306">            LOG.warn(&quot;Unable to read value from {}. {}&quot;, filename, ex.getMessage());</span>
@@ -416,4 +416,4 @@ public final class FileUtil {
         }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
