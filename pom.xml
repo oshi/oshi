@@ -110,7 +110,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-scm-publish-plugin.version>3.2.1</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-surefire-plugin.version>3.2.1</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
         <maven-fluido-skin.version>1.12.0</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-maven-plugin.version>7.0.0</git-commit-id-maven-plugin.version>
@@ -123,7 +123,7 @@
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
         <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
         <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
-        <maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.6.2</maven-javadoc-plugin.version>
         <forbiddenapis.version>3.6</forbiddenapis.version>
         <!-- tools -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
@@ -139,7 +139,7 @@
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.3.1</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
-        <maven-surefire-report-plugin.version>3.2.1</maven-surefire-report-plugin.version>
+        <maven-surefire-report-plugin.version>3.2.2</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.0.0</taglist-maven-plugin.version>
         <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
         <!-- Misc. -->
