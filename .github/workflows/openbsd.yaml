@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test on OpenBSD
         id: test-openbsd
-        uses: vmactions/openbsd-vm@v0
+        uses: vmactions/openbsd-vm@v1
         with:
           usesh: false
           mem: 2048
