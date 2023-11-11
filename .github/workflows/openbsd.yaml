@@ -12,13 +12,13 @@ on:
 
 jobs:
   testopenbsd:
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
     name: Test JDK 11, OpenBSD vm
     steps:
       - uses: actions/checkout@v4
       - name: Test on OpenBSD
         id: test-openbsd
-        uses: vmactions/openbsd-vm@v0
+        uses: vmactions/openbsd-vm@v1
         with:
           usesh: false
           mem: 2048
