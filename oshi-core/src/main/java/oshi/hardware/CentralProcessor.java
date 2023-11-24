@@ -676,7 +676,7 @@ public interface CentralProcessor {
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {
-            this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer() : cpuVendor;
+            this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
             this.cpuName = cpuName;
             this.cpuFamily = cpuFamily;
             this.cpuModel = cpuModel;
@@ -858,10 +858,10 @@ public interface CentralProcessor {
             return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
         }
 
-        private String queryVendorFromImplementer() {
+        private String queryVendorFromImplementer(String cpuVendor) {
             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
             String vendor = archProps.getProperty("hw_impl." + this.cpuVendor);
-            return (vendor == null ? this.cpuVendor : vendor);
+            return (vendor == null ? cpuVendor : vendor);
         }
 
         @Override
