@@ -1,8 +1,8 @@
-# 6.4.8 (in progress)
+# 6.4.9 (in progress)
 
 * Your contribution here!
 
-# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01)
+# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24)
 
 ##### New Features
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
@@ -33,6 +33,7 @@
 * [#2460](https://github.com/oshi/oshi/pull/2460): Fix AIX tests for virtual/unused drives - [@dbwiddis](https://github.com/dbwiddis).
 * [#2480](https://github.com/oshi/oshi/pull/2480): Use sysfs as a backup for Linux power supply without udev - [@dbwiddis](https://github.com/dbwiddis).
 * [#2487](https://github.com/oshi/oshi/pull/2487): Improve performance of thread details query for a single process - [@dbwiddis](https://github.com/dbwiddis).
+* [#2514](https://github.com/oshi/oshi/pull/2514): Fix NPE in ProcessorIdentifier edge case - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
