@@ -684,7 +684,7 @@
 <a class="jxr_linenumber" name="L676" href="#L676">676</a> 
 <a class="jxr_linenumber" name="L677" href="#L677">677</a>         <strong class="jxr_keyword">public</strong> ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
 <a class="jxr_linenumber" name="L678" href="#L678">678</a>                 String cpuStepping, String processorID, <strong class="jxr_keyword">boolean</strong> cpu64bit, <strong class="jxr_keyword">long</strong> vendorFreq) {
-<a class="jxr_linenumber" name="L679" href="#L679">679</a>             <strong class="jxr_keyword">this</strong>.cpuVendor = cpuVendor.startsWith(<span class="jxr_string">"0x"</span>) ? queryVendorFromImplementer() : cpuVendor;
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>             <strong class="jxr_keyword">this</strong>.cpuVendor = cpuVendor.startsWith(<span class="jxr_string">"0x"</span>) ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
 <a class="jxr_linenumber" name="L680" href="#L680">680</a>             <strong class="jxr_keyword">this</strong>.cpuName = cpuName;
 <a class="jxr_linenumber" name="L681" href="#L681">681</a>             <strong class="jxr_keyword">this</strong>.cpuFamily = cpuFamily;
 <a class="jxr_linenumber" name="L682" href="#L682">682</a>             <strong class="jxr_keyword">this</strong>.cpuModel = cpuModel;
@@ -866,10 +866,10 @@
 <a class="jxr_linenumber" name="L858" href="#L858">858</a>             <strong class="jxr_keyword">return</strong> Util.isBlank(arch) ? Constants.UNKNOWN : arch;
 <a class="jxr_linenumber" name="L859" href="#L859">859</a>         }
 <a class="jxr_linenumber" name="L860" href="#L860">860</a> 
-<a class="jxr_linenumber" name="L861" href="#L861">861</a>         <strong class="jxr_keyword">private</strong> String queryVendorFromImplementer() {
+<a class="jxr_linenumber" name="L861" href="#L861">861</a>         <strong class="jxr_keyword">private</strong> String queryVendorFromImplementer(String cpuVendor) {
 <a class="jxr_linenumber" name="L862" href="#L862">862</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
 <a class="jxr_linenumber" name="L863" href="#L863">863</a>             String vendor = archProps.getProperty(<span class="jxr_string">"hw_impl."</span> + <strong class="jxr_keyword">this</strong>.cpuVendor);
-<a class="jxr_linenumber" name="L864" href="#L864">864</a>             <strong class="jxr_keyword">return</strong> (vendor == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">this</strong>.cpuVendor : vendor);
+<a class="jxr_linenumber" name="L864" href="#L864">864</a>             <strong class="jxr_keyword">return</strong> (vendor == <strong class="jxr_keyword">null</strong> ? cpuVendor : vendor);
 <a class="jxr_linenumber" name="L865" href="#L865">865</a>         }
 <a class="jxr_linenumber" name="L866" href="#L866">866</a> 
 <a class="jxr_linenumber" name="L867" href="#L867">867</a>         @Override

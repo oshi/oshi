@@ -676,7 +676,7 @@ public interface CentralProcessor {
 
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
 <span class="nc" id="L678">                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {</span>
-<span class="nc bnc" id="L679" title="All 2 branches missed.">            this.cpuVendor = cpuVendor.startsWith(&quot;0x&quot;) ? queryVendorFromImplementer() : cpuVendor;</span>
+<span class="nc bnc" id="L679" title="All 2 branches missed.">            this.cpuVendor = cpuVendor.startsWith(&quot;0x&quot;) ? queryVendorFromImplementer(cpuVendor) : cpuVendor;</span>
 <span class="nc" id="L680">            this.cpuName = cpuName;</span>
 <span class="nc" id="L681">            this.cpuFamily = cpuFamily;</span>
 <span class="nc" id="L682">            this.cpuModel = cpuModel;</span>
@@ -858,10 +858,10 @@ public interface CentralProcessor {
 <span class="nc bnc" id="L858" title="All 2 branches missed.">            return Util.isBlank(arch) ? Constants.UNKNOWN : arch;</span>
         }
 
-        private String queryVendorFromImplementer() {
+        private String queryVendorFromImplementer(String cpuVendor) {
 <span class="nc" id="L862">            Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);</span>
 <span class="nc" id="L863">            String vendor = archProps.getProperty(&quot;hw_impl.&quot; + this.cpuVendor);</span>
-<span class="nc bnc" id="L864" title="All 2 branches missed.">            return (vendor == null ? this.cpuVendor : vendor);</span>
+<span class="nc bnc" id="L864" title="All 2 branches missed.">            return (vendor == null ? cpuVendor : vendor);</span>
         }
 
         @Override
