@@ -62,6 +62,8 @@ jobs:
       - name: Test on Solaris
         id: test-solaris
         uses: vmactions/solaris-vm@v0
+        # remove this line when solaris-vm updated to v1
+        continue-on-error: true
         with:
           run: |
             wget https://download.bell-sw.com/java/11.0.15.1+2/bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar.gz -nv
