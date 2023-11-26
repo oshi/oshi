@@ -145,7 +145,7 @@
         <!-- Misc. -->
         <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.23</animal-sniffer-maven-plugin.version>
-        <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
+        <dependency-check-maven.version>9.0.1</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.12.5</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
