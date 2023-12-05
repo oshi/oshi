@@ -88,11 +88,11 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE)) {
                     vram = Advapi32Util.registryGetLongValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE);
                 } else if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE)) {
-                    Object o = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE);
-                    if (o instanceof Long || o instanceof Integer) {
-                        vram = (long) o;
-                    } else if (o instanceof byte[]) {
-                        vram = memSizeBinaryToLong((byte[])o);
+                    Object genericValue = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE);
+                    if (genericValue instanceof Long || genericValue instanceof Integer) {
+                        vram = (long) genericValue;
+                    } else if (genericValue instanceof byte[]) {
+                        vram = memSizeBinaryToLong((byte[]) genericValue);
                     }
                 }
 
