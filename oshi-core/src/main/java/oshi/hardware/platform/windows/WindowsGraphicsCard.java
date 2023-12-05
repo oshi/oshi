@@ -132,12 +132,9 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         return result;
     }
 
-    /**
-     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the graphics cards.
-     *
-     * @return List of {@link oshi.hardware.platform.windows.WindowsGraphicsCard} objects.
-     */
-    public static List<GraphicsCard> getGraphicsCardsFromWmi() {
+
+    // fall back if something went wrong
+    private static List<GraphicsCard> getGraphicsCardsFromWmi() {
         List<GraphicsCard> cardList = new ArrayList<>();
         if (IS_VISTA_OR_GREATER) {
             WmiResult<VideoControllerProperty> cards = Win32VideoController.queryVideoController();
