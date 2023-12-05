@@ -23,11 +23,11 @@ init:
   - git config --global --unset core.autocrlf
 
 install:
-  - mvn --version
+  - ./mvnw --version
   - java -version
 
 build_script:
-  - appveyor-retry mvn clean package -Dmaven.test.skip=true
+  - appveyor-retry ./mvnw clean package -Dmaven.test.skip=true
 
 test_script:
-  - mvn test
+  - ./mvnw test
