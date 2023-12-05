@@ -67,6 +67,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     public static List<GraphicsCard> getGraphicsCards() {
         List<GraphicsCard> cardList = new ArrayList<>();
 
+        int index = 1;
         String[] keys = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, DISPLAY_DEVICES_REGISTRY_PATH);
         for (String key : keys) {
             if (!key.startsWith("0")) {
@@ -80,7 +81,6 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 }
 
                 String name = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_DESC);
-                // int index = 1; outside the loop
                 String deviceId = "VideoController" + index++;
                 String vendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR);
                 String versionInfo = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION);
@@ -92,11 +92,11 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     Object genericValue = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE);
                     if (genericValue instanceof Long) {
                         vram = (long) genericValue;
-                    else if (genericValue instanceof Integer) {
+                    } else if (genericValue instanceof Integer) {
                         vram = Integer.toUnsignedLong((int) genericValue);
                     } else if (genericValue instanceof byte[]) {
-                        bytes = (byte[]) genericValue;
-                        vram = ParseUtil.byteArrayToLong(bytes, bytes.length);
+                        byte[] bytes = (byte[]) genericValue;
+                        vram = ParseUtil.byteArrayToLong(bytes, bytes.length, false);
                     }
                 }
 
@@ -119,23 +119,6 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         }
         return cardList;
     }
-
-    // Note: not found spec, working for my Intel UHD embedded gpu
-    private static long memSizeBinaryToLong(byte[] bytes) {
-        long result = 0;
-
-        if (bytes.length > 8) {
-            LOG.debug("byte[] to long: Oops! bytes length > 8");
-            return 0;
-        }
-
-        for (byte i = 0; i < bytes.length; ++i) {
-            result += (long) (bytes[i] & 255) << 8 * i;
-        }
-
-        return result;
-    }
-
 
     // fall back if something went wrong
     private static List<GraphicsCard> getGraphicsCardsFromWmi() {
