@@ -80,7 +80,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 }
 
                 String name = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_DESC);
-                String deviceId = null; // Note: not found proper key in registry
+                // int index = 1; outside the loop
+                String deviceId = "VideoController" + index++;
                 String vendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR);
                 String versionInfo = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION);
                 long vram = 0L;
