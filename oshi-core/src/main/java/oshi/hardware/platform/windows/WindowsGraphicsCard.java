@@ -90,8 +90,10 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     vram = Advapi32Util.registryGetLongValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE);
                 } else if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE)) {
                     Object genericValue = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE);
-                    if (genericValue instanceof Long || genericValue instanceof Integer) {
+                    if (genericValue instanceof Long) {
                         vram = (long) genericValue;
+                    else if (genericValue instanceof Integer) {
+                        vram = Integer.toUnsignedLong((int) genericValue);
                     } else if (genericValue instanceof byte[]) {
                         bytes = (byte[]) genericValue;
                         vram = ParseUtil.byteArrayToLong(bytes, bytes.length);
