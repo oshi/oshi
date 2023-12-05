@@ -93,7 +93,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     if (genericValue instanceof Long || genericValue instanceof Integer) {
                         vram = (long) genericValue;
                     } else if (genericValue instanceof byte[]) {
-                        vram = memSizeBinaryToLong((byte[]) genericValue);
+                        bytes = (byte[]) genericValue;
+                        vram = ParseUtil.byteArrayToLong(bytes, bytes.length);
                     }
                 }
 
