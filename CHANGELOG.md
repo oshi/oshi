@@ -3,6 +3,7 @@
 ##### Bug fixes / Improvements
 * [#2527](https://github.com/oshi/oshi/pull/2527): Remove unicode degree sign from output to improve portability - [@dbwiddis](https://github.com/dbwiddis).
 * [#2533](https://github.com/oshi/oshi/pull/2533): Changed GPU info gathering mechanism on Windows - [@komelgman](https://github.com/komelgman).
+* [#2535](https://github.com/oshi/oshi/pull/2535): Fall back to vendor frequency on failed max on Windows - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24)
 
