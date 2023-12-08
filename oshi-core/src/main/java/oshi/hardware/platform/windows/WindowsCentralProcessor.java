@@ -81,8 +81,6 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             : null;
     // Lazily initialized
     private Long utilityBaseMultiplier = null;
-    // Use to backup queryNTPower
-    private long cpuVendorFreq = 0L;
 
     /**
      * Initializes Class variables
@@ -95,6 +93,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
+        long cpuVendorFreq = 0L;
         String processorID;
         boolean cpu64bit = false;
 
@@ -267,7 +266,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             }
             // In Win11 23H2 CallNtPowerInformation returns all 0's so use vendor freq
             if (freqs[i] == 0) {
-                freqs[i] = this.cpuVendorFreq;
+                freqs[i] = getProcessorIdentifier().getVendorFreq();
             }
         }
         return freqs;
