@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
-        java: [11, 17, 20, 21]
+        java: [11, 17, 21]
         os: [macos-11, macos-12, macos-13]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
