@@ -490,13 +490,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryMaxFreq() {
-        long max = Arrays.stream(this.getCurrentFreq()).max().orElse(-1L);
-        // Max of current freq, if populated, is in units of Hz, convert to kHz
-        if (max > 0) {
-            max /= 1000L;
-        }
-        // Iterating CPUs only gets the existing policy, so we need to iterate the
-        // policy directories to find the system-wide policy max
+        long policyMax = -1L;
+        // Iterate the policy directories to find the system-wide policy max
         UdevContext udev = Udev.INSTANCE.udev_new();
         try {
             UdevEnumerate enumerate = udev.enumerateNew();
@@ -508,7 +503,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 UdevListEntry entry = enumerate.getListEntry();
                 if (entry != null) {
                     String syspath = entry.getName(); // /sys/devices/system/cpu/cpu0
-                    String cpuFreqPath = syspath.substring(0, syspath.lastIndexOf(File.separatorChar)) + "/cpuFreq";
+                    String cpuFreqPath = syspath.substring(0, syspath.lastIndexOf(File.separatorChar)) + "/cpufreq";
                     String policyPrefix = cpuFreqPath + "/policy";
                     try (Stream<Path> path = Files.list(Paths.get(cpuFreqPath))) {
                         Optional<Long> maxPolicy = path.filter(p -> p.toString().startsWith(policyPrefix)).map(p -> {
@@ -518,8 +513,9 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                             }
                             return freq;
                         }).max(Long::compare);
-                        if (maxPolicy.isPresent() && max < maxPolicy.get()) {
-                            max = maxPolicy.get();
+                        if (maxPolicy.isPresent()) {
+                            // Value is in kHz
+                            policyMax = maxPolicy.get() * 1000L;
                         }
                     } catch (IOException e) {
                         // ignore
@@ -531,15 +527,11 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         } finally {
             udev.unref();
         }
-        if (max == 0L) {
-            return -1L;
-        }
-        // If successful, value is in KHz.
-        max *= 1000L;
-        // Cpufreq result assumes intel pstates and is unreliable for AMD processors.
         // Check lshw as a backup
         long lshwMax = Lshw.queryCpuCapacity();
-        return lshwMax > max ? lshwMax : max;
+        // And get the highest of existing current frequencies
+        return LongStream.concat(LongStream.of(policyMax, lshwMax), Arrays.stream(this.getCurrentFreq())).max()
+                .orElse(-1L);
     }
 
     @Override
