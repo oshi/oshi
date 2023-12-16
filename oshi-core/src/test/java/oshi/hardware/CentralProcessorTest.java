@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2023 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -65,7 +65,7 @@ class CentralProcessorTest {
                 p.getLogicalProcessorCount(), is(curr.length));
         if (max >= 0) {
             for (long freq : curr) {
-                assertThat("Logical processor frequency should be at most it's max frequency", freq,
+                assertThat("Logical processor frequency should be at most its max frequency", freq,
                         is(lessThanOrEqualTo(max)));
             }
         }

@@ -41,7 +41,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private final Supplier<ProcessorIdentifier> cpuid = memoize(this::queryProcessorId);
     private final Supplier<Long> maxFreq = memoize(this::queryMaxFreq, defaultExpiration());
-    private final Supplier<long[]> currentFreq = memoize(this::queryCurrentFreq, defaultExpiration());
+    // Max often iterates current, intentionally making it shorter to re-memoize current
+    private final Supplier<long[]> currentFreq = memoize(this::queryCurrentFreq, defaultExpiration() / 2L);
     private final Supplier<Long> contextSwitches = memoize(this::queryContextSwitches, defaultExpiration());
     private final Supplier<Long> interrupts = memoize(this::queryInterrupts, defaultExpiration());
 
