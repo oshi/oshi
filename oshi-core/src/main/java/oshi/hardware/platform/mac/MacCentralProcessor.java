@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +50,13 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
 
+    private static final Set<String> ARM_P_CORES = Stream
+            .of("apple,firestorm arm,v8", "apple,avalanche arm,v8", "apple,everest arm,v8").collect(Collectors.toSet());
+
     private static final int ARM_CPUTYPE = 0x0100000C;
     private static final int M1_CPUFAMILY = 0x1b588bb3;
     private static final int M2_CPUFAMILY = 0xda33d83d;
+    private static final int M3_CPUFAMILY = 0x8765edea;
     private static final long DEFAULT_FREQUENCY = 2_400_000_000L;
     private static final Pattern CPU_N = Pattern.compile("^cpu(\\d+)");
 
@@ -82,7 +87,18 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             int family;
             if (isArmCpu) {
                 type = ARM_CPUTYPE;
-                family = cpuName.contains("M2") ? M2_CPUFAMILY : M1_CPUFAMILY;
+                int mSeries = ParseUtil.getFirstIntValue(cpuName);
+                switch (mSeries) {
+                case 2:
+                    family = M2_CPUFAMILY;
+                    break;
+                case 3:
+                    family = M3_CPUFAMILY;
+                    break;
+                default:
+                    // Some M1 did not brand as such
+                    family = M1_CPUFAMILY;
+                }
             } else {
                 type = SysctlUtil.sysctl("hw.cputype", 0);
                 family = SysctlUtil.sysctl("hw.cpufamily", 0);
@@ -132,14 +148,11 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         int perflevels = SysctlUtil.sysctl("hw.nperflevels", 1);
         List<PhysicalProcessor> physProcs = pkgCoreKeys.stream().sorted().map(k -> {
             String compat = compatMap.getOrDefault(k, "").toLowerCase(Locale.ROOT);
-            int efficiency = 0; // default, for E-core icestorm or blizzard
-            if (compat.contains("firestorm") || compat.contains("avalanche")) {
-                // This is brittle. A better long term solution is to use sysctls
-                // hw.perflevel1.physicalcpu: 2
-                // hw.perflevel0.physicalcpu: 8
-                // Note the 1 and 0 values are reversed from OSHI API definition
-                efficiency = 1; // P-core, more performance
-            }
+            // This is brittle. A better long term solution is to use sysctls
+            // hw.perflevel1.physicalcpu: 2
+            // hw.perflevel0.physicalcpu: 8
+            // Note the 1 and 0 values are reversed from OSHI API definition
+            int efficiency = ARM_P_CORES.contains(compat) ? 1 : 0;
             return new PhysicalProcessor(k >> 16, k & 0xffff, efficiency, compat);
         }).collect(Collectors.toList());
         List<ProcessorCache> caches = orderedProcCaches(getCacheValues(perflevels));
@@ -302,7 +315,9 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                     byte[] data = cpu.getByteArrayProperty("compatible");
                     if (data != null) {
                         // Byte array is null delimited
-                        compatibleStrMap.put(procId, new String(data, StandardCharsets.UTF_8).replace('\0', ' '));
+                        // Example value for M2: "apple,blizzard", "ARM,v8"
+                        compatibleStrMap.put(procId,
+                                new String(data, StandardCharsets.UTF_8).replace('\0', ' ').trim());
                     }
                 }
                 cpu.release();
@@ -316,8 +331,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     // Called when initiating instance variables which occurs after constructor has
     // populated physical processors
     private boolean isArmCpu() {
-        // M1 / M2 chips will have an efficiency > 0
-        return getPhysicalProcessors().stream().map(PhysicalProcessor::getEfficiency).anyMatch(e -> e > 0);
+        return getPhysicalProcessors().stream().map(PhysicalProcessor::getIdString).anyMatch(id -> id.contains("arm"));
     }
 
     private void calculateNominalFrequencies() {
