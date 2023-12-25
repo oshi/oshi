@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../testapidocs/oshi/hardware/CentralProcessorTest.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2023 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware;
@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  p.getLogicalProcessorCount(), is(curr.length));
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">if</strong> (max &gt;= 0) {
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> freq : curr) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  assertThat(<span class="jxr_string">"Logical processor frequency should be at most it's max frequency"</span>, freq,
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  assertThat(<span class="jxr_string">"Logical processor frequency should be at most its max frequency"</span>, freq,
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                          is(lessThanOrEqualTo(max)));
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>              }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
