@@ -137,7 +137,7 @@
         <spotless-plugin.version>2.41.1</spotless-plugin.version>
         <!-- report only -->
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
-        <maven-jxr-plugin.version>3.3.1</maven-jxr-plugin.version>
+        <maven-jxr-plugin.version>3.3.2</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.2.3</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.0.0</taglist-maven-plugin.version>
