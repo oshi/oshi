@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -67,55 +67,46 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final String DOUBLE_QUOTES = "(?:^\")|(?:\"$)";
     private static final String FILENAME_PROPERTIES = "oshi.linux.filename.properties";
 
-    /**
-     * This static field identifies if the udev library can be loaded.
-     */
+    /** This static field identifies if the udev library can be loaded. */
     public static final boolean HAS_UDEV;
+    /** This static field identifies if the gettid function is in the c library. */
+    public static final boolean HAS_GETTID;
+    /** This static field identifies if the syscall for gettid returns sane results. */
+    public static final boolean HAS_SYSCALL_GETTID;
+
     static {
         boolean hasUdev = false;
+        boolean hasGettid = false;
+        boolean hasSyscallGettid = false;
         try {
-            @SuppressWarnings("unused")
-            Udev lib = null;
             try {
-                lib = Udev.INSTANCE;
+                @SuppressWarnings("unused")
+                Udev lib = Udev.INSTANCE;
                 hasUdev = true;
             } catch (UnsatisfiedLinkError e) {
                 LOG.warn("Did not find udev library in operating system. Some features may not work.");
             }
+
+            try {
+                LinuxLibc.INSTANCE.gettid();
+                hasGettid = true;
+            } catch (UnsatisfiedLinkError e) {
+                LOG.debug("Did not find gettid function in operating system. Using fallbacks.");
+            }
+
+            hasSyscallGettid = hasGettid;
+            if (!hasGettid) {
+                try {
+                    hasSyscallGettid = LinuxLibc.INSTANCE.syscall(LinuxLibc.SYS_GETTID).intValue() > 0;
+                } catch (UnsatisfiedLinkError e) {
+                    LOG.debug("Did not find working syscall gettid function in operating system. Using procfs");
+                }
+            }
         } catch (NoClassDefFoundError e) {
-            LOG.error("Did not find Udev class from JNA. There is likely an old JNA version on the classpath.");
+            LOG.error("Did not JNA classes. Investigate incompatible version or missing native dll.");
         }
         HAS_UDEV = hasUdev;
-    }
-
-    /**
-     * This static field identifies if the gettid function is in the c library.
-     */
-    public static final boolean HAS_GETTID;
-    static {
-        boolean hasGettid = false;
-        try {
-            LinuxLibc.INSTANCE.gettid();
-            hasGettid = true;
-        } catch (UnsatisfiedLinkError e) {
-            LOG.debug("Did not find gettid function in operating system. Using fallbacks.");
-        }
         HAS_GETTID = hasGettid;
-    }
-
-    /**
-     * This static field identifies if the syscall for gettid returns sane results.
-     */
-    public static final boolean HAS_SYSCALL_GETTID;
-    static {
-        boolean hasSyscallGettid = HAS_GETTID;
-        if (!HAS_GETTID) {
-            try {
-                hasSyscallGettid = LinuxLibc.INSTANCE.syscall(LinuxLibc.SYS_GETTID).intValue() > 0;
-            } catch (UnsatisfiedLinkError e) {
-                LOG.debug("Did not find working syscall gettid function in operating system. Using procfs");
-            }
-        }
         HAS_SYSCALL_GETTID = hasSyscallGettid;
     }
 
