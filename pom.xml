@@ -1018,6 +1018,10 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
+                        <configuration>
+                            <nvdMaxRetryCount>25</nvdMaxRetryCount>
+                            <nvdApiDelay>32000</nvdApiDelay>
+                        </configuration>
                         <executions>
                             <execution>
                                 <goals>

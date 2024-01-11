@@ -1,10 +1,8 @@
 # 6.4.11 (in progress)
 
-##### Bug fixes / Improvements
-* [#2559](https://github.com/oshi/oshi/pull/2559): Improve handling of missing JNA classes in LinuxOperatingSystem init - [@dbwiddis](https://github.com/dbwiddis).
-* [#2562](https://github.com/oshi/oshi/pull/2562): Allow opting out of use of udev via LinuxOperatingSystem- [@chadlwilson](https://github.com/chadlwilson).
+* Your contribution here!
 
-# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24), 6.4.9 (2023-12-10), 6.4.10 (2023-12-23)
+# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24), 6.4.9 (2023-12-10), 6.4.10 (2023-12-23), 6.4.11 (2023-01-11)
 
 ##### New Features
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
@@ -43,6 +41,8 @@
 * [#2545](https://github.com/oshi/oshi/pull/2545): Improve calculations for Linux CPU max frequency - [@dbwiddis](https://github.com/dbwiddis).
 * [#2548](https://github.com/oshi/oshi/pull/2548): Support Apple M3 chip - [@dbwiddis](https://github.com/dbwiddis).
 * [#2549](https://github.com/oshi/oshi/pull/2549): Add newer Intel and AMD architectures - [@dbwiddis](https://github.com/dbwiddis).
+* [#2559](https://github.com/oshi/oshi/pull/2559): Improve handling of missing JNA classes in LinuxOperatingSystem init - [@dbwiddis](https://github.com/dbwiddis).
+* [#2562](https://github.com/oshi/oshi/pull/2562): Allow opting out of use of udev via LinuxOperatingSystem- [@chadlwilson](https://github.com/chadlwilson).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
