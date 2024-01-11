@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#2559](https://github.com/oshi/oshi/pull/2559): Improve handling of missing JNA classes in LinuxOperatingSystem init - [@dbwiddis](https://github.com/dbwiddis).
+* [#2562](https://github.com/oshi/oshi/pull/2562): Allow opting out of use of udev via LinuxOperatingSystem- [@chadlwilson](https://github.com/chadlwilson).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24), 6.4.9 (2023-12-10), 6.4.10 (2023-12-23)
 

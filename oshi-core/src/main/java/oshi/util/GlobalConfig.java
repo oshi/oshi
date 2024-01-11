@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -29,6 +29,7 @@ public final class GlobalConfig {
     public static final String OSHI_PSEUDO_FILESYSTEM_TYPES = "oshi.pseudo.filesystem.types";
     public static final String OSHI_NETWORK_FILESYSTEM_TYPES = "oshi.network.filesystem.types";
 
+    public static final String OSHI_OS_LINUX_ALLOWUDEV = "oshi.os.linux.allowudev";
     public static final String OSHI_OS_LINUX_PROCFS_LOGWARNING = "oshi.os.linux.procfs.logwarning";
 
     public static final String OSHI_OS_MAC_SYSCTL_LOGWARNING = "oshi.os.mac.sysctl.logwarning";

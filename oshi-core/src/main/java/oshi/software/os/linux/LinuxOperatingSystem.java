@@ -46,6 +46,7 @@ import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Pair;
@@ -79,12 +80,16 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         boolean hasGettid = false;
         boolean hasSyscallGettid = false;
         try {
-            try {
-                @SuppressWarnings("unused")
-                Udev lib = Udev.INSTANCE;
-                hasUdev = true;
-            } catch (UnsatisfiedLinkError e) {
-                LOG.warn("Did not find udev library in operating system. Some features may not work.");
+            if (GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWUDEV, true)) {
+                try {
+                    @SuppressWarnings("unused")
+                    Udev lib = Udev.INSTANCE;
+                    hasUdev = true;
+                } catch (UnsatisfiedLinkError e) {
+                    LOG.warn("Did not find udev library in operating system. Some features may not work.");
+                }
+            } else {
+                LOG.info("Loading of udev not allowed by configuration. Some features may not work.");
             }
 
             try {
