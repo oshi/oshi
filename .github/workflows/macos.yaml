@@ -20,6 +20,9 @@ jobs:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [11, 17, 21]
         os: [macos-11, macos-12, macos-13]
+        include:
+          - os: flyci-macos-large-latest-m1
+            java: 21
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
 
