@@ -34,6 +34,9 @@ public final class Constants {
 
     public static final Pattern DIGITS = Pattern.compile("\\d+");
 
+    public static final String CPU_INFO_CMD = "lscpu | grep '%s' | awk -F': ' '{print $2}'";
+    public static final String CPU_MODEL_NAME = "Model name";
+
     /**
      * Everything in this class is static, never instantiate it
      */

@@ -5,6 +5,8 @@
 package oshi.hardware.platform.linux;
 
 import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+import static oshi.util.Constants.CPU_INFO_CMD;
+import static oshi.util.Constants.CPU_MODEL_NAME;
 import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import static oshi.util.platform.linux.ProcPath.MODEL;
 
@@ -44,10 +46,7 @@ import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystem;
-import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
-import oshi.util.ParseUtil;
-import oshi.util.Util;
+import oshi.util.*;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
@@ -135,6 +134,13 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (cpuName.isEmpty()) {
             cpuName = FileUtil.getStringFromFile(MODEL);
         }
+
+        if (cpuName.isEmpty()) {
+            //get cpu model name by shell 'lscpu | grep '%s' | awk -F': ' '{print $2}''
+            String cmd = String.format(CPU_INFO_CMD, CPU_MODEL_NAME);
+            cpuName = ShellUtil.executeSh(cmd).trim();
+        }
+
         if (cpuName.contains("Hz")) {
             // if Name contains CPU vendor frequency, ignore cpuinfo and use it
             cpuFreq = -1L;
