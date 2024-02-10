@@ -34,13 +34,13 @@ Supported Platforms
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Version
-  * JDK8: [oshi-core-6.4.11](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.4.11)
-  * JPMS: [oshi-core-java11-6.4.11](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.4.11)
+  * JDK8: [oshi-core-6.4.12](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.4.12)
+  * JPMS: [oshi-core-java11-6.4.12](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.4.12)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.4.12-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=6.4.12-SNAPSHOT&amp;e=jar)
-  * JPMS: [oshi-core-java11-6.4.12-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=6.4.12-SNAPSHOT&amp;e=jar)
+  * JDK8: [oshi-core-6.4.13-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core&amp;v=6.4.13-SNAPSHOT&amp;e=jar)
+  * JPMS: [oshi-core-java11-6.4.13-SNAPSHOT](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=com.github.oshi&amp;a=oshi-core-java11&amp;v=6.4.13-SNAPSHOT&amp;e=jar)
 
 Documentation
 -------------
