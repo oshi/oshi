@@ -4,10 +4,30 @@ freebsd_task:
   skip: "!changesInclude('.cirrus.yml', '**/freebsd/**', '**/common/**', '**/unix/*', '**/util/**')"
   freebsd_instance:
     matrix:
-      image_family: freebsd-12-3
-      image_family: freebsd-13-0
-      image_family: freebsd-14-0-snap
+      image_family: freebsd-13-2
+      image_family: freebsd-14-0
+      image_family: freebsd-15-0-snap
   maven_cache:
     folder: ~/.m2
   install_script: pkg install -y openjdk11
+  test_script: ./mvnw test -Djacoco.skip=true -B
+windows_docker_task:
+  name: Windows Docker CI
+  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
+  skip: "!changesInclude('.cirrus.yml', '**/linux/**', '**/common/**', '**/util/**')"
+  windows_container:
+    image: cirrusci/windowsservercore:2019
+  maven_cache:
+    folder: ~/.m2
+  test_script: ./mvnw test -Djacoco.skip=true -B
+linux_arm_task:
+  name: Linux ARM CI
+  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
+  skip: "!changesInclude('.cirrus.yml', '**/linux/**', '**/common/**', '**/util/**')"
+  arm_container:
+    image: openjdk:latest
+    cpu: 4
+    memory: 12G
+  maven_cache:
+    folder: ~/.m2
   test_script: ./mvnw test -Djacoco.skip=true -B
