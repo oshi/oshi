@@ -17,9 +17,14 @@ windows_docker_task:
   skip: "!changesInclude('.cirrus.yml', '**/linux/**', '**/common/**', '**/util/**')"
   windows_container:
     image: cirrusci/windowsservercore:2019
+    shell: powershell
   maven_cache:
     folder: ~/.m2
-  test_script: ./mvnw test -Djacoco.skip=true -B
+  before_script:
+    - choco install -y openjdk
+  test_script: |
+    $env:JAVA_HOME = Get-Command java | Select-Object -ExpandProperty Source -First 1 | ForEach-Object { $_.DirectoryName }
+    ./mvnw test -Djacoco.skip=true -B
 linux_arm_task:
   name: Linux ARM CI
   only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
