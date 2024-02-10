@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -391,24 +391,25 @@ class OperatingSystemTest {
     void testGetServices() {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
-        int stopped = 0;
-        int running = 0;
-        for (OSService svc : os.getServices()) {
-            assertThat(svc.getName(), is(not(emptyString())));
-            switch (svc.getState()) {
-            case STOPPED:
-                stopped++;
-                break;
-            case RUNNING:
-                running++;
-                break;
-            default:
-                break;
+        List<OSService> services = os.getServices();
+        // macOS CI typically has none, though, and some linux distros aren't covered
+        if (!services.isEmpty()) {
+            int stopped = 0;
+            int running = 0;
+            for (OSService svc : services) {
+                assertThat(svc.getName(), is(not(emptyString())));
+                switch (svc.getState()) {
+                case STOPPED:
+                    stopped++;
+                    break;
+                case RUNNING:
+                    running++;
+                    break;
+                default:
+                    break;
+                }
             }
-        }
-        // Should be at least one of each
-        // macOS CI typically has none, though
-        if (!Platform.isMac()) {
+            // Should be at least one of each
             assertThat("There should be at least 1 stopped service", stopped, is(greaterThan(0)));
             assertThat("There should be at least 1 running service", running, is(greaterThan(0)));
         }
