@@ -23,7 +23,7 @@ windows_docker_task:
   before_script:
     - choco install -y openjdk
   test_script: |
-    $env:JAVA_HOME = (Get-Command java).Source | Split-Path -Parent
+    $env:JAVA_HOME = (Get-Command java).Source.Substring(0, (Get-Command java).Source.LastIndexOf('\'))
     ./mvnw test -Djacoco.skip=true -B
 linux_arm_task:
   name: Linux ARM CI
