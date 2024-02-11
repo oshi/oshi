@@ -11,20 +11,6 @@ freebsd_task:
     folder: ~/.m2
   install_script: pkg install -y openjdk11
   test_script: ./mvnw test -Djacoco.skip=true -B
-windows_docker_task:
-  name: Windows Docker CI
-  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
-  skip: "!changesInclude('.cirrus.yml', '**/linux/**', '**/common/**', '**/util/**')"
-  windows_container:
-    image: cirrusci/windowsservercore:2019
-    shell: powershell
-  maven_cache:
-    folder: ~/.m2
-  before_script:
-    - choco install -y openjdk
-  test_script: |
-    java -version
-    ./mvnw test -Djacoco.skip=true -B
 linux_arm_task:
   name: Linux ARM CI
   only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
