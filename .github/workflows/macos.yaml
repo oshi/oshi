@@ -19,7 +19,7 @@ jobs:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [11, 17, 21]
-        os: [macos-11, macos-12, macos-13]
+        os: [macos-11, macos-12, macos-13, macos-14]
         include:
           - os: flyci-macos-large-latest-m1
             java: 21
