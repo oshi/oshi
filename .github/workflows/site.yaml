@@ -21,15 +21,10 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu'
+          cache: 'maven'
       - uses: webfactory/ssh-agent@master
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
       - name: Build site
         run: ./mvnw site site:stage -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
         env:

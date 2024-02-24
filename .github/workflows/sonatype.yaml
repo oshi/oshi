@@ -24,5 +24,6 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu'
+          cache: 'maven'
       - name: Deploy to Sonatype
         run: ./mvnw deploy -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
