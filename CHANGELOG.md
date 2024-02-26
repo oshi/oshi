@@ -1,9 +1,8 @@
-# 6.4.13 (in progress)
+# 6.4.14 (in progress)
 
-##### Bug fixes / Improvements
-* [#2588](https://github.com/oshi/oshi/pull/2588): Fix parsing of strings to long arrays - [@cl728](https://github.com/cl728).
+* Your contribution here!
 
-# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24), 6.4.9 (2023-12-10), 6.4.10 (2023-12-23), 6.4.11 (2024-01-11), 6.4.12 (2024-02-10)
+# 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24), 6.4.9 (2023-12-10), 6.4.10 (2023-12-23), 6.4.11 (2024-01-11), 6.4.12 (2024-02-10), 6.4.13 (2024-02-25)
 
 ##### New Features
 * [#2261](https://github.com/oshi/oshi/pull/2261): Add getThreadId, getCurrentThread and getCurrentProcess to OperatingSystem API - [@dbwiddis](https://github.com/dbwiddis).
@@ -45,6 +44,7 @@
 * [#2559](https://github.com/oshi/oshi/pull/2559): Improve handling of missing JNA classes in LinuxOperatingSystem init - [@dbwiddis](https://github.com/dbwiddis).
 * [#2562](https://github.com/oshi/oshi/pull/2562): Allow opting out of use of udev via LinuxOperatingSystem- [@chadlwilson](https://github.com/chadlwilson).
 * [#2278](https://github.com/oshi/oshi/pull/2278): Use lscpu Model Name as backup for cpuName - [@13276965576](https://github.com/13276965576).
+* [#2588](https://github.com/oshi/oshi/pull/2588): Fix parsing of strings to long arrays - [@cl728](https://github.com/cl728).
 
 # 6.3.0 (2022-10-16), 6.3.1 (2022-10-30), 6.3.2 (2022-11-16)
 
