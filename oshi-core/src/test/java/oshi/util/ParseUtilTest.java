@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -400,6 +400,11 @@ class ParseUtilTest {
         foo = String.format(Locale.ROOT, "%d %d %d %d 123-456", 123, 456, 789, now);
         count = ParseUtil.countStringToLongArray(foo, ' ');
         assertThat("countStringToLongArray should return 4 for \"" + foo + "\"", count, is(4));
+
+        foo = String.format(Locale.ROOT, "%d %d %d %d", 123, 456, 789, now);
+        indices = new int[] { 0 };
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertThat("result[0] should be 123 using parseStringToLongArray on \"" + foo + "\"", result[0], is(123L));
     }
 
     @Test
