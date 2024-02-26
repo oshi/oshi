@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -647,6 +647,9 @@ public final class ParseUtil {
      * @return If successful, an array of parsed longs. If parsing errors occurred, will be an array of zeros.
      */
     public static long[] parseStringToLongArray(String s, int[] indices, int length, char delimiter) {
+        // Ensure that the last character is a number
+        s = s.trim();
+
         long[] parsed = new long[indices.length];
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
@@ -660,7 +663,7 @@ public final class ParseUtil {
         boolean numeric = true;
         boolean numberFound = false; // ignore nonnumeric at end
         boolean dashSeen = false; // to flag uuids as nonnumeric
-        while (--charIndex > 0 && parsedIndex >= 0) {
+        while (--charIndex >= 0 && parsedIndex >= 0) {
             c = s.charAt(charIndex);
             if (c == delimiter) {
                 // first parseable number?
@@ -734,6 +737,9 @@ public final class ParseUtil {
      * @return The number of parsable long values which follow the last unparsable value.
      */
     public static int countStringToLongArray(String s, char delimiter) {
+        // Ensure that the last character is a number
+        s = s.trim();
+
         // Iterate from right-to-left of String
         // Fill right to left of result array using index array
         int charIndex = s.length();
@@ -743,7 +749,7 @@ public final class ParseUtil {
         boolean delimCurrent = false;
         boolean numeric = true;
         boolean dashSeen = false; // to flag uuids as nonnumeric
-        while (--charIndex > 0) {
+        while (--charIndex >= 0) {
             c = s.charAt(charIndex);
             if (c == delimiter) {
                 if (!delimCurrent) {
