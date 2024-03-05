@@ -113,7 +113,7 @@
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <maven-fluido-skin.version>1.12.0</maven-fluido-skin.version>
         <!-- build plugins -->
-        <git-commit-id-maven-plugin.version>7.0.0</git-commit-id-maven-plugin.version>
+        <git-commit-id-maven-plugin.version>8.0.0</git-commit-id-maven-plugin.version>
         <build-helper-maven-plugin.version>3.5.0</build-helper-maven-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <bnd-maven-plugin.version>6.4.0</bnd-maven-plugin.version>
