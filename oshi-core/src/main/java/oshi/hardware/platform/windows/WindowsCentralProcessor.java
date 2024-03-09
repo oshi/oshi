@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -7,6 +7,7 @@ package oshi.hardware.platform.windows;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +46,7 @@ import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -161,10 +163,10 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> lpi;
         if (VersionHelpers.IsWindows7OrGreater()) {
-            Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> procs = LogicalProcessorInformation
-                    .getLogicalProcessorInformationEx();
+            lpi = LogicalProcessorInformation.getLogicalProcessorInformationEx();
             // Save numaNode,Processor lookup for future PerfCounter instance lookup
             // The processor number is based on the Processor Group, so we keep a separate
             // index by NUMA node.
@@ -173,7 +175,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             // 0-indexed list of all lps for array lookup
             int lp = 0;
             this.numaNodeProcToLogicalProcMap = new HashMap<>();
-            for (LogicalProcessor logProc : procs.getA()) {
+            for (LogicalProcessor logProc : lpi.getA()) {
                 int node = logProc.getNumaNode();
                 // This list is grouped by NUMA node so a change in node will reset this counter
                 if (node != curNode) {
@@ -183,10 +185,12 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", logProc.getNumaNode(), procNum++),
                         lp++);
             }
-            return procs;
         } else {
-            return LogicalProcessorInformation.getLogicalProcessorInformation();
+            lpi = LogicalProcessorInformation.getLogicalProcessorInformation();
         }
+        // FIXME: iterate values for IsProcessorFeaturePresent call
+        List<String> featureFlags = Collections.emptyList();
+        return new Quartet<>(lpi.getA(), lpi.getB(), lpi.getC(), featureFlags);
     }
 
     @Override

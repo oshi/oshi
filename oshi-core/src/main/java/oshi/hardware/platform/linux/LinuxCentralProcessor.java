@@ -49,7 +49,6 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
-import oshi.util.tuples.Triplet;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -168,7 +167,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         // Attempt to read from sysfs
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
                 ? readTopologyFromUdev()
@@ -198,7 +197,9 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
                 }).collect(Collectors.toList());
 
-        return new Triplet<>(logProcs, physProcs, caches);
+        // FIXME: Iterate proc/cpuinfo to populate flags and features
+        List<String> featureFlags = Collections.emptyList();
+        return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 
     private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
