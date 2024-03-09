@@ -9,12 +9,12 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -37,6 +37,7 @@ import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.Struct.CloseableHostCpuLoadInfo;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -157,8 +158,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             return new PhysicalProcessor(k >> 16, k & 0xffff, efficiency, compat);
         }).collect(Collectors.toList());
         List<ProcessorCache> caches = orderedProcCaches(getCacheValues(perflevels));
-        // FIXME: Iterate sysctl to populate
-        List<String> featureFlags = Collections.emptyList();
+        List<String> featureFlags = getFeatureFlagsFromSysctl();
         return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 
@@ -186,6 +186,15 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return caches;
+    }
+
+    private List<String> getFeatureFlagsFromSysctl() {
+        List<String> x86Features = Arrays.asList("features", "extfeatures", "leaf7_features").stream().map(f -> {
+            String key = "machdep.cpu." + f;
+            String features = SysctlUtil.sysctl(key, "", false);
+            return Util.isBlank(features) ? null : (key + ": " + features);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        return x86Features.isEmpty() ? ExecutingCommand.runNative("sysctl -a hw.optional") : x86Features;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.mac;
@@ -88,16 +88,32 @@ public final class SysctlUtil {
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
+        return sysctl(name, def, true);
+    }
+
+    /**
+     * Executes a sysctl call with a String result
+     *
+     * @param name       name of the sysctl
+     * @param def        default String value
+     * @param logWarning whether to log the warning if not available
+     * @return The String result of the call if successful; the default otherwise
+     */
+    public static String sysctl(String name, String def, boolean logWarning) {
         // Call first time with null pointer to get value of size
         try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
             if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                if (logWarning) {
+                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                }
                 return def;
             }
             // Add 1 to size for null terminated string
             try (Memory p = new Memory(size.longValue() + 1L)) {
                 if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                    if (logWarning) {
+                        LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
+                    }
                     return def;
                 }
                 return p.getString(0);
