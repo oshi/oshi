@@ -39,6 +39,7 @@ import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Lshw;
+import oshi.driver.linux.proc.CpuInfo;
 import oshi.driver.linux.proc.CpuStat;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -196,9 +197,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     int coreId = e.getKey() & 0xffff;
                     return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
                 }).collect(Collectors.toList());
-
-        // FIXME: Iterate proc/cpuinfo to populate flags and features
-        List<String> featureFlags = Collections.emptyList();
+        List<String> featureFlags = CpuInfo.queryFeatureFlags();
         return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 

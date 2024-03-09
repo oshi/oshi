@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux.proc;
@@ -7,6 +7,8 @@ package oshi.driver.linux.proc;
 import static oshi.util.platform.linux.ProcPath.CPUINFO;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
@@ -119,5 +121,12 @@ public final class CpuInfo {
         default:
             return Constants.UNKNOWN;
         }
+    }
+
+    public static List<String> queryFeatureFlags() {
+        return FileUtil.readFile(CPUINFO).stream().filter(f -> {
+            String s = f.toLowerCase(Locale.ROOT);
+            return s.startsWith("flags") || s.startsWith("features");
+        }).distinct().collect(Collectors.toList());
     }
 }
