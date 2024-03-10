@@ -47,17 +47,17 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.driver.linux.Lshw;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.linux.proc.CpuStat;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.ProcessorCache.Type;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.LinuxLibc;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.LinuxOperatingSystem;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.driver.linux.proc.CpuInfo;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.driver.linux.proc.CpuStat;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.ProcessorCache.Type;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.LinuxLibc;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.LinuxOperatingSystem;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> * A CPU as defined in Linux /proc.</em>
@@ -176,7 +176,7 @@
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     @Override
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">protected</strong> Triplet&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;, List&lt;ProcessorCache&gt;&gt; initProcessorCounts() {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">protected</strong> Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;PhysicalProcessor&gt;, List&lt;ProcessorCache&gt;, List&lt;String&gt;&gt; initProcessorCounts() {
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         <em class="jxr_comment">// Attempt to read from sysfs</em>
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; topology = HAS_UDEV
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>                 ? readTopologyFromUdev()
@@ -205,8 +205,8 @@
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>                     <strong class="jxr_keyword">int</strong> coreId = e.getKey() &amp; 0xffff;
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), <span class="jxr_string">""</span>));
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>                 }).collect(Collectors.toList());
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(logProcs, physProcs, caches);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         List&lt;String&gt; featureFlags = CpuInfo.queryFeatureFlags();
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(logProcs, physProcs, caches, featureFlags);
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>     }
 <a class="jxr_linenumber" name="L203" href="#L203">203</a> 
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; readTopologyFromUdev() {
