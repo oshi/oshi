@@ -7,19 +7,19 @@ package oshi.hardware.platform.windows;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import oshi.jna.platform.windows.Kernel32.ProcessorFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -40,6 +40,7 @@ import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.Struct.CloseableSystemInfo;
+import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.GlobalConfig;
@@ -188,8 +189,9 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         } else {
             lpi = LogicalProcessorInformation.getLogicalProcessorInformation();
         }
-        // FIXME: iterate values for IsProcessorFeaturePresent call
-        List<String> featureFlags = Collections.emptyList();
+        List<String> featureFlags = Arrays.stream(ProcessorFeature.values())
+                .filter(f -> Kernel32.INSTANCE.IsProcessorFeaturePresent(f.value())).map(ProcessorFeature::name)
+                .collect(Collectors.toList());
         return new Quartet<>(lpi.getA(), lpi.getB(), lpi.getC(), featureFlags);
     }
 
