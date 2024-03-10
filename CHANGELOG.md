@@ -1,6 +1,6 @@
-# 6.4.14 (in progress)
+# 6.5.0 (in progress)
 
-* Your contribution here!
+* [#2592](https://github.com/oshi/oshi/pull/2592): Add getFeatureFlags method to CentralProcessor API - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.4.0 (2022-12-02), 6.4.1 (2023-03-18), 6.4.2 (2023-05-02), 6.4.3 (2023-06-06), 6.4.4 (2023-07-01), 6.4.5 (2023-08-20), 6.4.6 (2023-09-24), 6.4.7 (2023-11-01), 6.4.8 (2023-11-24), 6.4.9 (2023-12-10), 6.4.10 (2023-12-23), 6.4.11 (2024-01-11), 6.4.12 (2024-02-10), 6.4.13 (2024-02-25)
 

@@ -120,11 +120,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(proc, physProc, nodePkg == null ? 0 : nodePkg.getB(),
                     nodePkg == null ? 0 : nodePkg.getA()));
         }
-        // FIXME: $ lsattr -El proc0
-        // smt_enabled true Processor SMT enabled False
-        // or systemcfg() for VMX
-        List<String> featureFlags = Collections.emptyList();
-        return new Quartet<>(logProcs, null, getCachesForModel(physProcs), featureFlags);
+        return new Quartet<>(logProcs, null, getCachesForModel(physProcs), Collections.emptyList());
     }
 
     private List<ProcessorCache> getCachesForModel(int cores) {
