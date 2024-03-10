@@ -21,9 +21,9 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -164,6 +164,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
         // cpu4: 1024KB 64b/line 16-way L2 cache
         Pattern q = Pattern.compile("cpu(\\\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
+        Set<String> featureFlags = new LinkedHashSet<>();
         for (String s : ExecutingCommand.runNative("dmesg")) {
             Matcher m = p.matcher(s);
             if (m.matches()) {
@@ -180,11 +181,15 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
                     }
                 }
             }
+            if (s.startsWith("cpu")) {
+                String[] ss = s.trim().split(": ");
+                if (ss.length == 2 && ss[1].split(",").length > 3) {
+                    featureFlags.add(ss[1]);
+                }
+            }
         }
         List<PhysicalProcessor> physProcs = cpuMap.isEmpty() ? null : createProcListFromDmesg(logProcs, cpuMap);
-        // FIXME: Iterate dmesg to populate
-        List<String> featureFlags = Collections.emptyList();
-        return new Quartet<>(logProcs, physProcs, orderedProcCaches(caches), featureFlags);
+        return new Quartet<>(logProcs, physProcs, orderedProcCaches(caches), new ArrayList<>(featureFlags));
     }
 
     private ProcessorCache parseCacheStr(String cacheStr) {
