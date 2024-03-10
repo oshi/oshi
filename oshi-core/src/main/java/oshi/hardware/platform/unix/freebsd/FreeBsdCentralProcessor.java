@@ -5,7 +5,6 @@
 package oshi.hardware.platform.unix.freebsd;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -115,6 +114,8 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         Pattern normal = Pattern.compile("cpu(\\\\d+): (.+) on .*");
         // CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0
         Pattern hybrid = Pattern.compile("CPU\\\\s*(\\\\d+): (.+) affinity:.*");
+        List<String> featureFlags = new ArrayList<>();
+        boolean readingFlags = false;
         for (String s : FileUtil.readFile("/var/run/dmesg.boot")) {
             Matcher h = hybrid.matcher(s);
             if (h.matches()) {
@@ -129,11 +130,18 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     dmesg.putIfAbsent(coreId, n.group(2).trim());
                 }
             }
+            if (s.contains("Origin=")) {
+                readingFlags = true;
+            } else if (readingFlags) {
+                if (s.startsWith("  ")) {
+                    featureFlags.add(s.trim());
+                } else {
+                    readingFlags = false;
+                }
+            }
         }
         List<PhysicalProcessor> physProcs = dmesg.isEmpty() ? null : createProcListFromDmesg(logProcs, dmesg);
         List<ProcessorCache> caches = getCacheInfoFromLscpu();
-        // FIXME: Iterate dmesg to populate
-        List<String> featureFlags = Collections.emptyList();
         return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 
