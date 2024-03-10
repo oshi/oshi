@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -13,12 +13,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import oshi.jna.platform.windows.Kernel32.ProcessorFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -39,12 +40,14 @@ import oshi.driver.windows.wmi.Win32Processor;
 import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.Struct.CloseableSystemInfo;
+import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -161,10 +164,10 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> lpi;
         if (VersionHelpers.IsWindows7OrGreater()) {
-            Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> procs = LogicalProcessorInformation
-                    .getLogicalProcessorInformationEx();
+            lpi = LogicalProcessorInformation.getLogicalProcessorInformationEx();
             // Save numaNode,Processor lookup for future PerfCounter instance lookup
             // The processor number is based on the Processor Group, so we keep a separate
             // index by NUMA node.
@@ -173,7 +176,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
             // 0-indexed list of all lps for array lookup
             int lp = 0;
             this.numaNodeProcToLogicalProcMap = new HashMap<>();
-            for (LogicalProcessor logProc : procs.getA()) {
+            for (LogicalProcessor logProc : lpi.getA()) {
                 int node = logProc.getNumaNode();
                 // This list is grouped by NUMA node so a change in node will reset this counter
                 if (node != curNode) {
@@ -183,10 +186,13 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", logProc.getNumaNode(), procNum++),
                         lp++);
             }
-            return procs;
         } else {
-            return LogicalProcessorInformation.getLogicalProcessorInformation();
+            lpi = LogicalProcessorInformation.getLogicalProcessorInformation();
         }
+        List<String> featureFlags = Arrays.stream(ProcessorFeature.values())
+                .filter(f -> Kernel32.INSTANCE.IsProcessorFeaturePresent(f.value())).map(ProcessorFeature::name)
+                .collect(Collectors.toList());
+        return new Quartet<>(lpi.getA(), lpi.getB(), lpi.getC(), featureFlags);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi;
@@ -295,6 +295,12 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                 sb.append(FormatUtil.formatHertz(freqs[i]));
             }
             oshi.add(sb.toString());
+        }
+        if (!processor.getFeatureFlags().isEmpty()) {
+            oshi.add("CPU Features:");
+            for (String features : processor.getFeatureFlags()) {
+                oshi.add("  " + features);
+            }
         }
     }
 

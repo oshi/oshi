@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
@@ -9,6 +9,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -29,7 +30,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * A CPU
@@ -93,7 +94,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         this.config = PerfstatConfig.queryConfig();
 
         // Reporting "online" or "active" values can lead to nonsense so we go with max
@@ -119,7 +120,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(proc, physProc, nodePkg == null ? 0 : nodePkg.getB(),
                     nodePkg == null ? 0 : nodePkg.getA()));
         }
-        return new Triplet<>(logProcs, null, getCachesForModel(physProcs));
+        return new Quartet<>(logProcs, null, getCachesForModel(physProcs), Collections.emptyList());
     }
 
     private List<ProcessorCache> getCachesForModel(int cores) {
@@ -176,6 +177,10 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         //
         // ~/git/oshi$ pmcycles -m
         // This machine runs at 1000 MHz
+
+        // FIXME change to this as pmcycles requires root
+        // $ lsattr -El proc0
+        // frequency 3425000000 Processor Speed False
 
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, -1);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 The OSHI Project Contributors
+ * Copyright 2021-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,6 +43,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -102,7 +104,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         // Iterate dmesg, look for lines:
         // cpu0: smt 0, core 0, package 0
         // cpu1: smt 0, core 1, package 0
@@ -162,6 +164,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
         // cpu4: 1024KB 64b/line 16-way L2 cache
         Pattern q = Pattern.compile("cpu(\\\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
+        Set<String> featureFlags = new LinkedHashSet<>();
         for (String s : ExecutingCommand.runNative("dmesg")) {
             Matcher m = p.matcher(s);
             if (m.matches()) {
@@ -178,9 +181,15 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
                     }
                 }
             }
+            if (s.startsWith("cpu")) {
+                String[] ss = s.trim().split(": ");
+                if (ss.length == 2 && ss[1].split(",").length > 3) {
+                    featureFlags.add(ss[1]);
+                }
+            }
         }
         List<PhysicalProcessor> physProcs = cpuMap.isEmpty() ? null : createProcListFromDmesg(logProcs, cpuMap);
-        return new Triplet<>(logProcs, physProcs, orderedProcCaches(caches));
+        return new Quartet<>(logProcs, physProcs, orderedProcCaches(caches), new ArrayList<>(featureFlags));
     }
 
     private ProcessorCache parseCacheStr(String cacheStr) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -29,7 +29,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.Auxv;
 import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * A CPU.
@@ -59,12 +59,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     private final List<LogicalProcessor> logicalProcessors;
     private final List<PhysicalProcessor> physicalProcessors;
     private final List<ProcessorCache> processorCaches;
+    private final List<String> featureFlags;
 
     /**
      * Create a Processor
      */
     protected AbstractCentralProcessor() {
-        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> processorLists = initProcessorCounts();
+        Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> processorLists = initProcessorCounts();
         // Populate logical processor lists.
         this.logicalProcessors = Collections.unmodifiableList(processorLists.getA());
         if (processorLists.getB() == null) {
@@ -88,14 +89,15 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         this.logicalProcessorCount = this.logicalProcessors.size();
         this.physicalProcessorCount = this.physicalProcessors.size();
         this.physicalPackageCount = physPkgs.size();
+        this.featureFlags = Collections.unmodifiableList(processorLists.getD());
     }
 
     /**
-     * Updates logical and physical processor counts and arrays
+     * Initializes logical and physical processor lists and feature flags.
      *
-     * @return An array of initialized Logical Processors and Physical Processors.
+     * @return Lists of initialized Logical Processors, Physical Processors, Processor Caches, and Feature Flags.
      */
-    protected abstract Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts();
+    protected abstract Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts();
 
     /**
      * Updates logical and physical processor counts and arrays
@@ -178,6 +180,11 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public List<ProcessorCache> getProcessorCaches() {
         return this.processorCaches;
+    }
+
+    @Override
+    public List<String> getFeatureFlags() {
+        return this.featureFlags;
     }
 
     @Override

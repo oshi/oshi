@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -31,7 +31,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * A CPU
@@ -103,7 +103,7 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         List<LogicalProcessor> logProcs = parseTopology();
         // Force at least one processor
         if (logProcs.isEmpty()) {
@@ -114,6 +114,8 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         Pattern normal = Pattern.compile("cpu(\\\\d+): (.+) on .*");
         // CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0
         Pattern hybrid = Pattern.compile("CPU\\\\s*(\\\\d+): (.+) affinity:.*");
+        List<String> featureFlags = new ArrayList<>();
+        boolean readingFlags = false;
         for (String s : FileUtil.readFile("/var/run/dmesg.boot")) {
             Matcher h = hybrid.matcher(s);
             if (h.matches()) {
@@ -128,10 +130,19 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     dmesg.putIfAbsent(coreId, n.group(2).trim());
                 }
             }
+            if (s.contains("Origin=")) {
+                readingFlags = true;
+            } else if (readingFlags) {
+                if (s.startsWith("  ")) {
+                    featureFlags.add(s.trim());
+                } else {
+                    readingFlags = false;
+                }
+            }
         }
         List<PhysicalProcessor> physProcs = dmesg.isEmpty() ? null : createProcListFromDmesg(logProcs, dmesg);
         List<ProcessorCache> caches = getCacheInfoFromLscpu();
-        return new Triplet<>(logProcs, physProcs, caches);
+        return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 
     private List<ProcessorCache> getCacheInfoFromLscpu() {

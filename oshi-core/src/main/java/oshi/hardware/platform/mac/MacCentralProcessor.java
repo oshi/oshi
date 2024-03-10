@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -36,11 +37,12 @@ import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.Struct.CloseableHostCpuLoadInfo;
+import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * A CPU.
@@ -132,7 +134,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
         int physicalProcessorCount = SysctlUtil.sysctl("hw.physicalcpu", 1);
         int physicalPackageCount = SysctlUtil.sysctl("hw.packages", 1);
@@ -156,7 +158,8 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             return new PhysicalProcessor(k >> 16, k & 0xffff, efficiency, compat);
         }).collect(Collectors.toList());
         List<ProcessorCache> caches = orderedProcCaches(getCacheValues(perflevels));
-        return new Triplet<>(logProcs, physProcs, caches);
+        List<String> featureFlags = getFeatureFlagsFromSysctl();
+        return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 
     private Set<ProcessorCache> getCacheValues(int perflevels) {
@@ -183,6 +186,15 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return caches;
+    }
+
+    private List<String> getFeatureFlagsFromSysctl() {
+        List<String> x86Features = Arrays.asList("features", "extfeatures", "leaf7_features").stream().map(f -> {
+            String key = "machdep.cpu." + f;
+            String features = SysctlUtil.sysctl(key, "", false);
+            return Util.isBlank(features) ? null : (key + ": " + features);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        return x86Features.isEmpty() ? ExecutingCommand.runNative("sysctl -a hw.optional") : x86Features;
     }
 
     @Override

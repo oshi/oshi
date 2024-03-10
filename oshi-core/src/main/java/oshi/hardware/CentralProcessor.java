@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -96,6 +96,24 @@ public interface CentralProcessor {
      * @return An {@code UnmodifiabeList} of processor caches.
      */
     List<ProcessorCache> getProcessorCaches();
+
+    /**
+     * Returns a list of platform-specific strings which identify CPU Feature Flags. This string requires user parsing
+     * to obtain meaningful information.
+     *
+     * @return On Windows, returns a list of values for which the {@code IsProcessorFeaturePresent()} function evaluates
+     *         to true.
+     *         <p>
+     *         On macOS x86, returns relevant {@code sysctl.machdep.feature} values. On Apple Silicon, returns relevant
+     *         {@code sysctl hw.optional.arm.FEAT} values.
+     *         <p>
+     *         On Linux, returns the {@code flags} and/or {@code features} fields from {@code /proc/cpuinfo}.
+     *         <p>
+     *         On OpenBSD, FreeBSD, and Solaris, returns {@code dmesg} output containing the word {@code Feature}.
+     *         <p>
+     *         For unimplemented operating systems, returns an empty list.
+     */
+    List<String> getFeatureFlags();
 
     /**
      * Returns the "recent cpu usage" for the whole system by counting ticks from {@link #getSystemCpuLoadTicks()}

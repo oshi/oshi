@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -8,6 +8,7 @@ import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,7 +25,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * A CPU
@@ -91,24 +92,26 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+        List<LogicalProcessor> logProcs;
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         if (HAS_KSTAT2) {
             // Use Kstat2 implementation
-            return new Triplet<>(initProcessorCounts2(numaNodeMap), null, null);
-        }
-        List<LogicalProcessor> logProcs = new ArrayList<>();
-        try (KstatChain kc = KstatUtil.openChain()) {
-            List<Kstat> kstats = kc.lookupAll(CPU_INFO, -1, null);
+            logProcs = initProcessorCounts2(numaNodeMap);
+        } else {
+            logProcs = new ArrayList<>();
+            try (KstatChain kc = KstatUtil.openChain()) {
+                List<Kstat> kstats = kc.lookupAll(CPU_INFO, -1, null);
 
-            for (Kstat ksp : kstats) {
-                if (ksp != null && kc.read(ksp)) {
-                    int procId = logProcs.size(); // 0-indexed
-                    String chipId = KstatUtil.dataLookupString(ksp, "chip_id");
-                    String coreId = KstatUtil.dataLookupString(ksp, "core_id");
-                    LogicalProcessor logProc = new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
-                            ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0));
-                    logProcs.add(logProc);
+                for (Kstat ksp : kstats) {
+                    if (ksp != null && kc.read(ksp)) {
+                        int procId = logProcs.size(); // 0-indexed
+                        String chipId = KstatUtil.dataLookupString(ksp, "chip_id");
+                        String coreId = KstatUtil.dataLookupString(ksp, "core_id");
+                        LogicalProcessor logProc = new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
+                                ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0));
+                        logProcs.add(logProc);
+                    }
                 }
             }
         }
@@ -129,9 +132,10 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
             }
         }
         if (dmesg.isEmpty()) {
-            return new Triplet<>(logProcs, null, null);
+            return new Quartet<>(logProcs, null, null, Collections.emptyList());
         }
-        return new Triplet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null);
+        List<String> featureFlags = ExecutingCommand.runNative("isainfo -x");
+        return new Quartet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null, featureFlags);
     }
 
     private static List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {

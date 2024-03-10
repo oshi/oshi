@@ -39,6 +39,7 @@ import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Lshw;
+import oshi.driver.linux.proc.CpuInfo;
 import oshi.driver.linux.proc.CpuStat;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -49,7 +50,6 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
-import oshi.util.tuples.Triplet;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -168,7 +168,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         // Attempt to read from sysfs
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
                 ? readTopologyFromUdev()
@@ -197,8 +197,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                     int coreId = e.getKey() & 0xffff;
                     return new PhysicalProcessor(pkgId, coreId, e.getValue(), modAliasMap.getOrDefault(e.getKey(), ""));
                 }).collect(Collectors.toList());
-
-        return new Triplet<>(logProcs, physProcs, caches);
+        List<String> featureFlags = CpuInfo.queryFeatureFlags();
+        return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 
     private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev() {
