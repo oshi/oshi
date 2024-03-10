@@ -134,8 +134,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         if (dmesg.isEmpty()) {
             return new Quartet<>(logProcs, null, null, Collections.emptyList());
         }
-        // FIXME: Iterate dmesg to populate
-        List<String> featureFlags = Collections.emptyList();
+        List<String> featureFlags = ExecutingCommand.runNative("isainfo -x");
         return new Quartet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null, featureFlags);
     }
 
