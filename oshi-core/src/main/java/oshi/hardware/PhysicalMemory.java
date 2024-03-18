@@ -19,13 +19,15 @@ public class PhysicalMemory {
     private final long clockSpeed;
     private final String manufacturer;
     private final String memoryType;
+    private final String partNumber;
 
-    public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType) {
+    public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType, String partNumber) {
         this.bankLabel = bankLabel;
         this.capacity = capacity;
         this.clockSpeed = clockSpeed;
         this.manufacturer = manufacturer;
         this.memoryType = memoryType;
+        this.partNumber = partNumber;
     }
 
     /**
@@ -75,6 +77,15 @@ public class PhysicalMemory {
         return memoryType;
     }
 
+    /**
+     * The part number of the physical memory
+     *
+     * @return the part number
+     */
+    public String getPartNumber() {
+        return partNumber;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -83,6 +94,7 @@ public class PhysicalMemory {
         sb.append(", Clock speed: " + FormatUtil.formatHertz(getClockSpeed()));
         sb.append(", Manufacturer: " + getManufacturer());
         sb.append(", Memory type: " + getMemoryType());
+        sb.append(", Part number: " + getPartNumber());
         return sb.toString();
     }
 }

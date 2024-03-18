@@ -86,7 +86,7 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
                 } else if (s.startsWith("Hardware Location Code")) {
                     // Save previous bank
                     if (capacity > 0) {
-                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, "IBM", Constants.UNKNOWN));
+                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, "IBM", Constants.UNKNOWN, Constants.UNKNOWN));
                     }
                     bankLabel = Constants.UNKNOWN;
                     locator = "";
