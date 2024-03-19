@@ -4,6 +4,7 @@
  */
 package oshi.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +87,59 @@ public final class FileUtil {
         } else if (reportError) {
             LOG.warn("File not found or not readable: {}", filename);
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
+    }
+
+    /**
+     * Read count lines from a file. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
+     *
+     * @param filename The file to read
+     * @param count The number of lines to read
+     * @return A list of Strings representing the first count lines of the file, or an empty list if file could not be
+     *         read or is empty
+     */
+    public static List<String> readLines(String filename, int count) {
+        return readLines(filename, count, true);
+    }
+
+    /**
+     * Read count lines from a file. Intended primarily for Linux /proc filesystem to avoid recalculating file
+     * contents on iterative reads.
+     *
+     * @param filename The file to read
+     * @param count The number of lines to read
+     * @param reportError Whether to log errors reading the file
+     * @return A list of Strings representing the first count lines of the file, or an empty list if file could not be
+     *         read or is empty
+     */
+    public static List<String> readLines(String filename, int count, boolean reportError) {
+        Path file = Paths.get(filename);
+        if (Files.isReadable(file)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(READING_LOG, filename);
+            }
+            try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+                List<String> lines = new ArrayList<>(count);
+                for (int i = 0; i < count; ++i) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    lines.add(line);
+                }
+                return lines;
+            } catch (IOException e) {
+                if (reportError) {
+                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                } else {
+                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
+                }
+            }
+        } else if (reportError) {
+            LOG.warn("File not found or not readable: {}", filename);
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -253,7 +307,7 @@ public final class FileUtil {
         if (LOG.isDebugEnabled()) {
             LOG.debug(READING_LOG, filename);
         }
-        List<String> read = FileUtil.readFile(filename, false);
+        List<String> read = FileUtil.readLines(filename, 1, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(READ_LOG, read.get(0));
@@ -274,7 +328,7 @@ public final class FileUtil {
         if (LOG.isDebugEnabled()) {
             LOG.debug(READING_LOG, filename);
         }
-        List<String> read = FileUtil.readFile(filename, false);
+        List<String> read = FileUtil.readLines(filename, 1, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(READ_LOG, read.get(0));
@@ -295,7 +349,7 @@ public final class FileUtil {
             LOG.debug(READING_LOG, filename);
         }
         try {
-            List<String> read = FileUtil.readFile(filename, false);
+            List<String> read = FileUtil.readLines(filename, 1, false);
             if (!read.isEmpty()) {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace(READ_LOG, read.get(0));
@@ -318,7 +372,7 @@ public final class FileUtil {
         if (LOG.isDebugEnabled()) {
             LOG.debug(READING_LOG, filename);
         }
-        List<String> read = FileUtil.readFile(filename, false);
+        List<String> read = FileUtil.readLines(filename, 1, false);
         if (!read.isEmpty()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(READ_LOG, read.get(0));
