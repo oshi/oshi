@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux.proc;
@@ -32,12 +32,12 @@ public final class CpuStat {
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
         String tickStr;
-        List<String> procStat = FileUtil.readFile(ProcPath.STAT);
-        if (!procStat.isEmpty()) {
-            tickStr = procStat.get(0);
-        } else {
+        List<String> procStat = FileUtil.readLines(ProcPath.STAT, 1);
+        if (procStat.isEmpty()) {
             return ticks;
         }
+        tickStr = procStat.get(0);
+
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
         String[] tickArr = ParseUtil.whitespaces.split(tickStr);
