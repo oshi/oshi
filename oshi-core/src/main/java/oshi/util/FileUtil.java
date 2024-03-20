@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -91,11 +91,11 @@ public final class FileUtil {
     }
 
     /**
-     * Read count lines from a file. Intended primarily for Linux /proc filesystem to avoid recalculating file
-     * contents on iterative reads.
+     * Read count lines from a file. Intended primarily for Linux /proc filesystem to avoid recalculating file contents
+     * on iterative reads.
      *
      * @param filename The file to read
-     * @param count The number of lines to read
+     * @param count    The number of lines to read
      * @return A list of Strings representing the first count lines of the file, or an empty list if file could not be
      *         read or is empty
      */
@@ -104,11 +104,11 @@ public final class FileUtil {
     }
 
     /**
-     * Read count lines from a file. Intended primarily for Linux /proc filesystem to avoid recalculating file
-     * contents on iterative reads.
+     * Read count lines from a file. Intended primarily for Linux /proc filesystem to avoid recalculating file contents
+     * on iterative reads.
      *
-     * @param filename The file to read
-     * @param count The number of lines to read
+     * @param filename    The file to read
+     * @param count       The number of lines to read
      * @param reportError Whether to log errors reading the file
      * @return A list of Strings representing the first count lines of the file, or an empty list if file could not be
      *         read or is empty
