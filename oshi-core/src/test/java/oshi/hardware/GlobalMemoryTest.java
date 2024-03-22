@@ -56,6 +56,7 @@ class GlobalMemoryTest {
             assertThat("Speed should be nonnegative or -1", m.getClockSpeed(), is(greaterThanOrEqualTo(-1L)));
             assertThat("Manufacturer shouldn't be null", m.getManufacturer(), is(notNullValue()));
             assertThat("Memory type shouldn't be null", m.getMemoryType(), is(notNullValue()));
+            assertThat("Part number shouldn't be null", m.getPartNumber(), is(notNullValue()));
         }
     }
 }

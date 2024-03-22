@@ -34,12 +34,13 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
         long speed = 0L;
         String manufacturer = Constants.UNKNOWN;
         String memoryType = Constants.UNKNOWN;
+        String partNumber = Constants.UNKNOWN;
         for (String line : dmi) {
             if (line.trim().contains("DMI type 17")) {
                 // Save previous bank
                 if (bank++ > 0) {
                     if (capacity > 0) {
-                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));
+                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType, partNumber));
                     }
                     bankLabel = Constants.UNKNOWN;
                     locator = "";
@@ -68,6 +69,9 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                     case "Manufacturer":
                         manufacturer = split[1].trim();
                         break;
+                    case "PartNumber":
+                        partNumber = split[1].trim();
+                        break;
                     default:
                         break;
                     }
@@ -75,7 +79,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
             }
         }
         if (capacity > 0) {
-            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType));
+            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType, partNumber));
         }
         return pmList;
     }

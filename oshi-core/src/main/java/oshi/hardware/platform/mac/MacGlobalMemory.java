@@ -79,7 +79,7 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
             if (line.trim().startsWith("BANK")) {
                 // Save previous bank
                 if (bank++ > 0) {
-                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));
+                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, Constants.UNKNOWN));
                 }
                 bankLabel = line.trim();
                 int colon = bankLabel.lastIndexOf(':');
@@ -108,7 +108,7 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
                 }
             }
         }
-        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType));
+        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, Constants.UNKNOWN));
 
         return pmList;
     }
