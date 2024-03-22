@@ -71,6 +71,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                         break;
                     case "PartNumber":
                         partNumber = split[1].trim();
+                        break;
                     default:
                         break;
                     }
