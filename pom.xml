@@ -124,7 +124,7 @@
         <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
         <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <forbiddenapis.version>3.6</forbiddenapis.version>
+        <forbiddenapis.version>3.7</forbiddenapis.version>
         <!-- tools -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
