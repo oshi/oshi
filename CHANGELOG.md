@@ -4,6 +4,7 @@
 
 ##### Bug fixes / Improvements
 * [#2605](https://github.com/oshi/oshi/pull/2605): Reduce CpuStat.getSystemCpuLoadticks memory allocation pressure - [@chrisribble](https://github.com/chrisribble).
+* [#2612](https://github.com/oshi/oshi/pull/2612): Use 1k buffer in FileUtils.readLines to reduce heap allocation pressure - [@chrisribble](https://github.com/chrisribble).
 
 # 6.5.0 (2024-03-10)
 

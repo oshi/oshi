@@ -8,9 +8,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,6 +48,8 @@ public final class FileUtil {
 
     private static final String READING_LOG = "Reading file {}";
     private static final String READ_LOG = "Read {}";
+
+    private static final int BUFFER_SIZE = 1024;
 
     private FileUtil() {
     }
@@ -119,7 +124,9 @@ public final class FileUtil {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(READING_LOG, filename);
             }
-            try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
+            try (Reader isr = new InputStreamReader(Files.newInputStream(file), decoder);
+                    BufferedReader reader = new BufferedReader(isr, BUFFER_SIZE)) {
                 List<String> lines = new ArrayList<>(count);
                 for (int i = 0; i < count; ++i) {
                     String line = reader.readLine();
