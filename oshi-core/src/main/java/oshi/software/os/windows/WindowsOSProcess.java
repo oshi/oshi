@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -85,6 +85,7 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private Supplier<List<String>> args = memoize(this::queryArguments);
     private Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
             this::queryCwdCommandlineEnvironment);
+    private Map<Integer, ThreadPerformanceData.PerfCounterBlock> tcb;
 
     private String name;
     private String path;
@@ -112,7 +113,9 @@ public class WindowsOSProcess extends AbstractOSProcess {
         this.os = os;
         // Initially set to match OS bitness. If 64 will check later for 32-bit process
         this.bitness = os.getBitness();
-        updateAttributes(processMap.get(pid), processWtsMap.get(pid), threadMap);
+        // Initialize thread counters
+        this.tcb = threadMap;
+        updateAttributes(processMap.get(pid), processWtsMap.get(pid));
     }
 
     @Override
@@ -268,8 +271,10 @@ public class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
-                .buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()), this.getName(), -1);
+        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = tcb == null
+                ? ThreadPerformanceData.buildThreadMapFromPerfCounters(Collections.singleton(this.getProcessID()),
+                        this.getName(), -1)
+                : tcb;
         return threads.entrySet().stream().parallel()
                 .map(entry -> new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
                 .collect(Collectors.toList());
@@ -285,20 +290,18 @@ public class WindowsOSProcess extends AbstractOSProcess {
         if (pcb == null) {
             pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
         }
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> tcb = null;
         if (USE_PROCSTATE_SUSPENDED) {
-            tcb = ThreadPerformanceData.buildThreadMapFromRegistry(null);
+            this.tcb = ThreadPerformanceData.buildThreadMapFromRegistry(null);
             // otherwise performance counters with WMI backup
-            if (tcb == null) {
-                tcb = ThreadPerformanceData.buildThreadMapFromPerfCounters(null);
+            if (this.tcb == null) {
+                this.tcb = ThreadPerformanceData.buildThreadMapFromPerfCounters(null);
             }
         }
         Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
-        return updateAttributes(pcb.get(this.getProcessID()), wts.get(this.getProcessID()), tcb);
+        return updateAttributes(pcb.get(this.getProcessID()), wts.get(this.getProcessID()));
     }
 
-    private boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts,
-            Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
+    private boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts) {
         this.name = pcb.getName();
         this.path = wts.getPath(); // Empty string for Win7+
         this.parentProcessID = pcb.getParentProcessID();
@@ -319,13 +322,13 @@ public class WindowsOSProcess extends AbstractOSProcess {
         // UNKNOWN. Processes are considered running unless all of their threads are
         // SUSPENDED.
         this.state = RUNNING;
-        if (threadMap != null) {
+        if (this.tcb != null) {
             // If user hasn't enabled this in properties, we ignore
             int pid = this.getProcessID();
             // If any thread is NOT suspended, set running
-            for (ThreadPerformanceData.PerfCounterBlock tcb : threadMap.values()) {
-                if (tcb.getOwningProcessID() == pid) {
-                    if (tcb.getThreadWaitReason() == 5) {
+            for (ThreadPerformanceData.PerfCounterBlock tpd : this.tcb.values()) {
+                if (tpd.getOwningProcessID() == pid) {
+                    if (tpd.getThreadWaitReason() == 5) {
                         this.state = SUSPENDED;
                     } else {
                         this.state = RUNNING;
