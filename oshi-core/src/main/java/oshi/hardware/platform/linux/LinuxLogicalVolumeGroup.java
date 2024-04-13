@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -25,6 +25,7 @@ import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.platform.linux.DevPath;
 
 final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
@@ -34,7 +35,6 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     private static final String DM_UUID = "DM_UUID";
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
-    private static final String DEV_LOCATION = "/dev/";
 
     LinuxLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
@@ -52,7 +52,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         // This requires elevated permissions and may fail
         for (String s : ExecutingCommand.runNative("pvs -o vg_name,pv_name")) {
             String[] split = ParseUtil.whitespaces.split(s.trim());
-            if (split.length == 2 && split[1].startsWith(DEV_LOCATION)) {
+            if (split.length == 2 && split[1].startsWith(DevPath.DEV)) {
                 physicalVolumesMap.computeIfAbsent(split[0], k -> new HashSet<>()).add(split[1]);
             }
         }
@@ -70,7 +70,7 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                     if (device != null) {
                         try {
                             String devnode = device.getDevnode();
-                            if (devnode != null && devnode.startsWith("/dev/dm")) {
+                            if (devnode != null && devnode.startsWith(DevPath.DM)) {
                                 String uuid = device.getPropertyValue(DM_UUID);
                                 if (uuid != null && uuid.startsWith("LVM-")) {
                                     String vgName = device.getPropertyValue(DM_VG_NAME);
@@ -88,10 +88,10 @@ final class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                                             for (File f : slaves) {
                                                 String pvName = f.getName();
                                                 lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>())
-                                                        .add(DEV_LOCATION + pvName);
+                                                        .add(DevPath.DEV + pvName);
                                                 // Backup to add to pv set if pvs command failed
                                                 // Added /dev/ to remove duplicates like /dev/sda1 and sda1
-                                                pvSetForGroup.add(DEV_LOCATION + pvName);
+                                                pvSetForGroup.add(DevPath.DEV + pvName);
                                             }
                                         }
                                     }

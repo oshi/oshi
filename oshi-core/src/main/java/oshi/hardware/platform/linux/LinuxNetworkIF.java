@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -10,7 +10,6 @@ import java.io.File;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
 import oshi.util.FileUtil;
 import oshi.util.Util;
+import oshi.util.platform.linux.SysPath;
 
 /**
  * LinuxNetworks class.
@@ -62,7 +62,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
         UdevContext udev = Udev.INSTANCE.udev_new();
         if (udev != null) {
             try {
-                UdevDevice device = udev.deviceNewFromSyspath("/sys/class/net/" + name);
+                UdevDevice device = udev.deviceNewFromSyspath(SysPath.NET + name);
                 if (device != null) {
                     try {
                         String devVendor = device.getPropertyValue("ID_VENDOR_FROM_DATABASE");
@@ -85,7 +85,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     }
 
     private static String queryIfModelFromSysfs(String name) {
-        Map<String, String> uevent = FileUtil.getKeyValueMapFromFile("/sys/class/net/" + name + "/uevent", "=");
+        Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(SysPath.NET + name + "/uevent", "=");
         String devVendor = uevent.get("ID_VENDOR_FROM_DATABASE");
         String devModel = uevent.get("ID_MODEL_FROM_DATABASE");
         if (!Util.isBlank(devModel)) {
@@ -187,44 +187,32 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
 
     @Override
     public boolean updateAttributes() {
+        String name = SysPath.NET + getName();
         try {
-            File ifDir = new File(String.format(Locale.ROOT, "/sys/class/net/%s/statistics", getName()));
+            File ifDir = new File(name + "/statistics");
             if (!ifDir.isDirectory()) {
                 return false;
             }
         } catch (SecurityException e) {
             return false;
         }
-        String ifTypePath = String.format(Locale.ROOT, "/sys/class/net/%s/type", getName());
-        String carrierPath = String.format(Locale.ROOT, "/sys/class/net/%s/carrier", getName());
-        String txBytesPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/tx_bytes", getName());
-        String rxBytesPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_bytes", getName());
-        String txPacketsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/tx_packets", getName());
-        String rxPacketsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_packets", getName());
-        String txErrorsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/tx_errors", getName());
-        String rxErrorsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_errors", getName());
-        String collisionsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/collisions", getName());
-        String rxDropsPath = String.format(Locale.ROOT, "/sys/class/net/%s/statistics/rx_dropped", getName());
-        String ifSpeed = String.format(Locale.ROOT, "/sys/class/net/%s/speed", getName());
-        String ifAliasPath = String.format(Locale.ROOT, "/sys/class/net/%s/ifalias", getName());
-        String ifOperStatusPath = String.format(Locale.ROOT, "/sys/class/net/%s/operstate", getName());
 
         this.timeStamp = System.currentTimeMillis();
-        this.ifType = FileUtil.getIntFromFile(ifTypePath);
-        this.connectorPresent = FileUtil.getIntFromFile(carrierPath) > 0;
-        this.bytesSent = FileUtil.getUnsignedLongFromFile(txBytesPath);
-        this.bytesRecv = FileUtil.getUnsignedLongFromFile(rxBytesPath);
-        this.packetsSent = FileUtil.getUnsignedLongFromFile(txPacketsPath);
-        this.packetsRecv = FileUtil.getUnsignedLongFromFile(rxPacketsPath);
-        this.outErrors = FileUtil.getUnsignedLongFromFile(txErrorsPath);
-        this.inErrors = FileUtil.getUnsignedLongFromFile(rxErrorsPath);
-        this.collisions = FileUtil.getUnsignedLongFromFile(collisionsPath);
-        this.inDrops = FileUtil.getUnsignedLongFromFile(rxDropsPath);
-        long speedMiB = FileUtil.getUnsignedLongFromFile(ifSpeed);
+        this.ifType = FileUtil.getIntFromFile(name + "/type");
+        this.connectorPresent = FileUtil.getIntFromFile(name + "/carrier") > 0;
+        this.bytesSent = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_bytes");
+        this.bytesRecv = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_bytes");
+        this.packetsSent = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_packets");
+        this.packetsRecv = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_packets");
+        this.outErrors = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_errors");
+        this.inErrors = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_errors");
+        this.collisions = FileUtil.getUnsignedLongFromFile(name + "/statistics/collisions");
+        this.inDrops = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_dropped");
+        long speedMiB = FileUtil.getUnsignedLongFromFile(name + "/speed");
         // speed may be -1 from file.
         this.speed = speedMiB < 0 ? 0 : speedMiB << 20;
-        this.ifAlias = FileUtil.getStringFromFile(ifAliasPath);
-        this.ifOperStatus = parseIfOperStatus(FileUtil.getStringFromFile(ifOperStatusPath));
+        this.ifAlias = FileUtil.getStringFromFile(name + "/ifalias");
+        this.ifOperStatus = parseIfOperStatus(FileUtil.getStringFromFile(name + "/operstate"));
 
         return true;
     }

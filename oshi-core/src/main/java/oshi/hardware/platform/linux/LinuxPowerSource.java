@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -26,6 +26,7 @@ import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.SysPath;
 
 /**
  * A Power Source
@@ -171,8 +172,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                 udev.unref();
             }
         } else {
-            String powerSupplyPath = "/sys/class/power_supply";
-            File psDir = new File(powerSupplyPath);
+            File psDir = new File(SysPath.POWER_SUPPLY);
             File[] psArr = psDir.listFiles();
             if (psArr == null) {
                 return Collections.emptyList();
@@ -181,7 +181,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                 String name = ps.getName();
                 if (!name.startsWith("ADP") && !name.startsWith("AC")) {
                     // Skip if can't read uevent file
-                    List<String> psInfo = FileUtil.readFile(powerSupplyPath + "/" + name + "/uevent", false);
+                    List<String> psInfo = FileUtil.readFile(SysPath.POWER_SUPPLY + "/" + name + "/uevent", false);
                     Map<String, String> psMap = new HashMap<>();
                     for (String line : psInfo) {
                         String[] split = line.split("=");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -19,6 +19,7 @@ import oshi.hardware.common.AbstractSensors;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.SysPath;
 
 /**
  * Sensors from WMI or Open Hardware Monitor
@@ -34,10 +35,10 @@ final class LinuxSensors extends AbstractSensors {
 
     // Base HWMON path, adds 0, 1, etc. to end for various sensors
     private static final String HWMON = "hwmon";
-    private static final String HWMON_PATH = "/sys/class/hwmon/" + HWMON;
+    private static final String HWMON_PATH = SysPath.HWMON + HWMON;
     // Base THERMAL_ZONE path, adds 0, 1, etc. to end for temperature sensors
     private static final String THERMAL_ZONE = "thermal_zone";
-    private static final String THERMAL_ZONE_PATH = "/sys/class/thermal/" + THERMAL_ZONE;
+    private static final String THERMAL_ZONE_PATH = SysPath.THERMAL + THERMAL_ZONE;
 
     // Initial test to see if we are running on a Pi
     private static final boolean IS_PI = queryCpuTemperatureFromVcGenCmd() > 0;

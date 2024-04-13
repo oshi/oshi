@@ -1,14 +1,14 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.platform.linux.SysPath;
 
 /**
  * Utility to read info from {@code sysfs}
@@ -25,7 +25,7 @@ public final class Sysfs {
      * @return The vendor if available, null otherwise
      */
     public static String querySystemVendor() {
-        final String sysVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "sys_vendor").trim();
+        final String sysVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + "sys_vendor").trim();
         if (!sysVendor.isEmpty()) {
             return sysVendor;
         }
@@ -38,9 +38,8 @@ public final class Sysfs {
      * @return The model if available, null otherwise
      */
     public static String queryProductModel() {
-        final String productName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_name").trim();
-        final String productVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_version")
-                .trim();
+        final String productName = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_name").trim();
+        final String productVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_version").trim();
         if (productName.isEmpty()) {
             if (!productVersion.isEmpty()) {
                 return productVersion;
@@ -62,7 +61,7 @@ public final class Sysfs {
     public static String queryProductSerial() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root
-        String serial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_serial");
+        String serial = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_serial");
         if (!serial.isEmpty() && !"None".equals(serial)) {
             return serial;
         }
@@ -77,7 +76,7 @@ public final class Sysfs {
     public static String queryUUID() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root
-        String uuid = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "product_uuid");
+        String uuid = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_uuid");
         if (!uuid.isEmpty() && !"None".equals(uuid)) {
             return uuid;
         }
@@ -90,7 +89,7 @@ public final class Sysfs {
      * @return The board vendor if available, null otherwise
      */
     public static String queryBoardVendor() {
-        final String boardVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_vendor").trim();
+        final String boardVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_vendor").trim();
         if (!boardVendor.isEmpty()) {
             return boardVendor;
         }
@@ -103,7 +102,7 @@ public final class Sysfs {
      * @return The board model if available, null otherwise
      */
     public static String queryBoardModel() {
-        final String boardName = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_name").trim();
+        final String boardName = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_name").trim();
         if (!boardName.isEmpty()) {
             return boardName;
         }
@@ -116,7 +115,7 @@ public final class Sysfs {
      * @return The board version if available, null otherwise
      */
     public static String queryBoardVersion() {
-        final String boardVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_version").trim();
+        final String boardVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_version").trim();
         if (!boardVersion.isEmpty()) {
             return boardVersion;
         }
@@ -129,7 +128,7 @@ public final class Sysfs {
      * @return The board serial number if available, null otherwise
      */
     public static String queryBoardSerial() {
-        final String boardSerial = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "board_serial").trim();
+        final String boardSerial = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_serial").trim();
         if (!boardSerial.isEmpty()) {
             return boardSerial;
         }
@@ -142,7 +141,7 @@ public final class Sysfs {
      * @return The bios vendor if available, null otherwise
      */
     public static String queryBiosVendor() {
-        final String biosVendor = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_vendor").trim();
+        final String biosVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_vendor").trim();
         if (biosVendor.isEmpty()) {
             return biosVendor;
         }
@@ -155,7 +154,7 @@ public final class Sysfs {
      * @return The bios description if available, null otherwise
      */
     public static String queryBiosDescription() {
-        final String modalias = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "modalias").trim();
+        final String modalias = FileUtil.getStringFromFile(SysPath.DMI_ID + "modalias").trim();
         if (!modalias.isEmpty()) {
             return modalias;
         }
@@ -169,7 +168,7 @@ public final class Sysfs {
      * @return The bios version if available, null otherwise
      */
     public static String queryBiosVersion(String biosRevision) {
-        final String biosVersion = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_version").trim();
+        final String biosVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_version").trim();
         if (!biosVersion.isEmpty()) {
             return biosVersion + (Util.isBlank(biosRevision) ? "" : " (revision " + biosRevision + ")");
         }
@@ -182,7 +181,7 @@ public final class Sysfs {
      * @return The bios release date if available, null otherwise
      */
     public static String queryBiosReleaseDate() {
-        final String biosDate = FileUtil.getStringFromFile(Constants.SYSFS_SERIAL_PATH + "bios_date").trim();
+        final String biosDate = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_date").trim();
         if (!biosDate.isEmpty()) {
             return ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
         }

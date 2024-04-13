@@ -25,6 +25,8 @@ public final class GlobalConfig {
     public static final String OSHI_UTIL_MEMOIZER_EXPIRATION = "oshi.util.memoizer.expiration";
     public static final String OSHI_UTIL_WMI_TIMEOUT = "oshi.util.wmi.timeout";
     public static final String OSHI_UTIL_PROC_PATH = "oshi.util.proc.path";
+    public static final String OSHI_UTIL_SYS_PATH = "oshi.util.sys.path";
+    public static final String OSHI_UTIL_DEV_PATH = "oshi.util.dev.path";
 
     public static final String OSHI_PSEUDO_FILESYSTEM_TYPES = "oshi.pseudo.filesystem.types";
     public static final String OSHI_NETWORK_FILESYSTEM_TYPES = "oshi.network.filesystem.types";

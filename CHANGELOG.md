@@ -2,12 +2,13 @@
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
-  [#2603](https://github.com/oshi/oshi/pull/2625): Add part number to Physical Memory - [@BartekDziurowicz](https://github.com/BartekDziurowicz), [@dbwiddis](https://github.com/dbwiddis).
+  [#2625](https://github.com/oshi/oshi/pull/2625): Add part number to Physical Memory - [@BartekDziurowicz](https://github.com/BartekDziurowicz), [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#2605](https://github.com/oshi/oshi/pull/2605): Reduce CpuStat.getSystemCpuLoadticks memory allocation pressure - [@chrisribble](https://github.com/chrisribble).
 * [#2612](https://github.com/oshi/oshi/pull/2612): Use 1k buffer in FileUtils.readLines to reduce heap allocation pressure - [@chrisribble](https://github.com/chrisribble).
 * [#2621](https://github.com/oshi/oshi/pull/2621): Cache thread counters when updating OS Process with suspended state - [@dbwiddis](https://github.com/dbwiddis).
+* [#2626](https://github.com/oshi/oshi/pull/2626): Make sys and dev paths on Linux configurable - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.5.0 (2024-03-10)
 
