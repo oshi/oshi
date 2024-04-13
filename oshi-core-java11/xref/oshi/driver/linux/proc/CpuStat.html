@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/driver/linux/proc/CpuStat.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2024 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.linux.proc;
@@ -40,12 +40,12 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>          <em class="jxr_comment">// first line is overall user,nice,system,idle,iowait,irq, etc.</em>
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>          <em class="jxr_comment">// cpu 3357 0 4313 1362393 ...</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>          String tickStr;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          List&lt;String&gt; procStat = FileUtil.readFile(ProcPath.STAT);
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">if</strong> (!procStat.isEmpty()) {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>              tickStr = procStat.get(0);
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>              <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          List&lt;String&gt; procStat = FileUtil.readLines(ProcPath.STAT, 1);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">if</strong> (procStat.isEmpty()) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          tickStr = procStat.get(0);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          <em class="jxr_comment">// Split the line. Note the first (0) element is "cpu" so remaining</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>          <em class="jxr_comment">// elements are offset by 1 from the enum index</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          String[] tickArr = ParseUtil.whitespaces.split(tickStr);
