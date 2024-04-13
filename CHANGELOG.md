@@ -1,4 +1,6 @@
-# 6.5.1 (in progress)
+# 6.6.1 (in progress)
+
+# 6.6.0 (2024-04-13)
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
