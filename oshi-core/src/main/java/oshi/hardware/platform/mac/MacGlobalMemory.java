@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -75,11 +75,13 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
         long speed = 0L;
         String manufacturer = Constants.UNKNOWN;
         String memoryType = Constants.UNKNOWN;
+        String partNumber = Constants.UNKNOWN;
         for (String line : sp) {
             if (line.trim().startsWith("BANK")) {
                 // Save previous bank
                 if (bank++ > 0) {
-                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, Constants.UNKNOWN));
+                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType,
+                            Constants.UNKNOWN));
                 }
                 bankLabel = line.trim();
                 int colon = bankLabel.lastIndexOf(':');
@@ -102,13 +104,16 @@ final class MacGlobalMemory extends AbstractGlobalMemory {
                     case "Manufacturer":
                         manufacturer = split[1].trim();
                         break;
+                    case "Part Number":
+                        partNumber = split[1].trim();
+                        break;
                     default:
                         break;
                     }
                 }
             }
         }
-        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, Constants.UNKNOWN));
+        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber));
 
         return pmList;
     }
