@@ -21,15 +21,15 @@ public final class SysPath {
     /**
      * The /sys filesystem location.
      */
-    public static final String SYS = querySysConfig();
+    public static final String SYS = querySysConfig() + "/";
 
-    public static final String CPU = SYS + "/devices/system/cpu/";
-    public static final String DMI_ID = SYS + "/devices/virtual/dmi/id/";
-    public static final String NET = SYS + "/class/net/";
-    public static final String MODEL = SYS + "/firmware/devicetree/base/model";
-    public static final String POWER_SUPPLY = SYS + "/class/power_supply";
-    public static final String HWMON = SYS + "/class/hwmon/";
-    public static final String THERMAL = SYS + "/class/thermal/thermal_zone";
+    public static final String CPU = SYS + "devices/system/cpu/";
+    public static final String DMI_ID = SYS + "devices/virtual/dmi/id/";
+    public static final String NET = SYS + "class/net/";
+    public static final String MODEL = SYS + "firmware/devicetree/base/model";
+    public static final String POWER_SUPPLY = SYS + "class/power_supply";
+    public static final String HWMON = SYS + "class/hwmon/";
+    public static final String THERMAL = SYS + "class/thermal/thermal_zone";
 
     private SysPath() {
     }

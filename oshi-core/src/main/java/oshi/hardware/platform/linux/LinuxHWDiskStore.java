@@ -270,7 +270,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount);
-            if (split.length < 2 || !split[0].startsWith(DevPath.ROOT)) {
+            if (split.length < 2 || !split[0].startsWith(DevPath.DEV)) {
                 continue;
             }
             mountsMap.put(split[0], split[1]);
@@ -292,7 +292,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     private static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DevPath.ROOT).append(vgName).append('/').append(lvName).toString();
+        return new StringBuilder().append(DevPath.DEV).append(vgName).append('/').append(lvName).toString();
     }
 
     private static String getMountPointOfDmDevice(String vgName, String lvName) {

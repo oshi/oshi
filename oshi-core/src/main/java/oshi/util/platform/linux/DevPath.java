@@ -21,14 +21,13 @@ public final class DevPath {
     /**
      * The /dev filesystem location.
      */
-    public static final String DEV = queryDevConfig();
+    public static final String DEV = queryDevConfig() + "/";
 
-    public static final String ROOT = DEV + "/";
-    public static final String DISK_BY_UUID = ROOT + "disk/by-uuid";
-    public static final String DM = ROOT + "dm";
-    public static final String LOOP = ROOT + "loop";
-    public static final String MAPPER = ROOT + "mapper/";
-    public static final String RAM = ROOT + "ram";
+    public static final String DISK_BY_UUID = DEV + "disk/by-uuid";
+    public static final String DM = DEV + "dm";
+    public static final String LOOP = DEV + "loop";
+    public static final String MAPPER = DEV + "mapper/";
+    public static final String RAM = DEV + "ram";
 
     private DevPath() {
     }

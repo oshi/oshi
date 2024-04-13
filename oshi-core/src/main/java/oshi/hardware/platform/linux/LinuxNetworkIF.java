@@ -189,7 +189,7 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
     public boolean updateAttributes() {
         String name = SysPath.NET + getName();
         try {
-            File ifDir = new File(name + "/statistics", name);
+            File ifDir = new File(name + "/statistics");
             if (!ifDir.isDirectory()) {
                 return false;
             }
