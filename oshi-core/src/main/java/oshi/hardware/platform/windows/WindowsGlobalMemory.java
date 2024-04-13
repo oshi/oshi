@@ -109,7 +109,10 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
      * @return A string describing the type
      */
     private static String memoryType(int type) {
+        // https://schemas.dmtf.org/wbem/cim-html/2.55.0/CIM_PhysicalMemory.html
         switch (type) {
+        case 0:
+            return "Unknown";
         case 1:
             return "Other";
         case 2:
@@ -153,13 +156,12 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
         case 21:
             return "DDR2";
         case 22:
-            return "DDR2-FB-DIMM";
-        case 24:
-            return "DDR3";
-        case 25:
-            return "FBD2";
+            return "BRAM";
+        case 23:
+            return "DDR FB-DIMM";
         default:
-            return "Unknown";
+            // values 24 and higher match SMBIOS types
+            return smBiosMemoryType(type);
         }
     }
 
@@ -170,8 +172,8 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
      * @return A string describing the type
      */
     private static String smBiosMemoryType(int type) {
-        // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.2.0.pdf
-        // table 76
+        // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.7.0.pdf
+        // table 77
         switch (type) {
         case 0x01:
             return "Other";
@@ -227,6 +229,16 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
             return "LPDDR4";
         case 0x1F:
             return "Logical non-volatile device";
+        case 0x20:
+            return "HBM";
+        case 0x21:
+            return "HBM2";
+        case 0x22:
+            return "DDR5";
+        case 0x23:
+            return "LPDDR5";
+        case 0x24:
+            return "HBM3";
         case 0x02:
         default:
             return "Unknown";

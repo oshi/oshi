@@ -9,6 +9,7 @@
 * [#2612](https://github.com/oshi/oshi/pull/2612): Use 1k buffer in FileUtils.readLines to reduce heap allocation pressure - [@chrisribble](https://github.com/chrisribble).
 * [#2621](https://github.com/oshi/oshi/pull/2621): Cache thread counters when updating OS Process with suspended state - [@dbwiddis](https://github.com/dbwiddis).
 * [#2626](https://github.com/oshi/oshi/pull/2626): Make sys and dev paths on Linux configurable - [@dbwiddis](https://github.com/dbwiddis).
+* [#2627](https://github.com/oshi/oshi/pull/2627): Add more SMBIOSMemoryType values - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.5.0 (2024-03-10)
 
