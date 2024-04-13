@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -21,11 +21,6 @@ public final class Constants {
      * String to report for unknown information
      */
     public static final String UNKNOWN = "unknown";
-
-    /**
-     * The official/approved path for sysfs information. Note: /sys/class/dmi/id symlinks here
-     */
-    public static final String SYSFS_SERIAL_PATH = "/sys/devices/virtual/dmi/id/";
 
     /**
      * The Unix Epoch, a default value when WMI DateTime queries return no value.

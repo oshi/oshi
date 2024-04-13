@@ -49,6 +49,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.platform.linux.SysPath;
 import oshi.util.tuples.Quartet;
 
 /**
@@ -241,9 +242,8 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
-        String cpuPath = "/sys/devices/system/cpu/";
         try {
-            try (Stream<Path> cpuFiles = Files.find(Paths.get(cpuPath), Integer.MAX_VALUE,
+            try (Stream<Path> cpuFiles = Files.find(Paths.get(SysPath.CPU), Integer.MAX_VALUE,
                     (path, basicFileAttributes) -> path.toFile().getName().matches("cpu\\d+"))) {
                 cpuFiles.forEach(cpu -> {
                     String syspath = cpu.toString(); // /sys/devices/system/cpu/cpuX
@@ -256,7 +256,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         } catch (IOException e) {
             // No udev and no cpu info in sysfs? Bad.
-            LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
+            LOG.warn("Unable to find CPU information in sysfs at path {}", SysPath.CPU);
         }
         return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
