@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
@@ -65,13 +65,17 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
     public List<PhysicalMemory> getPhysicalMemory() {
         List<PhysicalMemory> pmList = new ArrayList<>();
         boolean isMemModule = false;
+        boolean isMemoryDIMM = false;
         String bankLabel = Constants.UNKNOWN;
         String locator = "";
+        String partNumber = Constants.UNKNOWN;
         long capacity = 0L;
         for (String line : lscfg.get()) {
             String s = line.trim();
             if (s.endsWith("memory-module")) {
                 isMemModule = true;
+            } else if (s.startsWith("Memory DIMM")) {
+                isMemoryDIMM = true;
             } else if (isMemModule) {
                 if (s.startsWith("Node:")) {
                     bankLabel = s.substring(5).trim();
@@ -86,12 +90,31 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
                 } else if (s.startsWith("Hardware Location Code")) {
                     // Save previous bank
                     if (capacity > 0) {
-                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, "IBM", Constants.UNKNOWN, Constants.UNKNOWN));
+                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, "IBM", Constants.UNKNOWN,
+                                Constants.UNKNOWN));
                     }
                     bankLabel = Constants.UNKNOWN;
                     locator = "";
                     capacity = 0L;
                     isMemModule = false;
+                }
+            } else if (isMemoryDIMM) {
+                if (s.startsWith("Hardware Location Code")) {
+                    locator = ParseUtil.removeLeadingDots(s.substring(23).trim());
+                } else if (s.startsWith("Size")) {
+                    capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()),
+                            0L) << 20;
+                } else if (s.startsWith("Part Number") || s.startsWith("FRU Number")) {
+                    partNumber = ParseUtil.removeLeadingDots(s.substring(11).trim());
+                } else if (s.startsWith("Physical Location:")) {
+                    // Save previous bank
+                    if (capacity > 0) {
+                        pmList.add(new PhysicalMemory(locator, capacity, 0L, "IBM", Constants.UNKNOWN, partNumber));
+                    }
+                    partNumber = Constants.UNKNOWN;
+                    locator = "";
+                    capacity = 0L;
+                    isMemoryDIMM = false;
                 }
             }
         }

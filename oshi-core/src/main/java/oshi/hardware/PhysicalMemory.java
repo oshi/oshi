@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -21,7 +21,8 @@ public class PhysicalMemory {
     private final String memoryType;
     private final String partNumber;
 
-    public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType, String partNumber) {
+    public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType,
+            String partNumber) {
         this.bankLabel = bankLabel;
         this.capacity = capacity;
         this.clockSpeed = clockSpeed;

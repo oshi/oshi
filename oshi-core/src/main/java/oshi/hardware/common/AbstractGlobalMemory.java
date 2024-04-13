@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -40,7 +40,8 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                 // Save previous bank
                 if (bank++ > 0) {
                     if (capacity > 0) {
-                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType, partNumber));
+                        pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType,
+                                partNumber));
                     }
                     bankLabel = Constants.UNKNOWN;
                     locator = "";
@@ -70,6 +71,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                         manufacturer = split[1].trim();
                         break;
                     case "PartNumber":
+                    case "Part Number":
                         partNumber = split[1].trim();
                         break;
                     default:

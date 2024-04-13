@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -82,7 +82,8 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
                 String memoryType = smBiosMemoryType(
                         WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));
                 String partNumber = WmiUtil.getString(bankMap, PhysicalMemoryProperty.PARTNUMBER, index);
-                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber));
+                physicalMemoryList
+                        .add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber));
             }
         } else {
             WmiResult<PhysicalMemoryPropertyWin8> bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();
@@ -94,7 +95,8 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
                 String memoryType = memoryType(
                         WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));
                 String partNumber = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.PARTNUMBER, index);
-                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber));
+                physicalMemoryList
+                        .add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber));
             }
         }
         return physicalMemoryList;
