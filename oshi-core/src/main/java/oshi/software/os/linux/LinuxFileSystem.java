@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -29,6 +29,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.DevPath;
 import oshi.util.platform.linux.ProcPath;
 
 /**
@@ -61,7 +62,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
     public List<OSFileStore> getFileStores(boolean localOnly) {
         // Map of volume with device path as key
         Map<String, String> volumeDeviceMap = new HashMap<>();
-        File devMapper = new File("/dev/mapper");
+        File devMapper = new File(DevPath.MAPPER);
         File[] volumes = devMapper.listFiles();
         if (volumes != null) {
             for (File volume : volumes) {
@@ -74,7 +75,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
         }
         // Map uuids with device path as key
         Map<String, String> uuidMap = new HashMap<>();
-        File uuidDir = new File("/dev/disk/by-uuid");
+        File uuidDir = new File(DevPath.DISK_BY_UUID);
         File[] uuids = uuidDir.listFiles();
         if (uuids != null) {
             for (File uuid : uuids) {
@@ -147,7 +148,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], "") : "";
 
             String description;
-            if (volume.startsWith("/dev")) {
+            if (volume.startsWith(DevPath.DEV)) {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
@@ -160,12 +161,11 @@ public class LinuxFileSystem extends AbstractFileSystem {
             // Add in logical volume found at /dev/mapper, useful when linking
             // file system with drive.
             String logicalVolume = "";
-            String volumeMapperDirectory = "/dev/mapper/";
             Path link = Paths.get(volume);
             if (link.toFile().exists() && Files.isSymbolicLink(link)) {
                 try {
                     Path slink = Files.readSymbolicLink(link);
-                    Path full = Paths.get(volumeMapperDirectory + slink.toString());
+                    Path full = Paths.get(DevPath.MAPPER + slink.toString());
                     if (full.toFile().exists()) {
                         logicalVolume = full.normalize().toString();
                     }

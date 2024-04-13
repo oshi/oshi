@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -32,6 +32,7 @@ import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.platform.linux.DevPath;
 import oshi.util.platform.linux.ProcPath;
 
 /**
@@ -60,8 +61,6 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     private static final String DM_VG_NAME = "DM_VG_NAME";
     private static final String DM_LV_NAME = "DM_LV_NAME";
     private static final String LOGICAL_VOLUME_GROUP = "Logical Volume Group";
-    private static final String DEV_LOCATION = "/dev/";
-    private static final String DEV_MAPPER = DEV_LOCATION + "mapper/";
 
     private static final int SECTORSIZE = 512;
 
@@ -171,15 +170,15 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                             // devnode is what we use as name, like /dev/sda
                             String devnode = device.getDevnode();
                             // Ignore loopback and ram disks; do nothing
-                            if (devnode != null && !devnode.startsWith("/dev/loop")
-                                    && !devnode.startsWith("/dev/ram")) {
+                            if (devnode != null && !devnode.startsWith(DevPath.LOOP)
+                                    && !devnode.startsWith(DevPath.RAM)) {
                                 if (DISK.equals(device.getDevtype())) {
                                     // Null model and serial in virtual environments
                                     String devModel = device.getPropertyValue(ID_MODEL);
                                     String devSerial = device.getPropertyValue(ID_SERIAL_SHORT);
                                     long devSize = ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
                                             * SECTORSIZE;
-                                    if (devnode.startsWith("/dev/dm")) {
+                                    if (devnode.startsWith(DevPath.DM)) {
                                         devModel = LOGICAL_VOLUME_GROUP;
                                         devSerial = device.getPropertyValue(DM_UUID);
                                         store = new LinuxHWDiskStore(devnode, devModel,
@@ -271,7 +270,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount);
-            if (split.length < 2 || !split[0].startsWith(DEV_LOCATION)) {
+            if (split.length < 2 || !split[0].startsWith(DevPath.ROOT)) {
                 continue;
             }
             mountsMap.put(split[0], split[1]);
@@ -293,11 +292,11 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     private static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_LOCATION).append(vgName).append('/').append(lvName).toString();
+        return new StringBuilder().append(DevPath.ROOT).append(vgName).append('/').append(lvName).toString();
     }
 
     private static String getMountPointOfDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DEV_MAPPER).append(vgName).append('-').append(lvName).toString();
+        return new StringBuilder().append(DevPath.MAPPER).append(vgName).append('-').append(lvName).toString();
     }
 
     private static String getDependentNamesFromHoldersDirectory(String sysPath) {
