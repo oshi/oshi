@@ -54,7 +54,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
     @Override
     public List<IPConnection> getConnections() {
         List<IPConnection> conns = new ArrayList<>();
-        Map<Integer, Integer> pidMap = ProcessStat.querySocketToPidMap();
+        Map<Long, Integer> pidMap = ProcessStat.querySocketToPidMap();
         conns.addAll(queryConnections("tcp", 4, pidMap));
         conns.addAll(queryConnections("tcp", 6, pidMap));
         conns.addAll(queryConnections("udp", 4, pidMap));
@@ -62,7 +62,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         return conns;
     }
 
-    private static List<IPConnection> queryConnections(String protocol, int ipver, Map<Integer, Integer> pidMap) {
+    private static List<IPConnection> queryConnections(String protocol, int ipver, Map<Long, Integer> pidMap) {
         List<IPConnection> conns = new ArrayList<>();
         for (String s : FileUtil.readFile(ProcPath.NET + "/" + protocol + (ipver == 6 ? "6" : ""))) {
             if (s.indexOf(':') >= 0) {
@@ -72,7 +72,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
                     Pair<byte[], Integer> fAddr = parseIpAddr(split[2]);
                     TcpState state = stateLookup(ParseUtil.hexStringToInt(split[3], 0));
                     Pair<Integer, Integer> txQrxQ = parseHexColonHex(split[4]);
-                    int inode = ParseUtil.parseIntOrDefault(split[9], 0);
+                    long inode = ParseUtil.parseLongOrDefault(split[9], 0);
                     conns.add(new IPConnection(protocol + ipver, lAddr.getA(), lAddr.getB(), fAddr.getA(), fAddr.getB(),
                             state, txQrxQ.getA(), txQrxQ.getB(), pidMap.getOrDefault(inode, -1)));
                 }

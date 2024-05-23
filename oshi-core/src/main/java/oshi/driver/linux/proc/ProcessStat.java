@@ -435,8 +435,8 @@ public final class ProcessStat {
      *
      * @return a map with socket as the key and pid as the value
      */
-    public static Map<Integer, Integer> querySocketToPidMap() {
-        Map<Integer, Integer> pidMap = new HashMap<>();
+    public static Map<Long, Integer> querySocketToPidMap() {
+        Map<Long, Integer> pidMap = new HashMap<>();
         for (File f : getPidFiles()) {
             int pid = ParseUtil.parseIntOrDefault(f.getName(), -1);
             File[] fds = getFileDescriptorFiles(pid);
@@ -445,7 +445,7 @@ public final class ProcessStat {
                 if (symLink != null) {
                     Matcher m = SOCKET.matcher(symLink);
                     if (m.matches()) {
-                        pidMap.put(ParseUtil.parseIntOrDefault(m.group(1), -1), pid);
+                        pidMap.put(ParseUtil.parseLongOrDefault(m.group(1), -1L), pid);
                     }
                 }
             }
