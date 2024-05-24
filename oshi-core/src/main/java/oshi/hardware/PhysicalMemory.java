@@ -20,15 +20,17 @@ public class PhysicalMemory {
     private final String manufacturer;
     private final String memoryType;
     private final String partNumber;
+    private final String serialNumber;
 
     public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType,
-            String partNumber) {
+            String partNumber, String serialNumber) {
         this.bankLabel = bankLabel;
         this.capacity = capacity;
         this.clockSpeed = clockSpeed;
         this.manufacturer = manufacturer;
         this.memoryType = memoryType;
         this.partNumber = partNumber;
+        this.serialNumber = serialNumber;
     }
 
     /**
@@ -87,6 +89,15 @@ public class PhysicalMemory {
         return partNumber;
     }
 
+    /**
+     * The serial number of the physical memory
+     *
+     * @return the serial number
+     */
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -96,6 +107,7 @@ public class PhysicalMemory {
         sb.append(", Manufacturer: " + getManufacturer());
         sb.append(", Memory type: " + getMemoryType());
         sb.append(", Part number: " + getPartNumber());
+        sb.append(", Serial number: " + getSerialNumber());
         return sb.toString();
     }
 }
