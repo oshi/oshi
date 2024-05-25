@@ -3,6 +3,9 @@
 ##### New Features
 * [#2644](https://github.com/oshi/oshi/pull/2644): Add serial number to Physical Memory - [@Tegrason](https://github.com/Tegrason).
 
+##### Bug fixes / Improvements
+* [#2645](https://github.com/oshi/oshi/pull/2645): fix getOwningProcessId sometimes return -1 on 64x linux - [@yourancc](https://github.com/yourancc).
+
 # 6.6.0 (2024-04-13)
 
 ##### New Features
