@@ -1,5 +1,8 @@
 # 6.6.1 (in progress)
 
+##### Bug fixes / Improvements
+* [#2645](https://github.com/oshi/oshi/pull/2645): fix getOwningProcessId sometimes return -1 on 64x linux - [@yourancc](https://github.com/yourancc).
+
 # 6.6.0 (2024-04-13)
 
 ##### New Features
