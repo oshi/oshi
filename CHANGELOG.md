@@ -1,5 +1,8 @@
 # 6.6.1 (in progress)
 
+##### New Features
+* [#2644](https://github.com/oshi/oshi/pull/2644): Add serial number to Physical Memory - [@Tegrason](https://github.com/Tegrason).
+
 # 6.6.0 (2024-04-13)
 
 ##### New Features
