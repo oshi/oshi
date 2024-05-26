@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/driver/linux/proc/ProcessStat.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2024 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.linux.proc;
@@ -443,8 +443,8 @@
 <a class="jxr_linenumber" name="L435" href="#L435">435</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L436" href="#L436">436</a> <em class="jxr_javadoccomment">     * @return a map with socket as the key and pid as the value</em>
 <a class="jxr_linenumber" name="L437" href="#L437">437</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, Integer&gt; querySocketToPidMap() {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         Map&lt;Integer, Integer&gt; pidMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;Long, Integer&gt; querySocketToPidMap() {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         Map&lt;Long, Integer&gt; pidMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>         <strong class="jxr_keyword">for</strong> (File f : getPidFiles()) {
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>             <strong class="jxr_keyword">int</strong> pid = ParseUtil.parseIntOrDefault(f.getName(), -1);
 <a class="jxr_linenumber" name="L442" href="#L442">442</a>             File[] fds = getFileDescriptorFiles(pid);
@@ -453,7 +453,7 @@
 <a class="jxr_linenumber" name="L445" href="#L445">445</a>                 <strong class="jxr_keyword">if</strong> (symLink != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L446" href="#L446">446</a>                     Matcher m = SOCKET.matcher(symLink);
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>                     <strong class="jxr_keyword">if</strong> (m.matches()) {
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>                         pidMap.put(ParseUtil.parseIntOrDefault(m.group(1), -1), pid);
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>                         pidMap.put(ParseUtil.parseLongOrDefault(m.group(1), -1L), pid);
 <a class="jxr_linenumber" name="L449" href="#L449">449</a>                     }
 <a class="jxr_linenumber" name="L450" href="#L450">450</a>                 }
 <a class="jxr_linenumber" name="L451" href="#L451">451</a>             }
