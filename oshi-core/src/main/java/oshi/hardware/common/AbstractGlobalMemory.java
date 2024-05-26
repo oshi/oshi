@@ -85,7 +85,8 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
             }
         }
         if (capacity > 0) {
-            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType, partNumber, serialNumber));
+            pmList.add(new PhysicalMemory(bankLabel + locator, capacity, speed, manufacturer, memoryType, partNumber,
+                    serialNumber));
         }
         return pmList;
     }

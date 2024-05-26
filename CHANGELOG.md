@@ -1,16 +1,13 @@
-# 6.6.1 (in progress)
+# 6.6.2 (in progress)
 
-##### New Features
-* [#2644](https://github.com/oshi/oshi/pull/2644): Add serial number to Physical Memory - [@Tegrason](https://github.com/Tegrason).
+* Your contribution here!
 
-##### Bug fixes / Improvements
-* [#2645](https://github.com/oshi/oshi/pull/2645): fix getOwningProcessId sometimes return -1 on 64x linux - [@yourancc](https://github.com/yourancc).
-
-# 6.6.0 (2024-04-13)
+# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26)
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
   [#2625](https://github.com/oshi/oshi/pull/2625): Add part number to Physical Memory - [@BartekDziurowicz](https://github.com/BartekDziurowicz), [@dbwiddis](https://github.com/dbwiddis).
+* [#2644](https://github.com/oshi/oshi/pull/2644): Add serial number to Physical Memory - [@Tegrason](https://github.com/Tegrason).
 
 ##### Bug fixes / Improvements
 * [#2605](https://github.com/oshi/oshi/pull/2605): Reduce CpuStat.getSystemCpuLoadticks memory allocation pressure - [@chrisribble](https://github.com/chrisribble).
@@ -18,6 +15,7 @@
 * [#2621](https://github.com/oshi/oshi/pull/2621): Cache thread counters when updating OS Process with suspended state - [@dbwiddis](https://github.com/dbwiddis).
 * [#2626](https://github.com/oshi/oshi/pull/2626): Make sys and dev paths on Linux configurable - [@dbwiddis](https://github.com/dbwiddis).
 * [#2627](https://github.com/oshi/oshi/pull/2627): Add more SMBIOSMemoryType values - [@dbwiddis](https://github.com/dbwiddis).
+* [#2645](https://github.com/oshi/oshi/pull/2645): fix getOwningProcessId sometimes return -1 on 64x linux - [@yourancc](https://github.com/yourancc).
 
 # 6.5.0 (2024-03-10)
 

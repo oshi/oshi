@@ -83,8 +83,8 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
                         WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));
                 String partNumber = WmiUtil.getString(bankMap, PhysicalMemoryProperty.PARTNUMBER, index);
                 String serialNumber = WmiUtil.getString(bankMap, PhysicalMemoryProperty.SERIALNUMBER, index);
-                physicalMemoryList
-                        .add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber, serialNumber));
+                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType,
+                        partNumber, serialNumber));
             }
         } else {
             WmiResult<PhysicalMemoryPropertyWin8> bankMap = Win32PhysicalMemory.queryphysicalMemoryWin8();
@@ -97,8 +97,8 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
                         WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));
                 String partNumber = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.PARTNUMBER, index);
                 String serialNumber = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.SERIALNUMBER, index);
-                physicalMemoryList
-                        .add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber, serialNumber));
+                physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType,
+                        partNumber, serialNumber));
             }
         }
         return physicalMemoryList;
