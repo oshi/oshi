@@ -102,7 +102,7 @@
         <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
-        <nexus-staging-plugin.version>1.6.13</nexus-staging-plugin.version>
+        <nexus-staging-plugin.version>1.6.14</nexus-staging-plugin.version>
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <restrict-imports-enforcer-rule.version>2.5.0</restrict-imports-enforcer-rule.version>
         <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
