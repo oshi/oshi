@@ -1,6 +1,7 @@
 # 6.6.2 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2660](https://github.com/oshi/oshi/pull/2660): Add macOS 15 (Sequoia) to version properties - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26)
 
