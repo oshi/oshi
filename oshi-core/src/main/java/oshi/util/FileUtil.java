@@ -5,6 +5,7 @@
 package oshi.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -449,8 +451,15 @@ public final class FileUtil {
                 return false;
             }
             if (resources.size() > 1) {
-                LOG.warn("Configuration conflict: there is more than one {} file on the classpath: {}", propsFilename,
-                        resources);
+                // Compare content, only warn if different
+                byte[] propsAsBytes = readFileAsBytes(resources.get(0));
+                for (int i = 1; i < resources.size(); i++) {
+                    if (!Arrays.equals(propsAsBytes, readFileAsBytes(resources.get(i)))) {
+                        LOG.warn("Configuration conflict: there is more than one {} file on the classpath: {}",
+                                propsFilename, resources);
+                        break;
+                    }
+                }
             }
             try (InputStream in = resources.get(0).openStream()) {
                 if (in != null) {
@@ -460,6 +469,26 @@ public final class FileUtil {
             return true;
         } catch (IOException e) {
             return false;
+        }
+    }
+
+    /**
+     * Reads a URL into a byte array
+     *
+     * @param url The URL of the file to read
+     * @return the byte content of the file
+     * @throws IOException on file reading failure
+     */
+    public static byte[] readFileAsBytes(URL url) throws IOException {
+        try (InputStream in = url.openStream()) {
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            byte[] data = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(data, 0, data.length)) != -1) {
+                buf.write(data, 0, bytesRead);
+            }
+            buf.flush();
+            return buf.toByteArray();
         }
     }
 

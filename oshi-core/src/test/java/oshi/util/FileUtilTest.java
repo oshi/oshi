@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,6 +170,25 @@ class FileUtilTest {
         assertThat("simplelogger properties", props.getProperty("org.slf4j.simpleLogger.defaultLogLevel"), is("INFO"));
         props = FileUtil.readPropertiesFromFilename("this.file.does.not.exist");
         assertThat("invalid file", props.stringPropertyNames(), is(empty()));
+    }
+
+    @Test
+    void testReadBytesFromURL() throws IOException {
+        // Create temporary files
+        Path file1 = Files.createTempFile("oshitest.file1", null);
+        Path file2 = Files.createTempFile("oshitest.file2", null);
+        Path file3 = Files.createTempFile("oshitest.file3", null);
+
+        Files.write(file1, "Same".getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+        Files.write(file2, "Same".getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+        Files.write(file3, "Different".getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+
+        byte[] bytes1 = FileUtil.readFileAsBytes(file1.toUri().toURL());
+        byte[] bytes2 = FileUtil.readFileAsBytes(file2.toUri().toURL());
+        byte[] bytes3 = FileUtil.readFileAsBytes(file3.toUri().toURL());
+
+        assertArrayEquals(bytes1, bytes2, "Byte arrays should match");
+        assertFalse(Arrays.equals(bytes1, bytes3), "Byte arrays should not match");
     }
 
     @Test
