@@ -99,7 +99,7 @@
         <junit.version>5.10.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <!-- Compile versions -->
-        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
+        <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
         <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
@@ -115,7 +115,7 @@
         <!-- build plugins -->
         <git-commit-id-maven-plugin.version>9.0.0</git-commit-id-maven-plugin.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
-        <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
         <bnd-maven-plugin.version>6.4.0</bnd-maven-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <junit-platform-maven-plugin.version>1.1.7</junit-platform-maven-plugin.version>
