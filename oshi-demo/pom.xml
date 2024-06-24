@@ -15,7 +15,7 @@
 
     <properties>
         <jackson.version>2.17.1</jackson.version>
-        <jfreechart.version>1.5.4</jfreechart.version>
+        <jfreechart.version>1.5.5</jfreechart.version>
     </properties>
 
     <dependencies>
