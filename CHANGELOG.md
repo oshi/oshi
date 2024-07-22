@@ -1,11 +1,8 @@
-# 6.6.2 (in progress)
+# 6.6.3 (in progress)
 
-##### Bug fixes / Improvements
-* [#2660](https://github.com/oshi/oshi/pull/2660): Add macOS 15 (Sequoia) to version properties - [@dbwiddis](https://github.com/dbwiddis).
-* [#2662](https://github.com/oshi/oshi/pull/2662): Only warn on duplicate properties files if they differ - [@dbwiddis](https://github.com/dbwiddis).
-* [#2692](https://github.com/oshi/oshi/pull/2692): Do not log errors for reading process arguments on Linux - [@wolfs](https://github.com/wolfs).
+* Your contribution here!
 
-# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26)
+# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21)
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
@@ -19,6 +16,9 @@
 * [#2626](https://github.com/oshi/oshi/pull/2626): Make sys and dev paths on Linux configurable - [@dbwiddis](https://github.com/dbwiddis).
 * [#2627](https://github.com/oshi/oshi/pull/2627): Add more SMBIOSMemoryType values - [@dbwiddis](https://github.com/dbwiddis).
 * [#2645](https://github.com/oshi/oshi/pull/2645): fix getOwningProcessId sometimes return -1 on 64x linux - [@yourancc](https://github.com/yourancc).
+* [#2660](https://github.com/oshi/oshi/pull/2660): Add macOS 15 (Sequoia) to version properties - [@dbwiddis](https://github.com/dbwiddis).
+* [#2662](https://github.com/oshi/oshi/pull/2662): Only warn on duplicate properties files if they differ - [@dbwiddis](https://github.com/dbwiddis).
+* [#2692](https://github.com/oshi/oshi/pull/2692): Do not log errors for reading process arguments on Linux - [@wolfs](https://github.com/wolfs).
 
 # 6.5.0 (2024-03-10)
 
