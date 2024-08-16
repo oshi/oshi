@@ -878,8 +878,7 @@ public interface CentralProcessor {
 
         private String queryVendorFromImplementer(String cpuVendor) {
             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
-            String vendor = archProps.getProperty("hw_impl." + this.cpuVendor);
-            return (vendor == null ? cpuVendor : vendor);
+            return archProps.getProperty("hw_impl." + cpuVendor, cpuVendor);
         }
 
         @Override
