@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -133,6 +133,32 @@ public final class ProcessorInformation {
         }
     }
 
+    /**
+     * System performance counters
+     */
+    public enum SystemTickCountProperty implements PdhCounterProperty {
+        PERCENTDPCTIME(PerfCounterQuery.TOTAL_INSTANCE, "% DPC Time"), //
+        PERCENTINTERRUPTTIME(PerfCounterQuery.TOTAL_INSTANCE, "% Interrupt Time");
+
+        private final String instance;
+        private final String counter;
+
+        SystemTickCountProperty(String instance, String counter) {
+            this.instance = instance;
+            this.counter = counter;
+        }
+
+        @Override
+        public String getInstance() {
+            return instance;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
     private ProcessorInformation() {
     }
 
@@ -149,6 +175,16 @@ public final class ProcessorInformation {
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL)
                 : PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorTickCountProperty.class, PROCESSOR,
                         WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL);
+    }
+
+    /**
+     * Returns system performance counters.
+     *
+     * @return Performance Counters for the total of all processors.
+     */
+    public static Map<SystemTickCountProperty, Long> querySystemCounters() {
+        return PerfCounterQuery.queryValues(SystemTickCountProperty.class, PROCESSOR,
+                WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
     }
 
     /**
