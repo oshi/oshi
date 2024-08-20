@@ -147,7 +147,7 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
             pkgCoreKeys.add((pkgId << 16) + coreId);
         }
         Map<Integer, String> compatMap = queryCompatibleStrings();
-        int perflevels = SysctlUtil.sysctl("hw.nperflevels", 1);
+        int perflevels = SysctlUtil.sysctl("hw.nperflevels", 1, false);
         List<PhysicalProcessor> physProcs = pkgCoreKeys.stream().sorted().map(k -> {
             String compat = compatMap.getOrDefault(k, "").toLowerCase(Locale.ROOT);
             // This is brittle. A better long term solution is to use sysctls
