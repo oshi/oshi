@@ -1,10 +1,8 @@
-# 6.6.3 (in progress)
+# 6.6.4 (in progress)
 
-##### Bug fixes / Improvements
-* [#2704](https://github.com/oshi/oshi/pull/2704): Properly parse CPU vendor when lscpu not available - [@dbwiddis](https://github.com/dbwiddis).
-* [#2705](https://github.com/oshi/oshi/pull/2705): Restore optional legacy method of calculating Windows System CPU - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21)
+# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20)
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
@@ -21,6 +19,8 @@
 * [#2660](https://github.com/oshi/oshi/pull/2660): Add macOS 15 (Sequoia) to version properties - [@dbwiddis](https://github.com/dbwiddis).
 * [#2662](https://github.com/oshi/oshi/pull/2662): Only warn on duplicate properties files if they differ - [@dbwiddis](https://github.com/dbwiddis).
 * [#2692](https://github.com/oshi/oshi/pull/2692): Do not log errors for reading process arguments on Linux - [@wolfs](https://github.com/wolfs).
+* [#2704](https://github.com/oshi/oshi/pull/2704): Properly parse CPU vendor when lscpu not available - [@dbwiddis](https://github.com/dbwiddis).
+* [#2705](https://github.com/oshi/oshi/pull/2705): Restore optional legacy method of calculating Windows System CPU - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.5.0 (2024-03-10)
 

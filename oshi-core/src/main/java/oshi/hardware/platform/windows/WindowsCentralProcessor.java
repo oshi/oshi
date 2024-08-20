@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import oshi.jna.platform.windows.Kernel32.ProcessorFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +43,7 @@ import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.Struct.CloseableSystemInfo;
 import oshi.jna.platform.windows.Kernel32;
+import oshi.jna.platform.windows.Kernel32.ProcessorFeature;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.GlobalConfig;
@@ -64,11 +64,11 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
 
-    // Whether to start a daemon thread ot calculate load average
+    // Whether to use Processor counters rather than sum up Processor Information counters
     private static final boolean USE_LEGACY_SYSTEM_COUNTERS = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_LEGACY_SYSTEM_COUNTERS, false);
 
-    // Whether to start a daemon thread ot calculate load average
+    // Whether to start a daemon thread to calculate load average
     private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
     static {
         if (USE_LOAD_AVERAGE) {
