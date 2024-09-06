@@ -1,6 +1,8 @@
 # 6.6.4 (in progress)
 
 * Your contribution here!
+##### Bug fixes / Improvements
+* [#2722](https://github.com/oshi/oshi/pull/2722): Fix speed value for LinuxNetworkIF - [@Puppy4C](https://github.com/Puppy4C).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20)
 
