@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -127,8 +127,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private List<String> queryArguments() {
-        return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(
-                FileUtil.readAllBytes(String.format(Locale.ROOT, ProcPath.PID_CMDLINE, getProcessID()), LOG_PROCFS_WARNING)));
+        return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(FileUtil
+                .readAllBytes(String.format(Locale.ROOT, ProcPath.PID_CMDLINE, getProcessID()), LOG_PROCFS_WARNING)));
     }
 
     @Override

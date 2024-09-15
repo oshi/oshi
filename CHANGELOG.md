@@ -1,15 +1,8 @@
-# 6.6.4 (in progress)
+# 6.6.5 (in progress)
 
 * Your contribution here!
 
-##### Bug fixes / Improvements
-* [#2711](https://github.com/oshi/oshi/pull/2711): Do not log error on macOS for hw.nperflevels - [@Puppy4C](https://github.com/Puppy4C).
-* [#2722](https://github.com/oshi/oshi/pull/2722): Fix speed value for LinuxNetworkIF - [@Puppy4C](https://github.com/Puppy4C).
-* [#2724](https://github.com/oshi/oshi/pull/2724): Clarify IO bytes documentation on OSProcess - [@dbwiddis](https://github.com/dbwiddis).
-* [#2725](https://github.com/oshi/oshi/pull/2725): Reduce redundant logging on perf counter failures - [@dbwiddis](https://github.com/dbwiddis).
-* [#2726](https://github.com/oshi/oshi/pull/2726): JNA 5.15.0 - [@dbwiddis](https://github.com/dbwiddis).
-
-# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20)
+# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15)
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
@@ -28,6 +21,11 @@
 * [#2692](https://github.com/oshi/oshi/pull/2692): Do not log errors for reading process arguments on Linux - [@wolfs](https://github.com/wolfs).
 * [#2704](https://github.com/oshi/oshi/pull/2704): Properly parse CPU vendor when lscpu not available - [@dbwiddis](https://github.com/dbwiddis).
 * [#2705](https://github.com/oshi/oshi/pull/2705): Restore optional legacy method of calculating Windows System CPU - [@dbwiddis](https://github.com/dbwiddis).
+* [#2711](https://github.com/oshi/oshi/pull/2711): Do not log error on macOS for hw.nperflevels - [@Puppy4C](https://github.com/Puppy4C).
+* [#2722](https://github.com/oshi/oshi/pull/2722): Fix speed value for LinuxNetworkIF - [@Puppy4C](https://github.com/Puppy4C).
+* [#2724](https://github.com/oshi/oshi/pull/2724): Clarify IO bytes documentation on OSProcess - [@dbwiddis](https://github.com/dbwiddis).
+* [#2725](https://github.com/oshi/oshi/pull/2725): Reduce redundant logging on perf counter failures - [@dbwiddis](https://github.com/dbwiddis).
+* [#2726](https://github.com/oshi/oshi/pull/2726): JNA 5.15.0 - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.5.0 (2024-03-10)
 
