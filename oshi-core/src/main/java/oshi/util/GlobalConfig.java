@@ -47,6 +47,7 @@ public final class GlobalConfig {
     public static final String OSHI_OS_WINDOWS_PERFDISK_DIABLED = "oshi.os.windows.perfdisk.disabled";
     public static final String OSHI_OS_WINDOWS_PERFOS_DIABLED = "oshi.os.windows.perfos.disabled";
     public static final String OSHI_OS_WINDOWS_PERFPROC_DIABLED = "oshi.os.windows.perfproc.disabled";
+    public static final String OSHI_OS_WINDOWS_PERF_DISABLE_ALL_ON_FAILURE = "oshi.os.windows.perf.disable.all.on.failure";
 
     public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
     public static final String OSHI_OS_SOLARIS_ALLOWKSTAT2 = "oshi.os.solaris.allowKstat2";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -75,7 +75,7 @@ public final class PerfCounterQuery {
                 return valueMap;
             }
             // If we are here, query failed
-            LOG.warn("Disabling further attempts to query {}.", perfObject);
+            LOG.info("Disabling further attempts to query {}.", perfObject);
             FAILED_QUERY_CACHE.add(perfObject);
         }
         return queryValuesFromWMI(propertyEnum, perfWmiClass);
@@ -183,7 +183,7 @@ public final class PerfCounterQuery {
                     String.format(Locale.ROOT, "0x%x", e.getHR().intValue()),
                     "See https://support.microsoft.com/en-us/help/300956/how-to-manually-rebuild-performance-counter-library-values");
         } catch (PdhException e) {
-            LOG.warn("Unable to localize {} performance counter.  Error {}.", perfObject,
+            LOG.debug("Unable to localize {} performance counter.  Error {}.", perfObject,
                     String.format(Locale.ROOT, "0x%x", e.getErrorCode()));
         }
         if (localized.isEmpty()) {
