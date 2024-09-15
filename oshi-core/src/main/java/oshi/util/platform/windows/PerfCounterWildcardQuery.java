@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2024 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -25,6 +25,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.GlobalConfig;
 import oshi.util.Util;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.tuples.Pair;
@@ -36,6 +37,9 @@ import oshi.util.tuples.Pair;
 public final class PerfCounterWildcardQuery {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterWildcardQuery.class);
+
+    private static final boolean PERF_DISABLE_ALL_ON_FAILURE = GlobalConfig
+            .get(GlobalConfig.OSHI_OS_WINDOWS_PERF_DISABLE_ALL_ON_FAILURE, false);
 
     // Use a thread safe set to cache failed pdh queries
     private static final Set<String> FAILED_QUERY_CACHE = ConcurrentHashMap.newKeySet();
@@ -79,7 +83,8 @@ public final class PerfCounterWildcardQuery {
      */
     public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValues(
             Class<T> propertyEnum, String perfObject, String perfWmiClass, String customFilter) {
-        if (!FAILED_QUERY_CACHE.contains(perfObject)) {
+        if (FAILED_QUERY_CACHE.isEmpty()
+                || (!PERF_DISABLE_ALL_ON_FAILURE && !FAILED_QUERY_CACHE.contains(perfObject))) {
             Pair<List<String>, Map<T, List<Long>>> instancesAndValuesMap = queryInstancesAndValuesFromPDH(propertyEnum,
                     perfObject, customFilter);
             if (!instancesAndValuesMap.getA().isEmpty()) {
@@ -87,7 +92,11 @@ public final class PerfCounterWildcardQuery {
             }
             // If we are here, query returned no results
             if (Util.isBlank(customFilter)) {
-                LOG.warn("Disabling further attempts to query {}.", perfObject);
+                if (PERF_DISABLE_ALL_ON_FAILURE) {
+                    LOG.info("Disabling further attempts to query performance counters.");
+                } else {
+                    LOG.info("Disabling further attempts to query {}.", perfObject);
+                }
                 FAILED_QUERY_CACHE.add(perfObject);
             }
         }
