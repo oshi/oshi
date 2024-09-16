@@ -216,9 +216,9 @@
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">this</strong>.inErrors = FileUtil.getUnsignedLongFromFile(name + <span class="jxr_string">"/statistics/rx_errors"</span>);
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">this</strong>.collisions = FileUtil.getUnsignedLongFromFile(name + <span class="jxr_string">"/statistics/collisions"</span>);
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">this</strong>.inDrops = FileUtil.getUnsignedLongFromFile(name + <span class="jxr_string">"/statistics/rx_dropped"</span>);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">long</strong> speedMiB = FileUtil.getUnsignedLongFromFile(name + <span class="jxr_string">"/speed"</span>);
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">long</strong> speedMbps = FileUtil.getUnsignedLongFromFile(name + <span class="jxr_string">"/speed"</span>);
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>         <em class="jxr_comment">// speed may be -1 from file.</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">this</strong>.speed = speedMiB &lt; 0 ? 0 : speedMiB &lt;&lt; 20;
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">this</strong>.speed = speedMbps &lt; 0 ? 0 : speedMbps * 1000000L;
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">this</strong>.ifAlias = FileUtil.getStringFromFile(name + <span class="jxr_string">"/ifalias"</span>);
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">this</strong>.ifOperStatus = parseIfOperStatus(FileUtil.getStringFromFile(name + <span class="jxr_string">"/operstate"</span>));
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
@@ -247,6 +247,6 @@
 <a class="jxr_linenumber" name="L239" href="#L239">239</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2024 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">© 2010–2024 <a href="https://github.com/oshi/">oshi</a></div>
 </body>
 </html>

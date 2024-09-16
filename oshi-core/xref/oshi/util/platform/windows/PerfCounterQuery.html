@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/util/platform/windows/PerfCounterQuery.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2024 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.platform.windows;
@@ -83,7 +83,7 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>                  <strong class="jxr_keyword">return</strong> valueMap;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              <em class="jxr_comment">// If we are here, query failed</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              LOG.warn(<span class="jxr_string">"Disabling further attempts to query {}."</span>, perfObject);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              LOG.info(<span class="jxr_string">"Disabling further attempts to query {}."</span>, perfObject);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              FAILED_QUERY_CACHE.add(perfObject);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">return</strong> queryValuesFromWMI(propertyEnum, perfWmiClass);
@@ -191,7 +191,7 @@
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>                     String.format(Locale.ROOT, <span class="jxr_string">"0x%x"</span>, e.getHR().intValue()),
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>                     <span class="jxr_string">"See https://support.microsoft.com/en-us/help/300956/how-to-manually-rebuild-performance-counter-library-values"</span>);
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>         } <strong class="jxr_keyword">catch</strong> (PdhException e) {
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             LOG.warn(<span class="jxr_string">"Unable to localize {} performance counter.  Error {}."</span>, perfObject,
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             LOG.debug(<span class="jxr_string">"Unable to localize {} performance counter.  Error {}."</span>, perfObject,
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>                     String.format(Locale.ROOT, <span class="jxr_string">"0x%x"</span>, e.getErrorCode()));
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         }
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">if</strong> (localized.isEmpty()) {
@@ -218,6 +218,6 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2024 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">© 2010–2024 <a href="https://github.com/oshi/">oshi</a></div>
 </body>
 </html>

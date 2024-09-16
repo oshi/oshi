@@ -886,18 +886,17 @@
 <a class="jxr_linenumber" name="L878" href="#L878">878</a> 
 <a class="jxr_linenumber" name="L879" href="#L879">879</a>         <strong class="jxr_keyword">private</strong> String queryVendorFromImplementer(String cpuVendor) {
 <a class="jxr_linenumber" name="L880" href="#L880">880</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
-<a class="jxr_linenumber" name="L881" href="#L881">881</a>             String vendor = archProps.getProperty(<span class="jxr_string">"hw_impl."</span> + <strong class="jxr_keyword">this</strong>.cpuVendor);
-<a class="jxr_linenumber" name="L882" href="#L882">882</a>             <strong class="jxr_keyword">return</strong> (vendor == <strong class="jxr_keyword">null</strong> ? cpuVendor : vendor);
-<a class="jxr_linenumber" name="L883" href="#L883">883</a>         }
-<a class="jxr_linenumber" name="L884" href="#L884">884</a> 
-<a class="jxr_linenumber" name="L885" href="#L885">885</a>         @Override
-<a class="jxr_linenumber" name="L886" href="#L886">886</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L887" href="#L887">887</a>             <strong class="jxr_keyword">return</strong> getIdentifier();
-<a class="jxr_linenumber" name="L888" href="#L888">888</a>         }
-<a class="jxr_linenumber" name="L889" href="#L889">889</a>     }
-<a class="jxr_linenumber" name="L890" href="#L890">890</a> }
+<a class="jxr_linenumber" name="L881" href="#L881">881</a>             <strong class="jxr_keyword">return</strong> archProps.getProperty(<span class="jxr_string">"hw_impl."</span> + cpuVendor, cpuVendor);
+<a class="jxr_linenumber" name="L882" href="#L882">882</a>         }
+<a class="jxr_linenumber" name="L883" href="#L883">883</a> 
+<a class="jxr_linenumber" name="L884" href="#L884">884</a>         @Override
+<a class="jxr_linenumber" name="L885" href="#L885">885</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L886" href="#L886">886</a>             <strong class="jxr_keyword">return</strong> getIdentifier();
+<a class="jxr_linenumber" name="L887" href="#L887">887</a>         }
+<a class="jxr_linenumber" name="L888" href="#L888">888</a>     }
+<a class="jxr_linenumber" name="L889" href="#L889">889</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2024 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">© 2010–2024 <a href="https://github.com/oshi/">oshi</a></div>
 </body>
 </html>

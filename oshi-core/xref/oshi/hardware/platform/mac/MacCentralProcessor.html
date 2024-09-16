@@ -155,7 +155,7 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>             pkgCoreKeys.add((pkgId &lt;&lt; 16) + coreId);
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         }
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>         Map&lt;Integer, String&gt; compatMap = queryCompatibleStrings();
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">int</strong> perflevels = SysctlUtil.sysctl(<span class="jxr_string">"hw.nperflevels"</span>, 1);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">int</strong> perflevels = SysctlUtil.sysctl(<span class="jxr_string">"hw.nperflevels"</span>, 1, false);
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>         List&lt;PhysicalProcessor&gt; physProcs = pkgCoreKeys.stream().sorted().map(k -&gt; {
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>             String compat = compatMap.getOrDefault(k, <span class="jxr_string">""</span>).toLowerCase(Locale.ROOT);
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>             <em class="jxr_comment">// This is brittle. A better long term solution is to use sysctls</em>
@@ -393,6 +393,6 @@
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2010&#x2013;2024 <a href="https://github.com/oshi/">oshi</a>. All rights reserved.</div>
+<div id="footer">© 2010–2024 <a href="https://github.com/oshi/">oshi</a></div>
 </body>
 </html>
