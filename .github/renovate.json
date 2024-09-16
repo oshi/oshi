@@ -5,6 +5,11 @@
     ],
     "packageRules": [
       {
+        "description": "Exclude maven-site-plugin from automerge due to breaking changes",
+        "matchPackageNames": ["org.apache.maven.plugins:maven-site-plugin"],
+        "automerge": false
+      },
+      {
         "description": "Batch and auto-merge plugin updates",
         "matchPackagePatterns": ["maven", "-plugin$", "bind-api"],
         "matchUpdateTypes": ["patch", "minor"],
