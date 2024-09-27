@@ -17,7 +17,7 @@ jobs:
   testfreebsd:
     name: Test JDK 11, freebsd
     if: github.repository_owner == 'oshi'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Test in FreeBSD
@@ -33,7 +33,7 @@ jobs:
 
   # Runs on OpenBSD 7.3 x86 VM
   testopenbsd:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Test JDK 11, OpenBSD vm
     steps:
       - uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
   testsolaris:
     name: Test JDK 11, Solaris VM
     if: github.repository_owner == 'oshi'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Test on Solaris
