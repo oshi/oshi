@@ -1,9 +1,8 @@
-# 6.6.5 (in progress)
+# 6.6.6 (in progress)
 
-##### Bug fixes / Improvements
-* [#2740](https://github.com/oshi/oshi/pull/2740): Fix Linux CPU thermal zone path string - [@1056227556](https://github.com/1056227556).
+* Your contribution here!
 
-# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15)
+# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16)
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
@@ -27,6 +26,7 @@
 * [#2724](https://github.com/oshi/oshi/pull/2724): Clarify IO bytes documentation on OSProcess - [@dbwiddis](https://github.com/dbwiddis).
 * [#2725](https://github.com/oshi/oshi/pull/2725): Reduce redundant logging on perf counter failures - [@dbwiddis](https://github.com/dbwiddis).
 * [#2726](https://github.com/oshi/oshi/pull/2726): JNA 5.15.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#2740](https://github.com/oshi/oshi/pull/2740): Fix Linux CPU thermal zone path string - [@1056227556](https://github.com/1056227556).
 
 # 6.5.0 (2024-03-10)
 
