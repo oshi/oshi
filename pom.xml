@@ -110,7 +110,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.20.0</maven-site-plugin.version>
-        <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
         <maven-fluido-skin.version>2.0.0-M11</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-maven-plugin.version>9.0.1</git-commit-id-maven-plugin.version>
@@ -139,7 +139,7 @@
         <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.5.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.7.0</maven-project-info-reports-plugin.version>
-        <maven-surefire-report-plugin.version>3.5.0</maven-surefire-report-plugin.version>
+        <maven-surefire-report-plugin.version>3.5.1</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.1.0</taglist-maven-plugin.version>
         <versions-maven-plugin.version>2.17.1</versions-maven-plugin.version>
         <!-- Misc. -->
