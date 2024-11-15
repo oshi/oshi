@@ -40,6 +40,6 @@ jobs:
         run: ./mvnw test -B
       - name: Upload Coverage
         if: contains(matrix.java, '11')
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
