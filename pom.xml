@@ -118,7 +118,7 @@
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
         <bnd-maven-plugin.version>6.4.0</bnd-maven-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
-        <junit-platform-maven-plugin.version>1.1.7</junit-platform-maven-plugin.version>
+        <junit-platform-maven-plugin.version>1.1.8</junit-platform-maven-plugin.version>
         <!-- reporting plugins -->
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
